@@ -40,12 +40,7 @@ plot10	ldx tblx
 
 ;initialize i/o
 ;
-cint	lda vicreg+18   ;check raster compare for zero
-	bne cint       ;if it's zero then check value
-	lda vicreg+25   ;get raster irq value
-	and #$01
-	sta palnts      ;place in pal/ntsc indicator
-	jsr iokeys
+cint	jsr iokeys
 ;
 ; establish screen memory
 ;
@@ -141,13 +136,9 @@ panic	lda #3          ;reset default i/o
 	lda #0
 	sta dfltn
 
-;init vic
+;init video
 ;
-initv	ldx #47         ;load all vic regs ***
-px4	lda tvic-1,x
-	sta vicreg-1,x
-	dex
-	bne px4
+initv	; XXX TODO
 	rts
 
 ;

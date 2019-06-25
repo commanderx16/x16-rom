@@ -201,8 +201,6 @@ vicscn	=$0400
 ;
 mmtop   =$9f00
 
-vicreg	=$d000
-
 sidreg	=$d400
 
 viccol	=$d800           ;vic color nybbles

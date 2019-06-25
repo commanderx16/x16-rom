@@ -378,9 +378,7 @@ shflog
 	lda mode
 	bmi shfout      ;dont shift if its minus
 
-switch	lda vicreg+24   ;**********************************:
-	eor #$02        ;turn on other case
-	sta vicreg+24   ;point the vic there
+switch	; XXX TODO: switch upper/lower case character set
 	jmp shfout
 
 ;

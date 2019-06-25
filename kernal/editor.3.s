@@ -78,16 +78,13 @@ mode3	;left window grahpics
 lower
 	cmp #$0e        ;does he want lower case?
 	bne upper       ;branch if not
-	lda vicreg+24   ;else set vic to point to lower case
-	ora #$02
-	bne ulset       ;jmp
+	; XXX TODO switch video to lower case
+	jmp outhre
 
 upper
 	cmp #$8e        ;does he want upper case
 	bne lock        ;branch if not
-	lda vicreg+24   ;make sure vic point to upper/pet set
-	and #$ff-$02
-ulset	sta vicreg+24
+	; XXX TODO switch video to upper/pet set
 outhre	jmp loop2
 
 lock
@@ -131,10 +128,6 @@ contrl
 	.byt $1c,$ff,$1d,$ff,$ff,$1f,$1e,$ff
 	.byt $90,$06,$ff,$05,$ff,$ff,$11,$ff
 	.byt $ff        ;end of table null
-tvic
-	.byt 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ;sprites (0-16)
-	.byt $9b,55,0,0,0,$08,0,$14,$0f,0,0,0,0,0,0 ;data (17-31)
-	.byt 14,6,1,2,3,4,0,1,2,3,4,5,6,7 ;32-46
 ;
 runtb	.byt "LOAD",$d,"RUN",$d
 ;

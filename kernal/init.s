@@ -18,8 +18,7 @@ start	ldx #$ff
 	jsr a0int       ;test for $a0 rom in
 	bne start1
 	jmp ($8000)     ; go init as $a000 rom wants
-start1	stx vicreg+22   ;set up refresh (.x=<5)
-	jsr ioinit      ;go initilize i/o devices
+start1	jsr ioinit      ;go initilize i/o devices
 	jsr ramtas      ;go ram test and set
 	jsr restor      ;go set up os vectors
 ;
