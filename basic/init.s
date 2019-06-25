@@ -113,7 +113,6 @@ chke0	.byt $00
 words	.byt " BASIC BYTES FREE",13,0
 fremes	.byt 147,13,"    **** COMMODORE 64 BASIC V2 ****"
 	.byt 13,13," 64K RAM SYSTEM  ",0
-	.byt 0
 
 ;rsr 8/10/80 update panic :rem could use in error routine
 ;rsr 2/08/82 modify for vic-40 release
