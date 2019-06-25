@@ -173,7 +173,7 @@ caston	.res 1           ;tod sense during cassettes
 kika26	.res 1           ;temp storage for cassette read routine
 stupid	.res 1           ;temp d1irq indicator for cassette read
 lintmp	.res 1           ;temporary for line index
-palnts	.res 1           ;pal vs ntsc flag 0=ntsc 1=pal
+palnts	.res 1           ;C64: pal vs ntsc flag 0=ntsc 1=pal (unused)
 
 	.segment "KVECTORS";rem kernal/os indirects(20)
 cinv	.res 2           ;irq ram vector

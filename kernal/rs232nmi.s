@@ -107,20 +107,6 @@ baudo	.word 10277-cbit ; 50 baud
 	.word 284-cbit   ; 1800   baud
 	.word 213-cbit   ; 2400   baud
 ;
-; baudop - baud rate table for pal
-;   .985248e6/baud-rate/2-100
-;
-baudop	.word 9853-cbit ;50 baud
-	.word 6568-cbit ;75 baud
-	.word 4478-cbit ;110 baus
-	.word 3660-cbit ;134.6 baud
-	.word 3284-cbit ;150 baud
-	.word 1642-cbit ;300 baud
-	.word 821-cbit  ;600 baud
-	.word 411-cbit  ;1200 baud
-	.word 274-cbit  ;1800 baud
-	.word 205-cbit  ;2400 baud
-;
 ; cbit - an adjustment to make next t2 hit near center
 ;   of the next bit.
 ;   aprox the time to service a cb1 nmi

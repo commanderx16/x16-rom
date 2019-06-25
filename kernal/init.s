@@ -131,16 +131,10 @@ ioinit	lda #$7f        ;kill interrupts
 ;
 ;jsr clkhi ;clkhi to release serial devices  ^
 ;
-iokeys	lda palnts      ;pal or ntsc
-	beq i0010	;ntsc
-	lda #<sixtyp
-	sta d1t1l
-	lda #>sixtyp
-	jmp i0020
-i0010	lda #<sixty     ;keyboard scan irq's
+iokeys	lda #<sixty     ;keyboard scan irq's
 	sta d1t1l
 	lda #>sixty
-i0020	sta d1t1h
+	sta d1t1h
 	lda #$81        ;enable t1 irq's
 	sta d1icr
 	lda d1cra
@@ -152,7 +146,6 @@ i0020	sta d1t1h
 ; sixty hertz value
 ;
 sixty	= 17045         ; ntsc
-sixtyp	= 16421         ; pal
 
 setnam	sta fnlen
 	stx fnadr
