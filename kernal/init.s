@@ -23,7 +23,7 @@ start1	stx vicreg+22   ;set up refresh (.x=<5)
 	jsr ramtas      ;go ram test and set
 	jsr restor      ;go set up os vectors
 ;
-	jsr pcint       ;go initilize screen newxxx
+	jsr cint        ;go initilize screen
 	cli             ;interrupts okay now
 	jmp ($c000)     ;go to basic system
 
@@ -142,14 +142,13 @@ i0010	lda #<sixty     ;keyboard scan irq's
 	sta d1t1l
 	lda #>sixty
 i0020	sta d1t1h
-	jmp piokey
-; lda #$81 ;enable t1 irq's
-; sta d1icr
-; lda d1cra
-; and #$80 ;save only tod bit
-; ora #%00010001 ;enable timer1
-; sta d1cra
-; jmp clklo ;release the clock line
+	lda #$81        ;enable t1 irq's
+	sta d1icr
+	lda d1cra
+	and #$80        ;save only tod bit
+	ora #%00010001  ;enable timer1
+	sta d1cra
+	jmp clklo       ;release the clock line***901227-03***
 ;
 ; sixty hertz value
 ;
