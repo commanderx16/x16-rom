@@ -136,9 +136,6 @@ wrtz	lda #120        ;write leading zeros for sync
 ;
 tnif	php             ;clean up interrupts and restore pia's
 	sei
-	lda vicreg+17   ;unlock vic
-	ora #$10        ;enable display
-	sta vicreg+17
 	jsr tnof        ;turn off motor
 	lda #$7f        ;clear interrupts
 	sta d1icr

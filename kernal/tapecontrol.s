@@ -81,10 +81,6 @@ tape	ldy #$7f        ;kill unwanted irq's
 	sta caston      ;place in auto mode for t1
 ; wait for rs-232 to finish
 	jsr rsp232
-; disable screen display
-	lda vicreg+17
-	and #$ff-$10    ;disable screen
-	sta vicreg+17
 ; move irq to irqtemp for cass ops
 	lda cinv
 	sta irqtmp
