@@ -12,7 +12,11 @@ start	ldx #$ff
 ;
 	jsr cint        ;go initilize screen
 	cli             ;interrupts okay now
+.ifdef C64
 	jmp ($a000)     ;go to basic system
+.else
+	jmp ($c000)     ;go to basic system
+.endif
 
 ; restor - set kernal indirects and vectors (system)
 ;
