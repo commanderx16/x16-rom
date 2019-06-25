@@ -26,8 +26,13 @@ ccall	=$ffe7
 settim	=$ffdb
 rdtim	=$ffde
 
-coout	jsr ppach       ; go out to save .a for print# patch
-	bcs erexit
+coout	pha
+	jsr $ffc9
+	tax             ;save error code
+	pla
+	bcc ppach0      ;no error....
+	txa             ;error code
+ppach0	bcs erexit
 	rts
 
 coin	jsr $ffc6
