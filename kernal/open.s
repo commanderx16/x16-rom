@@ -196,15 +196,9 @@ opn025	jsr bitcnt
 ;
 	asl a           ;get offset into tables
 	tax
-	lda palnts      ;get tv standard
-	bne opn026
 	ldy baudo-1,x   ;ntsc standard
 	lda baudo-2,x
-	jmp opn027
-;
-opn026	ldy baudop-1,x  ;pal standard
-	lda baudop-2,x
-opn027	sty m51ajb+1    ;hold start rate in m51ajb
+	sty m51ajb+1    ;hold start rate in m51ajb
 	sta m51ajb
 opn028	lda m51ajb      ;calculate baud rate
 	asl
