@@ -9,15 +9,4 @@ expcon	.byt $07,$71,$34,$58,$3e
 	.byt $e7,$c6,$80,$31
 	.byt $72,$18,$10,$81
 	.byt 0,0,0,0
-;
-; start of kernal rom
-;
-exp	lda #<logeb2
-	ldy #>logeb2
-	jsr fmult
-	lda facov
-	adc #$50
-	bcc stoldx
-	jsr incrnd
-stoldx	jmp stold       ;cross boundries
 

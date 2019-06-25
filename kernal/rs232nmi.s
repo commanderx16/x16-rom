@@ -27,7 +27,7 @@ nnmi19
 timb	jsr restor      ;restore system indirects
 	jsr ioinit      ;restore i/o for basic
 	jsr cint        ;restore screen for basic
-	jmp ($a002)     ;...no, so basic warm start
+	jmp ($c002)     ;...no, so basic warm start
 
 ; disable nmi's untill ready
 ;  save on stack

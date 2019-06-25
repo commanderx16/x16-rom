@@ -25,7 +25,7 @@ start1	stx vicreg+22   ;set up refresh (.x=<5)
 ;
 	jsr pcint       ;go initilize screen newxxx
 	cli             ;interrupts okay now
-	jmp ($a000)     ;go to basic system
+	jmp ($c000)     ;go to basic system
 
 ; a0int - test for an $8000 rom
 ;  returns z - $8000 in

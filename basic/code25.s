@@ -1,7 +1,10 @@
-	.segment "HIBASIC"         ;start of vic-40 kernal rom
-
-; continuation of exponent routine
-;
+exp	lda #<logeb2
+	ldy #>logeb2
+	jsr fmult
+	lda facov
+	adc #$50
+	bcc stold
+	jsr incrnd
 stold	sta oldov
 	jsr movef
 	lda facexp
