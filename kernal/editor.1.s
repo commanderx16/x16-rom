@@ -40,7 +40,12 @@ plot10	ldx tblx
 
 ;initialize i/o
 ;
-cint
+cint	lda vicreg+18   ;check raster compare for zero
+	bne cint       ;if it's zero then check value
+	lda vicreg+25   ;get raster irq value
+	and #$01
+	sta palnts      ;place in pal/ntsc indicator
+	jsr iokeys
 ;
 ; establish screen memory
 ;
