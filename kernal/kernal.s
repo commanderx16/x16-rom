@@ -25,6 +25,5 @@
 .include "init.s"
 .include "rs232nmi.s"
 .include "irqfile.s"
-.include "patches.s"
 .include "vectors.s"
 
