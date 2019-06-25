@@ -48,8 +48,12 @@ fah55	lda (tape1),y
 	bne fah55
 ;
 fah56	lda time+1      ;set up for time out...
-	jsr fpatch      ;goto patch...
-	nop
+	adc #2          ;time is (8 to 13 sec of display)
+fpat00	ldy stkey       ;check for key down on last row...
+	iny
+	bne fah45       ;key...exit loop
+	cmp time+1      ;watch timer
+	bne fpat00
 ;
 fah45	clc             ;success flag
 	dey             ;make nonzero for okay return

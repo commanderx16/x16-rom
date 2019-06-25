@@ -63,9 +63,10 @@ rsrsxt	lda #$02        ;disable t2
 ;
 rsrtrt	lda inbit       ;check if space
 	bne rsrabl      ;bad...try again
-	jmp prtyp       ;go to parity patch 901227-03
-; sta rinone ;good...disable flag
-; rts ;and exit
+	sta rinone      ;good receiver start...disable flag
+	lda #1          ;set parity to 1 always
+	sta riprty
+	rts
 
 ;
 ; put data in buffer (at parity time)

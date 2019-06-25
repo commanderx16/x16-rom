@@ -3,7 +3,7 @@
 	;KERNAL revision
 	.byte 3
 
-	jmp pcint
+	jmp cint
 	jmp ioinit
 	jmp ramtas
 

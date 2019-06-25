@@ -181,7 +181,8 @@ setpnt	lda ldtb2,x
 clrln	ldy #llen-1
 	jsr setpnt
 	jsr scolor
-clr10	jsr cpatch      ;reversed order from 901227-02
+clr10	lda color       ;always clear to current foregnd color
+	sta (user),y
 	lda #$20        ;store a space
 	sta (pnt),y     ;to display
 	dey
