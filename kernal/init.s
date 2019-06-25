@@ -72,8 +72,8 @@ vectse
 ; ramtas - memory size check and set
 ;
 ramtas	lda #0          ;zero low memory
-	tay             ;start at 0002
-ramtz0	sta $0002,y     ;zero page
+	tay
+ramtz0	sta $0000,y     ;zero page
 	sta $0200,y     ;user buffers and vars
 	sta $0300,y     ;system space and user space
 	iny
@@ -88,31 +88,8 @@ ramtz0	sta $0002,y     ;zero page
 ;
 ; set top of memory
 ;
-ramtbt
-	tay             ;move $00 to .y
-	lda #3          ;set high inital index
-	sta tmp0+1
-;
-ramtz1	inc tmp0+1      ;move index thru memory
-ramtz2	lda (tmp0),y     ;get present data
-	tax             ;save in .x
-	lda #$55        ;do a $55,$aa test
-	sta (tmp0),y
-	cmp (tmp0),y
-	bne size
-	rol a
-	sta (tmp0),y
-	cmp (tmp0),y
-	bne size
-	txa             ;restore old data
-	sta (tmp0),y
-	iny
-	bne ramtz2
-	beq ramtz1
-;
-size	tya             ;set top of memory
-	tax
-	ldy tmp0+1
+	ldx #<mmtop
+	ldy #>mmtop
 	clc
 	jsr settop
 	lda #$08        ;set bottom of memory

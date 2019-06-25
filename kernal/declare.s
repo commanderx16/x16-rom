@@ -199,6 +199,8 @@ vicscn	=$0400
 
 ; i/o devices
 ;
+mmtop   =$9f00
+
 vicreg	=$d000
 
 sidreg	=$d400
