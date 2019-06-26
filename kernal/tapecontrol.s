@@ -1,3 +1,4 @@
+.if 0
 jtp20	jsr zzz
 	inc bufpt
 	ldy bufpt
@@ -179,3 +180,4 @@ stt4	cli             ;allow for re-entry code
 ; rsr 3/28/82 add cassette read timer1 flag
 ; rsr 5/11/82 change so we don't miss any irq's
 ; rsr 5/14/82 simulate an irq
+.endif

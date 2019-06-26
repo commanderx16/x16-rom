@@ -88,7 +88,7 @@ ld45	jsr acptr       ;get byte off ieee
 	ldy #0
 	cmp (eal),y      ;verify it
 	beq ld60        ;o.k....
-	lda #sperr      ;no good...verify error
+	lda #16         ;no good...verify error (sperr)
 	jsr udst        ;update status
 	.byt $2c        ;skip next store
 ;
@@ -107,10 +107,14 @@ ld90	jmp error4      ;file not found
 ;
 ;load from tape
 ;
-ld100	lsr a
+ld100
+.if 0
+	lsr a
 	bcs ld102       ;if c-set then it's cassette
 ;
+.endif
 	jmp error9      ;bad device #
+.if 0
 ;
 ld102	jsr zzz         ;set pointers at tape
 	bcs ld104
@@ -179,6 +183,7 @@ ld179	ldy #3          ;tapea - tapesta
 	jsr trd         ;do tape block load
 	.byt $24        ;carry from trd
 ;
+.endif
 ld180	clc             ;good exit
 ;
 ; set up end load address

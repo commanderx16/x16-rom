@@ -1,4 +1,5 @@
 	.segment "TAPE"
+.if 0
 ;fah -- find any header
 ;
 ;reads tape device until one of following
@@ -204,3 +205,4 @@ faf30	clc             ;success flag
 faf40	rts
 
 ; rsr  4/10/82 add key down test in fah...
+.endif

@@ -16,7 +16,7 @@
 ;
 nclose	jsr jltlk       ;look file up
 	beq jx050       ;open...
-	clc             ;else return
+jx115	clc             ;else return
 	rts
 ;
 jx050	jsr jz100       ;extract table data
@@ -53,6 +53,8 @@ cls020	lda #00         ;deallocate
 	sta robuf+1
 ; flag top of memory change
 	jmp memtcf      ;go set new top
+
+.if 0
 ;
 ;close cassette file
 ;
@@ -77,6 +79,7 @@ jx117	lda sa
 	lda #eot
 	jsr tapeh       ;write end of tape block
 	jmp jx150
+.endif
 ;
 ;close an serial file
 ;

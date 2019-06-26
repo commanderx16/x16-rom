@@ -97,7 +97,7 @@ ramtz0	sta $0000,y     ;zero page
 	sta hibase      ;set base of screen
 	rts
 
-bsit	.word wrtz,wrtn,key,read ;table of indirects for cassette irq's
+;bsit	.word wrtz,wrtn,key,read ;table of indirects for cassette irq's
 
 ; ioinit - initilize io devices
 ;

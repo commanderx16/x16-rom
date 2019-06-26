@@ -55,8 +55,12 @@ op150	cmp #2
 	bne op152
 ;
 	jmp opn232
+op152
+.if 1
+	jmp error9
+.else
 ;
-op152	jsr zzz         ;see if tape buffer
+	jsr zzz         ;see if tape buffer
 	bcs op155       ;yes
 ;
 	jmp error9      ;no...deallocated
@@ -109,6 +113,7 @@ op171	lda #bufsz-1    ;assume force read
 	tya
 ;
 op172	sta bufpt       ;point to data
+.endif
 op175	clc             ;flag good open
 op180	rts             ;exit in peace
 

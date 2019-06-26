@@ -75,10 +75,14 @@ cunlsn	jsr unlsn       ;entry for openi
 clsei2	clc
 	rts
 
-sv100	lsr a
+sv100
+.if 0
+	lsr a
 	bcs sv102       ;if c-set then it's cassette
+.endif
 ;
 	jmp error9      ;bad device #
+.if 0
 ;
 sv102	jsr zzz         ;get addr of tape
 	bcc sv10        ;buffer is deallocated
@@ -104,6 +108,7 @@ sv106	txa
 	.byt $24        ;skip 1 byte
 ;
 sv110	clc
+.endif
 sv115	rts
 
 ;subroutine to output:

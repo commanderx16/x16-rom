@@ -1,3 +1,4 @@
+.if 0
 ; variables used in cassette read routines
 ;
 ;  rez - counts zeros (if z then correct # of dipoles)
@@ -388,6 +389,7 @@ vprty	lda (sal),y      ;calc block bcc
 	lda #ckerr
 	jsr udst
 rd180	jmp prend
+.endif
 
 rd300	lda stah        ; restore starting address...
 	sta sah         ;...pointers (sah & sal)
@@ -395,6 +397,7 @@ rd300	lda stah        ; restore starting address...
 	sta sal
 	rts
 
+.if 0
 newch	lda #8          ;set up for 8 bits+parity
 	sta pcntr
 	lda #0          ;initilize...
@@ -408,3 +411,4 @@ newch	lda #8          ;set up for 8 bits+parity
 ; rsr 3/28/82 modify for c64 (add stupid/comments)
 ; rsr 3/29/82 put block t1irq control
 ; rsr 5/11/82 modify c64 stupid code
+.endif

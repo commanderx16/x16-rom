@@ -1,3 +1,4 @@
+.if 0
 ; cassette info - fsblk is block counter for record
 ;       fsblk = 2 -first header
 ;             = 1 -first data
@@ -167,6 +168,7 @@ tnof	lda r6510       ;turn off cassette motor
 	ora #$20        ;
 	sta r6510
 	rts
+.endif
 
 ;compare start and end load/save
 ;addresses.  subroutine called by

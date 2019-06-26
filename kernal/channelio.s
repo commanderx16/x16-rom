@@ -64,6 +64,7 @@ bn10	cmp #3          ;is input from screen?
 bn20	bcs bn30        ;devices >3
 	cmp #2          ;rs232?
 	beq bn50
+.if 0
 ;
 ;input from cassette buffers
 ;
@@ -102,6 +103,7 @@ jtget	jsr jtp20       ;buffer pointer wrap?
 jtg10	lda (tape1),y    ;get char from buf
 	clc             ;good return
 	rts 
+.endif
 
 ;input from serial bus
 ;
@@ -166,6 +168,7 @@ casout	sta t1          ;pass data in t1
 	tya
 	pha
 	bcc bo50        ;c-clr means dflto=2 (rs232)
+.if 0
 ;
 	jsr jtp20       ;check buffer pointer
 	bne jtp10       ;has not reached end
@@ -185,6 +188,7 @@ casout	sta t1          ;pass data in t1
 ;
 jtp10	lda t1
 	sta (tape1),y    ;data to buffer
+.endif
 ;
 ;restore .x and .y
 ;
