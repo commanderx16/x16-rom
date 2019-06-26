@@ -78,13 +78,6 @@ ramtz0	sta $0000,y     ;zero page
 	iny
 	bne ramtz0
 ;
-;allocate tape buffers
-;
-	ldx #<tbuffr
-	ldy #>tbuffr
-	stx tape1
-	sty tape1+1
-;
 ; set top of memory
 ;
 	ldx #<mmtop
