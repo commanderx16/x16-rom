@@ -6,65 +6,46 @@ r6510	= 1              ;6510 data register
 status	.res 1           ;i/o operation status byte
 ; crfac .res 2 ;correction factor (unused)
 stkey	.res 1           ;stop key flag
-svxt	.res 1           ;temporary
+	.res 1           ;unused (tape)
 verck	.res 1           ;load or verify flag
 c3p0	.res 1           ;ieee buffered char flag
 bsour	.res 1           ;char buffer for ieee
-syno	.res 1           ;cassette sync #
+	.res 1           ;unused (tape)
 xsav	.res 1           ;temp for basin
 ldtnd	.res 1           ;index to logical file
 dfltn	.res 1           ;default input device #
 dflto	.res 1           ;default output device #
-prty	.res 1           ;cassette parity
-dpsw	.res 1           ;cassette dipole switch
+	.res 2           ;unused (tape)
 msgflg	.res 1           ;os message flag
-ptr1	;cassette error pass1
 t1	.res 1           ;temporary 1
-tmpc
-ptr2	;cassette error pass2
-t2	.res 1           ;temporary 2
+	.res 1           ;unused (tape)
 time	.res 3           ;24 hour clock in 1/60th seconds
-r2d2	;serial bus usage
-pcntr	.res 1           ;cassette stuff
+r2d2	.res 1           ;serial bus usage
 ; ptch .res 1  (unused)
 bsour1	;temp used by serial routine
-firt	.res 1
-count	;temp used by serial routine
-cntdn	.res 1           ;cassette sync countdown
-bufpt	.res 1           ;cassette buffer pointer
-inbit	;rs-232 rcvr input bit storage
-shcnl	.res 1           ;cassette short count
-bitci	;rs-232 rcvr bit count in
-rer	.res 1           ;cassette read error
-rinone	;rs-232 rcvr flag for start bit check
-rez	.res 1           ;cassete reading zeroes
-ridata	;rs-232 rcvr byte buffer
-rdflg	.res 1           ;cassette read mode
-riprty	;rs-232 rcvr parity storage
-shcnh	.res 1           ;cassette short cnt
+	.res 1           ;unused (tape)
+count	.res 1           ;temp used by serial routine
+	.res 1           ;unused (tape)
+inbit	.res 1           ;rs-232 rcvr input bit storage
+bitci	.res 1           ;rs-232 rcvr bit count in
+rinone	.res 1           ;rs-232 rcvr flag for start bit check
+ridata	.res 1           ;rs-232 rcvr byte buffer
+riprty	.res 1           ;rs-232 rcvr parity storage
 sal	.res 1
 sah	.res 1
 eal	.res 1
 eah	.res 1
-cmp0	.res 1
-temp	.res 1
-tape1	.res 2           ;address of tape buffer #1y.
-bitts	;rs-232 trns bit count
-snsw1	.res 1
-nxtbit	;rs-232 trns next bit to be sent
-diff	.res 1
-rodata	;rs-232 trns byte buffer
-prp	.res 1
+	.res 4           ;unused (tape)
+bitts	.res 1           ;rs-232 trns bit count
+nxtbit	.res 1           ;rs-232 trns next bit to be sent
+rodata	.res 1           ;rs-232 trns byte buffer
 fnlen	.res 1           ;length current file n str
 la	.res 1           ;current file logical addr
 sa	.res 1           ;current file 2nd addr
 fa	.res 1           ;current file primary addr
 fnadr	.res 2           ;addr current file name str
-roprty	;rs-232 trns parity buffer
-ochar	.res 1
-fsblk	.res 1           ;cassette read block count
-mych	.res 1
-cas1	.res 1           ;cassette manual/controlled switch
+roprty	.res 1           ;rs-232 trns parity buffer
+	.res 3          ;unused (tape)
 tmp0
 stal	.res 1
 stah	.res 1
@@ -164,14 +145,12 @@ ridbs	.res 1           ;input buffer pointer to start
 rodbs	.res 1           ;output buffer index to start
 rodbe	.res 1           ;output buffer index to end
 ;
-irqtmp	.res 2           ;holds irq during tape ops
+	.res 2           ;unused (tape)
 ;
 ; temp space for vic-40 variables ****
 ;
 enabl	.res 1           ;rs-232 enables (replaces ier)
-caston	.res 1           ;tod sense during cassettes
-kika26	.res 1           ;temp storage for cassette read routine
-stupid	.res 1           ;temp d1irq indicator for cassette read
+	.res 3          ;unused (tape)
 lintmp	.res 1           ;temporary for line index
 palnts	.res 1           ;C64: pal vs ntsc flag 0=ntsc 1=pal (unused)
 
@@ -192,8 +171,6 @@ iclall	.res 2
 usrcmd	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
-
-tbuffr	=$033C           ;cassette data buffer
 
 vicscn	=$0400
 
@@ -245,15 +222,6 @@ d2crb	=cia2+15
 
 timrb	=$19            ;6526 crb enable one-shot tb
 
-;tape block types
-;
-eot	=5 ;end of tape
-blf	=1 ;basic load file
-bdf	=2 ;basic data file
-plf	=3 ;fixed program type
-bdfh	=4 ;basic data file header
-bufsz	=192            ;buffer size
-;
 ;screen editor constants
 ;
 llen	=40             ;single line 40 columns
