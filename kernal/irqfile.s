@@ -1,11 +1,4 @@
 	.segment "IRQFILE"
-; simirq - simulate an irq (for cassette read)
-;  enter by a jsr simirq
-;
-simirq	php
-	pla             ;fix the break flag
-	and #$ef
-	pha
 ; puls - checks for real irq's or breaks
 ;
 puls	pha

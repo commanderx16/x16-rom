@@ -25,7 +25,7 @@ sv10	jmp error9      ;bad device #
 ;
 sv20	cmp #3
 	beq sv10
-	bcc sv100
+	bcc sv10
 	lda #$61
 	sta sa
 	ldy fnlen
@@ -73,37 +73,6 @@ clsei	bit sa
 cunlsn	jsr unlsn       ;entry for openi
 ;
 clsei2	clc
-	rts
-
-sv100	lsr a
-	bcs sv102       ;if c-set then it's cassette
-;
-	jmp error9      ;bad device #
-;
-sv102	jsr zzz         ;get addr of tape
-	bcc sv10        ;buffer is deallocated
-	jsr cste2
-	bcs sv115       ;stop key pressed
-	jsr saving      ;tell user 'saving'
-sv105	ldx #plf        ;decide type to save
-	lda sa          ;1-plf 0-blf
-	and #01
-	bne sv106
-	ldx #blf
-sv106	txa
-	jsr tapeh
-	bcs sv115       ;stop key pressed
-	jsr twrt
-	bcs sv115       ;stop key pressed
-	lda sa
-	and #2          ;write end of tape?
-	beq sv110       ;no...
-;
-	lda #eot
-	jsr tapeh
-	.byt $24        ;skip 1 byte
-;
-sv110	clc
 sv115	rts
 
 ;subroutine to output:

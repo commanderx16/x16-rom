@@ -52,13 +52,6 @@ ramtz0	sta $0002,y     ;zero page
 	iny
 	bne ramtz0
 ;
-;allocate tape buffers
-;
-	ldx #<tbuffr
-	ldy #>tbuffr
-	stx tape1
-	sty tape1+1
-;
 ; set top of memory
 ;
 ramtbt
@@ -93,8 +86,6 @@ size	tya             ;set top of memory
 	lda #$04        ;screen always at $400
 	sta hibase      ;set base of screen
 	rts
-
-bsit	.word wrtz,wrtn,key,read ;table of indirects for cassette irq's
 
 ; ioinit - initilize io devices
 ;
