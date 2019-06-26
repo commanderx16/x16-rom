@@ -236,27 +236,8 @@ repdo	sta blnct
 key5	eor #$80        ;blink it
 	jsr dspp2       ;display it
 ;
-key4	lda r6510       ;get cassette switches
-	and #$10        ;is switch down ?
-	beq key3        ;branch if so
-;
-	ldy #0
-	sty cas1        ;cassette off switch
-;
-	lda r6510
-	ora #$20
-	bne kl24        ;branch if motor is off
-;
-key3	lda cas1
-	bne kl2
-;
-	lda r6510
-	and #%011111    ;turn motor on
-;
-kl24
-	sta r6510
-;
-kl2	jsr scnkey      ;scan keyboard
+key4
+	jsr scnkey      ;scan keyboard
 ;
 kprend	lda d1icr       ;clear interupt flags
 	pla             ;restore registers
