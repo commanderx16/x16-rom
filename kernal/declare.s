@@ -172,8 +172,6 @@ usrcmd	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
 
-tbuffr	=$033C           ;cassette data buffer
-
 vicscn	=$0400
 
 ; i/o devices

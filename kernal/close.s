@@ -54,32 +54,6 @@ cls020	lda #00         ;deallocate
 ; flag top of memory change
 	jmp memtcf      ;go set new top
 
-.if 0
-;
-;close cassette file
-;
-jx115	lda sa          ;was it a tape read?
-	and #$f
-	beq jx150       ;yes
-;
-	jsr zzz         ;no. . .it is write
-	lda #0          ;end of file character
-	sec             ;need to set carry for casout (else rs232 output!)
-	jsr casout      ;put in end of file
-	jsr wblk
-	bcc jx117       ;no errors...
-	pla             ;clean stack for error
-	lda #0          ;break key error
-	rts
-;
-jx117	lda sa
-	cmp #$62        ;write end of tape block?
-	bne jx150       ;no...
-;
-	lda #eot
-	jsr tapeh       ;write end of tape block
-	jmp jx150
-.endif
 ;
 ;close an serial file
 ;
