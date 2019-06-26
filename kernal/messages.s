@@ -2,10 +2,6 @@
 ms1	.byt $d,"I/O ERROR ",$a3
 ms5	.byt $d,"SEARCHING",$a0
 ms6	.byt "FOR",$a0
-.if 0
-ms7	.byt $d,"PRESS PLAY ON TAP",$c5
-ms8	.byt "PRESS RECORD & PLAY ON TAP",$c5
-.endif
 ms10	.byt $d,"LOADIN",$c7
 ms11	.byt $d,"SAVING",$a0
 ms21	.byt $d,"VERIFYIN",$c7
