@@ -18,8 +18,6 @@
 .include "save.s"
 .include "time.s"
 .include "errorhandler.s"
-.include "tapefile.s"
-.include "tapecontrol.s"
 .include "read.s"
 .include "write.s"
 .include "init.s"
