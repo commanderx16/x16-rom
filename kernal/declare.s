@@ -1,7 +1,3 @@
-	;declare 6510 ports
-d6510	= 0              ;6510 data direction register
-r6510	= 1              ;6510 data register
-
 	.segment "ZPKERNAL" : zeropage
 status	.res 1           ;i/o operation status byte
 ; crfac .res 2 ;correction factor (unused)
