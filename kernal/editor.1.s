@@ -16,10 +16,10 @@ nwrap=2 ;max number of physical lines per logical line
 ; unmsg .byt $d,'?advanced function not available',$d
 ; unmsg2
 ;
-;return address of 6526
+;return address of first 6522
 ;
-iobase	ldx #<d1pra
-	ldy #>d1pra
+iobase	ldx #<via1
+	ldy #>via1
 	rts
 ;
 ;return max rows,cols of screen

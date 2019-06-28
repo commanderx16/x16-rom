@@ -174,48 +174,62 @@ vicscn	=$0400
 ;
 mmtop   =$9f00
 
-sidreg	=$d400
-
+; XXX TODO: remove
 viccol	=$d800           ;vic color nybbles
 
-cia1	=$dc00                  ;device1 6526 (page1 irq)
-d1pra	=cia1+0
+via1	=$9f40                  ;VIA 6522 #1
+d1prb	=via1+0
+d1pra	=via1+1
+d1ddrb	=via1+2
+d1ddra	=via1+3
+d1t1l	=via1+4
+d1t1h	=via1+5
+d1t1ll	=via1+6
+d1t1lh	=via1+7
+d1t2l	=via1+8
+d1t2h	=via1+9
+d1sr	=via1+10
+d1acr	=via1+11
+d1pcr	=via1+12
+d1ifr	=via1+13
+d1ier	=via1+14
+d1ora	=via1+15
+
+via2	=$9f50                  ;VIA 6522 #2
+d2prb	=via2+0
+d2pra	=via2+1
+d2ddrb	=via2+2
+d2ddra	=via2+3
+d2t1l	=via2+4
+d2t1h	=via2+5
+d2t1ll	=via2+6
+d2t1lh	=via2+7
+d2t2l	=via2+8
+d2t2h	=via2+9
+d2sr	=via2+10
+d2acr	=via2+11
+d2pcr	=via2+12
+d2ifr	=via2+13
+d2ier	=via2+14
+d2ora	=via2+15
+
+; XXX TODO:
+; XXX The following symbols are CIA 6526-based and required for
+; XXX serial & rs232. Both drivers need to be changed to use
+; XXX the VIAs instead. At that point, these symbols must be removed.
+d2cra	=0
+d2crb	=0
+d2icr	=0
+d1crb	=0
+d1icr	=0
+
+; XXX TODO:
+; XXX These symbols are currently used in the screen editor. They
+; XXX need to be removed once the keyboard driver has been replaced.
 colm	=d1pra                  ;keyboard matrix
-d1prb	=cia1+1
 rows	=d1prb                  ;keyboard matrix
-d1ddra	=cia1+2
-d1ddrb	=cia1+3
-d1t1l	=cia1+4
-d1t1h	=cia1+5
-d1t2l	=cia1+6
-d1t2h	=cia1+7
-d1tod1	=cia1+8
-d1tods	=cia1+9
-d1todm	=cia1+10
-d1todh	=cia1+11
-d1sdr	=cia1+12
-d1icr	=cia1+13
-d1cra	=cia1+14
-d1crb	=cia1+15
 
-cia2	=$dd00                  ;device2 6526 (page2 nmi)
-d2pra	=cia2+0
-d2prb	=cia2+1
-d2ddra	=cia2+2
-d2ddrb	=cia2+3
-d2t1l	=cia2+4
-d2t1h	=cia2+5
-d2t2l	=cia2+6
-d2t2h	=cia2+7
-d2tod1	=cia2+8
-d2tods	=cia2+9
-d2todm	=cia2+10
-d2todh	=cia2+11
-d2sdr	=cia2+12
-d2icr	=cia2+13
-d2cra	=cia2+14
-d2crb	=cia2+15
-
+; XXX TODO
 timrb	=$19            ;6526 crb enable one-shot tb
 
 ;screen editor constants
