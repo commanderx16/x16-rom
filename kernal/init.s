@@ -125,15 +125,11 @@ ioinit
 ;jsr clkhi ;clkhi to release serial devices  ^
 ;
 iokeys	lda #<sixty     ;keyboard scan irq's
-	sta d1t1l
+	sta d2t1l
 	lda #>sixty
-	sta d1t1h
-	lda #$81        ;enable t1 irq's
-	sta d1icr
-	lda d1cra
-	and #$80        ;save only tod bit
-	ora #%00010001  ;enable timer1
-	sta d1cra
+	sta d2t1h
+	lda #$c0        ;enable t1 irq's
+	sta d2ier
 	jmp clklo       ;release the clock line***901227-03***
 ;
 ; sixty hertz value

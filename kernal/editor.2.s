@@ -239,7 +239,7 @@ key5	eor #$80        ;blink it
 key4
 	jsr scnkey      ;scan keyboard
 ;
-kprend	lda d1icr       ;clear interupt flags
+kprend	lda d2t1l       ;clear interupt flags
 	pla             ;restore registers
 	tay
 	pla
