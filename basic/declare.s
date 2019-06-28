@@ -10,7 +10,7 @@ pi	=255
 numlev	=23
 strsiz	=3
 .segment "ZPBASIC" : zeropage
-blank0	.res 3           ;6510 register area
+blank0	.res 3           ;unused (C64: 6510 register area)
 adray1	.res 2           ;convert float->integer
 adray2	.res 2           ;convert integer->float
 integr
