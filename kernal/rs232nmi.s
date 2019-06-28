@@ -11,10 +11,6 @@ nnmi10	lda #$7f        ;disable all nmi's
 	ldy d2icr       ;check if real nmi...
 	bmi nnmi20      ;no...rs232/other
 ;
-nnmi18	jsr a0int       ;check if $a0 in...no .y
-	bne nnmi19      ;...no
-	jmp ($8002)     ;...yes
-;
 ; check for stop key down
 ;
 nnmi19
