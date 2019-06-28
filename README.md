@@ -8,7 +8,7 @@ This repository contains the Commander X16 BASIC and KERNAL source. It is derive
 	* [cc65](https://github.com/cc65/cc65).
 	* make
 * Use `make` to build.
-* The resulting file is `rom.bin` (`$C000`-`$BFFF`)
+* The resulting file is `rom.bin` (`$C000`-`$FFFF`)
 	
 ## Philosophy
 
