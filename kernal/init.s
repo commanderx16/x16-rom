@@ -1,44 +1,17 @@
 	.segment "INIT"
 ; start - system reset
-; will goto rom at $8000...
-; if locs $8004-$8008
-; = 'cbm80'
-;    ^^^  > these have msb set
-; kernal expects...
-; $8000- .word initilize (hard start)
-; $8002- .word panic (warm start)
-; ... else basic system used
-; ******************testing only***************
-; use auto disk/cassette load when developed...
 ;
 start	ldx #$ff
 	sei
 	txs
 	cld
-	jsr a0int       ;test for $a0 rom in
-	bne start1
-	jmp ($8000)     ; go init as $a000 rom wants
-start1	jsr ioinit      ;go initilize i/o devices
+	jsr ioinit      ;go initilize i/o devices
 	jsr ramtas      ;go ram test and set
 	jsr restor      ;go set up os vectors
 ;
 	jsr cint        ;go initilize screen
 	cli             ;interrupts okay now
 	jmp ($a000)     ;go to basic system
-
-; a0int - test for an $8000 rom
-;  returns z - $8000 in
-;
-a0int	ldx #tbla0e-tbla0r ;check for $8000
-a0in1	lda tbla0r-1,x
-	cmp $8004-1,x
-	bne a0in2
-	dex
-	bne a0in1
-a0in2	rts
-;
-tbla0r	.byt $c3,$c2,$cd,"80" ;..cbm80..
-tbla0e
 
 ; restor - set kernal indirects and vectors (system)
 ;
