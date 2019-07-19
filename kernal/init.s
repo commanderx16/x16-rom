@@ -11,7 +11,7 @@ start	ldx #$ff
 ;
 	jsr cint        ;go initilize screen
 	cli             ;interrupts okay now
-	jmp ($a000)     ;go to basic system
+	jmp ($c000)     ;go to basic system
 
 ; restor - set kernal indirects and vectors (system)
 ;
