@@ -1,5 +1,5 @@
 addprc	=1
-romloc	=$a000          ;vic-40 basic rom
+romloc	=$c000          ;vic-40 basic rom
 linlen	=40             ;vic screen size ?why?
 buflen	=89             ;vic buffer
 bufpag	=2
