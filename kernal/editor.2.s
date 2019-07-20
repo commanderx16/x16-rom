@@ -1,12 +1,11 @@
+scrsz=$4000 ; must be power of two
+scrlo=(>scrsz)-1 ; for masking offset in screen ram
+
 ;screen scroll routine
 ;
 scrol	lda sal
 	pha
 	lda sah
-	pha
-	lda eal
-	pha
-	lda eah
 	pha
 ;
 ;   s c r o l l   u p
@@ -48,6 +47,7 @@ scrl3	sta ldtb1,x
 ;
 	inc tblx
 	inc lintmp
+; XXX TODO
 	lda #$7f        ;check for control key
 	sta colm        ;drop line 2 on port b
 	lda rows
@@ -69,10 +69,6 @@ mlp4	nop             ;delay
 mlp42	ldx tblx
 ;
 pulind	pla             ;restore old indirects
-	sta eah
-	pla
-	sta eal
-	pla
 	sta sah
 	pla
 	sta sal
@@ -98,10 +94,6 @@ bmt2	stx lintmp      ;found it
 newlx	lda sal
 	pha
 	lda sah
-	pha
-	lda eal
-	pha
-	lda eah
 	pha
 	ldx #nlines
 scd10	dex
@@ -135,34 +127,82 @@ scrd22
 	jmp pulind      ;go pul old indirects and return
 ;
 ; scroll line from sal to pnt
-; and colors from eal to user
 ;
 scrlin
-	and #$03        ;clear any garbage stuff
+	and #scrlo      ;clear any garbage stuff
 	ora hibase      ;put in hiorder bits
 	sta sal+1
-	jsr tofrom      ;color to & from addrs
-	ldy #llen-1
+.if 0                   ;slow version
+	lda #llen-1
+	sta eal
 scd20
-	lda (sal),y
-	sta (pnt),y
-	lda (eal),y
-	sta (user),y
-	dey
-	bpl scd20
-	rts
-;
-; do color to and from addresses
-; from character to and from adrs
-;
-tofrom
-	jsr scolor
-	lda sal         ;character from
-	sta eal         ;make color from
+	lda #$10
+	sta verareg+0
+	lda eal
+	asl
+	clc
+	adc sal
+	sta verareg+2
 	lda sal+1
-	and #$03
-	ora #>viccol
-	sta eal+1
+	adc #0
+	sta verareg+1
+	lda verareg+3       ;character
+	pha
+	ldy verareg+3       ;color
+	lda eal
+	asl
+	clc
+	adc pnt
+	sta verareg+2
+	lda pnt+1
+	adc #0
+	sta verareg+1
+	pla
+	sta verareg+3       ;character
+	sty verareg+3       ;color
+	dec eal
+	bpl scd20
+.else                   ;fast version that uses 20 bytes of zero page
+	lda #0
+scd20	sta eal
+
+	lda #$10
+	sta verareg+0
+	lda eal
+	clc
+	adc sal
+	sta verareg+2
+	lda sal+1
+	adc #0
+	sta verareg+1
+
+	ldy #20-1
+scd21	lda verareg+3
+	sta tmpscrl,y
+	dey
+	bpl scd21
+
+	lda eal
+	clc
+	adc pnt
+	sta verareg+2
+	lda pnt+1
+	adc #0
+	sta verareg+1
+
+	ldy #20-1
+scd22	lda tmpscrl,y
+	sta verareg+3
+	dey
+	bpl scd22
+
+	lda eal
+	clc
+	adc #20
+	cmp #llen*2-1
+	bcc scd20
+	lda #$ff; to make bmi happy
+.endif
 	rts
 ;
 ; set up pnt and y
@@ -171,7 +211,7 @@ tofrom
 setpnt	lda ldtb2,x
 	sta pnt
 	lda ldtb1,x
-	and #$03
+	and #scrlo
 	ora hibase
 	sta pnt+1
 	rts
@@ -180,15 +220,19 @@ setpnt	lda ldtb2,x
 ;
 clrln	ldy #llen-1
 	jsr setpnt
-	jsr scolor
-clr10	lda color       ;always clear to current foregnd color
-	sta (user),y
-	lda #$20        ;store a space
-	sta (pnt),y     ;to display
+	lda #$10        ;auto-increment 1
+	sta verareg+0
+	lda pnt+1
+	sta verareg+1
+	lda pnt
+	sta verareg+2       ;set base address
+clr10	lda #$20
+	sta verareg+3       ;store space
+	lda color       ;always clear to current foregnd color
+	sta verareg+3
 	dey
 	bpl clr10
 	rts
-	nop
 
 ;
 ;put a char on the screen
@@ -196,20 +240,21 @@ clr10	lda color       ;always clear to current foregnd color
 dspp	tay             ;save char
 	lda #2
 	sta blnct       ;blink cursor
-	jsr scolor      ;set color ptr
 	tya             ;restore color
-dspp2	ldy pntr        ;get column
-	sta (pnt),y      ;char to screen
-	txa
-	sta (user),y     ;color to screen
-	rts
-
-scolor	lda pnt         ;generate color ptr
-	sta user
+dspp2	pha
+	lda pntr        ;set address
+	asl
+	clc
+	adc pnt
+	sta verareg+2
 	lda pnt+1
-	and #$03
-	ora #>viccol    ;vic color ram
-	sta user+1
+	adc #0
+	sta verareg+1
+	lda #$10
+	sta verareg+0
+	pla
+	sta verareg+3       ;store character
+	stx verareg+3       ;color to screen
 	rts
 
 key	jsr $ffea       ;update jiffy clock
@@ -219,16 +264,25 @@ key	jsr $ffea       ;update jiffy clock
 	bne key4        ;no
 	lda #20         ;reset blink counter
 repdo	sta blnct
-	ldy pntr        ;cursor position
 	lsr blnon       ;carry set if original char
 	ldx gdcol       ;get char original color
-	lda (pnt),y      ;get character
+
+	lda pntr        ;set address
+	asl
+	clc
+	adc pnt
+	sta verareg+2
+	lda pnt+1
+	adc #0
+	sta verareg+1
+	lda #$10
+	sta verareg+0
+	lda verareg+3       ;get character
 	bcs key5        ;branch if not needed
 ;
 	inc blnon       ;set to 1
 	sta gdbln       ;save original char
-	jsr scolor
-	lda (user),y     ;get original color
+	lda verareg+3       ;get original color
 	sta gdcol       ;save it
 	ldx color       ;blink in this color
 	lda gdbln       ;with original character
@@ -441,7 +495,7 @@ scancode_to_petscii_shifted:
 ; $30-$3f
 .byte $00,'N'+$80,'B'+$80,'H'+$80,'G'+$80,'Y'+$80,'^',$00,$00,$00,'M'+$80,'J'+$80,'U'+$80,'7','8',$00
 ; $40-$4f
-.byte $00,',','K'+$80,'I'+$80,'O'+$80,')','(',$00,$00,'.','?','L'+$80,';','P'+$80,'_',$00
+.byte $00,',','K'+$80,'I'+$80,'O'+$80,')','(',$00,$00,'.','?','L'+$80,':','P'+$80,'_',$00
 ; $50-$5f
 .byte $00,$00,'"',$00,'{','+',$00,$00,$00,$00,$8d,'}',$00,'|',$00,$00
 ; $60-$6f

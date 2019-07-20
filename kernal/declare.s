@@ -71,8 +71,9 @@ lnmx	.res 1           ;40/80 max positon
 tblx	.res 1
 data	.res 1
 insrt	.res 1           ;insert mode flag
-ldtb1	.res 26          ;line flags+endspace
-user	.res 2           ;screen editor color ip
+tmpscrl	.res 20
+	.res 6           ;unused (flags+endspace)
+	.res 2           ;unused (screen editor color ip)
 keytab	.res 2           ;keyscan table indirect
 ;rs-232 z-page
 ribuf	.res 2           ;rs-232 input buffer pointer
@@ -168,14 +169,15 @@ usrcmd	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
 
-vicscn	=$0400
+ldtb1	.res 61          ;flags+endspace
+
+vicscn	=$0000
+
+verareg =$9f20
 
 ; i/o devices
 ;
 mmtop   =$9f00
-
-; XXX TODO: remove
-viccol	=$d800           ;vic color nybbles
 
 via1	=$9f40                  ;VIA 6522 #1
 d1prb	=via1+0
@@ -234,9 +236,9 @@ timrb	=$19            ;6526 crb enable one-shot tb
 
 ;screen editor constants
 ;
-llen	=40             ;single line 40 columns
+llen	=80             ;single line 80 columns
 llen2	=80             ;double line = 80 columns
-nlines	=25             ;25 rows on screen
+nlines	=60             ;60 rows on screen
 white	=$01            ;white screen color
 blue	=$06            ;blue char color
 cr	=$d             ;carriage return
