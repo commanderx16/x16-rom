@@ -59,7 +59,7 @@ ramtz0	sta $0000,y     ;zero page
 	jsr settop
 	lda #$08        ;set bottom of memory
 	sta memstr+1    ;always at $0800
-	lda #$04        ;screen always at $400
+	lda #>vicscn
 	sta hibase      ;set base of screen
 	rts
 
