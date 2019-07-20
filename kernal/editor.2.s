@@ -48,6 +48,7 @@ scrl3	sta ldtb1,x
 ;
 	inc tblx
 	inc lintmp
+; XXX TODO
 	lda #$7f        ;check for control key
 	sta colm        ;drop line 2 on port b
 	lda rows
@@ -181,14 +182,19 @@ setpnt	lda ldtb2,x
 clrln	ldy #llen-1
 	jsr setpnt
 	jsr scolor
-clr10	lda color       ;always clear to current foregnd color
-	sta (user),y
-	lda #$20        ;store a space
-	sta (pnt),y     ;to display
+	lda #$10        ;auto-increment 1
+	sta $9f20
+	lda pnt+1
+	sta $9f21
+	lda pnt
+	sta $9f22       ;set base address
+clr10	lda #$20
+	sta $9f23       ;store space
+	lda color       ;always clear to current foregnd color
+	sta $9f23
 	dey
 	bpl clr10
 	rts
-	nop
 
 ;
 ;put a char on the screen
@@ -198,12 +204,23 @@ dspp	tay             ;save char
 	sta blnct       ;blink cursor
 	jsr scolor      ;set color ptr
 	tya             ;restore color
-dspp2	ldy pntr        ;get column
-	sta (pnt),y      ;char to screen
-	txa
-	sta (user),y     ;color to screen
+dspp2	pha
+	lda pntr        ;set address
+	asl
+	clc
+	adc pnt
+	sta $9f22
+	lda pnt+1
+	adc #0
+	sta $9f21
+	lda #$10
+	sta $9f20
+	pla
+	sta $9f23       ;store character
+	stx $9f23       ;color to screen
 	rts
 
+; XXX TODO remove
 scolor	lda pnt         ;generate color ptr
 	sta user
 	lda pnt+1
@@ -219,16 +236,25 @@ key	jsr $ffea       ;update jiffy clock
 	bne key4        ;no
 	lda #20         ;reset blink counter
 repdo	sta blnct
-	ldy pntr        ;cursor position
 	lsr blnon       ;carry set if original char
 	ldx gdcol       ;get char original color
-	lda (pnt),y      ;get character
+
+	lda pntr        ;set address
+	asl
+	clc
+	adc pnt
+	sta $9f22
+	lda pnt+1
+	adc #0
+	sta $9f21
+	lda #$10
+	sta $9f20
+	lda $9f23       ;get character
 	bcs key5        ;branch if not needed
 ;
 	inc blnon       ;set to 1
 	sta gdbln       ;save original char
-	jsr scolor
-	lda (user),y     ;get original color
+	lda $9f23       ;get original color
 	sta gdcol       ;save it
 	ldx color       ;blink in this color
 	lda gdbln       ;with original character

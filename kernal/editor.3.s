@@ -136,30 +136,30 @@ tvic
 runtb	.byt "LOAD",$d,"RUN",$d
 ;
 linz0	= vicscn
-linz1	= linz0+llen
-linz2	= linz1+llen
-linz3	= linz2+llen
-linz4	= linz3+llen
-linz5	= linz4+llen
-linz6	= linz5+llen
-linz7	= linz6+llen
-linz8	= linz7+llen
-linz9	= linz8+llen
-linz10	= linz9+llen
-linz11	= linz10+llen
-linz12	= linz11+llen
-linz13	= linz12+llen
-linz14	= linz13+llen
-linz15	= linz14+llen
-linz16	= linz15+llen
-linz17	= linz16+llen
-linz18	= linz17+llen
-linz19	= linz18+llen
-linz20	= linz19+llen
-linz21	= linz20+llen
-linz22	= linz21+llen
-linz23	= linz22+llen
-linz24	= linz23+llen
+linz1	= linz0+llen*2
+linz2	= linz1+llen*2
+linz3	= linz2+llen*2
+linz4	= linz3+llen*2
+linz5	= linz4+llen*2
+linz6	= linz5+llen*2
+linz7	= linz6+llen*2
+linz8	= linz7+llen*2
+linz9	= linz8+llen*2
+linz10	= linz9+llen*2
+linz11	= linz10+llen*2
+linz12	= linz11+llen*2
+linz13	= linz12+llen*2
+linz14	= linz13+llen*2
+linz15	= linz14+llen*2
+linz16	= linz15+llen*2
+linz17	= linz16+llen*2
+linz18	= linz17+llen*2
+linz19	= linz18+llen*2
+linz20	= linz19+llen*2
+linz21	= linz20+llen*2
+linz22	= linz21+llen*2
+linz23	= linz22+llen*2
+linz24	= linz23+llen*2
 
 ;****** screen lines lo byte table ******
 ;

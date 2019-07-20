@@ -57,7 +57,7 @@ cint	jsr iokeys
 	lda #10
 	sta xmax        ;maximum type ahead buffer size
 	sta delay
-	lda #$e         ;init color to light blue<<<<<<<<<<
+	lda #$6e        ;init color to light blue on blue
 	sta color
 	lda #4
 	sta kount       ;delay between key repeats
@@ -71,7 +71,7 @@ clsr	lda hibase      ;fill hi byte ptr table
 	tax
 lps1	sty ldtb1,x
 	clc
-	adc #llen
+	adc #llen*2
 	bcc lps2
 	iny             ;carry bump hi byte
 lps2	inx
@@ -124,7 +124,6 @@ finput	cpx lsxp        ;check if on same line
 	beq finpux      ;yes..return to send
 	jmp findst      ;check if we wrapped down...
 finpux	rts
-	nop             ;keep the space the same...
 
 ;panic nmi entry
 ;
