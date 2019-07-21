@@ -600,7 +600,11 @@ chk1a	cmp coltab,x
 	rts
 ;
 chk1b
-	stx color       ;change the color
+	lda color
+	and #$f0        ;keep bg color
+	stx color
+	ora color
+	sta color       ;change the color
 	rts
 
 coltab
