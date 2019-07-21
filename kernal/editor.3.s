@@ -128,10 +128,6 @@ contrl
 	.byt $1c,$ff,$1d,$ff,$ff,$1f,$1e,$ff
 	.byt $90,$06,$ff,$05,$ff,$ff,$11,$ff
 	.byt $ff        ;end of table null
-tvic
-	.byt 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ;sprites (0-16)
-	.byt $9b,55,0,0,0,$08,0,$14,$0f,0,0,0,0,0,0 ;data (17-31)
-	.byt 14,6,1,2,3,4,0,1,2,3,4,5,6,7 ;32-46
 ;
 runtb	.byt "LOAD",$d,"RUN",$d
 ;
