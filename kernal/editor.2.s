@@ -249,6 +249,7 @@ kprend	lda d2t1l       ;clear interupt flags
 
 ; ****** general keyboard scan ******
 ;
+.if 0
 scnkey	lda #$00
 	sta shflag
 	ldy #64         ;last key index
@@ -298,7 +299,7 @@ ckit1	pla             ;dump column output...all done
 rekey	ldy sfdx        ;get key index
 	lda (keytab),y   ;get char code
 	tax             ;save the char
-	cpy lstx        ;same as prev char index?
+	cpx lstx        ;same as prev char index?
 	beq rpt10       ;yes
 	ldy #$10        ;no - reset delay before repeat
 	sty delay
@@ -329,8 +330,7 @@ rpt40	dec kount       ;time for next repeat ?
 	dey
 	bpl scnrts
 ckit2
-	ldy sfdx        ;get index of key
-	sty lstx        ;save this index to key found
+	stx lstx        ;save this index to key found
 	ldy shflag      ;update shift status
 	sty lstshf
 ckit3	cpx #$ff        ;a null key or no key ?
@@ -343,10 +343,112 @@ putque
 	sta keyd,x      ;put raw data here
 	inx
 	stx ndx         ;update key queue count
-scnrts	lda #$7f        ;setup pb7 for stop key sense
+scnrts
+	lda #$7f        ;setup pb7 for stop key sense
 	sta colm
 	rts
+.else
+scnkey	ldx $9f60
+	beq scnrts2
+	cpx #$f0
+	bne scn1
+	lda $9f60
+	cmp #$12        ;lshift
+	beq scnkey1
+	cmp #$59        ;rshift
+	beq scnkey1     ;BUG: rshift up can cancel lshift
+scnrts2	rts             ;otherwise ignore key up
+scnkey1	lda shflag
+	and #$fe
+	sta shflag
+	rts
+; extended set
+scn1	cpx #$e0        ;extended set
+	bne scn2
+	lda $9f60
+	cmp #$6b        ;csr left
+	bne scn4
+	lda #$9d
+	bne scn3
+scn4	cmp #$72        ;csr down
+	bne scn5
+	lda #$11
+	bne scn3
+scn5	cmp #$74        ;csr right
+	bne scn6
+	lda #$1d
+	bne scn3
+scn6	cmp #$75        ;csr up
+	bne scn7
+	lda #$91
+	bne scn3
+scn7	cmp #$6c        ;home
+	bne scnrts
+	lda shflag
+	and #1
+	beq scn8
+	lda #$93
+	bne scn3
+scn8	lda #$13
+	bne scn3
+; modifier keys
+scn2	cpx #$12        ;lshift
+	beq scn21
+	cpx #$59        ;rshift
+	bne scn20
+scn21	lda shflag
+	ora #1
+	sta shflag
+	rts
+; keys from the table
+scn20	lda shflag
+	and #1
+	bne scn10
+	lda scancode_to_petscii,x
+	jmp scn3
+scn10	lda scancode_to_petscii_shifted,x
+scn3	ldx ndx         ;get # of chars in key queue
+	cpx xmax        ;irq buffer full ?
+	bcs scnrts      ;yes - no more insert
+	sta keyd,x      ;put raw data here
+	inx
+	stx ndx         ;update key queue count
+scnrts	rts
 
+scancode_to_petscii:
+; $00-$0f
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; $10-$1f
+.byte $00,$00,$00,$00,$00,'Q','1',$00,$00,$00,'Z','S','A','W','2',$00
+; $20-$2f
+.byte $00,'C','X','D','E','4','3',$00,$00,' ','V','F','T','R','5',$00
+; $30-$3f
+.byte $00,'N','B','H','G','Y','6',$00,$00,$00,'M','J','U','7','8',$00
+; $40-$4f
+.byte $00,',','K','I','O','0','9',$00,$00,'.','/','L',';','P','-',$00
+; $50-$5f
+.byte $00,$00,$27,$00,'[','=',$00,$00,$00,$00,$0d,']',$00,'\',$00,$00
+; $60-$6f
+.byte $00,$00,$00,$00,$00,$00,$14,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+scancode_to_petscii_shifted:
+; $00-$0f
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; $10-$1f
+.byte $00,$00,$00,$00,$00,'Q'+$80,'!',$00,$00,$00,'Z'+$80,'S'+$80,'A'+$80,'W'+$80,'@',$00
+; $20-$2f
+.byte $00,'C'+$80,'X'+$80,'D'+$80,'E'+$80,'$','#',$00,$00,' ','V'+$80,'F'+$80,'T'+$80,'R'+$80,'%',$00
+; $30-$3f
+.byte $00,'N'+$80,'B'+$80,'H'+$80,'G'+$80,'Y'+$80,'^',$00,$00,$00,'M'+$80,'J'+$80,'U'+$80,'7','8',$00
+; $40-$4f
+.byte $00,',','K'+$80,'I'+$80,'O'+$80,')','(',$00,$00,'.','?','L'+$80,';','P'+$80,'_',$00
+; $50-$5f
+.byte $00,$00,'"',$00,'{','+',$00,$00,$00,$00,$8d,'}',$00,'|',$00,$00
+; $60-$6f
+.byte $00,$00,$00,$00,$00,$00,$94,$00,$00,$00,$00,$00,$00,$00,$00,$00
+.endif
+
+.if 0
 ;
 ; shift logic
 ;
@@ -378,6 +480,7 @@ notkat
 	sta keytab+1
 shfout
 	jmp rekey
+.endif
 
 ; rsr 12/08/81 modify for vic-40
 ; rsr  2/18/82 modify for 6526 input pad sense
