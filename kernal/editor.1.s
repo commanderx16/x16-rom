@@ -50,10 +50,12 @@ cint	jsr iokeys
 	sta mode
 	sta blnon       ;we dont have a good char from the screen yet
 
+.if 0
 	lda #<shflog    ;set shift logic indirects
 	sta keylog
 	lda #>shflog
 	sta keylog+1
+.endif
 	lda #10
 	sta xmax        ;maximum type ahead buffer size
 	sta delay

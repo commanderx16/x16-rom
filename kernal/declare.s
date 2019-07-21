@@ -241,6 +241,8 @@ white	=$01            ;white screen color
 blue	=$06            ;blue char color
 cr	=$d             ;carriage return
 
+mhz     =8              ;for the scroll delay loop
+
 ;rsr 8/3/80 add & change z-page
 ;rsr 8/11/80 add memuss & plf type
 ;rsr 8/22/80 add rs-232 routines
