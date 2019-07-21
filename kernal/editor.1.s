@@ -621,13 +621,13 @@ ldapnty	tya
 	asl
 	clc
 ldapnt2	adc pnt
-	sta verareg+2
+	sta veralo
 	lda pnt+1
 	adc #0
-	sta verareg+1
+	sta verahi
 	lda #$10
-	sta verareg+0
-	lda verareg+3
+	sta veractl
+	lda veradat
 	rts
 
 stausery
@@ -641,14 +641,14 @@ stapnty	pha
 	asl
 	clc
 stapnt2	adc pnt
-	sta verareg+2
+	sta veralo
 	lda pnt+1
 	adc #0
-	sta verareg+1
+	sta verahi
 	lda #$10
-	sta verareg+0
+	sta veractl
 	pla
-	sta verareg+3
+	sta veradat
 	rts
 
 ; rsr modify for vic-40 system

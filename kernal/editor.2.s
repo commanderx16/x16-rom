@@ -135,29 +135,29 @@ scrlin
 	sta eal
 scd20
 	lda #$10
-	sta verareg+0
+	sta veractl
 	lda eal
 	asl
 	clc
 	adc sal
-	sta verareg+2
+	sta veralo
 	lda sal+1
 	adc #0
-	sta verareg+1
-	lda verareg+3       ;character
+	sta verahi
+	lda veradat     ;character
 	pha
-	ldy verareg+3       ;color
+	ldy veradat     ;color
 	lda eal
 	asl
 	clc
 	adc pnt
-	sta verareg+2
+	sta veralo
 	lda pnt+1
 	adc #0
-	sta verareg+1
+	sta verahi
 	pla
-	sta verareg+3       ;character
-	sty verareg+3       ;color
+	sta veradat     ;character
+	sty veradat     ;color
 	dec eal
 	bpl scd20
 .else                   ;fast version that uses 20 bytes of zero page
@@ -165,17 +165,17 @@ scd20
 scd20	sta eal
 
 	lda #$10
-	sta verareg+0
+	sta veractl
 	lda eal
 	clc
 	adc sal
-	sta verareg+2
+	sta veralo
 	lda sal+1
 	adc #0
-	sta verareg+1
+	sta verahi
 
 	ldy #20-1
-scd21	lda verareg+3
+scd21	lda veradat
 	sta tmpscrl,y
 	dey
 	bpl scd21
@@ -183,14 +183,14 @@ scd21	lda verareg+3
 	lda eal
 	clc
 	adc pnt
-	sta verareg+2
+	sta veralo
 	lda pnt+1
 	adc #0
-	sta verareg+1
+	sta verahi
 
 	ldy #20-1
 scd22	lda tmpscrl,y
-	sta verareg+3
+	sta veradat
 	dey
 	bpl scd22
 
@@ -219,15 +219,15 @@ setpnt	lda ldtb2,x
 clrln	ldy #llen-1
 	jsr setpnt
 	lda #$10        ;auto-increment 1
-	sta verareg+0
+	sta veractl
 	lda pnt+1
-	sta verareg+1
+	sta verahi
 	lda pnt
-	sta verareg+2       ;set base address
+	sta veralo      ;set base address
 clr10	lda #$20
-	sta verareg+3       ;store space
+	sta veradat     ;store space
 	lda color       ;always clear to current foregnd color
-	sta verareg+3
+	sta veradat
 	dey
 	bpl clr10
 	rts
@@ -244,15 +244,15 @@ dspp2	pha
 	asl
 	clc
 	adc pnt
-	sta verareg+2
+	sta veralo
 	lda pnt+1
 	adc #0
-	sta verareg+1
+	sta verahi
 	lda #$10
-	sta verareg+0
+	sta veractl
 	pla
-	sta verareg+3       ;store character
-	stx verareg+3       ;color to screen
+	sta veradat     ;store character
+	stx veradat     ;color to screen
 	rts
 
 key	jsr $ffea       ;update jiffy clock
@@ -269,18 +269,18 @@ repdo	sta blnct
 	asl
 	clc
 	adc pnt
-	sta verareg+2
+	sta veralo
 	lda pnt+1
 	adc #0
-	sta verareg+1
+	sta verahi
 	lda #$10
-	sta verareg+0
-	lda verareg+3       ;get character
+	sta veractl
+	lda veradat     ;get character
 	bcs key5        ;branch if not needed
 ;
 	inc blnon       ;set to 1
 	sta gdbln       ;save original char
-	lda verareg+3       ;get original color
+	lda veradat     ;get original color
 	sta gdcol       ;save it
 	ldx color       ;blink in this color
 	lda gdbln       ;with original character

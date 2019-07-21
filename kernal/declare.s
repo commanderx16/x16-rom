@@ -174,6 +174,10 @@ ldtb1	.res 61          ;flags+endspace
 vicscn	=$0000
 
 verareg =$9f20
+veractl =verareg+0
+verahi  =verareg+1
+veralo  =verareg+2
+veradat =verareg+3
 
 ; i/o devices
 ;
