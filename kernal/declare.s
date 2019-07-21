@@ -71,7 +71,8 @@ lnmx	.res 1           ;40/80 max positon
 tblx	.res 1
 data	.res 1
 insrt	.res 1           ;insert mode flag
-	.res 26          ;unused (flags+endspace)
+tmpscrl	.res 20
+	.res 6           ;unused (flags+endspace)
 	.res 2           ;unused (screen editor color ip)
 keytab	.res 2           ;keyscan table indirect
 ;rs-232 z-page

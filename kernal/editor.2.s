@@ -132,6 +132,7 @@ scrlin
 	and #scrlo      ;clear any garbage stuff
 	ora hibase      ;put in hiorder bits
 	sta sal+1
+.if 0                   ;slow version
 	lda #llen-1
 	sta eal
 scd20
@@ -161,6 +162,47 @@ scd20
 	sty $9f23       ;color
 	dec eal
 	bpl scd20
+.else                   ;fast version that uses 20 bytes of zero page
+	lda #0
+scd20	sta eal
+
+	lda #$10
+	sta $9f20
+	lda eal
+	clc
+	adc sal
+	sta $9f22
+	lda sal+1
+	adc #0
+	sta $9f21
+
+	ldy #20-1
+scd21	lda $9f23
+	sta tmpscrl,y
+	dey
+	bpl scd21
+
+	lda eal
+	clc
+	adc pnt
+	sta $9f22
+	lda pnt+1
+	adc #0
+	sta $9f21
+
+	ldy #20-1
+scd22	lda tmpscrl,y
+	sta $9f23
+	dey
+	bpl scd22
+
+	lda eal
+	clc
+	adc #20
+	cmp #llen*2-1
+	bcc scd20
+	lda #$ff; to make bmi happy
+.endif
 	rts
 ;
 ; set up pnt and y
