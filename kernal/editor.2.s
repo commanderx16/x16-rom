@@ -275,6 +275,7 @@ kprend	lda d2t1l       ;clear interupt flags
 
 ; ****** general keyboard scan ******
 ;
+.if 0
 scnkey	lda #$00
 	sta shflag
 	ldy #64         ;last key index
@@ -324,7 +325,7 @@ ckit1	pla             ;dump column output...all done
 rekey	ldy sfdx        ;get key index
 	lda (keytab),y   ;get char code
 	tax             ;save the char
-	cpy lstx        ;same as prev char index?
+	cpx lstx        ;same as prev char index?
 	beq rpt10       ;yes
 	ldy #$10        ;no - reset delay before repeat
 	sty delay
@@ -355,8 +356,7 @@ rpt40	dec kount       ;time for next repeat ?
 	dey
 	bpl scnrts
 ckit2
-	ldy sfdx        ;get index of key
-	sty lstx        ;save this index to key found
+	stx lstx        ;save this index to key found
 	ldy shflag      ;update shift status
 	sty lstshf
 ckit3	cpx #$ff        ;a null key or no key ?
@@ -369,10 +369,44 @@ putque
 	sta keyd,x      ;put raw data here
 	inx
 	stx ndx         ;update key queue count
-scnrts	lda #$7f        ;setup pb7 for stop key sense
+scnrts
+	lda #$7f        ;setup pb7 for stop key sense
 	sta colm
 	rts
+.else
+scnkey	ldx $9f60
+	beq scnrts
+	cpx #$f0
+	bne scn1
+	lda $9f60       ;ignore key up
+	rts
+scn1	lda scancode_to_petscii,x
+	ldx ndx         ;get # of chars in key queue
+	cpx xmax        ;irq buffer full ?
+	bcs scnrts      ;yes - no more insert
+	sta keyd,x      ;put raw data here
+	inx
+	stx ndx         ;update key queue count
+scnrts	rts
 
+scancode_to_petscii:
+; $00-$0f
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; $10-$1f
+.byte $00,$00,$00,$00,$00,'Q','1',$00,$00,$00,'Z','S','A','W','2',$00
+; $20-$2f
+.byte $00,'C','X','D','E','4','3',$00,$00,' ','V','F','T','R','5',$00
+; $30-$3f
+.byte $00,'N','B','H','G','Y','6',$00,$00,$00,'M','J','U','7','8',$00
+; $40-$4f
+.byte $00,',','K','I','O','0','9',$00,$00,'.','/','L',';','P','-',$00
+; $50-$5f
+.byte $00,$00,$27,$00,'[','=',$00,$00,$00,$00,$0d,']',$00,'\',$00,$00
+; $60-$6f
+.byte $00,$00,$00,$00,$00,$00,$14,$00,$00,$00,$00,$00,$00,$00,$00,$00
+.endif
+
+.if 0
 ;
 ; shift logic
 ;
@@ -404,6 +438,7 @@ notkat
 	sta keytab+1
 shfout
 	jmp rekey
+.endif
 
 ; rsr 12/08/81 modify for vic-40
 ; rsr  2/18/82 modify for 6526 input pad sense
