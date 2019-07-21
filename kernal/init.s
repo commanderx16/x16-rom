@@ -127,6 +127,9 @@ ioinit
 .else
 	; XXX TODO: VIC-20: $FDF9
 .endif
+.ifdef PS2
+	jsr kbdis       ;inhibit ps/2 communcation
+.endif
 ;
 ; set up banking
 ;

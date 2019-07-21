@@ -5,8 +5,8 @@ all:
 	dd if=rom-c64.bin of=basic-c64.bin bs=8k count=1
 	dd if=rom-c64.bin of=kernal-c64.bin bs=8k skip=1 count=1
 
-	ca65 -g -o basic/basic.o basic/basic.s
-	ca65 -g -o kernal/kernal.o kernal/kernal.s
+	ca65 -g -DPS2 -o basic/basic.o basic/basic.s
+	ca65 -g -DPS2 -o kernal/kernal.o kernal/kernal.s
 	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o -Ln rom.txt
 
 clean:

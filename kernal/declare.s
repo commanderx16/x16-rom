@@ -110,8 +110,13 @@ color	.res 1           ;activ color nybble
 gdcol	.res 1           ;original color before cursor
 hibase	.res 1           ;base location of screen (top)
 xmax	.res 1
+.ifdef PS2
+ps2byte	.res 1           ;byte storage for ps/2 communication
+ps2par	.res 1           ;parity for ps/2 communication
+.else
 rptflg	.res 1           ;key repeat flag
 kount	.res 1
+.endif
 delay	.res 1
 shflag	.res 1           ;shift flag byte
 lstshf	.res 1           ;last shift pattern
@@ -304,6 +309,12 @@ nlines	=60             ;60 rows on screen
 white	=$01            ;white char color
 blue	=$06            ;blue screen color
 cr	=$d             ;carriage return
+
+.ifdef C64
+mhz     =1              ;for the scroll delay loop
+.else
+mhz     =8              ;for the scroll delay loop
+.endif
 
 ;rsr 8/3/80 add & change z-page
 ;rsr 8/11/80 add memuss & plf type

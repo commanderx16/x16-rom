@@ -46,21 +46,7 @@ ud30	sec
 ;
 ;set stop key flag here
 ;
-ud60	lda rows        ;wait for it to settle
-	cmp rows
-	bne ud60        ;still bouncing
-	tax             ;set flags...
-	bmi ud80        ;no stop key...exit  stop key=$7f
-	ldx #$ff-$42    ;check for a shift key (c64 keyboard)
-	stx colm
-ud70	ldx rows        ;wait to settle...
-	cpx rows
-	bne ud70
-	sta colm        ;!!!!!watch out...stop key .a=$7f...same as colms was...
-	inx             ;any key down aborts
-	bne ud90        ;leave same as before...
-ud80	sta stkey       ;save for other routines
-ud90	rts
+ud60	rts
 
 rdtim	sei             ;keep time from rolling
 	lda time+2      ;get lsd
