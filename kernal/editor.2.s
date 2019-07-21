@@ -1,5 +1,6 @@
-scrsz=$4000 ; must be power of two
-scrlo=(>scrsz)-1 ; for masking offset in screen ram
+scrsz   =$4000          ;screen ram size, rounded up to power of two
+scrlo   =(>scrsz)-1     ;for masking offset in screen ram
+mhz     =8              ;for the scroll delay loop
 
 ;screen scroll routine
 ;
@@ -47,22 +48,19 @@ scrl3	sta ldtb1,x
 ;
 	inc tblx
 	inc lintmp
-; XXX TODO
-	lda #$7f        ;check for control key
-	sta colm        ;drop line 2 on port b
-	lda rows
-	cmp #$fb        ;slow scroll key?(control)
-	php             ;save status. restore port b
-	lda #$7f        ;for stop key check
-	sta colm
-	plp
-	bne mlp42
+	lda shflag
+	and #4
+	beq mlp42
 ;
+	lda #mhz
 	ldy #0
 mlp4	nop             ;delay
 	dex
 	bne mlp4
 	dey
+	bne mlp4
+	sec
+	sbc #1
 	bne mlp4
 	sty ndx         ;clear key queue buffer
 ;
@@ -411,9 +409,15 @@ scnkey	ldx $9f60
 	beq scnkey1
 	cmp #$59        ;rshift
 	beq scnkey1     ;BUG: rshift up can cancel lshift
+	cmp #$14        ;lctrl
+	beq scnkey2
 scnrts2	rts             ;otherwise ignore key up
 scnkey1	lda shflag
-	and #$fe
+	and #$ff-1
+	sta shflag
+	rts
+scnkey2	lda shflag
+	and #$ff-4
 	sta shflag
 	rts
 ; extended set
@@ -449,7 +453,13 @@ scn8	lda #$13
 scn2	cpx #$12        ;lshift
 	beq scn21
 	cpx #$59        ;rshift
+	beq scn21
+	cpx #$14        ;lctrl
 	bne scn20
+	lda shflag
+	ora #4
+	sta shflag
+	rts
 scn21	lda shflag
 	ora #1
 	sta shflag

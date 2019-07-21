@@ -190,8 +190,7 @@ lp22	cmp #$d
 	bne loop4
 	ldy lnmx
 	sty crsw
-clp5
-	jsr ldapnty
+clp5	jsr ldapnty
 	cmp #' '
 	bne clp6
 	dey
@@ -614,7 +613,6 @@ ldausery
 	asl
 	sec
 	bcs ldapnt2
-
 ldapnty	tya
 	asl
 	clc
@@ -634,7 +632,6 @@ stausery
 	asl
 	sec
 	bcs stapnt2
-
 stapnty	pha
 	tya
 	asl
