@@ -234,7 +234,7 @@ timrb	=$19            ;6526 crb enable one-shot tb
 
 ;screen editor constants
 ;
-llen	=40             ;single line 40 columns
+llen	=80             ;single line 80 columns
 llen2	=80             ;double line = 80 columns
 nlines	=25             ;25 rows on screen
 white	=$01            ;white screen color

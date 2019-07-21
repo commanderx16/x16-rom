@@ -1,3 +1,6 @@
+scrsz=$1000 ; must be power of two
+scrlo=(>scrsz)-1 ; for masking offset in screen ram
+
 ;screen scroll routine
 ;
 scrol	lda sal
@@ -138,7 +141,7 @@ scrd22
 ; scroll line from sal to pnt
 ;
 scrlin
-	and #$07        ;clear any garbage stuff
+	and #scrlo      ;clear any garbage stuff
 	ora hibase      ;put in hiorder bits
 	sta sal+1
 	jsr tofrom      ;color to & from addrs
@@ -181,7 +184,7 @@ tofrom
 	lda sal         ;character from
 	sta eal         ;make color from
 	lda sal+1
-	and #$07
+	and #scrlo
 	ora #>viccol
 	sta eal+1
 	rts
@@ -192,7 +195,7 @@ tofrom
 setpnt	lda ldtb2,x
 	sta pnt
 	lda ldtb1,x
-	and #$07
+	and #scrlo
 	ora hibase
 	sta pnt+1
 	rts
