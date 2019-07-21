@@ -403,8 +403,27 @@ scnkey	ldx $9f60
 	bne scn1
 	lda $9f60       ;ignore key up
 	rts
-scn1	lda scancode_to_petscii,x
-	ldx ndx         ;get # of chars in key queue
+scn1	cpx #$e0        ;extended set
+	bne scn2
+	lda $9f60
+	cmp #$6b        ;csr left
+	bne scn4
+	lda #$9d
+	bne scn3
+scn4	cmp #$72        ;csr down
+	bne scn5
+	lda #$11
+	bne scn3
+scn5	cmp #$74        ;csr right
+	bne scn6
+	lda #$1d
+	bne scn3
+scn6	cmp #$75        ;csr up
+	bne scnrts
+	lda #$91
+	bne scn3
+scn2	lda scancode_to_petscii,x
+scn3	ldx ndx         ;get # of chars in key queue
 	cpx xmax        ;irq buffer full ?
 	bcs scnrts      ;yes - no more insert
 	sta keyd,x      ;put raw data here
