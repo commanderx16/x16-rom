@@ -136,20 +136,40 @@ scrd22
 	jmp pulind      ;go pul old indirects and return
 ;
 ; scroll line from sal to pnt
-; and colors from eal to user
 ;
 scrlin
-	and #$03        ;clear any garbage stuff
+	and #$07        ;clear any garbage stuff
 	ora hibase      ;put in hiorder bits
 	sta sal+1
 	jsr tofrom      ;color to & from addrs
-	ldy #llen-1
+	lda #llen-1
+	sta eal
 scd20
-	lda (sal),y
-	sta (pnt),y
-	lda (eal),y
-	sta (user),y
-	dey
+	lda #$10
+	sta $9f20
+	lda eal
+	asl
+	clc
+	adc sal
+	sta $9f22
+	lda sal+1
+	adc #0
+	sta $9f21
+	lda $9f23       ;character
+	pha
+	ldy $9f23       ;color
+	lda eal
+	asl
+	clc
+	adc pnt
+	sta $9f22
+	lda pnt+1
+	adc #0
+	sta $9f21
+	pla
+	sta $9f23       ;character
+	sty $9f23       ;color
+	dec eal
 	bpl scd20
 	rts
 ;
@@ -161,7 +181,7 @@ tofrom
 	lda sal         ;character from
 	sta eal         ;make color from
 	lda sal+1
-	and #$03
+	and #$07
 	ora #>viccol
 	sta eal+1
 	rts
@@ -172,7 +192,7 @@ tofrom
 setpnt	lda ldtb2,x
 	sta pnt
 	lda ldtb1,x
-	and #$03
+	and #$07
 	ora hibase
 	sta pnt+1
 	rts

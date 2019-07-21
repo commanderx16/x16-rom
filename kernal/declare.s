@@ -168,7 +168,7 @@ usrcmd	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
 
-vicscn	=$0400
+vicscn	=$0000
 
 ; i/o devices
 ;
