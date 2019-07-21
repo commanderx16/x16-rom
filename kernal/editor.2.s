@@ -398,11 +398,20 @@ scnrts
 	rts
 .else
 scnkey	ldx $9f60
-	beq scnrts
+	beq scnrts2
 	cpx #$f0
 	bne scn1
-	lda $9f60       ;ignore key up
+	lda $9f60
+	cmp #$12        ;lshift
+	beq scnkey1
+	cmp #$59        ;rshift
+	beq scnkey1     ;BUG: rshift up can cancel lshift
+scnrts2	rts             ;otherwise ignore key up
+scnkey1	lda shflag
+	and #$fe
+	sta shflag
 	rts
+; extended set
 scn1	cpx #$e0        ;extended set
 	bne scn2
 	lda $9f60
@@ -419,10 +428,34 @@ scn5	cmp #$74        ;csr right
 	lda #$1d
 	bne scn3
 scn6	cmp #$75        ;csr up
-	bne scnrts
+	bne scn7
 	lda #$91
 	bne scn3
-scn2	lda scancode_to_petscii,x
+scn7	cmp #$6c        ;home
+	bne scnrts
+	lda shflag
+	and #1
+	beq scn8
+	lda #$93
+	bne scn3
+scn8	lda #$13
+	bne scn3
+; modifier keys
+scn2	cpx #$12        ;lshift
+	beq scn21
+	cpx #$59        ;rshift
+	bne scn20
+scn21	lda shflag
+	ora #1
+	sta shflag
+	rts
+; keys from the table
+scn20	lda shflag
+	and #1
+	bne scn10
+	lda scancode_to_petscii,x
+	jmp scn3
+scn10	lda scancode_to_petscii_shifted,x
 scn3	ldx ndx         ;get # of chars in key queue
 	cpx xmax        ;irq buffer full ?
 	bcs scnrts      ;yes - no more insert
@@ -446,6 +479,22 @@ scancode_to_petscii:
 .byte $00,$00,$27,$00,'[','=',$00,$00,$00,$00,$0d,']',$00,'\',$00,$00
 ; $60-$6f
 .byte $00,$00,$00,$00,$00,$00,$14,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+scancode_to_petscii_shifted:
+; $00-$0f
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; $10-$1f
+.byte $00,$00,$00,$00,$00,'Q'+$80,'!',$00,$00,$00,'Z'+$80,'S'+$80,'A'+$80,'W'+$80,'@',$00
+; $20-$2f
+.byte $00,'C'+$80,'X'+$80,'D'+$80,'E'+$80,'$','#',$00,$00,' ','V'+$80,'F'+$80,'T'+$80,'R'+$80,'%',$00
+; $30-$3f
+.byte $00,'N'+$80,'B'+$80,'H'+$80,'G'+$80,'Y'+$80,'^',$00,$00,$00,'M'+$80,'J'+$80,'U'+$80,'7','8',$00
+; $40-$4f
+.byte $00,',','K'+$80,'I'+$80,'O'+$80,')','(',$00,$00,'.','?','L'+$80,';','P'+$80,'_',$00
+; $50-$5f
+.byte $00,$00,'"',$00,'{','+',$00,$00,$00,$00,$8d,'}',$00,'|',$00,$00
+; $60-$6f
+.byte $00,$00,$00,$00,$00,$00,$94,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .endif
 
 .if 0
