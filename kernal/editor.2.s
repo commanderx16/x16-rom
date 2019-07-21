@@ -1,5 +1,5 @@
 scrsz   =$4000          ;screen ram size, rounded up to power of two
-scrlo   =(>scrsz)-1     ;for masking offset in screen ram
+scrmsk  =(>scrsz)-1     ;for masking offset in screen ram
 mhz     =8              ;for the scroll delay loop
 
 ;screen scroll routine
@@ -127,7 +127,7 @@ scrd22
 ; scroll line from sal to pnt
 ;
 scrlin
-	and #scrlo      ;clear any garbage stuff
+	and #scrmsk     ;clear any garbage stuff
 	ora hibase      ;put in hiorder bits
 	sta sal+1
 .if 0                   ;slow version
@@ -209,7 +209,7 @@ scd22	lda tmpscrl,y
 setpnt	lda ldtb2,x
 	sta pnt
 	lda ldtb1,x
-	and #scrlo
+	and #scrmsk
 	ora hibase
 	sta pnt+1
 	rts
@@ -301,105 +301,6 @@ kprend	lda d2t1l       ;clear interupt flags
 
 ; ****** general keyboard scan ******
 ;
-.if 0
-scnkey	lda #$00
-	sta shflag
-	ldy #64         ;last key index
-	sty sfdx        ;null key found
-	sta colm        ;raise all lines
-	ldx rows        ;check for a key down
-	cpx #$ff        ;no keys down?
-	beq scnout      ;branch if none
-	tay             ;.a=0 ldy #0
-	lda #<mode1
-	sta keytab
-	lda #>mode1
-	sta keytab+1
-	lda #$fe        ;start with 1st column
-	sta colm
-scn20	ldx #8          ;8 row keyboard
-	pha             ;save column output info
-scn22	lda rows
-	cmp rows        ;debounce keyboard
-	bne scn22
-scn30	lsr a           ;look for key down
-	bcs ckit        ;none
-	pha
-	lda (keytab),y  ;get char code
-	cmp #$05
-	bcs spck2       ;if not special key go on
-	cmp #$03        ;could it be a stop key?
-	beq spck2       ;branch if so
-	ora shflag
-	sta shflag      ;put shift bit in flag byte
-	bpl ckut
-spck2
-	sty sfdx        ;save key number
-ckut	pla
-ckit	iny
-	cpy #65
-	bcs ckit1       ;branch if finished
-	dex
-	bne scn30
-	sec
-	pla             ;reload column info
-	rol a
-	sta colm        ;next column on keyboard
-	bne scn20       ;always branch
-ckit1	pla             ;dump column output...all done
-	jmp (keylog)    ;evaluate shift functions
-rekey	ldy sfdx        ;get key index
-	lda (keytab),y   ;get char code
-	tax             ;save the char
-	cpx lstx        ;same as prev char index?
-	beq rpt10       ;yes
-	ldy #$10        ;no - reset delay before repeat
-	sty delay
-	bne ckit2       ;always
-rpt10	and #$7f        ;unshift it
-	bit rptflg      ;check for repeat disable
-	bmi rpt20       ;yes
-	bvs scnrts
-	cmp #$7f        ;no keys ?
-scnout	beq ckit2       ;yes - get out
-	cmp #$14        ;an inst/del key ?
-	beq rpt20       ;yes - repeat it
-	cmp #$20        ;a space key ?
-	beq rpt20       ;yes
-	cmp #$1d        ;a crsr left/right ?
-	beq rpt20       ;yes
-	cmp #$11        ;a crsr up/dwn ?
-	bne scnrts      ;no - exit
-rpt20	ldy delay       ;time to repeat ?
-	beq rpt40       ;yes
-	dec delay
-	bne scnrts
-rpt40	dec kount       ;time for next repeat ?
-	bne scnrts      ;no
-	ldy #4          ;yes - reset ctr
-	sty kount
-	ldy ndx         ;no repeat if queue full
-	dey
-	bpl scnrts
-ckit2
-	stx lstx        ;save this index to key found
-	ldy shflag      ;update shift status
-	sty lstshf
-ckit3	cpx #$ff        ;a null key or no key ?
-	beq scnrts      ;branch if so
-	txa             ;need x as index so...
-	ldx ndx         ;get # of chars in key queue
-	cpx xmax        ;irq buffer full ?
-	bcs scnrts      ;yes - no more insert
-putque
-	sta keyd,x      ;put raw data here
-	inx
-	stx ndx         ;update key queue count
-scnrts
-	lda #$7f        ;setup pb7 for stop key sense
-	sta colm
-	rts
-.else
 scnkey	ldx $9f60
 	beq scnrts2
 	cpx #$f0
@@ -409,15 +310,17 @@ scnkey	ldx $9f60
 	beq scnkey1
 	cmp #$59        ;rshift
 	beq scnkey1     ;BUG: rshift up can cancel lshift
-	cmp #$14        ;lctrl
+	cmp #$11        ;lalt
 	beq scnkey2
+	cmp #$14        ;lctrl
+	beq scnkey3
 scnrts2	rts             ;otherwise ignore key up
-scnkey1	lda shflag
-	and #$ff-1
-	sta shflag
-	rts
-scnkey2	lda shflag
-	and #$ff-4
+scnkey1	lda #$ff-1      ;shift
+	.byte $2c
+scnkey2	lda #$ff-2      ;commodore
+	.byte $2c
+scnkey3	lda #$ff-4      ;control
+	and shflag
 	sta shflag
 	rts
 ; extended set
@@ -451,26 +354,37 @@ scn8	lda #$13
 	bne scn3
 ; modifier keys
 scn2	cpx #$12        ;lshift
-	beq scn21
+	beq scn22
 	cpx #$59        ;rshift
+	beq scn22
+	cpx #$11        ;lalt
 	beq scn21
 	cpx #$14        ;lctrl
 	bne scn20
-	lda shflag
-	ora #4
-	sta shflag
-	rts
-scn21	lda shflag
-	ora #1
+	lda #4          ;control
+	.byte $2c
+scn21	lda #2          ;commodore
+	.byte $2c
+scn22	lda #1          ;shift
+	.byte $2c
+	ora shflag
 	sta shflag
 	rts
 ; keys from the table
 scn20	lda shflag
-	and #1
-	bne scn10
-	lda scancode_to_petscii,x
+	lsr
+	bcs scn10
+	lsr
+	bcs scn11
+	lsr
+	bcs scn12
+	lda mode1,x     ;regular
 	jmp scn3
-scn10	lda scancode_to_petscii_shifted,x
+scn12	lda contrl,x    ;+control
+	jmp scn3
+scn11	lda mode3,x     ;+commodore
+	jmp scn3
+scn10	lda mode2,x     ;+shift
 scn3	ldx ndx         ;get # of chars in key queue
 	cpx xmax        ;irq buffer full ?
 	bcs scnrts      ;yes - no more insert
@@ -478,73 +392,6 @@ scn3	ldx ndx         ;get # of chars in key queue
 	inx
 	stx ndx         ;update key queue count
 scnrts	rts
-
-scancode_to_petscii:
-; $00-$0f
-.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-; $10-$1f
-.byte $00,$00,$00,$00,$00,'Q','1',$00,$00,$00,'Z','S','A','W','2',$00
-; $20-$2f
-.byte $00,'C','X','D','E','4','3',$00,$00,' ','V','F','T','R','5',$00
-; $30-$3f
-.byte $00,'N','B','H','G','Y','6',$00,$00,$00,'M','J','U','7','8',$00
-; $40-$4f
-.byte $00,',','K','I','O','0','9',$00,$00,'.','/','L',';','P','-',$00
-; $50-$5f
-.byte $00,$00,$27,$00,'[','=',$00,$00,$00,$00,$0d,']',$00,'\',$00,$00
-; $60-$6f
-.byte $00,$00,$00,$00,$00,$00,$14,$00,$00,$00,$00,$00,$00,$00,$00,$00
-
-scancode_to_petscii_shifted:
-; $00-$0f
-.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-; $10-$1f
-.byte $00,$00,$00,$00,$00,'Q'+$80,'!',$00,$00,$00,'Z'+$80,'S'+$80,'A'+$80,'W'+$80,'@',$00
-; $20-$2f
-.byte $00,'C'+$80,'X'+$80,'D'+$80,'E'+$80,'$','#',$00,$00,' ','V'+$80,'F'+$80,'T'+$80,'R'+$80,'%',$00
-; $30-$3f
-.byte $00,'N'+$80,'B'+$80,'H'+$80,'G'+$80,'Y'+$80,'^',$00,$00,$00,'M'+$80,'J'+$80,'U'+$80,'7','8',$00
-; $40-$4f
-.byte $00,',','K'+$80,'I'+$80,'O'+$80,')','(',$00,$00,'.','?','L'+$80,':','P'+$80,'_',$00
-; $50-$5f
-.byte $00,$00,'"',$00,'{','+',$00,$00,$00,$00,$8d,'}',$00,'|',$00,$00
-; $60-$6f
-.byte $00,$00,$00,$00,$00,$00,$94,$00,$00,$00,$00,$00,$00,$00,$00,$00
-.endif
-
-.if 0
-;
-; shift logic
-;
-shflog
-	lda shflag
-	cmp #$03        ;commodore shift combination?
-	bne keylg2      ;branch if not
-	cmp lstshf      ;did i do this already
-	beq scnrts      ;branch if so
-	lda mode
-	bmi shfout      ;dont shift if its minus
-
-switch	; XXX TODO: switch upper/lower case character set
-	jmp shfout
-
-;
-keylg2
-	asl a
-	cmp #$08        ;was it a control key
-	bcc nctrl       ;branch if not
-	lda #6          ;else use table #4
-;
-nctrl
-notkat
-	tax
-	lda keycod,x
-	sta keytab
-	lda keycod+1,x
-	sta keytab+1
-shfout
-	jmp rekey
-.endif
 
 ; rsr 12/08/81 modify for vic-40
 ; rsr  2/18/82 modify for 6526 input pad sense
