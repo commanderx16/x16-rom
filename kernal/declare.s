@@ -174,9 +174,6 @@ vicscn	=$0000
 ;
 mmtop   =$9f00
 
-; XXX TODO: remove
-viccol	=$d800           ;vic color nybbles
-
 via1	=$9f40                  ;VIA 6522 #1
 d1prb	=via1+0
 d1pra	=via1+1

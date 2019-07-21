@@ -7,10 +7,6 @@ scrol	lda sal
 	pha
 	lda sah
 	pha
-	lda eal
-	pha
-	lda eah
-	pha
 ;
 ;   s c r o l l   u p
 ;
@@ -73,10 +69,6 @@ mlp4	nop             ;delay
 mlp42	ldx tblx
 ;
 pulind	pla             ;restore old indirects
-	sta eah
-	pla
-	sta eal
-	pla
 	sta sah
 	pla
 	sta sal
@@ -102,10 +94,6 @@ bmt2	stx lintmp      ;found it
 newlx	lda sal
 	pha
 	lda sah
-	pha
-	lda eal
-	pha
-	lda eah
 	pha
 	ldx #nlines
 scd10	dex
@@ -144,7 +132,6 @@ scrlin
 	and #scrlo      ;clear any garbage stuff
 	ora hibase      ;put in hiorder bits
 	sta sal+1
-	jsr tofrom      ;color to & from addrs
 	lda #llen-1
 	sta eal
 scd20
@@ -176,19 +163,6 @@ scd20
 	bpl scd20
 	rts
 ;
-; do color to and from addresses
-; from character to and from adrs
-;
-tofrom
-	jsr scolor
-	lda sal         ;character from
-	sta eal         ;make color from
-	lda sal+1
-	and #scrlo
-	ora #>viccol
-	sta eal+1
-	rts
-;
 ; set up pnt and y
 ; from .x
 ;
@@ -204,7 +178,6 @@ setpnt	lda ldtb2,x
 ;
 clrln	ldy #llen-1
 	jsr setpnt
-	jsr scolor
 	lda #$10        ;auto-increment 1
 	sta $9f20
 	lda pnt+1
@@ -225,7 +198,6 @@ clr10	lda #$20
 dspp	tay             ;save char
 	lda #2
 	sta blnct       ;blink cursor
-	jsr scolor      ;set color ptr
 	tya             ;restore color
 dspp2	pha
 	lda pntr        ;set address
@@ -241,15 +213,6 @@ dspp2	pha
 	pla
 	sta $9f23       ;store character
 	stx $9f23       ;color to screen
-	rts
-
-; XXX TODO remove
-scolor	lda pnt         ;generate color ptr
-	sta user
-	lda pnt+1
-	and #$03
-	ora #>viccol    ;vic color ram
-	sta user+1
 	rts
 
 key	jsr $ffea       ;update jiffy clock

@@ -117,7 +117,7 @@ fndend	ldy ldtb1,x
 	bpl fndend
 stdone
 	sta lnmx
-	jmp scolor      ;make color pointer follow 901227-03**********
+	rts
 
 ; this is a patch for input logic 901227-03**********
 ;   fixes input"xxxxxxx-40-xxxxx";a$ problem
@@ -386,7 +386,6 @@ cnc3x	cmp #$14
 bak1up	jsr chkbak      ;should we dec tblx
 	dey
 	sty pntr
-bk1	jsr scolor      ;fix color ptrs
 bk15	iny
 	jsr ldapnty
 	dey
@@ -479,7 +478,6 @@ ins3	cpy #maxchr-1
 	beq insext      ;exit if line too long
 	jsr newlin      ;scroll down 1
 ins1	ldy lnmx
-	jsr scolor
 ins2	dey
 	jsr ldapnty
 	iny
