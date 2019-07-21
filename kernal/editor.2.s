@@ -47,6 +47,11 @@ scrl3	sta ldtb1,x
 ;
 	inc tblx
 	inc lintmp
+.ifdef PS2
+	lda shflag
+	and #4
+	beq mlp42
+.else
 	lda #$7f        ;check for control key
 	sta colm        ;drop line 2 on port b
 	lda rows
@@ -56,12 +61,17 @@ scrl3	sta ldtb1,x
 	sta colm
 	plp
 	bne mlp42
+.endif
 ;
+	lda #mhz
 	ldy #0
 mlp4	nop             ;delay
 	dex
 	bne mlp4
 	dey
+	bne mlp4
+	sec
+	sbc #1
 	bne mlp4
 	sty ndx         ;clear key queue buffer
 ;
@@ -297,6 +307,106 @@ kprend
 
 ; ****** general keyboard scan ******
 ;
+.ifdef PS2
+scnkey	jsr kbscan
+	beq scnrts2
+	jsr kbget
+	tax
+	beq scnrts2
+	cpx #$f0
+	bne scn1
+; key was released
+	jsr kbget
+	cmp #$76
+	bne scnkey0
+	lda #$ff        ;stop
+	sta stkey
+	rts
+scnkey0	cmp #$12        ;lshift
+	beq scnkey1
+	cmp #$59        ;rshift
+	beq scnkey1     ;BUG: rshift up can cancel lshift
+	cmp #$11        ;lalt
+	beq scnkey2
+	cmp #$14        ;lctrl
+	beq scnkey3
+scnrts2	rts             ;otherwise ignore key up
+scnkey1	lda #$ff-1      ;shift
+	.byte $2c
+scnkey2	lda #$ff-2      ;commodore
+	.byte $2c
+scnkey3	lda #$ff-4      ;control
+	and shflag
+	sta shflag
+	rts
+; extended set
+scn1	cpx #$e0        ;extended set
+	bne scn2
+	jsr kbget
+	cmp #$6b        ;csr left
+	bne scn4
+	lda #$9d
+	bne scn3
+scn4	cmp #$72        ;csr down
+	bne scn5
+	lda #$11
+	bne scn3
+scn5	cmp #$74        ;csr right
+	bne scn6
+	lda #$1d
+	bne scn3
+scn6	cmp #$75        ;csr up
+	bne scn7
+	lda #$91
+	bne scn3
+scn7	cmp #$6c        ;home
+	bne scnrts
+	lda shflag
+	and #1
+	beq scn8
+	lda #$93
+	bne scn3
+scn8	lda #$13
+	bne scn3
+; modifier keys
+scn2	cpx #$76
+	beq scn23
+	cpx #$12        ;lshift
+	beq scn22
+	cpx #$59        ;rshift
+	beq scn22
+	cpx #$11        ;lalt
+	beq scn21
+	cpx #$14        ;lctrl
+	bne scn20
+	lda #4          ;control
+	.byte $2c
+scn21	lda #2          ;commodore
+	.byte $2c
+scn22	lda #1          ;shift
+	.byte $2c
+	ora shflag
+	sta shflag
+	rts
+scn23	lda #$7f        ;stop
+	sta stkey
+; keys from the table
+scn20	lda shflag
+	lsr
+	bcs scn10
+	lsr
+	bcs scn11
+	lsr
+	bcs scn12
+	lda mode1,x     ;regular
+	jmp scn3
+scn12	lda contrl,x    ;+control
+	jmp scn3
+scn11	lda mode3,x     ;+commodore
+	jmp scn3
+scn10	lda mode2,x     ;+shift
+scn3
+.else
 scnkey	lda #$00
 	sta shflag
 	ldy #64         ;last key index
@@ -384,17 +494,21 @@ ckit2
 ckit3	cpx #$ff        ;a null key or no key ?
 	beq scnrts      ;branch if so
 	txa             ;need x as index so...
+.endif
 	ldx ndx         ;get # of chars in key queue
 	cpx xmax        ;irq buffer full ?
 	bcs scnrts      ;yes - no more insert
-putque
 	sta keyd,x      ;put raw data here
 	inx
 	stx ndx         ;update key queue count
-scnrts	lda #$7f        ;setup pb7 for stop key sense
+scnrts
+.ifndef PS2
+	lda #$7f        ;setup pb7 for stop key sense
 	sta colm
+.endif
 	rts
 
+.ifndef PS2
 ;
 ; shift logic
 ;
@@ -427,6 +541,92 @@ notkat
 	sta keytab+1
 shfout
 	jmp rekey
+.endif
+
+.ifdef PS2
+; The following code is based on:
+; "PC keyboard Interface for the 6502 Microprocessor utilizing a 6522 VIA"
+; Designed and Written by Daryl Rictor (c) 2001   65c02@altavista.com
+; Offered as freeware.  No warranty is given.  Use at your own risk.
+
+ps2_data=1              ; 6522 IO port data bit mask  (PA0)
+ps2_clk =2              ; 6522 IO port clock bit mask (PA1)
+
+kbscan	ldx #5*mhz      ;timer: x = (cycles - 40)/13   (105-40)/13=5
+	lda d2ddra      ;
+	and #$FF-ps2_data;set clk to input
+	sta d2ddra      ;
+kbscan1	lda #ps2_clk    ;
+	bit d2pra       ;
+	beq kbscan2     ;if clk goes low, data ready
+	dex             ;reduce timer
+	bne kbscan1     ;wait while clk is high
+	jsr kbdis       ;timed out, no data, disable receiver
+	lda #$00        ;set data not ready flag
+	rts             ;return
+kbscan2	jsr kbdis       ;disable the receiver so other routines get it
+	rts
+
+kbget	lda #0          ;
+	sta ps2byte     ;clear scankey holder
+	sta ps2par      ;clear parity holder
+	ldy #0          ;clear parity counter
+	ldx #8          ;bit counter
+	lda d2ddra      ;
+	and #$FF-ps2_data-ps2_clk;set clk to input
+	sta d2ddra      ;
+kbget1	lda #ps2_clk    ;
+	bit d2pra       ;
+	bne kbget1      ;wait while clk is high
+	lda d2pra       ;
+	and #ps2_data   ;get start bit
+	bne kbget1      ;if 1, false start bit, do again
+kbget2	jsr kbhighlow   ;wait for clk to return high then go low again
+	lsr             ;set c if data bit=1, clr if data bit=0
+	ror ps2byte     ;save bit to byte holder
+	bpl kbget3      ;
+	iny             ;add 1 to parity counter
+kbget3	dex             ;dec bit counter
+	bne kbget2      ;get next bit if bit count > 0
+	jsr kbhighlow   ;wait for parity bit
+	beq kbget4      ;if parity bit 0 do nothing
+	inc ps2par      ;if 1, set parity to 1
+kbget4	tya             ;get parity count
+	eor ps2par      ;compare with parity bit
+	and #1          ;mask bit 1 only
+	beq kberror     ;bad parity
+	jsr kbhighlow   ;wait for stop bit
+	beq kberror     ;0=bad stop bit
+	lda ps2byte     ;if byte & parity 0,
+	beq kbget       ;no data, do again
+	jsr kbdis       ;
+	lda ps2byte     ;
+	rts             ;
+;
+kbdis	lda d2pra       ;disable kb from sending more data
+	and #$FF-ps2_clk;clk = 0
+	sta d2pra       ;
+	lda d2ddra      ;set clk to ouput low
+	and #$FF -ps2_data-ps2_clk;(stop more data until ready)
+	ora #ps2_clk     ;
+	sta d2ddra       ;
+	rts              ;
+;
+
+kbhighlow
+	lda #ps2_clk     ;wait for a low to high to low transition
+	bit d2pra        ;
+	beq kbhighlow    ;wait while clk low
+kbhl1	bit d2pra        ;
+	bne kbhl1        ;wait while clk is high
+	lda d2pra        ;
+	and #ps2_data    ;get data line state
+	rts              ;
+
+kberror
+	sec
+	rts
+.endif
 
 ; rsr 12/08/81 modify for vic-40
 ; rsr  2/18/82 modify for 6526 input pad sense
