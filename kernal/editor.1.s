@@ -59,7 +59,7 @@ cint	jsr iokeys
 	lda #10
 	sta xmax        ;maximum type ahead buffer size
 	sta delay
-	lda #$6e        ;init color to light blue on blue
+	lda #$61        ;init color to white on blue
 	sta color
 	lda #4
 	sta kount       ;delay between key repeats
