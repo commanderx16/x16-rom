@@ -71,7 +71,10 @@ clsr	lda hibase      ;fill hi byte ptr table
 	tay
 	lda #0
 	tax
-lps1	sty ldtb1,x
+lps1	pha
+	tya
+	sta ldtb1,x
+	pla
 	clc
 	adc #llen*2
 	bcc lps2

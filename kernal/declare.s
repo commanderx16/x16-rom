@@ -71,8 +71,8 @@ lnmx	.res 1           ;40/80 max positon
 tblx	.res 1
 data	.res 1
 insrt	.res 1           ;insert mode flag
-ldtb1	.res 26          ;line flags+endspace
-user	.res 2           ;screen editor color ip
+	.res 26          ;unused (flags+endspace)
+	.res 2           ;unused (screen editor color ip)
 keytab	.res 2           ;keyscan table indirect
 ;rs-232 z-page
 ribuf	.res 2           ;rs-232 input buffer pointer
@@ -168,6 +168,8 @@ usrcmd	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
 
+ldtb1	.res 61          ;flags+endspace
+
 vicscn	=$0000
 
 ; i/o devices
@@ -233,7 +235,7 @@ timrb	=$19            ;6526 crb enable one-shot tb
 ;
 llen	=80             ;single line 80 columns
 llen2	=80             ;double line = 80 columns
-nlines	=25             ;25 rows on screen
+nlines	=60             ;60 rows on screen
 white	=$01            ;white screen color
 blue	=$06            ;blue char color
 cr	=$d             ;carriage return
