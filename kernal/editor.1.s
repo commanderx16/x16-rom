@@ -631,8 +631,8 @@ stausery
 	pha
 	tya
 	asl
-	clc
-	bcc stapnt2
+	sec
+	bcs stapnt2
 
 stapnty	pha
 	tya
