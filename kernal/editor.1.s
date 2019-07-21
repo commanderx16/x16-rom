@@ -187,7 +187,8 @@ lp22	cmp #$d
 	bne loop4
 	ldy lnmx
 	sty crsw
-clp5	lda (pnt),y
+clp5
+	jsr ldapnty
 	cmp #' '
 	bne clp6
 	dey
@@ -219,7 +220,7 @@ loop5	tya
 	lda crsw
 	beq loop3
 lop5	ldy pntr
-	lda (pnt),y
+	jsr ldapnty
 notone
 	sta data
 lop51	and #$3f
@@ -387,20 +388,20 @@ bak1up	jsr chkbak      ;should we dec tblx
 	sty pntr
 bk1	jsr scolor      ;fix color ptrs
 bk15	iny
-	lda (pnt),y
+	jsr ldapnty
 	dey
-	sta (pnt),y
+	jsr stapnty
 	iny
-	lda (user),y
+	jsr ldausery
 	dey
-	sta (user),y
+	jsr stausery
 	iny
 	cpy lnmx
 	bne bk15
 bk2	lda #' '
-	sta (pnt),y
+	jsr stapnty
 	lda color
-	sta (user),y
+	jsr stausery
 	bpl jpl3
 ntcn1	ldx qtsw
 	beq nc3w
@@ -469,7 +470,7 @@ up5	ldx  qtsw
 	cmp #$14
 	bne up9
 	ldy lnmx
-	lda (pnt),y
+	jsr ldapnty
 	cmp #' '
 	bne ins3
 	cpy pntr
@@ -480,20 +481,20 @@ ins3	cpy #maxchr-1
 ins1	ldy lnmx
 	jsr scolor
 ins2	dey
-	lda (pnt),y
+	jsr ldapnty
 	iny
-	sta (pnt),y
+	jsr stapnty
 	dey
-	lda (user),y
+	jsr ldausery
 	iny
-	sta (user),y
+	jsr stausery
 	dey
 	cpy pntr
 	bne ins2
 	lda #$20
-	sta (pnt),y
+	jsr stapnty
 	lda color
-	sta (user),y
+	jsr stausery
 	inc insrt
 insext	jmp loop2
 up9	ldx insrt
@@ -606,6 +607,47 @@ coltab
 ;blk,wht,red,cyan,magenta,grn,blue,yellow
 	.byt $90,$05,$1c,$9f,$9c,$1e,$1f,$9e
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
+
+ldausery
+	tya
+	asl
+	sec
+	bcs ldapnt2
+
+ldapnty	tya
+	asl
+	clc
+ldapnt2	adc pnt
+	sta $9f22
+	lda pnt+1
+	adc #0
+	sta $9f21
+	lda #$10
+	sta $9f20
+	lda $9f23
+	rts
+
+stausery
+	pha
+	tya
+	asl
+	clc
+	bcc stapnt2
+
+stapnty	pha
+	tya
+	asl
+	clc
+stapnt2	adc pnt
+	sta $9f22
+	lda pnt+1
+	adc #0
+	sta $9f21
+	lda #$10
+	sta $9f20
+	pla
+	sta $9f23
+	rts
 
 ; rsr modify for vic-40 system
 ; rsr 12/31/81 add 8 more colors
