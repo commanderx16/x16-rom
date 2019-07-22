@@ -294,8 +294,14 @@ scnkey	ldx $9f60
 	beq scnrts2
 	cpx #$f0
 	bne scn1
+; key was released
 	lda $9f60
-	cmp #$12        ;lshift
+	cmp #$76
+	bne scnkey0
+	lda #$ff        ;stop
+	sta stkey
+	rts
+scnkey0	cmp #$12        ;lshift
 	beq scnkey1
 	cmp #$59        ;rshift
 	beq scnkey1     ;BUG: rshift up can cancel lshift
@@ -342,7 +348,9 @@ scn7	cmp #$6c        ;home
 scn8	lda #$13
 	bne scn3
 ; modifier keys
-scn2	cpx #$12        ;lshift
+scn2	cpx #$76
+	beq scn23
+	cpx #$12        ;lshift
 	beq scn22
 	cpx #$59        ;rshift
 	beq scn22
@@ -359,6 +367,8 @@ scn22	lda #1          ;shift
 	ora shflag
 	sta shflag
 	rts
+scn23	lda #$7f        ;stop
+	sta stkey
 ; keys from the table
 scn20	lda shflag
 	lsr
