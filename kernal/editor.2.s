@@ -290,12 +290,12 @@ kprend	lda d2t1l       ;clear interupt flags
 
 ; ****** general keyboard scan ******
 ;
-scnkey	ldx $9f60
+scnkey	ldx $9f70
 	beq scnrts2
 	cpx #$f0
 	bne scn1
 ; key was released
-	lda $9f60
+	lda $9f70
 	cmp #$76
 	bne scnkey0
 	lda #$ff        ;stop
@@ -321,7 +321,7 @@ scnkey3	lda #$ff-4      ;control
 ; extended set
 scn1	cpx #$e0        ;extended set
 	bne scn2
-	lda $9f60
+	lda $9f70
 	cmp #$6b        ;csr left
 	bne scn4
 	lda #$9d
