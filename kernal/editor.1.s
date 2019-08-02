@@ -46,12 +46,7 @@ plot10	ldx tblx
 
 ;initialize i/o
 ;
-cint	lda vicreg+18   ;check raster compare for zero
-	bne cint       ;if it's zero then check value
-	lda vicreg+25   ;get raster irq value
-	and #$01
-	sta palnts      ;place in pal/ntsc indicator
-	jsr iokeys
+cint	jsr iokeys
 ;
 ; establish screen memory
 ;
@@ -68,8 +63,8 @@ cint	lda vicreg+18   ;check raster compare for zero
 	lda #10
 	sta xmax        ;maximum type ahead buffer size
 	sta delay
-	lda #$e         ;init color to light blue<<<<<<<<<<
-	sta color
+	lda #blue << 4 | white
+	sta color       ;init text color
 	lda #4
 	sta kount       ;delay between key repeats
 	lda #$c
@@ -80,9 +75,12 @@ clsr	lda hibase      ;fill hi byte ptr table
 	tay
 	lda #0
 	tax
-lps1	sty ldtb1,x
+lps1	pha
+	tya
+	sta ldtb1,x
+	pla
 	clc
-	adc #llen
+	adc #llen*2
 	bcc lps2
 	iny             ;carry bump hi byte
 lps2	inx
@@ -126,7 +124,7 @@ fndend	ldy ldtb1,x
 	bpl fndend
 stdone
 	sta lnmx
-	jmp scolor      ;make color pointer follow 901227-03**********
+	rts
 
 ; this is a patch for input logic 901227-03**********
 ;   fixes input"xxxxxxx-40-xxxxx";a$ problem
@@ -135,7 +133,6 @@ finput	cpx lsxp        ;check if on same line
 	beq finpux      ;yes..return to send
 	jmp findst      ;check if we wrapped down...
 finpux	rts
-	nop             ;keep the space the same...
 
 ;panic nmi entry
 ;
@@ -147,13 +144,10 @@ panic	lda #3          ;reset default i/o
 	lda #0
 	sta dfltn
 
-;init vic
+;init video
 ;
-initv	ldx #47         ;load all vic regs ***
-px4	lda tvic-1,x
-	sta vicreg-1,x
-	dex
-	bne px4
+initv
+	; XXX TODO
 	rts
 
 ;
@@ -201,7 +195,8 @@ lp22	cmp #$d
 	bne loop4
 	ldy lnmx
 	sty crsw
-clp5	lda (pnt),y
+clp5
+	jsr ldapnty
 	cmp #' '
 	bne clp6
 	dey
@@ -233,7 +228,7 @@ loop5	tya
 	lda crsw
 	beq loop3
 lop5	ldy pntr
-	lda (pnt),y
+	jsr ldapnty
 notone
 	sta data
 lop51	and #$3f
@@ -399,22 +394,21 @@ cnc3x	cmp #$14
 bak1up	jsr chkbak      ;should we dec tblx
 	dey
 	sty pntr
-bk1	jsr scolor      ;fix color ptrs
 bk15	iny
-	lda (pnt),y
+	jsr ldapnty
 	dey
-	sta (pnt),y
+	jsr stapnty
 	iny
-	lda (user),y
+	jsr ldausery
 	dey
-	sta (user),y
+	jsr stausery
 	iny
 	cpy lnmx
 	bne bk15
 bk2	lda #' '
-	sta (pnt),y
+	jsr stapnty
 	lda color
-	sta (user),y
+	jsr stausery
 	bpl jpl3
 ntcn1	ldx qtsw
 	beq nc3w
@@ -483,7 +477,7 @@ up5	ldx  qtsw
 	cmp #$14
 	bne up9
 	ldy lnmx
-	lda (pnt),y
+	jsr ldapnty
 	cmp #' '
 	bne ins3
 	cpy pntr
@@ -492,22 +486,21 @@ ins3	cpy #maxchr-1
 	beq insext      ;exit if line too long
 	jsr newlin      ;scroll down 1
 ins1	ldy lnmx
-	jsr scolor
 ins2	dey
-	lda (pnt),y
+	jsr ldapnty
 	iny
-	sta (pnt),y
+	jsr stapnty
 	dey
-	lda (user),y
+	jsr ldausery
 	iny
-	sta (user),y
+	jsr stausery
 	dey
 	cpy pntr
 	bne ins2
 	lda #$20
-	sta (pnt),y
+	jsr stapnty
 	lda color
-	sta (user),y
+	jsr stausery
 	inc insrt
 insext	jmp loop2
 up9	ldx insrt
@@ -613,13 +606,58 @@ chk1a	cmp coltab,x
 	rts
 ;
 chk1b
-	stx color       ;change the color
+	lda color
+	and #$f0        ;keep bg color
+	stx color
+	ora color
+	sta color       ;change the color
 	rts
 
 coltab
 ;blk,wht,red,cyan,magenta,grn,blue,yellow
 	.byt $90,$05,$1c,$9f,$9c,$1e,$1f,$9e
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
+
+ldausery
+	tya
+	asl
+	sec
+	bcs ldapnt2
+
+ldapnty	tya
+	asl
+	clc
+ldapnt2	adc pnt
+	sta veralo
+	lda pnt+1
+	adc #0
+	sta verahi
+	lda #$10
+	sta veractl
+	lda veradat
+	rts
+
+stausery
+	pha
+	tya
+	asl
+	sec
+	bcs stapnt2
+
+stapnty	pha
+	tya
+	asl
+	clc
+stapnt2	adc pnt
+	sta veralo
+	lda pnt+1
+	adc #0
+	sta verahi
+	lda #$10
+	sta veractl
+	pla
+	sta veradat
+	rts
 
 ; rsr modify for vic-40 system
 ; rsr 12/31/81 add 8 more colors

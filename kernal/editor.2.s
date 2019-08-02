@@ -1,12 +1,11 @@
+scrsz   =$4000          ;screen ram size, rounded up to power of two
+scrmsk  =(>scrsz)-1     ;for masking offset in screen ram
+
 ;screen scroll routine
 ;
 scrol	lda sal
 	pha
 	lda sah
-	pha
-	lda eal
-	pha
-	lda eah
 	pha
 ;
 ;   s c r o l l   u p
@@ -69,10 +68,6 @@ mlp4	nop             ;delay
 mlp42	ldx tblx
 ;
 pulind	pla             ;restore old indirects
-	sta eah
-	pla
-	sta eal
-	pla
 	sta sah
 	pla
 	sta sal
@@ -98,10 +93,6 @@ bmt2	stx lintmp      ;found it
 newlx	lda sal
 	pha
 	lda sah
-	pha
-	lda eal
-	pha
-	lda eah
 	pha
 	ldx #nlines
 scd10	dex
@@ -135,34 +126,82 @@ scrd22
 	jmp pulind      ;go pul old indirects and return
 ;
 ; scroll line from sal to pnt
-; and colors from eal to user
 ;
 scrlin
-	and #$03        ;clear any garbage stuff
+	and #scrmsk     ;clear any garbage stuff
 	ora hibase      ;put in hiorder bits
 	sta sal+1
-	jsr tofrom      ;color to & from addrs
-	ldy #llen-1
+.if 0                   ;slow version
+	lda #llen-1
+	sta eal
 scd20
-	lda (sal),y
-	sta (pnt),y
-	lda (eal),y
-	sta (user),y
-	dey
-	bpl scd20
-	rts
-;
-; do color to and from addresses
-; from character to and from adrs
-;
-tofrom
-	jsr scolor
-	lda sal         ;character from
-	sta eal         ;make color from
+	lda #$10
+	sta veractl
+	lda eal
+	asl
+	clc
+	adc sal
+	sta veralo
 	lda sal+1
-	and #$03
-	ora #>viccol
-	sta eal+1
+	adc #0
+	sta verahi
+	lda veradat     ;character
+	pha
+	ldy veradat     ;color
+	lda eal
+	asl
+	clc
+	adc pnt
+	sta veralo
+	lda pnt+1
+	adc #0
+	sta verahi
+	pla
+	sta veradat     ;character
+	sty veradat     ;color
+	dec eal
+	bpl scd20
+.else                   ;fast version that uses 20 bytes of zero page
+	lda #0
+scd20	sta eal
+
+	lda #$10
+	sta veractl
+	lda eal
+	clc
+	adc sal
+	sta veralo
+	lda sal+1
+	adc #0
+	sta verahi
+
+	ldy #20-1
+scd21	lda veradat
+	sta tmpscrl,y
+	dey
+	bpl scd21
+
+	lda eal
+	clc
+	adc pnt
+	sta veralo
+	lda pnt+1
+	adc #0
+	sta verahi
+
+	ldy #20-1
+scd22	lda tmpscrl,y
+	sta veradat
+	dey
+	bpl scd22
+
+	lda eal
+	clc
+	adc #20
+	cmp #llen*2-1
+	bcc scd20
+	lda #$ff; to make bmi happy
+.endif
 	rts
 ;
 ; set up pnt and y
@@ -171,24 +210,28 @@ tofrom
 setpnt	lda ldtb2,x
 	sta pnt
 	lda ldtb1,x
-	and #$03
+	and #scrmsk
 	ora hibase
 	sta pnt+1
 	rts
 ;
 ; clear the line pointed to by .x
 ;
-clrln	ldy #llen-1
+clrln	ldy #llen
 	jsr setpnt
-	jsr scolor
-clr10	lda color       ;always clear to current foregnd color
-	sta (user),y
-	lda #$20        ;store a space
-	sta (pnt),y     ;to display
+	lda pnt
+	sta veralo      ;set base address
+	lda pnt+1
+	sta verahi
+	lda #$10        ;auto-increment = 1
+	sta veractl
+clr10	lda #$20
+	sta veradat     ;store space
+	lda color       ;always clear to current foregnd color
+	sta veradat
 	dey
-	bpl clr10
+	bne clr10
 	rts
-	nop
 
 ;
 ;put a char on the screen
@@ -196,20 +239,21 @@ clr10	lda color       ;always clear to current foregnd color
 dspp	tay             ;save char
 	lda #2
 	sta blnct       ;blink cursor
-	jsr scolor      ;set color ptr
 	tya             ;restore color
-dspp2	ldy pntr        ;get column
-	sta (pnt),y      ;char to screen
-	txa
-	sta (user),y     ;color to screen
-	rts
-
-scolor	lda pnt         ;generate color ptr
-	sta user
+dspp2	pha
+	lda pntr        ;set address
+	asl
+	clc
+	adc pnt
+	sta veralo
 	lda pnt+1
-	and #$03
-	ora #>viccol    ;vic color ram
-	sta user+1
+	adc #0
+	sta verahi
+	lda #$10        ;auto-increment = 1
+	sta veractl
+	pla
+	sta veradat     ;store character
+	stx veradat     ;color to screen
 	rts
 
 key	jsr $ffea       ;update jiffy clock
@@ -222,13 +266,12 @@ repdo	sta blnct
 	ldy pntr        ;cursor position
 	lsr blnon       ;carry set if original char
 	ldx gdcol       ;get char original color
-	lda (pnt),y      ;get character
+	jsr ldapnty     ;get character
 	bcs key5        ;branch if not needed
 ;
 	inc blnon       ;set to 1
 	sta gdbln       ;save original char
-	jsr scolor
-	lda (user),y     ;get original color
+	lda veradat     ;get original color
 	sta gdcol       ;save it
 	ldx color       ;blink in this color
 	lda gdbln       ;with original character
@@ -364,9 +407,8 @@ shflog
 	lda mode
 	bmi shfout      ;dont shift if its minus
 
-switch	lda vicreg+24   ;**********************************:
-	eor #$02        ;turn on other case
-	sta vicreg+24   ;point the vic there
+switch
+	; XXX TODO: switch upper/lower case character set
 	jmp shfout
 
 ;
