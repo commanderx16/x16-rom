@@ -103,7 +103,9 @@ size	tya             ;set top of memory
 
 ; ioinit - initilize io devices
 ;
-ioinit	lda #$7f        ;kill interrupts
+ioinit
+.ifdef C64
+	lda #$7f        ;kill interrupts
 	sta d1icr
 	sta d2icr
 	sta d1pra       ;turn on stop key
@@ -123,13 +125,19 @@ ioinit	lda #$7f        ;kill interrupts
 	sta d2pra
 	lda #%00111111  ;set serial in/out, va14/15out
 	sta d2ddra
+.else
+	; XXX TODO: VIC-20: $FDF9
+.endif
 ;
-; set up the 6510 lines
+; set up banking
 ;
+.ifdef C64
 	lda #%11100111  ;motor on, hiram lowram charen high
 	sta r6510
 	lda #%00101111  ;mtr out,sw in,wr out,control out
 	sta d6510
+.endif
+	; XXX TODO
 ;
 ;jsr clkhi ;clkhi to release serial devices  ^
 ;
