@@ -5,7 +5,6 @@ start	ldx #$ff
 	sei
 	txs
 	cld
-	stx vicreg+22   ;set up refresh (.x=<5)
 	jsr ioinit      ;go initilize i/o devices
 	jsr ramtas      ;go ram test and set
 	jsr restor      ;go set up os vectors
@@ -97,7 +96,7 @@ size	tya             ;set top of memory
 	jsr settop
 	lda #$08        ;set bottom of memory
 	sta memstr+1    ;always at $0800
-	lda #$04        ;screen always at $400
+	lda #>vicscn
 	sta hibase      ;set base of screen
 	rts
 
