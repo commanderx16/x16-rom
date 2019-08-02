@@ -1,7 +1,7 @@
 	.segment "JMPTBL"
 
 	;KERNAL revision
-	.byte 3
+	.byte $ff       ;pre-release version
 
 	jmp cint
 	jmp ioinit
@@ -46,7 +46,7 @@ jplot	jmp plot        ;read/set x,y coord
 jiobas	jmp iobase      ;return i/o base
 
 	;signature
-	.byte "RRBY"
+	.byte "MIST"
 
 	.segment "VECTORS"
 	.word nmi        ;program defineable
