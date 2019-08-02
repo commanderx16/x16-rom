@@ -141,7 +141,9 @@ ioinit
 ;
 ;jsr clkhi ;clkhi to release serial devices  ^
 ;
-iokeys	lda palnts      ;pal or ntsc
+iokeys
+.ifdef C64
+	lda palnts      ;pal or ntsc
 	beq i0010	;ntsc
 	lda #<sixtyp
 	sta d1t1l
@@ -157,6 +159,14 @@ i0020	sta d1t1h
 	and #$80        ;save only tod bit
 	ora #%00010001  ;enable timer1
 	sta d1cra
+.else
+	lda #<sixty     ;keyboard scan irq's
+	sta d2t1l
+	lda #>sixty
+	sta d2t1h
+	lda #$c0        ;enable t1 irq's
+	sta d2ier
+.endif
 	jmp clklo       ;release the clock line***901227-03***
 ;
 ; sixty hertz value
