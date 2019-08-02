@@ -239,7 +239,12 @@ key5	eor #$80        ;blink it
 key4
 	jsr scnkey      ;scan keyboard
 ;
-kprend	lda d1icr       ;clear interupt flags
+kprend
+.ifdef C64
+	lda d1icr       ;clear interupt flags
+.else
+	lda d2t1l       ;clear interupt flags
+.endif
 	pla             ;restore registers
 	tay
 	pla
