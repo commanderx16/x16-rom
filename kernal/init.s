@@ -49,8 +49,13 @@ vectse
 ; ramtas - memory size check and set
 ;
 ramtas	lda #0          ;zero low memory
+.ifdef C64
 	tay             ;start at 0002
 ramtz0	sta $0002,y     ;zero page
+.else
+	tay
+ramtz0	sta $0000,y     ;zero page
+.endif
 	sta $0200,y     ;user buffers and vars
 	sta $0300,y     ;system space and user space
 	iny
@@ -58,6 +63,7 @@ ramtz0	sta $0002,y     ;zero page
 ;
 ; set top of memory
 ;
+.ifdef C64
 ramtbt
 	tay             ;move $00 to .y
 	lda #3          ;set high inital index
@@ -83,6 +89,10 @@ ramtz2	lda (tmp0),y     ;get present data
 size	tya             ;set top of memory
 	tax
 	ldy tmp0+1
+.else
+	ldx #<mmtop
+	ldy #>mmtop
+.endif
 	clc
 	jsr settop
 	lda #$08        ;set bottom of memory
