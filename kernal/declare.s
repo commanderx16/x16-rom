@@ -176,6 +176,9 @@ vicscn	=$0400
 
 ; i/o devices
 ;
+.ifndef C64
+mmtop   =$9f00
+.endif
 vicreg	=$d000
 
 sidreg	=$d400
