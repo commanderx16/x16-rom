@@ -110,10 +110,26 @@ initv1	lda bvtrs,x
 	rts
 chke0	.byt $00
 
-words	.byt " BASIC BYTES FREE",13,0
-fremes	.byt 147,13,"    **** COMMODORE 64 BASIC V2 ****"
-	.byt 13,13," 64K RAM SYSTEM  ",0
-	.byt 0
+fremes
+	.byt $93
+	.byt $9c, $df, $12, $20, $20, $df, $92, $20, $20, $20, $12, $a9, $20, $20, $92, $a9, 13
+	.byt $9a, $20, $df, $12, $20, $20, $df, $92, $20, $12, $a9, $20, $20, $92, $a9
+	.byt 5, "  **** COMMANDER X16 BASIC V2 ****", 13
+	.byt $9f, $20, $20, $df, $12, $20, $20, $92, $20, $12, $20, $20, $92, $a9, 13
+	.byt $1e, $20, $20, $20, $20, $12, $20, $92, $20, $12, $20, $92
+.ifdef C64
+	.byt 5, "     DEVELOPMENT SYSTEM", 13
+.else
+	.byt 5, "     2048K RAM SYSTEM", 13
+.endif
+	.byt $9e, $20, $20, $12, $a9, $20, $20, $92, $20, $12, $20, $20, $df, 13
+	.byt $81, $20, $12, $a9, $20, $20, $92, $a9, $20, $df, $12, $20, $20, $df, $92
+	.byt 5, "  ", 0
+
+
+words	.byt " BASIC BYTES FREE",13
+	.byt $1c, $12, $a9, $20, $20, $92, $a9, $20, $20, $20, $df, $12, $20, $20, $df, 13
+	.byt 5, 0
 ; ppach - print# patch to coout (save .a)
 ;
 ppach	pha
