@@ -549,15 +549,24 @@ shfout
 ; Designed and Written by Daryl Rictor (c) 2001   65c02@altavista.com
 ; Offered as freeware.  No warranty is given.  Use at your own risk.
 
+.ifdef C64
+ps2ddr  =0
+ps2pr   =1
+ps2_data=$10
+ps2_clk =$08
+.else
+ps2ddr  =d2ddra
+ps2pr   =d2pra
 ps2_data=1              ; 6522 IO port data bit mask  (PA0)
 ps2_clk =2              ; 6522 IO port clock bit mask (PA1)
+.endif
 
 kbscan	ldx #5*mhz      ;timer: x = (cycles - 40)/13   (105-40)/13=5
-	lda d2ddra      ;
+	lda ps2ddr      ;
 	and #$FF-ps2_data;set clk to input
-	sta d2ddra      ;
+	sta ps2ddr      ;
 kbscan1	lda #ps2_clk    ;
-	bit d2pra       ;
+	bit ps2pr       ;
 	beq kbscan2     ;if clk goes low, data ready
 	dex             ;reduce timer
 	bne kbscan1     ;wait while clk is high
@@ -572,17 +581,22 @@ kbget	lda #0          ;
 	sta ps2par      ;clear parity holder
 	ldy #0          ;clear parity counter
 	ldx #8          ;bit counter
-	lda d2ddra      ;
+	lda ps2ddr      ;
 	and #$FF-ps2_data-ps2_clk;set clk to input
-	sta d2ddra      ;
+	sta ps2ddr      ;
 kbget1	lda #ps2_clk    ;
-	bit d2pra       ;
+	bit ps2pr       ;
 	bne kbget1      ;wait while clk is high
-	lda d2pra       ;
+	lda ps2pr       ;
 	and #ps2_data   ;get start bit
 	bne kbget1      ;if 1, false start bit, do again
 kbget2	jsr kbhighlow   ;wait for clk to return high then go low again
+.ifdef C64
+	and #ps2_data
+	cmp #ps2_data   ;set c if data bit=1, clr if data bit=0
+.else
 	lsr             ;set c if data bit=1, clr if data bit=0
+.endif
 	ror ps2byte     ;save bit to byte holder
 	bpl kbget3      ;
 	iny             ;add 1 to parity counter
@@ -603,23 +617,23 @@ kbget4	tya             ;get parity count
 	lda ps2byte     ;
 	rts             ;
 ;
-kbdis	lda d2pra       ;disable kb from sending more data
+kbdis	lda ps2pr       ;disable kb from sending more data
 	and #$FF-ps2_clk;clk = 0
-	sta d2pra       ;
-	lda d2ddra      ;set clk to ouput low
-	and #$FF -ps2_data-ps2_clk;(stop more data until ready)
+	sta ps2pr       ;
+	lda ps2ddr      ;set clk to ouput low
+	and #$FF-ps2_data-ps2_clk;(stop more data until ready)
 	ora #ps2_clk     ;
-	sta d2ddra       ;
+	sta ps2ddr       ;
 	rts              ;
 ;
 
 kbhighlow
 	lda #ps2_clk     ;wait for a low to high to low transition
-	bit d2pra        ;
+	bit ps2pr        ;
 	beq kbhighlow    ;wait while clk low
-kbhl1	bit d2pra        ;
+kbhl1	bit ps2pr        ;
 	bne kbhl1        ;wait while clk is high
-	lda d2pra        ;
+	lda ps2pr        ;
 	and #ps2_data    ;get data line state
 	rts              ;
 

@@ -134,10 +134,10 @@ ioinit
 ; set up banking
 ;
 .ifdef C64
-	lda #%11100111  ;motor on, hiram lowram charen high
-	sta r6510
-	lda #%00101111  ;mtr out,sw in,wr out,control out
-	sta d6510
+;	lda #%11100111  ;motor on, hiram lowram charen high
+;	sta r6510
+;	lda #%00101111  ;mtr out,sw in,wr out,control out
+;	sta d6510
 .endif
 	; XXX TODO
 ;
