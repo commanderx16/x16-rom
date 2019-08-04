@@ -308,104 +308,391 @@ kprend
 ; ****** general keyboard scan ******
 ;
 .ifdef PS2
-scnkey	jsr kbscan
-	beq scnrts2
-	jsr kbget
-	tax
-	beq scnrts2
-	cpx #$f0
-	bne scn1
-; key was released
-	jsr kbget
-	cmp #$76
-	bne scnkey0
-	lda #$ff        ;stop
-	sta stkey
-	rts
-scnkey0	cmp #$12        ;lshift
-	beq scnkey1
-	cmp #$59        ;rshift
-	beq scnkey1     ;BUG: rshift up can cancel lshift
-	cmp #$11        ;lalt
-	beq scnkey2
-	cmp #$14        ;lctrl
-	beq scnkey3
-scnrts2	rts             ;otherwise ignore key up
-scnkey1	lda #$ff-1      ;shift
-	.byte $2c
-scnkey2	lda #$ff-2      ;commodore
-	.byte $2c
-scnkey3	lda #$ff-4      ;control
-	and shflag
-	sta shflag
-	rts
-; extended set
-scn1	cpx #$e0        ;extended set
-	bne scn2
-	jsr kbget
-	cmp #$6b        ;csr left
-	bne scn4
-	lda #$9d
-	bne scn3
-scn4	cmp #$72        ;csr down
-	bne scn5
-	lda #$11
-	bne scn3
-scn5	cmp #$74        ;csr right
-	bne scn6
-	lda #$1d
-	bne scn3
-scn6	cmp #$75        ;csr up
-	bne scn7
-	lda #$91
-	bne scn3
-scn7	cmp #$6c        ;home
-	bne scnrts
+.ifdef C64
+port_ddr = 0  ; 6510 data direction register
+port_data = 1  ; 6510 data register
+;
+               ; TAPE PIN A (VCC)   <---> PS/2 PIN 4 (VCC)  [AT PIN 4]
+               ; TAPE PIN B (GNC)   <---> PS/2 PIN 3 (GND)  [AT PIN 5]
+bit_clk  = $08 ; TAPE PIN E (write) <---> PS/2 PIN 5 (CLK)  [AT PIN 1]
+bit_data = $10 ; TAPE PIN F (sense) <---> PS/2 PIN 1 (DATA) [AT PIN 2]
+.else
+port_ddr  =d2ddra
+port_data   =d2pra
+bit_data=1              ; 6522 IO port data bit mask  (PA0)
+bit_clk =2              ; 6522 IO port clock bit mask (PA1)
+.endif
+
+kbdbyte    = $fc ; zero page
+prefix     = $fd
+break_flag = $fe
+MODIFIER_SHIFT = 1 ; C64:  Shift
+MODIFIER_ALT   = 2 ; C64:  Commodore
+MODIFIER_CTRL  = 4 ; C64:  Ctrl
+MODIFIER_WIN   = 8 ; C128: Alt
+MODIFIER_CAPS  = 16; C128: Caps
+
+scnkey	jsr receive_down_scancode_no_modifiers
+	beq drv_end
+
+	tay
+
+	cpx #0
+	bne down_ext
+; *** regular scancodes
+	cmp #$83 ; convert weird f7 scancode
+	bne not_f7
+	lda #$02 ; this one is unused
+not_f7:
+
+	cmp #$0e ; scancodes < $0E and > $68 are independent of modifiers
+	bcc is_unshifted
+	cmp #$68
+	bcc not_numpad
+is_unshifted:
+	ldx #3 * 2
+	bne bit_found ; use unshifted table
+
+not_numpad:
+	ldx #0
 	lda shflag
-	and #1
-	beq scn8
-	lda #$93
-	bne scn3
-scn8	lda #$13
-	bne scn3
-; modifier keys
-scn2	cpx #$76
-	beq scn23
-	cpx #$12        ;lshift
-	beq scn22
-	cpx #$59        ;rshift
-	beq scn22
-	cpx #$11        ;lalt
-	beq scn21
-	cpx #$14        ;lctrl
-	bne scn20
-	lda #4          ;control
+find_bit:
+	lsr
+	bcs bit_found
+	inx
+	inx
+	cpx #3 * 2
+	bne find_bit
+
+bit_found:
+	lda tables,x
+	sta 2
+	lda tables + 1,x
+	sta 3
+	lda (2),y
+drv2:	beq drv_end
+	jmp add_to_buf
+
+down_ext:
+	cpx #$e1 ; prefix $E1 -> E1-14 = Pause/Break
+	beq is_stop
+	cmp #$4a ; Numpad /
+	bne not_4a
+	lda #'/'
+	bne add_to_buf
+not_4a:	cmp #$5a ; Numpad Enter
+	beq is_enter
+	cpy #$6c ; special case shift+home = clr
+	beq is_home
+not_5a: cmp #$68
+	bcc drv_end
+	cmp #$80
+	bcs drv_end
+nhome:	lda tab_extended-$68,y
+	bne add_to_buf
+drv_end:
+	rts
+
+; or $80 if shift is down
+is_home:
+	ldx #$13 * 2; home (-> clr)
 	.byte $2c
-scn21	lda #2          ;commodore
+is_enter:
+	ldx #$0d * 2 ; return (-> shift+return)
 	.byte $2c
-scn22	lda #1          ;shift
+is_stop:
+	ldx #$03 * 2 ; stop (-> run)
+	lda shflag
+	lsr ; shift -> C
+	txa
+	ror
+; passes into add_to_buf
+
+;****************************************
+; ADD CHAR TO KBD BUFFER
+;****************************************
+add_to_buf:
+	pha
+	lda $c6 ; length of keyboard buffer
+	cmp #10
+	bcs add2 ; full, ignore
+	inc $c6
+	tax
+	pla
+	sta $0277,x ; store
+	cmp #3 ; stop
+	bne add1
+	lda #$7f
 	.byte $2c
+add1:	lda #$ff
+	sta $91
+	rts
+add2:	pla
+	rts
+
+;****************************************
+; RECEIVE BYTE
+; out: A: byte (0 = none)
+;      Z: byte available
+;           0: yes
+;           1: no
+;      C:   0: parity OK
+;           1: parity error
+;****************************************
+; The byte receive function is based on
+; "AT-Keyboard" by İlker Fıçıcılar
+;****************************************
+receive_byte:
+; test for badline-safe time window
+.if 0
+	ldy $d012
+	cpy #243
+	bcs :+
+	cpy #24
+	bcc :+
+	lda #0 ; in badline area, fail
+	sec
+	rts
+.endif
+; set input, bus idle
+:	lda port_ddr ; set CLK and DATA as input
+	and #$ff-bit_clk-bit_data
+	sta port_ddr ; -> bus is idle, keyboard can start sending
+
+	lda #bit_clk+bit_data
+.if 0
+	ldy #32
+:	cpy $d012
+	beq lc08c ; end of badline-free area
+.else
+	ldy #10 * mhz
+:	dey
+	beq lc08c
+.endif
+	bit port_data
+	bne :- ; wait for CLK=0 and DATA=0 (start bit)
+
+	lda #bit_clk
+lc044:	bit port_data ; wait for CLK=1 (not ready)
+	beq lc044
+	ldy #9 ; 9 bits including parity
+lc04a:	bit port_data
+	bne lc04a ; wait for CLK=0 (ready)
+	lda port_data
+	and #bit_data
+	cmp #bit_data
+	ror kbdbyte ; save bit
+	lda #bit_clk
+lc058:	bit port_data
+	beq lc058 ; wait for CLK=1 (not ready)
+	dey
+	bne lc04a
+	rol kbdbyte ; get parity bit into C
+lc061:	bit port_data
+	bne lc061 ; wait for CLK=0 (ready)
+lc065:	bit port_data
+	beq lc065 ; wait for CLK=1 (not ready)
+lc069:	jsr kbdis
+	lda kbdbyte
+	beq lc08b ; zero -> return
+	php ; save parity
+lc07c:	lsr a ; calculate parity
+	bcc lc080
+	iny
+lc080:	cmp #0
+	bne lc07c
+	tya
+	plp ; transmitted parity
+	adc #1
+	lsr a ; C=0: parity OK
+	lda kbdbyte
+lc08b:	rts
+
+lc08c:	clc
+	lda #0
+	sta kbdbyte
+	beq lc069 ; always
+
+kbdis:	lda port_ddr
+	ora #bit_clk+bit_data
+	sta port_ddr ; set CLK and DATA as output
+	lda port_data
+	and #$ff - bit_clk ; CLK=0
+	ora #bit_data ; DATA=1
+	sta port_data
+	rts
+
+;****************************************
+; RECEIVE SCANCODE:
+; out: X: prefix (E0, E1; 0 = none)
+;      A: scancode low (0 = none)
+;      C:   0: key down
+;           1: key up
+;      Z: scancode available
+;           0: yes
+;           1: no
+;****************************************
+receive_scancode:
+	jsr receive_byte
+	bcs rcvsc1 ; parity error
+	bne rcvsc2 ; non-zero code
+rcvsc1:	lda #0
+	rts
+rcvsc2:	cmp #$e0 ; extend prefix 1
+	beq rcvsc3
+	cmp #$e1 ; extend prefix 2
+	bne rcvsc4
+rcvsc3:	sta prefix
+	beq receive_scancode ; always
+rcvsc4:	cmp #$f0
+	bne rcvsc5
+	rol break_flag ; set to 1
+	bne receive_scancode ; always
+rcvsc5:	pha
+	lsr break_flag ; break bit into C
+	ldx prefix
+	lda #0
+	sta prefix
+	sta break_flag
+	pla ; lower byte into A
+	rts
+
+;****************************************
+; RECEIVE SCANCODE AFTER shflag
+; * key down only
+; * modifiers have been interpreted
+;   and filtered
+; out: X: prefix (E0, E1; 0 = none)
+;      A: scancode low (0 = none)
+;      Z: scancode available
+;           0: yes
+;           1: no
+;****************************************
+receive_down_scancode_no_modifiers:
+	jsr receive_scancode
+	beq no_key
+	php
+	jsr check_mod
+	bcc no_mod
+	plp
+	bcc key_down
+	eor #$ff
+	and shflag
+	.byte $2c
+key_down:
 	ora shflag
 	sta shflag
+key_up:	lda #0 ; no key to return
 	rts
-scn23	lda #$7f        ;stop
-	sta stkey
-; keys from the table
-scn20	lda shflag
-	lsr
-	bcs scn10
-	lsr
-	bcs scn11
-	lsr
-	bcs scn12
-	lda mode1,x     ;regular
-	jmp scn3
-scn12	lda contrl,x    ;+control
-	jmp scn3
-scn11	lda mode3,x     ;+commodore
-	jmp scn3
-scn10	lda mode2,x     ;+shift
-scn3
+no_mod:	plp
+	bcs key_up
+no_key:	rts ; original Z is retained
+
+; XXX handle caps lock
+
+check_mod:
+	cpx #$e1
+	beq ckmod1
+	cmp #$11 ; left alt (0011) or right alt (E011)
+	beq md_alt
+	cmp #$14 ; left ctrl (0014) or right ctrl (E014)
+	beq md_ctl
+	cpx #0
+	bne ckmod2
+	cmp #$12 ; left shift (0012)
+	beq md_sh
+	cmp #$59 ; right shift (0059)
+	beq md_sh
+ckmod1:	clc
+	rts
+ckmod2:	cmp #$1F ; left win (001F)
+	beq md_win
+	cmp #$27 ; right win (0027)
+	bne ckmod1
+md_win:	lda #MODIFIER_WIN
+	.byte $2c
+md_alt:	lda #MODIFIER_ALT
+	.byte $2c
+md_ctl:	lda #MODIFIER_CTRL
+	.byte $2c
+md_sh:	lda #MODIFIER_SHIFT
+	sec
+	rts
+
+tables:
+	.word tab_shift-13, tab_alt-13, tab_ctrl-13, tab_unshifted
+
+tab_unshifted:
+	.byte $00,$00,$88,$87,$86,$85,$89,$00
+	.byte $00,$00,$8c,$8b,$8a
+
+	.byte                     $09,'_',$00
+	.byte $00,$00,$00,$00,$00,'Q','1',$00
+	.byte $00,$00,'Z','S','A','W','2',$00
+	.byte $00,'C','X','D','E','4','3',$00
+	.byte $00,' ','V','F','T','R','5',$00
+	.byte $00,'N','B','H','G','Y','6',$00
+	.byte $00,$00,'M','J','U','7','8',$00
+	.byte $00,',','K','I','O','0','9',$00
+	.byte $00,'.','/','L',';','P','-',$00
+	.byte $00,$00,$27,$00,'[','=',$00,$00
+	.byte $00,$00,$0d,']',$00,'\',$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$14,$00
+
+	.byte $00,'1',$00,'4','7',$00,$00,$00
+	.byte '0','.','2','5','6','8',$1b,$00
+	.byte $00,'+','3','-','*','9',$00,$00
+
+tab_shift:
+	.byte                     $18,$7e,$00
+	.byte $00,$00,$00,$00,$00,'Q'+$80,'!',$00,$00
+	.byte $00,'Z'+$80,'S'+$80,'A'+$80,'W'+$80,'@',$00
+	.byte $00,'C'+$80,'X'+$80,'D'+$80,'E'+$80,'$','#',$00
+	.byte $00,$a0,'V'+$80,'F'+$80,'T'+$80,'R'+$80,'%',$00
+	.byte $00,'N'+$80,'B'+$80,'H'+$80,'G'+$80,'Y'+$80,'^',$00
+	.byte $00,$00,'M'+$80,'J'+$80,'U'+$80,'&','*',$00
+	.byte $00,'<','K'+$80,'I'+$80,'O'+$80,')','(',$00
+	.byte $00,'>','?','L'+$80,':','P'+$80,$DD,$00
+	.byte $00,$00,'"',$00,'{','+',$00,$00
+	.byte $00,$00,$8d,'}',$00,$a9,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$94,$00
+
+tab_alt:
+	.byte                     $18,$7e,$00
+	.byte $00,$00,$00,$00,$00,$ab,$81,$00
+	.byte $00,$00,$ad,$ae,$b0,$b3,$95,$00
+	.byte $00,$bc,$bd,$ac,$b1,$97,$96,$00
+	.byte $00,$a0,$be,$bb,$a3,$b2,$98,$00
+	.byte $00,$aa,$bf,$b4,$a5,$b7,$99,$00
+	.byte $00,$00,$a7,$b5,$b8,$9a,$9b,$00
+	.byte $00,$3c,$a1,$a2,$b9,$30,$29,$00
+	.byte $00,$3e,$3f,$b6,':',$af,$dc,$00
+	.byte $00,$00,'"',$00,$00,$3d,$00,$00
+	.byte $00,$00,$8d,$00,$00,$a8,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$94,$00
+
+tab_ctrl:
+	.byte                     $18,$06,$00
+	.byte $00,$00,$00,$00,$00,$11,$90,$00
+	.byte $00,$00,$1a,$13,$01,$17,$05,$00
+	.byte $00,$03,$18,$04,$05,$9f,$1c,$00
+	.byte $00,$00,$16,$06,$14,$12,$9c,$00
+	.byte $00,$0e,$02,$08,$07,$19,$1e,$00
+	.byte $00,$00,$0d,$0a,$15,$1f,$9e,$00
+	.byte $00,$00,$0b,$09,$0f,$92,$12,$00
+	.byte $00,$00,$00,$0c,$1d,$10,$00,$00
+	.byte $00,$00,$00,$00,$00,$1f,$00,$00
+	.byte $00,$00,$00,$00,$00,$1c,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+
+tab_extended:
+	;         end      lf hom
+	.byte $00,$00,$00,$9d,$00,$00,$00,$00 ; @$68 (HOME is special cased)
+	;     ins del  dn      rt  up
+	.byte $94,$14,$11,$00,$1d,$91,$00,$00 ; @$70
+	;             pgd         pgu brk
+	.byte $00,$00,$00,$00,$00,$00,$03,$00 ; @$78
+
 .else
 scnkey	lda #$00
 	sta shflag
@@ -494,21 +781,15 @@ ckit2
 ckit3	cpx #$ff        ;a null key or no key ?
 	beq scnrts      ;branch if so
 	txa             ;need x as index so...
-.endif
 	ldx ndx         ;get # of chars in key queue
 	cpx xmax        ;irq buffer full ?
 	bcs scnrts      ;yes - no more insert
 	sta keyd,x      ;put raw data here
 	inx
 	stx ndx         ;update key queue count
-scnrts
-.ifndef PS2
-	lda #$7f        ;setup pb7 for stop key sense
+scnrts	lda #$7f        ;setup pb7 for stop key sense
 	sta colm
-.endif
 	rts
-
-.ifndef PS2
 ;
 ; shift logic
 ;
@@ -541,105 +822,6 @@ notkat
 	sta keytab+1
 shfout
 	jmp rekey
-.endif
-
-.ifdef PS2
-; The following code is based on:
-; "PC keyboard Interface for the 6502 Microprocessor utilizing a 6522 VIA"
-; Designed and Written by Daryl Rictor (c) 2001   65c02@altavista.com
-; Offered as freeware.  No warranty is given.  Use at your own risk.
-
-.ifdef C64
-ps2ddr  =0
-ps2pr   =1
-ps2_data=$10
-ps2_clk =$08
-.else
-ps2ddr  =d2ddra
-ps2pr   =d2pra
-ps2_data=1              ; 6522 IO port data bit mask  (PA0)
-ps2_clk =2              ; 6522 IO port clock bit mask (PA1)
-.endif
-
-kbscan	ldx #5*mhz      ;timer: x = (cycles - 40)/13   (105-40)/13=5
-	lda ps2ddr      ;
-	and #$FF-ps2_data;set clk to input
-	sta ps2ddr      ;
-kbscan1	lda #ps2_clk    ;
-	bit ps2pr       ;
-	beq kbscan2     ;if clk goes low, data ready
-	dex             ;reduce timer
-	bne kbscan1     ;wait while clk is high
-	jsr kbdis       ;timed out, no data, disable receiver
-	lda #$00        ;set data not ready flag
-	rts             ;return
-kbscan2	jsr kbdis       ;disable the receiver so other routines get it
-	rts
-
-kbget	lda #0          ;
-	sta ps2byte     ;clear scankey holder
-	sta ps2par      ;clear parity holder
-	ldy #0          ;clear parity counter
-	ldx #8          ;bit counter
-	lda ps2ddr      ;
-	and #$FF-ps2_data-ps2_clk;set clk to input
-	sta ps2ddr      ;
-kbget1	lda #ps2_clk    ;
-	bit ps2pr       ;
-	bne kbget1      ;wait while clk is high
-	lda ps2pr       ;
-	and #ps2_data   ;get start bit
-	bne kbget1      ;if 1, false start bit, do again
-kbget2	jsr kbhighlow   ;wait for clk to return high then go low again
-.ifdef C64
-	and #ps2_data
-	cmp #ps2_data   ;set c if data bit=1, clr if data bit=0
-.else
-	lsr             ;set c if data bit=1, clr if data bit=0
-.endif
-	ror ps2byte     ;save bit to byte holder
-	bpl kbget3      ;
-	iny             ;add 1 to parity counter
-kbget3	dex             ;dec bit counter
-	bne kbget2      ;get next bit if bit count > 0
-	jsr kbhighlow   ;wait for parity bit
-	beq kbget4      ;if parity bit 0 do nothing
-	inc ps2par      ;if 1, set parity to 1
-kbget4	tya             ;get parity count
-	eor ps2par      ;compare with parity bit
-	and #1          ;mask bit 1 only
-	beq kberror     ;bad parity
-	jsr kbhighlow   ;wait for stop bit
-	beq kberror     ;0=bad stop bit
-	lda ps2byte     ;if byte & parity 0,
-	beq kbget       ;no data, do again
-	jsr kbdis       ;
-	lda ps2byte     ;
-	rts             ;
-;
-kbdis	lda ps2pr       ;disable kb from sending more data
-	and #$FF-ps2_clk;clk = 0
-	sta ps2pr       ;
-	lda ps2ddr      ;set clk to ouput low
-	and #$FF-ps2_data-ps2_clk;(stop more data until ready)
-	ora #ps2_clk     ;
-	sta ps2ddr       ;
-	rts              ;
-;
-
-kbhighlow
-	lda #ps2_clk     ;wait for a low to high to low transition
-	bit ps2pr        ;
-	beq kbhighlow    ;wait while clk low
-kbhl1	bit ps2pr        ;
-	bne kbhl1        ;wait while clk is high
-	lda ps2pr        ;
-	and #ps2_data    ;get data line state
-	rts              ;
-
-kberror
-	sec
-	rts
 .endif
 
 ; rsr 12/08/81 modify for vic-40

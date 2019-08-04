@@ -130,6 +130,10 @@ ioinit
 .ifdef PS2
 	jsr kbdis       ;inhibit ps/2 communcation
 .endif
+.ifdef C64
+	lda #0
+	sta $d011
+.endif
 ;
 ; set up banking
 ;
