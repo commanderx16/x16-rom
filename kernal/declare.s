@@ -196,6 +196,7 @@ veradat =verareg+3
 ; i/o devices
 ;
 .ifdef C64
+mmtop   =$a000
 .else
 mmtop   =$9f00
 .endif

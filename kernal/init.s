@@ -62,36 +62,8 @@ ramtz0	sta $0000,y     ;zero page
 ;
 ; set top of memory
 ;
-.ifdef C64
-ramtbt
-	tay             ;move $00 to .y
-	lda #3          ;set high inital index
-	sta tmp0+1
-;
-ramtz1	inc tmp0+1      ;move index thru memory
-ramtz2	lda (tmp0),y     ;get present data
-	tax             ;save in .x
-	lda #$55        ;do a $55,$aa test
-	sta (tmp0),y
-	cmp (tmp0),y
-	bne size
-	rol a
-	sta (tmp0),y
-	cmp (tmp0),y
-	bne size
-	txa             ;restore old data
-	sta (tmp0),y
-	iny
-	bne ramtz2
-	beq ramtz1
-;
-size	tya             ;set top of memory
-	tax
-	ldy tmp0+1
-.else
 	ldx #<mmtop
 	ldy #>mmtop
-.endif
 	clc
 	jsr settop
 	lda #$08        ;set bottom of memory
