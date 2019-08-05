@@ -326,6 +326,7 @@ bit_clk =2              ; 6522 IO port clock bit mask (PA1)
 kbdbyte    = $fc ; zero page
 prefix     = $fd
 break_flag = $fe
+shflag2    = $ff
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
 MODIFIER_CTRL  = 4 ; C64:  Ctrl
@@ -355,7 +356,7 @@ is_unshifted:
 
 not_numpad:
 	ldx #0
-	lda shflag
+	lda shflag2
 find_bit:
 	lsr
 	bcs bit_found
@@ -402,7 +403,7 @@ is_enter:
 	.byte $2c
 is_stop:
 	ldx #$03 * 2 ; stop (-> run)
-	lda shflag
+	lda shflag2
 	lsr ; shift -> C
 	txa
 	ror
@@ -577,11 +578,11 @@ receive_down_scancode_no_modifiers:
 	plp
 	bcc key_down
 	eor #$ff
-	and shflag
+	and shflag2
 	.byte $2c
 key_down:
-	ora shflag
-	sta shflag
+	ora shflag2
+	sta shflag2
 key_up:	lda #0 ; no key to return
 	rts
 no_mod:	plp
