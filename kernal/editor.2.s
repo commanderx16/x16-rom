@@ -141,77 +141,36 @@ scrlin
 	and #scrmsk     ;clear any garbage stuff
 	ora hibase      ;put in hiorder bits
 	sta sal+1
-.if 0                   ;slow version
-	lda #llen-1
-	sta eal
-scd20
+
+	;destination into addr1
 	lda #$10
-	sta veractl
-	lda eal
-	asl
-	clc
-	adc sal
-	sta veralo
-	lda sal+1
-	adc #0
 	sta verahi
-	lda veradat     ;character
-	pha
-	ldy veradat     ;color
-	lda eal
-	asl
-	clc
-	adc pnt
+	lda pnt
 	sta veralo
 	lda pnt+1
-	adc #0
+	sta veramid
+
+	lda #1
+	sta veractl
+
+	;source into addr2
+	lda #$10
 	sta verahi
-	pla
-	sta veradat     ;character
-	sty veradat     ;color
-	dec eal
-	bpl scd20
-.else                   ;fast version that uses 20 bytes of zero page
+	lda sal
+	sta veralo
+	lda sal+1
+	sta veramid
+
 	lda #0
-scd20	sta eal
-
-	lda #$10
 	sta veractl
-	lda eal
-	clc
-	adc sal
-	sta veralo
-	lda sal+1
-	adc #0
-	sta verahi
 
-	ldy #20-1
-scd21	lda veradat
-	sta tmpscrl,y
-	dey
-	bpl scd21
-
-	lda eal
-	clc
-	adc pnt
-	sta veralo
-	lda pnt+1
-	adc #0
-	sta verahi
-
-	ldy #20-1
-scd22	lda tmpscrl,y
+	ldy #llen-1
+scd20	lda veradat2    ;character
+	sta veradat
+	lda veradat2    ;color
 	sta veradat
 	dey
-	bpl scd22
-
-	lda eal
-	clc
-	adc #20
-	cmp #llen*2-1
-	bcc scd20
-	lda #$ff; to make bmi happy
-.endif
+	bpl scd20
 	rts
 ;
 ; set up pnt and y
@@ -232,9 +191,9 @@ clrln	ldy #llen
 	lda pnt
 	sta veralo      ;set base address
 	lda pnt+1
-	sta verahi
+	sta veramid
 	lda #$10        ;auto-increment = 1
-	sta veractl
+	sta verahi
 clr10	lda #$20
 	sta veradat     ;store space
 	lda color       ;always clear to current foregnd color
@@ -258,9 +217,9 @@ dspp2	pha
 	sta veralo
 	lda pnt+1
 	adc #0
-	sta verahi
+	sta veramid
 	lda #$10        ;auto-increment = 1
-	sta veractl
+	sta verahi
 	pla
 	sta veradat     ;store character
 	stx veradat     ;color to screen
@@ -456,7 +415,7 @@ receive_byte:
 	rts
 .endif
 ; set input, bus idle
-:	lda port_ddr ; set CLK and DATA as input
+	lda port_ddr ; set CLK and DATA as input
 	and #$ff-bit_clk-bit_data
 	sta port_ddr ; -> bus is idle, keyboard can start sending
 

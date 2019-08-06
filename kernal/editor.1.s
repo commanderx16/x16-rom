@@ -635,9 +635,9 @@ ldapnt2	adc pnt
 	sta veralo
 	lda pnt+1
 	adc #0
-	sta verahi
+	sta veramid
 	lda #$10
-	sta veractl
+	sta verahi
 	lda veradat
 	rts
 
@@ -656,9 +656,9 @@ stapnt2	adc pnt
 	sta veralo
 	lda pnt+1
 	adc #0
-	sta verahi
+	sta veramid
 	lda #$10
-	sta veractl
+	sta verahi
 	pla
 	sta veradat
 	rts
