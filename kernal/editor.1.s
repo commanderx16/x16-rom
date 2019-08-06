@@ -151,8 +151,32 @@ panic	lda #3          ;reset default i/o
 ;init video
 ;
 initv
-	; XXX TODO
+	lda #0
+	sta veractl     ;set ADDR1 active
+
+	lda #$14        ;$40000: layer 1 registers
+	sta verahi
+	lda #0
+	sta veramid
+	sta veralo
+
+	ldx #0
+px4	lda tvera,x
+	sta veradat,x
+	inx
+	cpx #tverend-tvera
+	bne px4
 	rts
+
+mapbas	=0
+tilbas	=$20000
+
+tvera	.byte 0 << 5 | 1  ;mode=0, enabled=1
+	.byte 0, 0        ;tilew, tileh (unused)
+	.word mapbas >> 2 ;map_base
+	.word tilbas >> 2 ;tile_base
+	.word 0, 0        ;hscroll, vscroll
+tverend
 
 ;
 ;remove character from queue
