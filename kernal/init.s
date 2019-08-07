@@ -115,7 +115,12 @@ ioinit
 ;	lda #%00101111  ;mtr out,sw in,wr out,control out
 ;	sta d6510
 .endif
-	; XXX TODO
+	lda #$ff
+	sta d1ddra
+	sta d1ddrb
+	lda #0
+	sta d1pra ; RAM bank
+	sta d1prb ; ROM bank
 ;
 ;jsr clkhi ;clkhi to release serial devices  ^
 ;
