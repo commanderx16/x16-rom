@@ -66,13 +66,18 @@ mode3	;left window grahpics
 lower
 	cmp #$0e        ;does he want lower case?
 	bne upper       ;branch if not
-	; XXX TODO switch video to lower case
-	jmp loop2
+	jsr lowup
+	lda veradat
+	ora #8 >> 2
+	bne ulset
 
 upper
 	cmp #$8e        ;does he want upper case
 	bne lock        ;branch if not
-	; XXX TODO switch video to upper/pet set
+	jsr lowup
+	lda veradat
+	and #$ff-(8 >> 2)
+ulset	sta veradat
 outhre	jmp loop2
 
 lock
@@ -89,6 +94,15 @@ unlock
 	and mode        ;dont hurt anything
 lexit	sta mode
 	jmp loop2       ;get out
+
+; access VERA register TILE_BASE_HI
+lowup	lda #$04        ;$40000: layer 1 registers
+	sta verahi
+	lda #0
+	sta veramid
+	lda #5          ;reg 5: TILE_BASE_HI
+	sta veralo
+	rts
 
 .ifndef PS2
 contrl
