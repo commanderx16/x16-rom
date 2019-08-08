@@ -2,7 +2,7 @@
 ; http://www.c64.ch/programming/memorymap.php
 
 ; from KERNAL
-.import xmon2, ms1, key, bmt2, loop4, xmon1
+.import xmon2, ms1, key, bmt2, loop4, xmon1, ldapnty, stapnty, ldtb1
 
 LE50C  := xmon1 ; set cursor position
 LE716  := loop4 ; screen CHROUT
@@ -32,7 +32,7 @@ PNTR            := $D3   ; cursor column
 QTSW            := $D4   ; quote mode flag
 TBLX            := $D6   ; cursor line
 INSRT           := $D8   ; insert mode counter
-LDTB1           := $D9   ; screen line link table
+LDTB1           := ldtb1 ; screen line link table
 
 BUF             := $0200 ; system input buffer
 KEYD            := $0277 ; keyboard buffer

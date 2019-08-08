@@ -65,7 +65,8 @@ _basic_warm_start := $800A
 zp1             := $C1
 zp2             := $C3
 zp3             := $FF
-CHARS_PER_LINE := 40
+CHARS_PER_LINE  := 40
+NUM_LINES       := 25
 DEFAULT_BANK := $37
 .endif
 
@@ -73,7 +74,7 @@ DEFAULT_BANK := $37
 zp1             := $C1
 zp2             := $C3
 zp3             := $FF
-CHARS_PER_LINE := 80
+NUM_LINES       := 60
 DEFAULT_BANK := $37 ; XXX X16
 .endif
 
@@ -81,7 +82,8 @@ DEFAULT_BANK := $37 ; XXX X16
 zp1             := $60
 zp2             := $62
 zp3             := $64
-CHARS_PER_LINE := 40
+CHARS_PER_LINE  := 40
+NUM_LINES       := 25
 DEFAULT_BANK := 0
 .endif
 
@@ -1882,7 +1884,11 @@ read_ascii:
         jsr     basin_if_more
 LB5C8:  sty     tmp9
         ldy     PNTR
+.ifdef MACHINE_X16
+        jsr     ldapnty
+.else
         lda     (PNT),y
+.endif
         php
         jsr     basin_if_more
         ldy     tmp9
@@ -2113,10 +2119,10 @@ fk_2:   cmp     #KEY_F7
 
 LB71C:  cmp     #KEY_F5
         bne     LB733
-        ldx     #24
+        ldx     #NUM_LINES-1
         cpx     TBLX
         beq     LB72E ; already on last line
-        jsr     LB8D9
+        jsr     clear_cursor
         ldy     PNTR
         jsr     LE50C ; KERNAL set cursor position
 LB72E:  lda     #CSR_DOWN
@@ -2126,7 +2132,7 @@ LB733:  cmp     #KEY_F3
         ldx     #0
         cpx     TBLX
         beq     LB745
-        jsr     LB8D9
+        jsr     clear_cursor
         ldy     PNTR
         jsr     LE50C ; KERNAL set cursor position
 LB745:  lda     #CSR_UP
@@ -2139,11 +2145,11 @@ LB74A:  cmp     #CSR_DOWN
         beq     LB75E ; top of screen
         bne     LB6FA
 LB758:  lda     TBLX
-        cmp     #24
+        cmp     #NUM_LINES-1
         bne     LB6FA
 LB75E:  jsr     LB838
         bcc     LB6FA
-        jsr     LB897
+        jsr     read_hex_word_from_screen
         php
         jsr     LB8D4
         plp
@@ -2240,10 +2246,10 @@ LB838:  lda     PNT
         ldx     PNT + 1
         sta     zp2
         stx     zp2 + 1
-        lda     #$19
+        lda     #NUM_LINES
         sta     tmp13
-LB845:  ldy     #1
-        jsr     LB88B
+LB845:  ldy     #1 ; column 1
+        jsr     get_screen_char
         cmp     #':'
         beq     LB884
         cmp     #','
@@ -2259,18 +2265,23 @@ LB845:  ldy     #1
         lda     KEYD
         cmp     #CSR_DOWN
         bne     LB877
+.ifndef MACHINE_X16 ; one line up = decrement hi byte
         sec
         lda     zp2
         sbc     #CHARS_PER_LINE
         sta     zp2
         bcs     LB845
+.endif
         dec     zp2 + 1
         bne     LB845
-LB877:  clc
+LB877:
+.ifndef MACHINE_X16 ; one line down = increment hi byte
+        clc
         lda     zp2
         adc     #CHARS_PER_LINE
         sta     zp2
         bcc     LB845
+.endif
         inc     zp2 + 1
         bne     LB845
 LB884:  sec
@@ -2280,7 +2291,31 @@ LB884:  sec
 LB889:  clc
         rts
 
-LB88B:  lda     (zp2),y
+get_screen_char:
+.ifdef MACHINE_X16
+verareg =$9f20
+verahi  =verareg+0
+veramid =verareg+1
+veralo  =verareg+2
+veradat =verareg+3
+veradat2=verareg+4
+veractl =verareg+5
+veraien =verareg+6
+veraisr =verareg+7
+	tya
+	asl
+	clc
+	adc zp2
+	sta veralo
+	lda zp2+1
+	adc #0
+	sta veramid
+	lda #$10
+	sta verahi
+	lda veradat
+.else
+        lda     (zp2),y
+.endif
         iny
         and     #$7F
         cmp     #$20
@@ -2288,30 +2323,31 @@ LB88B:  lda     (zp2),y
         ora     #$40
 LB896:  rts
 
-LB897:  cpy     #$16
-        bne     LB89D
+read_hex_word_from_screen:
+        cpy     #$16
+        bne     :+
         sec
         rts
-
-LB89D:  jsr     LB88B
+:       jsr     get_screen_char
         cmp     #$20
-        beq     LB897
+        beq     read_hex_word_from_screen
         dey
-        jsr     LB8B1
+        jsr     read_hex_byte_from_screen
         sta     zp1 + 1
-        jsr     LB8B1
+        jsr     read_hex_byte_from_screen
         sta     zp1
         clc
         rts
 
-LB8B1:  jsr     LB88B
+read_hex_byte_from_screen:
+        jsr     get_screen_char
         jsr     hex_digit_to_nybble
         asl     a
         asl     a
         asl     a
         asl     a
         sta     tmp11
-        jsr     LB88B
+        jsr     get_screen_char
         jsr     hex_digit_to_nybble
         ora     tmp11
         rts
@@ -2327,7 +2363,7 @@ LB8D3:  rts
 
 LB8D4:  lda     #$FF
         sta     disable_f_keys
-LB8D9:
+clear_cursor:
 .ifndef MACHINE_TED
         lda     #$FF
         sta     BLNSW
@@ -2335,7 +2371,11 @@ LB8D9:
         beq     LB8EB ; rts
         lda     GDBLN
         ldy     PNTR
+.ifdef MACHINE_X16
+        jsr     stapnty
+.else
         sta     (PNT),y
+.endif
         lda     #0
         sta     BLNON
 .endif
@@ -2358,6 +2398,11 @@ scroll_down:
         lda     #$94
         sta     LDTB1
         sta     LDTB1 + 1
+.endif
+.ifdef MACHINE_X16
+        lda     LDTB1
+        ora     #$80 ; first line is not an extension
+        sta     LDTB1
 .endif
 .ifdef MACHINE_TED
         lda BITABL
