@@ -1,5 +1,9 @@
 .feature labels_without_colons, pc_assignment
 
+; for monitor
+; XXX these should be removed or at least minimized
+.export xmon2, ms1, key, bmt2, loop4, xmon1
+
 .include "declare.s"
 .include "editor.1.s"
 .include "editor.2.s"

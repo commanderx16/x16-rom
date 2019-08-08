@@ -5,6 +5,9 @@
 .ifdef MACHINE_C64
 .include "kernal_c64.i"
 .endif
+.ifdef MACHINE_X16
+.include "kernal_x16.i"
+.endif
 .ifdef MACHINE_TED
 .include "kernal_ted.i"
 .endif

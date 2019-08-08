@@ -1,3 +1,25 @@
+.ifndef C64
+	.segment "JMPTBL2"
+; *** this is space for new X16 KERNAL vectors ***
+; for now, these are private API, they have not been
+; finalized
+
+; $ff00
+	jmp monitor
+; $ff03
+	jmp restore_basic
+
+	; this should not live in the vector area, but it's ok for now
+monitor:
+	lda #1
+	sta d1prb ; ROM bank
+	jmp ($c000)
+restore_basic:
+	lda #0
+	sta d1prb ; ROM bank
+	jmp ($c002)
+.endif
+
 	.segment "JMPTBL"
 
 	;KERNAL revision

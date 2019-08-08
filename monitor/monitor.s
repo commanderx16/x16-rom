@@ -44,6 +44,8 @@
 .else
 .ifdef MACHINE_C64
 _basic_warm_start := $E37B
+.elseif .defined(MACHINE_X16)
+_basic_warm_start := $ff03
 .elseif .defined(MACHINE_TED)
 _basic_warm_start := $800A
 .endif
@@ -65,6 +67,14 @@ zp2             := $C3
 zp3             := $FF
 CHARS_PER_LINE := 40
 DEFAULT_BANK := $37
+.endif
+
+.ifdef MACHINE_X16
+zp1             := $C1
+zp2             := $C3
+zp3             := $FF
+CHARS_PER_LINE := 80
+DEFAULT_BANK := $37 ; XXX X16
 .endif
 
 .ifdef MACHINE_TED
@@ -131,6 +141,11 @@ cartridge_bank  := ram_code_end + 20
 
 .import __asmchars1_RUN__
 .import __asmchars2_RUN__
+
+.ifdef MACHINE_X16
+	.word monitor ; cold start
+	.word monitor ; warm start
+.endif
 
 monitor:
 .ifdef MACHINE_TED
@@ -1466,6 +1481,7 @@ listen_command_channel:
         bmi     LB3A6
         rts
 
+.ifdef CART_FC3
 restore_bsout_chrch: ; set_io_vectors in printer.s changes these; change them back
         lda     #<LE716
         sta     IBSOUT
@@ -1476,6 +1492,7 @@ restore_bsout_chrch: ; set_io_vectors in printer.s changes these; change them ba
         lda     #>LF333
         sta     ICLRCH + 1
         rts
+.endif
 
 ; ----------------------------------------------------------------
 ; "L"/"S" - load/save file

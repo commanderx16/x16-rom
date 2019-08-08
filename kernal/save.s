@@ -63,7 +63,7 @@ sv50	jsr unlsn
 
 clsei	bit sa
 	bmi clsei2
-	lda fa
+xmon2	lda fa
 	jsr listn
 	lda sa
 	and #$ef

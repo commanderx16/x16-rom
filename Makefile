@@ -7,8 +7,11 @@ all:
 
 	ca65 -g -DPS2 -o basic/basic.o basic/basic.s
 	ca65 -g -DPS2 -o kernal/kernal.o kernal/kernal.s
-	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o -Ln rom.txt
+	ca65 -g -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
+	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o -Ln rom.txt
+
 
 clean:
 	rm -f basic/basic-c64.o kernal/kernal-c64.o rom-c64.bin basic-c64.bin kernal-c64.bin
 	rm -f basic/basic.o kernal/kernal.o rom.bin
+	rm monitor/monitor.o monitor/monitor_support.o

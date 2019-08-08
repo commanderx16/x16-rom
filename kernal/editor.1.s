@@ -37,7 +37,7 @@ scrorg	ldx #llen
 ;read/plot cursor position
 ;
 plot	bcs plot10
-	stx tblx
+xmon1	stx tblx
 	sty pntr
 	jsr stupt
 plot10	ldx tblx

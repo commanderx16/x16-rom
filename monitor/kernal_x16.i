@@ -1,13 +1,15 @@
 ; C64-specific KERNAL symbols
 ; http://www.c64.ch/programming/memorymap.php
 
-LE50C  := $E50C ; set cursor position
-LE716  := $E716 ; screen CHROUT
-LE96C  := $E96C ; insert line at top of screen
-LEA31  := $EA31 ; default contents of CINV vector
-LF0BD  := $F0BD ; string "I/O ERROR"
-LF333  := $F333 ; default contents of CLRCHN vector
-LF646  := $F646 ; IEC close
+; from KERNAL
+.import xmon2, ms1, key, bmt2, loop4, xmon1
+
+LE50C  := xmon1 ; set cursor position
+LE716  := loop4 ; screen CHROUT
+LE96C  := bmt2  ; insert line at top of screen
+LEA31  := key   ; default contents of CINV vector
+LF0BD  := ms1   ; string "I/O ERROR"
+LF646  := xmon2 ; IEC close
 
 ICLRCH := $0322 ; CLRCHN vector
 IBSOUT := $0326 ; CHROUT vector
