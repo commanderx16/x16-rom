@@ -19,7 +19,7 @@ scr10	inx             ;goto next line
 	cpx #nlines-1   ;done?
 	bcs scr41       ;branch if so
 ;
-	lda ldtb2+1,x   ;setup from pntr
+	lda #0          ;setup from pntr
 	sta sal
 	lda ldtb1+1,x
 	jsr scrlin      ;scroll this line up1
@@ -110,7 +110,7 @@ scd10	dex
 	cpx lintmp
 	bcc scr40
 	beq scr40       ;branch if finished
-	lda ldtb2-1,x   ;set from addr
+	lda #0          ;set from addr
 	sta sal
 	lda ldtb1-1,x
 	jsr scrlin      ;scroll this line down
@@ -176,7 +176,7 @@ scd20	lda veradat2    ;character
 ; set up pnt and y
 ; from .x
 ;
-setpnt	lda ldtb2,x
+setpnt	lda #0
 	sta pnt
 	lda ldtb1,x
 	and #scrmsk

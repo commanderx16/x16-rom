@@ -83,9 +83,6 @@ lps1	pha
 	tya
 	sta ldtb1,x
 	pla
-	clc
-	adc #llen*2
-	bcc lps2
 	iny             ;carry bump hi byte
 lps2	inx
 	cpx #nlines+1   ;done # of lines?
@@ -162,7 +159,7 @@ initv
 
 	ldx #0
 px4	lda tvera,x
-	sta veradat,x
+	sta veradat
 	inx
 	cpx #tverend-tvera
 	bne px4
@@ -172,7 +169,7 @@ mapbas	=0
 tilbas	=$20000
 
 tvera	.byte 0 << 5 | 1  ;mode=0, enabled=1
-	.byte 0, 0        ;tilew, tileh (unused)
+	.byte 1 << 2 | 2  ;maph=64, mapw=128
 	.word mapbas >> 2 ;map_base
 	.word tilbas >> 2 ;tile_base
 	.word 0, 0        ;hscroll, vscroll
