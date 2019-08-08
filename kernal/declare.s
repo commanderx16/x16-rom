@@ -16,7 +16,7 @@ xsav	.res 1           ;temp for basin
 ldtnd	.res 1           ;index to logical file
 dfltn	.res 1           ;default input device #
 dflto	.res 1           ;default output device #
-	.res 2           ;unused (tape)
+imparm	.res 2           ;PRIMM utility string pointer (was: tape)
 msgflg	.res 1           ;os message flag
 t1	.res 1           ;temporary 1
 	.res 1           ;unused (tape)

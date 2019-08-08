@@ -27,5 +27,8 @@
 .include "init.s"
 .include "rs232nmi.s"
 .include "irqfile.s"
+.ifndef C64
+.include "routines.s"
+.endif
 .include "vectors.s"
 

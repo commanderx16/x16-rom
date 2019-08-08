@@ -66,18 +66,14 @@ restore_basic:
 ; $FF71: JMPFAR – goto another bank
 	rts
 	.byte 0, 0
-; $FF74: INDFET – LDA (fetvec),Y from any bank
-	rts
-	.byte 0, 0
-; $FF77: INDSTA – STA (stavec),Y to any bank
-	rts
-	.byte 0, 0
-; $FF7A: INDCMP – CMP (cmpvec),Y to any bank
-	rts
-	.byte 0, 0
+; $FF74: FETCH – LDA (fetvec),Y from any bank
+	jmp indfet
+; $FF77: STASH – STA (stavec),Y to any bank
+	jmp stash       ; (*note* user must setup 'stavec')
+; $FF7A: CMPARE – CMP (cmpvec),Y to any bank
+	jmp cmpare      ; (*note*  user must setup 'cmpvec')
 ; $FF7D: PRIMM – print string following the caller’s code
-	rts
-	.byte 0, 0
+	jmp primm
 .endif
 
 
