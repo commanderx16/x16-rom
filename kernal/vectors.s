@@ -18,7 +18,68 @@ restore_basic:
 	lda #0
 	sta d1prb ; ROM bank
 	jmp ($c002)
+
+	.segment "JMPTB128"
+; C128 KERNAL API
+; $FF47: SPIN_SPOUT – setup fast serial ports for I/O
+	rts
+	.byte 0, 0
+; $FF4A: CLOSE_ALL – close all files on a device
+	rts
+	.byte 0, 0
+; $FF4D: C64MODE – reconfigure system as a C64
+	rts
+	.byte 0, 0
+; $FF50: DMA_CALL – send command to DMA device
+	rts
+	.byte 0, 0
+; $FF53: BOOT_CALL – boot load program from disk
+	rts
+	.byte 0, 0
+; $FF56: PHOENIX – init function cartridges
+	rts
+	.byte 0, 0
+; $FF59: LKUPLA
+	rts
+	.byte 0, 0
+; $FF5C: LKUPSA
+	rts
+	.byte 0, 0
+; $FF5F: SWAPPER – switch between 40 and 80 columns
+	rts
+	.byte 0, 0
+; $FF62: DLCHR – init 80-col character RAM
+	rts
+	.byte 0, 0
+; $FF65: PFKEY – program a function key
+	rts
+	.byte 0, 0
+; $FF68: SETBNK – set bank for I/O operations
+	rts
+	.byte 0, 0
+; $FF6B: GETCFG – lookup MMU data for given bank
+	rts
+	.byte 0, 0
+; $FF6E: JSRFAR – gosub in another bank
+	rts
+	.byte 0, 0
+; $FF71: JMPFAR – goto another bank
+	rts
+	.byte 0, 0
+; $FF74: INDFET – LDA (fetvec),Y from any bank
+	rts
+	.byte 0, 0
+; $FF77: INDSTA – STA (stavec),Y to any bank
+	rts
+	.byte 0, 0
+; $FF7A: INDCMP – CMP (cmpvec),Y to any bank
+	rts
+	.byte 0, 0
+; $FF7D: PRIMM – print string following the caller’s code
+	rts
+	.byte 0, 0
 .endif
+
 
 	.segment "JMPTBL"
 
