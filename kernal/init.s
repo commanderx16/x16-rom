@@ -144,11 +144,13 @@ i0020	sta d1t1h
 	sta d1cra
 .else
 	lda #<sixty     ;keyboard scan irq's
-	sta d2t1l
+	sta d1t1l
 	lda #>sixty
-	sta d2t1h
+	sta d1t1h
+	lda #$40        ;t1 free run
+	sta d1acr
 	lda #$c0        ;enable t1 irq's
-	sta d2ier
+	sta d1ier
 .endif
 	jmp clklo       ;release the clock line***901227-03***
 ;

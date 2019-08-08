@@ -255,7 +255,7 @@ kprend
 .ifdef C64
 	lda d1icr       ;clear interupt flags
 .else
-	lda d2t1l       ;clear interupt flags
+	lda d1t1l       ;clear interupt flags
 .endif
 	pla             ;restore registers
 	tay
