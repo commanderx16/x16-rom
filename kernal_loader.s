@@ -55,6 +55,11 @@ copy2:
 	bne copy2
 
 	sei
+
+	lda #$7f
+	sta $dc0d
+	bit $dc0d
+
 	lda #53
 	sta 1
 	jmp ($fffc) ; RESET
