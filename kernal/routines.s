@@ -72,7 +72,7 @@ fetch	lda d1pra       ;save current config (RAM)
 	sta d1pra       ;set RAM bank
 	and #$07
 	sta d1prb       ;set ROM bank
-fetvec	=*=1
+fetvec	=*+1
 	lda ($ff),y     ;get the byte ($ff here is a dummy address, 'FETVEC')
 	tax
 	pla
@@ -88,11 +88,11 @@ fetvec	=*=1
 ;
 ;  enter with 'stavec' pointing to indirect adr & .y= index
 ;             .a= data byte to store
-;             .x= memory configuration (writes to rom bleed thru to ram)
+;             .x= memory configuration
 ;
 ;  exits with .x & status altered
 
-stash	pha
+stash	sta stash1
 	lda d1pra       ;save current config (RAM)
 	pha
 	txa
@@ -100,8 +100,9 @@ stash	pha
 	and #$07
 	ldx d1prb       ;save current config (ROM)
 	sta d1prb       ;set ROM bank
-	pla
-stavec	=*=1
+stash1	=*+1
+	lda #$ff
+stavec	=*+1
 	sta ($ff),y     ;put the byte ($ff here is a dummy address, 'STAVEC')
 	stx d1prb       ;restore previous memory configuration
 	pla
@@ -127,7 +128,7 @@ cmpare	pha
 	ldx d1prb       ;save current config (ROM)
 	sta d1prb       ;set ROM bank
 	pla
-cmpvec	=*=1
+cmpvec	=*+1
 	cmp ($ff),y     ;compare bytes ($ff here is a dummy address, 'CMPVEC')
 	php
 	stx d1prb       ;restore previous memory configuration

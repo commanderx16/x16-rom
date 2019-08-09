@@ -2,7 +2,11 @@
 ; http://www.c64.ch/programming/memorymap.php
 
 ; from KERNAL
-.import xmon2, ms1, key, bmt2, loop4, xmon1, ldapnty, stapnty, ldtb1
+.import xmon2, ms1, key, bmt2, loop4, xmon1, ldapnty, stapnty, ldtb1, stavec
+
+via1	=$9f60                  ;VIA 6522 #1
+d1prb	=via1+0
+d1pra	=via1+1
 
 LE50C  := xmon1 ; set cursor position
 LE716  := loop4 ; screen CHROUT
@@ -10,6 +14,9 @@ LE96C  := bmt2  ; insert line at top of screen
 LEA31  := key   ; default contents of CINV vector
 LF0BD  := ms1   ; string "I/O ERROR"
 LF646  := xmon2 ; IEC close
+
+FETCH  := $FF74
+STASH  := $FF77
 
 ICLRCH := $0322 ; CLRCHN vector
 IBSOUT := $0326 ; CHROUT vector

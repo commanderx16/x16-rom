@@ -67,7 +67,7 @@ zp2             := $C3
 zp3             := $FF
 CHARS_PER_LINE  := 40
 NUM_LINES       := 25
-DEFAULT_BANK := $37
+DEFAULT_BANK    := $37
 .endif
 
 .ifdef MACHINE_X16
@@ -75,7 +75,7 @@ zp1             := $C1
 zp2             := $C3
 zp3             := $FF
 NUM_LINES       := 60
-DEFAULT_BANK := $37 ; XXX X16
+DEFAULT_BANK    := 0
 .endif
 
 .ifdef MACHINE_TED
@@ -84,7 +84,7 @@ zp2             := $62
 zp3             := $64
 CHARS_PER_LINE  := 40
 NUM_LINES       := 25
-DEFAULT_BANK := 0
+DEFAULT_BANK    := 0
 .endif
 
 CINV   := $0314 ; IRQ vector
@@ -185,7 +185,7 @@ monitor:
 ; code that will be copied to $0220
 ram_code:
 
-.ifndef MACHINE_TED
+.ifdef MACHINE_C64
 load_byte_ram:
 ; read from memory with a specific ROM and cartridge config
 .ifdef CART_FC3
@@ -213,6 +213,11 @@ goto_user:
 .ifdef MACHINE_C64
         sta     R6510
 .endif
+.ifdef MACHINE_X16
+	sta d1pra       ;set RAM bank
+	and #$07
+	sta d1prb       ;set ROM bank
+.endif
 .ifdef MACHINE_TED
         stx     tmp1
         tax
@@ -225,7 +230,7 @@ goto_user:
 brk_entry:
 .ifdef MACHINE_TED
         sta $fdd0
-.else
+.elseif .defined(MACHINE_C64)
         jsr     enable_all_roms
 .endif
         jmp     brk_entry2
@@ -308,13 +313,16 @@ dump_registers2:
         jsr     print_hex_byte2 ; IRQ lo
         jsr     print_space
         lda     bank
+.ifndef MACHINE_X16
         bpl     :+
         lda     #'D'
         jsr     BSOUT
         lda     #'R'
         jsr     BSOUT
         bne     LABEB ; negative bank means drive ("DR")
-:       and     #$0F
+:
+        and     #$0F
+.endif
         jsr     print_hex_byte2 ; bank
 LABEB:  ldy     #0
 :       jsr     print_space
@@ -599,6 +607,7 @@ cmd_semicolon:
         lda     zp2 + 1
         sta     irq_hi
         jsr     basin_if_more ; skip upper nybble of bank
+        ; XXX X16
         jsr     basin_if_more
         cmp     #'D' ; "drive"
         bne     LAE12
@@ -731,8 +740,11 @@ cmd_g:
         jmp     syntax_error
 
 LAF03:  jsr     copy_pc_to_zp2_and_zp1
-LAF06:  lda     bank
+LAF06:
+.ifndef MACHINE_X16
+        lda     bank
         bmi     LAF2B ; drive
+.endif
         jsr     set_irq_vector
 .ifdef CART_FC3
         jsr     set_io_vectors_with_hidden_rom
@@ -1371,8 +1383,10 @@ LB2CB:  lda     #'W' ; send M-W to drive
 ; loads a byte at (zp1),y from RAM with the correct ROM config
 load_byte:
         sei
+.ifndef MACHINE_X16
         lda     bank
         bmi     LB2B4 ; drive
+.endif
 .ifdef MACHINE_TED
         stx tmp1
         sty tmp2
@@ -1388,6 +1402,15 @@ load_byte:
         ldx tmp1
         ldy tmp2
         rts
+.elseif .defined(MACHINE_X16)
+	stx tmp1
+	ldx bank
+	lda #zp1
+	sei
+	jsr FETCH
+	cli
+	ldx tmp1
+	rts
 .else
         clc
 .ifdef CART_FC3
@@ -1402,6 +1425,16 @@ store_byte:
 .ifdef MACHINE_TED
         sta     (zp1),y ; store
         rts
+.elseif .defined(MACHINE_X16)
+        stx tmp1
+	ldx #zp1
+	stx stavec
+	ldx bank
+	sei
+	jsr STASH
+	cli
+        ldx tmp1
+	rts
 .else
         sei
         pha
@@ -1446,8 +1479,11 @@ syn_err3:
 
 ; ----------------------------------------------------------------
 ; "O" - set bank
-;       0 to 7 map to a $01 value of $30-$37, "D" switches to drive
-;       memory
+;       C64: * 0 to 7 map to a $01 value of $30-$37
+;            * "D" switches to drive memory
+;       TED: * 0 to C, Shift+D and E to F map to banks 0-F
+;            * "D" switches to drive memory
+;       X16: * 00 to FF are set as both ROM and RAM bank
 ; ----------------------------------------------------------------
 cmd_o:
         jsr     basin_cmp_cr
@@ -1458,10 +1494,14 @@ cmd_o:
         tax
         bmi     :+ ; shifted arg skips 'D' test
 .endif
+.ifndef MACHINE_X16
         cmp     #'D'
         beq     LB34A ; disk
+.endif
 .ifdef MACHINE_TED
 :       jsr     hex_digit_to_nybble
+.elseif .defined(MACHINE_X16)
+        jsr     get_hex_byte2
 .endif
         .byte   $2C
 LB33F:  lda     #DEFAULT_BANK
@@ -3328,8 +3368,10 @@ syn_err8:
 ; "P" - set output to printer
 ; ----------------------------------------------------------------
 cmd_p:
+.ifndef MACHINE_X16
         lda     bank
         bmi     syn_err8 ; drive?
+.endif
         ldx     #$FF
         lda     FA
         cmp     #4
