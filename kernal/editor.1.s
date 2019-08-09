@@ -30,8 +30,8 @@ iobase
 ;
 ;return max rows,cols of screen
 ;
-scrorg	ldx #llen
-	ldy #nlines
+scrorg	ldx llen
+	ldy nlines
 	rts
 ;
 ;read/plot cursor position
@@ -51,6 +51,21 @@ cint	jsr iokeys
 ; establish screen memory
 ;
 	jsr panic       ;set up vic
+
+	ldx #80
+	stx llen
+	dex
+	stx llenm1
+	ldx #60
+	stx nlines
+	inx
+	stx nlinesp1
+	dex
+	dex
+	stx nlinesm1
+	dex
+	stx nlinesm2
+
 ;
 	lda #0          ;make sure we're in pet mode
 	sta mode
@@ -85,11 +100,11 @@ lps1	pha
 	pla
 	iny             ;carry bump hi byte
 lps2	inx
-	cpx #nlines+1   ;done # of lines?
+	cpx nlinesp1    ;done # of lines?
 	bne lps1        ;no...
 	lda #$ff        ;tag end of line table
 	sta ldtb1,x
-	ldx #nlines-1   ;clear from the bottom line up
+	ldx nlinesm1    ;clear from the bottom line up
 clear1	jsr clrln       ;see scroll routines
 	dex
 	bpl clear1
@@ -108,19 +123,19 @@ stupt
 fndstr	ldy ldtb1,x     ;find begining of line
 	bmi stok        ;branch if start found
 	clc
-	adc #llen       ;adjust pointer
+	adc llen        ;adjust pointer
 	sta pntr
 	dex
 	bpl fndstr
 ;
 stok	jsr setpnt      ;set up pnt indirect 901227-03**********
 ;
-	lda #llen-1
+	lda llenm1
 	inx
 fndend	ldy ldtb1,x
 	bmi stdone
 	clc
-	adc #llen
+	adc llen
 	inx
 	bpl fndend
 stdone
@@ -337,7 +352,7 @@ wlogic
 
 wlog20
 	ldx tblx        ;see if we should scroll down
-	cpx #nlines
+	cpx nlines 
 	bcc wlog30      ;branch if not
 	jsr scrol       ;else do the scrol up
 	dec tblx        ;and adjust curent line#
@@ -351,7 +366,7 @@ wlog30	asl ldtb1,x     ;wrap the line
 	dex             ;get back to current line
 	lda lnmx        ;continue the bytes taken out
 	clc
-	adc #llen
+	adc llen
 	sta lnmx
 findst
 	lda ldtb1,x     ;is this the first line?
@@ -461,14 +476,14 @@ ncx2	cmp #$11
 	bne colr1
 	clc
 	tya
-	adc #llen
+	adc llen
 	tay
 	inc tblx
 	cmp lnmx
 	bcc jpl4
 	beq jpl4
 	dec tblx
-curs10	sbc #llen
+curs10	sbc llen
 	bcc gotdwn
 	sta pntr
 	bne curs10
@@ -539,7 +554,7 @@ up2	cmp #$11
 	dec tblx
 	lda pntr
 	sec
-	sbc #llen
+	sbc llen
 	bcc upalin
 	sta pntr
 	bpl jpl2
@@ -571,7 +586,7 @@ sccl
 nxln	lsr lsxp
 	ldx tblx
 nxln2	inx
-	cpx #nlines     ;off bottom?
+	cpx nlines      ;off bottom?
 	bne nxln1       ;no...
 	jsr scrol       ;yes...scroll
 nxln1	lda ldtb1,x     ;double line?
@@ -595,7 +610,7 @@ chkbak	ldx #nwrap
 chklup	cmp pntr
 	beq back
 	clc
-	adc #llen
+	adc llen
 	dex
 	bne chklup
 	rts
@@ -606,17 +621,17 @@ back	dec tblx
 ; check for increment tblx
 ;
 chkdwn	ldx #nwrap
-	lda #llen-1
+	lda llenm1
 dwnchk	cmp pntr
 	beq dnline
 	clc
-	adc #llen
+	adc llen
 	dex
 	bne dwnchk
 	rts
 ;
 dnline	ldx tblx
-	cpx #nlines
+	cpx nlines
 	beq dwnbye
 	inc tblx
 ;
@@ -645,18 +660,25 @@ coltab
 
 ldausery
 	tya
-	asl
 	sec
-	bcs ldapnt2
+	rol
+	bcc ldapnt2 ; always
 
 ldapnty	tya
+	cmp llen
+	bcc ldapnt1
+	sec
+	sbc llen
 	asl
-	clc
-ldapnt2	adc pnt
 	sta veralo
 	lda pnt+1
-	adc #0
-	sta veramid
+	adc #1 ; C=0
+	bne ldapnt3
+
+ldapnt1	asl
+ldapnt2	sta veralo
+	lda pnt+1
+ldapnt3	sta veramid
 	lda #$10
 	sta verahi
 	lda veradat
@@ -665,19 +687,26 @@ ldapnt2	adc pnt
 stausery
 	pha
 	tya
-	asl
 	sec
-	bcs stapnt2
+	rol
+	bcc stapnt2 ; always
 
 stapnty	pha
 	tya
+	cmp llen
+	bcc stapnt1
+	sec
+	sbc llen
 	asl
-	clc
-stapnt2	adc pnt
 	sta veralo
 	lda pnt+1
-	adc #0
-	sta veramid
+	adc #1 ; C=0
+	bne stapnt3
+
+stapnt1	asl
+stapnt2	sta veralo
+	lda pnt+1
+stapnt3	sta veramid
 	lda #$10
 	sta verahi
 	pla

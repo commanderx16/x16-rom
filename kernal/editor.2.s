@@ -16,7 +16,7 @@ scro0	ldx #$ff
 	dec lintmp
 scr10	inx             ;goto next line
 	jsr setpnt      ;point to 'to' line
-	cpx #nlines-1   ;done?
+	cpx nlinesm1    ;done?
 	bcs scr41       ;branch if so
 ;
 	lda #0          ;setup from pntr
@@ -36,7 +36,7 @@ scrl5	lda ldtb1,x
 	ora #$80
 scrl3	sta ldtb1,x
 	inx
-	cpx #nlines-1
+	cpx nlinesm1
 	bne scrl5
 ;
 	lda ldtb1+nlines-1
@@ -86,13 +86,11 @@ pulind	pla             ;restore old indirects
 newlin
 	ldx tblx
 bmt1	inx
-; cpx #nlines ;exceded the number of lines ???
-; beq bmt2 ;vic-40 code
 	lda ldtb1,x     ;find last display line of this line
 	bpl bmt1        ;table end mark=>$ff will abort...also
 bmt2	stx lintmp      ;found it
 ;generate a new line
-	cpx #nlines-1   ;is one line from bottom?
+	cpx nlinesm1    ;is one line from bottom?
 	beq newlx       ;yes...just clear last
 	bcc newlx       ;<nlines...insert line
 	jsr scrol       ;scroll everything
@@ -104,7 +102,7 @@ newlx	lda sal
 	pha
 	lda sah
 	pha
-	ldx #nlines
+	ldx nlines
 scd10	dex
 	jsr setpnt      ;set up to addr
 	cpx lintmp
@@ -117,7 +115,7 @@ scd10	dex
 	bmi scd10
 scr40
 	jsr clrln
-	ldx #nlines-2
+	ldx nlinesm2
 scrd21
 	cpx lintmp      ;done?
 	bcc scrd22      ;branch if so
@@ -164,7 +162,7 @@ scrlin
 	lda #0
 	sta veractl
 
-	ldy #llen-1
+	ldy llenm1
 scd20	lda veradat2    ;character
 	sta veradat
 	lda veradat2    ;color
@@ -186,7 +184,7 @@ setpnt	lda #0
 ;
 ; clear the line pointed to by .x
 ;
-clrln	ldy #llen
+clrln	ldy llen
 	jsr setpnt
 	lda pnt
 	sta veralo      ;set base address
@@ -210,6 +208,7 @@ dspp	tay             ;save char
 	sta blnct       ;blink cursor
 	tya             ;restore color
 dspp2	pha
+.if 0
 	lda pntr        ;set address
 	asl
 	clc
@@ -222,6 +221,11 @@ dspp2	pha
 	sta verahi
 	pla
 	sta veradat     ;store character
+.else
+	ldy pntr
+	pla
+	jsr stapnty
+.endif
 	stx veradat     ;color to screen
 	rts
 

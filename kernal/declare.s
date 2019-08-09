@@ -76,8 +76,13 @@ lnmx	.res 1           ;40/80 max positon
 tblx	.res 1
 data	.res 1
 insrt	.res 1           ;insert mode flag
-tmpscrl	.res 20
-	.res 6           ;unused (flags+endspace)
+llen	.res 1           ;x resolution
+llenm1	.res 1           ;x resolution - 1
+nlines	.res 1           ;y resolution
+nlinesp1 .res 1          ;y resolution + 1
+nlinesm1 .res 1          ;y resolution - 1
+nlinesm2 .res 1          ;y resolution - 2
+	.res 20          ;unused (flags+endspace)
 	.res 2           ;unused (screen editor color ip)
 keytab	.res 2           ;keyscan table indirect
 ;rs-232 z-page
@@ -308,9 +313,6 @@ timrb	=$19            ;6526 crb enable one-shot tb
 
 ;screen editor constants
 ;
-llen	=80             ;single line 80 columns
-llen2	=80             ;double line = 80 columns
-nlines	=60             ;60 rows on screen
 white	=$01            ;white char color
 blue	=$06            ;blue screen color
 cr	=$d             ;carriage return
