@@ -50,6 +50,110 @@ indfet
 	jmp fetch
 
 
+; LONG CALL  utility
+;
+; jsr jsrfar
+; .word address
+; .byte bank
+
+jsrfar	pha             ;save registers
+	txa
+	pha
+	tya
+	pha
+
+        tsx
+	lda $104,x      ;return address lo
+	sta imparm
+	clc
+	adc #3
+	sta $104,x      ;and write back with 3 added
+	lda $105,x      ;return address hi
+	sta imparm+1
+	adc #0
+	sta $105,x
+
+	ldy #1
+	lda (imparm),y  ;target address lo
+	sta jmpfr+1
+	iny
+	lda (imparm),y  ;target address hi
+	sta jmpfr+2
+	cmp #$c0
+	bcs @1          ;target is in ROM
+; target is in RAM
+	lda d1pra
+	sta savbank     ;save original bank
+	iny
+	lda (imparm),y  ;target address bank
+	sta d1pra       ;set RAM bank
+	pla             ;restore registers
+	tay
+	pla
+	tax
+	pla
+	jsr jmpfr
+	pha
+	lda savbank
+	sta d1pra
+	pla
+	rts
+
+@1	lda d1prb
+	sta savbank     ;save original bank
+	iny
+	lda (imparm),y  ;target address bank
+	and #$07
+	sta d1prb       ;set RAM bank
+	pla             ;restore registers
+	tay
+	pla
+	tax
+	pla
+	jsr jmpfr
+	pha
+	lda savbank
+	sta d1prb
+	pla
+	rts
+
+
+; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+;     *** print immediate ***
+;  a jsr to this routine is followed by an immediate ascii string,
+;  terminated by a $00. the immediate string must not be longer
+;  than 255 characters including the terminator.
+
+primm
+	pha             ;save registers
+	txa
+	pha
+	tya
+	pha
+	ldy #0
+
+@1	tsx             ;increment return address on stack
+	inc $104,x      ;and make imparm = return address
+	bne @2
+	inc $105,x
+@2	lda $104,x
+	sta imparm
+	lda $105,x
+	sta imparm+1
+
+	lda (imparm),y  ;fetch character to print (*** always system bank ***)
+	beq @3          ;null= eol
+	jsr bsout       ;print the character
+	bcc @1
+
+@3	pla             ;restore registers
+	tay
+	pla
+	tax
+	pla
+	rts             ;return
+
+
 ;/////////////////////   K E R N A L   R A M   C O D E  \\\\\\\\\\\\\\\\\\\\\\\
 
 .segment "KERNRAM"
@@ -140,76 +244,6 @@ cmpvec	=*+1
 	pha
 	plp
 	rts
-s
-.if 0 ; NOTYET
-; LONG CALL  utility
-;
 
-	jsr jmpfar      ;execute jmp_long routine as a subroutine
-	sta a_reg
-	stx x_reg
-	sty y_reg
-	php
-	pla
-	sta s_reg
-	tsx
-	stx stkptr
-	lda #sysbnk
-	sta mmucr
-	rts
-
-
-
-; LONG JUMP utility
-;
-
-	ldx #0
-:       lda pc_hi,x     ;put address & status on stack
-	pha
-	inx
-	cpx #3
-	bcc :-
-	ldx bank
-	jsr get_cfg     ;convert 'bank' to mmu data     ??????????? rom routine ??????????
-	sta mmucr       ;set up memory configuration
-	lda a_reg
-	ldx x_reg       ;set up registers
-	ldy y_reg
-	rti             ;goto it
-.endif
+jmpfr	jmp $ffff
 dl_end
-
-; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-;     *** print immediate ***
-;  a jsr to this routine is followed by an immediate ascii string,
-;  terminated by a $00. the immediate string must not be longer
-;  than 255 characters including the terminator.
-
-primm
-	pha             ;save registers
-	txa
-	pha
-	tya
-	pha
-	ldy #0
-
-@1      tsx             ;increment return address on stack
-	inc $104,x      ;and make imparm = return address
-	bne @2
-	inc $105,x
-@2      lda $104,x
-	sta imparm
-	lda $105,x
-	sta imparm+1
-
-	lda (imparm),y  ;fetch character to print (*** always system bank ***)
-	beq @3          ;null= eol
-	jsr bsout       ;print the character
-	bcc @1
-
-@3      pla             ;restore registers
-	tay
-	pla
-	tax
-	pla
-	rts             ;return
