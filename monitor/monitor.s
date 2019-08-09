@@ -131,7 +131,12 @@ bank            := ram_code_end + 16
 disable_f_keys  := ram_code_end + 17
 tmp1            := ram_code_end + 18
 tmp2            := ram_code_end + 19
+.ifdef CART_FC3
 cartridge_bank  := ram_code_end + 20
+.endif
+.ifdef MACHINE_X16
+video_bank_flag := ram_code_end + 20
+.endif
 
 .segment "monitor_a"
 
@@ -214,6 +219,7 @@ goto_user:
         sta     R6510
 .endif
 .ifdef MACHINE_X16
+	;XXX video?
 	sta d1pra       ;set RAM bank
 	and #$07
 	sta d1prb       ;set ROM bank
@@ -312,6 +318,18 @@ dump_registers2:
         lda     irq_lo
         jsr     print_hex_byte2 ; IRQ lo
         jsr     print_space
+.ifdef MACHINE_X16
+	lda     video_bank_flag
+	bpl     :+
+        lda     #'V'
+        jsr     BSOUT
+        lda     bank
+        jsr     byte_to_hex_ascii
+        tya
+        jsr     BSOUT
+        bne     LABEB
+:
+.endif
         lda     bank
 .ifndef MACHINE_X16
         bpl     :+
@@ -1403,6 +1421,8 @@ load_byte:
         ldy tmp2
         rts
 .elseif .defined(MACHINE_X16)
+	lda video_bank_flag
+	bne :+
 	stx tmp1
 	ldx bank
 	lda #zp1
@@ -1410,6 +1430,18 @@ load_byte:
 	jsr FETCH
 	cli
 	ldx tmp1
+	rts
+; video RAM
+:	tya
+	clc
+	adc zp1
+	sta veralo
+	lda zp1 + 1
+	adc #0
+	sta veramid
+	lda bank
+	sta verahi
+	lda veradat
 	rts
 .else
         clc
@@ -1426,6 +1458,8 @@ store_byte:
         sta     (zp1),y ; store
         rts
 .elseif .defined(MACHINE_X16)
+	bit video_bank_flag
+	bmi :+
         stx tmp1
 	ldx #zp1
 	stx stavec
@@ -1435,6 +1469,21 @@ store_byte:
 	cli
         ldx tmp1
 	rts
+; video RAM
+:	pha
+	tya
+	clc
+	adc zp1
+	sta veralo
+	lda zp1 + 1
+	adc #0
+	sta veramid
+	lda bank
+	sta verahi
+	pla
+	sta veradat
+	rts
+
 .else
         sei
         pha
@@ -1486,10 +1535,14 @@ syn_err3:
 ;       X16: * 00 to FF are set as both ROM and RAM bank
 ; ----------------------------------------------------------------
 cmd_o:
-        jsr     basin_cmp_cr
+.ifdef MACHINE_X16
+	lda     #0
+	sta     video_bank_flag
+.endif
+:       jsr     basin_cmp_cr
         beq     LB33F ; without arguments: bank 7
         cmp     #' '
-        beq     cmd_o
+        beq     :-
 .ifdef MACHINE_TED
         tax
         bmi     :+ ; shifted arg skips 'D' test
@@ -1497,6 +1550,23 @@ cmd_o:
 .ifndef MACHINE_X16
         cmp     #'D'
         beq     LB34A ; disk
+.endif
+.ifdef MACHINE_X16
+        cmp     #'V'
+        bne     not_video
+	dec     video_bank_flag
+video_loop:
+        jsr     basin_cmp_cr
+	beq     default_video_bank
+        cmp     #' '
+        beq     video_loop
+        jsr     hex_digit_to_nybble
+        .byte   $2C
+default_video_bank:
+	lda     #0
+	jmp     store_bank
+
+not_video:
 .endif
 .ifdef MACHINE_TED
 :       jsr     hex_digit_to_nybble
@@ -1513,6 +1583,7 @@ LB33F:  lda     #DEFAULT_BANK
 .endif
         .byte   $2C
 LB34A:  lda     #$80 ; drive
+store_bank:
         sta     bank
         jmp     print_cr_then_input_loop
 
