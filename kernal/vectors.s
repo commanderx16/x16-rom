@@ -38,7 +38,7 @@ restore_basic:
 ; $FF5C: LKUPSA
 	.byte 0,0,0
 ; $FF5F: SWAPPER – switch between 40 and 80 columns
-	.byte 0,0,0
+	jmp swapper
 ; $FF62: DLCHR – init 80-col character RAM
 	.byte 0,0,0
 ; $FF65: PFKEY – program a function key

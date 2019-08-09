@@ -2,7 +2,7 @@
 
 ; for monitor
 ; XXX these should be removed or at least minimized
-.export xmon2, ms1, key, bmt2, loop4, xmon1, ldapnty, stapnty, ldtb1
+.export xmon2, ms1, key, bmt2, loop4, xmon1, ldapnty, stapnty, ldtb1, nlines, nlinesm1
 .ifndef C64
 .export stavec
 .endif

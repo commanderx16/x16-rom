@@ -39,9 +39,10 @@ scrl3	sta ldtb1,x
 	cpx nlinesm1
 	bne scrl5
 ;
-	lda ldtb1+nlines-1
+	ldy nlinesm1
+	lda ldtb1,y
 	ora #$80
-	sta ldtb1+nlines-1
+	sta ldtb1,y
 	lda ldtb1       ;double line?
 	bpl scro0       ;yes...scroll again
 ;

@@ -44,6 +44,22 @@ plot10	ldx tblx
 	ldy pntr
 	rts
 
+;
+;set screen size
+;
+scnsiz	stx llen
+	dex
+	stx llenm1
+	sty nlines
+	iny
+	sty nlinesp1
+	dey
+	dey
+	sty nlinesm1
+	dey
+	sty nlinesm2
+	rts
+
 ;initialize i/o
 ;
 cint	jsr iokeys
@@ -53,19 +69,8 @@ cint	jsr iokeys
 	jsr panic       ;set up vic
 
 	ldx #80
-	stx llen
-	dex
-	stx llenm1
-	ldx #60
-	stx nlines
-	inx
-	stx nlinesp1
-	dex
-	dex
-	stx nlinesm1
-	dex
-	stx nlinesm2
-
+	ldy #60
+	jsr scnsiz      ;set screen size to default
 ;
 	lda #0          ;make sure we're in pet mode
 	sta mode

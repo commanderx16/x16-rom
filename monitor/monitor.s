@@ -74,7 +74,6 @@ DEFAULT_BANK    := $37
 zp1             := $C1
 zp2             := $C3
 zp3             := $FF
-NUM_LINES       := 60
 DEFAULT_BANK    := 0
 .endif
 
@@ -2230,7 +2229,11 @@ fk_2:   cmp     #KEY_F7
 
 LB71C:  cmp     #KEY_F5
         bne     LB733
+.ifdef MACHINE_X16
+        ldx     nlinesm1
+.else
         ldx     #NUM_LINES-1
+.endif
         cpx     TBLX
         beq     LB72E ; already on last line
         jsr     clear_cursor
@@ -2256,7 +2259,11 @@ LB74A:  cmp     #CSR_DOWN
         beq     LB75E ; top of screen
         bne     LB6FA
 LB758:  lda     TBLX
+.ifdef MACHINE_X16
+        cmp     nlinesm1
+.else
         cmp     #NUM_LINES-1
+.endif
         bne     LB6FA
 LB75E:  jsr     LB838
         bcc     LB6FA
@@ -2357,7 +2364,11 @@ LB838:  lda     PNT
         ldx     PNT + 1
         sta     zp2
         stx     zp2 + 1
+.ifdef MACHINE_X16
+        lda     nlines
+.else
         lda     #NUM_LINES
+.endif
         sta     tmp13
 LB845:  ldy     #1 ; column 1
         jsr     get_screen_char

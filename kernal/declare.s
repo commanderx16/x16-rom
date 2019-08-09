@@ -77,8 +77,8 @@ tblx	.res 1
 data	.res 1
 insrt	.res 1           ;insert mode flag
 llen	.res 1           ;x resolution
-llenm1	.res 1           ;x resolution - 1
 nlines	.res 1           ;y resolution
+llenm1	.res 1           ;x resolution - 1
 nlinesp1 .res 1          ;y resolution + 1
 nlinesm1 .res 1          ;y resolution - 1
 nlinesm2 .res 1          ;y resolution - 2

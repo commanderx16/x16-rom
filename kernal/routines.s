@@ -154,6 +154,26 @@ primm
 	rts             ;return
 
 
+swapper	lda llen
+	cmp #80
+	beq swpp1
+	ldx #80
+	ldy #60
+	lda #1          ;mode=0, vscale=0, hscale=0, en=1
+	bne swpp2 ; always
+swpp1	ldx #40
+	ldy #30
+	lda #1 << 3 | 1 << 1  | 1 ;mode=0, vscale=1, hscale=1, en=1
+swpp2	pha
+	lda #0
+	sta veralo
+	sta veramid
+	lda #$14
+	sta verahi
+	pla
+	sta veradat
+	jmp scnsiz
+
 ;/////////////////////   K E R N A L   R A M   C O D E  \\\\\\\\\\\\\\\\\\\\\\\
 
 .segment "KERNRAM"
