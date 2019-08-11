@@ -65,6 +65,31 @@ nqplop	bpl ploop
 	beq ploop
 	bit dores
 	bmi ploop
+.ifndef C64
+;**************************************
+	cmp #$ce ; escape token
+	bne nesctk
+	iny
+	lda (lowtr),y
+	sec
+	sbc #127
+	tax
+	sty lstpnt
+	ldy #255
+resrch2	dex
+	beq prit32
+rescr11	iny
+	lda reslst2,y
+	bpl rescr11
+	bmi resrch2
+prit32	iny
+	lda reslst2,y
+	bmi prit4
+	jsr outdo
+	bne prit32
+nesctk:
+;**************************************
+.endif
 	sec
 	sbc #127
 	tax

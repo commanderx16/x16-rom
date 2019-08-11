@@ -72,8 +72,6 @@ nthis1	iny
 	bne rescon
 .ifndef C64
 ;**************************************
-	nop
-
 ; search
 	ldy #0
 	sty count
