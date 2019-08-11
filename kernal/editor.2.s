@@ -223,10 +223,9 @@ repdo	sta blnct
 	ldx gdcol       ;get char original color
 	php
 	jsr ldapnty     ;get character
+	inc blnon       ;set to 1
 	plp
 	bcs key5        ;branch if not needed
-;
-	inc blnon       ;set to 1
 	sta gdbln       ;save original char
 	lda veradat     ;get original color
 	sta gdcol       ;save it
