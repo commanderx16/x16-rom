@@ -30,7 +30,26 @@ ngone	jsr chrget
 ngone1	jsr gone3
 	jmp newstt
 gone3	beq iscrts
-gone2	sbc #endtk
+gone2
+.ifndef C64
+;**************************************
+	cmp #$ce
+	bne nesct2
+	jsr chrget
+	sbc #$80
+	bcc snerrx
+	cmp #3 ; number of new tokens
+	bcs snerrx
+	asl a
+	tay
+	lda stmdsp2+1,y
+	pha
+	lda stmdsp2,y
+	jmp gone4
+nesct2:
+;**************************************
+.endif
+	sbc #endtk
 	bcc glet
 	cmp #scratk-endtk+1
 	bcs snerrx
@@ -39,7 +58,7 @@ gone2	sbc #endtk
 	lda stmdsp+1,y
 	pha
 	lda stmdsp,y
-	pha
+gone4	pha
 	jmp chrget
 glet	jmp let
 morsts	cmp #':'

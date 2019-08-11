@@ -81,6 +81,13 @@ nottab	.byt 90
 ptdorl	.byt 100
 	.word dorel-1
 q=128-1
+
+.ifndef C64
+stmdsp2	.word monitor-1
+	.word vpeek-1
+	.word vpoke-1
+.endif
+
 reslst	.byt "EN",$c4
 endtk	=$80
 	.byt "FO",$d2
