@@ -8,6 +8,8 @@
 	jmp monitor
 ; $ff03
 	jmp restore_basic
+; $ff06
+	jmp query_joysticks
 
 	; this should not live in the vector area, but it's ok for now
 monitor:

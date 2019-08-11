@@ -30,6 +30,7 @@
 .include "init.s"
 .include "rs232nmi.s"
 .include "irqfile.s"
+.include "joystick.s"
 .ifndef C64
 .include "routines.s"
 .endif
