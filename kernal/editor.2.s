@@ -204,29 +204,10 @@ clr10	lda #$20
 ;
 ;put a char on the screen
 ;
-dspp	tay             ;save char
-	lda #2
-	sta blnct       ;blink cursor
-	tya             ;restore color
-dspp2	pha
-.if 0
-	lda pntr        ;set address
-	asl
-	clc
-	adc pnt
-	sta veralo
-	lda pnt+1
-	adc #0
-	sta veramid
-	lda #$10        ;auto-increment = 1
-	sta verahi
-	pla
-	sta veradat     ;store character
-.else
-	ldy pntr
-	pla
+dspp	ldy #2
+	sty blnct       ;blink cursor
+dspp2	ldy pntr
 	jsr stapnty
-.endif
 	stx veradat     ;color to screen
 	rts
 
@@ -240,7 +221,9 @@ repdo	sta blnct
 	ldy pntr        ;cursor position
 	lsr blnon       ;carry set if original char
 	ldx gdcol       ;get char original color
+	php
 	jsr ldapnty     ;get character
+	plp
 	bcs key5        ;branch if not needed
 ;
 	inc blnon       ;set to 1
