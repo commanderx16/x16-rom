@@ -56,6 +56,13 @@ lasnum	=$c7
 gotk	=$cb
 	.byt 0
 
+.ifndef C64
+reslst2	.byt "MONITO", 'R' + $80
+	.byt "VPEE", 'K' + $80
+	.byt "VPOK", 'E' + $80
+	.byt 0
+.endif
+
 err01	.byt "TOO MANY FILE",$d3
 err02	.byt "FILE OPE",$ce
 err03	.byt "FILE NOT OPE",$ce

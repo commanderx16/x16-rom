@@ -42,7 +42,7 @@ rescon	lda bufofs,x
 getbpt	ldy bufptr
 stuffh	inx
 	iny
-	sta buf-5,y
+crdone0	sta buf-5,y
 	lda buf-5,y
 	beq crdone
 	sec
@@ -53,7 +53,7 @@ stuffh	inx
 colis	sta dores
 nodatt	sec
 	sbc #remtk-$3a
-	bne kloop
+kloop2	bne kloop
 	sta endchr
 str1	lda bufofs,x
 	beq stuffh
@@ -70,8 +70,58 @@ nthis1	iny
 	bpl nthis1
 	lda reslst,y
 	bne rescon
+.ifndef C64
+;**************************************
+	nop
+
+; search
+	ldy #0
+	sty count
+	dey
+	stx txtptr
+	dex
+reser2	iny
+	inx
+rescon2	lda bufofs,x
+	sec
+	sbc reslst2,y
+	beq reser2
+	cmp #128
+	bne nthis2
+	ora count
+	ldy bufptr
+	inx
+	iny
+	pha
+	lda #$ce ; escape token
+	sta buf-5,y
+	iny
+	pla
+	jmp crdone0
+
+; skip
+nthis2	ldx txtptr
+	inc count
+nthis12	iny
+	lda reslst2-1,y
+	bpl nthis12
+	lda reslst2,y
+	bne rescon2
 	lda bufofs,x
+	bmi crdone
+	ldy bufptr
+	inx
+	iny
+	jmp crdone0
+;**************************************
+.endif
+	lda bufofs,x
+.ifdef C64
 	bpl getbpt
+.else
+	bmi crdone
+	jmp getbpt
+.endif
 crdone	sta buf-3,y
 	dec txtptr+1
 zz1	=buf-1
