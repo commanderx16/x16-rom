@@ -236,7 +236,37 @@ lp23	lda runtb-1,x
 	dex
 	bne lp23
 	beq loop3
-lp22	cmp #$d
+lp22	pha
+	sec
+	sbc #$85         ;f1 key?
+	bcc lp29
+	cmp #8
+	bcs lp29         ;beyond f8
+	cmp #4
+	rol              ;convert to f1-f8 -> 0-7
+	and #7
+	ldx #0
+	tay
+	beq lp27
+lp25	lda fkeytb,x     ;search for replacement
+	beq lp26
+	inx
+	bne lp25
+lp26	inx
+	dey
+	bne lp25
+lp27	lda fkeytb,x
+	sta keyd,y
+	beq lp28
+	inx
+	iny
+	bne lp27
+lp28	sty ndx
+	pla
+loop3a	jmp loop3
+;
+lp29	pla
+	cmp #$d
 	bne loop4
 	ldy lnmx
 	sty crsw
@@ -271,7 +301,7 @@ loop5	tya
 	txa
 	pha
 	lda crsw
-	beq loop3
+	beq loop3a
 lop5	ldy pntr
 	jsr ldapnty
 notone

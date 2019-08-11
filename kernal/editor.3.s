@@ -123,6 +123,15 @@ contrl
 ;
 runtb	.byt "LOAD",$d,"RUN",$d
 ;
+fkeytb	.byt $8D, "LIST:", 13, 0
+	.byt $8D, "S", 'Y' + $80, "65280:", 13, 0
+	.byt $8D, "RUN:", 13, 0
+	.byt $93, "S", 'Y' + $80, "65375:?", $22, $93, 13, 0
+	.byt "LOAD", 13, 0
+	.byt "SAVE", '"', 0
+	.byt $8D, $93, "DOS",'"', "$",13, 0
+	.byt "DOS", '"', 0
+;
 
 ; rsr 12/08/81 modify for vic-40 keyscan
 ; rsr  2/17/81 modify for the stinking 6526r2 chip
