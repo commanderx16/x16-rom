@@ -134,7 +134,57 @@ neval	lda #0
 eval0	jsr chrget
 	bcs eval2
 eval1	jmp fin
-eval2	jsr isletc
+eval2
+.ifndef C64
+;**************************************
+; hex literal input
+;**************************************
+	cmp #'$'
+	bne evalh0
+	lda #16         ;base 16
+	pha
+	lda #4          ;shift 4
+	bne evalhx
+evalh0	cmp #'%'
+	bne evalb0
+	lda #2          ;base 2
+	pha
+	lda #1          ;shift 1
+evalhx	ldy #$00        ;[same code as in "fin"]
+	ldx #$09+addprc ;[same code as in "fin"]
+evalh1	sty deccnt,x    ;[same code as in "fin"]
+	dex             ;[same code as in "fin"]
+	bpl evalh1      ;[same code as in "fin"]
+	sta lowtr+1     ;shift
+	pla
+	sta lowtr       ;base
+evalh2	jsr chrget
+	bcc evalh3      ;digit? ok
+	cmp #'A'
+	bcc evalh6      ;non-alpha? done
+	cmp #'Z'+1
+	bcs evalh6      ;non-alpha? done
+evalh7	sbc #7
+evalh3	sbc #$2f        ;convert to value
+	cmp lowtr       ;base
+	bcc evalh9
+	jmp snerr
+evalh9	pha
+	lda facexp
+	beq evalh5
+	adc lowtr+1     ;shift
+	bcc evalh4
+	jmp overr
+evalh4	sta fac
+evalh5	pla
+	jsr finlog      ;add .a to fac
+	jmp evalh2
+evalh6	clc
+	rts
+evalb0
+;**************************************
+.endif
+	jsr isletc
 	bcc *+5
 	jmp isvar
 	cmp #pi
@@ -197,4 +247,3 @@ domin	ldy #21
 gonprc	pla
 	pla
 	jmp negprc
-
