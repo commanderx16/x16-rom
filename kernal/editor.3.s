@@ -124,7 +124,7 @@ contrl
 runtb	.byt "LOAD",$d,"RUN",$d
 ;
 fkeytb	.byt $8D, "LIST:", 13, 0
-	.byt $8D, "S", 'Y' + $80, "65280:", 13, 0
+	.byt $8D, "M", 'O' + $80, ":", 13, 0
 	.byt $8D, "RUN:", 13, 0
 	.byt $93, "S", 'Y' + $80, "65375:?", $22, $93, 13, 0
 	.byt "LOAD", 13, 0

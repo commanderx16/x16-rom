@@ -33,12 +33,14 @@ gone3	beq iscrts
 gone2
 .ifndef C64
 ;**************************************
-	cmp #$ce
+; new statement execution
+;**************************************
+	cmp #$ce ; escape token
 	bne nesct2
 	jsr chrget
 	sbc #$80
 	bcc snerrx
-	cmp #3 ; number of new tokens
+	cmp #num_esc_statements
 	bcs snerrx
 	asl a
 	tay
@@ -47,6 +49,7 @@ gone2
 	lda stmdsp2,y
 	jmp gone4
 nesct2:
+	sec
 ;**************************************
 .endif
 	sbc #endtk

@@ -79,7 +79,35 @@ qstatv	cpx #'S'
 gomovf	lda facmo
 	ldy facmo+1
 	jmp movfm
-isfun	asl a
+isfun
+.ifndef C64
+;**************************************
+; new function execution
+;**************************************
+	cmp #$ce ; escape token
+	bne nesct3
+
+	jsr chrget
+	sec
+	sbc #$80 + num_esc_statements
+	bcs :+
+snerr9:	jmp snerr
+:	cmp #num_esc_functions
+	bcs snerr9
+
+	asl a
+	tay
+	lda stmdsp2+2*num_esc_statements,y
+	sta jmper+1
+	lda stmdsp2+2*num_esc_statements+1,y
+	sta jmper+2
+	jsr jmper
+	jmp chknum
+
+nesct3
+;**************************************
+.endif
+	asl a
 	pha
 	tax
 	jsr chrget

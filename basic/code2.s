@@ -72,6 +72,8 @@ nthis1	iny
 	bne rescon
 .ifndef C64
 ;**************************************
+; new tokenization
+;**************************************
 ; search
 	ldy #0
 	sty count

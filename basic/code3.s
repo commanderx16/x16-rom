@@ -67,6 +67,8 @@ nqplop	bpl ploop
 	bmi ploop
 .ifndef C64
 ;**************************************
+; new de-tokenization
+;**************************************
 	cmp #$ce ; escape token
 	bne nesctk
 	iny

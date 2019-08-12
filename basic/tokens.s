@@ -83,9 +83,11 @@ ptdorl	.byt 100
 q=128-1
 
 .ifndef C64
-stmdsp2	.word monitor-1
-	.word vpeek-1
+stmdsp2	; statements
+	.word monitor-1
 	.word vpoke-1
+	; functions
+	.word vpeek
 .endif
 
 reslst	.byt "EN",$c4

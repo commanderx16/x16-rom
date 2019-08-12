@@ -57,10 +57,12 @@ gotk	=$cb
 	.byt 0
 
 .ifndef C64
-reslst2	.byt "MONITO", 'R' + $80
-	.byt "VPEE", 'K' + $80
+reslst2	.byt "MO", 'N' + $80
 	.byt "VPOK", 'E' + $80
+	.byt "VPEE", 'K' + $80
 	.byt 0
+num_esc_statements = 2
+num_esc_functions = 1
 .endif
 
 err01	.byt "TOO MANY FILE",$d3
