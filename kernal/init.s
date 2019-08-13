@@ -72,12 +72,12 @@ ramtz0	sta $0000,y     ;zero page
 	sta hibase      ;set base of screen
 
 .ifndef C64
-.import __KERNRAM_LOAD__
-.import __KERNRAM_RUN__
+.import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
 ;
 ; copy ram code
 ;
-	ldx #dl_end-dl_beg-1
+	.assert __KERNRAM_SIZE__ <= 128, error, "RAM download code can't handle more than 128 bytes"
+	ldx #<__KERNRAM_SIZE__-1
 :	lda __KERNRAM_LOAD__,x
 	sta __KERNRAM_RUN__,x     ;download 'FETCH, STASH, CMPARE, JSRFAR, JMPFAR' ram code
 	dex

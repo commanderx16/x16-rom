@@ -11,58 +11,89 @@
 ; $ff06
 	jmp query_joysticks
 
-	; this should not live in the vector area, but it's ok for now
-monitor:
-	lda #1
-	sta d1prb ; ROM bank
-	jmp ($c000)
-restore_basic:
-	lda #0
-	sta d1prb ; ROM bank
-	jmp ($c002)
-
 	.segment "JMPTB128"
 ; C128 KERNAL API
+;
+; We are trying to support as many C128 calls as possible.
+; Some make no sense on the X16 though, usually because
+; their functionality is C128-specific.
+
 ; $FF47: SPIN_SPOUT – setup fast serial ports for I/O
+	; UNSUPPORTED
+	; no fast serial support
 	.byte 0,0,0
 ; $FF4A: CLOSE_ALL – close all files on a device
-	.byte 0,0,0
+	; COMPATIBLE
+	jmp close_all
 ; $FF4D: C64MODE – reconfigure system as a C64
+	; UNSUPPORTED
+	; no C64 compatibility support
 	.byte 0,0,0
 ; $FF50: DMA_CALL – send command to DMA device
+	; UNSUPPORTED
+	; no support for Commodore REU devices
 	.byte 0,0,0
 ; $FF53: BOOT_CALL – boot load program from disk
+	; TODO
+	; We need better disk support first.
 	.byte 0,0,0
 ; $FF56: PHOENIX – init function cartridges
+	; UNSUPPORTED
+	; no external ROM support
 	.byte 0,0,0
 ; $FF59: LKUPLA
-	.byte 0,0,0
+	; COMPATIBLE
+	jmp lkupla
 ; $FF5C: LKUPSA
-	.byte 0,0,0
+	; COMPATIBLE
+	jmp lkupsa
 ; $FF5F: SWAPPER – switch between 40 and 80 columns
+	; COMPATIBLE
+	; Note that the the MODE ($D7) zero page location is not
+	; supportedd for mode detection. Instead, the LLEN ($D9)
+	; zero page location holds either the value 80 or 40.
 	jmp swapper
 ; $FF62: DLCHR – init 80-col character RAM
+	; UNSUPPORTED
+	; VDC8563-specific
 	.byte 0,0,0
 ; $FF65: PFKEY – program a function key
 	; TODO
+	; Currently, the fkey strings are stored in ROM.
+	; In order to make them editable, 256 bytes of RAM are
+	; required. (C128: PKYBUF, PKYDEF)
 	.byte 0,0,0
 ; $FF68: SETBNK – set bank for I/O operations
-	; we do not want to support this
+	; UNSUPPORTED
+	; To keep things simple, the X16 KERNAL APIs do not
+	; support banking. Data for use with KERNAL APIs must be
+	; in non-banked RAM < $9F00.
 	.byte 0,0,0
 ; $FF6B: GETCFG – lookup MMU data for given bank
-	; we do not want to support this
+	; UNSUPPORTED
+	; no MMU
 	.byte 0,0,0
 ; $FF6E: JSRFAR – gosub in another bank
+	; NOT COMPATIBLE
+	; This call takes the address (2 bytes) and bank (1 byte)
+	; from the instruction stream.
 	jmp jsrfar
 ; $FF71: JMPFAR – goto another bank
-	.byte 0,0,0     ; not sure we want this
+	; TODO/UNSUPPORTED
+	; Not sure we want this. It is not very useful, and would
+	; require a lot of new code.
+	.byte 0,0,0
 ; $FF74: FETCH – LDA (fetvec),Y from any bank
+	; COMPATIBLE
 	jmp indfet
 ; $FF77: STASH – STA (stavec),Y to any bank
+	; COMPATIBLE
 	jmp stash       ; (*note* user must setup 'stavec')
 ; $FF7A: CMPARE – CMP (cmpvec),Y to any bank
+	; COMPATIBLE
 	jmp cmpare      ; (*note*  user must setup 'cmpvec')
 ; $FF7D: PRIMM – print string following the caller’s code
+	; COMPATIBLE
 	jmp primm
 .endif
 
