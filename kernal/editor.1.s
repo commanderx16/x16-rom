@@ -58,7 +58,7 @@ scnsiz	stx llen
 	sty nlinesm1
 	dey
 	sty nlinesm2
-	rts
+	jmp clsr ; clear screen
 
 ;initialize i/o
 ;
