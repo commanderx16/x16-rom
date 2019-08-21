@@ -203,19 +203,21 @@ swapper	lda llen
 	beq swpp1
 	ldx #80
 	ldy #60
-	lda #1          ;mode=0, vscale=0, hscale=0, en=1
+	lda #128 ; scale = 1.0
 	bne swpp2 ; always
 swpp1	ldx #40
 	ldy #30
-	lda #1 << 3 | 1 << 1  | 1 ;mode=0, vscale=1, hscale=1, en=1
+	lda #64 ; scale = 2.0
 swpp2	pha
-	lda #0
+	lda #$41
 	sta veralo
+	lda #0
 	sta veramid
 	lda #$14
 	sta verahi
 	pla
-	sta veradat
+	sta veradat ; reg $40041: hscale
+	sta veradat ; reg $40041: vscale
 	jmp scnsiz
 
 ;/////////////////////   K E R N A L   R A M   C O D E  \\\\\\\\\\\\\\\\\\\\\\\

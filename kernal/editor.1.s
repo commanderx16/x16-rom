@@ -183,6 +183,12 @@ px4	lda tvera,x
 	inx
 	cpx #tverend-tvera
 	bne px4
+
+	lda #$40
+	sta veralo
+	lda #1
+	sta veradat ; VGA output
+
 	rts
 
 mapbas	=0
