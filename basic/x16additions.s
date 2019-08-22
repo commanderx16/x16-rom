@@ -55,7 +55,7 @@ iobase = $fff3
 monitor	jmp $ff00
 
 vpeek	jsr chrget
-	jsr chkopn ; closing paren
+	jsr chkopn ; open paren
 	jsr getbyt ; byte: bank
 	stx verahi
 	jsr chkcom
