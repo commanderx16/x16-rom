@@ -19,19 +19,20 @@
 .include "zeropage.inc"
 .include "common.inc"
 .include "fat32.inc"
+.include "fcntl.inc"
 .include "65c02.inc"
 
 
-dirbuffer  = $8000
+databuffer = $8000
 dirstart   = $0801
-namebuffer = $1000
+fnbuffer   = $1000
 
 zpdir         = 2 ; 2 bytes
 num_blocks    = 4 ; 2 bytes
 fn_base       = 6 ; 1 byte
-namebufferptr = 7 ; 1 byte
+fnbufferptr   = 7 ; 1 byte
 bufferptr     = 8 ; 1 byte
-dirbufferlen  = 9
+databufferlen = 9
 
 
 .segment "cbdos"
@@ -46,54 +47,97 @@ dirbufferlen  = 9
 	jmp cbdos_listn
 	jmp cbdos_talk
 
-cbdos_secnd: ; after talk
-	lda #0
-	sta namebufferptr
+cbdos_listn:
 	rts ; do nothing
-cbdos_tksa: ; after listen
+
+cbdos_secnd: ; after listen
+	lda #0
+	sta fnbufferptr
+	rts ; do nothing
+
+cbdos_ciout:
+	ldx fnbufferptr
+	sta fnbuffer,x
+	inc fnbufferptr
+	rts
+
+cbdos_unlsn:
+	lda fnbuffer
+	cmp #'$'
+	bne not_dir
 	jsr read_dir
+	jmp cbdos_unlsn2
+not_dir:
+	jsr read_file
+cbdos_unlsn2:
 	lda #0
 	sta bufferptr
 	rts
+
+cbdos_talk:
+	rts
+
+cbdos_tksa: ; after talk
+	rts
+
 cbdos_acptr:
-	ldx bufferptr
-	lda dirbuffer,x
+	lda databufferlen
+	bne :+
+	lda #$02 ; file not found
+	sta $90
+	lda #0
+	rts
+
+:	ldx bufferptr
+	lda databuffer,x
 	inc bufferptr
 	pha
 	lda bufferptr
-	cmp dirbufferlen
+	cmp databufferlen
 	bne :+
+acptr_fnf:
 	lda #$40 ; EOI
 	sta $90
 :	pla
 	rts
-cbdos_ciout:
-	ldx namebufferptr
-	sta namebuffer,x
-	rts
+
 cbdos_untlk:
 	rts
-cbdos_unlsn:
+
+read_file:
+	jsr fat_mount
+
+	lda #0 ; zero-terminate
+	ldx fnbufferptr
+	sta fnbuffer,x
+	lda #<fnbuffer
+	ldx #>fnbuffer
+	ldy #O_RDONLY
+	jsr fat_open
+X1:
+	bne read_file_error
+
+	SetVector databuffer, read_blkptr
+
+	ldy #5
+	jsr fat_fread
+	lda #$ff
+	sta databufferlen ; XXX
 	rts
-cbdos_listn:
-	rts ; do nothing
-cbdos_talk:
+
+read_file_error:
+	lda #0
+	sta databufferlen ; = file not found
 	rts
 
-
-
-
-;	.word start
 
 
 read_dir:
 	jsr fat_mount
 
-	nop
-
-	lda #<dirbuffer
+	lda #<databuffer
 	sta zpdir
-	lda #>dirbuffer
+	lda #>databuffer
 	sta zpdir+1
 	ldy #0
 	lda #<dirstart
@@ -176,8 +220,6 @@ dir_loop:
 	lda num_blocks + 1
 	jsr storedir
 
-Y1:
-
 	; find out how many spaces to print
 	lda num_blocks
 	sec
@@ -258,29 +300,30 @@ gt_1000:
 	jmp dir_loop
 
 end_of_dir:
+	lda #1
+	jsr storedir ; link
+	jsr storedir
+	lda #$ff
+	jsr storedir ; XXX TODO real blocks free
+	jsr storedir
+	ldx #0
+:	lda txt_blocksfree,x
+	jsr storedir
+	inx
+	cpx #txt_blocksfree_end - txt_blocksfree
+	bne :-
+
 	lda #0
 	jsr storedir
 	jsr storedir
 
-	sty dirbufferlen
+	sty databufferlen
 
 	rts
 
-
-
-.if 0
-	lda #<filename
-	ldx #>filename
-	ldy #1 ; O_RDONLY
-	jsr fat_open
-
-	SetVector $1000, read_blkptr
-
-	ldy #5
-	jsr fat_fread
-
-	jmp *
-.endif
+txt_blocksfree:
+	.byte "BLOCKS FREE."
+txt_blocksfree_end:
 
 storedir:
 	sta (zpdir),y
@@ -289,9 +332,6 @@ storedir:
 	inc zpdir + 1
 :	rts
 
-filename:
-;	.byte "HELLO.TXT", 0
-	.byte "FAT32.ASM", 0
 allfiles:
 	.byte "*.*", 0
 
