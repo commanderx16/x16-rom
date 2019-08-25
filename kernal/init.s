@@ -6,9 +6,9 @@ start	ldx #$ff
 	txs
 	cld
 
-	lda #2
-	sta d1prb ; ROM bank
-	jmp ($c000)
+;	lda #2
+;	sta d1prb ; ROM bank
+;	jmp ($c000)
 
 
 	jsr ioinit      ;go initilize i/o devices

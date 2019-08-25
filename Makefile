@@ -6,7 +6,7 @@ all:
 	dd if=rom-c64.bin of=kernal-c64.bin bs=8k skip=1 count=1
 
 	ca65 -g -DPS2 -o basic/basic.o basic/basic.s
-	ca65 -g -DPS2 -o kernal/kernal.o kernal/kernal.s
+	ca65 -g -DPS2 -DCBDOS -o kernal/kernal.o kernal/kernal.s
 	ca65 -g -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
 	ca65 -g -o cbdos/fat32.o cbdos/fat32.asm
 	ca65 -g -o cbdos/util.o cbdos/util.asm

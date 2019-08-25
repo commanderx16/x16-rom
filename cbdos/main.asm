@@ -21,24 +21,79 @@
 .include "fat32.inc"
 .include "65c02.inc"
 
+
+dirbuffer  = $8000
+dirstart   = $0801
+namebuffer = $1000
+
+zpdir         = 2 ; 2 bytes
+num_blocks    = 4 ; 2 bytes
+fn_base       = 6 ; 1 byte
+namebufferptr = 7 ; 1 byte
+bufferptr     = 8 ; 1 byte
+dirbufferlen  = 9
+
+
 .segment "cbdos"
 ; $C000
-	.word start
 
-buffer = $8000
-zpdir = 2      ; 2 bytes
-num_blocks = 4 ; 2 bytes
-fn_base = 6    ; 1 byte
-dirstart = $0400
+	jmp cbdos_secnd
+	jmp cbdos_tksa
+	jmp cbdos_acptr
+	jmp cbdos_ciout
+	jmp cbdos_untlk
+	jmp cbdos_unlsn
+	jmp cbdos_listn
+	jmp cbdos_talk
 
-start:
+cbdos_secnd: ; after talk
+	lda #0
+	sta namebufferptr
+	rts ; do nothing
+cbdos_tksa: ; after listen
+	jsr read_dir
+	lda #0
+	sta bufferptr
+	rts
+cbdos_acptr:
+	ldx bufferptr
+	lda dirbuffer,x
+	inc bufferptr
+	pha
+	lda bufferptr
+	cmp dirbufferlen
+	bne :+
+	lda #$40 ; EOI
+	sta $90
+:	pla
+	rts
+cbdos_ciout:
+	ldx namebufferptr
+	sta namebuffer,x
+	rts
+cbdos_untlk:
+	rts
+cbdos_unlsn:
+	rts
+cbdos_listn:
+	rts ; do nothing
+cbdos_talk:
+	rts
+
+
+
+
+;	.word start
+
+
+read_dir:
 	jsr fat_mount
 
 	nop
 
-	lda #<buffer
+	lda #<dirbuffer
 	sta zpdir
-	lda #>buffer
+	lda #>dirbuffer
 	sta zpdir+1
 	ldy #0
 	lda #<dirstart
@@ -207,51 +262,11 @@ end_of_dir:
 	jsr storedir
 	jsr storedir
 
-X1:
-	jsr 3
-	nop
-	jmp *
+	sty dirbufferlen
 
-	ldy #0
-:	lda (dirptr),y
-	jsr 1
-	iny
-	cpy #11
-	bne :-
-
-	ldy #F32DirEntry::FileSize
-	lda (dirptr),y
-	jsr 2
-	iny
-	lda (dirptr),y
-	jsr 2
-	iny
-	lda (dirptr),y
-	jsr 2
-	iny
-	lda (dirptr),y
-	jsr 2
+	rts
 
 
-	ldx #FD_INDEX_CURRENT_DIR
-	jsr fat_find_next
-
-	ldy #0
-:	lda (dirptr),y
-	jsr 1
-	iny
-	cpy #11
-	bne :-
-
-	ldx #FD_INDEX_CURRENT_DIR
-	jsr fat_find_next
-
-	ldy #0
-:	lda (dirptr),y
-	jsr 1
-	iny
-	cpy #11
-	bne :-
 
 .if 0
 	lda #<filename
@@ -263,9 +278,9 @@ X1:
 
 	ldy #5
 	jsr fat_fread
-.endif
 
 	jmp *
+.endif
 
 storedir:
 	sta (zpdir),y

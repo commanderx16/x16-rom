@@ -1,12 +1,26 @@
 	.segment "SERIAL"
 ;command serial bus device to talk
 ;
-talk	ora #$40        ;make a talk adr
+talk
+.ifdef CBDOS
+	jsr jsrfar
+	.word $c000 + 3 * 7
+	.byte 2
+	rts
+.endif
+	ora #$40        ;make a talk adr
 	.byt $2c        ;skip two bytes
 
 ;command serial bus device to listen
 ;
-listn	ora #$20        ;make a listen adr
+listn
+.ifdef CBDOS
+	jsr jsrfar
+	.word $c000 + 3 * 6
+	.byte 2
+	rts
+.endif
+	ora #$20        ;make a listen adr
 	jsr rsp232      ;protect self from rs232 nmi's
 list1	pha
 ;
@@ -115,7 +129,14 @@ csberr	jsr udst        ;commodore serial buss error entry
 
 ;send secondary address after listen
 ;
-secnd	sta bsour       ;buffer character
+secnd
+.ifdef CBDOS
+	jsr jsrfar
+	.word $c000 + 3 * 0
+	.byte 2
+	rts
+.endif
+	sta bsour       ;buffer character
 	jsr isoura      ;send it
 
 ;release attention after listen
@@ -127,7 +148,14 @@ scatn	lda d2pra
 
 ;talk second address
 ;
-tksa	sta bsour       ;buffer character
+tksa
+.ifdef CBDOS
+	jsr jsrfar
+	.word $c000 + 3 * 1
+	.byte 2
+	rts
+.endif
+	sta bsour       ;buffer character
 	jsr isoura      ;send second addr
 
 tkatn	;shift over to listener
@@ -142,7 +170,14 @@ tkatn1	jsr debpia      ;wait for clock to go low
 
 ;buffered output to serial bus
 ;
-ciout	bit c3p0        ;buffered char?
+ciout
+.ifdef CBDOS
+	jsr jsrfar
+	.word $c000 + 3 * 3
+	.byte 2
+	rts
+.endif
+	bit c3p0        ;buffered char?
 	bmi ci2         ;yes...send last
 ;
 	sec             ;no...
@@ -158,7 +193,14 @@ ci4	sta bsour       ;buffer current char
 
 ;send untalk command on serial bus
 ;
-untlk	sei
+untlk
+.ifdef CBDOS
+	jsr jsrfar
+	.word $c000 + 3 * 4
+	.byte 2
+	rts
+.endif
+	sei
 	jsr clklo
 	lda d2pra       ;pull atn
 	ora #$08
@@ -168,7 +210,14 @@ untlk	sei
 
 ;send unlisten command on serial bus
 ;
-unlsn	lda #$3f        ;unlisten command
+unlsn
+.ifdef CBDOS
+	jsr jsrfar
+	.word $c000 + 3 * 5
+	.byte 2
+	rts
+.endif
+	lda #$3f        ;unlisten command
 	jsr list1       ;send it
 ;
 ; release all lines
@@ -186,6 +235,12 @@ dlad00	dex
 ;input a byte from serial bus
 ;
 acptr
+.ifdef CBDOS
+	jsr jsrfar
+	.word $c000 + 3 * 2
+	.byte 2
+	rts
+.endif
 	sei             ;no irq allowed
 	lda #$00        ;set eoi/error flag
 	sta count
