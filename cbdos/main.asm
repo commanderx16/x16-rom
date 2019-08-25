@@ -32,7 +32,9 @@ num_blocks    = 4 ; 2 bytes
 fn_base       = 6 ; 1 byte
 fnbufferptr   = 7 ; 1 byte
 bufferptr     = 8 ; 1 byte
-databufferlen = 9
+databufferlen = 9 ; 1 byte
+save_x        = 10; 1 byte
+save_y        = 11; 1 byte
 
 
 .segment "cbdos"
@@ -56,12 +58,16 @@ cbdos_secnd: ; after listen
 	rts ; do nothing
 
 cbdos_ciout:
+	stx save_x
 	ldx fnbufferptr
 	sta fnbuffer,x
+	ldx save_x
 	inc fnbufferptr
 	rts
 
 cbdos_unlsn:
+	stx save_x
+	sty save_y
 	lda fnbuffer
 	cmp #'$'
 	bne not_dir
@@ -72,6 +78,8 @@ not_dir:
 cbdos_unlsn2:
 	lda #0
 	sta bufferptr
+	ldy save_y
+	ldx save_x
 	rts
 
 cbdos_talk:
@@ -88,8 +96,11 @@ cbdos_acptr:
 	lda #0
 	rts
 
-:	ldx bufferptr
+:
+	stx save_x
+	ldx bufferptr
 	lda databuffer,x
+	ldx save_x
 	inc bufferptr
 	pha
 	lda bufferptr
