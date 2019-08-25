@@ -24,7 +24,8 @@
 	debug_enabled=1
 .endif
 ;.setcpu "65c02"
-.include	"kernel.inc"
+.include "65c02.inc"
+.include	"zeropage.inc"
 .include	"fat32.inc"
 .include	"errno.inc"
 
@@ -121,7 +122,7 @@ __tfn_mask_input:
 	beq __tfn_mask_input
 	cpy #1							; 2nd position?
 	bne __tfn_mask_fill_blank		; no, fill section
-	cmp	(krn_ptr2)					; otherwise check whether we already captured a "." as first char
+	cmpind	krn_ptr2					; otherwise check whether we already captured a "." as first char
 	beq __tfn_mask_char_l2
 __tfn_mask_fill_blank:
 	lda #' '

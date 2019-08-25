@@ -20,6 +20,9 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 
+.include "65c02.inc"
+
+FAT_NOWRITE=1
 
 .ifdef DEBUG_FAT32 ; debug switch for this module
 	debug_enabled=1
@@ -194,7 +197,7 @@ fat_write:
 		beq @l_not_open
 
 		lda	fd_area + F32_fd::Attr, x
-		bit #DIR_Attr_Mask_Dir								; regular file?
+		bitimm DIR_Attr_Mask_Dir								; regular file?
 		beq @l_isfile
 @l_not_open:
 		lda #EINVAL
@@ -392,7 +395,7 @@ __fat_opendir:
 		jsr __fat_open_path
 		bne	@l_exit					; exit on error
 		lda	fd_area + F32_fd::Attr, x
-		bit #DIR_Attr_Mask_Dir		; check that there is no error and we have a directory
+		bitimm DIR_Attr_Mask_Dir		; check that there is no error and we have a directory
 		bne	@l_ok
 		jsr fat_close				; not a directory, so we opened a file. just close them immediately and free the allocated fd
 		lda	#ENOTDIR				; error "Not a directory"
@@ -704,7 +707,7 @@ __fat_rtc_date:
 		asl
 		sta krn_tmp
 		lda rtc_systime_t+time_t::tm_mon								; month from rtc is (0..11), adjust +1
-		inc
+		inca
 		jsr __fat_rtc_high_word
 		lda rtc_systime_t+time_t::tm_mday							; day of month (1..31)
 		ora krn_tmp2
@@ -796,7 +799,7 @@ __fat_read_cluster_block_and_select:
 @l_clnr_fd:
 		lda fd_area+F32_fd::CurrentCluster+0,x 	; offset within block_fat, clnr<<2 (* 4)		
 @l_clnr_page:
-		bit #$40										; clnr within 2nd page of the 512 byte block ?
+		bitimm $40										; clnr within 2nd page of the 512 byte block ?
 		beq @l_clnr
 		ldy #>(block_fat+$0100)					; yes, set read_blkptr to 2nd page of block_fat
 		sty read_blkptr+1
@@ -1070,7 +1073,7 @@ __fat_open_file:
 fat_open_found:						; found...
 		ldy #F32DirEntry::Attr
 		lda (dirptr),y
-		bit #DIR_Attr_Mask_Dir 		; directory?
+		bitimm DIR_Attr_Mask_Dir 		; directory?
 		bne @l2						; yes, do not allocate a new fd, use index (X) which is already set to FD_INDEX_TEMP_DIR and just update the fd data
 		jsr __fat_alloc_fd			; no, then regular file and we allocate a new fd for them
 		bne end_open_err
@@ -1665,7 +1668,7 @@ ff_l3:
       jsr __fat_read_block
       bne ff_exit
 ff_l4:
-      lda (dirptr)
+      ldaind dirptr
       beq ff_exit								   ; first byte of dir entry is $00 (end of directory)
 @l5:
       ldy #F32DirEntry::Attr					; else check if long filename entry
@@ -1730,7 +1733,7 @@ __fat_count_direntries:
 		jsr __fat_find_first_mask		; find within dir given in X
 		bcc @l_exit
 @l_next:
-		lda (dirptr)
+		ldaind dirptr
 		cmp #DIR_Entry_Deleted
 		beq @l_find_next
 		inc	krn_tmp3
@@ -1754,7 +1757,7 @@ __fat_unlink:
 		jsr __fat_read_direntry					; read the dir entry
 		bne	@l_exit
 		lda	#DIR_Entry_Deleted					; mark dir entry as deleted ($e5)
-		sta (dirptr)
+		staind dirptr
 		jsr __fat_write_block_data				; write back dir entry
 @l_exit:
 		;debug "_ulnk"
@@ -1762,7 +1765,7 @@ __fat_unlink:
 
 __fat_is_dot_dir:
 		lda #'.'
-		cmp (dirptr)
+		cmpind dirptr
 		bne @l_exit
 		ldy #10
 		lda #' '
