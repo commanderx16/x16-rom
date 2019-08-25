@@ -1,0 +1,5 @@
+O_APPEND = 1
+O_WRONLY = 2
+O_CREAT = 4
+O_RDONLY = 8
+
