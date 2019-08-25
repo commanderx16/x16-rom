@@ -39,27 +39,27 @@
 ; Destructive: A,X
 ;----------------------------------------------------------------------------------------------
 spi_r_byte:
-		lda via1portb   ; Port laden
+		lda via2portb   ; Port laden
 		AND #$fe        ; Takt ausschalten
 		TAX             ; aufheben
 		ORA #$01
 
-		STA via1portb ; Takt An 1
-		STX via1portb ; Takt aus
-		STA via1portb ; Takt An 2
-		STX via1portb ; Takt aus
-		STA via1portb ; Takt An 3
-		STX via1portb ; Takt aus
-		STA via1portb ; Takt An 4
-		STX via1portb ; Takt aus
-		STA via1portb ; Takt An 5
-		STX via1portb ; Takt aus
-		STA via1portb ; Takt An 6
-		STX via1portb ; Takt aus
-		STA via1portb ; Takt An 7
-		STX via1portb ; Takt aus
-		STA via1portb ; Takt An 8
-		STX via1portb ; Takt aus
+		STA via2portb ; Takt An 1
+		STX via2portb ; Takt aus
+		STA via2portb ; Takt An 2
+		STX via2portb ; Takt aus
+		STA via2portb ; Takt An 3
+		STX via2portb ; Takt aus
+		STA via2portb ; Takt An 4
+		STX via2portb ; Takt aus
+		STA via2portb ; Takt An 5
+		STX via2portb ; Takt aus
+		STA via2portb ; Takt An 6
+		STX via2portb ; Takt aus
+		STA via2portb ; Takt An 7
+		STX via2portb ; Takt aus
+		STA via2portb ; Takt An 8
+		STX via2portb ; Takt aus
 
-		lda via1sr
+		lda via2sr
 		rts

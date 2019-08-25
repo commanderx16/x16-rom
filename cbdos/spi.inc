@@ -20,8 +20,5 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 
-spi_device_sdcard   = %00011100 ;spi device number 1110 (SPI_SS1)
-spi_device_keyboard = %00011010 ;spi device number 1101 (SPI_SS2)
-spi_device_rtc      = %00010110 ;spi device number 1011 (SPI_SS3)
-
-spi_device_deselect = %00011110 ; deselect any device
+spi_device_sdcard   = %00011100 ; PB1 is SS for sd card
+spi_device_deselect = %00011110 ; deselect

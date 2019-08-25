@@ -23,12 +23,14 @@
   _ZEROPAGE_INC_=1
   
 ; already defined in cc65 zeropage.inc
-.globalzp ptr1, ptr2, ptr3, ptr4
-.globalzp tmp1, tmp2, tmp3, tmp4
+;.globalzp ptr1, ptr2, ptr3, ptr4
+;.globalzp tmp1, tmp2, tmp3, tmp4
 
-.globalzp vdp_ptr, vdp_tmp
+;.globalzp vdp_ptr, vdp_tmp
 
 ; INIT0/SHELL
+
+tmp1 = $d0
 
 ; shell related - TODO FIXME away from kernel stuff, conflicts with basic. but after basic start, we dont care about shell zp. maybe if we want to return to shell one day !!!
 cmdptr		= $d6

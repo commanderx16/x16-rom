@@ -1,7 +1,6 @@
-.export read_block, write_block
-.export sd_read_multiblock
-
 .export __rtc_systime_update
+
+.import sdcard_init
 
 .import fat_mount
 .import fat_open, fat_chdir, fat_unlink
@@ -50,6 +49,11 @@ save_y        = 11; 1 byte
 	jmp cbdos_talk
 
 cbdos_listn:
+	stx save_x
+	sty save_y
+	jsr sdcard_init
+	ldy save_y
+	ldx save_x
 	rts ; do nothing
 
 cbdos_secnd: ; after listen
@@ -345,11 +349,6 @@ storedir:
 
 allfiles:
 	.byte "*.*", 0
-
-read_block:
-	jmp 0 ; emulator takes care of this
-sd_read_multiblock:
-	jmp *
 
 __rtc_systime_update:
 	rts

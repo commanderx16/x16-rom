@@ -26,12 +26,17 @@
 	debug_enabled=1
 .endif
 
-.include "common.inc"
-.include "kernel.inc"
-.include "errno.inc"
+;.include "common.inc"
+.include "zeropage.inc"
+;.include "errno.inc"
 .include "sdcard.inc"
 .include "spi.inc"
 .include "via.inc"
+.include "65c02.inc"
+.macro debug arg1, arg2
+.endmacro
+.macro debug32 arg1, arg2
+.endmacro
 .code
 .import spi_rw_byte, spi_r_byte, spi_select_device, spi_deselect
 
@@ -51,7 +56,7 @@
 ;   out:
 ;     Z=1 sd card available, Z=0 otherwise A=ENODEV
 sdcard_detect:
-      lda via1portb
+      lda via2portb
       and #SDCARD_DETECT
       rts
 
@@ -63,6 +68,11 @@ sdcard_detect:
 ;
 ;---------------------------------------------------------------------
 sdcard_init:
+      ; Port b bit 5and 6 input for sdcard and write protect detection, rest all outputs
+      lda #%10011111
+      sta via2ddrb
+      sta via2portb
+
       lda #spi_device_sdcard
       jsr spi_select_device
       beq @init
@@ -73,14 +83,14 @@ sdcard_init:
 
 			; set ALL CS lines and DO to HIGH
 			lda #%11111110
-			sta via1portb
+			sta via2portb
 
 			tay
 			iny
 
 @l1:
-			sty via1portb
-			sta via1portb
+			sty via2portb
+			sta via2portb
 			dex
 			bne @l1
 
@@ -254,7 +264,7 @@ sd_cmd_response_wait:
 @l:			dey
 			beq sd_block_cmd_timeout ; y already 0? then invalid response or timeout
 			jsr spi_r_byte
-			bit #80	; bit 7 clear
+			bitimm 80	; bit 7 clear
 			bne @l  ; no, next byte
 			cmp #$00 ; got cmd response, check if $00 to set z flag accordingly
 			rts
@@ -523,7 +533,7 @@ sd_wait:
 ;---------------------------------------------------------------------
 sd_select_card:
 			lda #spi_device_sdcard
-			sta via1portb
+			sta via2portb
 			;TODO FIXME race condition here!
 			
 ; fall through to sd_busy_wait
