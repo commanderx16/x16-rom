@@ -1,7 +1,7 @@
 ;.setcpu "65c02"
 
-zptmp65c02_0 = $90
-zptmp65c02_1 = $91
+zptmp65c02_0 = $00
+zptmp65c02_1 = $01
 
 .macro stz arg1, arg2
 	php
