@@ -11,6 +11,8 @@ all:
 	ca65 -g -o cbdos/fat32.o cbdos/fat32.asm
 	ca65 -g -o cbdos/util.o cbdos/util.asm
 	ca65 -g -o cbdos/matcher.o cbdos/matcher.asm
+	ca65 -g -o cbdos/sdcard.o cbdos/sdcard.asm
+	ca65 -g -o cbdos/spi_r_byte.o cbdos/spi_r_byte.s
 	ca65 -g -o cbdos/main.o cbdos/main.asm
 	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/main.o -Ln rom.txt
 
