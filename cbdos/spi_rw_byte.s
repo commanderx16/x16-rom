@@ -23,13 +23,13 @@
 	debug_enabled=1
 .endif
 
-;.include "kernel.inc"
+.include "zeropage.inc"
 .include "via.inc"
 .include "spi.inc"
 .include "errno.inc"
 
 .zeropage
-.importzp tmp1
+;.importzp tmp1
 .code
 .export spi_rw_byte
 
@@ -44,7 +44,7 @@ spi_rw_byte:
 
 		ldx #$08
 
-		lda via1portb	; Port laden
+		lda via2portb	; Port laden
 		and #$fe        ; SPICLK loeschen
 
 		asl		; Nach links rotieren, damit das bit nachher an der richtigen stelle steht
@@ -55,13 +55,13 @@ spi_rw_byte:
 		tya		; portinhalt
 		ror		; datenbit reinschieben
 
-		sta via1portb	; ab in den port
-		inc via1portb	; takt an
-		sta via1portb	; takt aus
+		sta via2portb	; ab in den port
+		inc via2portb	; takt an
+		sta via2portb	; takt aus
 
 		dex
 		bne @l		; schon acht mal?
 
-		lda via1sr	; Schieberegister auslesen
+		lda via2sr	; Schieberegister auslesen
 
 		rts

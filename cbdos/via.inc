@@ -23,20 +23,20 @@
   _VIA_INC_=1
 
 ; VIA address and registers
-via1        = $0210
-via1porta   = via1+1
-via1portb   = via1
-via1ddrb    = via1+2
-via1ddra    = via1+3
-via1t1cl    = via1+4
-via1t1ch    = via1+5
-via1t2cl    = via1+8
-via1t2ch    = via1+9
-via1sr      = via1 + $0a
-via1acr     = via1 + $0b
-via1pcr     = via1 + $0c
-via1ifr     = via1 + $0d
-via1ier     = via1 + $0e
+via2        = $9f70
+via2porta   = via2+1
+via2portb   = via2
+via2ddrb    = via2+2
+via2ddra    = via2+3
+via2t1cl    = via2+4
+via2t1ch    = via2+5
+via2t2cl    = via2+8
+via2t2ch    = via2+9
+via2sr      = via2 + $0a
+via2acr     = via2 + $0b
+via2pcr     = via2 + $0c
+via2ifr     = via2 + $0d
+via2ier     = via2 + $0e
 
 SDCARD_WRITE_PROTECT  = 1<<5
 SDCARD_DETECT         = 1<<6

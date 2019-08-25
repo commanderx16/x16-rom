@@ -46,13 +46,13 @@ spi_select_device:
       ;check busy and select within sei => !ATTENTION! is busy check and spi device select must be "atomic", otherwise the spi state may change in between
       ;   Z=1 not busy, Z=0 spi is busy
 spi_isbusy:
-      lda via1portb
+      lda via2portb
       and #%00011110
       cmp #%00011110
       bne @l_exit		;busy, leave section, device could not be selected
 
       pla
-      sta via1portb
+      sta via2portb
       plp
       lda #0			;exit ok
       rts

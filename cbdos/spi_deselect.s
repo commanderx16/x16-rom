@@ -36,7 +36,7 @@
 spi_deselect:
       pha
       lda #spi_device_deselect
-      sta via1portb
+      sta via2portb
       pla
       rts
 
