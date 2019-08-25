@@ -202,7 +202,7 @@ FD_INDEX_TEMP_DIR     = 1*FD_Entry_Size   ; temp dir always go to fd #1
 
 FAT_EOC         = $0fffffff   ; end of cluster chain marker
 
-volumeID              = $0308 ; address of VolumeID
+volumeID              = $2308 ; address of VolumeID
 cluster_begin_lba     = volumeID + .sizeof(VolumeID) ; begin of cluster area (4 byte)
 fat_lba_begin         = cluster_begin_lba + 4; (2 byte) begin of fat area - TODO FIXME we assume 16bit are sufficient since fat is placed at the beginning of the device
 fat2_lba_begin        = fat_lba_begin + 2   ; (2 byte) end of first fat and begin of 2nd fat (mirror) area - TODO FIXME we assume 16bit ...
@@ -216,7 +216,7 @@ fat_dirname_mask      = filename_buf + 13; (11 byte, fat32 name and ext)
 fat_vec_matcher       = fat_dirname_mask + 11; (2 byte) jump vector
 
 sd_blocksize          = $200
-fd_area               = $0380 ; File descriptor area until $0400
-sd_blktarget          = $0400
+fd_area               = $2380 ; File descriptor area until $0400
+sd_blktarget          = $2400
 block_data            = sd_blktarget
 block_fat             = block_data+sd_blocksize
