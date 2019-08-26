@@ -52,6 +52,7 @@
 .export sd_write_multiblock
 .endif
 
+.import krn_tmp, lba_addr, blocks, sd_tmp
 
 ;   out:
 ;     Z=1 sd card available, Z=0 otherwise A=ENODEV

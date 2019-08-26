@@ -1,6 +1,6 @@
 all:
-	ca65 -g -DC64 -DPS2 -o basic/basic-c64.o basic/basic.s
-	ca65 -g -DC64 -DPS2 -o kernal/kernal-c64.o kernal/kernal.s
+	ca65 -g -DC64 -o basic/basic-c64.o basic/basic.s
+	ca65 -g -DC64 -o kernal/kernal-c64.o kernal/kernal.s
 	ld65 -C rom-c64.cfg -o rom-c64.bin basic/basic-c64.o kernal/kernal-c64.o -Ln rom-c64.txt
 	dd if=rom-c64.bin of=basic-c64.bin bs=8k count=1
 	dd if=rom-c64.bin of=kernal-c64.bin bs=8k skip=1 count=1

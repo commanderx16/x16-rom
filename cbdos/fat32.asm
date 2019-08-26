@@ -74,6 +74,9 @@ FAT_NOWRITE=1
 .export __fat_init_fdarea
 ;.endif
 
+.import krn_tmp, krn_tmp2, krn_tmp3, lba_addr, blocks
+.import block_data, block_fat
+
 .code
 
 		;	seek n bytes within file denoted by the given FD
@@ -1674,6 +1677,12 @@ ff_l4:
       ldy #F32DirEntry::Attr					; else check if long filename entry
       lda (dirptr),y 							; we are only going to filter those here (or maybe not?)
       cmp #DIR_Attr_Mask_LongFilename
+      beq fat_find_next
+
+X1:
+      ldy #F32DirEntry::Name
+      lda (dirptr),y
+      cmp #DIR_Entry_Deleted
       beq fat_find_next
 
       jsr __fat_matcher           ; call matcher strategy
