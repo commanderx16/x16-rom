@@ -26,14 +26,17 @@ databuffer = $8000
 dirstart   = $0801
 fnbuffer   = $1000
 
+; LOAD"$"
 zpdir         = 2 ; 2 bytes
 num_blocks    = 4 ; 2 bytes
 fn_base       = 6 ; 1 byte
-fnbufferptr   = 7 ; 1 byte
-bufferptr     = 8 ; 1 byte
-databufferlen = 9 ; 1 byte
-save_x        = 10; 1 byte
-save_y        = 11; 1 byte
+
+writebufptr   = 7 ; 1 byte
+writebuf      = 8 ; 2 byte
+bufferptr     = 10; 1 byte
+databufferlen = 11; 1 byte
+save_x        = 12; 1 byte
+save_y        = 13; 1 byte
 
 
 .segment "cbdos"
@@ -49,6 +52,8 @@ save_y        = 11; 1 byte
 	jmp cbdos_talk
 
 cbdos_listn:
+	; ignore
+
 	stx save_x
 	sty save_y
 	jsr sdcard_init
@@ -57,22 +62,31 @@ cbdos_listn:
 	rts ; do nothing
 
 cbdos_secnd: ; after listen
+	; If it's $Fx, the bytes sent by the host until UNLISTEN
+	; will be a filename to be associated with channel x.
+	; Otherwise, we need to receive into channel x.
+
 	lda #0
-	sta fnbufferptr
+	sta writebufptr
+	lda #<fnbuffer
+	sta writebuf
+	lda #>fnbuffer
+	sta writebuf + 1
 	rts ; do nothing
 
 cbdos_ciout:
-	stx save_x
-	ldx fnbufferptr
-	sta fnbuffer,x
-	ldx save_x
-	inc fnbufferptr
+	sty save_y
+	ldy writebufptr
+	sta (writebuf),y
+	ldy save_y
+	inc writebufptr
 	rts
 
 cbdos_unlsn:
 	stx save_x
 	sty save_y
-	lda fnbuffer
+	ldy #0
+	lda (writebuf),y
 	cmp #'$'
 	bne not_dir
 	jsr read_dir
@@ -123,10 +137,10 @@ read_file:
 	jsr fat_mount
 
 	lda #0 ; zero-terminate
-	ldx fnbufferptr
-	sta fnbuffer,x
-	lda #<fnbuffer
-	ldx #>fnbuffer
+	ldy writebufptr
+	sta (writebuf),y
+	lda writebuf
+	ldx writebuf + 1
 	ldy #O_RDONLY
 	jsr fat_open
 X1:
