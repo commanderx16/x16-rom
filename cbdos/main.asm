@@ -24,7 +24,7 @@
 
 databuffer = $8000
 dirstart   = $0801
-fnbuffer   = $1000
+fnbuffer   = $a000
 
 ; LOAD"$"
 zpdir         = 2 ; 2 bytes
@@ -66,6 +66,19 @@ cbdos_secnd: ; after listen
 	; will be a filename to be associated with channel x.
 	; Otherwise, we need to receive into channel x.
 
+	pha
+	and #$f0
+	cmp #$f0
+	beq secnd_open
+
+	cmp #$e0
+	beq secnd_close
+
+	; XXX TODO write to channel
+	brk
+
+secnd_open:
+	pla
 	lda #0
 	sta writebufptr
 	lda #<fnbuffer
@@ -74,6 +87,12 @@ cbdos_secnd: ; after listen
 	sta writebuf + 1
 	rts ; do nothing
 
+secnd_close:
+	; XXX TODO
+	pla
+	rts
+
+;*******
 cbdos_ciout:
 	sty save_y
 	ldy writebufptr
