@@ -75,6 +75,7 @@ FAT_NOWRITE=1
 ;.endif
 
 .import krn_tmp, krn_tmp2, krn_tmp3, lba_addr, blocks
+.import block_data, block_fat
 
 .code
 

@@ -21,6 +21,10 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 
+.ifndef IMPORTED_FROM_MAIN
+.import fd_area, sd_blktarget
+.endif
+
 ; TODO FIXME replace with errno.inc from cc65 api
 fat_bad_block_signature      = $01
 fat_invalid_partition_type   = $02
@@ -190,7 +194,7 @@ DIR_Entry_Deleted            = $e5
 .endstruct
 
 FD_Entry_Size         = .sizeof(F32_fd)
-FD_Entries_Max        = (sd_blktarget - fd_area) / FD_Entry_Size
+FD_Entries_Max        = <((sd_blktarget - fd_area) / FD_Entry_Size)
 FD_INDEX_CURRENT_DIR  = 0*FD_Entry_Size    ; current dir always go to fd #0
 FD_INDEX_TEMP_DIR     = 1*FD_Entry_Size   ; temp dir always go to fd #1
 
@@ -216,7 +220,5 @@ fat_dirname_mask      = filename_buf + 13; (11 byte, fat32 name and ext)
 fat_vec_matcher       = fat_dirname_mask + 11; (2 byte) jump vector
 
 sd_blocksize          = $200
-fd_area               = $2380 ; File descriptor area until $0400
-sd_blktarget          = $2400
-block_data            = sd_blktarget
-block_fat             = block_data+sd_blocksize
+
+

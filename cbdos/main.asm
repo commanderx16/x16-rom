@@ -16,9 +16,11 @@
 .import fat_name_string
 
 .export tmp1, krn_tmp, krn_tmp2, krn_tmp3, sd_tmp, lba_addr, blocks
+.export fd_area, sd_blktarget, block_data, block_fat
 
 .include "zeropage.inc"
 .include "common.inc"
+IMPORTED_FROM_MAIN=1
 .include "fat32.inc"
 .include "fcntl.inc"
 .include "65c02.inc"
@@ -43,6 +45,14 @@ cmdbuffer:
 statusbuffer:
 	.res 512, 0
 
+fd_area: ; File descriptor area
+	.res 128, 0
+sd_blktarget:
+block_data:
+	.res 512, 0
+block_fat:
+	.res 512, 0
+
 
 ; SD/FAT32 variables
 tmp1:
@@ -60,7 +70,7 @@ lba_addr:
 blocks: ; 3 bytes blocks to read, 3 bytes sufficient to address 4GB -> 4294967296 >> 9 = 8388608 ($800000) max blocks/file
 	.byte 0,0,0
 
-; random accounting data
+; Commodore DOS variables
 initialized:
 	.byte 0
 MAGIC_INITIALIZED  = $7A
