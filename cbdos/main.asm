@@ -22,9 +22,12 @@
 .include "65c02.inc"
 
 NUM_BUFS = 4
+TOTAL_NUM_BUFS = NUM_BUFS + 3
 ; special purpose buffers follow general purpose buffers
-FN_BUFNO = NUM_BUFS
-CMD_BUFNO = NUM_BUFS + 1
+BUFNO_FN     = NUM_BUFS
+BUFNO_CMD    = NUM_BUFS + 1
+BUFNO_STATUS = NUM_BUFS + 2
+
 DIRSTART = $0801
 
 buffer = 4 ; 2 byte
@@ -37,8 +40,13 @@ fnbuffer:
 	.res 512, 0
 cmdbuffer:
 	.res 512, 0
+statusbuffer:
+	.res 512, 0
 
 ; random accounting data
+initialized:
+	.byte 0
+MAGIC_INITIALIZED  = $7A
 fn_base:
 	.byte 0
 cur_buffer_ptr:
@@ -64,16 +72,14 @@ buffer_alloc_map:
 
 ; number of valid data bytes in each buffer
 buffer_len:
-	.res NUM_BUFS + 2, 0
+	.res TOTAL_NUM_BUFS, 0
 
 ; current r/w pointer within the buffer
 buffer_ptr:
-	.res NUM_BUFS + 2, 0
+	.res TOTAL_NUM_BUFS, 0
 
 buffer_for_channel:
-	;XXX init with $ff, and return all EOI when reading from it
-	.res 16, 0
-
+	.res 15, 0 ; just 0-14; cmd/status is special cased
 
 
 ; XXX: initialize all this
@@ -90,21 +96,30 @@ buffer_for_channel:
 	jmp cbdos_listn
 	jmp cbdos_talk
 
-;****************************************
-; LISTEN
-;****************************************
-cbdos_listn:
-	; XXX we do init here
+cbdos_init:
+	; XXX don't do lazy init
+	lda #MAGIC_INITIALIZED
+	cmp initialized
+	bne :+
+	rts
+:	sta initialized
 	stx save_x
 	ldx #14
 	lda #$ff
 :	sta buffer_for_channel,x
 	dex
 	bpl :-
-	lda #CMD_BUFNO
-	sta buffer_for_channel + 15
+
+	jsr init_status
+
 	ldx save_x
 	rts
+
+;****************************************
+; LISTEN
+;****************************************
+cbdos_listn:
+	jmp cbdos_init ; XXX
 
 ;****************************************
 ; SECOND (after LISTEN)
@@ -119,9 +134,11 @@ cbdos_secnd: ; after listen
 ; if channel 15, ignore "OPEN", just switch to it
 	and #$0f
 	cmp #$0f
-	beq @secnd_switch
+	bne :+
+	lda #BUFNO_CMD
+	jmp switch_to_buffer
 
-	lda channel
+:	lda channel
 	and #$f0
 	cmp #$f0
 	beq @secnd_open
@@ -132,15 +149,14 @@ cbdos_secnd: ; after listen
 ; switch to channel
 	lda channel
 	and #$0f
-@secnd_switch:
 	tax
 	lda buffer_for_channel,x
 	jmp switch_to_buffer
 
 @secnd_open:
 	lda #0
-	sta buffer_ptr + FN_BUFNO ; clear fn buffer
-	lda #FN_BUFNO
+	sta buffer_ptr + BUFNO_FN ; clear fn buffer
+	lda #BUFNO_FN
 	jmp switch_to_buffer
 
 @secnd_close:
@@ -228,14 +244,19 @@ no_bufs:
 ; TALK
 ;****************************************
 cbdos_talk:
-	rts
+	jmp cbdos_init ; XXX
 
 ;****************************************
 ; SECOND (after TALK)
 ;****************************************
 cbdos_tksa: ; after talk
-	and #$0f ; XXX necessary?
-	tax
+	and #$0f
+	cmp #$0f
+	bne :+
+	lda #BUFNO_STATUS
+	jmp switch_to_buffer
+
+:	tax
 	lda buffer_for_channel,x
 	bmi @empty_channel
 	jmp switch_to_buffer
@@ -247,30 +268,50 @@ cbdos_tksa: ; after talk
 ; RECEIVE
 ;****************************************
 cbdos_acptr:
+	stx save_x
+	sty save_y
 	ldx bufferno
 	lda buffer_len,x
 	bne :+
 	lda #$02 ; file not found
 	sta $90
 	lda #0
+	ldy save_y
+	ldx save_x
+	sec
 	rts
 
-:	stx save_y
-	ldy cur_buffer_ptr
+:	ldy cur_buffer_ptr
 	lda (buffer),y
-	ldy save_y
 	inc cur_buffer_ptr
 	pha
 	lda cur_buffer_ptr
 	cmp cur_buffer_len
 	bne :+
-acptr_fnf:
 	lda #$40 ; EOI
 	sta $90
+	lda channel
+	and #$0f
+	cmp #$0f
+	bne :+
+	jsr init_status
+	lda buffer_len + BUFNO_STATUS
+	sta cur_buffer_len
 :	pla
+	ldy save_y
+	ldx save_x
+	clc
 	rts
 
+;****************************************
+; UNTALK
+;****************************************
 cbdos_untlk:
+	stx save_x
+	sty save_y
+	jsr finished_with_buffer
+	ldy save_y
+	ldx save_x
 	rts
 
 ;****************************************
@@ -301,11 +342,13 @@ buf_alloc:
 	tya
 switch_to_buffer:
 	sta bufferno
-; fetch buffer pointer
+; fetch buffer pointer & len
 	tay
 	pha
 	lda buffer_ptr,y
 	sta cur_buffer_ptr
+	lda buffer_len,y
+	sta cur_buffer_len
 	pla
 ; set zp word
 	asl
@@ -339,6 +382,21 @@ finished_with_buffer:
 	lda cur_buffer_len
 	sta buffer_len,x
 	rts
+
+;****************************************
+init_status:
+	ldx #stat_end - stat
+	stx buffer_len + BUFNO_STATUS
+	dex
+:	lda stat,x
+	sta statusbuffer,x
+	dex
+	bpl :-
+	rts
+
+stat:
+	.byte "00,OK,00,00", 13
+stat_end:
 
 ;****************************************
 read_file:
