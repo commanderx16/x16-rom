@@ -32,8 +32,6 @@ BUFNO_STATUS = NUM_BUFS + 2
 
 DIRSTART = $0801
 
-buffer = 4 ; 2 byte
-
 .segment "cbdos_data"
 
 buffers:

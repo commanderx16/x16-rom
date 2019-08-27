@@ -82,7 +82,7 @@ llenm1	.res 1           ;x resolution - 1
 nlinesp1 .res 1          ;y resolution + 1
 nlinesm1 .res 1          ;y resolution - 1
 nlinesm2 .res 1          ;y resolution - 2
-	.res 16          ;unused (flags+endspace)
+	.res 16          ;used by CBDOS
 joy1	.res 3           ;joystick 1 status
 joy2	.res 3           ;joystick 2 status
 keytab	.res 2           ;keyscan table indirect
