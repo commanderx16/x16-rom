@@ -22,21 +22,40 @@
 .include "65c02.inc"
 
 
-databuffer = $8000
 dirstart   = $0801
-fnbuffer   = $a000
 
 ; LOAD"$"
 zpdir         = 2 ; 2 bytes
 num_blocks    = 4 ; 2 bytes
-fn_base       = 6 ; 1 byte
+writebuf      = 6 ; 2 byte
 
-writebufptr   = 7 ; 1 byte
-writebuf      = 8 ; 2 byte
-bufferptr     = 10; 1 byte
-databufferlen = 11; 1 byte
-save_x        = 12; 1 byte
-save_y        = 13; 1 byte
+.segment "cbdos_data"
+
+buffer:
+	.res 512, 0 ; 0
+	.res 512, 0 ; 1
+	.res 512, 0 ; 2
+	.res 512, 0 ; 3
+fnbuffer:
+	.res 512, 0
+databuffer:
+	.res 512, 0
+
+; random accounting data
+fn_base:
+	.byte 0
+writebufptr:
+	.byte 0
+bufferptr:
+	.byte 0
+databufferlen:
+	.byte 0
+save_x:
+	.byte 0
+save_y:
+	.byte 0
+second_addr:
+	.byte 0
 
 
 .segment "cbdos"
@@ -51,6 +70,9 @@ save_y        = 13; 1 byte
 	jmp cbdos_listn
 	jmp cbdos_talk
 
+;****************************************
+; LISTEN
+;****************************************
 cbdos_listn:
 	; ignore
 
@@ -61,10 +83,15 @@ cbdos_listn:
 	ldx save_x
 	rts ; do nothing
 
+;****************************************
+; SECOND (after LISTEN)
+;****************************************
 cbdos_secnd: ; after listen
 	; If it's $Fx, the bytes sent by the host until UNLISTEN
 	; will be a filename to be associated with channel x.
 	; Otherwise, we need to receive into channel x.
+
+	sta second_addr
 
 	pha
 	and #$f0
@@ -85,14 +112,16 @@ secnd_open:
 	sta writebuf
 	lda #>fnbuffer
 	sta writebuf + 1
-	rts ; do nothing
+	rts
 
 secnd_close:
 	; XXX TODO
 	pla
 	rts
 
-;*******
+;****************************************
+; SEND
+;****************************************
 cbdos_ciout:
 	sty save_y
 	ldy writebufptr
@@ -101,9 +130,28 @@ cbdos_ciout:
 	inc writebufptr
 	rts
 
+;****************************************
+; UNLISTEN
+;****************************************
 cbdos_unlsn:
 	stx save_x
 	sty save_y
+
+	lda second_addr
+	pha
+	and #$f0
+	cmp #$f0
+	beq unlsn_open
+
+	; otherwise UNLISTEN does nothing
+	pla
+	rts
+
+unlsn_open:
+	pla
+
+	jsr allocate_buf
+
 	ldy #0
 	lda (writebuf),y
 	cmp #'$'
@@ -119,12 +167,21 @@ cbdos_unlsn2:
 	ldx save_x
 	rts
 
+;****************************************
+; TALK
+;****************************************
 cbdos_talk:
 	rts
 
+;****************************************
+; SECOND (after TALK)
+;****************************************
 cbdos_tksa: ; after talk
 	rts
 
+;****************************************
+; RECEIVE
+;****************************************
 cbdos_acptr:
 	lda databufferlen
 	bne :+
@@ -152,6 +209,11 @@ acptr_fnf:
 cbdos_untlk:
 	rts
 
+;****************************************
+allocate_buf:
+	rts
+
+;****************************************
 read_file:
 	jsr fat_mount
 
