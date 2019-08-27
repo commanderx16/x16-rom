@@ -32,10 +32,11 @@ BUFNO_FN     = NUM_BUFS
 BUFNO_CMD    = NUM_BUFS + 1
 BUFNO_STATUS = NUM_BUFS + 2
 
-DIRSTART = $0801
+DIRSTART = $0801 ; load address of directory
 
 .segment "cbdos_data"
 
+; Commodore DOS buffers
 buffers:
 	.res NUM_BUFS * 512, 0
 fnbuffer:
@@ -45,6 +46,7 @@ cmdbuffer:
 statusbuffer:
 	.res 512, 0
 
+; SD/FAT32 buffers/variables
 fd_area: ; File descriptor area
 	.res 128, 0
 sd_blktarget:
@@ -52,9 +54,6 @@ block_data:
 	.res 512, 0
 block_fat:
 	.res 512, 0
-
-
-; SD/FAT32 variables
 tmp1:
 	.byte 0
 krn_tmp:
@@ -84,6 +83,8 @@ save_x:
 	.byte 0
 save_y:
 	.byte 0
+listen_addr:
+	.byte 0
 channel:
 	.byte 0
 num_blocks:
@@ -105,11 +106,11 @@ buffer_len:
 buffer_ptr:
 	.res TOTAL_NUM_BUFS, 0
 
+fd_for_channel:
+	.res 16, 0
+
 buffer_for_channel:
 	.res 15, 0 ; just 0-14; cmd/status is special cased
-
-
-; XXX: initialize all this
 
 .segment "cbdos"
 ; $C000
@@ -131,6 +132,13 @@ cbdos_init:
 	rts
 :	sta initialized
 	stx save_x
+
+	ldx #NUM_BUFS - 1
+	lda #0
+:	sta buffer_alloc_map,x
+	dex
+	bpl :-
+
 	ldx #14
 	lda #$ff
 :	sta buffer_for_channel,x
@@ -156,16 +164,17 @@ cbdos_secnd: ; after listen
 	; will be a filename to be associated with channel x.
 	; Otherwise, we need to receive into channel x.
 
-	sta channel ; we need it for UNLISTEN
+	sta listen_addr ; we need it for UNLISTEN
 
 ; if channel 15, ignore "OPEN", just switch to it
 	and #$0f
 	cmp #$0f
+	sta channel
 	bne :+
 	lda #BUFNO_CMD
 	jmp switch_to_buffer
 
-:	lda channel
+:	lda listen_addr
 	and #$f0
 	cmp #$f0
 	beq @secnd_open
@@ -175,7 +184,6 @@ cbdos_secnd: ; after listen
 
 ; switch to channel
 	lda channel
-	and #$0f
 	tax
 	lda buffer_for_channel,x
 	jmp switch_to_buffer
@@ -188,7 +196,6 @@ cbdos_secnd: ; after listen
 
 @secnd_close:
 	lda channel
-	and #$0f
 	cmp #$0f
 	beq @ignore_close_15
 	jmp buf_free
@@ -214,11 +221,10 @@ cbdos_ciout:
 cbdos_unlsn:
 	; UNLISTEN of the command channel ignores whether it was OPEN
 	lda channel
-	and #$0f
 	cmp #$0f
 	beq @unlisten_cmd
 
-	lda channel
+	lda listen_addr
 	and #$f0
 	cmp #$f0
 	beq unlsn_open
@@ -238,7 +244,6 @@ unlsn_open:
 	sta fnlen
 
 	lda channel
-	and #$0f
 	jsr buf_alloc
 	bcs no_bufs
 
@@ -254,6 +259,7 @@ unlsn_open:
 
 ; READ FILE
 @not_dir:
+	jsr open_file
 	jsr read_file
 @unlisten_end:
 	jsr finished_with_buffer
@@ -318,7 +324,6 @@ cbdos_acptr:
 	lda #$40 ; EOI
 	sta $90
 	lda channel
-	and #$0f
 	cmp #$0f
 	bne :+
 	jsr init_status
@@ -401,7 +406,7 @@ buf_free:
 	rts
 
 ;****************************************
-; write back buffer prt
+; write back buffer ptr
 finished_with_buffer:
 	ldx bufferno
 	lda cur_buffer_ptr
@@ -426,7 +431,7 @@ stat:
 stat_end:
 
 ;****************************************
-read_file:
+open_file:
 	jsr fat_mount
 
 	lda #0 ; zero-terminate filename
@@ -444,7 +449,16 @@ X1:
 	lda buffer + 1
 	sta read_blkptr + 1
 
-	ldy #5
+	txa
+	ldx channel
+	sta fd_for_channel,x
+	rts
+
+read_file:
+	ldx channel
+	lda fd_for_channel,x
+	tax
+	ldy #1
 	jsr fat_fread
 	lda #$ff
 	sta cur_buffer_len ; XXX
