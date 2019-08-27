@@ -76,9 +76,9 @@ MAGIC_INITIALIZED  = $7A
 fn_base:
 	.byte 0
 cur_buffer_ptr:
-	.byte 0
+	.word 0
 cur_buffer_len:
-	.byte 0
+	.word 0
 save_x:
 	.byte 0
 save_y:
@@ -107,6 +107,7 @@ buffer_ptr:
 	.res TOTAL_NUM_BUFS, 0
 
 fd_for_channel:
+	; $ff = none
 	.res 16, 0
 
 buffer_for_channel:
@@ -142,6 +143,11 @@ cbdos_init:
 	ldx #14
 	lda #$ff
 :	sta buffer_for_channel,x
+	dex
+	bpl :-
+
+	ldx #15
+:	sta fd_for_channel,x
 	dex
 	bpl :-
 
@@ -208,12 +214,28 @@ cbdos_secnd: ; after listen
 ;****************************************
 cbdos_ciout:
 	sty save_y
+	ldy cur_buffer_ptr + 1
+	bne @ciout2
+; halfblock 0
 	ldy cur_buffer_ptr
 	sta (buffer),y
 	ldy save_y
 	inc cur_buffer_ptr
-	; XXX overflow
-	rts
+	bne :+
+	inc cur_buffer_ptr + 1
+:	rts
+@ciout2:
+; halfblock 1
+	ldy cur_buffer_ptr
+	inc buffer + 1
+	sta (buffer),y
+	dec buffer + 1
+	ldy save_y
+	inc cur_buffer_ptr
+	bne :+
+; XXX reached 0x200
+	brk
+:	rts
 
 ;****************************************
 ; UNLISTEN
@@ -240,6 +262,7 @@ unlsn_open:
 	stx save_x
 	sty save_y
 
+	; XXX low byte only
 	lda cur_buffer_ptr
 	sta fnlen
 
@@ -314,21 +337,41 @@ cbdos_acptr:
 	sec
 	rts
 
-:	ldy cur_buffer_ptr
+:	ldy cur_buffer_ptr + 1
+	bne @acptr1
+; halfblock 0
+	ldy cur_buffer_ptr
 	lda (buffer),y
+	jmp @acptr2
+@acptr1:
+; halfblock 1
+	ldy cur_buffer_ptr
+	inc buffer + 1
+	lda (buffer),y
+	dec buffer + 1
+@acptr2:
 	inc cur_buffer_ptr
-	pha
+	bne :+
+	inc cur_buffer_ptr + 1
+:	pha
+	lda cur_buffer_ptr + 1
+	cmp cur_buffer_len + 1
+	bne :+
 	lda cur_buffer_ptr
 	cmp cur_buffer_len
 	bne :+
-	lda #$40 ; EOI
+; EOI
+	lda #$40
 	sta $90
 	lda channel
 	cmp #$0f
 	bne :+
+; reload OK status
 	jsr init_status
 	lda buffer_len + BUFNO_STATUS
 	sta cur_buffer_len
+	lda #0
+	sta cur_buffer_len + 1
 :	pla
 	ldy save_y
 	ldx save_x
