@@ -441,32 +441,28 @@ open_file:
 	ldx #>fnbuffer
 	ldy #O_RDONLY
 	jsr fat_open
-X1:
-	bne read_file_error
+	beq :+
+	lda #0
+	sta cur_buffer_len ; = file not found
+	rts
+:	txa
+	ldx channel
+	sta fd_for_channel,x ; remember fd
+	rts
 
+
+read_file:
 	lda buffer
 	sta read_blkptr
 	lda buffer + 1
 	sta read_blkptr + 1
-
-	txa
-	ldx channel
-	sta fd_for_channel,x
-	rts
-
-read_file:
 	ldx channel
 	lda fd_for_channel,x
 	tax
-	ldy #1
+	ldy #1 ; one block
 	jsr fat_fread
 	lda #$ff
 	sta cur_buffer_len ; XXX
-	rts
-
-read_file_error:
-	lda #0
-	sta cur_buffer_len ; = file not found
 	rts
 
 
