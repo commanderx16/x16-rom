@@ -22,15 +22,13 @@
 .include "65c02.inc"
 
 NUM_BUFS = 4
+DIRSTART = $0801
 
-dirstart   = $0801
-
-; LOAD"$"
 curbuf     = 4 ; 2 byte
 
 .segment "cbdos_data"
 
-buffer:
+buffers:
 	.res NUM_BUFS * 512, 0
 fnbuffer:
 	.res 512, 0
@@ -55,8 +53,14 @@ second_addr:
 num_blocks:
 	.word 0
 
-buffer_allocated: ; $00 = free, $ff = allocated
+buffer_alloc_map:
+	; $00 = free, $ff = allocated
 	.res NUM_BUFS, 0
+
+; current r/w pointer within the buffer
+buffer_ptr:
+	.res NUM_BUFS, 0
+
 
 ; XXX: initialize all this
 
@@ -104,6 +108,7 @@ cbdos_secnd: ; after listen
 	beq secnd_close
 
 	; XXX TODO write to channel
+unimpl1:
 	brk
 
 secnd_open:
@@ -140,26 +145,26 @@ cbdos_unlsn:
 	sty save_y
 
 	lda second_addr
-	pha
 	and #$f0
 	cmp #$f0
 	beq unlsn_open
 
 	; otherwise UNLISTEN does nothing
-	pla
 	rts
 
 unlsn_open:
-	pla
+	jsr buf_alloc
+	bmi no_bufs
 
-	jsr allocate_buf
-
-	ldy #0
-	lda (curbuf),y
+	lda fnbuffer
 	cmp #'$'
 	bne not_dir
+
+; DIR
 	jsr read_dir
 	jmp cbdos_unlsn2
+
+; READ FILE
 not_dir:
 	jsr read_file
 cbdos_unlsn2:
@@ -168,6 +173,11 @@ cbdos_unlsn2:
 	ldy save_y
 	ldx save_x
 	rts
+
+; no buffers
+no_bufs:
+	; TODO
+	brk
 
 ;****************************************
 ; TALK
@@ -212,7 +222,36 @@ cbdos_untlk:
 	rts
 
 ;****************************************
-allocate_buf:
+; allocate a buffer an set it as the
+; current one
+;   out: X: buffer#
+;        X==$FF, N=1 -> none
+buf_alloc:
+	ldx #0
+:	lda buffer_alloc_map,x
+	beq :+
+	inx
+	cpx #NUM_BUFS
+	bne :-
+	ldx #$ff
+	rts
+:	dec buffer_alloc_map,x
+	lda #0
+	sta curbuf
+	txa
+	asl
+	clc
+	adc #>buffers
+	sta curbuf + 1
+	txa ; set flags again
+	rts
+
+;****************************************
+; free a given buffer
+;   in: X: buffer#
+buf_free:
+	lda #0
+	sta buffer_alloc_map,x
 	rts
 
 ;****************************************
@@ -252,9 +291,9 @@ read_dir:
 	lda #>databuffer
 	sta curbuf+1
 	ldy #0
-	lda #<dirstart
+	lda #<DIRSTART
 	jsr storedir
-	lda #>dirstart
+	lda #>DIRSTART
 	jsr storedir
 	lda #1
 	jsr storedir ; link
