@@ -21,21 +21,17 @@
 .include "fcntl.inc"
 .include "65c02.inc"
 
+NUM_BUFS = 4
 
 dirstart   = $0801
 
 ; LOAD"$"
-zpdir         = 2 ; 2 bytes
-num_blocks    = 4 ; 2 bytes
-writebuf      = 6 ; 2 byte
+curbuf     = 4 ; 2 byte
 
 .segment "cbdos_data"
 
 buffer:
-	.res 512, 0 ; 0
-	.res 512, 0 ; 1
-	.res 512, 0 ; 2
-	.res 512, 0 ; 3
+	.res NUM_BUFS * 512, 0
 fnbuffer:
 	.res 512, 0
 databuffer:
@@ -44,7 +40,7 @@ databuffer:
 ; random accounting data
 fn_base:
 	.byte 0
-writebufptr:
+curbufptr:
 	.byte 0
 bufferptr:
 	.byte 0
@@ -56,7 +52,13 @@ save_y:
 	.byte 0
 second_addr:
 	.byte 0
+num_blocks:
+	.word 0
 
+buffer_allocated: ; $00 = free, $ff = allocated
+	.res NUM_BUFS, 0
+
+; XXX: initialize all this
 
 .segment "cbdos"
 ; $C000
@@ -107,11 +109,11 @@ cbdos_secnd: ; after listen
 secnd_open:
 	pla
 	lda #0
-	sta writebufptr
+	sta curbufptr
 	lda #<fnbuffer
-	sta writebuf
+	sta curbuf
 	lda #>fnbuffer
-	sta writebuf + 1
+	sta curbuf + 1
 	rts
 
 secnd_close:
@@ -124,10 +126,10 @@ secnd_close:
 ;****************************************
 cbdos_ciout:
 	sty save_y
-	ldy writebufptr
-	sta (writebuf),y
+	ldy curbufptr
+	sta (curbuf),y
 	ldy save_y
-	inc writebufptr
+	inc curbufptr
 	rts
 
 ;****************************************
@@ -153,7 +155,7 @@ unlsn_open:
 	jsr allocate_buf
 
 	ldy #0
-	lda (writebuf),y
+	lda (curbuf),y
 	cmp #'$'
 	bne not_dir
 	jsr read_dir
@@ -218,10 +220,10 @@ read_file:
 	jsr fat_mount
 
 	lda #0 ; zero-terminate
-	ldy writebufptr
-	sta (writebuf),y
-	lda writebuf
-	ldx writebuf + 1
+	ldy curbufptr
+	sta (curbuf),y
+	lda curbuf
+	ldx curbuf + 1
 	ldy #O_RDONLY
 	jsr fat_open
 X1:
@@ -246,9 +248,9 @@ read_dir:
 	jsr fat_mount
 
 	lda #<databuffer
-	sta zpdir
+	sta curbuf
 	lda #>databuffer
-	sta zpdir+1
+	sta curbuf+1
 	ldy #0
 	lda #<dirstart
 	jsr storedir
@@ -367,9 +369,9 @@ gt_1000:
 	lda #$22
 	jsr storedir
 
-	lda zpdir
+	lda curbuf
 	sta krn_ptr3
-	lda zpdir + 1
+	lda curbuf + 1
 	sta krn_ptr3 + 1
 	sty krn_tmp3
 	sty fn_base
@@ -436,10 +438,10 @@ txt_blocksfree:
 txt_blocksfree_end:
 
 storedir:
-	sta (zpdir),y
+	sta (curbuf),y
 	iny
 	bne :+
-	inc zpdir + 1
+	inc curbuf + 1
 :	rts
 
 allfiles:
