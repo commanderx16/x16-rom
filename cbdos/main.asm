@@ -100,11 +100,11 @@ buffer_alloc_map:
 
 ; number of valid data bytes in each buffer
 buffer_len:
-	.res TOTAL_NUM_BUFS, 0
+	.res TOTAL_NUM_BUFS * 2, 0
 
 ; current r/w pointer within the buffer
 buffer_ptr:
-	.res TOTAL_NUM_BUFS, 0
+	.res TOTAL_NUM_BUFS * 2, 0
 
 fd_for_channel:
 	; $ff = none
@@ -283,7 +283,6 @@ unlsn_open:
 ; READ FILE
 @not_dir:
 	jsr open_file
-	jsr read_file
 @unlisten_end:
 	jsr finished_with_buffer
 
@@ -326,9 +325,10 @@ cbdos_tksa: ; after talk
 cbdos_acptr:
 	stx save_x
 	sty save_y
-	ldx bufferno
-	lda buffer_len,x
-	bne :+
+	ldx channel
+	lda fd_for_channel,x
+	bpl :+
+; no fd
 	lda #$02 ; file not found
 	sta $90
 	lda #0
@@ -336,6 +336,12 @@ cbdos_acptr:
 	ldx save_x
 	sec
 	rts
+
+; no data? read a block
+:	lda cur_buffer_len
+	ora cur_buffer_len + 1
+	bne :+
+	jsr read_file
 
 :	ldy cur_buffer_ptr + 1
 	bne @acptr1
@@ -422,8 +428,12 @@ switch_to_buffer:
 	pha
 	lda buffer_ptr,y
 	sta cur_buffer_ptr
+	lda buffer_ptr + 1,y
+	sta cur_buffer_ptr + 1
 	lda buffer_len,y
 	sta cur_buffer_len
+	lda buffer_len + 1,y
+	sta cur_buffer_len + 1
 	pla
 ; set zp word
 	asl
@@ -454,8 +464,12 @@ finished_with_buffer:
 	ldx bufferno
 	lda cur_buffer_ptr
 	sta buffer_ptr,x
+	lda cur_buffer_ptr + 1
+	sta buffer_ptr + 1,x
 	lda cur_buffer_len
 	sta buffer_len,x
+	lda cur_buffer_len + 1
+	sta buffer_len + 1,x
 	rts
 
 ;****************************************
@@ -485,27 +499,38 @@ open_file:
 	ldy #O_RDONLY
 	jsr fat_open
 	beq :+
-	lda #0
-	sta cur_buffer_len ; = file not found
-	rts
+	lda #$ff
+	.byte $24 ; no fd
 :	txa
 	ldx channel
 	sta fd_for_channel,x ; remember fd
+
+; indicate there's nothing currently read
+	lda #0
+	sta cur_buffer_len
+	sta cur_buffer_len + 1
 	rts
 
 
 read_file:
+	ldx channel
+	lda fd_for_channel,x
+	bpl :+
+	sec
+	rts ; no fd, return
+:	tax
 	lda buffer
 	sta read_blkptr
 	lda buffer + 1
 	sta read_blkptr + 1
-	ldx channel
-	lda fd_for_channel,x
-	tax
 	ldy #1 ; one block
 	jsr fat_fread
-	lda #$ff
-	sta cur_buffer_len ; XXX
+	; XXX real length
+	lda #<$0200
+	sta cur_buffer_len
+	lda #>$0200
+	sta cur_buffer_len + 1
+	clc
 	rts
 
 
@@ -692,6 +717,9 @@ end_of_dir:
 	jsr storedir
 
 	sty cur_buffer_len
+	lda #0
+	sta cur_buffer_len + 1
+	; XXX dir > 256 bytes
 
 	rts
 
