@@ -22,7 +22,9 @@
 .include "65c02.inc"
 
 NUM_BUFS = 4
-FN_BUFNO = NUM_BUFS ; filename buffer follows general purpose buffers
+; special purpose buffers follow general purpose buffers
+FN_BUFNO = NUM_BUFS
+CMD_BUFNO = NUM_BUFS + 1
 DIRSTART = $0801
 
 buffer = 4 ; 2 byte
@@ -32,6 +34,8 @@ buffer = 4 ; 2 byte
 buffers:
 	.res NUM_BUFS * 512, 0
 fnbuffer:
+	.res 512, 0
+cmdbuffer:
 	.res 512, 0
 
 ; random accounting data
@@ -60,11 +64,11 @@ buffer_alloc_map:
 
 ; number of valid data bytes in each buffer
 buffer_len:
-	.res NUM_BUFS + 1, 0
+	.res NUM_BUFS + 2, 0
 
 ; current r/w pointer within the buffer
 buffer_ptr:
-	.res NUM_BUFS + 1, 0
+	.res NUM_BUFS + 2, 0
 
 buffer_for_channel:
 	;XXX init with $ff, and return all EOI when reading from it
@@ -90,7 +94,16 @@ buffer_for_channel:
 ; LISTEN
 ;****************************************
 cbdos_listn:
-	; ignore
+	; XXX we do init here
+	stx save_x
+	ldx #14
+	lda #$ff
+:	sta buffer_for_channel,x
+	dex
+	bpl :-
+	lda #CMD_BUFNO
+	sta buffer_for_channel + 15
+	ldx save_x
 	rts
 
 ;****************************************
@@ -101,29 +114,44 @@ cbdos_secnd: ; after listen
 	; will be a filename to be associated with channel x.
 	; Otherwise, we need to receive into channel x.
 
-	sta channel ; we need it on UNLISTEN
+	sta channel ; we need it for UNLISTEN
 
+; if channel 15, ignore "OPEN", just switch to it
+	and #$0f
+	cmp #$0f
+	beq @secnd_switch
+
+	lda channel
 	and #$f0
 	cmp #$f0
-	beq secnd_open
+	beq @secnd_open
 
 	cmp #$e0
-	beq secnd_close
+	beq @secnd_close
 
-; write to channel
-	ldx channel
+; switch to channel
+	lda channel
+	and #$0f
+@secnd_switch:
+	tax
 	lda buffer_for_channel,x
 	jmp switch_to_buffer
 
-secnd_open:
+@secnd_open:
 	lda #0
-	sta buffer_ptr + FN_BUFNO
+	sta buffer_ptr + FN_BUFNO ; clear fn buffer
 	lda #FN_BUFNO
 	jmp switch_to_buffer
 
-secnd_close:
+@secnd_close:
 	lda channel
+	and #$0f
+	cmp #$0f
+	beq @ignore_close_15
 	jmp buf_free
+
+@ignore_close_15:
+	rts
 
 ;****************************************
 ; SEND
@@ -141,6 +169,12 @@ cbdos_ciout:
 ; UNLISTEN
 ;****************************************
 cbdos_unlsn:
+	; UNLISTEN of the command channel ignores whether it was OPEN
+	lda channel
+	and #$0f
+	cmp #$0f
+	beq @unlisten_cmd
+
 	lda channel
 	and #$f0
 	cmp #$f0
@@ -148,6 +182,10 @@ cbdos_unlsn:
 
 	; otherwise UNLISTEN does nothing
 	rts
+
+@unlisten_cmd:
+; UNLISTEN on command channel -> execute
+	brk
 
 unlsn_open:
 	stx save_x
