@@ -67,6 +67,7 @@ buffer_ptr:
 	.res NUM_BUFS + 1, 0
 
 buffer_for_channel:
+	;XXX init with $ff, and return all EOI when reading from it
 	.res 16, 0
 
 
@@ -121,8 +122,8 @@ secnd_open:
 	jmp switch_to_buffer
 
 secnd_close:
-	; XXX TODO
-	rts
+	lda channel
+	jmp buf_free
 
 ;****************************************
 ; SEND
@@ -198,7 +199,11 @@ cbdos_tksa: ; after talk
 	and #$0f ; XXX necessary?
 	tax
 	lda buffer_for_channel,x
+	bmi @empty_channel
 	jmp switch_to_buffer
+
+@empty_channel:
+	brk; TODO
 
 ;****************************************
 ; RECEIVE
@@ -275,11 +280,16 @@ switch_to_buffer:
 	rts
 
 ;****************************************
-; free a given buffer
-;   in: X: buffer#
+; free a channel's buffer
+;   in: A: channel
 buf_free:
+	tax
+	lda buffer_for_channel,x
+	tay
+	lda #$ff
+	sta buffer_for_channel,x
 	lda #0
-	sta buffer_alloc_map,x
+	sta buffer_alloc_map,y
 	rts
 
 ;****************************************
