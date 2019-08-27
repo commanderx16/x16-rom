@@ -15,6 +15,8 @@
 
 .import fat_name_string
 
+.export tmp1, krn_tmp, krn_tmp2, krn_tmp3, sd_tmp, lba_addr, blocks
+
 .include "zeropage.inc"
 .include "common.inc"
 .include "fat32.inc"
@@ -42,6 +44,23 @@ cmdbuffer:
 	.res 512, 0
 statusbuffer:
 	.res 512, 0
+
+
+; SD/FAT32 variables
+tmp1:
+	.byte 0
+krn_tmp:
+	.byte 0
+krn_tmp2:
+	.byte 0
+krn_tmp3:
+	.byte 0
+sd_tmp:
+	.byte 0
+lba_addr:
+	.byte 0,0,0,0
+blocks: ; 3 bytes blocks to read, 3 bytes sufficient to address 4GB -> 4294967296 >> 9 = 8388608 ($800000) max blocks/file
+	.byte 0,0,0
 
 ; random accounting data
 initialized:

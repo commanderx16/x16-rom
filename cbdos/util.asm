@@ -36,6 +36,8 @@
 .export path_inverse
 .export cluster_nr_matcher
 
+.import krn_tmp, krn_tmp2, krn_tmp3
+
 		; in:
 		;	dirptr - pointer to dir entry (F32DirEntry)
 cluster_nr_matcher:

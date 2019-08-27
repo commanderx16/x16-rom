@@ -74,6 +74,8 @@ FAT_NOWRITE=1
 .export __fat_init_fdarea
 ;.endif
 
+.import krn_tmp, krn_tmp2, krn_tmp3, lba_addr, blocks
+
 .code
 
 		;	seek n bytes within file denoted by the given FD
