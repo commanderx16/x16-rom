@@ -116,9 +116,10 @@ is_last_block_for_channel:
 
 fd_for_channel:
 	.res 16, 0
-; $ff = none
-MAGIC_FD_DIR_LOAD = $fe
-MAGIC_FD_EOF      = $fd
+MAGIC_FD_NONE     = $ff
+MAGIC_FD_STATUS   = $fe
+MAGIC_FD_DIR_LOAD = $fd
+MAGIC_FD_EOF      = $fc
 
 buffer_for_channel:
 	.res 15, 0 ; just 0-14; cmd/status is special cased
@@ -157,11 +158,14 @@ cbdos_init:
 	dex
 	bpl :-
 
-	ldx #15
+	ldx #14
+	lda #MAGIC_FD_NONE
 :	sta fd_for_channel,x
 	dex
 	bpl :-
 
+	lda #MAGIC_FD_STATUS
+	sta fd_for_channel + 15
 	jsr init_status
 
 	ldx save_x
@@ -318,6 +322,7 @@ cbdos_talk:
 ;****************************************
 cbdos_tksa: ; after talk
 	and #$0f
+	sta channel
 	cmp #$0f
 	bne :+
 	lda #BUFNO_STATUS
@@ -342,8 +347,13 @@ cbdos_acptr:
 	bpl @acptr5 ; actual file
 	cmp #MAGIC_FD_DIR_LOAD
 	beq @acptr5
-	cmp #MAGIC_FD_EOF
-	bne @acptr_nofd
+ 	cmp #MAGIC_FD_STATUS
+	beq @acptr5
+	cmp #MAGIC_FD_NONE
+	beq @acptr_nofd
+; else #MAGIC_FD_EOF
+
+
 ; EOF
 	lda #$40
 	.byte $2c
@@ -366,11 +376,23 @@ cbdos_acptr:
 	ldx channel
 	lda fd_for_channel,x
 	cmp #MAGIC_FD_DIR_LOAD
-	bne @acptr6 ; actual file
+	bne @acptr6
 ; read next directory line
 	jsr read_dir
 	jmp @acptr7
 @acptr6:
+ 	cmp #MAGIC_FD_STATUS
+	bne @acptr9
+	lda #$40 ; EOF
+	sta $90
+	jsr reload_status
+	lda buffer_len + 2 * BUFNO_STATUS
+	sta cur_buffer_len
+	lda buffer_len + 2 * BUFNO_STATUS + 1
+	sta cur_buffer_len + 1
+	lda #$0d
+	bne @acptr_end
+@acptr9:
 ; read next block
 	jsr read_block
 @acptr7:
@@ -415,19 +437,10 @@ cbdos_acptr:
 	ldx channel
 	lda #MAGIC_FD_EOF ; next time, send EOF
 	sta fd_for_channel,x
-; status
-	lda channel
-	cmp #$0f
-	bne @acptr3
-; reload OK status
-	jsr init_status
-	lda buffer_len + 2 * BUFNO_STATUS
-	sta cur_buffer_len
-	lda buffer_len + 2 * BUFNO_STATUS + 1
-	sta cur_buffer_len + 1
 
 @acptr3:
 	pla
+@acptr_end:
 	ldy save_y
 	ldx save_x
 	clc
@@ -529,18 +542,33 @@ finished_with_buffer:
 init_status:
 	lda #0
 	sta buffer_len + 2 * BUFNO_STATUS + 1
-	ldx #stat_end - stat
+	ldx #status_ui_end - status_ui
 	stx buffer_len + 2 * BUFNO_STATUS
 	dex
-:	lda stat,x
+:	lda status_ui,x
 	sta statusbuffer,x
 	dex
 	bpl :-
 	rts
 
-stat:
-	.byte "00,OK,00,00", 13
-stat_end:
+reload_status:
+	lda #0
+	sta buffer_len + 2 * BUFNO_STATUS + 1
+	ldx #status_ok_end - status_ok
+	stx buffer_len + 2 * BUFNO_STATUS
+	dex
+:	lda status_ok,x
+	sta statusbuffer,x
+	dex
+	bpl :-
+	rts
+
+status_ui:
+	.byte "73,CBDOS V1.0 X16,00,00"
+status_ui_end:
+status_ok:
+	.byte "00,OK,00,00"
+status_ok_end:
 
 ;****************************************
 open_file:
@@ -554,7 +582,7 @@ open_file:
 	ldy #O_RDONLY
 	jsr fat_open
 	beq :+
-	lda #$ff
+	lda #MAGIC_FD_NONE
 	.byte $24 ; no fd
 :	txa
 	ldx channel
