@@ -115,8 +115,9 @@ is_last_block_for_channel:
 	.res 16, 0
 
 fd_for_channel:
-	; $ff = none
 	.res 16, 0
+; $ff = none
+MAGIC_FD_DIR_LOAD = $fe
 
 buffer_for_channel:
 	.res 15, 0 ; just 0-14; cmd/status is special cased
@@ -287,7 +288,7 @@ unlsn_open:
 	bne @not_dir
 
 ; DIR
-	jsr read_dir
+	jsr open_dir
 	jmp @unlisten_end
 
 ; READ FILE
@@ -337,7 +338,9 @@ cbdos_acptr:
 	sty save_y
 	ldx channel
 	lda fd_for_channel,x
-	bpl @acptr5
+	bpl @acptr5 ; actual file
+	cmp #MAGIC_FD_DIR_LOAD
+	beq @acptr5
 ; no fd
 	lda #$02 ; timeout/file not found
 	sta $90
@@ -347,13 +350,24 @@ cbdos_acptr:
 	sec
 	rts
 
-; no data? read a block
+; no data? read more
 @acptr5:
 	lda cur_buffer_len
 	ora cur_buffer_len + 1
-	bne :+
+	bne @acptr7
+
+	ldx channel
+	lda fd_for_channel,x
+	cmp #MAGIC_FD_DIR_LOAD
+	bne @acptr6 ; actual file
+; read next directory line
+	jsr read_dir
+	jmp @acptr7
+@acptr6:
+; read next block
 	jsr read_block
-:	ldy cur_buffer_ptr + 1
+@acptr7:
+	ldy cur_buffer_ptr + 1
 	bne @acptr1
 ; halfblock 0
 	ldy cur_buffer_ptr
@@ -624,7 +638,11 @@ X1:
 
 
 
-read_dir:
+open_dir:
+	lda #MAGIC_FD_DIR_LOAD
+	ldx channel
+	sta fd_for_channel,x ; remember fd
+
 	jsr fat_mount
 
 	ldy #0
@@ -665,16 +683,51 @@ read_dir:
 	jsr storedir
 
 	phy
-
-	nop
-
 	SetVector allfiles, filenameptr
 	ldx #FD_INDEX_CURRENT_DIR
 	jsr fat_find_first
-
 	ply
+	bcc end_of_dir ; end of dir
 
-dir_loop:
+not_end_of_dir:
+	sty cur_buffer_len
+	lda #0
+	sta cur_buffer_len + 1
+	lda #0
+	ldx channel
+	sta is_last_block_for_channel,x
+
+	rts
+
+end_of_dir:
+	lda #1
+	jsr storedir ; link
+	jsr storedir
+	lda #$ff
+	jsr storedir ; XXX TODO real blocks free
+	jsr storedir
+	ldx #0
+:	lda txt_blocksfree,x
+	jsr storedir
+	inx
+	cpx #txt_blocksfree_end - txt_blocksfree
+	bne :-
+
+	lda #0
+	jsr storedir
+	jsr storedir
+
+	sty cur_buffer_len
+	lda #0
+	sta cur_buffer_len + 1
+	lda #$ff
+	ldx channel
+	sta is_last_block_for_channel,x
+
+	rts
+
+read_dir:
+	ldy #0
 	lda #1
 	jsr storedir ; link
 	jsr storedir
@@ -782,35 +835,13 @@ gt_1000:
 	ldx #FD_INDEX_CURRENT_DIR
 	jsr fat_find_next
 	ply
-	bcc end_of_dir ; end of dir
+	bcs :+
+	jmp end_of_dir ; end of dir
 	cmp #0
-	bne end_of_dir ; error
-	jmp dir_loop
+	beq :+
+	jmp end_of_dir ; error
+:	jmp not_end_of_dir
 
-end_of_dir:
-	lda #1
-	jsr storedir ; link
-	jsr storedir
-	lda #$ff
-	jsr storedir ; XXX TODO real blocks free
-	jsr storedir
-	ldx #0
-:	lda txt_blocksfree,x
-	jsr storedir
-	inx
-	cpx #txt_blocksfree_end - txt_blocksfree
-	bne :-
-
-	lda #0
-	jsr storedir
-	jsr storedir
-
-	sty cur_buffer_len
-	lda #0
-	sta cur_buffer_len + 1
-	; XXX dir > 256 bytes
-
-	rts
 
 txt_blocksfree:
 	.byte "BLOCKS FREE."
