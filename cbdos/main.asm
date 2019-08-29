@@ -106,12 +106,21 @@ buffer_len:
 buffer_ptr:
 	.res TOTAL_NUM_BUFS * 2, 0
 
+bytes_remaining_for_channel:
+	.res 16 * 4, 0
+
+is_last_block_for_channel:
+	; $ff = after transmitting the contents of this buffer,
+	;       there won't be more
+	.res 16, 0
+
 fd_for_channel:
 	; $ff = none
 	.res 16, 0
 
 buffer_for_channel:
 	.res 15, 0 ; just 0-14; cmd/status is special cased
+
 
 .segment "cbdos"
 ; $C000
@@ -196,7 +205,8 @@ cbdos_secnd: ; after listen
 
 @secnd_open:
 	lda #0
-	sta buffer_ptr + BUFNO_FN ; clear fn buffer
+	sta buffer_ptr + 2 * BUFNO_FN ; clear fn buffer
+	sta buffer_ptr + 2 * BUFNO_FN + 1
 	lda #BUFNO_FN
 	jmp switch_to_buffer
 
@@ -327,9 +337,9 @@ cbdos_acptr:
 	sty save_y
 	ldx channel
 	lda fd_for_channel,x
-	bpl :+
+	bpl @acptr5
 ; no fd
-	lda #$02 ; file not found
+	lda #$02 ; timeout/file not found
 	sta $90
 	lda #0
 	ldy save_y
@@ -338,11 +348,11 @@ cbdos_acptr:
 	rts
 
 ; no data? read a block
-:	lda cur_buffer_len
+@acptr5:
+	lda cur_buffer_len
 	ora cur_buffer_len + 1
 	bne :+
-	jsr read_file
-
+	jsr read_block
 :	ldy cur_buffer_ptr + 1
 	bne @acptr1
 ; halfblock 0
@@ -362,23 +372,44 @@ cbdos_acptr:
 :	pha
 	lda cur_buffer_ptr + 1
 	cmp cur_buffer_len + 1
-	bne :+
+	bne @acptr3
 	lda cur_buffer_ptr
 	cmp cur_buffer_len
-	bne :+
+	bne @acptr3
+; buffer exhausted
+	ldx channel
+	lda is_last_block_for_channel,x
+	bmi @acptr4
+
+; read another block next time
+	lda #0
+	sta cur_buffer_len
+	sta cur_buffer_len + 1
+	sta cur_buffer_ptr
+	sta cur_buffer_ptr + 1
+	jmp @acptr3
+
+@acptr4:
 ; EOI
 	lda #$40
 	sta $90
+; clear fd from channel
+	ldx channel
+	lda #$ff
+	sta fd_for_channel,x
+; status
 	lda channel
 	cmp #$0f
-	bne :+
+	bne @acptr3
 ; reload OK status
 	jsr init_status
-	lda buffer_len + BUFNO_STATUS
+	lda buffer_len + 2 * BUFNO_STATUS
 	sta cur_buffer_len
-	lda #0
+	lda buffer_len + 2 * BUFNO_STATUS + 1
 	sta cur_buffer_len + 1
-:	pla
+
+@acptr3:
+	pla
 	ldy save_y
 	ldx save_x
 	clc
@@ -417,15 +448,18 @@ buf_alloc:
 	txa
 	sta buffer_for_channel,y
 ; set buffer pointer to 0
+	asl
 	tay
 	lda #0
 	sta buffer_ptr,y
+	sta buffer_ptr + 1,y
 	tya
+	lsr
 switch_to_buffer:
 	sta bufferno
 ; fetch buffer pointer & len
+	asl
 	tay
-	pha
 	lda buffer_ptr,y
 	sta cur_buffer_ptr
 	lda buffer_ptr + 1,y
@@ -434,9 +468,8 @@ switch_to_buffer:
 	sta cur_buffer_len
 	lda buffer_len + 1,y
 	sta cur_buffer_len + 1
-	pla
 ; set zp word
-	asl
+	tya ; buffer# * 2
 	clc
 	adc #>buffers
 	sta buffer + 1
@@ -461,7 +494,9 @@ buf_free:
 ;****************************************
 ; write back buffer ptr
 finished_with_buffer:
-	ldx bufferno
+	lda bufferno
+	asl
+	tax
 	lda cur_buffer_ptr
 	sta buffer_ptr,x
 	lda cur_buffer_ptr + 1
@@ -474,8 +509,10 @@ finished_with_buffer:
 
 ;****************************************
 init_status:
+	lda #0
+	sta buffer_len + 2 * BUFNO_STATUS + 1
 	ldx #stat_end - stat
-	stx buffer_len + BUFNO_STATUS
+	stx buffer_len + 2 * BUFNO_STATUS
 	dex
 :	lda stat,x
 	sta statusbuffer,x
@@ -505,6 +542,18 @@ open_file:
 	ldx channel
 	sta fd_for_channel,x ; remember fd
 
+; start counting remaining bytes
+	tax
+	ldy channel
+	lda fd_area + F32_fd::FileSize + 0, x
+	sta bytes_remaining_for_channel + 0,y
+	lda fd_area + F32_fd::FileSize + 1, x
+	sta bytes_remaining_for_channel + 1,y
+	lda fd_area + F32_fd::FileSize + 2, x
+	sta bytes_remaining_for_channel + 2,y
+	lda fd_area + F32_fd::FileSize + 3, x
+	sta bytes_remaining_for_channel + 3,y
+
 ; indicate there's nothing currently read
 	lda #0
 	sta cur_buffer_len
@@ -512,7 +561,7 @@ open_file:
 	rts
 
 
-read_file:
+read_block:
 	ldx channel
 	lda fd_for_channel,x
 	bpl :+
@@ -525,11 +574,51 @@ read_file:
 	sta read_blkptr + 1
 	ldy #1 ; one block
 	jsr fat_fread
-	; XXX real length
+
+X1:
+
+; are there more than $0200 bytes remaining?
+	ldx channel
+	lda bytes_remaining_for_channel + 0,x
+	sec
+	sbc #<$0200
+	pha
+	lda bytes_remaining_for_channel + 1,x
+	sbc #>$0200
+	pha
+	lda bytes_remaining_for_channel + 2,x
+	sbc #0
+	pha
+	lda bytes_remaining_for_channel + 3,x
+	sbc #0
+	bcc @read_block1
+; yes, subtract $0200, say there's $0200 in the buffer
+	sta bytes_remaining_for_channel + 3,x
+	pla
+	sta bytes_remaining_for_channel + 2,x
+	pla
+	sta bytes_remaining_for_channel + 1,x
+	pla
+	sta bytes_remaining_for_channel + 0,x
 	lda #<$0200
 	sta cur_buffer_len
 	lda #>$0200
 	sta cur_buffer_len + 1
+	lda #0
+	sta is_last_block_for_channel,x
+	clc
+	rts
+; no, say there's this many bytes in the buffer
+@read_block1:
+	pla
+	pla
+	pla
+	lda bytes_remaining_for_channel + 0,x
+	sta cur_buffer_len
+	lda bytes_remaining_for_channel + 1,x
+	sta cur_buffer_len + 1
+	lda #$ff
+	sta is_last_block_for_channel,x
 	clc
 	rts
 
