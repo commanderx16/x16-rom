@@ -118,6 +118,7 @@ fd_for_channel:
 	.res 16, 0
 ; $ff = none
 MAGIC_FD_DIR_LOAD = $fe
+MAGIC_FD_EOF      = $fd
 
 buffer_for_channel:
 	.res 15, 0 ; just 0-14; cmd/status is special cased
@@ -341,6 +342,12 @@ cbdos_acptr:
 	bpl @acptr5 ; actual file
 	cmp #MAGIC_FD_DIR_LOAD
 	beq @acptr5
+	cmp #MAGIC_FD_EOF
+	bne @acptr_nofd
+; EOF
+	lda #$40
+	.byte $2c
+@acptr_nofd:
 ; no fd
 	lda #$02 ; timeout/file not found
 	sta $90
@@ -404,12 +411,9 @@ cbdos_acptr:
 	jmp @acptr3
 
 @acptr4:
-; EOI
-	lda #$40
-	sta $90
 ; clear fd from channel
 	ldx channel
-	lda #$ff
+	lda #MAGIC_FD_EOF ; next time, send EOF
 	sta fd_for_channel,x
 ; status
 	lda channel
