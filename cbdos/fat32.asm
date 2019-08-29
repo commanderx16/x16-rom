@@ -1679,6 +1679,12 @@ ff_l4:
       cmp #DIR_Attr_Mask_LongFilename
       beq fat_find_next
 
+X1:
+      ldy #F32DirEntry::Name
+      lda (dirptr),y
+      cmp #DIR_Entry_Deleted
+      beq fat_find_next
+
       jsr __fat_matcher           ; call matcher strategy
       lda #EOK                    ; Z=1 (success) and no error 
       bcs ff_end                  ; if C=1 we had a match

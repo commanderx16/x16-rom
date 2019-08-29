@@ -621,8 +621,6 @@ read_block:
 	ldy #1 ; one block
 	jsr fat_fread
 
-X1:
-
 ; are there more than $0200 bytes remaining?
 	ldx channel
 	lda bytes_remaining_for_channel + 0,x
@@ -667,7 +665,6 @@ X1:
 	sta is_last_block_for_channel,x
 	clc
 	rts
-
 
 
 open_dir:
