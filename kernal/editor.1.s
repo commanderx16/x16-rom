@@ -178,28 +178,75 @@ initv
 	sta veralo
 
 	ldx #0
-px4	lda tvera,x
+px4	lda tvera_layer1,x
 	sta veradat
 	inx
-	cpx #tverend-tvera
+	cpx #tvera_layer1_end-tvera_layer1
 	bne px4
 
 	lda #$40
 	sta veralo
-	lda #1
-	sta veradat ; VGA output
-
+	ldx #0
+px5	lda tvera_composer,x
+	sta veradat
+	inx
+	cpx #tvera_composer_end-tvera_composer
+	bne px5
 	rts
 
 mapbas	=0
 tilbas	=$20000
 
-tvera	.byte 0 << 5 | 1  ;mode=0, enabled=1
+;NTSC=1
+
+tvera_layer1
+	.byte 0 << 5 | 1  ;mode=0, enabled=1
 	.byte 1 << 2 | 2  ;maph=64, mapw=128
 	.word mapbas >> 2 ;map_base
 	.word tilbas >> 2 ;tile_base
+.ifdef NTSC
+	.word $ffff-52    ;hscroll
+	.word $ffff-40    ;vscroll
+.else
 	.word 0, 0        ;hscroll, vscroll
-tverend
+.endif
+tvera_layer1_end
+
+.ifdef NTSC
+; ***** NTSC (with overscan)
+hstart  =46
+hstop   =591
+vstart  =35
+vstop   =444
+
+tvera_composer
+	.byte 2           ;NTSC
+	.byte 150, 150    ;hscale, vscale
+	.byte 14          ;border color
+	.byte <hstart
+	.byte <hstop
+	.byte <vstart
+	.byte <vstop
+	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
+tvera_composer_end
+.else
+; ***** VGA
+hstart  =0
+hstop   =640
+vstart  =0
+vstop   =480
+
+tvera_composer
+	.byte 1           ;VGA
+	.byte 128, 128    ;hscale, vscale
+	.byte 14          ;border color
+	.byte <hstart
+	.byte <hstop
+	.byte <vstart
+	.byte <vstop
+	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
+tvera_composer_end
+.endif
 
 ;
 ;remove character from queue
