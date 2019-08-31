@@ -34,6 +34,25 @@ BUFNO_STATUS = NUM_BUFS + 2
 
 DIRSTART = $0801 ; load address of directory
 
+via1        = $9f60
+via1porta   = via1+1 ; RAM bank
+
+.macro BANKING_START
+	pha
+	lda via1porta
+	sta bank_save
+	lda #$ff
+	sta via1porta
+	pla
+.endmacro
+
+.macro BANKING_END
+	pha
+	lda bank_save
+	sta via1porta
+	pla
+.endmacro
+
 .segment "cbdos_data"
 
 ; Commodore DOS buffers
@@ -73,6 +92,8 @@ blocks: ; 3 bytes blocks to read, 3 bytes sufficient to address 4GB -> 429496729
 initialized:
 	.byte 0
 MAGIC_INITIALIZED  = $7A
+bank_save:
+	.byte 0
 fn_base:
 	.byte 0
 cur_buffer_ptr:
@@ -175,12 +196,18 @@ cbdos_init:
 ; LISTEN
 ;****************************************
 cbdos_listn:
-	jmp cbdos_init ; XXX
+	BANKING_START
+	jsr cbdos_init ; XXX
+	BANKING_END
+	rts
 
 ;****************************************
 ; SECOND (after LISTEN)
 ;****************************************
 cbdos_secnd: ; after listen
+	BANKING_START
+	stx save_x
+	sty save_y
 	; If it's $Fx, the bytes sent by the host until UNLISTEN
 	; will be a filename to be associated with channel x.
 	; Otherwise, we need to receive into channel x.
@@ -193,7 +220,12 @@ cbdos_secnd: ; after listen
 	sta channel
 	bne :+
 	lda #BUFNO_CMD
-	jmp switch_to_buffer
+@secnd_switch:
+	jsr switch_to_buffer
+	ldx save_x
+	ldy save_y
+	BANKING_END
+	rts
 
 :	lda listen_addr
 	and #$f0
@@ -207,28 +239,31 @@ cbdos_secnd: ; after listen
 	lda channel
 	tax
 	lda buffer_for_channel,x
-	jmp switch_to_buffer
+	jmp @secnd_switch
 
 @secnd_open:
 	lda #0
 	sta buffer_ptr + 2 * BUFNO_FN ; clear fn buffer
 	sta buffer_ptr + 2 * BUFNO_FN + 1
 	lda #BUFNO_FN
-	jmp switch_to_buffer
+	jmp @secnd_switch
 
 @secnd_close:
 	lda channel
 	cmp #$0f
 	beq @ignore_close_15
-	jmp buf_free
-
+	jsr buf_free
 @ignore_close_15:
+	ldx save_x
+	ldy save_y
+	BANKING_END
 	rts
 
 ;****************************************
 ; SEND
 ;****************************************
 cbdos_ciout:
+	BANKING_START
 	sty save_y
 	ldy cur_buffer_ptr + 1
 	bne @ciout2
@@ -239,7 +274,8 @@ cbdos_ciout:
 	inc cur_buffer_ptr
 	bne :+
 	inc cur_buffer_ptr + 1
-:	rts
+:	BANKING_END
+	rts
 @ciout2:
 ; halfblock 1
 	ldy cur_buffer_ptr
@@ -251,12 +287,14 @@ cbdos_ciout:
 	bne :+
 ; XXX reached 0x200
 	brk
-:	rts
+:	BANKING_END
+	rts
 
 ;****************************************
 ; UNLISTEN
 ;****************************************
 cbdos_unlsn:
+	BANKING_START
 	; UNLISTEN of the command channel ignores whether it was OPEN
 	lda channel
 	cmp #$0f
@@ -268,6 +306,7 @@ cbdos_unlsn:
 	beq unlsn_open
 
 	; otherwise UNLISTEN does nothing
+	BANKING_END
 	rts
 
 @unlisten_cmd:
@@ -275,6 +314,7 @@ cbdos_unlsn:
 	brk
 
 unlsn_open:
+	BANKING_START
 	stx save_x
 	sty save_y
 
@@ -304,6 +344,7 @@ unlsn_open:
 
 	ldy save_y
 	ldx save_x
+	BANKING_END
 	rts
 
 ; no buffers
@@ -315,23 +356,34 @@ no_bufs:
 ; TALK
 ;****************************************
 cbdos_talk:
-	jmp cbdos_init ; XXX
+	BANKING_START
+	jsr cbdos_init ; XXX
+	BANKING_END
+	rts
 
 ;****************************************
 ; SECOND (after TALK)
 ;****************************************
 cbdos_tksa: ; after talk
+	BANKING_START
+	stx save_x
+	sty save_y
 	and #$0f
 	sta channel
 	cmp #$0f
 	bne :+
 	lda #BUFNO_STATUS
-	jmp switch_to_buffer
+	bne @tksa_switch ; always
 
 :	tax
 	lda buffer_for_channel,x
 	bmi @empty_channel
-	jmp switch_to_buffer
+@tksa_switch:
+	jsr switch_to_buffer
+	ldx save_x
+	ldy save_y
+	BANKING_END
+	rts
 
 @empty_channel:
 	brk; TODO
@@ -340,6 +392,7 @@ cbdos_tksa: ; after talk
 ; RECEIVE
 ;****************************************
 cbdos_acptr:
+	BANKING_START
 	stx save_x
 	sty save_y
 	ldx channel
@@ -364,6 +417,7 @@ cbdos_acptr:
 	lda #0
 	ldy save_y
 	ldx save_x
+	BANKING_END
 	sec
 	rts
 
@@ -443,6 +497,7 @@ cbdos_acptr:
 @acptr_end:
 	ldy save_y
 	ldx save_x
+	BANKING_END
 	clc
 	rts
 
@@ -450,11 +505,13 @@ cbdos_acptr:
 ; UNTALK
 ;****************************************
 cbdos_untlk:
+	BANKING_START
 	stx save_x
 	sty save_y
 	jsr finished_with_buffer
 	ldy save_y
 	ldx save_x
+	BANKING_END
 	rts
 
 ;****************************************
