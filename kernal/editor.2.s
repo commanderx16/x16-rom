@@ -258,8 +258,8 @@ kprend
 port_ddr = 0  ; 6510 data direction register
 port_data = 1  ; 6510 data register
 ;
-               ; TAPE PIN A (VCC)   <---> PS/2 PIN 4 (VCC)  [AT PIN 4]
-               ; TAPE PIN B (GNC)   <---> PS/2 PIN 3 (GND)  [AT PIN 5]
+               ; TAPE PIN A (GND)   <---> PS/2 PIN 3 (GND)  [AT PIN 4]
+               ; TAPE PIN B (VCC)   <---> PS/2 PIN 4 (VCC)  [AT PIN 5]
 bit_clk  = $08 ; TAPE PIN E (write) <---> PS/2 PIN 5 (CLK)  [AT PIN 1]
 bit_data = $10 ; TAPE PIN F (sense) <---> PS/2 PIN 1 (DATA) [AT PIN 2]
 .else
