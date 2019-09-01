@@ -187,7 +187,7 @@ cbdos_init:
 
 	lda #MAGIC_FD_STATUS
 	sta fd_for_channel + 15
-	jsr init_status
+	jsr set_status_73
 
 	ldx save_x
 	rts
@@ -295,6 +295,8 @@ cbdos_ciout:
 ;****************************************
 cbdos_unlsn:
 	BANKING_START
+	stx save_x
+	sty save_y
 	; UNLISTEN of the command channel ignores whether it was OPEN
 	lda channel
 	cmp #$0f
@@ -303,28 +305,32 @@ cbdos_unlsn:
 	lda listen_addr
 	and #$f0
 	cmp #$f0
-	beq unlsn_open
+	beq @unlsn_open
 
 	; otherwise UNLISTEN does nothing
+@unlsn_end2:
+	ldy save_y
+	ldx save_x
 	BANKING_END
 	rts
 
 @unlisten_cmd:
 ; UNLISTEN on command channel -> execute
-	brk
+	lda cur_buffer_ptr
+	ora cur_buffer_ptr + 1
+	beq @unlsn_end2 ; empty
 
-unlsn_open:
-	BANKING_START
-	stx save_x
-	sty save_y
+	jsr execute_command
+	jmp @unlsn_end2
 
+@unlsn_open:
 	; XXX low byte only
 	lda cur_buffer_ptr
 	sta fnlen
 
 	lda channel
 	jsr buf_alloc
-	bcs no_bufs
+	bcs @no_bufs
 
 	jsr sdcard_init
 
@@ -341,14 +347,10 @@ unlsn_open:
 	jsr open_file
 @unlisten_end:
 	jsr finished_with_buffer
-
-	ldy save_y
-	ldx save_x
-	BANKING_END
-	rts
+	jmp @unlsn_end2
 
 ; no buffers
-no_bufs:
+@no_bufs:
 	; TODO
 	brk
 
@@ -439,7 +441,7 @@ cbdos_acptr:
 	bne @acptr9
 	lda #$40 ; EOF
 	sta $90
-	jsr reload_status
+	jsr set_status_ok
 	lda buffer_len + 2 * BUFNO_STATUS
 	sta cur_buffer_len
 	lda buffer_len + 2 * BUFNO_STATUS + 1
@@ -596,36 +598,92 @@ finished_with_buffer:
 	rts
 
 ;****************************************
-init_status:
-	lda #0
-	sta buffer_len + 2 * BUFNO_STATUS + 1
-	ldx #status_ui_end - status_ui
-	stx buffer_len + 2 * BUFNO_STATUS
-	dex
-:	lda status_ui,x
+set_status_ok:
+	lda #$00
+	.byte $2c
+set_status_writeprot:
+	lda #$26
+	.byte $2c
+set_status_synerr:
+	lda #$31
+	.byte $2c
+set_status_73:
+	lda #$73
+	pha
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	ora #$30
+	sta statusbuffer
+	pla
+	and #$0f
+	ora #$30
+	sta statusbuffer + 1
+	lda #','
+	sta statusbuffer + 2
+	pla
+	ldx #0
+:	cmp stcodes,x
+	beq :+
+	inx
+	cpx #stcodes_end - stcodes
+	bne :-
+:	txa
+	asl
+	tax
+	lda ststrs,x
+	sta krn_ptr1
+	lda ststrs + 1,x
+	sta krn_ptr1 + 1
+	ldx #3
+	ldy #0
+:	lda (krn_ptr1),y
+	beq :+
 	sta statusbuffer,x
-	dex
-	bpl :-
+	iny
+	inx
+	bne :-
+:	lda #','
+	sta statusbuffer + 0,x
+	lda #'0'
+	sta statusbuffer + 1,x
+	sta statusbuffer + 2,x
+	lda #','
+	sta statusbuffer + 3,x
+	lda #'0'
+	sta statusbuffer + 4,x
+	sta statusbuffer + 5,x
+
+	lda #0
+	sta buffer_ptr + 2 * BUFNO_STATUS
+	sta buffer_ptr + 2 * BUFNO_STATUS + 1
+	sta buffer_len + 2 * BUFNO_STATUS + 1
+	txa
+	clc
+	adc #6
+	sta buffer_len + 2 * BUFNO_STATUS
 	rts
 
-reload_status:
-	lda #0
-	sta buffer_len + 2 * BUFNO_STATUS + 1
-	ldx #status_ok_end - status_ok
-	stx buffer_len + 2 * BUFNO_STATUS
-	dex
-:	lda status_ok,x
-	sta statusbuffer,x
-	dex
-	bpl :-
-	rts
+stcodes:
+	.byte $00, $26, $31, $73
+stcodes_end:
 
-status_ui:
-	.byte "73,CBDOS V1.0 X16,00,00"
-status_ui_end:
-status_ok:
-	.byte "00,OK,00,00"
-status_ok_end:
+ststrs:
+	.word status_00
+	.word status_26
+	.word status_31
+	.word status_73
+
+status_00:
+	.byte "OK", 0
+status_26:
+	.byte "WRITE PROTECT ON", 0
+status_31:
+	.byte "SYNTAX ERROR" ,0
+status_73:
+	.byte "CBDOS V1.0 X16", 0
 
 ;****************************************
 open_file:
@@ -951,3 +1009,57 @@ __rtc_systime_update:
 write_block:
 	rts
 
+execute_command:
+	lda cmdbuffer
+	ldx #0
+:	cmp cmds,x
+	beq @found
+	inx
+	cpx #cmds_end - cmds
+	bne :-
+	jmp set_status_synerr
+
+@found:
+	txa
+	asl
+	tax
+	lda cmdptrs + 1,x
+	pha
+	lda cmdptrs,x
+	pha
+	rts
+
+cmds:
+	.byte "IVNRSCU"
+cmds_end:
+
+cmdptrs:
+	.word cmd_i - 1
+	.word cmd_v - 1
+	.word cmd_n - 1
+	.word cmd_r - 1
+	.word cmd_s - 1
+	.word cmd_c - 1
+	.word cmd_u - 1
+
+cmd_i:
+	jsr fat_mount
+	jmp set_status_ok ; XXX error handling
+
+cmd_v:
+	jmp set_status_writeprot
+
+cmd_n:
+	jmp set_status_writeprot
+
+cmd_r:
+	jmp set_status_writeprot
+
+cmd_s:
+	jmp set_status_writeprot
+
+cmd_c:
+	jmp set_status_writeprot
+
+cmd_u:
+	jmp set_status_73
