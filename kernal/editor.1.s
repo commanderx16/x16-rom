@@ -204,12 +204,7 @@ tvera_layer1
 	.byte 1 << 2 | 2  ;maph=64, mapw=128
 	.word mapbas >> 2 ;map_base
 	.word tilbas >> 2 ;tile_base
-.ifdef NTSC
-	.word $ffff-52    ;hscroll
-	.word $ffff-40    ;vscroll
-.else
 	.word 0, 0        ;hscroll, vscroll
-.endif
 tvera_layer1_end
 
 .ifdef NTSC
