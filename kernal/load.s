@@ -101,7 +101,8 @@ ld64	bit status      ;eoi?
 ;
 	jsr untlk       ;close channel
 	jsr clsei       ;close the file
-	bcc ld180       ;branch always
+	jsr prnto
+	bne ld180       ;branch always
 ;
 ld90	jmp error4      ;file not found
 ;
@@ -152,5 +153,33 @@ loding	ldy #ms10-ms1   ;assume 'loading'
 	lda verck       ;check flag
 	beq ld410       ;are doing load
 	ldy #ms21-ms1   ;are 'verifying'
-ld410	jmp spmsg
-
+ld410	jsr spmsg
+	bit msgflg      ;printing messages?
+	bpl frmto1      ;no...
+	lda verck       ;check flag
+	bne frmto1      ;skip if verify
+	ldy #ms7-ms1    ;"from $"
+msghex	jsr msg
+	lda eah
+	jsr hex8
+	lda eal
+hex8	tax
+	lsr
+	lsr
+	lsr
+	lsr
+	jsr hex4
+	txa
+	and #$0f
+hex4	cmp #$0a
+	bcc hex010
+	adc #$06
+hex010	adc #$30
+	jmp prt
+frmto1	rts
+prnto	bit msgflg      ;printing messages?
+	bpl frmto1      ;no...
+	lda verck       ;check flag
+	bne frmto1      ;skip if verify
+	ldy #ms8-ms1    ;"to $"
+	bne msghex      ;branch always
