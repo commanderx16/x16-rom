@@ -813,15 +813,15 @@ open_dir:
 	jsr storedir
 	lda #' '
 	jsr storedir
-	lda #'G'
-	jsr storedir
-	lda #'H'
-	jsr storedir
-	lda #' '
-	jsr storedir
-	lda #'2'
+	lda #'F'
 	jsr storedir
 	lda #'A'
+	jsr storedir
+	lda #'T'
+	jsr storedir
+	lda #'3'
+	jsr storedir
+	lda #'2'
 	jsr storedir
 	lda #0 ; end of line
 	jsr storedir
