@@ -1,43 +1,72 @@
-# Commodore 64 BASIC and KERNAL Source
+# Commander X16 BASIC/KERNAL/DOS ROM
 
-This repository contains the Commodore 64 BASIC and KERNAL source in a format that is easy to edit and can be built using modern tools on modern systems. It is derived from the [original sources](https://www.github.com/mist64/cbmsrc), with all original symbols and comments intact.
+This is the Commander X16 ROM containing BASIC, KERNAL and DOS. BASIC and KERNAL are derived from the [Commodore 64 versions](https://github.com/mist64/c64rom).
 
-## Building
+* BASIC is fully compatible with Commodore BASIC V2.
+* KERNAL
+	* supports the complete $FF81+ API.
+	* has the same zero page and $0200-$033C memory layout as the C64.
+	* does not support tape (device 1).
 
-* Requires
-	* [cc65](https://github.com/cc65/cc65).
-	* make, Python, crc32
-* Use `make` to build.
-* The resulting files are
-	* `basic.bin` (`$A000`-`$BFFF`): identical with basic.901226-01.bin
-	* `kernal.bin` (`$E000`-`$FFFF`): identical with kernal.901227-03.bin
+## New Features
 
-## Modifying
+* F-keys:
+	F1: `LIST`
+	F2: `MONITOR`
+	F3: `RUN`
+	F4: &lt;switch 40/80&gt;
+	F5: `LOAD`
+	F6: `SAVE"`
+	F7: `DOS"$`
+	F8: `DOS`
+* New BASIC instructions
+	* `MONITOR`: see below.
+	* `DOS`:
+	no argument: read disk status.
+	"8" or "9" as an argument: switch default drive.
+	"$" as an argument: show directory.
+	all other arguments: send DOS command
+	* `VPEEK`(bank, offset), `VPOKE` bank, offset, value to access video memory. "offset" is 16 bits, "bank" is bits 16-19 of the linear address.
+	Note that the tokens for the new BASIC commands have not been finalized yet, so loading a BASIC program that uses the new keywords in a future version of the ROM will break!
+* Support for `$` and `%` in BASIC expressions for hex and binary
+* `LOAD` prints the start and end(+1) addresses
+* Integrated Monitor derived from the [Final Cartridge III](https://github.com/mist64/final_cartridge).
+	* `O00`..`OFF` to switch ROM and RAM banks
+	* `OV0`..`OV4` to switch to video address space
+* FAT32-formatted SD card as drive 8 as a full IEC (TALK/LISTEN & CBM DOS) compatible device:
+	* read directory
+	* load file
+	* send "I" command
+	* read status
+	* everything else is unimplemented
+* Some new KERNAL APIs (to be documented)
 
-The major parts of KERNAL reside in their own segments that will always be linked to their original addresses, so if you want to remove tape or RS232 support, for example, the other sections will still remain where they should be in the image.
+## Big TODOs
 
-## Checksums
+* DOS needs more features.
+* BASIC needs more features.
+* RS232 and IEC are not working.
+* PS/2 and SD have issues on real hardware.
 
-Commodore built all ROMs so that the 8 bit checksum matches the upper 8 bits of the location in the address space, e.g. BASIC is located at `$A000`, so its checksum has to be `$A0`. There is one "checksum adjust byte" at a dedicated location in every ROM that is updated after the build to cause the correct checksum. In BASIC, this is at `$BF52` (`CKSMA0`) and in KERNAL, it's at `$E4AC`.
+## ROM Map
 
-The algorithm looks like this:
+* fixed ROM ($E000-$FFFF): KERNAL
+* banked ROM ($C000-$DFFF):
+	* bank 0: BASIC
+	* bank 1: UTIL (monitor)
+	* bank 2: DOS
 
-	10 A=0:C=0
-	20 FOR I=16384 TO 24575
-	30 B=PEEK(I)
-	40 A=A+B+C:C=0
-	50 IF A>255 THEN A=A-256:C=1
-	60 NEXT
-	70 PRINTA
+## RAM Map
 
-Starting in 1983 though, they started using a slightly different algorithm (that adds the final carry) with _most_ ROMs:
+* fixed RAM:
+	* $0000-$0400 KERNAL/BASIC/DOS system variables
+	* $0400-$0800 currently unused
+	* $0800-$9F00 BASIC RAM
+* banked RAM:
+	* banks 0-254: free for applications
+	* bank 255: DOS buffers and variables
 
-	65 A=A+C
-
-The only version of C64 BASIC is from 1982 and uses the old checksum. The -03 version of the KERNAL is from 1983 and uses the new checksum.
-
-Any ROMs after 1983 (so also all ROMs we create today) should be checksummed using the new algorithm. The Makefile will use the old algorithm on BASIC if it's unchanged from the 901226-01 version, otherwise it will use the new algorithm. The KERNAL checksum will always use the new algorithm.
 
 ## Credits
 
-This version is maintained by Michael Steil <mist64@mac.com>, [www.pagetable.com](https://www.pagetable.com/)
+This version is maintained by Michael Steil &lt;mist64@mac.com&gt;, [www.pagetable.com](https://www.pagetable.com/)
