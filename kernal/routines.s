@@ -148,7 +148,7 @@ jsrfar	pha             ;save registers
 	iny
 	lda (imparm),y  ;target address bank
 	and #$07
-	sta d1prb       ;set RAM bank
+	sta d1prb       ;set ROM bank
 	pla             ;restore registers
 	tay
 	pla

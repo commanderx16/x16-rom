@@ -50,7 +50,7 @@
 ; $FF5F: SWAPPER – switch between 40 and 80 columns
 	; COMPATIBLE
 	; Note that the the MODE ($D7) zero page location is not
-	; supportedd for mode detection. Instead, the LLEN ($D9)
+	; supported for mode detection. Instead, the LLEN ($D9)
 	; zero page location holds either the value 80 or 40.
 	jmp swapper
 ; $FF62: DLCHR – init 80-col character RAM
