@@ -69,4 +69,6 @@ This is the Commander X16 ROM containing BASIC, KERNAL and DOS. BASIC and KERNAL
 
 ## Credits
 
-This version is maintained by Michael Steil &lt;mist64@mac.com&gt;, [www.pagetable.com](https://www.pagetable.com/)
+KERNAL and BASIC additions, DOS: Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
+
+FAT32 and SD card drivers: Copyright (c) 2018 Thomas Woinke, Marko Lauke, [www.steckschein.de](https://steckschwein.de); MIT License
