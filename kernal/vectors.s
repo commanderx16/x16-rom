@@ -101,7 +101,13 @@
 	.segment "JMPTBL"
 
 	;KERNAL revision
-	.byte $ff       ;pre-release version
+.ifdef PRERELEASE_VERSION
+	.byte <(-PRERELEASE_VERSION)
+.elseif .defined(RELEASE_VERSION)
+	.byte RELEASE_VERSION
+.else
+	.byte $ff       ;custom pre-release version
+.endif
 
 	jmp cint
 	jmp ioinit
