@@ -237,6 +237,11 @@ brk_entry:
         sta $fdd0
 .elseif .defined(MACHINE_C64)
         jsr     enable_all_roms
+.elseif .defined(MACHINE_X16)
+	pha
+	lda #1 ; UTIL
+	sta d1prb ; RAM bank
+	pla
 .endif
         jmp     brk_entry2
 ram_code_end:
