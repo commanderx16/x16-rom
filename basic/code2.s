@@ -97,7 +97,8 @@ rescon2	lda bufofs,x
 	sta buf-5,y
 	iny
 	pla
-	jmp crdone0
+	sta buf-5,y
+	jmp kloop
 
 ; skip
 nthis2	ldx txtptr
