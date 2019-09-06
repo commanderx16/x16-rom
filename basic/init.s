@@ -118,10 +118,21 @@ fremes
 	.byt $9f, $20, $20, $df, $12, $20, $20, $92, $20, $12, $20, $20, $92, $a9, 13
 	.byt $1e, $20, $20, $20, $20, $12, $20, $92, $20, $12, $20, $92
 .ifdef C64
-	.byt 5, "     DEVELOPMENT SYSTEM", 13
+	.byt 5, "     DEVELOPMENT SYSTEM"
 .else
-	.byt 5, "     2048K RAM SYSTEM", 13
+	.byt 5, "     2048K RAM SYSTEM"
 .endif
+.ifdef PRERELEASE_VERSION
+	.byte " - ROM VERSION R"
+.if PRERELEASE_VERSION >= 100
+	.byte (PRERELEASE_VERSION / 100) + '0'
+.endif
+.if PRERELEASE_VERSION >= 10
+	.byte ((PRERELEASE_VERSION / 10) .mod 10) + '0'
+.endif
+	.byte (PRERELEASE_VERSION .mod 10) + '0'
+.endif
+	.byte 13
 	.byt $9e, $20, $20, $12, $a9, $20, $20, $92, $20, $12, $20, $20, $df, 13
 	.byt $81, $20, $12, $a9, $20, $20, $92, $a9, $20, $df, $12, $20, $20, $df, $92
 	.byt 5, "  ", 0
