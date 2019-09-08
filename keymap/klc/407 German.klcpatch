@@ -1,0 +1,7 @@
+// § -> £
+04	3		1	3	00a3	-1	-1	-1		// DIGIT THREE, POUND SIGN, <none>, <none>, <none>
+// ´ -> ^
+0d	OEM_6		0	005e	-1	-1	-1	-1		// CIRCUMFLEX ACCENT, <none>, <none>, <none>, <none>
+// ^ -> ←
+// ° -> π
+29	OEM_5		0	2190	03c0	-1	-1	-1		// LEFTWARDS ARROW, GREEK SMALL LETTER PI, <none>, <none>, <none>

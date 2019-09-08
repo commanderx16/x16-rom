@@ -60,6 +60,34 @@ scnsiz	stx llen
 	sty nlinesm2
 	jmp clsr ; clear screen
 
+;
+; set keyboard layout .a
+;
+setkbd	tax
+	lda d1prb       ;save ROM bank
+	pha
+	lda #3
+	sta d1prb
+	txa
+setkb2	sta curkbd
+	asl
+	asl
+	asl
+	asl             ;*16
+	tax
+	lda $c000,x
+	beq setkb2      ;end of list? set #0
+	ldy #0
+setkb1	lda $c000,x
+	sta kbdnam,y    ;8 bytes kbnam, 8  bytes kbtab
+	inx
+	iny
+	cpy #16
+	bne setkb1
+	pla
+	sta d1prb       ;restore ROM bank
+	rts
+
 ;initialize i/o
 ;
 cint	jsr iokeys
@@ -76,7 +104,18 @@ cint	jsr iokeys
 	sta mode
 	sta blnon       ;we dont have a good char from the screen yet
 
-.ifndef PS2
+.ifdef PS2
+	lda $9fbe       ;emulator detection
+	cmp #'1'
+	bne nemu
+	lda $9fbf
+	cmp #'6'
+	bne nemu
+	lda $9fbd       ;emulator keyboard layout
+	.byte $2c
+nemu:	lda #0          ;US layout
+	jsr setkbd
+.else
 	lda #<shflog    ;set shift logic indirects
 	sta keylog
 	lda #>shflog

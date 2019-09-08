@@ -46,7 +46,8 @@ sa	.res 1           ;current file 2nd addr
 fa	.res 1           ;current file primary addr
 fnadr	.res 2           ;addr current file name str
 roprty	.res 1           ;rs-232 trns parity buffer
-	.res 3          ;unused (tape)
+ckbtab	.res 2           ;used for keyboard lookup
+	.res 1           ;unused (tape)
 tmp0
 stal	.res 1
 stah	.res 1
@@ -163,7 +164,8 @@ rodbe	.res 1           ;output buffer index to end
 ; temp space for vic-40 variables ****
 ;
 enabl	.res 1           ;rs-232 enables (replaces ier)
-	.res 3          ;unused (tape)
+curkbd	.res 1           ;current keyboard layout index
+	.res 2           ;unused (tape)
 lintmp	.res 1           ;temporary for line index
 palnts	.res 1           ;pal vs ntsc flag 0=ntsc 1=pal
 
@@ -186,6 +188,9 @@ iload	.res 2
 isave	.res 2           ;savesp
 
 ldtb1	.res 61          ;flags+endspace
+
+kbdnam  =$0400           ;2 character keyboard layout name
+kbdtab  =$0408           ;4 pointers to shift/alt/ctrl/unshifted tables
 
 vicscn	=$0000
 
