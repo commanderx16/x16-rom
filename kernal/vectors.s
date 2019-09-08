@@ -4,11 +4,11 @@
 ; for now, these are private API, they have not been
 ; finalized
 
-; $ff00
+; $FF00: MONITOR
 	jmp monitor
-; $ff03
+; $FF03
 	jmp restore_basic
-; $ff06
+; $FF06: GETJOY
 	jmp query_joysticks
 
 	.segment "JMPTB128"
