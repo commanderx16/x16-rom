@@ -1,0 +1,26 @@
++---+---+---+---+---+---+--++-+-++--+---+---+---+---+-----+
+| π | ! | " | £ | $ | % | & | / | ( | ) | = | ? | ] | DEL |
+| ← | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 | ß | [ |     |
++---+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+---+
+|TAB  | Q | W | E | R | T | Z | U | I | O | P | Ü | * | ' |
+|     |   |   |   |   |   |   |   |   |   |   | ü | + | # |
++-----++--++--++--++--++--++--++--++--++--++--++--++--+---+
+|SHIFT | A | S | D | F | G | H | J | K | L | Ä | Ö |RETURN|
+|LOCK  |   |   |   |   |   |   |   |   |   | ä | ö |      |
++------+--++--++--++--++--++--++--++--++--++--++--++------+
+|SHIFT| > | Y | X | C | V | B | N | M | ; | : | @ |SHIFT  |
+|     | < |   |   |   |   |   |   |   | , | . | - |       |
++-----+---+---+---+---+---+---+---+---+---+---+---+-------+
+
+https://www.goodtyping.com/teclatGER.htm
+
+* £ is Shift + 3, which matches the UK layout
+* The keys äÄ/öÖ/üÜ/ß are the German umlauts, which are not supported
+  by PETSCII. No other characters have been mapped there, so these
+  characters can be supported later.
+* [] should be on Alt + 8/9, but the former clashes with LTGRAY.
+  The key left of DEL should be ´`, which are not supported by
+  PETSCII, so [] was moved there.
+* @ should be Alt + Q, which is an awful special case. It was
+  moved to Shift + -.
+* TODO: ↑ is missing.
