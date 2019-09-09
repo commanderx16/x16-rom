@@ -118,11 +118,15 @@ def petscii_from_ascii(c):
 		return chr(ord(c) - 0x20)
 	return c
 
+all_petscii_chars = " !\"#$%&'()*+,-./0123456789:;<=>?@"
+for c in "abcdefghijklmnopqrstuvwxyz":
+	all_petscii_chars += chr(ord(c) - 0x20)
+all_petscii_chars += "[£]^←ABCDEFGHIJKLMNOPQRSTUVWXYZπ"
 
 #filename_klc = '40C French.klc'
 #filename_klc = '419 Russian.klc'
-filename_klc = '409 US.klc'
-#filename_klc = '407 German.klc'
+#filename_klc = '409 US.klc'
+filename_klc = '407 German.klc'
 
 kbd_layout = get_kbd_layout(filename_klc)
 
@@ -133,19 +137,24 @@ keytab = {}
 for shiftstate in shiftstates:
 	keytab[shiftstate] = [ '\0' ] * 128
 
+ascii_not_reachable = ""
+
 for hid_scancode in layout.keys():
 	ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
 	l = layout[hid_scancode]['chars']
-	print(hid_scancode, ps2_scancode, l)
+	#print(hid_scancode, ps2_scancode, l)
 	for shiftstate in shiftstates:
 		if shiftstate in l:
 			c_ascii = l[shiftstate]
 			c_petscii = petscii_from_ascii(c_ascii)
+			if c_petscii == chr(0):
+				if not c_ascii in ascii_not_reachable:
+					ascii_not_reachable += c_ascii
 			keytab[shiftstate][ps2_scancode] = c_petscii
 
-# stamp in a few fixed keys
-for shiftstate in shiftstates:
-	keytab[shiftstate][0x66] = chr(0x14) # backspace
+# stamp in backspace/insert
+keytab[0][0x66] = chr(0x14) # backspace
+keytab[1][0x66] = chr(0x94) # insert
 
 for shiftstate in shiftstates:
 	print("\n// {}: ".format(shiftstate), end = '')
@@ -173,38 +182,9 @@ for shiftstate in shiftstates:
 			print(',', end = '')
 	print()
 
-
-
-
-
-#template_0 = [
-#	0x00, 0x00, 0x88, 0x87, 0x86, 0x85, 0x89, 0x00,
-#	0x00, 0x00, 0x8c, 0x8b, 0x8a, 0x09,  '_', 0x00,
-#	0x00, 0x00, 0x00, 0x00, 0x00,  'Q',  '1', 0x00,
-#	0x00, 0x00,  'Z',  'S',  'A',  'W',  '2', 0x00,
-#	0x00,  'C',  'X',  'D',  'E',  '4',  '3', 0x00,
-#	0x00,  '  ', 'V',  'F',  'T',  'R',  '5', 0x00,
-#	0x00,  'N',  'B',  'H',  'G',  'Y',  '6', 0x00,
-#	0x00, 0x00,  'M',  'J',  'U',  '7',  '8', 0x00,
-#	0x00,  ',',  'K',  'I',  'O',  '0',  '9', 0x00,
-#	0x00,  '.',  '/',  'L',  ';',  'P',  '-', 0x00,
-#	0x00, 0x00, 0x27, 0x00,  '[',  '=', 0x00, 0x00,
-#	0x00, 0x00, 0x0d,  ']', 0x00, '\\', 0x00, 0x00,
-#	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x14, 0x00
-#]
-
-#template_1 = [
-#	0x00, 0x00, 0x88, 0x87, 0x86, 0x85, 0x89, 0x00,
-#	0x00, 0x00, 0x8c, 0x8b, 0x8a, 0x18, 0x7e, 0x00,
-#	0x00, 0x00, 0x00, 0x00, 0x00, 'Q'+0x80, '!', 0x00, 0x00,
-#	0x00, 'Z'+0x80, 'S'+0x80, 'A'+0x80, 'W'+0x80, '@', 0x00,
-#	0x00, 'C'+0x80, 'X'+0x80, 'D'+0x80, 'E'+0x80, '0x', '#', 0x00,
-#	0x00, 0xa0, 'V'+0x80, 'F'+0x80, 'T'+0x80, 'R'+0x80, '%', 0x00,
-#	0x00, 'N'+0x80, 'B'+0x80, 'H'+0x80, 'G'+0x80, 'Y'+0x80, '^', 0x00,
-#	0x00, 0x00, 'M'+0x80, 'J'+0x80, 'U'+0x80, '&', '*', 0x00,
-#	0x00, '<', 'K'+0x80, 'I'+0x80, 'O'+0x80, ')', '(', 0x00,
-#	0x00, '>', '?', 'L'+0x80, ':', 'P'+0x80, 0xDD, 0x00,
-#	0x00, 0x00, '"', 0x00, '{', '+', 0x00, 0x00,
-#	0x00, 0x00, 0x8d, '}', 0x00, 0xa9, 0x00, 0x00,
-#	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x94, 0x00
-#]
+petscii_not_reachable = ""
+for c in all_petscii_chars:
+	if not c in keytab[0] and not c in keytab[1]:
+		petscii_not_reachable += c
+print("PETSCII not reachable: \"" + petscii_not_reachable + "\"")
+print("ASCII   not reachable: \"" + ascii_not_reachable + "\"")
