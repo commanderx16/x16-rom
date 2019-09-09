@@ -105,11 +105,24 @@ def ps2_set2_code_from_hid_code(c):
 	else:
 		return 0
 
+def petscii_from_ascii(c):
+	if ord(c) < 0x20 and c != '\r':
+		return chr(0)
+	if ord(c) >= 0x7e:
+		return chr(0)
+	if c == '\\' or c == '|' or c == '_' or c == '{' or c == '}' or c == '~':
+		return chr(0)
+	if ord(c) >= ord('A') and ord(c) <= ord('Z'):
+		return chr(ord(c) + 0x80)
+	if ord(c) >= ord('a') and ord(c) <= ord('z'):
+		return chr(ord(c) - 0x20)
+	return c
+
 
 #filename_klc = '40C French.klc'
 #filename_klc = '419 Russian.klc'
-#filename_klc = '409 US.klc'
-filename_klc = '407 German.klc'
+filename_klc = '409 US.klc'
+#filename_klc = '407 German.klc'
 
 kbd_layout = get_kbd_layout(filename_klc)
 
@@ -127,21 +140,39 @@ for hid_scancode in layout.keys():
 	for shiftstate in shiftstates:
 		if shiftstate in l:
 			c_ascii = l[shiftstate]
-			keytab[shiftstate][ps2_scancode] = c_ascii
+			c_petscii = petscii_from_ascii(c_ascii)
+			keytab[shiftstate][ps2_scancode] = c_petscii
+
+# stamp in a few fixed keys
+for shiftstate in shiftstates:
+	keytab[shiftstate][0x66] = chr(0x14) # backspace
 
 for shiftstate in shiftstates:
-	print("\n// {}".format(shiftstate))
+	print("\n// {}: ".format(shiftstate), end = '')
+	if shiftstate & 1:
+		print('Shft ', end='')
+	if shiftstate & 6:
+		print('AltGr ', end='')
+	else:
+		if shiftstate & 2:
+			print('Ctrl ', end='')
+		if shiftstate & 4:
+			print('Alt ', end='')
+	print()
 	for i in range(0, 128):
 		if i & 7 == 0:
-			print()
+			if i != 0:
+				print()
+			print('\t.byte ', end='')
 		c = keytab[shiftstate][i]
 		if ord(c) >= 0x20 and ord(c) <= 0x7e:
 			print("'{}'".format(c), end = '')
 		else:
 			print("${:02x}".format(ord(c)), end = '')
 		if i & 7 != 7:
-			print(', ', end = '')
+			print(',', end = '')
 	print()
+
 
 
 
