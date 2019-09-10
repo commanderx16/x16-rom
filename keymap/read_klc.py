@@ -152,6 +152,22 @@ for hid_scancode in layout.keys():
 					ascii_not_reachable += c_ascii
 			keytab[shiftstate][ps2_scancode] = c_petscii
 
+# fold AltGr into Alt
+if 6 in keytab:
+	if 4 in keytab:
+		sys.exit("TODO: combine AltGr and Alt")
+	keytab[4] = keytab[6]
+	keytab.pop(6)
+	shiftstates = [4 if x == 6 else x for x in shiftstates]
+if 7 in keytab:
+	if 5 in keytab:
+		sys.exit("TODO: combine Shft+AltGr and Shft+Alt")
+	keytab[5] = keytab[7]
+	keytab.pop(7)
+	shiftstates = [5 if x == 7 else x for x in shiftstates]
+
+print(shiftstates)
+
 # stamp in backspace/insert
 keytab[0][0x66] = chr(0x14) # backspace
 keytab[1][0x66] = chr(0x94) # insert
@@ -214,5 +230,5 @@ petscii_not_reachable = ""
 for c in all_petscii_chars:
 	if not c in keytab[0] and not c in keytab[1]:
 		petscii_not_reachable += c
-print("PETSCII not reachable: \"" + petscii_not_reachable + "\"")
-print("ASCII   not reachable: \"" + ascii_not_reachable + "\"")
+pprint.pprint("PETSCII not reachable: \"" + petscii_not_reachable + "\"")
+pprint.pprint("ASCII   not reachable: \"" + ascii_not_reachable + "\"")
