@@ -128,61 +128,75 @@ def petscii_from_ascii(c):
 
 # constants
 
+# a string with all printable 7-bit PETSCII characters
 all_petscii_chars = " !\"#$%&'()*+,-./0123456789:;<=>?@"
 for c in "abcdefghijklmnopqrstuvwxyz":
 	all_petscii_chars += chr(ord(c) - 0x20)
 all_petscii_chars += "[£]^←ABCDEFGHIJKLMNOPQRSTUVWXYZπ"
 
-codes = [
-	(0x03, 'RUN/STOP     '),
-	(0x05, 'WHITE	     '),
-	(0x08, 'SHIFT DISABLE'),
-	(0x09, 'SHIFT ENABLE '),
-	(0x0d, 'CR	     '),
-	(0x0e, 'TEXT MODE    '),
-	(0x11, 'CURSOR DOWN  '),
-	(0x12, 'REVERSE ON   '),
-	(0x13, 'HOME	     '),
-	(0x14, 'DEL	     '),
-	(0x1c, 'RED	     '),
-	(0x1d, 'CURSOR RIGHT '),
-	(0x1e, 'GREEN	     '),
-	(0x1f, 'BLUE	     '),
-	(0x81, 'ORANGE	     '),
-	(0x85, 'F1	     '),
-	(0x86, 'F3	     '),
-	(0x87, 'F5	     '),
-	(0x88, 'F7	     '),
-	(0x89, 'F2	     '),
-	(0x8a, 'F4	     '),
-	(0x8b, 'F6	     '),
-	(0x8c, 'F8	     '),
-	(0x8d, 'SHIFT+CR     '),
-	(0x8e, 'GRAPHICS     '),
-	(0x90, 'BLACK	     '),
-	(0x91, 'CURSOR UP    '),
-	(0x92, 'REVERSE OFF  '),
-	(0x93, 'CLR	     '),
-	(0x94, 'INSERT	     '),
-	(0x95, 'BROWN	     '),
-	(0x96, 'LIGHT RED    '),
-	(0x97, 'DARK GRAY    '),
-	(0x98, 'MIDDLE GRAY  '),
-	(0x99, 'LIGHT GREEN  '),
-	(0x9a, 'LIGHT BLUE   '),
-	(0x9b, 'LIGHT GRAY   '),
-	(0x9c, 'PURPLE	     '),
-	(0x9d, 'CURSOR LEFT  '),
-	(0x9e, 'YELLOW	     '),
-	(0x9f, 'CYAN	     '),
-]
+# all PETSCII control codes and their descriptions
+control_codes = {
+	0x03: 'RUN/STOP',
+	0x05: 'WHITE',
+	0x08: 'SHIFT_DISABLE',
+	0x09: 'SHIFT_ENABLE',
+	0x0d: 'CR',
+	0x0e: 'TEXT_MODE',
+	0x11: 'CURSOR_DOWN',
+	0x12: 'REVERSE_ON',
+	0x13: 'HOME',
+	0x14: 'DEL',
+	0x1c: 'RED',
+	0x1d: 'CURSOR_RIGHT',
+	0x1e: 'GREEN',
+	0x1f: 'BLUE',
+	0x81: 'ORANGE',
+	0x85: 'F1',
+	0x86: 'F3',
+	0x87: 'F5',
+	0x88: 'F7',
+	0x89: 'F2',
+	0x8a: 'F4',
+	0x8b: 'F6',
+	0x8c: 'F8',
+	0x8d: 'SHIFT+CR',
+	0x8e: 'GRAPHICS',
+	0x90: 'BLACK',
+	0x91: 'CURSOR_UP',
+	0x92: 'REVERSE_OFF',
+	0x93: 'CLR',
+	0x94: 'INSERT',
+	0x95: 'BROWN',
+	0x96: 'LIGHT_RED',
+	0x97: 'DARK_GRAY',
+	0x98: 'MIDDLE_GRAY',
+	0x99: 'LIGHT_GREEN',
+	0x9a: 'LIGHT_BLUE',
+	0x9b: 'LIGHT_GRAY',
+	0x9c: 'PURPLE',
+	0x9d: 'CURSOR_LEFT',
+	0x9e: 'YELLOW',
+	0x9f: 'CYAN',
+	0xa0: 'SHIFT+SPACE',
+}
 all_petscii_codes = ""
-for (c, _) in codes:
+for c in control_codes.keys():
 	all_petscii_codes += chr(c)
 
+# all printable PETSCII graphics characters
 all_petscii_graphs = ""
-for c in range(0xa0, 0xff):
+for c in range(0xa1, 0xff):
 	all_petscii_graphs += chr(c)
+
+# the following PETSCII control codes do not have to be reachable
+# through the keyboard
+all_petscii_codes_ok_if_missing = [
+	chr(0x1d), # CURSOR_RIGHT - covered by cursor keys
+	chr(0x8e), # GRAPHICS     - not covered on C64 either
+	chr(0x91), # CURSOR_UP    - covered by cursor keys
+	chr(0x93), # CLR          - convered by E0-prefixed key
+	chr(0x9d), # CURSOR_LEFT  - covered by cursor keys
+]
 
 #filename_klc = '40C French.klc'
 #filename_klc = '419 Russian.klc'
@@ -323,9 +337,13 @@ for shiftstate in keytab.keys():
 	if shiftstate == 0:
 		keytab[shiftstate][0x66] = chr(0x14) # backspace
 		keytab[shiftstate][0x0d] = chr(0x09) # TAB
+		keytab[shiftstate][0x5a] = chr(0x0d) # CR
+		keytab[shiftstate][0x29] = chr(0x20) # SPACE
 	else:
 		keytab[shiftstate][0x66] = chr(0x94) # insert
 		keytab[shiftstate][0x0d] = chr(0x18) # shift-TAB
+		keytab[shiftstate][0x5a] = chr(0x8d) # shift-CR
+		keytab[shiftstate][0x29] = chr(0xA0) # shift-SPACE
 
 
 # analyze problems
@@ -337,7 +355,8 @@ for c in all_petscii_chars:
 petscii_codes_not_reachable = ""
 for c in all_petscii_codes:
 	if not c in keytab[REG] and not c in keytab[SHFT] and not c in keytab[CTRL] and not c in keytab[ALT]:
-		petscii_codes_not_reachable += c
+		if not c in all_petscii_codes_ok_if_missing:
+			petscii_codes_not_reachable += c
 
 petscii_graphs_not_reachable = ""
 for c in all_petscii_graphs:
@@ -365,7 +384,13 @@ if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 
 	if len(petscii_chars_not_reachable) > 0:
 		print("// chars: " + pprint.pformat(petscii_chars_not_reachable))
 	if len(petscii_codes_not_reachable) > 0:
-		print("// codes: " + pprint.pformat(petscii_codes_not_reachable))
+		print("// codes: ", end = '')
+		for c in petscii_codes_not_reachable:
+			if ord(c) in control_codes:
+				print(control_codes[ord(c)] + ' ', end='')
+			else:
+				print(hex(ord(c)) + ' ', end='')
+		print()		
 	if len(petscii_graphs_not_reachable) > 0:
 		print("// graph: " + pprint.pformat(petscii_graphs_not_reachable))
 if len(ascii_not_reachable) > 0:
