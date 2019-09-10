@@ -1,4 +1,4 @@
-import io, re, codecs
+import io, re, codecs, sys
 import pprint
 
 REG   = 0
@@ -48,15 +48,15 @@ def get_kbd_layout(filename_klc):
 		fields = lines[0]
 		if fields[0] == 'KBD':
 			kbd_layout['short_id'] = fields[1]
-			kbd_layout['name'] = fields[2]
+			kbd_layout['name'] = fields[2].replace('"', '')
 		elif fields[0] == 'COPYRIGHT':
-			kbd_layout['copyright'] = fields[1]
+			kbd_layout['copyright'] = fields[1].replace('"', '')
 		elif fields[0] == 'COMPANY':
 			kbd_layout['company'] = fields[1]
 		elif fields[0] == 'LOCALENAME':
-			kbd_layout['localename'] = fields[1]
+			kbd_layout['localename'] = fields[1].replace('"', '')
 		elif fields[0] == 'LOCALEID':
-			kbd_layout['localeid'] = fields[1]
+			kbd_layout['localeid'] = fields[1].replace('"', '')
 		elif fields[0] == 'VERSION':
 			kbd_layout['version'] = fields[1]
 		elif fields[0] == 'SHIFTSTATE':
@@ -129,9 +129,9 @@ for c in "abcdefghijklmnopqrstuvwxyz":
 	all_petscii_chars += chr(ord(c) - 0x20)
 all_petscii_chars += "[£]^←ABCDEFGHIJKLMNOPQRSTUVWXYZπ"
 
-#filename_klc = '40C French.klc'
+filename_klc = '40C French.klc'
 #filename_klc = '419 Russian.klc'
-filename_klc = '409 US.klc'
+#filename_klc = '409 US.klc'
 #filename_klc = '407 German.klc'
 
 kbd_layout = get_kbd_layout(filename_klc)
@@ -163,11 +163,16 @@ for hid_scancode in layout.keys():
 
 
 # fold AltGr into Alt
-if 6 in keytab:
-	if 4 in keytab:
-		sys.exit("TODO: combine AltGr and Alt")
-	keytab[4] = keytab[6]
-	keytab.pop(6)
+if ALTGR in keytab:
+	if ALT in keytab:
+		# combine
+		for scancode in range(0, len(keytab[ALT])):
+			if keytab[ALT] == chr(0):
+				keytab[ALT] = keytab[ALTGR]
+	else:
+		# move
+		keytab[ALT] = keytab[ALTGR]
+	keytab.pop(ALTGR)
 if 7 in keytab:
 	if 5 in keytab:
 		sys.exit("TODO: combine Shft+AltGr and Shft+Alt")
@@ -268,7 +273,24 @@ for shiftstate in keytab.keys():
 		keytab[shiftstate][0x0d] = chr(0x18) # shift-TAB
 
 
+# analyze problems
+petscii_not_reachable = ""
+for c in all_petscii_chars:
+	if not c in keytab[REG] and not c in keytab[SHFT] and not c in keytab[CTRL] and not c in keytab[ALT]:
+		petscii_not_reachable += c
+
+petscii_not_reachable = ''.join(sorted(petscii_not_reachable))
+ascii_not_reachable = ''.join(sorted(ascii_not_reachable))
+
 # print
+
+
+name = kbd_layout['name']
+name = name.replace(' - Custom', '')
+ 
+print("// Name: " + name)
+print("// Locale: " + kbd_layout['localename'])
+print("// " + kbd_layout['short_id'])
 
 for shiftstate in keytab.keys():
 	print("\n// {}: ".format(shiftstate), end = '')
@@ -298,9 +320,8 @@ for shiftstate in keytab.keys():
 			print(',', end = '')
 	print()
 
-petscii_not_reachable = ""
-for c in all_petscii_chars:
-	if not c in keytab[REG] and not c in keytab[SHFT] and not c in keytab[CTRL] and not c in keytab[ALT]:
-		petscii_not_reachable += c
-pprint.pprint("PETSCII not reachable: \"" + petscii_not_reachable + "\"")
-pprint.pprint("ASCII   not reachable: \"" + ascii_not_reachable + "\"")
+
+print("// PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
+print("// " + pprint.pformat(petscii_not_reachable))
+print("// ASCII characters reachable with this layout on Windows by not covered by PETSCII:")
+print("// " + pprint.pformat(ascii_not_reachable))
