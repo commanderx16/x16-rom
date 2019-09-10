@@ -1,6 +1,12 @@
 import io, re, codecs
 import pprint
 
+REG   = 0
+SHFT  = 1
+CTRL  = 2
+ALT   = 4
+ALTGR = 6
+
 def get_kbd_layout(filename_klc):
 	f = io.open(filename_klc, mode="r", encoding="utf-16")
 	lines = f.readlines()
@@ -166,12 +172,6 @@ if 7 in keytab:
 	keytab.pop(7)
 	shiftstates = [5 if x == 7 else x for x in shiftstates]
 
-print(shiftstates)
-
-# stamp in backspace/insert
-keytab[0][0x66] = chr(0x14) # backspace
-keytab[1][0x66] = chr(0x94) # insert
-
 # stamp in f-keys independent of shiftstate
 for shiftstate in shiftstates:
 	keytab[shiftstate][2] = chr(0x88)
@@ -183,11 +183,45 @@ for shiftstate in shiftstates:
 	keytab[shiftstate][11] = chr(0x8b)
 	keytab[shiftstate][12] = chr(0x8a)
 
-# stamp in TAB
+# stamp in Ctrl/Alt color codes
+petscii_from_ctrl_scancode = [ # Ctrl
+	(0x16, 0x90), # '1'
+	(0x1e, 0x05), # '2'
+	(0x25, 0x9f), # '4'
+	(0x26, 0x1c), # '3'
+	(0x2e, 0x9c), # '5'
+	(0x36, 0x1e), # '6'
+	(0x3d, 0x1f), # '7'
+	(0x3e, 0x9e), # '8'
+	(0x45, 0x92), # '0'
+	(0x46, 0x12), # '9'
+]
+petscii_from_alt_scancode = [ # Alt
+	(0x16, 0x81), # '1'
+	(0x1e, 0x95), # '2'
+	(0x25, 0x97), # '4'
+	(0x26, 0x96), # '3'
+	(0x2e, 0x98), # '5'
+	(0x36, 0x99), # '6'
+	(0x3d, 0x9a), # '7'
+	(0x3e, 0x9b), # '8'
+	(0x45, 0x30), # '0'
+	(0x46, 0x29), # '9'
+]
+for (scancode, petscii) in petscii_from_ctrl_scancode:
+	if keytab[CTRL][scancode] == chr(0): # only if unassigned
+		keytab[CTRL][scancode] = chr(petscii)
+for (scancode, petscii) in petscii_from_alt_scancode:
+	if keytab[ALT][scancode] == chr(0): # only if unassigned
+		keytab[ALT][scancode] = chr(petscii)
+
+# stamp in backspace and TAB
 for shiftstate in shiftstates:
 	if shiftstate == 0:
+		keytab[shiftstate][0x66] = chr(0x14) # backspace
 		keytab[shiftstate][0x0d] = chr(0x09) # TAB
 	else:
+		keytab[shiftstate][0x66] = chr(0x94) # insert
 		keytab[shiftstate][0x0d] = chr(0x18) # shift-TAB
 
 # generate Ctrl codes for A-Z
@@ -195,7 +229,7 @@ for i in range(0, len(keytab[0])):
 	c = keytab[0][i]
 	if ord(c) >= ord('A') and ord(c) <= ord('Z'):
 		c = chr(ord(c) - 0x40)
-		if keytab[2][i] == chr(0): # only is unassigned
+		if keytab[2][i] == chr(0): # only if unassigned
 			keytab[2][i] = c
 
 # print
@@ -228,7 +262,7 @@ for shiftstate in shiftstates:
 
 petscii_not_reachable = ""
 for c in all_petscii_chars:
-	if not c in keytab[0] and not c in keytab[1]:
+	if not c in keytab[REG] and not c in keytab[SHFT] and not c in keytab[CTRL] and not c in keytab[ALT]:
 		petscii_not_reachable += c
 pprint.pprint("PETSCII not reachable: \"" + petscii_not_reachable + "\"")
 pprint.pprint("ASCII   not reachable: \"" + ascii_not_reachable + "\"")
