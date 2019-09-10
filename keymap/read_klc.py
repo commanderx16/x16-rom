@@ -134,50 +134,50 @@ for c in "abcdefghijklmnopqrstuvwxyz":
 all_petscii_chars += "[£]^←ABCDEFGHIJKLMNOPQRSTUVWXYZπ"
 
 codes = [
-	0x03, # RUN/STOP
-	0x05, # WHITE
-	0x08, # SHIFT DISABLE
-	0x09, # SHIFT ENABLE
-	0x0d, # CR
-	0x0e, # TEXT MODE
-	0x11, # CURSOR DOWN
-	0x12, # REVERSE ON
-	0x13, # HOME
-	0x14, # DEL
-	0x1c, # RED
-	0x1d, # CURSOR RIGHT
-	0x1e, # GREEN
-	0x1f, # BLUE
-	0x81, # ORANGE
-	0x85, # F1
-	0x86, # F3
-	0x87, # F5
-	0x88, # F7
-	0x89, # F2
-	0x8a, # F4
-	0x8b, # F6
-	0x8c, # F8
-	0x8d, # SHIFT+CR
-	0x8e, # GRAPHICS
-	0x90, # BLACK
-	0x91, # CURSOR UP
-	0x92, # REVERSE OFF
-	0x93, # CLR
-	0x94, # INSERT
-	0x95, # BROWN
-	0x96, # LIGHT RED
-	0x97, # DARK GRAY
-	0x98, # MIDDLE GRAY
-	0x99, # LIGHT GREEN
-	0x9a, # LIGHT BLUE
-	0x9b, # LIGHT GRAY
-	0x9c, # PURPLE
-	0x9d, # CURSOR LEFT
-	0x9e, # YELLOW
-	0x9f, # CYAN
+	(0x03, 'RUN/STOP     '),
+	(0x05, 'WHITE	     '),
+	(0x08, 'SHIFT DISABLE'),
+	(0x09, 'SHIFT ENABLE '),
+	(0x0d, 'CR	     '),
+	(0x0e, 'TEXT MODE    '),
+	(0x11, 'CURSOR DOWN  '),
+	(0x12, 'REVERSE ON   '),
+	(0x13, 'HOME	     '),
+	(0x14, 'DEL	     '),
+	(0x1c, 'RED	     '),
+	(0x1d, 'CURSOR RIGHT '),
+	(0x1e, 'GREEN	     '),
+	(0x1f, 'BLUE	     '),
+	(0x81, 'ORANGE	     '),
+	(0x85, 'F1	     '),
+	(0x86, 'F3	     '),
+	(0x87, 'F5	     '),
+	(0x88, 'F7	     '),
+	(0x89, 'F2	     '),
+	(0x8a, 'F4	     '),
+	(0x8b, 'F6	     '),
+	(0x8c, 'F8	     '),
+	(0x8d, 'SHIFT+CR     '),
+	(0x8e, 'GRAPHICS     '),
+	(0x90, 'BLACK	     '),
+	(0x91, 'CURSOR UP    '),
+	(0x92, 'REVERSE OFF  '),
+	(0x93, 'CLR	     '),
+	(0x94, 'INSERT	     '),
+	(0x95, 'BROWN	     '),
+	(0x96, 'LIGHT RED    '),
+	(0x97, 'DARK GRAY    '),
+	(0x98, 'MIDDLE GRAY  '),
+	(0x99, 'LIGHT GREEN  '),
+	(0x9a, 'LIGHT BLUE   '),
+	(0x9b, 'LIGHT GRAY   '),
+	(0x9c, 'PURPLE	     '),
+	(0x9d, 'CURSOR LEFT  '),
+	(0x9e, 'YELLOW	     '),
+	(0x9f, 'CYAN	     '),
 ]
 all_petscii_codes = ""
-for c in codes:
+for (c, _) in codes:
 	all_petscii_codes += chr(c)
 
 all_petscii_graphs = ""
