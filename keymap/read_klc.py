@@ -187,26 +187,26 @@ for shiftstate in shiftstates:
 petscii_from_ctrl_scancode = [ # Ctrl
 	(0x16, 0x90), # '1'
 	(0x1e, 0x05), # '2'
-	(0x25, 0x9f), # '4'
 	(0x26, 0x1c), # '3'
+	(0x25, 0x9f), # '4'
 	(0x2e, 0x9c), # '5'
 	(0x36, 0x1e), # '6'
 	(0x3d, 0x1f), # '7'
 	(0x3e, 0x9e), # '8'
-	(0x45, 0x92), # '0'
 	(0x46, 0x12), # '9'
+	(0x45, 0x92), # '0'
 ]
 petscii_from_alt_scancode = [ # Alt
 	(0x16, 0x81), # '1'
 	(0x1e, 0x95), # '2'
-	(0x25, 0x97), # '4'
 	(0x26, 0x96), # '3'
+	(0x25, 0x97), # '4'
 	(0x2e, 0x98), # '5'
 	(0x36, 0x99), # '6'
 	(0x3d, 0x9a), # '7'
 	(0x3e, 0x9b), # '8'
-	(0x45, 0x30), # '0'
 	(0x46, 0x29), # '9'
+	(0x45, 0x30), # '0'
 ]
 for (scancode, petscii) in petscii_from_ctrl_scancode:
 	if keytab[CTRL][scancode] == chr(0): # only if unassigned
@@ -214,6 +214,47 @@ for (scancode, petscii) in petscii_from_ctrl_scancode:
 for (scancode, petscii) in petscii_from_alt_scancode:
 	if keytab[ALT][scancode] == chr(0): # only if unassigned
 		keytab[ALT][scancode] = chr(petscii)
+
+# stamp in Alt graphic characters
+petscii_from_alt_scancode = [
+	(0x1c, 0xb0), # 'A'
+	(0x32, 0xbf), # 'B'
+	(0x21, 0xbc), # 'C'
+	(0x23, 0xac), # 'D'
+	(0x24, 0xb1), # 'E'
+	(0x2b, 0xbb), # 'F'
+	(0x34, 0xa5), # 'G'
+	(0x33, 0xb4), # 'H'
+	(0x43, 0xa2), # 'I'
+	(0x3b, 0xb5), # 'J'
+	(0x42, 0xa1), # 'K'
+	(0x4b, 0xb6), # 'L'
+	(0x3a, 0xa7), # 'M'
+	(0x31, 0xaa), # 'N'
+	(0x44, 0xb9), # 'O'
+	(0x4d, 0xaf), # 'P'
+	(0x15, 0xab), # 'Q'
+	(0x2d, 0xb2), # 'R'
+	(0x1b, 0xae), # 'S'
+	(0x2c, 0xa3), # 'T'
+	(0x3c, 0xb8), # 'U'
+	(0x2a, 0xbe), # 'V'
+	(0x1d, 0xb3), # 'W'
+	(0x22, 0xbd), # 'X'
+	(0x35, 0xb7), # 'Y'
+	(0x1a, 0xad), # 'Z'
+]
+for (scancode, petscii) in petscii_from_alt_scancode:
+	if keytab[ALT][scancode] == chr(0): # only if unassigned
+		keytab[ALT][scancode] = chr(petscii)
+
+# generate Ctrl codes for A-Z
+for i in range(0, len(keytab[0])):
+	c = keytab[0][i]
+	if ord(c) >= ord('A') and ord(c) <= ord('Z'):
+		c = chr(ord(c) - 0x40)
+		if keytab[2][i] == chr(0): # only if unassigned
+			keytab[2][i] = c
 
 # stamp in backspace and TAB
 for shiftstate in shiftstates:
@@ -224,13 +265,6 @@ for shiftstate in shiftstates:
 		keytab[shiftstate][0x66] = chr(0x94) # insert
 		keytab[shiftstate][0x0d] = chr(0x18) # shift-TAB
 
-# generate Ctrl codes for A-Z
-for i in range(0, len(keytab[0])):
-	c = keytab[0][i]
-	if ord(c) >= ord('A') and ord(c) <= ord('Z'):
-		c = chr(ord(c) - 0x40)
-		if keytab[2][i] == chr(0): # only if unassigned
-			keytab[2][i] = c
 
 # print
 
