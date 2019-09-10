@@ -185,7 +185,9 @@ for c in control_codes.keys():
 
 # all printable PETSCII graphics characters
 all_petscii_graphs = ""
-for c in range(0xa1, 0xff):
+for c in range(0xa1, 0xc2):
+	all_petscii_graphs += chr(c)
+for c in range(0xe0, 0xff):
 	all_petscii_graphs += chr(c)
 
 # the following PETSCII control codes do not have to be reachable
@@ -201,8 +203,8 @@ all_petscii_codes_ok_if_missing = [
 #filename_klc = '40C French.klc'
 #filename_klc = '419 Russian.klc'
 #filename_klc = '409 US.klc'
-#filename_klc = '407 German.klc'
-filename_klc = '809 United Kingdom.klc'
+filename_klc = '407 German.klc'
+#filename_klc = '809 United Kingdom.klc'
 
 kbd_layout = get_kbd_layout(filename_klc)
 
@@ -361,6 +363,7 @@ for c in all_petscii_codes:
 petscii_graphs_not_reachable = ""
 for c in all_petscii_graphs:
 	if not c in keytab[REG] and not c in keytab[SHFT] and not c in keytab[CTRL] and not c in keytab[ALT]:
+#		pprint.pprint(c)
 		petscii_graphs_not_reachable += c
 
 
@@ -371,13 +374,12 @@ ascii_not_reachable = ''.join(sorted(ascii_not_reachable))
 
 # print
 
-
 name = kbd_layout['name'].replace(' - Custom', '')
 kbd_id = kbd_layout['short_id'].lower()
 
 print("// Name:   " + name)
 print("// Locale: " + kbd_layout['localename'])
-print("// ID:     " + kbd_id)
+print("// KLID:   " + kbd_id)
 print("//")
 if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
 	print("// PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
@@ -387,12 +389,15 @@ if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 
 		print("// codes: ", end = '')
 		for c in petscii_codes_not_reachable:
 			if ord(c) in control_codes:
-				print(control_codes[ord(c)] + ' ', end='')
+				print(control_codes[ord(c)] + ' ', end = '')
 			else:
-				print(hex(ord(c)) + ' ', end='')
-		print()		
+				print(hex(ord(c)) + ' ', end = '')
+		print()
 	if len(petscii_graphs_not_reachable) > 0:
-		print("// graph: " + pprint.pformat(petscii_graphs_not_reachable))
+		print("// graph: '", end = '')
+		for c in petscii_graphs_not_reachable:
+			print("\\x{0:02x}".format(ord(c)), end = '')
+		print("'")
 if len(ascii_not_reachable) > 0:
 	print("// ASCII characters reachable with this layout on Windows but not covered by PETSCII:")
 	print("// " + pprint.pformat(ascii_not_reachable))
