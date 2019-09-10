@@ -156,11 +156,39 @@ for hid_scancode in layout.keys():
 keytab[0][0x66] = chr(0x14) # backspace
 keytab[1][0x66] = chr(0x94) # insert
 
+# stamp in f-keys independent of shiftstate
+for shiftstate in shiftstates:
+	keytab[shiftstate][2] = chr(0x88)
+	keytab[shiftstate][3] = chr(0x87)
+	keytab[shiftstate][4] = chr(0x86)
+	keytab[shiftstate][5] = chr(0x85)
+	keytab[shiftstate][6] = chr(0x89)
+	keytab[shiftstate][10] = chr(0x8c)
+	keytab[shiftstate][11] = chr(0x8b)
+	keytab[shiftstate][12] = chr(0x8a)
+
+# stamp in TAB
+for shiftstate in shiftstates:
+	if shiftstate == 0:
+		keytab[shiftstate][0x0d] = chr(0x09) # TAB
+	else:
+		keytab[shiftstate][0x0d] = chr(0x18) # shift-TAB
+
+# generate Ctrl codes for A-Z
+for i in range(0, len(keytab[0])):
+	c = keytab[0][i]
+	if ord(c) >= ord('A') and ord(c) <= ord('Z'):
+		c = chr(ord(c) - 0x40)
+		if keytab[2][i] == chr(0): # only is unassigned
+			keytab[2][i] = c
+
+# print
+
 for shiftstate in shiftstates:
 	print("\n// {}: ".format(shiftstate), end = '')
 	if shiftstate & 1:
 		print('Shft ', end='')
-	if shiftstate & 6:
+	if shiftstate & 6 == 6:
 		print('AltGr ', end='')
 	else:
 		if shiftstate & 2:
