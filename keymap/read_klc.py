@@ -131,8 +131,8 @@ all_petscii_chars += "[£]^←ABCDEFGHIJKLMNOPQRSTUVWXYZπ"
 
 #filename_klc = '40C French.klc'
 #filename_klc = '419 Russian.klc'
-#filename_klc = '409 US.klc'
-filename_klc = '407 German.klc'
+filename_klc = '409 US.klc'
+#filename_klc = '407 German.klc'
 
 kbd_layout = get_kbd_layout(filename_klc)
 
@@ -142,6 +142,9 @@ shiftstates = kbd_layout['shiftstates']
 keytab = {}
 for shiftstate in shiftstates:
 	keytab[shiftstate] = [ '\0' ] * 128
+# some layouts don't define Alt at all
+if not ALT in keytab:
+	keytab[ALT] = [ '\0' ] * 128
 
 ascii_not_reachable = ""
 
@@ -157,6 +160,7 @@ for hid_scancode in layout.keys():
 				if not c_ascii in ascii_not_reachable:
 					ascii_not_reachable += c_ascii
 			keytab[shiftstate][ps2_scancode] = c_petscii
+
 
 # fold AltGr into Alt
 if 6 in keytab:
@@ -203,8 +207,8 @@ petscii_from_alt_scancode = [ # Alt
 	(0x36, 0x99), # '6'
 	(0x3d, 0x9a), # '7'
 	(0x3e, 0x9b), # '8'
-	(0x46, 0x29), # '9'
-	(0x45, 0x30), # '0'
+	(0x46, 0x12), # '9'
+	(0x45, 0x92), # '0'
 ]
 for (scancode, petscii) in petscii_from_ctrl_scancode:
 	if keytab[CTRL][scancode] == chr(0): # only if unassigned
@@ -268,6 +272,8 @@ for shiftstate in keytab.keys():
 
 for shiftstate in keytab.keys():
 	print("\n// {}: ".format(shiftstate), end = '')
+	if shiftstate == 0:
+		print('Unshifted', end='')
 	if shiftstate & 1:
 		print('Shft ', end='')
 	if shiftstate & 6 == 6:
