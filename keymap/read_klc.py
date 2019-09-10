@@ -112,16 +112,18 @@ def ps2_set2_code_from_hid_code(c):
 		return 0
 
 def petscii_from_ascii(c):
-	if ord(c) < 0x20 and c != '\r':
-		return chr(0)
-	if ord(c) >= 0x7e:
-		return chr(0)
 	if c == '\\' or c == '|' or c == '_' or c == '{' or c == '}' or c == '~':
 		return chr(0)
+	if ord(c) == 0xa3: # '£'
+		return chr(0x5c)
 	if ord(c) >= ord('A') and ord(c) <= ord('Z'):
 		return chr(ord(c) + 0x80)
 	if ord(c) >= ord('a') and ord(c) <= ord('z'):
 		return chr(ord(c) - 0x20)
+	if ord(c) < 0x20 and c != '\r':
+		return chr(0)
+	if ord(c) >= 0x7e:
+		return chr(0)
 	return c
 
 all_petscii_chars = " !\"#$%&'()*+,-./0123456789:;<=>?@"
@@ -129,10 +131,11 @@ for c in "abcdefghijklmnopqrstuvwxyz":
 	all_petscii_chars += chr(ord(c) - 0x20)
 all_petscii_chars += "[£]^←ABCDEFGHIJKLMNOPQRSTUVWXYZπ"
 
-filename_klc = '40C French.klc'
+#filename_klc = '40C French.klc'
 #filename_klc = '419 Russian.klc'
 #filename_klc = '409 US.klc'
 #filename_klc = '407 German.klc'
+filename_klc = '809 United Kingdom.klc'
 
 kbd_layout = get_kbd_layout(filename_klc)
 
@@ -151,7 +154,6 @@ ascii_not_reachable = ""
 for hid_scancode in layout.keys():
 	ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
 	l = layout[hid_scancode]['chars']
-	#print(hid_scancode, ps2_scancode, l)
 	for shiftstate in keytab.keys():
 		if shiftstate in l:
 			c_ascii = l[shiftstate]
