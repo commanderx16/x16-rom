@@ -285,15 +285,23 @@ ascii_not_reachable = ''.join(sorted(ascii_not_reachable))
 # print
 
 
-name = kbd_layout['name']
-name = name.replace(' - Custom', '')
- 
-print("// Name: " + name)
-print("// Locale: " + kbd_layout['localename'])
-print("// " + kbd_layout['short_id'])
+name = kbd_layout['name'].replace(' - Custom', '')
+kbd_id = kbd_layout['short_id'].lower()
 
-for shiftstate in keytab.keys():
-	print("\n// {}: ".format(shiftstate), end = '')
+print("// Name:   " + name)
+print("// Locale: " + kbd_layout['localename'])
+print("// ID:     " + kbd_id)
+print("//")
+if len(petscii_not_reachable) > 0:
+	print("// PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
+	print("// " + pprint.pformat(petscii_not_reachable))
+if len(ascii_not_reachable) > 0:
+	print("// ASCII characters reachable with this layout on Windows but not covered by PETSCII:")
+	print("// " + pprint.pformat(ascii_not_reachable))
+print()
+
+for shiftstate in [REG, SHFT, CTRL, ALT]:
+	print("kbtab_{}_{}: // ".format(kbd_id, shiftstate), end = '')
 	if shiftstate == 0:
 		print('Unshifted', end='')
 	if shiftstate & 1:
@@ -320,8 +328,3 @@ for shiftstate in keytab.keys():
 			print(',', end = '')
 	print()
 
-
-print("// PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
-print("// " + pprint.pformat(petscii_not_reachable))
-print("// ASCII characters reachable with this layout on Windows by not covered by PETSCII:")
-print("// " + pprint.pformat(ascii_not_reachable))
