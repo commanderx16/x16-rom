@@ -149,7 +149,7 @@ for hid_scancode in layout.keys():
 	ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
 	l = layout[hid_scancode]['chars']
 	#print(hid_scancode, ps2_scancode, l)
-	for shiftstate in shiftstates:
+	for shiftstate in keytab.keys():
 		if shiftstate in l:
 			c_ascii = l[shiftstate]
 			c_petscii = petscii_from_ascii(c_ascii)
@@ -164,16 +164,14 @@ if 6 in keytab:
 		sys.exit("TODO: combine AltGr and Alt")
 	keytab[4] = keytab[6]
 	keytab.pop(6)
-	shiftstates = [4 if x == 6 else x for x in shiftstates]
 if 7 in keytab:
 	if 5 in keytab:
 		sys.exit("TODO: combine Shft+AltGr and Shft+Alt")
 	keytab[5] = keytab[7]
 	keytab.pop(7)
-	shiftstates = [5 if x == 7 else x for x in shiftstates]
 
 # stamp in f-keys independent of shiftstate
-for shiftstate in shiftstates:
+for shiftstate in keytab.keys():
 	keytab[shiftstate][2] = chr(0x88)
 	keytab[shiftstate][3] = chr(0x87)
 	keytab[shiftstate][4] = chr(0x86)
@@ -257,7 +255,7 @@ for i in range(0, len(keytab[0])):
 			keytab[2][i] = c
 
 # stamp in backspace and TAB
-for shiftstate in shiftstates:
+for shiftstate in keytab.keys():
 	if shiftstate == 0:
 		keytab[shiftstate][0x66] = chr(0x14) # backspace
 		keytab[shiftstate][0x0d] = chr(0x09) # TAB
@@ -268,7 +266,7 @@ for shiftstate in shiftstates:
 
 # print
 
-for shiftstate in shiftstates:
+for shiftstate in keytab.keys():
 	print("\n// {}: ".format(shiftstate), end = '')
 	if shiftstate & 1:
 		print('Shft ', end='')
