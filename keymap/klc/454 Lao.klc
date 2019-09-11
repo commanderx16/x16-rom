@@ -1,0 +1,174 @@
+KBD	454	"Lao - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"lo-LA"
+
+LOCALEID	"00000454"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+6	//Column 7 :       Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	6
+//--	----		----	----	----	----	----
+
+02	1		0	0ea2	1	-1	0ed1		// LAO LETTER YO, DIGIT ONE, <none>, LAO DIGIT ONE
+03	2		0	0e9f	2	-1	0ed2		// LAO LETTER FO SUNG, DIGIT TWO, <none>, LAO DIGIT TWO
+04	3		0	0ec2	3	-1	0ed3		// LAO VOWEL SIGN O, DIGIT THREE, <none>, LAO DIGIT THREE
+05	4		0	0e96	4	-1	0ed4		// LAO LETTER THO SUNG, DIGIT FOUR, <none>, LAO DIGIT FOUR
+06	5		0	0eb8	0ecc	-1	0ed5		// LAO VOWEL SIGN U, LAO CANCELLATION MARK, <none>, LAO DIGIT FIVE
+07	6		0	0eb9	0ebc	-1	0ed6		// LAO VOWEL SIGN UU, LAO SEMIVOWEL SIGN LO, <none>, LAO DIGIT SIX
+08	7		0	0e84	5	-1	0ed7		// LAO LETTER KHO TAM, DIGIT FIVE, <none>, LAO DIGIT SEVEN
+09	8		0	0e95	6	-1	0ed8		// LAO LETTER TO, DIGIT SIX, <none>, LAO DIGIT EIGHT
+0a	9		0	0e88	7	-1	0ed9		// LAO LETTER CO, DIGIT SEVEN, <none>, LAO DIGIT NINE
+0b	0		0	0e82	8	-1	0ed0		// LAO LETTER KHO SUNG, DIGIT EIGHT, <none>, LAO DIGIT ZERO
+0c	OEM_MINUS	0	0e8a	9	-1	-1		// LAO LETTER SO TAM, DIGIT NINE, <none>, <none>
+0d	OEM_PLUS	0	0ecd	%%	-1	-1		// LAO NIGGAHITA, <null>, <none>, <none>
+10	Q		0	0ebb	%%	-1	-1		// LAO VOWEL SIGN MAI KON, <null>, <none>, <none>
+11	W		0	0ec4	0	-1	-1		// LAO VOWEL SIGN AI, DIGIT ZERO, <none>, <none>
+12	E		0	0eb3	002a	-1	-1		// LAO VOWEL SIGN AM, ASTERISK, <none>, <none>
+13	R		0	0e9e	005f	-1	-1		// LAO LETTER PHO TAM, LOW LINE, <none>, <none>
+14	T		0	0eb0	002b	-1	-1		// LAO VOWEL SIGN A, PLUS SIGN, <none>, <none>
+15	Y		0	0eb4	%%	-1	-1		// LAO VOWEL SIGN I, <null>, <none>, <none>
+16	U		0	0eb5	%%	-1	-1		// LAO VOWEL SIGN II, <null>, <none>, <none>
+17	I		0	0eae	0ea3	-1	-1		// LAO LETTER HO TAM, LAO LETTER LO LING, <none>, <none>
+18	O		0	0e99	0edc	-1	-1		// LAO LETTER NO, LAO HO NO, <none>, <none>
+19	P		0	0e8d	0ebd	-1	-1		// LAO LETTER NYO, LAO SEMIVOWEL SIGN NYO, <none>, <none>
+1a	OEM_4		0	0e9a	002d	-1	-1		// LAO LETTER BO, HYPHEN-MINUS, <none>, <none>
+1b	OEM_6		0	0ea5	%%	-1	-1		// LAO LETTER LO LOOT, <null>, <none>, <none>
+1e	A		0	0eb1	%%	-1	-1		// LAO VOWEL SIGN MAI KAN, <null>, <none>, <none>
+1f	S		0	0eab	003b	-1	-1		// LAO LETTER HO SUNG, SEMICOLON, <none>, <none>
+20	D		0	0e81	002e	-1	-1		// LAO LETTER KO, FULL STOP, <none>, <none>
+21	F		0	0e94	002c	-1	-1		// LAO LETTER DO, COMMA, <none>, <none>
+22	G		0	0ec0	003a	-1	-1		// LAO VOWEL SIGN E, COLON, <none>, <none>
+23	H		0	0ec9	0eca	-1	-1		// LAO TONE MAI THO, LAO TONE MAI TI, <none>, <none>
+24	J		0	0ec8	0ecb	-1	-1		// LAO TONE MAI EK, LAO TONE MAI CATAWA, <none>, <none>
+25	K		0	0eb2	0021	-1	-1		// LAO VOWEL SIGN AA, EXCLAMATION MARK, <none>, <none>
+26	L		0	0eaa	003f	-1	-1		// LAO LETTER SO SUNG, QUESTION MARK, <none>, <none>
+27	OEM_1		0	0ea7	0025	-1	-1		// LAO LETTER WO, PERCENT SIGN, <none>, <none>
+28	OEM_7		0	0e87	003d	-1	-1		// LAO LETTER NGO, EQUALS SIGN, <none>, <none>
+29	OEM_3		0	0022	0027	-1	-1		// QUOTATION MARK, APOSTROPHE, <none>, <none>
+2b	OEM_5		0	002f	005c	-1	-1		// SOLIDUS, REVERSE SOLIDUS, <none>, <none>
+2c	Z		0	0e9c	20ad	-1	-1		// LAO LETTER PHO SUNG, KIP SIGN, <none>, <none>
+2d	X		0	0e9b	0028	-1	-1		// LAO LETTER PO, LEFT PARENTHESIS, <none>, <none>
+2e	C		0	0ec1	0eaf	-1	-1		// LAO VOWEL SIGN EI, LAO ELLIPSIS, <none>, <none>
+2f	V		0	0ead	x	-1	-1		// LAO LETTER O, LATIN SMALL LETTER X, <none>, <none>
+30	B		0	0eb6	%%	-1	-1		// LAO VOWEL SIGN Y, <null>, <none>, <none>
+31	N		0	0eb7	%%	-1	-1		// LAO VOWEL SIGN YY, <null>, <none>, <none>
+32	M		0	0e97	0ec6	-1	-1		// LAO LETTER THO TAM, LAO KO LA, <none>, <none>
+33	OEM_COMMA	0	0ea1	0edd	-1	-1		// LAO LETTER MO, LAO HO MO, <none>, <none>
+34	OEM_PERIOD	0	0ec3	0024	-1	-1		// LAO VOWEL SIGN AY, DOLLAR SIGN, <none>, <none>
+35	OEM_2		0	0e9d	0029	-1	-1		// LAO LETTER FO TAM, RIGHT PARENTHESIS, <none>, <none>
+39	SPACE		0	0020	200b	200b	-1		// SPACE, ZERO WIDTH SPACE, ZERO WIDTH SPACE, <none>
+53	DECIMAL	0	002c	002e	-1	-1		// COMMA, FULL STOP, , 
+
+LIGATURE
+
+//VK_	Mod#	Char0	Char1	Char2	Char3
+//----		----	----	----	----	----
+
+A		1	0eb1	0ec9		// LAO VOWEL SIGN MAI KAN + LAO TONE MAI THO
+B		1	0eb6	0ec9		// LAO VOWEL SIGN Y + LAO TONE MAI THO
+N		1	0eb7	0ec9		// LAO VOWEL SIGN YY + LAO TONE MAI THO
+Q		1	0ebb	0ec9		// LAO VOWEL SIGN MAI KON + LAO TONE MAI THO
+U		1	0eb5	0ec9		// LAO VOWEL SIGN II + LAO TONE MAI THO
+Y		1	0eb4	0ec9		// LAO VOWEL SIGN I + LAO TONE MAI THO
+OEM_PLUS		1	0ecd	0ec8		// LAO NIGGAHITA + LAO TONE MAI EK
+OEM_6		1	0eab	0ebc		// LAO LETTER HO SUNG + LAO SEMIVOWEL SIGN LO
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Lao - Custom
+LANGUAGENAMES
+
+0409	Lao (Lao PDR)
+ENDKBD

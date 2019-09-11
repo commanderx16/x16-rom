@@ -1,0 +1,162 @@
+KBD	437	"Georgian (Legacy) - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"ka-GE"
+
+LOCALEID	"00000437"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+6	//Column 7 :       Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	6
+//--	----		----	----	----	----	----
+
+02	1		0	0021	1	-1	-1		// EXCLAMATION MARK, DIGIT ONE, <none>, <none>
+03	2		0	003f	2	-1	-1		// QUESTION MARK, DIGIT TWO, <none>, <none>
+04	3		0	2116	3	-1	-1		// NUMERO SIGN, DIGIT THREE, <none>, <none>
+05	4		0	00a7	4	-1	-1		// SECTION SIGN, DIGIT FOUR, <none>, <none>
+06	5		0	0025	5	-1	-1		// PERCENT SIGN, DIGIT FIVE, <none>, <none>
+07	6		0	003a	6	-1	-1		// COLON, DIGIT SIX, <none>, <none>
+08	7		0	002e	7	-1	-1		// FULL STOP, DIGIT SEVEN, <none>, <none>
+09	8		0	003b	8	-1	-1		// SEMICOLON, DIGIT EIGHT, <none>, <none>
+0a	9		0	002c	9	-1	-1		// COMMA, DIGIT NINE, <none>, <none>
+0b	0		0	002f	0	-1	-1		// SOLIDUS, DIGIT ZERO, <none>, <none>
+0c	OEM_MINUS	0	2013	002d	-1	-1		// EN DASH, HYPHEN-MINUS, <none>, <none>
+0d	OEM_PLUS	0	003d	002b	-1	-1		// EQUALS SIGN, PLUS SIGN, <none>, <none>
+10	Q		0	10e6	10e6	-1	-1		// GEORGIAN LETTER GHAN, GEORGIAN LETTER GHAN, <none>, <none>
+11	W		0	10ef	10ef	-1	-1		// GEORGIAN LETTER JHAN, GEORGIAN LETTER JHAN, <none>, <none>
+12	E		0	10e3	10e3	-1	-1		// GEORGIAN LETTER UN, GEORGIAN LETTER UN, <none>, <none>
+13	R		0	10d9	10d9	-1	-1		// GEORGIAN LETTER KAN, GEORGIAN LETTER KAN, <none>, <none>
+14	T		0	10d4	10d4	-1	10f1		// GEORGIAN LETTER EN, GEORGIAN LETTER EN, <none>, GEORGIAN LETTER HE
+15	Y		0	10dc	10dc	-1	-1		// GEORGIAN LETTER NAR, GEORGIAN LETTER NAR, <none>, <none>
+16	U		0	10d2	10d2	-1	-1		// GEORGIAN LETTER GAN, GEORGIAN LETTER GAN, <none>, <none>
+17	I		0	10e8	10e8	-1	-1		// GEORGIAN LETTER SHIN, GEORGIAN LETTER SHIN, <none>, <none>
+18	O		0	10ec	10ec	-1	-1		// GEORGIAN LETTER CIL, GEORGIAN LETTER CIL, <none>, <none>
+19	P		0	10d6	10d6	-1	-1		// GEORGIAN LETTER ZEN, GEORGIAN LETTER ZEN, <none>, <none>
+1a	OEM_4		0	10ee	10ee	-1	10f4		// GEORGIAN LETTER XAN, GEORGIAN LETTER XAN, <none>, GEORGIAN LETTER HAR
+1b	OEM_6		0	10ea	10ea	-1	-1		// GEORGIAN LETTER CAN, GEORGIAN LETTER CAN, <none>, <none>
+1e	A		0	10e4	10e4	-1	10f6		// GEORGIAN LETTER PHAR, GEORGIAN LETTER PHAR, <none>, GEORGIAN LETTER FI
+1f	S		0	10eb	10eb	-1	-1		// GEORGIAN LETTER JIL, GEORGIAN LETTER JIL, <none>, <none>
+20	D		0	10d5	10d5	-1	10f3		// GEORGIAN LETTER VIN, GEORGIAN LETTER VIN, <none>, GEORGIAN LETTER WE
+21	F		0	10d7	10d7	-1	-1		// GEORGIAN LETTER TAN, GEORGIAN LETTER TAN, <none>, <none>
+22	G		0	10d0	10d0	-1	-1		// GEORGIAN LETTER AN, GEORGIAN LETTER AN, <none>, <none>
+23	H		0	10de	10de	-1	-1		// GEORGIAN LETTER PAR, GEORGIAN LETTER PAR, <none>, <none>
+24	J		0	10e0	10e0	-1	-1		// GEORGIAN LETTER RAE, GEORGIAN LETTER RAE, <none>, <none>
+25	K		0	10dd	10dd	-1	-1		// GEORGIAN LETTER ON, GEORGIAN LETTER ON, <none>, <none>
+26	L		0	10da	10da	-1	-1		// GEORGIAN LETTER LAS, GEORGIAN LETTER LAS, <none>, <none>
+27	OEM_1		0	10d3	10d3	-1	-1		// GEORGIAN LETTER DON, GEORGIAN LETTER DON, <none>, <none>
+28	OEM_7		0	10df	10df	-1	-1		// GEORGIAN LETTER ZHAR, GEORGIAN LETTER ZHAR, <none>, <none>
+29	OEM_3		0	201e	201c	-1	-1		// DOUBLE LOW-9 QUOTATION MARK, LEFT DOUBLE QUOTATION MARK, <none>, <none>
+2b	OEM_5		0	0028	0029	-1	-1		// LEFT PARENTHESIS, RIGHT PARENTHESIS, <none>, <none>
+2c	Z		0	10ed	10ed	-1	-1		// GEORGIAN LETTER CHAR, GEORGIAN LETTER CHAR, <none>, <none>
+2d	X		0	10e9	10e9	-1	-1		// GEORGIAN LETTER CHIN, GEORGIAN LETTER CHIN, <none>, <none>
+2e	C		0	10e7	10e7	-1	-1		// GEORGIAN LETTER QAR, GEORGIAN LETTER QAR, <none>, <none>
+2f	V		0	10e1	10e1	-1	-1		// GEORGIAN LETTER SAN, GEORGIAN LETTER SAN, <none>, <none>
+30	B		0	10db	10db	-1	-1		// GEORGIAN LETTER MAN, GEORGIAN LETTER MAN, <none>, <none>
+31	N		0	10d8	10d8	-1	10f2		// GEORGIAN LETTER IN, GEORGIAN LETTER IN, <none>, GEORGIAN LETTER HIE
+32	M		0	10e2	10e2	-1	-1		// GEORGIAN LETTER TAR, GEORGIAN LETTER TAR, <none>, <none>
+33	OEM_COMMA	0	10e5	10e5	-1	-1		// GEORGIAN LETTER KHAR, GEORGIAN LETTER KHAR, <none>, <none>
+34	OEM_PERIOD	0	10d1	10d1	-1	-1		// GEORGIAN LETTER BAN, GEORGIAN LETTER BAN, <none>, <none>
+35	OEM_2		0	10f0	10f0	-1	10f5		// GEORGIAN LETTER HAE, GEORGIAN LETTER HAE, <none>, GEORGIAN LETTER HOE
+39	SPACE		0	0020	0020	0020	-1		// SPACE, SPACE, SPACE, <none>
+56	OEM_102	0	0028	0029	-1	-1		// LEFT PARENTHESIS, RIGHT PARENTHESIS, <none>, <none>
+53	DECIMAL	0	002c	002c	-1	-1		// COMMA, COMMA, , 
+
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Georgian (Legacy) - Custom
+LANGUAGENAMES
+
+0409	Georgian (Georgia)
+ENDKBD

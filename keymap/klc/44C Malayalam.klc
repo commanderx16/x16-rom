@@ -1,0 +1,169 @@
+KBD	44C	"Malayalam - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"ml-IN"
+
+LOCALEID	"0000044c"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+3	//Column 7 : Shft  Ctrl
+6	//Column 8 :       Ctrl Alt
+7	//Column 9 : Shft  Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	3	6	7
+//--	----		----	----	----	----	----	----	----
+
+02	1		0	1	-1	-1	200d	0d67	0d70		// DIGIT ONE, <none>, <none>, ZERO WIDTH JOINER, MALAYALAM DIGIT ONE, Malayalam Number Ten
+03	2		0	2	-1	-1	200c	0d68	0d71		// DIGIT TWO, <none>, <none>, ZERO WIDTH NON-JOINER, MALAYALAM DIGIT TWO, Malayalam Number One Hundred
+04	3		0	3	%%	-1	-1	0d69	0d72		// DIGIT THREE, <null>, <none>, <none>, MALAYALAM DIGIT THREE, Malayalam Number One Thousand
+05	4		0	4	-1	-1	20b9	0d6a	-1		// DIGIT FOUR, <none>, <none>, Indian Rupee Sign, MALAYALAM DIGIT FOUR, <none>
+06	5		0	5	-1	-1	-1	0d6b	-1		// DIGIT FIVE, <none>, <none>, <none>, MALAYALAM DIGIT FIVE, <none>
+07	6		0	6	0d7f	-1	-1	0d6c	-1		// DIGIT SIX, Malayalam Letter Chillu K, <none>, <none>, MALAYALAM DIGIT SIX, <none>
+08	7		0	7	%%	-1	-1	0d6d	-1		// DIGIT SEVEN, <null>, <none>, <none>, MALAYALAM DIGIT SEVEN, <none>
+09	8		0	8	0d7e	-1	-1	0d6e	-1		// DIGIT EIGHT, Malayalam Letter Chillu Ll, <none>, <none>, MALAYALAM DIGIT EIGHT, <none>
+0a	9		0	9	0028	-1	-1	0d6f	-1		// DIGIT NINE, LEFT PARENTHESIS, <none>, <none>, MALAYALAM DIGIT NINE, <none>
+0b	0		0	0	0029	-1	-1	0d66	-1		// DIGIT ZERO, RIGHT PARENTHESIS, <none>, <none>, MALAYALAM DIGIT ZERO, <none>
+0c	OEM_MINUS	0	002d	0d03	-1	-1	-1	-1		// HYPHEN-MINUS, MALAYALAM SIGN VISARGA, <none>, <none>, <none>, <none>
+0d	OEM_PLUS	0	0d43	0d0b	-1	-1	-1	0d60		// MALAYALAM VOWEL SIGN VOCALIC R, MALAYALAM LETTER VOCALIC R, <none>, <none>, <none>, MALAYALAM LETTER VOCALIC RR
+10	Q		0	0d4c	0d14	-1	-1	0d57	-1		// MALAYALAM VOWEL SIGN AU, MALAYALAM LETTER AU, <none>, <none>, MALAYALAM AU LENGTH MARK, <none>
+11	W		0	0d48	0d10	-1	-1	-1	-1		// MALAYALAM VOWEL SIGN AI, MALAYALAM LETTER AI, <none>, <none>, <none>, <none>
+12	E		0	0d3e	0d06	-1	-1	-1	-1		// MALAYALAM VOWEL SIGN AA, MALAYALAM LETTER AA, <none>, <none>, <none>, <none>
+13	R		0	0d40	0d08	-1	-1	-1	0d61		// MALAYALAM VOWEL SIGN II, MALAYALAM LETTER II, <none>, <none>, <none>, MALAYALAM LETTER VOCALIC LL
+14	T		0	0d42	0d0a	-1	-1	-1	-1		// MALAYALAM VOWEL SIGN UU, MALAYALAM LETTER UU, <none>, <none>, <none>, <none>
+15	Y		0	0d2c	0d2d	-1	-1	-1	-1		// MALAYALAM LETTER BA, MALAYALAM LETTER BHA, <none>, <none>, <none>, <none>
+16	U		0	0d39	0d19	-1	-1	-1	-1		// MALAYALAM LETTER HA, MALAYALAM LETTER NGA, <none>, <none>, <none>, <none>
+17	I		0	0d17	0d18	-1	-1	-1	-1		// MALAYALAM LETTER GA, MALAYALAM LETTER GHA, <none>, <none>, <none>, <none>
+18	O		0	0d26	0d27	-1	-1	-1	-1		// MALAYALAM LETTER DA, MALAYALAM LETTER DHA, <none>, <none>, <none>, <none>
+19	P		0	0d1c	0d1d	-1	-1	-1	-1		// MALAYALAM LETTER JA, MALAYALAM LETTER JHA, <none>, <none>, <none>, <none>
+1a	OEM_4		0	0d21	0d22	-1	-1	-1	-1		// MALAYALAM LETTER DDA, MALAYALAM LETTER DDHA, <none>, <none>, <none>, <none>
+1b	OEM_6		0	0d7c	0d1e	-1	-1	-1	-1		// Malayalam Letter Chillu Rr, MALAYALAM LETTER NYA, <none>, <none>, <none>, <none>
+1e	A		0	0d4b	0d13	-1	-1	-1	-1		// MALAYALAM VOWEL SIGN OO, MALAYALAM LETTER OO, <none>, <none>, <none>, <none>
+1f	S		0	0d47	0d0f	-1	-1	-1	-1		// MALAYALAM VOWEL SIGN EE, MALAYALAM LETTER EE, <none>, <none>, <none>, <none>
+20	D		0	0d4d	0d05	-1	-1	-1	0d0c		// MALAYALAM SIGN VIRAMA, MALAYALAM LETTER A, <none>, <none>, <none>, MALAYALAM LETTER VOCALIC L
+21	F		0	0d3f	0d07	-1	-1	-1	-1		// MALAYALAM VOWEL SIGN I, MALAYALAM LETTER I, <none>, <none>, <none>, <none>
+22	G		0	0d41	0d09	-1	-1	-1	-1		// MALAYALAM VOWEL SIGN U, MALAYALAM LETTER U, <none>, <none>, <none>, <none>
+23	H		0	0d2a	0d2b	-1	-1	-1	-1		// MALAYALAM LETTER PA, MALAYALAM LETTER PHA, <none>, <none>, <none>, <none>
+24	J		0	0d30	0d31	-1	-1	-1	-1		// MALAYALAM LETTER RA, MALAYALAM LETTER RRA, <none>, <none>, <none>, <none>
+25	K		0	0d15	0d16	-1	-1	-1	-1		// MALAYALAM LETTER KA, MALAYALAM LETTER KHA, <none>, <none>, <none>, <none>
+26	L		0	0d24	0d25	-1	-1	-1	-1		// MALAYALAM LETTER TA, MALAYALAM LETTER THA, <none>, <none>, <none>, <none>
+27	OEM_1		0	0d1a	0d1b	-1	-1	-1	-1		// MALAYALAM LETTER CA, MALAYALAM LETTER CHA, <none>, <none>, <none>, <none>
+28	OEM_7		0	0d1f	0d20	-1	-1	-1	-1		// MALAYALAM LETTER TTA, MALAYALAM LETTER TTHA, <none>, <none>, <none>, <none>
+29	OEM_3		0	0d4a	0d12	-1	-1	-1	-1		// MALAYALAM VOWEL SIGN O, MALAYALAM LETTER O, <none>, <none>, <none>, <none>
+2c	Z		0	0d46	0d0e	-1	-1	-1	-1		// MALAYALAM VOWEL SIGN E, MALAYALAM LETTER E, <none>, <none>, <none>, <none>
+2d	X		0	0d02	0d7a	-1	-1	-1	-1		// MALAYALAM SIGN ANUSVARA, Malayalam Letter Chillu Nn, <none>, <none>, <none>, <none>
+2e	C		0	0d2e	0d23	-1	-1	-1	-1		// MALAYALAM LETTER MA, MALAYALAM LETTER NNA, <none>, <none>, <none>, <none>
+2f	V		0	0d28	0d7b	-1	-1	-1	0d79		// MALAYALAM LETTER NA, Malayalam Letter Chillu N, <none>, <none>, <none>, Malayalam Date Mark
+30	B		0	0d35	0d34	-1	-1	-1	-1		// MALAYALAM LETTER VA, MALAYALAM LETTER LLLA, <none>, <none>, <none>, <none>
+31	N		0	0d32	0d33	-1	-1	-1	-1		// MALAYALAM LETTER LA, MALAYALAM LETTER LLA, <none>, <none>, <none>, <none>
+32	M		0	0d38	0d36	-1	-1	-1	-1		// MALAYALAM LETTER SA, MALAYALAM LETTER SHA, <none>, <none>, <none>, <none>
+33	OEM_COMMA	0	002c	0d37	-1	-1	-1	-1		// COMMA, MALAYALAM LETTER SSA, <none>, <none>, <none>, <none>
+34	OEM_PERIOD	0	002e	0d7d	-1	-1	-1	-1		// FULL STOP, Malayalam Letter Chillu L, <none>, <none>, <none>, <none>
+35	OEM_2		0	0d2f	-1	-1	-1	-1	-1		// MALAYALAM LETTER YA, <none>, <none>, <none>, <none>, <none>
+39	SPACE		0	0020	0020	-1	-1	-1	-1		// SPACE, SPACE, <none>, <none>, <none>, <none>
+53	DECIMAL	0	002e	002e	-1	-1	-1	-1		// FULL STOP, FULL STOP, , , , 
+
+LIGATURE
+
+//VK_	Mod#	Char0	Char1	Char2	Char3
+//----		----	----	----	----	----
+
+3		1	0d4d	0d30		// MALAYALAM SIGN VIRAMA + MALAYALAM LETTER RA
+7		1	0d15	0d4d	0d37		// MALAYALAM LETTER KA + MALAYALAM SIGN VIRAMA + MALAYALAM LETTER SSA
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Malayalam - Custom
+LANGUAGENAMES
+
+0409	Malayalam (India)
+ENDKBD

@@ -1,0 +1,229 @@
+KBD	451	"Tibetan (PRC) - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"bo-CN"
+
+LOCALEID	"00000451"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+6	//Column 7 :       Ctrl Alt
+7	//Column 8 : Shft  Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	6	7
+//--	----		----	----	----	----	----	----
+
+02	1		1	0f21	0f2a	-1	-1	0f76		// TIBETAN DIGIT ONE, TIBETAN DIGIT HALF ONE, <none>, <none>, TIBETAN VOWEL SIGN VOCALIC R
+03	2		1	0f22	0f2b	-1	-1	0f77		// TIBETAN DIGIT TWO, TIBETAN DIGIT HALF TWO, <none>, <none>, TIBETAN VOWEL SIGN VOCALIC RR
+04	3		1	0f23	0f2c	-1	-1	0f78		// TIBETAN DIGIT THREE, TIBETAN DIGIT HALF THREE, <none>, <none>, TIBETAN VOWEL SIGN VOCALIC L
+05	4		1	0f24	0f2d	-1	-1	0f79		// TIBETAN DIGIT FOUR, TIBETAN DIGIT HALF FOUR, <none>, <none>, TIBETAN VOWEL SIGN VOCALIC LL
+06	5		1	0f25	0f2e	-1	-1	0f73		// TIBETAN DIGIT FIVE, TIBETAN DIGIT HALF FIVE, <none>, <none>, TIBETAN VOWEL SIGN II
+07	6		1	0f26	0f2f	-1	-1	0f09		// TIBETAN DIGIT SIX, TIBETAN DIGIT HALF SIX, <none>, <none>, TIBETAN MARK BSKUR YIG MGO (kur yik go)
+08	7		1	0f27	0f30	-1	-1	0f0a		// TIBETAN DIGIT SEVEN, TIBETAN DIGIT HALF SEVEN, <none>, <none>, TIBETAN MARK BKA- SHOG YIG MGO (ka sho yik go)
+09	8		1	0f28	0f31	-1	-1	0f0f		// TIBETAN DIGIT EIGHT, TIBETAN DIGIT HALF EIGHT, <none>, <none>, TIBETAN MARK TSHEG SHAD (tsek shey)
+0a	9		1	0f29	0f32	-1	-1	0f10		// TIBETAN DIGIT NINE, TIBETAN DIGIT HALF NINE, <none>, <none>, TIBETAN MARK NYIS TSHEG SHAD (nyi tsek shey)
+0b	0		1	0f20	0f33	-1	-1	0f12		// TIBETAN DIGIT ZERO, TIBETAN DIGIT HALF ZERO, <none>, <none>, TIBETAN MARK RGYA GRAM SHAD (gya tram shey)
+0c	OEM_MINUS	1	0f67	0f3c	-1	-1	0f0c		// TIBETAN LETTER HA, TIBETAN MARK ANG KHANG GYON (ang kang yun), <none>, <none>, TIBETAN MARK DELIMITER TSHEG BSTAR (tsek tar)
+0d	OEM_PLUS	1	0f5d	0f3d	-1	-1	0f13		// TIBETAN LETTER WA, TIBETAN MARK ANG KHANG GYAS (ang kang ye), <none>, <none>, TIBETAN MARK CARET -DZUD RTAGS ME LONG CAN (dzu ta me long chen)
+10	Q		1	0f45	0f15	-1	-1	0f89		// TIBETAN LETTER CA, TIBETAN LOGOTYPE SIGN CHAD RTAGS (che ta), <none>, <none>, TIBETAN SIGN MCHU CAN (chu chen)
+11	W		1	0f46	0f16	-1	-1	0f88		// TIBETAN LETTER CHA, TIBETAN LOGOTYPE SIGN LHAG RTAGS (hlak ta), <none>, <none>, TIBETAN SIGN LCE TSA CAN (che tsa chen)
+12	E		1	0f7a	0f17	-1	-1	0fbe		// TIBETAN VOWEL SIGN E, TIBETAN ASTROLOGICAL SIGN SGRA GCAN -CHAR RTAGS (trachen char ta), <none>, <none>, TIBETAN KU RU KHA (kuruka)
+13	R		1	0f62	0fbc	-1	-1	0f6a		// TIBETAN LETTER RA *, TIBETAN SUBJOINED LETTER FIXED-FORM RA *, <none>, <none>, TIBETAN LETTER FIXED-FORM RA *
+14	T		1	0f4f	0f4a	-1	-1	0f9a		// TIBETAN LETTER TA, TIBETAN LETTER TTA, <none>, <none>, TIBETAN SUBJOINED LETTER TTA
+15	Y		1	0f61	0fbb	-1	-1	0fbf		// TIBETAN LETTER YA, TIBETAN SUBJOINED LETTER FIXED-FORM YA *, <none>, <none>, TIBETAN KU RU KHA BZHI MIG CAN (kuruka shi mik chen)
+16	U		1	0f74	0f18	-1	-1	0f75		// TIBETAN VOWEL SIGN U, TIBETAN ASTROLOGICAL SIGN -KHYUD PA (kyu pa), <none>, <none>, TIBETAN VOWEL SIGN UU
+17	I		1	0f72	0f19	-1	-1	0f73		// TIBETAN VOWEL SIGN I, TIBETAN ASTROLOGICAL SIGN SDONG TSHUGS (dong tsu), <none>, <none>, TIBETAN VOWEL SIGN II
+18	O		1	0f7c	0f1a	-1	-1	0fc0		// TIBETAN VOWEL SIGN O, TIBETAN SIGN RDEL DKAR GCIG (deka chig), <none>, <none>, TIBETAN CANTILLATION SIGN HEAVY BEAT
+19	P		1	0f55	0f1b	-1	-1	0fc1		// TIBETAN LETTER PHA, TIBETAN SIGN RDEL DKAR GNYIS (deka nyi), <none>, <none>, TIBETAN CANTILLATION SIGN LIGHT BEAT
+1a	OEM_4		1	0f59	0f1c	-1	-1	0fc2		// TIBETAN LETTER TSA, TIBETAN SIGN RDEL DKAR GSUM (deka sum), <none>, <none>, TIBETAN CANTILLATION SIGN CANG TE-U (chang tyu)
+1b	OEM_6		1	0f5a	0f1d	-1	-1	0fc3		// TIBETAN LETTER TSHA, TIBETAN SIGN RDEL NAG GCIG (dena chig), <none>, <none>, TIBETAN CANTILLATION SIGN SBUB -CHAL (bub chey)
+1e	A		1	0f60	0f71	-1	-1	0fc4		// TIBETAN LETTER -A, TIBETAN VOWEL SIGN AA, <none>, <none>, TIBETAN SYMBOL DRIL BU (drilbu)
+1f	S		1	0f66	0f1f	-1	-1	0fc5		// TIBETAN LETTER SA, TIBETAN SIGN RDEL DKAR RDEL NAG (deka dena), <none>, <none>, TIBETAN SYMBOL RDO RJE (dorje)
+20	D		1	0f51	0f4c	-1	-1	0f9c		// TIBETAN LETTER DA, TIBETAN LETTER DDA, <none>, <none>, TIBETAN SUBJOINED LETTER DDA
+21	F		1	0f56	0f3e	-1	-1	0f57		// TIBETAN LETTER BA, TIBETAN SIGN YAR TSHES (yar tse), <none>, <none>, TIBETAN LETTER BHA
+22	G		1	0f44	0f3f	-1	-1	0fc6		// TIBETAN LETTER NGA, TIBETAN SIGN MAR TSHES (mar tse), <none>, <none>, TIBETAN SYMBOL PADMA GDAN (pema den)
+23	H		1	0f58	0fcf	-1	-1	0fc7		// TIBETAN LETTER MA, TIBETAN SIGN RDEL NAG GSUM (dena sum), <none>, <none>, TIBETAN SYMBOL RDO RJE RGYA GRAM (dorje gya dram)
+24	J		1	0f0b	0f02	-1	-1	0fc8		// TIBETAN MARK INTERSYLLABIC TSHEG (tsek), TIBETAN MARK GTER YIG MGO -UM RNAM BCAD MA (ter yik go wum nam chey ma), <none>, <none>, TIBETAN SYMBOL PHUR PA (phurba)
+25	K		1	0f42	0f03	-1	-1	0f43		// TIBETAN LETTER GA, TIBETAN MARK GTER YIG MGO -UM GTER TSHEG MA (ter yik go wum ter tsek ma), <none>, <none>, TIBETAN LETTER GHA
+26	L		1	0f63	0f06	-1	-1	0fc9		// TIBETAN LETTER LA, TIBETAN MARK CARET YIG MGO PHUR SHAD MA (yik go pur shey ma), <none>, <none>, TIBETAN SYMBOL NOR BU (norbu)
+27	OEM_1		1	0f5e	0f07	-1	-1	0fca		// TIBETAN LETTER ZHA, TIBETAN MARK YIG MGO TSHEG SHAD MA (yik go tsek shey ma), <none>, <none>, TIBETAN SYMBOL NOR BU NYIS -KHYIL (norbu nyi khyi)
+28	OEM_7		1	0f0d	0f38	-1	-1	0fcb		// TIBETAN MARK SHAD (shey), TIBETAN MARK CHE MGO (che go), <none>, <none>, TIBETAN SYMBOL NOR BU GSUM -KHYIL (norbu sum khyi)
+29	OEM_3		1	0f68	0f01	-1	-1	0f00		// TIBETAN LETTER A, TIBETAN MARK GTER YIG MGO TRUNCATED A (ter yik go a thung), <none>, <none>, TIBETAN SYLLABLE OM
+2b	OEM_5		1	0f5b	0f1e	-1	-1	0f5c		// TIBETAN LETTER DZA, TIBETAN SIGN RDEL NAG GNYIS (dena nyi), <none>, <none>, TIBETAN LETTER DZHA
+2c	Z		1	0f5f	0f34	-1	-1	0fcc		// TIBETAN LETTER ZA, TIBETAN MARK BSDUS RTAGS (du ta), <none>, <none>, TIBETAN SYMBOL NOR BU BZHI -KHYIL (norbu shi khyi)
+2d	X		1	0f64	0f65	-1	-1	0fb5		// TIBETAN LETTER SHA, TIBETAN LETTER SSA, <none>, <none>, TIBETAN SUBJOINED LETTER SSA
+2e	C		1	0f40	0f69	-1	-1	0fb9		// TIBETAN LETTER KA, TIBETAN LETTER KSSA, <none>, <none>, TIBETAN SUBJOINED LETTER KSSA
+2f	V		1	0f41	0f87	-1	-1	0f36		// TIBETAN LETTER KHA, TIBETAN SIGN YANG RTAGS (yang ta), <none>, <none>, TIBETAN MARK CARET -DZUD RTAGS BZHI MIG CAN (dzu ta shi mig chen)
+30	B		1	0f54	0f86	-1	-1	0f82		// TIBETAN LETTER PA, TIBETAN SIGN LCI RTAGS (ji ta), <none>, <none>, TIBETAN SIGN NYI ZLA NAA DA (nyi da na da)
+31	N		1	0f53	0f4e	-1	-1	0f9e		// TIBETAN LETTER NA, TIBETAN LETTER NNA, <none>, <none>, TIBETAN SUBJOINED LETTER NNA
+32	M		1	m@	M@	-1	-1	0f52		// LATIN SMALL LETTER M, LATIN CAPITAL LETTER M, <none>, <none>, TIBETAN LETTER DHA
+33	OEM_COMMA	1	0f50	0f4b	-1	-1	0f9b		// TIBETAN LETTER THA, TIBETAN LETTER TTHA, <none>, <none>, TIBETAN SUBJOINED LETTER TTHA
+34	OEM_PERIOD	1	0f47	0f3a	-1	-1	0f8b		// TIBETAN LETTER JA, TIBETAN MARK GUG RTAGS GYON (gug ta yun), <none>, <none>, TIBETAN SIGN GRU MED RGYINGS (tru me ging)
+35	OEM_2		1	0f49	0f3b	-1	-1	0f8a		// TIBETAN LETTER NYA, TIBETAN MARK GUG RTAGS GYAS (gug ta ye), <none>, <none>, TIBETAN SIGN GRU CAN RGYINGS (tru chen ging)
+39	SPACE		0	0020	0020	0020	0020	0020		// SPACE, SPACE, SPACE, SPACE, SPACE
+53	DECIMAL	0	002e	002e	-1	-1	-1		// FULL STOP, FULL STOP, , , 
+
+
+DEADKEY	006d
+
+0f5b	0fab	// ཛ -> ྫ
+0f5d	0fba	// ཝ -> ྺ
+0f54	0fa4	// པ -> ྤ
+0f53	0fa3	// ན -> ྣ
+0f41	0f91	// ཁ -> ྑ
+0f40	0f90	// ཀ -> ྐ
+0f64	0fb4	// ཤ -> ྴ
+0f47	0f97	// ཇ -> ྗ
+0f49	0f99	// ཉ -> ྙ
+0f5f	0faf	// ཟ -> ྯ
+0f50	0fa0	// ཐ -> ྠ
+006d	0f85	// m -> ྅
+0f60	0fb0	// འ -> ྰ
+0f58	0fa8	// མ -> ྨ
+0f0b	0f84	// ་ -> ྄
+0f44	0f94	// ང -> ྔ
+0f56	0fa6	// བ -> ྦ
+0f51	0fa1	// ད -> ྡ
+0f5e	0fae	// ཞ -> ྮ
+0f0d	0f0e	// ། -> ༎
+0f66	0fb6	// ས -> ྶ
+0f63	0fb3	// ལ -> ླ
+0f42	0f92	// ག -> ྒ
+0f46	0f96	// ཆ -> ྖ
+0f7a	0f7b	// ེ -> ཻ
+0f62	0fb2	// ར -> ྲ
+0f59	0fa9	// ཙ -> ྩ
+0f55	0fa5	// ཕ -> ྥ
+0f74	0fad	// ུ -> ྭ
+0f5a	0faa	// ཚ -> ྪ
+0f72	0f80	// ི -> ྀ
+0f4f	0f9f	// ཏ -> ྟ
+0f61	0fb1	// ཡ -> ྱ
+0f7c	0f7d	// ོ -> ཽ
+0f45	0f95	// ཅ -> ྕ
+0f28	0f14	// ༨ -> ༔
+0f29	0f11	// ༩ -> ༑
+0f20	0f08	// ༠ -> ༈
+0f67	0fb7	// ཧ -> ྷ
+0f26	0f35	// ༦ -> ༵
+0f27	0f7f	// ༧ -> ཿ
+0f24	0f83	// ༤ -> ྃ
+0f25	0f37	// ༥ -> ༷
+0f22	0f05	// ༢ -> ༅
+0f23	0f7e	// ༣ -> ཾ
+0f21	0f04	// ༡ -> ༄
+0f68	0fb8	// ཨ -> ྸ
+
+DEADKEY	004d
+
+0f5b	0fac	// ཛ -> ྫྷ
+006d	0fa2	// m -> ྡྷ
+0f56	0fa7	// བ -> ྦྷ
+0f51	0f4d	// ད -> ཌྷ
+0f42	0f93	// ག -> ྒྷ
+0f4f	0f9d	// ཏ -> ྜྷ
+004d	0f39	// M -> ༹
+
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+KEYNAME_DEAD
+
+006d	"LATIN SMALL LETTER M"
+004d	"LATIN CAPITAL LETTER M"
+
+
+DESCRIPTIONS
+
+0409	Tibetan (PRC) - Custom
+LANGUAGENAMES
+
+0409	Tibetan (China)
+ENDKBD

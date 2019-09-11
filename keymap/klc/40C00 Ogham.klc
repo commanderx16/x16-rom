@@ -1,0 +1,141 @@
+KBD	40C00	"Ogham - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"en-US"
+
+LOCALEID	"00040c00"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2
+//--	----		----	----	----	----
+
+10	Q		0	168a	-1	-1		// OGHAM LETTER CEIRT, <none>, <none>
+11	W		0	1695	-1	-1		// OGHAM LETTER EABHADH, <none>, <none>
+12	E		0	1693	-1	-1		// OGHAM LETTER EADHADH, <none>, <none>
+13	R		0	168f	-1	-1		// OGHAM LETTER RUIS, <none>, <none>
+14	T		0	1688	-1	-1		// OGHAM LETTER TINNE, <none>, <none>
+15	Y		0	1698	-1	-1		// OGHAM LETTER IFIN, <none>, <none>
+16	U		0	1692	-1	-1		// OGHAM LETTER UR, <none>, <none>
+17	I		0	1694	-1	-1		// OGHAM LETTER IODHADH, <none>, <none>
+18	O		0	1691	-1	-1		// OGHAM LETTER ONN, <none>, <none>
+19	P		0	169a	-1	-1		// OGHAM LETTER PEITH, <none>, <none>
+1e	A		0	1690	-1	-1		// OGHAM LETTER AILM, <none>, <none>
+1f	S		0	1684	-1	-1		// OGHAM LETTER SAIL, <none>, <none>
+20	D		0	1687	-1	-1		// OGHAM LETTER DAIR, <none>, <none>
+21	F		0	1683	-1	-1		// OGHAM LETTER FEARN, <none>, <none>
+22	G		0	168c	-1	-1		// OGHAM LETTER GORT, <none>, <none>
+23	H		0	1686	-1	-1		// OGHAM LETTER UATH, <none>, <none>
+24	J		0	1697	-1	-1		// OGHAM LETTER UILLEANN, <none>, <none>
+25	K		0	1696	-1	-1		// OGHAM LETTER OR, <none>, <none>
+26	L		0	1682	-1	-1		// OGHAM LETTER LUIS, <none>, <none>
+28	OEM_7		0	1680	-1	-1		// OGHAM SPACE MARK, <none>, <none>
+2b	OEM_5		0	169b	169c	-1		// OGHAM FEATHER MARK, OGHAM REVERSED FEATHER MARK, <none>
+2c	Z		0	168e	-1	-1		// OGHAM LETTER STRAIF, <none>, <none>
+2d	X		0	1699	-1	-1		// OGHAM LETTER EAMHANCHOLL, <none>, <none>
+2e	C		0	1689	-1	-1		// OGHAM LETTER COLL, <none>, <none>
+2f	V		0	168d	-1	-1		// OGHAM LETTER NGEADAL, <none>, <none>
+30	B		0	1681	-1	-1		// OGHAM LETTER BEITH, <none>, <none>
+31	N		0	1685	-1	-1		// OGHAM LETTER NION, <none>, <none>
+32	M		0	168b	-1	-1		// OGHAM LETTER MUIN, <none>, <none>
+39	SPACE		0	0020	0020	-1		// SPACE, SPACE, <none>
+53	DECIMAL	0	002e	002e	-1		// FULL STOP, FULL STOP, 
+
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Ogham - Custom
+LANGUAGENAMES
+
+0409	English (United States)
+ENDKBD

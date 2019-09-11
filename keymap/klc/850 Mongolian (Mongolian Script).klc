@@ -1,0 +1,160 @@
+KBD	850	"Mongolian (Mongolian Script) - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"mn-Mong-CN"
+
+LOCALEID	"00000850"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2
+//--	----		----	----	----	----
+
+02	1		0	1	0021	-1		// DIGIT ONE, EXCLAMATION MARK, <none>
+03	2		0	2	2048	-1		// DIGIT TWO, QUESTION EXCLAMATION MARK, <none>
+04	3		0	3	2049	-1		// DIGIT THREE, EXCLAMATION QUESTION MARK, <none>
+05	4		0	4	2014	-1		// DIGIT FOUR, EM DASH, <none>
+06	5		0	5	0025	-1		// DIGIT FIVE, PERCENT SIGN, <none>
+07	6		0	6	200c	-1		// DIGIT SIX, ZERO WIDTH NON-JOINER, <none>
+08	7		0	7	180a	-1		// DIGIT SEVEN, MONGOLIAN NIRUGU, <none>
+09	8		0	8	200d	-1		// DIGIT EIGHT, ZERO WIDTH JOINER, <none>
+0a	9		0	9	0028	-1		// DIGIT NINE, LEFT PARENTHESIS, <none>
+0b	0		0	0	0029	-1		// DIGIT ZERO, RIGHT PARENTHESIS, <none>
+0c	OEM_MINUS	0	202f	180e	-1		// NARROW NO-BREAK SPACE, MONGOLIAN VOWEL SEPARATOR, <none>
+0d	OEM_PLUS	0	003d	002b	-1		// EQUALS SIGN, PLUS SIGN, <none>
+10	Q		0	1834	-1	-1		// MONGOLIAN LETTER CHA, <none>, <none>
+11	W		1	1823	1838	-1		// MONGOLIAN LETTER O, MONGOLIAN LETTER WA, <none>
+12	E		1	1821	1827	-1		// MONGOLIAN LETTER E, MONGOLIAN LETTER EE, <none>
+13	R		1	1837	183f	-1		// MONGOLIAN LETTER RA, MONGOLIAN LETTER ZRA, <none>
+14	T		0	1832	-1	-1		// MONGOLIAN LETTER TA, <none>, <none>
+15	Y		0	1836	-1	-1		// MONGOLIAN LETTER YA, <none>, <none>
+16	U		0	1826	-1	-1		// MONGOLIAN LETTER UE, <none>, <none>
+17	I		0	1822	-1	-1		// MONGOLIAN LETTER I, <none>, <none>
+18	O		0	1825	-1	-1		// MONGOLIAN LETTER OE, <none>, <none>
+19	P		0	182b	-1	-1		// MONGOLIAN LETTER PA, <none>, <none>
+1a	OEM_4		1	3014	3008	-1		// LEFT TORTOISE SHELL BRACKET, LEFT ANGLE BRACKET, <none>
+1b	OEM_6		0	3015	3009	-1		// RIGHT TORTOISE SHELL BRACKET, RIGHT ANGLE BRACKET, <none>
+1e	A		0	1820	-1	-1		// MONGOLIAN LETTER A, <none>, <none>
+1f	S		0	1830	-1	-1		// MONGOLIAN LETTER SA, <none>, <none>
+20	D		0	1833	-1	-1		// MONGOLIAN LETTER DA, <none>, <none>
+21	F		0	1839	-1	-1		// MONGOLIAN LETTER FA, <none>, <none>
+22	G		0	182d	-1	-1		// MONGOLIAN LETTER GA, <none>, <none>
+23	H		1	182c	183e	-1		// MONGOLIAN LETTER QA, MONGOLIAN LETTER HAA, <none>
+24	J		0	1835	-1	-1		// MONGOLIAN LETTER JA, <none>, <none>
+25	K		0	183a	183b	-1		// MONGOLIAN LETTER KA, MONGOLIAN LETTER KHA, <none>
+26	L		1	182f	1840	-1		// MONGOLIAN LETTER LA, MONGOLIAN LETTER LHA, <none>
+27	OEM_1		1	003b	1804	-1		// SEMICOLON, MONGOLIAN COLON, <none>
+28	OEM_7		1	180b	180c	-1		// MONGOLIAN FREE VARIATION SELECTOR ONE, MONGOLIAN FREE VARIATION SELECTOR TWO, <none>
+29	OEM_3		0	180d	007e	-1		// MONGOLIAN FREE VARIATION SELECTOR THREE, TILDE, <none>
+2b	OEM_5		1	1801	007c	-1		// MONGOLIAN ELLIPSIS, VERTICAL LINE, <none>
+2c	Z		1	183d	1841	-1		// MONGOLIAN LETTER ZA, MONGOLIAN LETTER ZHI, <none>
+2d	X		0	1831	-1	-1		// MONGOLIAN LETTER SHA, <none>, <none>
+2e	C		1	183c	1842	-1		// MONGOLIAN LETTER TSA, MONGOLIAN LETTER CHI, <none>
+2f	V		0	1824	-1	-1		// MONGOLIAN LETTER U, <none>, <none>
+30	B		0	182a	-1	-1		// MONGOLIAN LETTER BA, <none>, <none>
+31	N		1	1828	1829	-1		// MONGOLIAN LETTER NA, MONGOLIAN LETTER ANG, <none>
+32	M		0	182e	-1	-1		// MONGOLIAN LETTER MA, <none>, <none>
+33	OEM_COMMA	1	1802	300a	-1		// MONGOLIAN COMMA, LEFT DOUBLE ANGLE BRACKET, <none>
+34	OEM_PERIOD	1	1803	300b	-1		// MONGOLIAN FULL STOP, RIGHT DOUBLE ANGLE BRACKET, <none>
+35	OEM_2		1	002e	003f	-1		// FULL STOP, QUESTION MARK, <none>
+39	SPACE		0	0020	0020	0020		// SPACE, SPACE, SPACE
+53	DECIMAL	0	002e	002e	-1		// FULL STOP, FULL STOP, 
+
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Mongolian (Mongolian Script) - Custom
+LANGUAGENAMES
+
+0409	Mongolian (Traditional Mongolian) (China)
+ENDKBD

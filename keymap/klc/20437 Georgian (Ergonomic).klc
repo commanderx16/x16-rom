@@ -1,0 +1,163 @@
+KBD	20437	"Georgian (Ergonomic) - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"ka-GE"
+
+LOCALEID	"00020437"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+6	//Column 7 :       Ctrl Alt
+7	//Column 8 : Shft  Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	6	7
+//--	----		----	----	----	----	----	----
+
+02	1		0	0021	1	-1	0021	-1		// EXCLAMATION MARK, DIGIT ONE, <none>, EXCLAMATION MARK, <none>
+03	2		0	2116	2	-1	0040	-1		// NUMERO SIGN, DIGIT TWO, <none>, COMMERCIAL AT, <none>
+04	3		0	002c	3	-1	0023	00a7		// COMMA, DIGIT THREE, <none>, NUMBER SIGN, SECTION SIGN
+05	4		0	003b	4	-1	0024	-1		// SEMICOLON, DIGIT FOUR, <none>, DOLLAR SIGN, <none>
+06	5		0	0025	5	-1	20ac	-1		// PERCENT SIGN, DIGIT FIVE, <none>, EURO SIGN, <none>
+07	6		0	003a	6	-1	005e	-1		// COLON, DIGIT SIX, <none>, CIRCUMFLEX ACCENT, <none>
+08	7		0	003f	7	-1	0026	-1		// QUESTION MARK, DIGIT SEVEN, <none>, AMPERSAND, <none>
+09	8		0	002e	8	-1	002a	00b0		// FULL STOP, DIGIT EIGHT, <none>, ASTERISK, DEGREE SIGN
+0a	9		0	0028	9	-1	0028	00ab		// LEFT PARENTHESIS, DIGIT NINE, <none>, LEFT PARENTHESIS, LEFT-POINTING DOUBLE ANGLE QUOTATION MARK *
+0b	0		0	0029	0	-1	0029	00bb		// RIGHT PARENTHESIS, DIGIT ZERO, <none>, RIGHT PARENTHESIS, RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK *
+0c	OEM_MINUS	0	002d	002b	-1	2014	005f		// HYPHEN-MINUS, PLUS SIGN, <none>, EM DASH, LOW LINE
+0d	OEM_PLUS	0	201c	003d	-1	003d	-1		// LEFT DOUBLE QUOTATION MARK, EQUALS SIGN, <none>, EQUALS SIGN, <none>
+10	Q		0	10e9	-1	-1	-1	-1		// GEORGIAN LETTER CHIN, <none>, <none>, <none>, <none>
+11	W		0	10de	-1	-1	-1	-1		// GEORGIAN LETTER PAR, <none>, <none>, <none>, <none>
+12	E		0	10e3	-1	-1	-1	-1		// GEORGIAN LETTER UN, <none>, <none>, <none>, <none>
+13	R		0	10eb	-1	-1	-1	-1		// GEORGIAN LETTER JIL, <none>, <none>, <none>, <none>
+14	T		0	10ed	-1	-1	-1	-1		// GEORGIAN LETTER CHAR, <none>, <none>, <none>, <none>
+15	Y		0	10e2	-1	-1	-1	-1		// GEORGIAN LETTER TAR, <none>, <none>, <none>, <none>
+16	U		0	10d7	-1	-1	-1	-1		// GEORGIAN LETTER TAN, <none>, <none>, <none>, <none>
+17	I		0	10dc	-1	-1	10fc	I		// GEORGIAN LETTER NAR, <none>, <none>, MODIFIER LETTER GEORGIAN NAR, LATIN CAPITAL LETTER I
+18	O		0	10d5	-1	-1	10f3	-1		// GEORGIAN LETTER VIN, <none>, <none>, GEORGIAN LETTER WE, <none>
+19	P		0	10e8	-1	-1	-1	-1		// GEORGIAN LETTER SHIN, <none>, <none>, <none>, <none>
+1a	OEM_4		0	10d9	-1	-1	005b	007b		// GEORGIAN LETTER KAN, <none>, <none>, LEFT SQUARE BRACKET, LEFT CURLY BRACKET
+1b	OEM_6		0	10e5	-1	-1	005d	007d		// GEORGIAN LETTER KHAR, <none>, <none>, RIGHT SQUARE BRACKET, RIGHT CURLY BRACKET
+1e	A		0	10ee	-1	-1	10f4	-1		// GEORGIAN LETTER XAN, <none>, <none>, GEORGIAN LETTER HAR, <none>
+1f	S		0	10d8	-1	-1	10f2	-1		// GEORGIAN LETTER IN, <none>, <none>, GEORGIAN LETTER HIE, <none>
+20	D		0	10d0	-1	-1	10fa	D		// GEORGIAN LETTER AN, <none>, <none>, GEORGIAN LETTER AIN, LATIN CAPITAL LETTER D
+21	F		0	10d4	-1	-1	10f1	-1		// GEORGIAN LETTER EN, <none>, <none>, GEORGIAN LETTER HE, <none>
+22	G		0	10dd	-1	-1	-1	-1		// GEORGIAN LETTER ON, <none>, <none>, <none>, <none>
+23	H		0	10d3	-1	-1	-1	-1		// GEORGIAN LETTER DON, <none>, <none>, <none>, <none>
+24	J		0	10db	-1	-1	-1	-1		// GEORGIAN LETTER MAN, <none>, <none>, <none>, <none>
+25	K		0	10e1	-1	-1	-1	-1		// GEORGIAN LETTER SAN, <none>, <none>, <none>, <none>
+26	L		0	10e0	-1	-1	-1	L		// GEORGIAN LETTER RAE, <none>, <none>, <none>, LATIN CAPITAL LETTER L
+27	OEM_1		0	10d1	-1	-1	-1	-1		// GEORGIAN LETTER BAN, <none>, <none>, <none>, <none>
+28	OEM_7		0	10d2	-1	-1	10f9	0022		// GEORGIAN LETTER GAN, <none>, <none>, GEORGIAN LETTER TURNED GAN, QUOTATION MARK
+29	OEM_3		0	201e	0027	-1	0060	007e		// DOUBLE LOW-9 QUOTATION MARK, APOSTROPHE, <none>, GRAVE ACCENT, TILDE
+2b	OEM_5		0	002f	00a7	-1	005c	007c		// SOLIDUS, SECTION SIGN, <none>, REVERSE SOLIDUS, VERTICAL LINE
+2c	Z		0	10ef	-1	-1	-1	-1		// GEORGIAN LETTER JHAN, <none>, <none>, <none>, <none>
+2d	X		0	10f0	-1	-1	10f5	X		// GEORGIAN LETTER HAE, <none>, <none>, GEORGIAN LETTER HOE, LATIN CAPITAL LETTER X
+2e	C		0	10e7	-1	-1	10f8	C		// GEORGIAN LETTER QAR, <none>, <none>, GEORGIAN LETTER ELIFI, LATIN CAPITAL LETTER C
+2f	V		0	10e6	-1	-1	10f7	V		// GEORGIAN LETTER GHAN, <none>, <none>, GEORGIAN LETTER YN, LATIN CAPITAL LETTER V
+30	B		0	10df	-1	-1	-1	-1		// GEORGIAN LETTER ZHAR, <none>, <none>, <none>, <none>
+31	N		0	10d6	-1	-1	-1	-1		// GEORGIAN LETTER ZEN, <none>, <none>, <none>, <none>
+32	M		0	10ea	-1	-1	-1	M		// GEORGIAN LETTER CAN, <none>, <none>, <none>, LATIN CAPITAL LETTER M
+33	OEM_COMMA	0	10da	-1	-1	-1	003c		// GEORGIAN LETTER LAS, <none>, <none>, <none>, LESS-THAN SIGN
+34	OEM_PERIOD	0	10e4	-1	-1	10f6	003e		// GEORGIAN LETTER PHAR, <none>, <none>, GEORGIAN LETTER FI, GREATER-THAN SIGN
+35	OEM_2		0	10ec	-1	-1	10fb	-1		// GEORGIAN LETTER CIL, <none>, <none>, GEORGIAN PARAGRAPH SEPARATOR, <none>
+39	SPACE		0	0020	0020	0020	-1	-1		// SPACE, SPACE, SPACE, <none>, <none>
+56	OEM_102	0	005c	002f	-1	-1	-1		// REVERSE SOLIDUS, SOLIDUS, <none>, <none>, <none>
+53	DECIMAL	0	002c	002c	-1	002c	-1		// COMMA, COMMA, , COMMA, 
+
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Georgian (Ergonomic) - Custom
+LANGUAGENAMES
+
+0409	Georgian (Georgia)
+ENDKBD

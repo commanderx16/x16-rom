@@ -1,0 +1,163 @@
+KBD	40437	"Georgian (Old Alphabets) - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"ka-GE"
+
+LOCALEID	"00040437"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+6	//Column 7 :       Ctrl Alt
+7	//Column 8 : Shft  Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	6	7
+//--	----		----	----	----	----	----	----
+
+02	1		0	0021	1	-1	0021	-1		// EXCLAMATION MARK, DIGIT ONE, <none>, EXCLAMATION MARK, <none>
+03	2		0	10fb	2	-1	0040	-1		// GEORGIAN PARAGRAPH SEPARATOR, DIGIT TWO, <none>, COMMERCIAL AT, <none>
+04	3		0	002c	3	-1	0023	00a7		// COMMA, DIGIT THREE, <none>, NUMBER SIGN, SECTION SIGN
+05	4		0	003b	4	-1	0024	-1		// SEMICOLON, DIGIT FOUR, <none>, DOLLAR SIGN, <none>
+06	5		0	0025	5	-1	20ac	-1		// PERCENT SIGN, DIGIT FIVE, <none>, EURO SIGN, <none>
+07	6		0	003a	6	-1	005e	-1		// COLON, DIGIT SIX, <none>, CIRCUMFLEX ACCENT, <none>
+08	7		0	003f	7	-1	0026	-1		// QUESTION MARK, DIGIT SEVEN, <none>, AMPERSAND, <none>
+09	8		0	002e	8	-1	002a	00b0		// FULL STOP, DIGIT EIGHT, <none>, ASTERISK, DEGREE SIGN
+0a	9		0	0028	9	-1	0028	00ab		// LEFT PARENTHESIS, DIGIT NINE, <none>, LEFT PARENTHESIS, LEFT-POINTING DOUBLE ANGLE QUOTATION MARK *
+0b	0		0	0029	0	-1	0029	00bb		// RIGHT PARENTHESIS, DIGIT ZERO, <none>, RIGHT PARENTHESIS, RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK *
+0c	OEM_MINUS	0	002d	002b	-1	2014	005f		// HYPHEN-MINUS, PLUS SIGN, <none>, EM DASH, LOW LINE
+0d	OEM_PLUS	0	201c	003d	-1	003d	-1		// LEFT DOUBLE QUOTATION MARK, EQUALS SIGN, <none>, EQUALS SIGN, <none>
+10	Q		1	2d19	10b9	-1	-1	-1		// GEORGIAN SMALL LETTER CHIN (Khutsuri), GEORGIAN CAPITAL LETTER CHIN (Khutsuri), <none>, <none>, <none>
+11	W		1	2d0e	10ae	-1	2116	-1		// GEORGIAN SMALL LETTER PAR (Khutsuri), GEORGIAN CAPITAL LETTER PAR (Khutsuri), <none>, NUMERO SIGN, <none>
+12	E		1	2d13	10b3	-1	-1	-1		// GEORGIAN SMALL LETTER UN (Khutsuri), GEORGIAN CAPITAL LETTER UN (Khutsuri), <none>, <none>, <none>
+13	R		1	2d1b	10bb	-1	-1	-1		// GEORGIAN SMALL LETTER JIL (Khutsuri), GEORGIAN CAPITAL LETTER JIL (Khutsuri), <none>, <none>, <none>
+14	T		1	2d1d	10bd	-1	-1	-1		// GEORGIAN SMALL LETTER CHAR (Khutsuri), GEORGIAN CAPITAL LETTER CHAR (Khutsuri), <none>, <none>, <none>
+15	Y		1	2d12	10b2	-1	-1	-1		// GEORGIAN SMALL LETTER TAR (Khutsuri), GEORGIAN CAPITAL LETTER TAR (Khutsuri), <none>, <none>, <none>
+16	U		1	2d07	10a7	-1	-1	-1		// GEORGIAN SMALL LETTER TAN (Khutsuri), GEORGIAN CAPITAL LETTER TAN (Khutsuri), <none>, <none>, <none>
+17	I		1	2d0c	10ac	-1	10fc	-1		// GEORGIAN SMALL LETTER NAR (Khutsuri), GEORGIAN CAPITAL LETTER NAR (Khutsuri), <none>, MODIFIER LETTER GEORGIAN NAR, <none>
+18	O		1	2d05	10a5	-1	10f3	-1		// GEORGIAN SMALL LETTER VIN (Khutsuri), GEORGIAN CAPITAL LETTER VIN (Khutsuri), <none>, GEORGIAN LETTER WE, <none>
+19	P		1	2d18	10b8	-1	-1	-1		// GEORGIAN SMALL LETTER SHIN (Khutsuri), GEORGIAN CAPITAL LETTER SHIN (Khutsuri), <none>, <none>, <none>
+1a	OEM_4		1	2d09	10a9	-1	005b	007b		// GEORGIAN SMALL LETTER KAN (Khutsuri), GEORGIAN CAPITAL LETTER KAN (Khutsuri), <none>, LEFT SQUARE BRACKET, LEFT CURLY BRACKET
+1b	OEM_6		1	2d15	10b5	-1	005d	007d		// GEORGIAN SMALL LETTER KHAR (Khutsuri), GEORGIAN CAPITAL LETTER KHAR (Khutsuri), <none>, RIGHT SQUARE BRACKET, RIGHT CURLY BRACKET
+1e	A		5	2d1e	10be	-1	2d24	10c4		// GEORGIAN SMALL LETTER XAN (Khutsuri), GEORGIAN CAPITAL LETTER XAN (Khutsuri), <none>, GEORGIAN SMALL LETTER HAR (Khutsuri), GEORGIAN CAPITAL LETTER HAR (Khutsuri)
+1f	S		1	2d08	10a8	-1	2d22	-1		// GEORGIAN SMALL LETTER IN (Khutsuri), GEORGIAN CAPITAL LETTER IN (Khutsuri), <none>, GEORGIAN SMALL LETTER HIE (Khutsuri), <none>
+20	D		1	2d00	10a0	-1	10fa	-1		// GEORGIAN SMALL LETTER AN (Khutsuri), GEORGIAN CAPITAL LETTER AN (Khutsuri), <none>, GEORGIAN LETTER AIN, <none>
+21	F		5	2d04	10a4	-1	2d21	10c1		// GEORGIAN SMALL LETTER EN (Khutsuri), GEORGIAN CAPITAL LETTER EN (Khutsuri), <none>, GEORGIAN SMALL LETTER HE (Khutsuri), GEORGIAN CAPITAL LETTER HE (Khutsuri)
+22	G		1	2d0d	10ad	-1	-1	-1		// GEORGIAN SMALL LETTER ON (Khutsuri), GEORGIAN CAPITAL LETTER ON (Khutsuri), <none>, <none>, <none>
+23	H		1	2d03	10a3	-1	-1	-1		// GEORGIAN SMALL LETTER DON (Khutsuri), GEORGIAN CAPITAL LETTER DON (Khutsuri), <none>, <none>, <none>
+24	J		1	2d0b	10ab	-1	-1	-1		// GEORGIAN SMALL LETTER MAN (Khutsuri), GEORGIAN CAPITAL LETTER MAN (Khutsuri), <none>, <none>, <none>
+25	K		1	2d11	10b1	-1	-1	-1		// GEORGIAN SMALL LETTER SAN (Khutsuri), GEORGIAN CAPITAL LETTER SAN (Khutsuri), <none>, <none>, <none>
+26	L		1	2d10	10b0	-1	-1	-1		// GEORGIAN SMALL LETTER RAE (Khutsuri), GEORGIAN CAPITAL LETTER RAE (Khutsuri), <none>, <none>, <none>
+27	OEM_1		1	2d01	10a1	-1	-1	-1		// GEORGIAN SMALL LETTER BAN (Khutsuri), GEORGIAN CAPITAL LETTER BAN (Khutsuri), <none>, <none>, <none>
+28	OEM_7		1	2d02	10a2	-1	10f9	0022		// GEORGIAN SMALL LETTER GAN (Khutsuri), GEORGIAN CAPITAL LETTER GAN (Khutsuri), <none>, GEORGIAN LETTER TURNED GAN, QUOTATION MARK
+29	OEM_3		0	201e	0027	-1	0060	007e		// DOUBLE LOW-9 QUOTATION MARK, APOSTROPHE, <none>, GRAVE ACCENT, TILDE
+2b	OEM_5		0	002f	00a7	-1	005c	007c		// SOLIDUS, SECTION SIGN, <none>, REVERSE SOLIDUS, VERTICAL LINE
+2c	Z		1	2d1f	10b1	-1	-1	-1		// GEORGIAN SMALL LETTER JHAN (Khutsuri), GEORGIAN CAPITAL LETTER SAN (Khutsuri), <none>, <none>, <none>
+2d	X		1	2d20	10c0	-1	2d25	-1		// GEORGIAN SMALL LETTER HAE (Khutsuri), GEORGIAN CAPITAL LETTER HAE (Khutsuri), <none>, GEORGIAN SMALL LETTER HOE (Khutsuri), <none>
+2e	C		1	2d17	10b7	-1	10f8	-1		// GEORGIAN SMALL LETTER QAR (Khutsuri), GEORGIAN CAPITAL LETTER QAR (Khutsuri), <none>, GEORGIAN LETTER ELIFI, <none>
+2f	V		1	2d16	10b6	-1	-1	-1		// GEORGIAN SMALL LETTER GHAN (Khutsuri), GEORGIAN CAPITAL LETTER GHAN (Khutsuri), <none>, <none>, <none>
+30	B		1	2d0f	10af	-1	-1	-1		// GEORGIAN SMALL LETTER ZHAR (Khutsuri), GEORGIAN CAPITAL LETTER ZHAR (Khutsuri), <none>, <none>, <none>
+31	N		1	2d06	10a6	-1	-1	-1		// GEORGIAN SMALL LETTER ZEN (Khutsuri), GEORGIAN CAPITAL LETTER ZEN (Khutsuri), <none>, <none>, <none>
+32	M		1	2d1a	10ba	-1	-1	-1		// GEORGIAN SMALL LETTER CAN (Khutsuri), GEORGIAN CAPITAL LETTER CAN (Khutsuri), <none>, <none>, <none>
+33	OEM_COMMA	1	2d0a	10aa	-1	-1	-1		// GEORGIAN SMALL LETTER LAS (Khutsuri), GEORGIAN CAPITAL LETTER LAS (Khutsuri), <none>, <none>, <none>
+34	OEM_PERIOD	1	2d14	10b4	-1	10f6	003e		// GEORGIAN SMALL LETTER PHAR (Khutsuri), GEORGIAN CAPITAL LETTER PHAR (Khutsuri), <none>, GEORGIAN LETTER FI, GREATER-THAN SIGN
+35	OEM_2		1	2d1c	10bc	-1	10fb	-1		// GEORGIAN SMALL LETTER CIL (Khutsuri), GEORGIAN CAPITAL LETTER CIL (Khutsuri), <none>, GEORGIAN PARAGRAPH SEPARATOR, <none>
+39	SPACE		0	0020	0020	0020	0020	0020		// SPACE, SPACE, SPACE, SPACE, SPACE
+56	OEM_102	0	005c	002f	-1	-1	-1		// REVERSE SOLIDUS, SOLIDUS, <none>, <none>, <none>
+53	DECIMAL	0	002c	002c	-1	002c	-1		// COMMA, COMMA, , COMMA, 
+
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Georgian (Old Alphabets) - Custom
+LANGUAGENAMES
+
+0409	Georgian (Georgia)
+ENDKBD

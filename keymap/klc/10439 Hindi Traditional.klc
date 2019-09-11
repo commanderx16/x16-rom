@@ -1,0 +1,174 @@
+KBD	10439	"Hindi Traditional - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"hi-IN"
+
+LOCALEID	"00010439"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+3	//Column 7 : Shft  Ctrl
+6	//Column 8 :       Ctrl Alt
+7	//Column 9 : Shft  Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	3	6	7
+//--	----		----	----	----	----	----	----	----
+
+02	1		0	1	090d	-1	200d	0967	0021		// DIGIT ONE, DEVANAGARI LETTER CANDRA E, <none>, ZERO WIDTH JOINER, DEVANAGARI DIGIT ONE, EXCLAMATION MARK
+03	2		0	2	0945	-1	200c	0968	0040		// DIGIT TWO, DEVANAGARI VOWEL SIGN CANDRA E, <none>, ZERO WIDTH NON-JOINER, DEVANAGARI DIGIT TWO, COMMERCIAL AT
+04	3		0	3	%%	-1	-1	0969	0023		// DIGIT THREE, <null>, <none>, <none>, DEVANAGARI DIGIT THREE, NUMBER SIGN
+05	4		0	4	%%	-1	20b9	096a	0024		// DIGIT FOUR, <null>, <none>, Indian Rupee Sign, DEVANAGARI DIGIT FOUR, DOLLAR SIGN
+06	5		0	5	%%	-1	-1	096b	0025		// DIGIT FIVE, <null>, <none>, <none>, DEVANAGARI DIGIT FIVE, PERCENT SIGN
+07	6		0	6	%%	-1	-1	096c	005e		// DIGIT SIX, <null>, <none>, <none>, DEVANAGARI DIGIT SIX, CIRCUMFLEX ACCENT
+08	7		0	7	%%	-1	-1	096d	0026		// DIGIT SEVEN, <null>, <none>, <none>, DEVANAGARI DIGIT SEVEN, AMPERSAND
+09	8		0	8	%%	-1	-1	096e	002a		// DIGIT EIGHT, <null>, <none>, <none>, DEVANAGARI DIGIT EIGHT, ASTERISK
+0a	9		0	9	0028	-1	-1	096f	0028		// DIGIT NINE, LEFT PARENTHESIS, <none>, <none>, DEVANAGARI DIGIT NINE, LEFT PARENTHESIS
+0b	0		0	0	0029	-1	-1	0966	0029		// DIGIT ZERO, RIGHT PARENTHESIS, <none>, <none>, DEVANAGARI DIGIT ZERO, RIGHT PARENTHESIS
+0c	OEM_MINUS	0	002d	0903	-1	-1	002d	005f		// HYPHEN-MINUS, DEVANAGARI SIGN VISARGA, <none>, <none>, HYPHEN-MINUS, LOW LINE
+0d	OEM_PLUS	0	0943	090b	-1	-1	003d	002b		// DEVANAGARI VOWEL SIGN VOCALIC R, DEVANAGARI LETTER VOCALIC R, <none>, <none>, EQUALS SIGN, PLUS SIGN
+10	Q		0	094c	0914	-1	-1	-1	-1		// DEVANAGARI VOWEL SIGN AU, DEVANAGARI LETTER AU, <none>, <none>, <none>, <none>
+11	W		0	0948	0910	-1	-1	-1	-1		// DEVANAGARI VOWEL SIGN AI, DEVANAGARI LETTER AI, <none>, <none>, <none>, <none>
+12	E		0	093e	0906	-1	-1	-1	-1		// DEVANAGARI VOWEL SIGN AA, DEVANAGARI LETTER AA, <none>, <none>, <none>, <none>
+13	R		0	0940	0908	-1	-1	-1	-1		// DEVANAGARI VOWEL SIGN II, DEVANAGARI LETTER II, <none>, <none>, <none>, <none>
+14	T		0	0942	090a	-1	-1	-1	-1		// DEVANAGARI VOWEL SIGN UU, DEVANAGARI LETTER UU, <none>, <none>, <none>, <none>
+15	Y		0	092c	092d	-1	-1	-1	-1		// DEVANAGARI LETTER BA, DEVANAGARI LETTER BHA, <none>, <none>, <none>, <none>
+16	U		0	0939	0919	-1	-1	-1	-1		// DEVANAGARI LETTER HA, DEVANAGARI LETTER NGA, <none>, <none>, <none>, <none>
+17	I		0	0917	0918	-1	-1	-1	-1		// DEVANAGARI LETTER GA, DEVANAGARI LETTER GHA, <none>, <none>, <none>, <none>
+18	O		0	0926	0927	-1	-1	-1	-1		// DEVANAGARI LETTER DA, DEVANAGARI LETTER DHA, <none>, <none>, <none>, <none>
+19	P		0	091c	091d	-1	-1	-1	-1		// DEVANAGARI LETTER JA, DEVANAGARI LETTER JHA, <none>, <none>, <none>, <none>
+1a	OEM_4		0	0921	0922	-1	-1	005b	007b		// DEVANAGARI LETTER DDA, DEVANAGARI LETTER DDHA, <none>, <none>, LEFT SQUARE BRACKET, LEFT CURLY BRACKET
+1b	OEM_6		0	093c	091e	-1	-1	005d	007d		// DEVANAGARI SIGN NUKTA, DEVANAGARI LETTER NYA, <none>, <none>, RIGHT SQUARE BRACKET, RIGHT CURLY BRACKET
+1e	A		0	094b	0913	-1	-1	-1	-1		// DEVANAGARI VOWEL SIGN O, DEVANAGARI LETTER O, <none>, <none>, <none>, <none>
+1f	S		0	0947	090f	-1	-1	-1	-1		// DEVANAGARI VOWEL SIGN E, DEVANAGARI LETTER E, <none>, <none>, <none>, <none>
+20	D		0	094d	0905	-1	-1	-1	-1		// DEVANAGARI SIGN VIRAMA, DEVANAGARI LETTER A, <none>, <none>, <none>, <none>
+21	F		0	093f	0907	-1	-1	-1	-1		// DEVANAGARI VOWEL SIGN I, DEVANAGARI LETTER I, <none>, <none>, <none>, <none>
+22	G		0	0941	0909	-1	-1	-1	-1		// DEVANAGARI VOWEL SIGN U, DEVANAGARI LETTER U, <none>, <none>, <none>, <none>
+23	H		0	092a	092b	-1	-1	-1	-1		// DEVANAGARI LETTER PA, DEVANAGARI LETTER PHA, <none>, <none>, <none>, <none>
+24	J		0	0930	0931	-1	-1	-1	-1		// DEVANAGARI LETTER RA, DEVANAGARI LETTER RRA, <none>, <none>, <none>, <none>
+25	K		0	0915	0916	-1	-1	-1	-1		// DEVANAGARI LETTER KA, DEVANAGARI LETTER KHA, <none>, <none>, <none>, <none>
+26	L		0	0924	0925	-1	-1	-1	-1		// DEVANAGARI LETTER TA, DEVANAGARI LETTER THA, <none>, <none>, <none>, <none>
+27	OEM_1		0	091a	091b	-1	-1	003b	003a		// DEVANAGARI LETTER CA, DEVANAGARI LETTER CHA, <none>, <none>, SEMICOLON, COLON
+28	OEM_7		0	091f	0920	-1	-1	0027	0022		// DEVANAGARI LETTER TTA, DEVANAGARI LETTER TTHA, <none>, <none>, APOSTROPHE, QUOTATION MARK
+29	OEM_3		0	-1	-1	-1	-1	0060	007e		// <none>, <none>, <none>, <none>, GRAVE ACCENT, TILDE
+2b	OEM_5		0	0949	0911	-1	-1	005c	007c		// DEVANAGARI VOWEL SIGN CANDRA O, DEVANAGARI LETTER CANDRA O, <none>, <none>, REVERSE SOLIDUS, VERTICAL LINE
+2d	X		0	0902	0901	-1	-1	-1	0950		// DEVANAGARI SIGN ANUSVARA, DEVANAGARI SIGN CANDRABINDU, <none>, <none>, <none>, DEVANAGARI OM
+2e	C		0	092e	0923	-1	-1	-1	-1		// DEVANAGARI LETTER MA, DEVANAGARI LETTER NNA, <none>, <none>, <none>, <none>
+2f	V		0	0928	-1	-1	-1	-1	-1		// DEVANAGARI LETTER NA, <none>, <none>, <none>, <none>, <none>
+30	B		0	0935	-1	-1	-1	-1	-1		// DEVANAGARI LETTER VA, <none>, <none>, <none>, <none>, <none>
+31	N		0	0932	0933	-1	-1	-1	-1		// DEVANAGARI LETTER LA, DEVANAGARI LETTER LLA, <none>, <none>, <none>, <none>
+32	M		0	0938	0936	-1	-1	-1	-1		// DEVANAGARI LETTER SA, DEVANAGARI LETTER SHA, <none>, <none>, <none>, <none>
+33	OEM_COMMA	0	002c	0937	-1	-1	002c	003c		// COMMA, DEVANAGARI LETTER SSA, <none>, <none>, COMMA, LESS-THAN SIGN
+34	OEM_PERIOD	0	002e	0964	-1	-1	002e	003e		// FULL STOP, DEVANAGARI DANDA, <none>, <none>, FULL STOP, GREATER-THAN SIGN
+35	OEM_2		0	092f	095f	-1	-1	002f	003f		// DEVANAGARI LETTER YA, DEVANAGARI LETTER YYA, <none>, <none>, SOLIDUS, QUESTION MARK
+39	SPACE		0	0020	0020	0020	-1	-1	-1		// SPACE, SPACE, SPACE, <none>, <none>, <none>
+56	OEM_102	0	0949	0911	-1	-1	-1	-1		// DEVANAGARI VOWEL SIGN CANDRA O, DEVANAGARI LETTER CANDRA O, <none>, <none>, <none>, <none>
+53	DECIMAL	0	002e	002e	-1	-1	-1	-1		// FULL STOP, FULL STOP, , , , 
+
+LIGATURE
+
+//VK_	Mod#	Char0	Char1	Char2	Char3
+//----		----	----	----	----	----
+
+3		1	094d	0930		// DEVANAGARI SIGN VIRAMA + DEVANAGARI LETTER RA
+4		1	0930	094d		// DEVANAGARI LETTER RA + DEVANAGARI SIGN VIRAMA
+5		1	091c	094d	091e		// DEVANAGARI LETTER JA + DEVANAGARI SIGN VIRAMA + DEVANAGARI LETTER NYA
+6		1	0924	094d	0930		// DEVANAGARI LETTER TA + DEVANAGARI SIGN VIRAMA + DEVANAGARI LETTER RA
+7		1	0915	094d	0937		// DEVANAGARI LETTER KA + DEVANAGARI SIGN VIRAMA + DEVANAGARI LETTER SSA
+8		1	0936	094d	0930		// DEVANAGARI LETTER SHA + DEVANAGARI SIGN VIRAMA + DEVANAGARI LETTER RA
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Hindi Traditional - Custom
+LANGUAGENAMES
+
+0409	Hindi (India)
+ENDKBD
