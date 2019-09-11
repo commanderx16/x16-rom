@@ -1,0 +1,171 @@
+KBD	401	"Arabic (101) - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"ar-SA"
+
+LOCALEID	"00000401"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+3	//Column 7 : Shft  Ctrl
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	3
+//--	----		----	----	----	----	----
+
+02	1		0	1	0021	-1	200d		// DIGIT ONE, EXCLAMATION MARK, <none>, ZERO WIDTH JOINER
+03	2		0	2	0040	-1	200c		// DIGIT TWO, COMMERCIAL AT, <none>, ZERO WIDTH NON-JOINER
+04	3		0	3	0023	-1	200e		// DIGIT THREE, NUMBER SIGN, <none>, LEFT-TO-RIGHT MARK
+05	4		0	4	0024	-1	200f		// DIGIT FOUR, DOLLAR SIGN, <none>, RIGHT-TO-LEFT MARK
+06	5		0	5	0025	-1	-1		// DIGIT FIVE, PERCENT SIGN, <none>, <none>
+07	6		0	6	005e	-1	-1		// DIGIT SIX, CIRCUMFLEX ACCENT, <none>, <none>
+08	7		0	7	0026	-1	-1		// DIGIT SEVEN, AMPERSAND, <none>, <none>
+09	8		0	8	002a	-1	-1		// DIGIT EIGHT, ASTERISK, <none>, <none>
+0a	9		0	9	0029	-1	-1		// DIGIT NINE, RIGHT PARENTHESIS, <none>, <none>
+0b	0		0	0	0028	-1	-1		// DIGIT ZERO, LEFT PARENTHESIS, <none>, <none>
+0c	OEM_MINUS	0	002d	005f	-1	-1		// HYPHEN-MINUS, LOW LINE, <none>, <none>
+0d	OEM_PLUS	0	003d	002b	-1	-1		// EQUALS SIGN, PLUS SIGN, <none>, <none>
+10	Q		0	0636	064e	-1	-1		// ARABIC LETTER DAD, ARABIC FATHA, <none>, <none>
+11	W		0	0635	064b	-1	-1		// ARABIC LETTER SAD, ARABIC FATHATAN, <none>, <none>
+12	E		0	062b	064f	-1	-1		// ARABIC LETTER THEH, ARABIC DAMMA, <none>, <none>
+13	R		0	0642	064c	-1	-1		// ARABIC LETTER QAF, ARABIC DAMMATAN, <none>, <none>
+14	T		0	0641	%%	-1	-1		// ARABIC LETTER FEH, <null>, <none>, <none>
+15	Y		0	063a	0625	-1	-1		// ARABIC LETTER GHAIN, ARABIC LETTER ALEF WITH HAMZA BELOW, <none>, <none>
+16	U		0	0639	2018	-1	-1		// ARABIC LETTER AIN, LEFT SINGLE QUOTATION MARK, <none>, <none>
+17	I		0	0647	00f7	-1	-1		// ARABIC LETTER HEH, DIVISION SIGN, <none>, <none>
+18	O		0	062e	00d7	-1	-1		// ARABIC LETTER KHAH, MULTIPLICATION SIGN, <none>, <none>
+19	P		0	062d	061b	-1	-1		// ARABIC LETTER HAH, ARABIC SEMICOLON, <none>, <none>
+1a	OEM_4		0	062c	003c	001b	-1		// ARABIC LETTER JEEM, LESS-THAN SIGN, ESCAPE, <none>
+1b	OEM_6		0	062f	003e	001d	-1		// ARABIC LETTER DAL, GREATER-THAN SIGN, INFORMATION SEPARATOR THREE, <none>
+1e	A		0	0634	0650	-1	-1		// ARABIC LETTER SHEEN, ARABIC KASRA, <none>, <none>
+1f	S		0	0633	064d	-1	-1		// ARABIC LETTER SEEN, ARABIC KASRATAN, <none>, <none>
+20	D		0	064a	005d	-1	-1		// ARABIC LETTER YEH, RIGHT SQUARE BRACKET, <none>, <none>
+21	F		0	0628	005b	-1	-1		// ARABIC LETTER BEH, LEFT SQUARE BRACKET, <none>, <none>
+22	G		0	0644	%%	-1	-1		// ARABIC LETTER LAM, <null>, <none>, <none>
+23	H		0	0627	0623	-1	-1		// ARABIC LETTER ALEF, ARABIC LETTER ALEF WITH HAMZA ABOVE, <none>, <none>
+24	J		0	062a	0640	-1	-1		// ARABIC LETTER TEH, ARABIC TATWEEL, <none>, <none>
+25	K		0	0646	060c	-1	-1		// ARABIC LETTER NOON, ARABIC COMMA, <none>, <none>
+26	L		0	0645	002f	-1	-1		// ARABIC LETTER MEEM, SOLIDUS, <none>, <none>
+27	OEM_1		0	0643	003a	-1	-1		// ARABIC LETTER KAF, COLON, <none>, <none>
+28	OEM_7		0	0637	0022	001c	-1		// ARABIC LETTER TAH, QUOTATION MARK, INFORMATION SEPARATOR FOUR, <none>
+29	OEM_3		0	0630	0651	-1	-1		// ARABIC LETTER THAL, ARABIC SHADDA, <none>, <none>
+2b	OEM_5		0	005c	007c	001c	-1		// REVERSE SOLIDUS, VERTICAL LINE, INFORMATION SEPARATOR FOUR, <none>
+2c	Z		0	0626	007e	-1	-1		// ARABIC LETTER YEH WITH HAMZA ABOVE, TILDE, <none>, <none>
+2d	X		0	0621	0652	-1	-1		// ARABIC LETTER HAMZA, ARABIC SUKUN, <none>, <none>
+2e	C		0	0624	007d	-1	-1		// ARABIC LETTER WAW WITH HAMZA ABOVE, RIGHT CURLY BRACKET, <none>, <none>
+2f	V		0	0631	007b	-1	-1		// ARABIC LETTER REH, LEFT CURLY BRACKET, <none>, <none>
+30	B		0	%%	%%	-1	-1		// <null>, <null>, <none>, <none>
+31	N		0	0649	0622	-1	-1		// ARABIC LETTER ALEF MAKSURA, ARABIC LETTER ALEF WITH MADDA ABOVE, <none>, <none>
+32	M		0	0629	2019	-1	-1		// ARABIC LETTER TEH MARBUTA, RIGHT SINGLE QUOTATION MARK, <none>, <none>
+33	OEM_COMMA	0	0648	002c	-1	-1		// ARABIC LETTER WAW, COMMA, <none>, <none>
+34	OEM_PERIOD	0	0632	002e	-1	-1		// ARABIC LETTER ZAIN, FULL STOP, <none>, <none>
+35	OEM_2		0	0638	061f	-1	-1		// ARABIC LETTER ZAH, ARABIC QUESTION MARK, <none>, <none>
+39	SPACE		0	0020	0020	0020	-1		// SPACE, SPACE, SPACE, <none>
+56	OEM_102	0	005c	007c	-1	-1		// REVERSE SOLIDUS, VERTICAL LINE, <none>, <none>
+53	DECIMAL	0	002e	002e	-1	-1		// FULL STOP, FULL STOP, , 
+
+LIGATURE
+
+//VK_	Mod#	Char0	Char1	Char2	Char3
+//----		----	----	----	----	----
+
+B		0	0644	0627		// ARABIC LETTER LAM + ARABIC LETTER ALEF
+B		1	0644	0622		// ARABIC LETTER LAM + ARABIC LETTER ALEF WITH MADDA ABOVE
+G		1	0644	0623		// ARABIC LETTER LAM + ARABIC LETTER ALEF WITH HAMZA ABOVE
+T		1	0644	0625		// ARABIC LETTER LAM + ARABIC LETTER ALEF WITH HAMZA BELOW
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Arabic (101) - Custom
+LANGUAGENAMES
+
+0409	Arabic (Saudi Arabia)
+ENDKBD

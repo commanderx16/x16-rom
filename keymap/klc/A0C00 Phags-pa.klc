@@ -1,0 +1,163 @@
+KBD	A0C00	"Phags-pa - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"en-US"
+
+LOCALEID	"000a0c00"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+6	//Column 7 :       Ctrl Alt
+7	//Column 8 : Shft  Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	6	7
+//--	----		----	----	----	----	----	----
+
+02	1		0	1	0021	-1	-1	-1		// DIGIT ONE, EXCLAMATION MARK, <none>, <none>, <none>
+03	2		0	2	2048	-1	-1	-1		// DIGIT TWO, QUESTION EXCLAMATION MARK, <none>, <none>, <none>
+04	3		0	3	2049	-1	-1	-1		// DIGIT THREE, EXCLAMATION QUESTION MARK, <none>, <none>, <none>
+05	4		0	4	2014	-1	-1	-1		// DIGIT FOUR, EM DASH, <none>, <none>, <none>
+06	5		0	5	0025	-1	-1	-1		// DIGIT FIVE, PERCENT SIGN, <none>, <none>, <none>
+07	6		0	6	200c	-1	-1	-1		// DIGIT SIX, ZERO WIDTH NON-JOINER, <none>, <none>, <none>
+08	7		0	7	0026	-1	-1	-1		// DIGIT SEVEN, AMPERSAND, <none>, <none>, <none>
+09	8		0	8	200d	-1	-1	-1		// DIGIT EIGHT, ZERO WIDTH JOINER, <none>, <none>, <none>
+0a	9		0	9	0028	-1	-1	-1		// DIGIT NINE, LEFT PARENTHESIS, <none>, <none>, <none>
+0b	0		0	0	0029	-1	-1	-1		// DIGIT ZERO, RIGHT PARENTHESIS, <none>, <none>, <none>
+0c	OEM_MINUS	0	202f	00a0	-1	200b	-1		// NARROW NO-BREAK SPACE, NO-BREAK SPACE, <none>, ZERO WIDTH SPACE, <none>
+0d	OEM_PLUS	0	003d	002b	-1	-1	-1		// EQUALS SIGN, PLUS SIGN, <none>, <none>, <none>
+10	Q		0	a862	-1	-1	-1	-1		// PHAGS-PA LETTER QA, <none>, <none>, <none>, <none>
+11	W		1	a853	a867	-1	-1	-1		// PHAGS-PA LETTER WA, PHAGS-PA SUBJOINED LETTER WA, <none>, <none>, <none>
+12	E		1	a860	a866	-1	-1	-1		// PHAGS-PA LETTER E, PHAGS-PA LETTER EE, <none>, <none>, <none>
+13	R		1	a858	a872	-1	a871	-1		// PHAGS-PA LETTER RA, PHAGS-PA SUPERFIXED LETTER RA, <none>, PHAGS-PA SUBJOINED LETTER RA, <none>
+14	T		5	a848	a849	-1	a869	a86a		// PHAGS-PA LETTER TA, PHAGS-PA LETTER THA, <none>, PHAGS-PA LETTER TTA, PHAGS-PA LETTER TTHA
+15	Y		1	a857	a868	-1	a86d	-1		// PHAGS-PA LETTER YA, PHAGS-PA SUBJOINED LETTER YA, <none>, PHAGS-PA LETTER ALTERNATE YA, <none>
+16	U		0	a85f	-1	-1	-1	-1		// PHAGS-PA LETTER U, <none>, <none>, <none>, <none>
+17	I		0	a85e	-1	-1	-1	-1		// PHAGS-PA LETTER I, <none>, <none>, <none>, <none>
+18	O		0	a861	-1	-1	-1	-1		// PHAGS-PA LETTER O, <none>, <none>, <none>, <none>
+19	P		1	a84c	a84d	-1	-1	-1		// PHAGS-PA LETTER PA, PHAGS-PA LETTER PHA, <none>, <none>, <none>
+1a	OEM_4		0	3014	3008	001b	300a	-1		// LEFT TORTOISE SHELL BRACKET, LEFT ANGLE BRACKET, ESCAPE, LEFT DOUBLE ANGLE BRACKET, <none>
+1b	OEM_6		0	3015	3009	001d	300b	-1		// RIGHT TORTOISE SHELL BRACKET, RIGHT ANGLE BRACKET, INFORMATION SEPARATOR THREE, RIGHT DOUBLE ANGLE BRACKET, <none>
+1e	A		1	a856	a85d	-1	-1	-1		// PHAGS-PA LETTER SMALL A, PHAGS-PA LETTER A, <none>, <none>, <none>
+1f	S		1	a85b	a85a	-1	a86e	-1		// PHAGS-PA LETTER SA, PHAGS-PA LETTER SHA, <none>, PHAGS-PA LETTER VOICELESS SHA, <none>
+20	D		0	a84a	-1	-1	a86b	-1		// PHAGS-PA LETTER DA, <none>, <none>, PHAGS-PA LETTER DDA, <none>
+21	F		1	a864	a870	-1	-1	-1		// PHAGS-PA LETTER FA, PHAGS-PA LETTER ASPIRATED FA, <none>, <none>, <none>
+22	G		1	a842	a865	-1	-1	-1		// PHAGS-PA LETTER GA, PHAGS-PA LETTER GGA, <none>, <none>, <none>
+23	H		1	a85c	a86f	-1	-1	-1		// PHAGS-PA LETTER HA, PHAGS-PA LETTER VOICED HA, <none>, <none>, <none>
+24	J		0	a846	-1	-1	a852	-1		// PHAGS-PA LETTER JA, <none>, <none>, PHAGS-PA LETTER DZA, <none>
+25	K		1	a840	a841	-1	-1	-1		// PHAGS-PA LETTER KA, PHAGS-PA LETTER KHA, <none>, <none>, <none>
+26	L		0	a859	-1	-1	-1	-1		// PHAGS-PA LETTER LA, <none>, <none>, <none>, <none>
+27	OEM_1		1	a843	a847	-1	-1	-1		// PHAGS-PA LETTER NGA, PHAGS-PA LETTER NYA, <none>, <none>, <none>
+28	OEM_7		0	a876	a877	-1	-1	-1		// PHAGS-PA MARK SHAD, PHAGS-PA MARK DOUBLE SHAD, <none>, <none>, <none>
+29	OEM_3		0	a874	a875	-1	-1	-1		// PHAGS-PA SINGLE HEAD MARK, PHAGS-PA DOUBLE HEAD MARK, <none>, <none>, <none>
+2b	OEM_5		0	1801	fe00	001c	-1	-1		// MONGOLIAN ELLIPSIS, VARIATION SELECTOR-1, INFORMATION SEPARATOR FOUR, <none>, <none>
+2c	Z		1	a855	a854	-1	-1	-1		// PHAGS-PA LETTER ZA, PHAGS-PA LETTER ZHA, <none>, <none>, <none>
+2d	X		0	a863	-1	-1	-1	-1		// PHAGS-PA LETTER XA, <none>, <none>, <none>, <none>
+2e	C		5	a844	a845	-1	a850	a851		// PHAGS-PA LETTER CA, PHAGS-PA LETTER CHA, <none>, PHAGS-PA LETTER TSA, PHAGS-PA LETTER TSHA
+2f	V		0	a867	-1	-1	-1	-1		// PHAGS-PA SUBJOINED LETTER WA, <none>, <none>, <none>, <none>
+30	B		0	a84e	-1	-1	-1	-1		// PHAGS-PA LETTER BA, <none>, <none>, <none>, <none>
+31	N		0	a84b	-1	-1	a86c	-1		// PHAGS-PA LETTER NA, <none>, <none>, PHAGS-PA LETTER NNA, <none>
+32	M		1	a84f	a873	-1	-1	-1		// PHAGS-PA LETTER MA, PHAGS-PA LETTER CANDRABINDU, <none>, <none>, <none>
+33	OEM_COMMA	0	1802	3001	-1	-1	-1		// MONGOLIAN COMMA, IDEOGRAPHIC COMMA, <none>, <none>, <none>
+34	OEM_PERIOD	0	1803	3002	-1	1804	-1		// MONGOLIAN FULL STOP, IDEOGRAPHIC FULL STOP, <none>, MONGOLIAN COLON, <none>
+35	OEM_2		0	1805	003f	-1	-1	-1		// MONGOLIAN FOUR DOTS, QUESTION MARK, <none>, <none>, <none>
+39	SPACE		0	0020	2009	0020	-1	-1		// SPACE, THIN SPACE, SPACE, <none>, <none>
+56	OEM_102	0	-1	-1	001c	-1	-1		// <none>, <none>, INFORMATION SEPARATOR FOUR, <none>, <none>
+53	DECIMAL	0	002e	002e	-1	-1	-1		// FULL STOP, FULL STOP, , , 
+
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Phags-pa - Custom
+LANGUAGENAMES
+
+0409	English (United States)
+ENDKBD

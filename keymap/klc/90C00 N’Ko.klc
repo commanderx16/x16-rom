@@ -1,0 +1,161 @@
+KBD	90C00	"N’Ko - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"en-US"
+
+LOCALEID	"00090c00"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2
+//--	----		----	----	----	----
+
+02	1		0	07c1	07f9	-1		// NKO DIGIT ONE, NKO EXCLAMATION MARK, <none>
+03	2		0	07c2	-1	-1		// NKO DIGIT TWO, <none>, <none>
+04	3		0	07c3	-1	-1		// NKO DIGIT THREE, <none>, <none>
+05	4		0	07c4	-1	-1		// NKO DIGIT FOUR, <none>, <none>
+06	5		0	07c5	0025	-1		// NKO DIGIT FIVE, PERCENT SIGN, <none>
+07	6		0	07c6	-1	-1		// NKO DIGIT SIX, <none>, <none>
+08	7		0	07c7	-1	-1		// NKO DIGIT SEVEN, <none>, <none>
+09	8		0	07c8	002a	-1		// NKO DIGIT EIGHT, ASTERISK, <none>
+0a	9		0	07c9	0028	-1		// NKO DIGIT NINE, LEFT PARENTHESIS, <none>
+0b	0		0	07c0	0029	-1		// NKO DIGIT ZERO, RIGHT PARENTHESIS, <none>
+0c	OEM_MINUS	0	002d	005f	-1		// HYPHEN-MINUS, LOW LINE, <none>
+0d	OEM_PLUS	0	003d	002b	-1		// EQUALS SIGN, PLUS SIGN, <none>
+10	Q		0	07d4	07e9	-1		// NKO LETTER PA, NKO LETTER JONA CHA, <none>
+11	W		0	07e7	07e8	-1		// NKO LETTER NYA WOLOSO, NKO LETTER JONA JA, <none>
+12	E		0	07e0	-1	-1		// NKO LETTER NA WOLOSO, <none>, <none>
+13	R		0	07e5	-1	-1		// NKO LETTER WA, <none>, <none>
+14	T		0	07e6	-1	-1		// NKO LETTER YA, <none>, <none>
+15	Y		0	07d9	07da	-1		// NKO LETTER RA, NKO LETTER RRA, <none>
+16	U		0	07d7	-1	-1		// NKO LETTER CHA, <none>, <none>
+17	I		0	07dc	00f7	-1		// NKO LETTER GBA, DIVISION SIGN, <none>
+18	O		0	07e2	00d7	-1		// NKO LETTER NYA, MULTIPLICATION SIGN, <none>
+19	P		0	07e1	07ea	-1		// NKO LETTER MA, NKO LETTER JONA RA, <none>
+1a	OEM_4		0	07e4	2039	-1		// NKO LETTER HA, SINGLE LEFT-POINTING ANGLE QUOTATION MARK, <none>
+1b	OEM_6		0	07d2	203a	-1		// NKO LETTER N, SINGLE RIGHT-POINTING ANGLE QUOTATION MARK, <none>
+1e	A		0	07cf	07f6	-1		// NKO LETTER OO, NKO SYMBOL OO DENNEN, <none>
+1f	S		0	07ce	00b0	-1		// NKO LETTER U, DEGREE SIGN, <none>
+20	D		0	07cd	005b	-1		// NKO LETTER E, LEFT SQUARE BRACKET, <none>
+21	F		0	07cc	005d	-1		// NKO LETTER I, RIGHT SQUARE BRACKET, <none>
+22	G		0	07cb	fd3e	-1		// NKO LETTER EE, ORNATE LEFT PARENTHESIS, <none>
+23	H		0	07ca	fd3f	-1		// NKO LETTER A, ORNATE RIGHT PARENTHESIS, <none>
+24	J		0	07d6	07fa	-1		// NKO LETTER JA, NKO LAJANYALAN, <none>
+25	K		0	07dd	060c	-1		// NKO LETTER FA, ARABIC COMMA, <none>
+26	L		0	07e3	002f	-1		// NKO LETTER NA, SOLIDUS, <none>
+27	OEM_1		0	07d5	003a	-1		// NKO LETTER TA, COLON, <none>
+28	OEM_7		0	07d3	0022	-1		// NKO LETTER BA, QUOTATION MARK, <none>
+29	OEM_3		0	07f7	-1	-1		// NKO SYMBOL GBAKURUNEN, <none>, <none>
+2b	OEM_5		0	005c	007c	-1		// REVERSE SOLIDUS, VERTICAL LINE, <none>
+2c	Z		0	07d0	07f3	-1		// NKO LETTER O, NKO COMBINING DOUBLE DOT ABOVE, <none>
+2d	X		0	07f2	07f1	-1		// NKO COMBINING NASALIZATION MARK, NKO COMBINING LONG RISING TONE, <none>
+2e	C		0	07f5	07ed	-1		// NKO LOW TONE APOSTROPHE, NKO COMBINING SHORT RISING TONE, <none>
+2f	V		0	07f4	07ee	-1		// NKO HIGH TONE APOSTROPHE, NKO COMBINING LONG DESCENDING TONE, <none>
+30	B		0	07ec	07f0	-1		// NKO COMBINING SHORT LOW TONE, NKO COMBINING LONG LOW TONE, <none>
+31	N		0	07eb	07ef	-1		// NKO COMBINING SHORT HIGH TONE, NKO COMBINING LONG HIGH TONE, <none>
+32	M		0	07df	07f8	-1		// NKO LETTER LA, NKO COMMA, <none>
+33	OEM_COMMA	0	07db	07d1	-1		// NKO LETTER SA, NKO LETTER DAGBASINNA, <none>
+34	OEM_PERIOD	0	07d8	002e	-1		// NKO LETTER DA, FULL STOP, <none>
+35	OEM_2		0	07de	061f	-1		// NKO LETTER KA, ARABIC QUESTION MARK, <none>
+39	SPACE		0	0020	0020	0020		// SPACE, SPACE, SPACE
+56	OEM_102	0	005c	007c	-1		// REVERSE SOLIDUS, VERTICAL LINE, <none>
+53	DECIMAL	0	002e	002e	-1		// FULL STOP, FULL STOP, 
+
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	N’Ko - Custom
+LANGUAGENAMES
+
+0409	English (United States)
+ENDKBD

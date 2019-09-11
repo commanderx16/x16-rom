@@ -1,0 +1,248 @@
+KBD	470	"Igbo - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"ig-NG"
+
+LOCALEID	"00000470"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+6	//Column 7 :       Ctrl Alt
+7	//Column 8 : Shft  Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	6	7
+//--	----		----	----	----	----	----	----
+
+02	1		0	1	0021	-1	-1	-1		// DIGIT ONE, EXCLAMATION MARK, <none>, <none>, <none>
+03	2		0	2	0040	-1	-1	-1		// DIGIT TWO, COMMERCIAL AT, <none>, <none>, <none>
+04	3		0	3	0023	-1	-1	-1		// DIGIT THREE, NUMBER SIGN, <none>, <none>, <none>
+05	4		0	4	0024	-1	-1	-1		// DIGIT FOUR, DOLLAR SIGN, <none>, <none>, <none>
+06	5		0	5	0025	-1	20ac	-1		// DIGIT FIVE, PERCENT SIGN, <none>, EURO SIGN, <none>
+07	6		0	6	005e@	-1	-1	-1		// DIGIT SIX, CIRCUMFLEX ACCENT, <none>, <none>, <none>
+08	7		0	7	0026	-1	-1	-1		// DIGIT SEVEN, AMPERSAND, <none>, <none>, <none>
+09	8		0	8	002a	-1	-1	-1		// DIGIT EIGHT, ASTERISK, <none>, <none>, <none>
+0a	9		0	9	0028	-1	2018	-1		// DIGIT NINE, LEFT PARENTHESIS, <none>, LEFT SINGLE QUOTATION MARK, <none>
+0b	0		0	0	0029	-1	2019	-1		// DIGIT ZERO, RIGHT PARENTHESIS, <none>, RIGHT SINGLE QUOTATION MARK, <none>
+0c	OEM_MINUS	0	002d	005f	-1	-1	-1		// HYPHEN-MINUS, LOW LINE, <none>, <none>, <none>
+0d	OEM_PLUS	0	003d	002b	-1	-1	-1		// EQUALS SIGN, PLUS SIGN, <none>, <none>, <none>
+10	Q		5	q	Q	-1	%%	%%		// LATIN SMALL LETTER Q, LATIN CAPITAL LETTER Q, <none>, <null>, <null>
+11	W		5	w	W	-1	%%	%%		// LATIN SMALL LETTER W, LATIN CAPITAL LETTER W, <none>, <null>, <null>
+12	E		5	e	E	-1	%%	%%		// LATIN SMALL LETTER E, LATIN CAPITAL LETTER E, <none>, <null>, <null>
+13	R		1	r	R	-1	-1	-1		// LATIN SMALL LETTER R, LATIN CAPITAL LETTER R, <none>, <none>, <none>
+14	T		1	t	T	-1	-1	-1		// LATIN SMALL LETTER T, LATIN CAPITAL LETTER T, <none>, <none>, <none>
+15	Y		1	y	Y	-1	-1	-1		// LATIN SMALL LETTER Y, LATIN CAPITAL LETTER Y, <none>, <none>, <none>
+16	U		5	u	U	-1	1ee5	1ee4		// LATIN SMALL LETTER U, LATIN CAPITAL LETTER U, <none>, LATIN SMALL LETTER U WITH DOT BELOW, LATIN CAPITAL LETTER U WITH DOT BELOW
+17	I		5	i	I	-1	1ecb	1eca		// LATIN SMALL LETTER I, LATIN CAPITAL LETTER I, <none>, LATIN SMALL LETTER I WITH DOT BELOW, LATIN CAPITAL LETTER I WITH DOT BELOW
+18	O		5	o	O	-1	1ecd	1ecc		// LATIN SMALL LETTER O, LATIN CAPITAL LETTER O, <none>, LATIN SMALL LETTER O WITH DOT BELOW, LATIN CAPITAL LETTER O WITH DOT BELOW
+19	P		1	p	P	-1	-1	-1		// LATIN SMALL LETTER P, LATIN CAPITAL LETTER P, <none>, <none>, <none>
+1a	OEM_4		0	005b	007b	001b	-1	-1		// LEFT SQUARE BRACKET, LEFT CURLY BRACKET, ESCAPE, <none>, <none>
+1b	OEM_6		0	005d	007d	001d	-1	-1		// RIGHT SQUARE BRACKET, RIGHT CURLY BRACKET, INFORMATION SEPARATOR THREE, <none>, <none>
+1e	A		5	a	A	-1	%%	%%		// LATIN SMALL LETTER A, LATIN CAPITAL LETTER A, <none>, <null>, <null>
+1f	S		1	s	S	-1	%%	%%		// LATIN SMALL LETTER S, LATIN CAPITAL LETTER S, <none>, <null>, <null>
+20	D		5	d	D	-1	%%	%%		// LATIN SMALL LETTER D, LATIN CAPITAL LETTER D, <none>, <null>, <null>
+21	F		1	f	F	-1	%%	%%		// LATIN SMALL LETTER F, LATIN CAPITAL LETTER F, <none>, <null>, <null>
+22	G		1	g	G	-1	%%	%%		// LATIN SMALL LETTER G, LATIN CAPITAL LETTER G, <none>, <null>, <null>
+23	H		1	h	H	-1	%%	%%		// LATIN SMALL LETTER H, LATIN CAPITAL LETTER H, <none>, <null>, <null>
+24	J		1	j	J	-1	-1	-1		// LATIN SMALL LETTER J, LATIN CAPITAL LETTER J, <none>, <none>, <none>
+25	K		1	k	K	-1	-1	-1		// LATIN SMALL LETTER K, LATIN CAPITAL LETTER K, <none>, <none>, <none>
+26	L		1	l	L	-1	-1	-1		// LATIN SMALL LETTER L, LATIN CAPITAL LETTER L, <none>, <none>, <none>
+27	OEM_1		0	003b	003a	-1	00b6	-1		// SEMICOLON, COLON, <none>, PILCROW SIGN, <none>
+28	OEM_7		0	0027	0022	-1	00b4	-1		// APOSTROPHE, QUOTATION MARK, <none>, ACUTE ACCENT, <none>
+29	OEM_3		0	0060@	007e@	-1	-1	-1		// GRAVE ACCENT, TILDE, <none>, <none>, <none>
+2b	OEM_5		0	005c	007c	001c	-1	00a6		// REVERSE SOLIDUS, VERTICAL LINE, INFORMATION SEPARATOR FOUR, <none>, BROKEN BAR
+2c	Z		1	z	Z	-1	-1	-1		// LATIN SMALL LETTER Z, LATIN CAPITAL LETTER Z, <none>, <none>, <none>
+2d	X		1	x	X	-1	-1	-1		// LATIN SMALL LETTER X, LATIN CAPITAL LETTER X, <none>, <none>, <none>
+2e	C		1	c	C	-1	-1	-1		// LATIN SMALL LETTER C, LATIN CAPITAL LETTER C, <none>, <none>, <none>
+2f	V		1	v	V	-1	-1	-1		// LATIN SMALL LETTER V, LATIN CAPITAL LETTER V, <none>, <none>, <none>
+30	B		1	b	B	-1	-1	-1		// LATIN SMALL LETTER B, LATIN CAPITAL LETTER B, <none>, <none>, <none>
+31	N		5	n	N	-1	1e45	1e44		// LATIN SMALL LETTER N, LATIN CAPITAL LETTER N, <none>, LATIN SMALL LETTER N WITH DOT ABOVE, LATIN CAPITAL LETTER N WITH DOT ABOVE
+32	M		1	m	M	-1	%%	%%		// LATIN SMALL LETTER M, LATIN CAPITAL LETTER M, <none>, <null>, <null>
+33	OEM_COMMA	4	002c	003c	-1	%%	%%		// COMMA, LESS-THAN SIGN, <none>, <null>, <null>
+34	OEM_PERIOD	0	002e	003e	-1	%%	%%		// FULL STOP, GREATER-THAN SIGN, <none>, <null>, <null>
+35	OEM_2		0	002f	003f	-1	-1	-1		// SOLIDUS, QUESTION MARK, <none>, <none>, <none>
+39	SPACE		0	0020	0020	0020	-1	-1		// SPACE, SPACE, SPACE, <none>, <none>
+56	OEM_102	0	005c	007c	001c	-1	-1		// REVERSE SOLIDUS, VERTICAL LINE, INFORMATION SEPARATOR FOUR, <none>, <none>
+53	DECIMAL	0	002e	002e	-1	-1	-1		// FULL STOP, FULL STOP, , , 
+
+LIGATURE
+
+//VK_	Mod#	Char0	Char1	Char2	Char3
+//----		----	----	----	----	----
+
+A		3	1ecd	0301		// LATIN SMALL LETTER O WITH DOT BELOW + COMBINING ACUTE ACCENT (Oxia, Tonos)
+A		4	1ecc	0301		// LATIN CAPITAL LETTER O WITH DOT BELOW + COMBINING ACUTE ACCENT (Oxia, Tonos)
+D		3	1ecd	0304		// LATIN SMALL LETTER O WITH DOT BELOW + COMBINING MACRON
+D		4	1ecc	0304		// LATIN CAPITAL LETTER O WITH DOT BELOW + COMBINING MACRON
+E		3	1ecb	0304		// LATIN SMALL LETTER I WITH DOT BELOW + COMBINING MACRON
+E		4	1eca	0304		// LATIN CAPITAL LETTER I WITH DOT BELOW + COMBINING MACRON
+F		3	1ee5	0301		// LATIN SMALL LETTER U WITH DOT BELOW + COMBINING ACUTE ACCENT (Oxia, Tonos)
+F		4	1ee4	0301		// LATIN CAPITAL LETTER U WITH DOT BELOW + COMBINING ACUTE ACCENT (Oxia, Tonos)
+G		3	1ee5	0300		// LATIN SMALL LETTER U WITH DOT BELOW + COMBINING GRAVE ACCENT (Varia)
+G		4	1ee4	0300		// LATIN CAPITAL LETTER U WITH DOT BELOW + COMBINING GRAVE ACCENT (Varia)
+H		3	1ee5	0304		// LATIN SMALL LETTER U WITH DOT BELOW + COMBINING MACRON
+H		4	1ee4	0304		// LATIN CAPITAL LETTER U WITH DOT BELOW + COMBINING MACRON
+M		3	006d	0300		// LATIN SMALL LETTER M + COMBINING GRAVE ACCENT (Varia)
+M		4	004d	0300		// LATIN CAPITAL LETTER M + COMBINING GRAVE ACCENT (Varia)
+Q		3	1ecb	0301		// LATIN SMALL LETTER I WITH DOT BELOW + COMBINING ACUTE ACCENT (Oxia, Tonos)
+Q		4	1eca	0301		// LATIN CAPITAL LETTER I WITH DOT BELOW + COMBINING ACUTE ACCENT (Oxia, Tonos)
+S		3	1ecd	0300		// LATIN SMALL LETTER O WITH DOT BELOW + COMBINING GRAVE ACCENT (Varia)
+S		4	1ecc	0300		// LATIN CAPITAL LETTER O WITH DOT BELOW + COMBINING GRAVE ACCENT (Varia)
+W		3	1ecb	0300		// LATIN SMALL LETTER I WITH DOT BELOW + COMBINING GRAVE ACCENT (Varia)
+W		4	1eca	0300		// LATIN CAPITAL LETTER I WITH DOT BELOW + COMBINING GRAVE ACCENT (Varia)
+OEM_COMMA		3	006d	0304		// LATIN SMALL LETTER M + COMBINING MACRON
+OEM_COMMA		4	004d	0304		// LATIN CAPITAL LETTER M + COMBINING MACRON
+OEM_PERIOD		3	006e	0304		// LATIN SMALL LETTER N + COMBINING MACRON
+OEM_PERIOD		4	004e	0304		// LATIN CAPITAL LETTER N + COMBINING MACRON
+
+DEADKEY	005e
+
+0061	0101	// a -> ā
+0065	0113	// e -> ē
+0075	016b	// u -> ū
+0069	012b	// i -> ī
+006f	014d	// o -> ō
+0041	0100	// A -> Ā
+0045	0112	// E -> Ē
+0055	016a	// U -> Ū
+0049	012a	// I -> Ī
+004f	014c	// O -> Ō
+0020	005e	//   -> ^
+
+DEADKEY	0060
+
+006e	01f9	// n -> ǹ
+0061	00e0	// a -> à
+0065	00e8	// e -> è
+0075	00f9	// u -> ù
+0069	00ec	// i -> ì
+006f	00f2	// o -> ò
+004e	01f8	// N -> Ǹ
+0041	00c0	// A -> À
+0045	00c8	// E -> È
+0055	00d9	// U -> Ù
+0049	00cc	// I -> Ì
+004f	00d2	// O -> Ò
+0020	0060	//   -> `
+
+DEADKEY	007e
+
+006e	0144	// n -> ń
+006d	1e3f	// m -> ḿ
+0061	00e1	// a -> á
+0065	00e9	// e -> é
+0075	00fa	// u -> ú
+0069	00ed	// i -> í
+006f	00f3	// o -> ó
+004e	0143	// N -> Ń
+004d	1e3e	// M -> Ḿ
+0041	00c1	// A -> Á
+0045	00c9	// E -> É
+0055	00da	// U -> Ú
+0049	00cd	// I -> Í
+004f	00d3	// O -> Ó
+0020	007e	//   -> ~
+
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+KEYNAME_DEAD
+
+005e	"CIRCUMFLEX ACCENT"
+0060	"GRAVE ACCENT"
+007e	"TILDE"
+
+
+DESCRIPTIONS
+
+0409	Igbo - Custom
+LANGUAGENAMES
+
+0409	Igbo (Nigeria)
+ENDKBD

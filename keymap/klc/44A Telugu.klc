@@ -1,0 +1,172 @@
+KBD	44A	"Telugu - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"te-IN"
+
+LOCALEID	"0000044a"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+3	//Column 7 : Shft  Ctrl
+6	//Column 8 :       Ctrl Alt
+7	//Column 9 : Shft  Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	3	6	7
+//--	----		----	----	----	----	----	----	----
+
+02	1		0	1	-1	-1	200d	0c67	-1		// DIGIT ONE, <none>, <none>, ZERO WIDTH JOINER, TELUGU DIGIT ONE, <none>
+03	2		0	2	-1	-1	200c	0c68	-1		// DIGIT TWO, <none>, <none>, ZERO WIDTH NON-JOINER, TELUGU DIGIT TWO, <none>
+04	3		0	3	%%	-1	-1	0c69	-1		// DIGIT THREE, <null>, <none>, <none>, TELUGU DIGIT THREE, <none>
+05	4		0	4	-1	-1	20b9	0c6a	-1		// DIGIT FOUR, <none>, <none>, Indian Rupee Sign, TELUGU DIGIT FOUR, <none>
+06	5		0	5	%%	-1	-1	0c6b	-1		// DIGIT FIVE, <null>, <none>, <none>, TELUGU DIGIT FIVE, <none>
+07	6		0	6	%%	-1	-1	0c6c	-1		// DIGIT SIX, <null>, <none>, <none>, TELUGU DIGIT SIX, <none>
+08	7		0	7	%%	-1	-1	0c6d	-1		// DIGIT SEVEN, <null>, <none>, <none>, TELUGU DIGIT SEVEN, <none>
+09	8		0	8	%%	-1	-1	0c6e	-1		// DIGIT EIGHT, <null>, <none>, <none>, TELUGU DIGIT EIGHT, <none>
+0a	9		0	9	0028	-1	-1	0c6f	-1		// DIGIT NINE, LEFT PARENTHESIS, <none>, <none>, TELUGU DIGIT NINE, <none>
+0b	0		0	0	0029	-1	-1	0c66	-1		// DIGIT ZERO, RIGHT PARENTHESIS, <none>, <none>, TELUGU DIGIT ZERO, <none>
+0c	OEM_MINUS	0	002d	0c03	-1	-1	-1	-1		// HYPHEN-MINUS, TELUGU SIGN VISARGA, <none>, <none>, <none>, <none>
+0d	OEM_PLUS	0	0c43	0c0b	-1	-1	0c44	0c60		// TELUGU VOWEL SIGN VOCALIC R, TELUGU LETTER VOCALIC R, <none>, <none>, TELUGU VOWEL SIGN VOCALIC RR, TELUGU LETTER VOCALIC RR
+10	Q		0	0c4c	0c14	-1	-1	-1	-1		// TELUGU VOWEL SIGN AU, TELUGU LETTER AU, <none>, <none>, <none>, <none>
+11	W		0	0c48	0c10	-1	-1	0c56	-1		// TELUGU VOWEL SIGN AI, TELUGU LETTER AI, <none>, <none>, TELUGU AI LENGTH MARK, <none>
+12	E		0	0c3e	0c06	-1	-1	-1	-1		// TELUGU VOWEL SIGN AA, TELUGU LETTER AA, <none>, <none>, <none>, <none>
+13	R		0	0c40	0c08	-1	-1	-1	0c61		// TELUGU VOWEL SIGN II, TELUGU LETTER II, <none>, <none>, <none>, TELUGU LETTER VOCALIC LL
+14	T		0	0c42	0c0a	-1	-1	-1	-1		// TELUGU VOWEL SIGN UU, TELUGU LETTER UU, <none>, <none>, <none>, <none>
+15	Y		0	0c2c	0c2d	-1	-1	-1	-1		// TELUGU LETTER BA, TELUGU LETTER BHA, <none>, <none>, <none>, <none>
+16	U		0	0c39	0c19	-1	-1	-1	-1		// TELUGU LETTER HA, TELUGU LETTER NGA, <none>, <none>, <none>, <none>
+17	I		0	0c17	0c18	-1	-1	-1	-1		// TELUGU LETTER GA, TELUGU LETTER GHA, <none>, <none>, <none>, <none>
+18	O		0	0c26	0c27	-1	-1	-1	-1		// TELUGU LETTER DA, TELUGU LETTER DHA, <none>, <none>, <none>, <none>
+19	P		0	0c1c	0c1d	-1	-1	0c59	-1		// TELUGU LETTER JA, TELUGU LETTER JHA, <none>, <none>, Telugu Letter Dza, <none>
+1a	OEM_4		0	0c21	0c22	-1	-1	-1	-1		// TELUGU LETTER DDA, TELUGU LETTER DDHA, <none>, <none>, <none>, <none>
+1b	OEM_6		0	-1	0c1e	-1	-1	-1	-1		// <none>, TELUGU LETTER NYA, <none>, <none>, <none>, <none>
+1e	A		0	0c4b	0c13	-1	-1	-1	-1		// TELUGU VOWEL SIGN OO, TELUGU LETTER OO, <none>, <none>, <none>, <none>
+1f	S		0	0c47	0c0f	-1	-1	0c55	-1		// TELUGU VOWEL SIGN EE, TELUGU LETTER EE, <none>, <none>, TELUGU LENGTH MARK, <none>
+20	D		0	0c4d	0c05	-1	-1	-1	-1		// TELUGU SIGN VIRAMA, TELUGU LETTER A, <none>, <none>, <none>, <none>
+21	F		0	0c3f	0c07	-1	-1	-1	0c0c		// TELUGU VOWEL SIGN I, TELUGU LETTER I, <none>, <none>, <none>, TELUGU LETTER VOCALIC L
+22	G		0	0c41	0c09	-1	-1	-1	-1		// TELUGU VOWEL SIGN U, TELUGU LETTER U, <none>, <none>, <none>, <none>
+23	H		0	0c2a	0c2b	-1	-1	-1	-1		// TELUGU LETTER PA, TELUGU LETTER PHA, <none>, <none>, <none>, <none>
+24	J		0	0c30	0c31	-1	-1	-1	-1		// TELUGU LETTER RA, TELUGU LETTER RRA, <none>, <none>, <none>, <none>
+25	K		0	0c15	0c16	-1	-1	-1	-1		// TELUGU LETTER KA, TELUGU LETTER KHA, <none>, <none>, <none>, <none>
+26	L		0	0c24	0c25	-1	-1	-1	-1		// TELUGU LETTER TA, TELUGU LETTER THA, <none>, <none>, <none>, <none>
+27	OEM_1		0	0c1a	0c1b	-1	-1	0c58	-1		// TELUGU LETTER CA, TELUGU LETTER CHA, <none>, <none>, Telugu Letter Tsa, <none>
+28	OEM_7		0	0c1f	0c20	-1	-1	-1	-1		// TELUGU LETTER TTA, TELUGU LETTER TTHA, <none>, <none>, <none>, <none>
+29	OEM_3		0	0c4a	0c12	-1	-1	-1	-1		// TELUGU VOWEL SIGN O, TELUGU LETTER O, <none>, <none>, <none>, <none>
+2c	Z		0	0c46	0c0e	-1	-1	-1	-1		// TELUGU VOWEL SIGN E, TELUGU LETTER E, <none>, <none>, <none>, <none>
+2d	X		0	0c02	0c01	-1	-1	-1	-1		// TELUGU SIGN ANUSVARA, TELUGU SIGN CANDRABINDU, <none>, <none>, <none>, <none>
+2e	C		0	0c2e	0c23	-1	-1	-1	-1		// TELUGU LETTER MA, TELUGU LETTER NNA, <none>, <none>, <none>, <none>
+2f	V		0	0c28	0c28	-1	-1	-1	-1		// TELUGU LETTER NA, TELUGU LETTER NA, <none>, <none>, <none>, <none>
+30	B		0	0c35	-1	-1	-1	-1	-1		// TELUGU LETTER VA, <none>, <none>, <none>, <none>, <none>
+31	N		0	0c32	0c33	-1	-1	-1	-1		// TELUGU LETTER LA, TELUGU LETTER LLA, <none>, <none>, <none>, <none>
+32	M		0	0c38	0c36	-1	-1	-1	-1		// TELUGU LETTER SA, TELUGU LETTER SHA, <none>, <none>, <none>, <none>
+33	OEM_COMMA	0	002c	0c37	-1	-1	-1	-1		// COMMA, TELUGU LETTER SSA, <none>, <none>, <none>, <none>
+34	OEM_PERIOD	0	002e	-1	-1	-1	-1	-1		// FULL STOP, <none>, <none>, <none>, <none>, <none>
+35	OEM_2		0	0c2f	-1	-1	-1	-1	-1		// TELUGU LETTER YA, <none>, <none>, <none>, <none>, <none>
+39	SPACE		0	0020	0020	0020	-1	-1	-1		// SPACE, SPACE, SPACE, <none>, <none>, <none>
+53	DECIMAL	0	002e	002e	-1	-1	-1	-1		// FULL STOP, FULL STOP, , , , 
+
+LIGATURE
+
+//VK_	Mod#	Char0	Char1	Char2	Char3
+//----		----	----	----	----	----
+
+3		1	0c4d	0c30		// TELUGU SIGN VIRAMA + TELUGU LETTER RA
+5		1	0c1c	0c4d	0c1e		// TELUGU LETTER JA + TELUGU SIGN VIRAMA + TELUGU LETTER NYA
+6		1	0c24	0c4d	0c30		// TELUGU LETTER TA + TELUGU SIGN VIRAMA + TELUGU LETTER RA
+7		1	0c15	0c4d	0c37		// TELUGU LETTER KA + TELUGU SIGN VIRAMA + TELUGU LETTER SSA
+8		1	0c36	0c4d	0c30		// TELUGU LETTER SHA + TELUGU SIGN VIRAMA + TELUGU LETTER RA
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Telugu - Custom
+LANGUAGENAMES
+
+0409	Telugu (India)
+ENDKBD

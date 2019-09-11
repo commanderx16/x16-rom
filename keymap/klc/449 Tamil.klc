@@ -1,0 +1,170 @@
+KBD	449	"Tamil - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"ta-IN"
+
+LOCALEID	"00000449"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+3	//Column 7 : Shft  Ctrl
+6	//Column 8 :       Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	3	6
+//--	----		----	----	----	----	----	----
+
+02	1		0	1	-1	-1	200d	0be7		// DIGIT ONE, <none>, <none>, ZERO WIDTH JOINER, TAMIL DIGIT ONE
+03	2		0	2	-1	-1	200c	0be8		// DIGIT TWO, <none>, <none>, ZERO WIDTH NON-JOINER, TAMIL DIGIT TWO
+04	3		0	3	-1	-1	-1	0be9		// DIGIT THREE, <none>, <none>, <none>, TAMIL DIGIT THREE
+05	4		0	4	-1	-1	20b9	0bea		// DIGIT FOUR, <none>, <none>, Indian Rupee Sign, TAMIL DIGIT FOUR
+06	5		0	5	-1	-1	-1	0beb		// DIGIT FIVE, <none>, <none>, <none>, TAMIL DIGIT FIVE
+07	6		0	6	%%	-1	-1	0bec		// DIGIT SIX, <null>, <none>, <none>, TAMIL DIGIT SIX
+08	7		0	7	%%	-1	-1	0bed		// DIGIT SEVEN, <null>, <none>, <none>, TAMIL DIGIT SEVEN
+09	8		0	8	%%	-1	-1	0bee		// DIGIT EIGHT, <null>, <none>, <none>, TAMIL DIGIT EIGHT
+0a	9		0	9	-1	-1	-1	0bef		// DIGIT NINE, <none>, <none>, <none>, TAMIL DIGIT NINE
+0b	0		0	0	0bf0	-1	-1	0be6		// DIGIT ZERO, TAMIL NUMBER TEN, <none>, <none>, TAMIL DIGIT ZERO
+0c	OEM_MINUS	0	002d	0b83	-1	-1	0bf1		// HYPHEN-MINUS, TAMIL SIGN VISARGA, <none>, <none>, TAMIL NUMBER ONE HUNDRED
+0d	OEM_PLUS	0	-1	-1	-1	-1	0bf2		// <none>, <none>, <none>, <none>, TAMIL NUMBER ONE THOUSAND
+10	Q		0	0bcc	0b94	-1	-1	-1		// TAMIL VOWEL SIGN AU, TAMIL LETTER AU, <none>, <none>, <none>
+11	W		0	0bc8	0b90	-1	-1	-1		// TAMIL VOWEL SIGN AI, TAMIL LETTER AI, <none>, <none>, <none>
+12	E		0	0bbe	0b86	-1	-1	-1		// TAMIL VOWEL SIGN AA, TAMIL LETTER AA, <none>, <none>, <none>
+13	R		0	0bc0	0b88	-1	-1	-1		// TAMIL VOWEL SIGN II, TAMIL LETTER II, <none>, <none>, <none>
+14	T		0	0bc2	0b8a	-1	-1	-1		// TAMIL VOWEL SIGN UU, TAMIL LETTER UU, <none>, <none>, <none>
+15	Y		0	0baa	0baa	-1	-1	0bf7		// TAMIL LETTER PA, TAMIL LETTER PA, <none>, <none>, TAMIL CREDIT SIGN (Varavu)
+16	U		0	0bb9	0b99	-1	-1	-1		// TAMIL LETTER HA, TAMIL LETTER NGA, <none>, <none>, <none>
+17	I		0	0b95	0b95	-1	-1	-1		// TAMIL LETTER KA, TAMIL LETTER KA, <none>, <none>, <none>
+18	O		0	0ba4	0ba4	-1	-1	-1		// TAMIL LETTER TA, TAMIL LETTER TA, <none>, <none>, <none>
+19	P		0	0b9c	0b9a	-1	-1	-1		// TAMIL LETTER JA, TAMIL LETTER CA, <none>, <none>, <none>
+1a	OEM_4		0	0b9f	0b9f	-1	-1	-1		// TAMIL LETTER TTA, TAMIL LETTER TTA, <none>, <none>, <none>
+1b	OEM_6		0	0b9e	0b9e	-1	-1	-1		// TAMIL LETTER NYA, TAMIL LETTER NYA, <none>, <none>, <none>
+1e	A		0	0bcb	0b93	-1	-1	-1		// TAMIL VOWEL SIGN OO, TAMIL LETTER OO, <none>, <none>, <none>
+1f	S		0	0bc7	0b8f	-1	-1	-1		// TAMIL VOWEL SIGN EE, TAMIL LETTER EE, <none>, <none>, <none>
+20	D		0	0bcd	0b85	-1	-1	-1		// TAMIL SIGN VIRAMA, TAMIL LETTER A, <none>, <none>, <none>
+21	F		0	0bbf	0b87	-1	-1	-1		// TAMIL VOWEL SIGN I, TAMIL LETTER I, <none>, <none>, <none>
+22	G		0	0bc1	0b89	-1	-1	-1		// TAMIL VOWEL SIGN U, TAMIL LETTER U, <none>, <none>, <none>
+23	H		0	0baa	0baa	-1	-1	0bf6		// TAMIL LETTER PA, TAMIL LETTER PA, <none>, <none>, TAMIL DEBIT SIGN (Patru)
+24	J		0	0bb0	0bb1	-1	-1	-1		// TAMIL LETTER RA, TAMIL LETTER RRA, <none>, <none>, <none>
+25	K		0	0b95	0b95	-1	-1	-1		// TAMIL LETTER KA, TAMIL LETTER KA, <none>, <none>, <none>
+26	L		0	0ba4	0ba4	-1	-1	-1		// TAMIL LETTER TA, TAMIL LETTER TA, <none>, <none>, <none>
+27	OEM_1		0	0b9a	0b9a	-1	-1	-1		// TAMIL LETTER CA, TAMIL LETTER CA, <none>, <none>, <none>
+28	OEM_7		0	0b9f	0b9f	-1	-1	-1		// TAMIL LETTER TTA, TAMIL LETTER TTA, <none>, <none>, <none>
+29	OEM_3		0	0bca	0b92	-1	-1	-1		// TAMIL VOWEL SIGN O, TAMIL LETTER O, <none>, <none>, <none>
+2c	Z		0	0bc6	0b8e	-1	-1	0bf9		// TAMIL VOWEL SIGN E, TAMIL LETTER E, <none>, <none>, TAMIL RUPEE SIGN (Rupai)
+2d	X		0	-1	0bd0	-1	-1	0bfa		// <none>, Tamil Om, <none>, <none>, TAMIL NUMBER SIGN (Enn)
+2e	C		0	0bae	0ba3	-1	-1	0bf4		// TAMIL LETTER MA, TAMIL LETTER NNA, <none>, <none>, TAMIL MONTH SIGN (Maatham)
+2f	V		0	0ba8	0ba9	-1	-1	0bf3		// TAMIL LETTER NA, TAMIL LETTER NNNA, <none>, <none>, TAMIL DAY SIGN (Naal)
+30	B		0	0bb5	0bb4	-1	-1	0bf5		// TAMIL LETTER VA, TAMIL LETTER LLLA, <none>, <none>, TAMIL YEAR SIGN (Varudam)
+31	N		0	0bb2	0bb3	-1	-1	0bf8		// TAMIL LETTER LA, TAMIL LETTER LLA, <none>, <none>, TAMIL AS ABOVE SIGN (Merpadi)
+32	M		0	0bb8	0bb6	-1	-1	-1		// TAMIL LETTER SA, TAMIL LETTER SHA, <none>, <none>, <none>
+33	OEM_COMMA	0	002c	0bb7	-1	-1	-1		// COMMA, TAMIL LETTER SSA, <none>, <none>, <none>
+34	OEM_PERIOD	0	002e	%%	-1	-1	-1		// FULL STOP, <null>, <none>, <none>, <none>
+35	OEM_2		0	0baf	0baf	-1	-1	-1		// TAMIL LETTER YA, TAMIL LETTER YA, <none>, <none>, <none>
+39	SPACE		0	0020	0020	-1	-1	-1		// SPACE, SPACE, <none>, <none>, <none>
+53	DECIMAL	0	002e	002e	-1	-1	-1		// FULL STOP, FULL STOP, , , 
+
+LIGATURE
+
+//VK_	Mod#	Char0	Char1	Char2	Char3
+//----		----	----	----	----	----
+
+6		1	0ba4	0bcd	0bb0		// TAMIL LETTER TA + TAMIL SIGN VIRAMA + TAMIL LETTER RA
+7		1	0b95	0bcd	0bb7		// TAMIL LETTER KA + TAMIL SIGN VIRAMA + TAMIL LETTER SSA
+8		1	0bb7	0bcd	0bb0		// TAMIL LETTER SSA + TAMIL SIGN VIRAMA + TAMIL LETTER RA
+OEM_PERIOD		1	0bb8	0bcd	0bb0	0bc0		// TAMIL LETTER SA + TAMIL SIGN VIRAMA + TAMIL LETTER RA + TAMIL VOWEL SIGN II
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Tamil - Custom
+LANGUAGENAMES
+
+0409	Tamil (India)
+ENDKBD

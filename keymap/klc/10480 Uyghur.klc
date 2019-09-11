@@ -1,0 +1,166 @@
+KBD	10480	"Uyghur - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"ug-CN"
+
+LOCALEID	"00010480"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2
+//--	----		----	----	----	----
+
+02	1		0	1	0021	-1		// DIGIT ONE, EXCLAMATION MARK, <none>
+03	2		0	2	0040	-1		// DIGIT TWO, COMMERCIAL AT, <none>
+04	3		0	3	0023	-1		// DIGIT THREE, NUMBER SIGN, <none>
+05	4		0	4	0024	-1		// DIGIT FOUR, DOLLAR SIGN, <none>
+06	5		0	5	0025	-1		// DIGIT FIVE, PERCENT SIGN, <none>
+07	6		0	6	005e	-1		// DIGIT SIX, CIRCUMFLEX ACCENT, <none>
+08	7		0	7	0026	-1		// DIGIT SEVEN, AMPERSAND, <none>
+09	8		0	8	002a	-1		// DIGIT EIGHT, ASTERISK, <none>
+0a	9		0	9	0029	-1		// DIGIT NINE, RIGHT PARENTHESIS, <none>
+0b	0		0	0	0028	-1		// DIGIT ZERO, LEFT PARENTHESIS, <none>
+0c	OEM_MINUS	0	002d	005f	-1		// HYPHEN-MINUS, LOW LINE, <none>
+0d	OEM_PLUS	0	003d	002b	-1		// EQUALS SIGN, PLUS SIGN, <none>
+10	Q		0	0686	-1	-1		// ARABIC LETTER TCHEH, <none>, <none>
+11	W		0	06cb	-1	-1		// ARABIC LETTER VE, <none>, <none>
+12	E		0	06d0	-1	-1		// ARABIC LETTER E *, <none>, <none>
+13	R		0	0631	-1	-1		// ARABIC LETTER REH, <none>, <none>
+14	T		0	062a	-1	-1		// ARABIC LETTER TEH, <none>, <none>
+15	Y		0	064a	-1	-1		// ARABIC LETTER YEH, <none>, <none>
+16	U		0	06c7	-1	-1		// ARABIC LETTER U, <none>, <none>
+17	I		0	06ad	-1	-1		// ARABIC LETTER NG, <none>, <none>
+18	O		0	0648	-1	-1		// ARABIC LETTER WAW, <none>, <none>
+19	P		0	067e	-1	-1		// ARABIC LETTER PEH, <none>, <none>
+1a	OEM_4		0	005d	00bb	-1		// RIGHT SQUARE BRACKET, RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK *, <none>
+1b	OEM_6		0	005b	00ab	-1		// LEFT SQUARE BRACKET, LEFT-POINTING DOUBLE ANGLE QUOTATION MARK *, <none>
+1e	A		0	06be	-1	-1		// ARABIC LETTER HEH DOACHASHMEE, <none>, <none>
+1f	S		0	0633	-1	-1		// ARABIC LETTER SEEN, <none>, <none>
+20	D		0	062f	0698	-1		// ARABIC LETTER DAL, ARABIC LETTER JEH, <none>
+21	F		0	0627	0641	-1		// ARABIC LETTER ALEF, ARABIC LETTER FEH, <none>
+22	G		0	06d5	06af	-1		// ARABIC LETTER AE, ARABIC LETTER GAF *, <none>
+23	H		0	0649	062e	-1		// ARABIC LETTER ALEF MAKSURA, ARABIC LETTER KHAH, <none>
+24	J		0	0642	062c	-1		// ARABIC LETTER QAF, ARABIC LETTER JEEM, <none>
+25	K		0	0643	06c6	-1		// ARABIC LETTER KAF, ARABIC LETTER OE, <none>
+26	L		0	0644	%%	-1		// ARABIC LETTER LAM, <null>, <none>
+27	OEM_1		0	061b	003a	-1		// ARABIC SEMICOLON, COLON, <none>
+28	OEM_7		0	0027	0022	-1		// APOSTROPHE, QUOTATION MARK, <none>
+29	OEM_3		0	0060	007e	-1		// GRAVE ACCENT, TILDE, <none>
+2b	OEM_5		0	005c	007c	-1		// REVERSE SOLIDUS, VERTICAL LINE, <none>
+2c	Z		0	0632	-1	-1		// ARABIC LETTER ZAIN, <none>, <none>
+2d	X		0	0634	-1	-1		// ARABIC LETTER SHEEN, <none>, <none>
+2e	C		0	063a	-1	-1		// ARABIC LETTER GHAIN, <none>, <none>
+2f	V		0	06c8	-1	-1		// ARABIC LETTER YU, <none>, <none>
+30	B		0	0628	-1	-1		// ARABIC LETTER BEH, <none>, <none>
+31	N		0	0646	-1	-1		// ARABIC LETTER NOON, <none>, <none>
+32	M		0	0645	-1	-1		// ARABIC LETTER MEEM, <none>, <none>
+33	OEM_COMMA	0	060c	003e	-1		// ARABIC COMMA, GREATER-THAN SIGN, <none>
+34	OEM_PERIOD	0	002e	003c	-1		// FULL STOP, LESS-THAN SIGN, <none>
+35	OEM_2		0	0626	061f	-1		// ARABIC LETTER YEH WITH HAMZA ABOVE, ARABIC QUESTION MARK, <none>
+39	SPACE		0	0020	0020	-1		// SPACE, SPACE, <none>
+53	DECIMAL	0	002e	002e	-1		// FULL STOP, FULL STOP, 
+
+LIGATURE
+
+//VK_	Mod#	Char0	Char1	Char2	Char3
+//----		----	----	----	----	----
+
+L		1	0644	0627		// ARABIC LETTER LAM + ARABIC LETTER ALEF
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Uyghur - Custom
+LANGUAGENAMES
+
+0409	Uyghur (China)
+ENDKBD

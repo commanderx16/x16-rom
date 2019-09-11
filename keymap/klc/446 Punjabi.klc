@@ -1,0 +1,169 @@
+KBD	446	"Punjabi - Custom"
+
+COPYRIGHT	"(c) 2012 Company"
+
+COMPANY	"Company"
+
+LOCALENAME	"pa-IN"
+
+LOCALEID	"00000446"
+
+VERSION	1.0
+
+SHIFTSTATE
+
+0	//Column 4
+1	//Column 5 : Shft
+2	//Column 6 :       Ctrl
+3	//Column 7 : Shft  Ctrl
+6	//Column 8 :       Ctrl Alt
+7	//Column 9 : Shft  Ctrl Alt
+
+LAYOUT		;an extra '@' at the end is a dead key
+
+//SC	VK_		Cap	0	1	2	3	6	7
+//--	----		----	----	----	----	----	----	----
+
+02	1		0	1	%%	-1	200d	0a67	-1		// DIGIT ONE, <null>, <none>, ZERO WIDTH JOINER, GURMUKHI DIGIT ONE, <none>
+03	2		0	2	%%	-1	200c	0a68	-1		// DIGIT TWO, <null>, <none>, ZERO WIDTH NON-JOINER, GURMUKHI DIGIT TWO, <none>
+04	3		0	3	%%	-1	-1	0a69	-1		// DIGIT THREE, <null>, <none>, <none>, GURMUKHI DIGIT THREE, <none>
+05	4		0	4	0a71	-1	20b9	0a6a	-1		// DIGIT FOUR, GURMUKHI ADDAK, <none>, Indian Rupee Sign, GURMUKHI DIGIT FOUR, <none>
+06	5		0	5	-1	-1	-1	0a6b	-1		// DIGIT FIVE, <none>, <none>, <none>, GURMUKHI DIGIT FIVE, <none>
+07	6		0	6	-1	-1	-1	0a6c	-1		// DIGIT SIX, <none>, <none>, <none>, GURMUKHI DIGIT SIX, <none>
+08	7		0	7	-1	-1	-1	0a6d	-1		// DIGIT SEVEN, <none>, <none>, <none>, GURMUKHI DIGIT SEVEN, <none>
+09	8		0	8	-1	-1	-1	0a6e	-1		// DIGIT EIGHT, <none>, <none>, <none>, GURMUKHI DIGIT EIGHT, <none>
+0a	9		0	9	0028	-1	-1	0a6f	-1		// DIGIT NINE, LEFT PARENTHESIS, <none>, <none>, GURMUKHI DIGIT NINE, <none>
+0b	0		0	0	0029	-1	-1	0a66	-1		// DIGIT ZERO, RIGHT PARENTHESIS, <none>, <none>, GURMUKHI DIGIT ZERO, <none>
+0c	OEM_MINUS	0	002d	-1	-1	-1	-1	-1		// HYPHEN-MINUS, <none>, <none>, <none>, <none>, <none>
+10	Q		0	0a4c	0a14	-1	-1	-1	-1		// GURMUKHI VOWEL SIGN AU, GURMUKHI LETTER AU, <none>, <none>, <none>, <none>
+11	W		0	0a48	0a10	-1	-1	-1	-1		// GURMUKHI VOWEL SIGN AI, GURMUKHI LETTER AI, <none>, <none>, <none>, <none>
+12	E		0	0a3e	0a06	-1	-1	-1	-1		// GURMUKHI VOWEL SIGN AA, GURMUKHI LETTER AA, <none>, <none>, <none>, <none>
+13	R		0	0a40	0a08	-1	-1	-1	-1		// GURMUKHI VOWEL SIGN II, GURMUKHI LETTER II, <none>, <none>, <none>, <none>
+14	T		0	0a42	0a0a	-1	-1	-1	-1		// GURMUKHI VOWEL SIGN UU, GURMUKHI LETTER UU, <none>, <none>, <none>, <none>
+15	Y		0	0a2c	0a2d	-1	-1	-1	-1		// GURMUKHI LETTER BA, GURMUKHI LETTER BHA, <none>, <none>, <none>, <none>
+16	U		0	0a39	0a19	-1	-1	-1	-1		// GURMUKHI LETTER HA, GURMUKHI LETTER NGA, <none>, <none>, <none>, <none>
+17	I		0	0a17	0a18	-1	-1	0a5a	-1		// GURMUKHI LETTER GA, GURMUKHI LETTER GHA, <none>, <none>, GURMUKHI LETTER GHHA, <none>
+18	O		0	0a26	0a27	-1	-1	-1	-1		// GURMUKHI LETTER DA, GURMUKHI LETTER DHA, <none>, <none>, <none>, <none>
+19	P		0	0a1c	0a1d	-1	-1	0a5b	-1		// GURMUKHI LETTER JA, GURMUKHI LETTER JHA, <none>, <none>, GURMUKHI LETTER ZA, <none>
+1a	OEM_4		0	0a21	0a22	-1	-1	0a5c	-1		// GURMUKHI LETTER DDA, GURMUKHI LETTER DDHA, <none>, <none>, GURMUKHI LETTER RRA, <none>
+1b	OEM_6		0	0a3c	0a1e	-1	-1	-1	-1		// GURMUKHI SIGN NUKTA, GURMUKHI LETTER NYA, <none>, <none>, <none>, <none>
+1e	A		0	0a4b	0a13	-1	-1	-1	-1		// GURMUKHI VOWEL SIGN OO, GURMUKHI LETTER OO, <none>, <none>, <none>, <none>
+1f	S		0	0a47	0a0f	-1	-1	-1	-1		// GURMUKHI VOWEL SIGN EE, GURMUKHI LETTER EE, <none>, <none>, <none>, <none>
+20	D		0	0a4d	0a05	-1	-1	-1	-1		// GURMUKHI SIGN VIRAMA, GURMUKHI LETTER A, <none>, <none>, <none>, <none>
+21	F		0	0a3f	0a07	-1	-1	-1	0a72		// GURMUKHI VOWEL SIGN I, GURMUKHI LETTER I, <none>, <none>, <none>, GURMUKHI IRI
+22	G		0	0a41	0a09	-1	-1	-1	0a73		// GURMUKHI VOWEL SIGN U, GURMUKHI LETTER U, <none>, <none>, <none>, GURMUKHI URA
+23	H		0	0a2a	0a2b	-1	-1	0a5e	-1		// GURMUKHI LETTER PA, GURMUKHI LETTER PHA, <none>, <none>, GURMUKHI LETTER FA, <none>
+24	J		0	0a30	0a5c	-1	-1	-1	-1		// GURMUKHI LETTER RA, GURMUKHI LETTER RRA, <none>, <none>, <none>, <none>
+25	K		0	0a15	0a16	-1	-1	0a59	-1		// GURMUKHI LETTER KA, GURMUKHI LETTER KHA, <none>, <none>, GURMUKHI LETTER KHHA, <none>
+26	L		0	0a24	0a25	-1	-1	-1	-1		// GURMUKHI LETTER TA, GURMUKHI LETTER THA, <none>, <none>, <none>, <none>
+27	OEM_1		0	0a1a	0a1b	-1	-1	-1	-1		// GURMUKHI LETTER CA, GURMUKHI LETTER CHA, <none>, <none>, <none>, <none>
+28	OEM_7		0	0a1f	0a20	-1	-1	-1	-1		// GURMUKHI LETTER TTA, GURMUKHI LETTER TTHA, <none>, <none>, <none>, <none>
+29	OEM_3		0	-1	%%	-1	-1	-1	-1		// <none>, <null>, <none>, <none>, <none>, <none>
+2d	X		0	0a70	0a02	-1	-1	-1	0a74		// GURMUKHI TIPPI, GURMUKHI SIGN BINDI, <none>, <none>, <none>, GURMUKHI EK ONKAR
+2e	C		0	0a2e	0a23	-1	-1	-1	-1		// GURMUKHI LETTER MA, GURMUKHI LETTER NNA, <none>, <none>, <none>, <none>
+2f	V		0	0a28	-1	-1	-1	-1	-1		// GURMUKHI LETTER NA, <none>, <none>, <none>, <none>, <none>
+30	B		0	0a35	0a72	-1	-1	0a73	-1		// GURMUKHI LETTER VA, GURMUKHI IRI, <none>, <none>, GURMUKHI URA, <none>
+31	N		0	0a32	0a33	-1	-1	-1	-1		// GURMUKHI LETTER LA, GURMUKHI LETTER LLA, <none>, <none>, <none>, <none>
+32	M		0	0a38	0a36	-1	-1	-1	-1		// GURMUKHI LETTER SA, GURMUKHI LETTER SHA, <none>, <none>, <none>, <none>
+33	OEM_COMMA	0	002c	-1	-1	-1	-1	-1		// COMMA, <none>, <none>, <none>, <none>, <none>
+34	OEM_PERIOD	0	002e	0964	-1	-1	0965	-1		// FULL STOP, DEVANAGARI DANDA, <none>, <none>, DEVANAGARI DOUBLE DANDA, <none>
+35	OEM_2		0	0a2f	-1	-1	-1	-1	-1		// GURMUKHI LETTER YA, <none>, <none>, <none>, <none>, <none>
+39	SPACE		0	0020	0020	0020	-1	-1	-1		// SPACE, SPACE, SPACE, <none>, <none>, <none>
+53	DECIMAL	0	002e	002e	-1	-1	-1	-1		// FULL STOP, FULL STOP, , , , 
+
+LIGATURE
+
+//VK_	Mod#	Char0	Char1	Char2	Char3
+//----		----	----	----	----	----
+
+1		1	0a4d	0a35		// GURMUKHI SIGN VIRAMA + GURMUKHI LETTER VA
+2		1	0a4d	0a2f		// GURMUKHI SIGN VIRAMA + GURMUKHI LETTER YA
+3		1	0a4d	0a30		// GURMUKHI SIGN VIRAMA + GURMUKHI LETTER RA
+OEM_3		1	0a4d	0a39		// GURMUKHI SIGN VIRAMA + GURMUKHI LETTER HA
+
+KEYNAME
+
+01	Esc
+0e	Backspace
+0f	Tab
+1c	Enter
+1d	Ctrl
+2a	Shift
+36	"Right Shift"
+37	"Num *"
+38	Alt
+39	Space
+3a	"Caps Lock"
+3b	F1
+3c	F2
+3d	F3
+3e	F4
+3f	F5
+40	F6
+41	F7
+42	F8
+43	F9
+44	F10
+45	Pause
+46	"Scroll Lock"
+47	"Num 7"
+48	"Num 8"
+49	"Num 9"
+4a	"Num -"
+4b	"Num 4"
+4c	"Num 5"
+4d	"Num 6"
+4e	"Num +"
+4f	"Num 1"
+50	"Num 2"
+51	"Num 3"
+52	"Num 0"
+53	"Num Del"
+54	"Sys Req"
+57	F11
+58	F12
+7c	F13
+7d	F14
+7e	F15
+7f	F16
+80	F17
+81	F18
+82	F19
+83	F20
+84	F21
+85	F22
+86	F23
+87	F24
+
+KEYNAME_EXT
+
+1c	"Num Enter"
+1d	"Right Ctrl"
+35	"Num /"
+37	"Prnt Scrn"
+38	"Right Alt"
+45	"Num Lock"
+46	Break
+47	Home
+48	Up
+49	"Page Up"
+4b	Left
+4d	Right
+4f	End
+50	Down
+51	"Page Down"
+52	Insert
+53	Delete
+54	<00>
+56	Help
+5b	"Left Windows"
+5c	"Right Windows"
+5d	Application
+
+DESCRIPTIONS
+
+0409	Punjabi - Custom
+LANGUAGENAMES
+
+0409	Punjabi (India)
+ENDKBD
