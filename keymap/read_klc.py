@@ -158,6 +158,16 @@ def petscii_from_ascii(c):
 		return chr(0)
 	return c
 
+def ascii_from_petscii(c):
+	# only does the minumum
+	if ord(c) == 0x5c: # '£'
+		return chr(0xa3)
+	if ord(c) == 0x5f: # '←'
+		return chr(0x2190)
+	if ord(c) == 0xff: # 'π'
+		return chr(0x03c0)
+	return c
+
 # constants
 
 # a string with all printable 7-bit PETSCII characters
@@ -371,7 +381,7 @@ for shiftstate in keytab.keys():
 petscii_chars_not_reachable = ""
 for c in all_petscii_chars:
 	if not c in keytab[REG] and not c in keytab[SHFT] and not c in keytab[CTRL] and not c in keytab[ALT]:
-		petscii_chars_not_reachable += c
+		petscii_chars_not_reachable += ascii_from_petscii(c)
 
 petscii_codes_not_reachable = ""
 for c in all_petscii_codes:
