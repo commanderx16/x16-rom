@@ -1,0 +1,6 @@
+// \ -> ←
+10	Q		1	q	Q	-1	2190		// LATIN SMALL LETTER Q, LATIN CAPITAL LETTER Q, <none>, LEFTWARDS ARROW
+// | -> π
+11	W		1	w	W	-1	03c0		// LATIN SMALL LETTER W, LATIN CAPITAL LETTER W, <none>, GREEK SMALL LETTER PI
+// § -> £
+29	0		0	0	00a3	-1	-1		// DIGIT ZERO, POUND SIGN, <none>, <none>
