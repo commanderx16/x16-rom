@@ -1,4 +1,4 @@
-import io, re, codecs, sys
+import io, re, codecs, sys, os.path
 import pprint
 
 REG   = 0
@@ -8,18 +8,21 @@ ALT   = 4
 ALTGR = 6
 
 def get_kbd_layout(base_filename):
-	filename_klc = base_filename + '.klc'
-	filename_changes = base_filename + '.changes'
+	filename_klc = base_filename
+	filename_changes = base_filename + 'patch'
 
-	f = io.open(filename_klc, mode="r", encoding="utf-16")
+	f = io.open(filename_klc, mode="r", encoding="utf-8")
 	lines = f.readlines()
 	f.close()
 	lines = [x.strip() for x in lines]
 	
-	f = io.open(filename_changes, mode="r", encoding="utf-8")
-	lines_changes = f.readlines()
-	f.close()
-	lines_changes = [x.strip() for x in lines_changes]
+	if (os.path.isfile(filename_changes)):
+		f = io.open(filename_changes, mode="r", encoding="utf-8")
+		lines_changes = f.readlines()
+		f.close()
+		lines_changes = [x.strip() for x in lines_changes]
+	else:
+		lines_changes = []
 	
 	keywords = [ 'KBD', 'COPYRIGHT', 'COMPANY', 'LOCALENAME', 'LOCALEID', 'VERSION', 'SHIFTSTATE', 'LAYOUT', 'DEADKEY', 'KEYNAME', 'KEYNAME_EXT', 'KEYNAME_DEAD', 'DESCRIPTIONS', 'LANGUAGENAMES', 'ENDKBD' ]
 	
@@ -84,7 +87,9 @@ def get_kbd_layout(base_filename):
 				shiftstates.append(int(fields[0]))
 			kbd_layout['shiftstates'] = shiftstates
 		elif fields[0] == 'LAYOUT':
+			all_originally_reachable_characters = ""
 			layout = {}
+			line_number = 0
 			for fields in lines[1:] + section_changes:
 				chars = {}
 				i = 3
@@ -94,6 +99,8 @@ def get_kbd_layout(base_filename):
 						if len(c) > 1:
 							c = chr(int(c[0:4], 16))
 						chars[shiftstate] = c
+						if (line_number < len(lines[1:])):
+							all_originally_reachable_characters += c
 					i += 1
 				# TODO: c[4] == '@' -> dead key
 				layout[int(fields[0], 16)] = {
@@ -101,7 +108,9 @@ def get_kbd_layout(base_filename):
 					#'cap': int(fields[2]),
 					'chars': chars
 				}
+				line_number += 1
 			kbd_layout['layout'] = layout
+			kbd_layout['all_originally_reachable_characters'] = ''.join(sorted(all_originally_reachable_characters))
 		elif fields[0] == 'DEADKEY':
 			# TODO
 			pass	
@@ -223,15 +232,7 @@ all_petscii_codes_ok_if_missing = [
 	chr(0x9d), # CURSOR_LEFT  - covered by cursor keys
 ]
 
-#base_filename = '40C French'
-#base_filename = '409 US'
-base_filename = '407 German'
-#base_filename = '809 United Kingdom'
-
-# not useful
-#filename_klc = '419 Russian.klc'
-
-kbd_layout = get_kbd_layout(base_filename)
+kbd_layout = get_kbd_layout(sys.argv[1])
 
 layout = kbd_layout['layout']
 shiftstates = kbd_layout['shiftstates']
@@ -244,7 +245,6 @@ if not ALT in keytab:
 	keytab[ALT] = [ '\0' ] * 128
 
 # create PS/2 Code 2 -> PETSCII tables
-ascii_not_reachable = ""
 for hid_scancode in layout.keys():
 	ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
 	l = layout[hid_scancode]['chars']
@@ -252,9 +252,6 @@ for hid_scancode in layout.keys():
 		if shiftstate in l:
 			c_ascii = l[shiftstate]
 			c_petscii = petscii_from_ascii(c_ascii)
-			if c_petscii == chr(0):
-				if not c_ascii in ascii_not_reachable:
-					ascii_not_reachable += c_ascii
 			keytab[shiftstate][ps2_scancode] = c_petscii
 
 # fold AltGr into Alt
@@ -387,6 +384,13 @@ for c in all_petscii_graphs:
 	if not c in keytab[REG] and not c in keytab[SHFT] and not c in keytab[CTRL] and not c in keytab[ALT]:
 		petscii_graphs_not_reachable += c
 
+ascii_not_reachable = ""
+all_keytabs = keytab[REG] + keytab[SHFT] + keytab[CTRL] + keytab[ALT]
+pprint.pprint(kbd_layout['all_originally_reachable_characters'])
+for c_ascii in kbd_layout['all_originally_reachable_characters']:
+	c_petscii = petscii_from_ascii(c_ascii)
+	if (c_petscii == chr(0) or not c_petscii in all_keytabs) and not c_ascii in ascii_not_reachable:
+		ascii_not_reachable += c_ascii
 
 petscii_chars_not_reachable = ''.join(sorted(petscii_chars_not_reachable))
 petscii_codes_not_reachable = ''.join(sorted(petscii_codes_not_reachable))
