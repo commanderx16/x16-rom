@@ -177,7 +177,8 @@ def ascii_from_petscii(c):
 all_petscii_chars = " !\"#$%&'()*+,-./0123456789:;<=>?@"
 for c in "abcdefghijklmnopqrstuvwxyz":
 	all_petscii_chars += chr(ord(c) - 0x20)
-all_petscii_chars += "[\]^_ABCDEFGHIJKLMNOPQRSTUVWXYZ\xff"
+all_petscii_chars += "[\]^_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+all_petscii_chars += "\xde" # π
 
 # all PETSCII control codes and their descriptions
 control_codes = {
