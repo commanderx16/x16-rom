@@ -7,6 +7,8 @@ CTRL  = 2
 ALT   = 4
 ALTGR = 6
 
+COMPRESSED_OUTPUT=1
+
 def get_kbd_layout(base_filename):
 	filename_klc = base_filename
 	filename_changes = base_filename + 'patch'
@@ -148,7 +150,7 @@ def petscii_from_ascii(c):
 	if ord(c) == 0x2190: # '←'
 		return chr(0x5f)
 	if ord(c) == 0x03c0: # 'π'
-		return chr(0xff)
+		return chr(0xde)
 	if ord(c) >= ord('A') and ord(c) <= ord('Z'):
 		return chr(ord(c) + 0x80)
 	if ord(c) >= ord('a') and ord(c) <= ord('z'):
@@ -165,7 +167,7 @@ def ascii_from_petscii(c):
 		return chr(0xa3)
 	if ord(c) == 0x5f: # '←'
 		return chr(0x2190)
-	if ord(c) == 0xff: # 'π'
+	if ord(c) == 0xde: # 'π'
 		return chr(0x03c0)
 	return c
 
@@ -435,8 +437,23 @@ if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 
 		print("'")
 if len(ascii_not_reachable) > 0:
 	print("// ASCII characters reachable with this layout on Windows but not covered by PETSCII:")
-	print("// " + pprint.pformat(ascii_not_reachable))
+	print("// '", end = '')
+	for c in ascii_not_reachable:
+		if ord(c) < 0x20:
+			print("\\x{0:02x}".format(ord(c)), end = '')
+		else:
+			print(c, end = '')
+	print("'")
+	
 print()
+
+print('.segment "KBDMETA"\n')
+for shiftstate in [REG, SHFT, CTRL, ALT]:
+	print("\t.word kbtab_{}_{}".format(kbd_id, shiftstate))
+print()
+
+
+print('.segment "KBDTABLES"\n')
 
 for shiftstate in [REG, SHFT, CTRL, ALT]:
 	print("kbtab_{}_{}: // ".format(kbd_id, shiftstate), end = '')
@@ -451,9 +468,14 @@ for shiftstate in [REG, SHFT, CTRL, ALT]:
 			print('Ctrl ', end='')
 		if shiftstate & 4:
 			print('Alt ', end='')
-	print()
-	for i in range(0, 128):
-		if i & 7 == 0:
+	if COMPRESSED_OUTPUT == 1:
+		start = 13
+		end = 104
+	else:
+		start = 0
+		end = 128
+	for i in range(start, end):
+		if i == start or i & 7 == 0:
 			if i != 0:
 				print()
 			print('\t.byte ', end='')
