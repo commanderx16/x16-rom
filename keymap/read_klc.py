@@ -50,21 +50,19 @@ def get_kbd_layout(base_filename):
 		
 	section_changes = []
 	while len(lines_changes) > 0:
-		while True:
-			line = lines_changes[0]
-			lines_changes = lines_changes[1:]
-			i = line.find('//')
-			if i != -1:
-				line = line[:i]
-			line = line.rstrip()
-			if len(line) == 0:
-				continue
-			fields = re.split(r'\t', line)
-			while '' in fields:
-				fields.remove('')
-			break
+		line = lines_changes[0]
+		lines_changes = lines_changes[1:]
+		i = line.find('//')
+		if i != -1:
+			line = line[:i]
+		line = line.rstrip()
+		if len(line) == 0:
+			continue
+		fields = re.split(r'\t', line)
+		while '' in fields:
+			fields.remove('')
 		section_changes.append(fields)
-		
+
 	kbd_layout = {}
 	for lines in sections:
 		fields = lines[0]
@@ -399,7 +397,6 @@ for c in all_petscii_graphs:
 
 ascii_not_reachable = ""
 all_keytabs = keytab[REG] + keytab[SHFT] + keytab[CTRL] + keytab[ALT]
-pprint.pprint(kbd_layout['all_originally_reachable_characters'])
 for c_ascii in kbd_layout['all_originally_reachable_characters']:
 	c_petscii = petscii_from_ascii(c_ascii)
 	if (c_petscii == chr(0) or not c_petscii in all_keytabs) and not c_ascii in ascii_not_reachable:
