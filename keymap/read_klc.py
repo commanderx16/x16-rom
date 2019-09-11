@@ -91,6 +91,9 @@ def get_kbd_layout(base_filename):
 			layout = {}
 			line_number = 0
 			for fields in lines[1:] + section_changes:
+				if fields[0] == '-1':
+					# TODO: 807 has extension lines we don't support
+					continue
 				chars = {}
 				i = 3
 				for shiftstate in shiftstates:
