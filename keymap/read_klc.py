@@ -218,8 +218,8 @@ for shiftstate in shiftstates:
 if not ALT in keytab:
 	keytab[ALT] = [ '\0' ] * 128
 
+# create PS/2 Code 2 -> PETSCII tables
 ascii_not_reachable = ""
-
 for hid_scancode in layout.keys():
 	ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
 	l = layout[hid_scancode]['chars']
@@ -238,17 +238,17 @@ if ALTGR in keytab:
 	if ALT in keytab:
 		# combine
 		for scancode in range(0, len(keytab[ALT])):
-			if keytab[ALT] == chr(0):
-				keytab[ALT] = keytab[ALTGR]
+			if keytab[ALT][scancode] == chr(0):
+				keytab[ALT][scancode] = keytab[ALTGR][scancode]
 	else:
 		# move
 		keytab[ALT] = keytab[ALTGR]
 	keytab.pop(ALTGR)
-if 7 in keytab:
-	if 5 in keytab:
+if SHFT+ALTGR in keytab:
+	if SHFT+ALT in keytab:
 		sys.exit("TODO: combine Shft+AltGr and Shft+Alt")
-	keytab[5] = keytab[7]
-	keytab.pop(7)
+	keytab[SHFT+ALT] = keytab[SHFT+ALTGR]
+	keytab.pop(SHFT+ALTGR)
 
 # stamp in f-keys independent of shiftstate
 for shiftstate in keytab.keys():
@@ -271,8 +271,8 @@ petscii_from_ctrl_scancode = [ # Ctrl
 	(0x36, 0x1e), # '6'
 	(0x3d, 0x1f), # '7'
 	(0x3e, 0x9e), # '8'
-	(0x46, 0x12), # '9'
-	(0x45, 0x92), # '0'
+	(0x46, 0x12), # '9' REVERSE ON
+	(0x45, 0x92), # '0' REVERSE OFF
 ]
 petscii_from_alt_scancode = [ # Alt
 	(0x16, 0x81), # '1'
@@ -283,8 +283,6 @@ petscii_from_alt_scancode = [ # Alt
 	(0x36, 0x99), # '6'
 	(0x3d, 0x9a), # '7'
 	(0x3e, 0x9b), # '8'
-	(0x46, 0x12), # '9'
-	(0x45, 0x92), # '0'
 ]
 for (scancode, petscii) in petscii_from_ctrl_scancode:
 	if keytab[CTRL][scancode] == chr(0): # only if unassigned
