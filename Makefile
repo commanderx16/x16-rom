@@ -45,3 +45,4 @@ clean:
 	rm -f basic/basic.o kernal/kernal.o rom.bin
 	rm -f monitor/monitor.o monitor/monitor_support.o
 	rm -f cbdos/*.o
+	rm -f keymap/keymap.o
