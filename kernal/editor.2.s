@@ -529,6 +529,7 @@ rcvsc5:	pha
 ;****************************************
 receive_down_scancode_no_modifiers:
 	jsr receive_scancode
+	jsr scancode_to_joystick
 	beq no_key
 	php
 	jsr check_mod

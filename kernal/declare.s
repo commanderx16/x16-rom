@@ -159,7 +159,8 @@ ridbs	.res 1           ;input buffer pointer to start
 rodbs	.res 1           ;output buffer index to start
 rodbe	.res 1           ;output buffer index to end
 ;
-	.res 2           ;unused (tape)
+joy0	.res 1           ;keyboard joystick temp
+	.res 1           ;unused (tape)
 ;
 ; temp space for vic-40 variables ****
 ;
