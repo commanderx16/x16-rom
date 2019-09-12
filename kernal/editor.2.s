@@ -337,13 +337,13 @@ find_bit:
 
 bit_found:
 	lda kbdtab,x
-	sta 2
+	sta ckbtab
 	lda kbdtab + 1,x
-	sta 3
+	sta ckbtab + 1
 	ldx d1prb
 	lda #3
 	sta d1prb
-	lda (2),y
+	lda (ckbtab),y
 	stx d1prb
 	beq drv_end
 	jmp add_to_buf

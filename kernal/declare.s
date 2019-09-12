@@ -46,7 +46,8 @@ sa	.res 1           ;current file 2nd addr
 fa	.res 1           ;current file primary addr
 fnadr	.res 2           ;addr current file name str
 roprty	.res 1           ;rs-232 trns parity buffer
-	.res 3           ;unused (tape)
+ckbtab	.res 2           ;used for keyboard lookup
+	.res 1           ;unused (tape)
 tmp0
 stal	.res 1
 stah	.res 1
