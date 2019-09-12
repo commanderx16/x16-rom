@@ -415,16 +415,16 @@ ascii_not_reachable = ''.join(sorted(ascii_not_reachable))
 name = kbd_layout['name'].replace(' - Custom', '')
 kbd_id = kbd_layout['short_id'].lower()
 
-print("// Name:   " + name)
-print("// Locale: " + kbd_layout['localename'])
-print("// KLID:   " + kbd_id)
-print("//")
+print("; Name:   " + name)
+print("; Locale: " + kbd_layout['localename'])
+print("; KLID:   " + kbd_id)
+print(";")
 if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
-	print("// PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
+	print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
 	if len(petscii_chars_not_reachable) > 0:
-		print("// chars: " + pprint.pformat(petscii_chars_not_reachable))
+		print("; chars: " + pprint.pformat(petscii_chars_not_reachable))
 	if len(petscii_codes_not_reachable) > 0:
-		print("// codes: ", end = '')
+		print("; codes: ", end = '')
 		for c in petscii_codes_not_reachable:
 			if ord(c) in control_codes:
 				print(control_codes[ord(c)] + ' ', end = '')
@@ -432,13 +432,13 @@ if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 
 				print(hex(ord(c)) + ' ', end = '')
 		print()
 	if len(petscii_graphs_not_reachable) > 0:
-		print("// graph: '", end = '')
+		print("; graph: '", end = '')
 		for c in petscii_graphs_not_reachable:
 			print("\\x{0:02x}".format(ord(c)), end = '')
 		print("'")
 if len(ascii_not_reachable) > 0:
-	print("// ASCII characters reachable with this layout on Windows but not covered by PETSCII:")
-	print("// '", end = '')
+	print("; ASCII characters reachable with this layout on Windows but not covered by PETSCII:")
+	print("; '", end = '')
 	for c in ascii_not_reachable:
 		if ord(c) < 0x20:
 			print("\\x{0:02x}".format(ord(c)), end = '')
@@ -449,15 +449,19 @@ if len(ascii_not_reachable) > 0:
 print()
 
 print('.segment "KBDMETA"\n')
-for shiftstate in [REG, SHFT, CTRL, ALT]:
-	print("\t.word kbtab_{}_{}".format(kbd_id, shiftstate))
+for shiftstate in [SHFT, ALT, CTRL, REG]:
+	print("\t.word kbtab_{}_{}".format(kbd_id, shiftstate), end = '')
+	if shiftstate == REG:
+		print()
+	else:
+		print("-13")
 print()
 
 
 print('.segment "KBDTABLES"\n')
 
 for shiftstate in [REG, SHFT, CTRL, ALT]:
-	print("kbtab_{}_{}: // ".format(kbd_id, shiftstate), end = '')
+	print("kbtab_{}_{}: ; ".format(kbd_id, shiftstate), end = '')
 	if shiftstate == 0:
 		print('Unshifted', end='')
 	if shiftstate & 1:
@@ -469,7 +473,7 @@ for shiftstate in [REG, SHFT, CTRL, ALT]:
 			print('Ctrl ', end='')
 		if shiftstate & 4:
 			print('Alt ', end='')
-	if COMPRESSED_OUTPUT == 1:
+	if COMPRESSED_OUTPUT == 1 and shiftstate != REG:
 		start = 13
 		end = 104
 	else:
@@ -477,8 +481,7 @@ for shiftstate in [REG, SHFT, CTRL, ALT]:
 		end = 128
 	for i in range(start, end):
 		if i == start or i & 7 == 0:
-			if i != 0:
-				print()
+			print()
 			print('\t.byte ', end='')
 		c = keytab[shiftstate][i]
 		if ord(c) >= 0x20 and ord(c) <= 0x7e:

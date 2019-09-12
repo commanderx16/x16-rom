@@ -1,24 +1,25 @@
-// Name:   Finnish
-// Locale: fi-FI
-// KLID:   40b
-//
-// PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
-// codes: BROWN LIGHT_RED DARK_GRAY LIGHT_GRAY 
-// graph: '\xa4\xa6\xa8\xa9\xba\xc0\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe'
-// ASCII characters reachable with this layout on Windows but not covered by PETSCII:
-// '\x1b\x1c\x1d\_{|}~¤§¨´µ½ÄÅÖäåö€'
+; Name:   Danish
+; Locale: da-DK
+; KLID:   406
+;
+; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
+; codes: BROWN LIGHT_RED DARK_GRAY LIGHT_GRAY 
+; graph: '\xa4\xa6\xa8\xa9\xba\xc0\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe'
+; ASCII characters reachable with this layout on Windows but not covered by PETSCII:
+; '\x1b\x1c\x1d\_{|}~¤§¨´µ½ÅÆØåæø€'
 
 .segment "KBDMETA"
 
-	.word kbtab_40b_0
-	.word kbtab_40b_1
-	.word kbtab_40b_2
-	.word kbtab_40b_4
+	.word kbtab_406_1-13
+	.word kbtab_406_4-13
+	.word kbtab_406_2-13
+	.word kbtab_406_0
 
 .segment "KBDTABLES"
 
-kbtab_40b_0: // Unshifted
-	.byte $09,'_',$00
+kbtab_406_0: ; Unshifted
+	.byte $00,$00,$88,$87,$86,$85,$89,$00
+	.byte $00,$00,$8c,$8b,$8a,$09,'_',$00
 	.byte $00,$00,$00,$00,$00,'Q','1',$00
 	.byte $00,$00,'Z','S','A','W','2',$00
 	.byte $00,'C','X','D','E','4','3',$00
@@ -30,7 +31,10 @@ kbtab_40b_0: // Unshifted
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$0d,$00,$00,''',$00,$00
 	.byte $00,'<',$00,$00,$00,$00,$14,$00
-kbtab_40b_1: // Shft 
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,',',$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+kbtab_406_1: ; Shft 
 	.byte $18,$de,$00
 	.byte $00,$00,$00,$00,$00,$d1,'!',$00
 	.byte $00,$00,$da,$d3,$c1,$d7,'"',$00
@@ -43,7 +47,7 @@ kbtab_40b_1: // Shft
 	.byte $00,$00,$00,$00,$00,'`',$00,$00
 	.byte $00,$00,$8d,'^',$00,'*',$00,$00
 	.byte $00,'>',$00,$00,$00,$00,$94,$00
-kbtab_40b_2: // Ctrl 
+kbtab_406_2: ; Ctrl 
 	.byte $18,$00,$00
 	.byte $00,$00,$00,$00,$00,$11,$90,$00
 	.byte $00,$00,$1a,$13,$01,$17,$05,$00
@@ -56,7 +60,7 @@ kbtab_40b_2: // Ctrl
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$8d,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$94,$00
-kbtab_40b_4: // Alt 
+kbtab_406_4: ; Alt 
 	.byte $18,$00,$00
 	.byte $00,$00,$00,$00,$00,$ab,$81,$00
 	.byte $00,$00,$ad,$ae,$b0,$b3,'@',$00
