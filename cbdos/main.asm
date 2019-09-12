@@ -92,8 +92,6 @@ blocks: ; 3 bytes blocks to read, 3 bytes sufficient to address 4GB -> 429496729
 initialized:
 	.byte 0
 MAGIC_INITIALIZED  = $7A
-bank_save:
-	.byte 0
 fn_base:
 	.byte 0
 cur_buffer_ptr:

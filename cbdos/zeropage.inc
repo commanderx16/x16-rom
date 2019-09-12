@@ -9,3 +9,5 @@ dirptr       = cbdos_zp + 8 ; 2 bytes
 read_blkptr  = cbdos_zp + 10 ; 2 bytes
 write_blkptr = cbdos_zp + 12 ; 2 bytes
 buffer       = cbdos_zp + 14 ; 2 bytes
+
+bank_save = $a4 ; shared with KERNAL "bsour1", used by IEC

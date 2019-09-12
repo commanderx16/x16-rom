@@ -24,7 +24,7 @@ time	.res 3           ;24 hour clock in 1/60th seconds
 r2d2	.res 1           ;serial bus usage
 ; ptch .res 1  (unused)
 bsour1	;temp used by serial routine
-	.res 1           ;unused (tape)
+	.res 1           ;also used by CBDOS
 count	.res 1           ;temp used by serial routine
 	.res 1           ;unused (tape)
 inbit	.res 1           ;rs-232 rcvr input bit storage
