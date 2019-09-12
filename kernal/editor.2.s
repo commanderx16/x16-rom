@@ -279,6 +279,23 @@ MODIFIER_CTRL  = 4 ; C64:  Ctrl
 MODIFIER_WIN   = 8 ; C128: Alt
 MODIFIER_CAPS  = 16; C128: Caps
 
+; cycle keyboard layouts
+cycle_layout:
+	ldx curkbd
+	inx
+	txa
+	jsr setkbd
+	lda #$8d ; shift + cr
+	sta keyd
+	sta keyd + 3
+	lda kbdnam
+	sta keyd + 1
+	lda kbdnam + 1
+	sta keyd + 2
+	lda #4
+	sta ndx
+	rts
+
 scnkey	jsr receive_down_scancode_no_modifiers
 	beq drv_end
 
@@ -287,12 +304,13 @@ scnkey	jsr receive_down_scancode_no_modifiers
 	cpx #0
 	bne down_ext
 ; *** regular scancodes
+	cpy #$01 ; f9
+	beq cycle_layout
 	cmp #$83 ; convert weird f7 scancode
 	bne not_f7
 	lda #$02 ; this one is unused
 	tay
 not_f7:
-
 	cmp #$0e ; scancodes < $0E and > $68 are independent of modifiers
 	bcc is_unshifted
 	cmp #$68
@@ -313,12 +331,16 @@ find_bit:
 	bne find_bit
 
 bit_found:
-	lda tables,x
+	lda kbdtab,x
 	sta 2
-	lda tables + 1,x
+	lda kbdtab + 1,x
 	sta 3
+	ldx d1prb
+	lda #3
+	sta d1prb
 	lda (2),y
-drv2:	beq drv_end
+	stx d1prb
+	beq drv_end
 	jmp add_to_buf
 
 down_ext:
@@ -361,13 +383,13 @@ is_stop:
 ;****************************************
 add_to_buf:
 	pha
-	lda $c6 ; length of keyboard buffer
+	lda ndx ; length of keyboard buffer
 	cmp #10
 	bcs add2 ; full, ignore
-	inc $c6
+	inc ndx
 	tax
 	pla
-	sta $0277,x ; store
+	sta keyd,x ; store
 	cmp #3 ; stop
 	bne add1
 	lda #$7f
@@ -392,31 +414,15 @@ add2:	pla
 ;****************************************
 receive_byte:
 ; test for badline-safe time window
-.if 0
-	ldy $d012
-	cpy #243
-	bcs :+
-	cpy #24
-	bcc :+
-	lda #0 ; in badline area, fail
-	sec
-	rts
-.endif
 ; set input, bus idle
 	lda port_ddr ; set CLK and DATA as input
 	and #$ff-bit_clk-bit_data
 	sta port_ddr ; -> bus is idle, keyboard can start sending
 
 	lda #bit_clk+bit_data
-.if 0
-	ldy #32
-:	cpy $d012
-	beq lc08c ; end of badline-free area
-.else
 	ldy #10 * mhz
 :	dey
 	beq lc08c
-.endif
 	bit port_data
 	bne :- ; wait for CLK=0 and DATA=0 (start bit)
 
@@ -567,6 +573,7 @@ md_sh:	lda #MODIFIER_SHIFT
 	sec
 	rts
 
+.ifdef C64
 tables:
 	.word tab_shift-13, tab_alt-13, tab_ctrl-13, tab_unshifted
 
@@ -632,6 +639,7 @@ tab_ctrl:
 	.byte $00,$00,$00,$00,$00,$1f,$00,$00
 	.byte $00,$00,$00,$00,$00,$1c,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
+.endif ; C64
 
 tab_extended:
 	;         end      lf hom

@@ -9,6 +9,7 @@
 
 .segment "KBDMETA"
 
+	.byte "IT"
 	.word kbtab_410_1-13
 	.word kbtab_410_4-13
 	.word kbtab_410_2-13

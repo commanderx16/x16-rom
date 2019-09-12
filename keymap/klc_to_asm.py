@@ -449,6 +449,7 @@ if len(ascii_not_reachable) > 0:
 print()
 
 print('.segment "KBDMETA"\n')
+print('\t.byte "' + kbd_layout['localename'][0:2].upper() + '"')
 for shiftstate in [SHFT, ALT, CTRL, REG]:
 	print("\t.word kbtab_{}_{}".format(kbd_id, shiftstate), end = '')
 	if shiftstate == REG:

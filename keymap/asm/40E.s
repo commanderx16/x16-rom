@@ -10,6 +10,7 @@
 
 .segment "KBDMETA"
 
+	.byte "HU"
 	.word kbtab_40e_1-13
 	.word kbtab_40e_4-13
 	.word kbtab_40e_2-13

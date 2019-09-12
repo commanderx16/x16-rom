@@ -10,6 +10,7 @@
 
 .segment "KBDMETA"
 
+	.byte "DE"
 	.word kbtab_407_1-13
 	.word kbtab_407_4-13
 	.word kbtab_407_2-13

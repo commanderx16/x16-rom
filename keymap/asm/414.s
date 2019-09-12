@@ -10,6 +10,7 @@
 
 .segment "KBDMETA"
 
+	.byte "NB"
 	.word kbtab_414_1-13
 	.word kbtab_414_4-13
 	.word kbtab_414_2-13

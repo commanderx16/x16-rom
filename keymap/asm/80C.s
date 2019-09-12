@@ -10,6 +10,7 @@
 
 .segment "KBDMETA"
 
+	.byte "FR"
 	.word kbtab_80c_1-13
 	.word kbtab_80c_4-13
 	.word kbtab_80c_2-13
