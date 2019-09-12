@@ -26,7 +26,6 @@ r2d2	.res 1           ;serial bus usage
 bsour1	;temp used by serial routine
 	.res 1           ;also used by CBDOS
 count	.res 1           ;temp used by serial routine
-	.res 1           ;unused (tape)
 inbit	.res 1           ;rs-232 rcvr input bit storage
 bitci	.res 1           ;rs-232 rcvr bit count in
 rinone	.res 1           ;rs-232 rcvr flag for start bit check
@@ -36,7 +35,10 @@ sal	.res 1
 sah	.res 1
 eal	.res 1
 eah	.res 1
-	.res 4           ;unused (tape)
+kbdbyte	.res 1           ;PS/2: bit input (was: tape)
+prefix	.res 1           ;PS/2: prefix code (e0/e1) (was: tape)
+brkflg	.res 1           ;PS/2: was key-up event (was: tape)
+shflag2	.res 1           ;PS/2: modifier state (was: tape)
 bitts	.res 1           ;rs-232 trns bit count
 nxtbit	.res 1           ;rs-232 trns next bit to be sent
 rodata	.res 1           ;rs-232 trns byte buffer

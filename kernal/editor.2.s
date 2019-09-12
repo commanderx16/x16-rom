@@ -269,10 +269,6 @@ bit_data=1              ; 6522 IO port data bit mask  (PA0)
 bit_clk =2              ; 6522 IO port clock bit mask (PA1)
 .endif
 
-kbdbyte    = $fc ; zero page
-prefix     = $fd
-break_flag = $fe
-shflag2    = $ff
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
 MODIFIER_CTRL  = 4 ; C64:  Ctrl
@@ -505,14 +501,14 @@ rcvsc3:	sta prefix
 	beq receive_scancode ; always
 rcvsc4:	cmp #$f0
 	bne rcvsc5
-	rol break_flag ; set to 1
+	rol brkflg ; set to 1
 	bne receive_scancode ; always
 rcvsc5:	pha
-	lsr break_flag ; break bit into C
+	lsr brkflg ; break bit into C
 	ldx prefix
 	lda #0
 	sta prefix
-	sta break_flag
+	sta brkflg
 	pla ; lower byte into A
 	rts
 

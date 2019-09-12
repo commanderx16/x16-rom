@@ -175,8 +175,12 @@ i0020	sta d1t1h
 ;
 ; sixty hertz value
 ;
+.ifdef C64
 sixty	= 17045         ; ntsc
 sixtyp	= 16421         ; pal
+.else
+sixty	= 8 * 1000000 / 60
+.endif
 
 setnam	sta fnlen
 	stx fnadr
