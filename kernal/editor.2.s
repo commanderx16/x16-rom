@@ -242,7 +242,12 @@ kprend
 .ifdef C64
 	lda d1icr       ;clear interupt flags
 .else
+.if 0 ; VIA#2 timer IRQ for 60 Hz
 	lda d1t1l       ;clear interupt flags
+.else
+	lda #1
+	sta veraisr
+.endif
 .endif
 	pla             ;restore registers
 	tay

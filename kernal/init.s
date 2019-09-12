@@ -161,7 +161,8 @@ i0020	sta d1t1h
 	and #$80        ;save only tod bit
 	ora #%00010001  ;enable timer1
 	sta d1cra
-.else
+.else ; C64
+.if 0 ; VIA#2 timer IRQ for 60 Hz
 	lda #<sixty     ;keyboard scan irq's
 	sta d1t1l
 	lda #>sixty
@@ -170,7 +171,11 @@ i0020	sta d1t1h
 	sta d1acr
 	lda #$c0        ;enable t1 irq's
 	sta d1ier
+.else ; VERA VSYNC IRQ for 60 Hz
+	lda #1
+	sta veraien
 .endif
+.endif ; C64
 	jmp clklo       ;release the clock line***901227-03***
 ;
 ; sixty hertz value
