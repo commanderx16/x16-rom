@@ -26,6 +26,7 @@ r2d2	.res 1           ;serial bus usage
 bsour1	;temp used by serial routine
 	.res 1           ;also used by CBDOS
 count	.res 1           ;temp used by serial routine
+	.res 1           ;unused (tape)
 inbit	.res 1           ;rs-232 rcvr input bit storage
 bitci	.res 1           ;rs-232 rcvr bit count in
 rinone	.res 1           ;rs-232 rcvr flag for start bit check
