@@ -285,15 +285,20 @@ cycle_layout:
 	inx
 	txa
 	jsr setkbd
-	lda #$8d ; shift + cr
-	sta keyd
-	sta keyd + 3
-	lda kbdnam
-	sta keyd + 1
-	lda kbdnam + 1
-	sta keyd + 2
-	lda #4
-	sta ndx
+; put name into keyboard buffer
+	ldy #$8d ; shift + cr
+	sty keyd
+	ldx #0
+:	lda kbdnam,x
+	beq :+
+	sta keyd + 1,x
+	inx
+	bne :-
+:	tya
+	sta keyd + 1,x
+	inx
+	inx
+	stx ndx
 	rts
 
 scnkey	jsr receive_down_scancode_no_modifiers

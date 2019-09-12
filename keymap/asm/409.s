@@ -9,7 +9,7 @@
 
 .segment "KBDMETA"
 
-	.byte "EN"
+	.byte "EN-US", 0, 0, 0
 	.word kbtab_409_1-13
 	.word kbtab_409_4-13
 	.word kbtab_409_2-13

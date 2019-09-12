@@ -189,7 +189,7 @@ isave	.res 2           ;savesp
 ldtb1	.res 61          ;flags+endspace
 
 kbdnam  =$0400           ;2 character keyboard layout name
-kbdtab  =$0402           ;4 pointers to shift/alt/ctrl/unshifted tables
+kbdtab  =$0408           ;4 pointers to shift/alt/ctrl/unshifted tables
 
 vicscn	=$0000
 

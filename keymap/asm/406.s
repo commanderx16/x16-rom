@@ -10,7 +10,7 @@
 
 .segment "KBDMETA"
 
-	.byte "DA"
+	.byte "DA-DK", 0, 0, 0
 	.word kbtab_406_1-13
 	.word kbtab_406_4-13
 	.word kbtab_406_2-13

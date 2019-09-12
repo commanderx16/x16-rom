@@ -71,20 +71,18 @@ setkbd	tax
 	txa
 setkb2	sta curkbd
 	asl
-	sta kbdtab
 	asl
 	asl
-	clc
-	adc kbdtab      ;*10
+	asl             ;*16
 	tax
 	lda $c000,x
 	beq setkb2      ;end of list? set #0
 	ldy #0
 setkb1	lda $c000,x
-	sta kbdnam,y    ;2 bytes kbnam, 8  bytes kbtab
+	sta kbdnam,y    ;8 bytes kbnam, 8  bytes kbtab
 	inx
 	iny
-	cpy #10
+	cpy #16
 	bne setkb1
 	pla
 	sta d1prb       ;restore ROM bank
@@ -107,7 +105,15 @@ cint	jsr iokeys
 	sta blnon       ;we dont have a good char from the screen yet
 
 .ifdef PS2
-	lda #0          ;US layout
+	lda $9fbe       ;emulator detection
+	cmp #'1'
+	bne nemu
+	lda $9fbf
+	cmp #'6'
+	bne nemu
+	lda $9fbd       ;emulator keyboard layout
+	.byte $2c
+nemu:	lda #0          ;US layout
 	jsr setkbd
 .else
 	lda #<shflog    ;set shift logic indirects

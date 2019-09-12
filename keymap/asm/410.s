@@ -9,7 +9,7 @@
 
 .segment "KBDMETA"
 
-	.byte "IT"
+	.byte "IT", 0, 0, 0, 0, 0, 0
 	.word kbtab_410_1-13
 	.word kbtab_410_4-13
 	.word kbtab_410_2-13

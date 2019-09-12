@@ -10,7 +10,7 @@
 
 .segment "KBDMETA"
 
-	.byte "DE"
+	.byte "DE-CH", 0, 0, 0
 	.word kbtab_807_1-13
 	.word kbtab_807_4-13
 	.word kbtab_807_2-13

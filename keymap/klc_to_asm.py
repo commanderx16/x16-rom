@@ -449,7 +449,16 @@ if len(ascii_not_reachable) > 0:
 print()
 
 print('.segment "KBDMETA"\n')
-print('\t.byte "' + kbd_layout['localename'][0:2].upper() + '"')
+locale1 = kbd_layout['localename'][0:2].upper()
+locale2 = kbd_layout['localename'][3:5].upper()
+if locale1 != locale2:
+	locale1 = kbd_layout['localename'].upper()
+if len(kbd_layout['localename']) != 5:
+	sys.exit("unknown locale format: " + kbd_layout['localename'])
+print('\t.byte "' + locale1 + '"', end = '')
+for i in range(0, 8 - len(locale1)):
+	print(", 0", end = '')
+print()
 for shiftstate in [SHFT, ALT, CTRL, REG]:
 	print("\t.word kbtab_{}_{}".format(kbd_id, shiftstate), end = '')
 	if shiftstate == REG:
