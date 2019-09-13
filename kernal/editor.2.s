@@ -322,18 +322,23 @@ not_f7:
 	cmp #$68
 	bcc not_numpad
 is_unshifted:
-	ldx #3 * 2
+	ldx #4 * 2
 	bne bit_found ; use unshifted table
 
 not_numpad:
 	ldx #0
 	lda shflag2
+	cmp #MODIFIER_ALT | MODIFIER_CTRL
+	bne find_bit
+	ldx #3 * 2
+	bne bit_found ; use AltGr table
+
 find_bit:
 	lsr
 	bcs bit_found
 	inx
 	inx
-	cpx #3 * 2
+	cpx #4 * 2
 	bne find_bit
 
 bit_found:
@@ -555,7 +560,15 @@ check_mod:
 	cpx #$e1
 	beq ckmod1
 	cmp #$11 ; left alt (0011) or right alt (E011)
-	beq md_alt
+	bne nmd_alt
+xxxx:	cpx #$e0 ; right alt
+	bne :+
+	lda #MODIFIER_ALT | MODIFIER_CTRL
+	.byte $2c
+:	lda #MODIFIER_ALT
+	sec
+	rts
+nmd_alt:
 	cmp #$14 ; left ctrl (0014) or right ctrl (E014)
 	beq md_ctl
 	cpx #0
@@ -582,7 +595,7 @@ md_sh:	lda #MODIFIER_SHIFT
 
 .ifdef C64
 tables:
-	.word tab_shift-13, tab_alt-13, tab_ctrl-13, tab_unshifted
+	.word tab_shift-13, tab_alt-13, tab_ctrl-13, tab_alt-13, tab_unshifted
 
 tab_unshifted:
 	.byte $00,$00,$88,$87,$86,$85,$89,$00

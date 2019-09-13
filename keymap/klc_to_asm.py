@@ -276,21 +276,21 @@ for hid_scancode in layout.keys():
 			keytab[shiftstate][ps2_scancode] = c_petscii
 
 # fold AltGr into Alt
-if ALTGR in keytab:
-	if ALT in keytab:
-		# combine
-		for scancode in range(0, len(keytab[ALT])):
-			if keytab[ALT][scancode] == chr(0):
-				keytab[ALT][scancode] = keytab[ALTGR][scancode]
-	else:
-		# move
-		keytab[ALT] = keytab[ALTGR]
-	keytab.pop(ALTGR)
-if SHFT+ALTGR in keytab:
-	if SHFT+ALT in keytab:
-		sys.exit("TODO: combine Shft+AltGr and Shft+Alt")
-	keytab[SHFT+ALT] = keytab[SHFT+ALTGR]
-	keytab.pop(SHFT+ALTGR)
+#if ALTGR in keytab:
+#	if ALT in keytab:
+#		# combine
+#		for scancode in range(0, len(keytab[ALT])):
+#			if keytab[ALT][scancode] == chr(0):
+#				keytab[ALT][scancode] = keytab[ALTGR][scancode]
+#	else:
+#		# move
+#		keytab[ALT] = keytab[ALTGR]
+#	keytab.pop(ALTGR)
+#if SHFT+ALTGR in keytab:
+#	if SHFT+ALT in keytab:
+#		sys.exit("TODO: combine Shft+AltGr and Shft+Alt")
+#	keytab[SHFT+ALT] = keytab[SHFT+ALTGR]
+#	keytab.pop(SHFT+ALTGR)
 
 # stamp in f-keys independent of shiftstate
 for shiftstate in keytab.keys():
@@ -389,24 +389,26 @@ for shiftstate in keytab.keys():
 
 
 # analyze problems
+all_keytabs = keytab[REG] + keytab[SHFT] + keytab[CTRL] + keytab[ALT]
+if ALTGR in keytab:
+	all_keytabs += keytab[ALTGR]
 petscii_chars_not_reachable = ""
 for c in all_petscii_chars:
-	if not c in keytab[REG] and not c in keytab[SHFT] and not c in keytab[CTRL] and not c in keytab[ALT]:
+	if not c in all_keytabs:
 		petscii_chars_not_reachable += ascii_from_petscii(c)
 
 petscii_codes_not_reachable = ""
 for c in all_petscii_codes:
-	if not c in keytab[REG] and not c in keytab[SHFT] and not c in keytab[CTRL] and not c in keytab[ALT]:
+	if not c in all_keytabs:
 		if not c in all_petscii_codes_ok_if_missing:
 			petscii_codes_not_reachable += c
 
 petscii_graphs_not_reachable = ""
 for c in all_petscii_graphs:
-	if not c in keytab[REG] and not c in keytab[SHFT] and not c in keytab[CTRL] and not c in keytab[ALT]:
+	if not c in all_keytabs:
 		petscii_graphs_not_reachable += c
 
 ascii_not_reachable = ""
-all_keytabs = keytab[REG] + keytab[SHFT] + keytab[CTRL] + keytab[ALT]
 for c_ascii in kbd_layout['all_originally_reachable_characters']:
 	c_petscii = petscii_from_ascii(c_ascii)
 	if (c_petscii == chr(0) or not c_petscii in all_keytabs) and not c_ascii in ascii_not_reachable:
@@ -463,11 +465,15 @@ if locale1 != locale2:
 if len(kbd_layout['localename']) != 5:
 	sys.exit("unknown locale format: " + kbd_layout['localename'])
 print('\t.byte "' + locale1 + '"', end = '')
-for i in range(0, 8 - len(locale1)):
+for i in range(0, 6 - len(locale1)):
 	print(", 0", end = '')
 print()
-for shiftstate in [SHFT, ALT, CTRL, REG]:
-	print("\t.word kbtab_{}_{}".format(kbd_id, shiftstate), end = '')
+for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
+	if shiftstate == ALTGR and not ALTGR in keytab.keys():
+		print_shiftstate = ALT
+	else:
+		print_shiftstate = shiftstate
+	print("\t.word kbtab_{}_{}".format(kbd_id, print_shiftstate), end = '')
 	if shiftstate == REG:
 		print()
 	else:
@@ -477,7 +483,9 @@ print()
 
 print('.segment "KBDTABLES"\n')
 
-for shiftstate in [REG, SHFT, CTRL, ALT]:
+for shiftstate in [REG, SHFT, CTRL, ALT, ALTGR]:
+	if shiftstate == ALTGR and not ALTGR in keytab.keys():
+		continue
 	print("kbtab_{}_{}: ; ".format(kbd_id, shiftstate), end = '')
 	if shiftstate == 0:
 		print('Unshifted', end='')

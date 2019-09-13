@@ -3,17 +3,17 @@
 ; KLID:   416
 ;
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
-; codes: DARK_GRAY 
-; graph: '\xa4\xa6\xa8\xa9\xab\xb3\xba'
+; graph: '\xa4\xa6\xa8\xa9\xba'
 ; ASCII characters reachable with this layout on Windows but not covered by PETSCII:
 ; '\x1b\x1c\x1d\_{|}~¢§¨ª¬°²³´¹ºÇç₢'
 
 .segment "KBDMETA"
 
-	.byte "PT-BR", 0, 0, 0
+	.byte "PT-BR", 0
 	.word kbtab_416_1-13
 	.word kbtab_416_4-13
 	.word kbtab_416_2-13
+	.word kbtab_416_6-13
 	.word kbtab_416_0
 
 .segment "KBDTABLES"
@@ -63,14 +63,27 @@ kbtab_416_2: ; Ctrl
 	.byte $00,$00,$00,$00,$00,$00,$94,$00
 kbtab_416_4: ; Alt 
 	.byte $18,$00,$00
-	.byte $00,$00,$00,$00,$00,'/',$81,$00
-	.byte $00,$00,$ad,$ae,$b0,'?',$95,$00
-	.byte $00,$bc,$bd,$ac,$b1,'\',$96,$00
+	.byte $00,$00,$00,$00,$00,$ab,$81,$00
+	.byte $00,$00,$ad,$ae,$b0,$b3,$95,$00
+	.byte $00,$bc,$bd,$ac,$b1,$97,$96,$00
 	.byte $00,$a0,$be,$bb,$a3,$b2,$98,$00
 	.byte $00,$aa,$bf,$b4,$a5,$b7,$99,$00
 	.byte $00,$00,$a7,$b5,$b8,$9a,$9b,$00
 	.byte $00,$00,$a1,$a2,$b9,$00,$00,$00
 	.byte $00,$00,$00,$b6,$00,$af,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$8d,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$94,$00
+kbtab_416_6: ; AltGr 
+	.byte $18,$00,$00
+	.byte $00,$00,$00,$00,$00,'/',$00,$00
+	.byte $00,$00,$00,$00,$00,'?',$00,$00
+	.byte $00,$00,$00,$00,$00,'\',$00,$00
+	.byte $00,$a0,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$8d,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$94,$00

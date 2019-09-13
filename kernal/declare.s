@@ -193,8 +193,8 @@ isave	.res 2           ;savesp
 
 ldtb1	.res 61          ;flags+endspace
 
-kbdnam  =$0400           ;2 character keyboard layout name
-kbdtab  =$0408           ;4 pointers to shift/alt/ctrl/unshifted tables
+kbdnam  =$0400           ;6 character keyboard layout name
+kbdtab  =$0406           ;5 pointers to shift/alt/ctrl/altgr/unshifted tables
 
 vicscn	=$0000
 
