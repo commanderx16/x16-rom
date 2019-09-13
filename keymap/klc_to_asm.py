@@ -85,6 +85,11 @@ def get_kbd_layout(base_filename):
 			shiftstates = []
 			for fields in lines[1:]:
 				shiftstates.append(int(fields[0]))
+			# The US layout does not use "Alt" *at all*. We add it, so that the
+			# .klcpatch file can define keys with "Alt" in an extra column.
+
+			if not ALT in shiftstates:
+				shiftstates.append(ALT)
 			kbd_layout['shiftstates'] = shiftstates
 		elif fields[0] == 'LAYOUT':
 			all_originally_reachable_characters = ""
@@ -97,6 +102,8 @@ def get_kbd_layout(base_filename):
 				chars = {}
 				i = 3
 				for shiftstate in shiftstates:
+					if i > len(fields) - 1:
+						break
 					c = fields[i]
 					if c != '-1':
 						if len(c) > 1:
@@ -143,6 +150,8 @@ def ps2_set2_code_from_hid_code(c):
 		return 0
 
 def petscii_from_ascii(c):
+	if ord(c) >= 0xf800 and ord(c) <= 0xf8ff: # PETSCII code encoded into private Unicode area
+		return chr(ord(c) - 0xf800)
 	if c == '\\' or c == '|' or c == '_' or c == '{' or c == '}' or c == '~':
 		return chr(0)
 	if ord(c) == 0xa3: # '£'

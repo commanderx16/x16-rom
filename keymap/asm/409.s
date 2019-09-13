@@ -3,7 +3,7 @@
 ; KLID:   409
 ;
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
-; graph: '\xa4\xa6\xa8\xa9\xba\xc0\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe'
+; graph: '\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe'
 ; ASCII characters reachable with this layout on Windows but not covered by PETSCII:
 ; '\x1b\x1c\x1d\_`{|}~'
 
@@ -43,9 +43,9 @@ kbtab_409_1: ; Shft
 	.byte $00,$ce,$c2,$c8,$c7,$d9,'^',$00
 	.byte $00,$00,$cd,$ca,$d5,'&','*',$00
 	.byte $00,'<',$cb,$c9,$cf,')','(',$00
-	.byte $00,'>','?',$cc,':',$d0,$00,$00
-	.byte $00,$00,'"',$00,$00,'+',$00,$00
-	.byte $00,$00,$8d,$00,$00,$00,$00,$00
+	.byte $00,'>','?',$cc,':',$d0,$dd,$00
+	.byte $00,$00,'"',$00,$ba,'+',$00,$00
+	.byte $00,$00,$8d,$c0,$00,$a9,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$94,$00
 kbtab_409_2: ; Ctrl 
 	.byte $18,$00,$00
@@ -61,7 +61,7 @@ kbtab_409_2: ; Ctrl
 	.byte $00,$00,$8d,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$94,$00
 kbtab_409_4: ; Alt 
-	.byte $18,$00,$00
+	.byte $18,$db,$00
 	.byte $00,$00,$00,$00,$00,$ab,$81,$00
 	.byte $00,$00,$ad,$ae,$b0,$b3,$95,$00
 	.byte $00,$bc,$bd,$ac,$b1,$97,$96,$00
@@ -69,7 +69,7 @@ kbtab_409_4: ; Alt
 	.byte $00,$aa,$bf,$b4,$a5,$b7,$99,$00
 	.byte $00,$00,$a7,$b5,$b8,$9a,$9b,$00
 	.byte $00,$00,$a1,$a2,$b9,$00,$00,$00
-	.byte $00,$00,$00,$b6,$00,$af,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$00,$00
-	.byte $00,$00,$8d,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$b6,$00,$af,$dc,$00
+	.byte $00,$00,$00,$00,$a4,$a6,$00,$00
+	.byte $00,$00,$8d,$df,$00,$a8,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$94,$00
