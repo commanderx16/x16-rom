@@ -12,7 +12,7 @@
 
 .segment "KBDMETA"
 
-	.byte "SV-SE", 0
+	.byte "NORDIC"
 	.word kbtab_41d_1-13
 	.word kbtab_41d_4-13
 	.word kbtab_41d_2-13

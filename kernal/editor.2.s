@@ -294,6 +294,7 @@ cycle_layout:
 	beq :+
 	sta keyd + 1,x
 	inx
+	cpx #6
 	bne :-
 :	tya
 	sta keyd + 1,x
