@@ -240,9 +240,7 @@ for c in control_codes.keys():
 
 # all printable PETSCII graphics characters
 all_petscii_graphs = ""
-for c in range(0xa1, 0xc2):
-	all_petscii_graphs += chr(c)
-for c in range(0xe0, 0xff):
+for c in range(0xa1, 0xc0):
 	all_petscii_graphs += chr(c)
 
 # the following PETSCII control codes do not have to be reachable
