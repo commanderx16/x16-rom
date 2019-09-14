@@ -67,9 +67,17 @@ vpeek	jsr chrget
 	stx verahi
 	jsr chkcom
 	jsr frmnum
+	lda poker
+	pha
+	lda poker + 1
+	pha
 	jsr getadr ; word: offset
 	sty veralo
 	sta veramid
+	pla
+	sta poker + 1
+	pla
+	sta poker
 	jsr chkcls ; closing paren
 	ldy veradat
 	jmp sngflt
