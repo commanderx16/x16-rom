@@ -5,47 +5,60 @@ ifdef PRERELEASE_VERSION
 	VERSION_DEFINE="-DPRERELEASE_VERSION=$(PRERELEASE_VERSION)"
 endif
 
-ARGS_KERNAL=-g
-ARGS_BASIC=-g
-#ARGS_MONITOR=-g
-#ARGS_DOS=-g
+ARGS:=-g
 
+ROM_C64_OBJ := \
+basic/basic-c64.o \
+kernal/kernal-c64.o
 
-all:
-	# C64
-	ca65 -g -DC64 -o basic/basic-c64.o basic/basic.s
-	ca65 -g -DC64 $(VERSION_DEFINE) -o kernal/kernal-c64.o kernal/kernal.s
-	ld65 -C rom-c64.cfg -o rom-c64.bin basic/basic-c64.o kernal/kernal-c64.o -Ln rom-c64.txt
-	dd if=rom-c64.bin of=basic-c64.bin bs=8k count=1
-	dd if=rom-c64.bin of=kernal-c64.bin bs=8k skip=1 count=1
+ROM_X16_OBJ := \
+basic/basic.o \
+kernal/kernal.o \
+monitor/monitor.o \
+cbdos/fat32.o \
+cbdos/util.o \
+cbdos/matcher.o \
+cbdos/sdcard.o \
+cbdos/spi_r_byte.o \
+cbdos/spi_rw_byte.o \
+cbdos/spi_select_device.o \
+cbdos/spi_deselect.o \
+cbdos/main.o \
+keymap/keymap.o \
+charset/charset.o
 
-	#x16
-	ca65 $(ARGS_BASIC) -DPS2 $(VERSION_DEFINE) -o basic/basic.o basic/basic.s
+.PHONY : all
+all: rom.bin rom-c64.bin
 
-	ca65 $(ARGS_KERNAL) -g -DPS2 -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
+# C64
 
-	ca65 $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
+rom-c64.bin : DEFINES=$(VERSION_DEFINE)
+rom-c64.bin : $(ROM_C64_OBJ) rom-c64.txt rom-c64.cfg
+	ld65 -C rom-c64.cfg -o $@ $(ROM_C64_OBJ) -Ln rom-c64.txt
 
-	ca65 $(ARGS_DOS) -o cbdos/fat32.o cbdos/fat32.asm
-	ca65 $(ARGS_DOS) -o cbdos/util.o cbdos/util.asm
-	ca65 $(ARGS_DOS) -o cbdos/matcher.o cbdos/matcher.asm
-	ca65 $(ARGS_DOS) -o cbdos/sdcard.o cbdos/sdcard.asm
-	ca65 $(ARGS_DOS) -o cbdos/spi_r_byte.o cbdos/spi_r_byte.s
-	ca65 $(ARGS_DOS) -o cbdos/spi_rw_byte.o cbdos/spi_rw_byte.s
-	ca65 $(ARGS_DOS) -o cbdos/spi_select_device.o cbdos/spi_select_device.s
-	ca65 $(ARGS_DOS) -o cbdos/spi_deselect.o cbdos/spi_deselect.s
-	ca65 $(ARGS_DOS) -o cbdos/main.o cbdos/main.asm
+basic-c64.bin : rom-c64.bin
+	dd if=$< of=$@ bs=8k skip=0 count=1
 
-	ca65 -o keymap/keymap.o keymap/keymap.s
+kernal-c64.bin : rom-c64.bin
+	dd if=$< of=$@ bs=8k skip=1 count=1
 
-	ca65 -o charset/charset.o charset/charset.s
+%-c64.o : %.s
+	ca65 $(ARGS) -DC64 $(DEFINES) -o $@ $^
 
-	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_r_byte.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/charset.o -Ln rom.txt
+# X16
 
+rom.bin : DEFINES=-DPS2 -DCBDOS -DMACHINE_X16=1 -DCPU_65C02=1
+rom.bin : $(ROM_X16_OBJ) rom.cfg rom.txt
+	ld65 -C rom.cfg -o $@ $(ROM_X16_OBJ) -Ln rom.txt
+
+# Rules
+
+%.o : %.asm
+	ca65 $(ARGS) $(DEFINES) -o $@ $^
+
+%.o : %.s
+	ca65 $(ARGS) $(DEFINES) -o $@ $^
+
+.PHONY : clean
 clean:
-	rm -f basic/basic-c64.o kernal/kernal-c64.o rom-c64.bin basic-c64.bin kernal-c64.bin
-	rm -f basic/basic.o kernal/kernal.o rom.bin
-	rm -f monitor/monitor.o monitor/monitor_support.o
-	rm -f cbdos/*.o
-	rm -f keymap/keymap.o
-	rm -f charset/charset.o
+	-rm -f $(ROM_C64_OBJ) $(ROM_X16_OBJ)
