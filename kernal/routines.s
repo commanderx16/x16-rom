@@ -209,15 +209,15 @@ swpp1	ldx #40
 	ldy #30
 	lda #64 ; scale = 2.0
 swpp2	pha
-	lda #$41
+	lda #$01
 	sta veralo
-	lda #0
+	lda #$00
 	sta veramid
-	lda #$14
+	lda #$1F
 	sta verahi
 	pla
-	sta veradat ; reg $40041: hscale
-	sta veradat ; reg $40041: vscale
+	sta veradat ; reg $F0001: hscale
+	sta veradat ; reg $F0002: vscale
 	jmp scnsiz
 
 ;/////////////////////   K E R N A L   R A M   C O D E  \\\\\\\\\\\\\\\\\\\\\\\

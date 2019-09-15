@@ -25,7 +25,7 @@ nowge1	jsr strlt2
 	jsr st2txt
 	jsr inpcom
 	jmp strdn2
-numins	jsr fin
+numins	jsr frmevl
 	lda intflg
 	jsr qintgr
 strdn2	jsr chrgot
