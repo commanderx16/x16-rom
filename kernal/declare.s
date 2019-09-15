@@ -173,7 +173,9 @@ curkbd	.res 1           ;current keyboard layout index
 lintmp	.res 1           ;temporary for line index
 palnts	.res 1           ;pal vs ntsc flag 0=ntsc 1=pal
 
-vera_irq_save  .res 4
+vera_irq_save     .res 4
+uart_loader_state .res 1
+uart_loader_cmd   .res 1
 
 	.segment "KVECTORS";rem kernal/os indirects(20)
 cinv	.res 2           ;irq ram vector

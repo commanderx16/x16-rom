@@ -4,9 +4,9 @@ vera_base = $df00
 vera_base = $9f20
 .endif
 
-vera_addr_hi  = vera_base + 0
+vera_addr_lo  = vera_base + 0
 vera_addr_mid = vera_base + 1
-vera_addr_lo  = vera_base + 2
+vera_addr_hi  = vera_base + 2
 vera_data0    = vera_base + 3
 vera_data1    = vera_base + 4
 vera_ctrl     = vera_base + 5
@@ -69,19 +69,19 @@ uart_bauddiv_h  = (uart_base + 3)
 ; Clobbers: A
 vera_save:
 	; Save control register
-	lda veractl
+	lda vera_ctrl
 	sta vera_irq_save+0
 
 	; Switch to data port 0
 	and #$FE
-	sta veractl
+	sta vera_ctrl
 
 	; Save address registers of data port 0
-	lda verahi
+	lda vera_addr_lo
 	sta vera_irq_save+1
-	lda veramid
+	lda vera_addr_mid
 	sta vera_irq_save+2
-	lda veralo
+	lda vera_addr_hi
 	sta vera_irq_save+3
 
 	rts
@@ -92,45 +92,54 @@ vera_save:
 vera_restore:
 	; Restore address registers
 	lda vera_irq_save+1
-	sta verahi
+	sta vera_addr_lo
 	lda vera_irq_save+2
-	sta veramid
+	sta vera_addr_mid
 	lda vera_irq_save+3
-	sta veralo
+	sta vera_addr_hi
 
 	; Restore data port
 	lda vera_irq_save+0
-	sta veractl
+	sta vera_ctrl
 
 	rts
 
-.macro vera_addr hi, addr
-	lda #>addr
-	sta veralo
+.macro vera_vaddr hi, addr
 	lda #<addr
-	sta veramid
+	sta vera_addr_lo
+	lda #>addr
+	sta vera_addr_mid
 	lda #hi
-	sta verahi
+	sta vera_addr_hi
 .endmacro
 
 .macro lda_vaddr hi, addr
-	lda #>addr
-	sta veralo
 	lda #<addr
-	sta veramid
+	sta vera_addr_lo
+	lda #>addr
+	sta vera_addr_mid
 	lda #hi
-	sta verahi
+	sta vera_addr_hi
 	lda veradat
 .endmacro
 
 .macro lda_vaddr_lo addr
-	lda #>addr
-	sta veralo
+	lda #<addr
+	sta vera_addr_lo
 	lda veradat
 .endmacro
 
 .macro ldx_vaddr_lo addr
-	ldx #>addr
-	stx veralo
+	ldx #<addr
+	stx vera_addr_lo
 	ldx veradat
+.endmacro
+
+.macro irq_return
+	pla             ; restore registers
+	tay
+	pla
+	tax
+	pla
+	rti             ; exit from irq routines
 .endmacro

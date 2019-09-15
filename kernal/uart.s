@@ -1,9 +1,7 @@
 	.segment "UART"
 
-loader_state = $FC
-loader_cmd   = $FD
-loader_addrl = $FE
-loader_addrh = $FF
+uart_loader_addrl = 0
+uart_loader_addrh = 1
 
 ; Commands
 ; 01 AL AH DD  - Write data to address
@@ -22,28 +20,6 @@ uartirq
 @handle_uart
 	jsr vera_save
 
-@done	; Clear UART IRQ
-	lda #8
-	sta veraisr
-
-	; Restore VERA registers
-	lda vera_irq_save+1
-	sta verahi
-	lda vera_irq_save+2
-	sta veramid
-	lda vera_irq_save+3
-	sta veralo
-	lda vera_irq_save+0
-	sta veractl
-
-	; Return from interrupt
-	pla             ; restore registers
-	tay
-	pla
-	tax
-	pla
-	rti             ; exit from irq routines
-
 @check_uart
 	; Check status
 	lda_vaddr $0F, uart_status
@@ -54,7 +30,7 @@ uartirq
 	ldx_vaddr_lo uart_data
 
 	; Branch to current statemachine state
-	lda loader_state
+	lda uart_loader_state
 	cmp #0
 	beq @state_cmd
 	cmp #1
@@ -65,12 +41,24 @@ uartirq
 	beq @state_wrdata
 
 	; Invalid state
+	jmp @go_idle
+
+@done	; Clear UART IRQ
+	lda #8
+	sta veraisr
+
+	jsr vera_restore
+
+	; Return from interrupt
+	irq_return
+
+@go_idle
 	lda #0
-	sta loader_state
+	sta uart_loader_state
 	jmp @check_uart
 
 @state_cmd
-	stx loader_cmd
+	stx uart_loader_cmd
 
 	; Check command index range
 	dex
@@ -78,52 +66,50 @@ uartirq
 	bcs @check_uart ; index out of range
 
 	; Command ok, next state
-	inc loader_state
+	inc uart_loader_state
 	jmp @check_uart
 
 @state_addrl
 	; Store lower address byte
-	stx loader_addrl
-	inc loader_state
+	stx uart_loader_addrl
+
+	inc uart_loader_state
 	jmp @check_uart
 
 @state_addrh
 	; Store upper address byte
-	stx loader_addrh
+	stx uart_loader_addrh
 
 	; Check for read/jump command
-	lda loader_cmd
+	lda uart_loader_cmd
 	cmp #2		; Read command?
 	beq @read
 	cmp #3		; Jump command?
 	beq @jump
 
-	; Write command
-	inc loader_state
+	; Write command, next state
+	inc uart_loader_state
 	bne @check_uart
 
 	; Command 2: read
 @read	jsr vera_restore
 
-	txa
 	ldy #0
-	lda (loader_addrl), y
+	lda (uart_loader_addrl), y
 	tax
 
 	jsr vera_save
 
 	; Transmit the read byte
-	vera_addr $0F, uart_data
+	vera_vaddr $0F, uart_data
 	stx veradat
 
 	; Return to idle state
-	lda #0
-	sta loader_state
-	jmp @check_uart
+	jmp @go_idle
 
 	; Command 3: jump
 @jump	jsr vera_restore
-	jmp (loader_addrl)
+	jmp (uart_loader_addrl)
 
 	; Command 1: write
 @state_wrdata
@@ -131,12 +117,9 @@ uartirq
 
 	txa
 	ldy #0
-	sta (loader_addrl), y
+	sta (uart_loader_addrl), y
 
 	jsr vera_save
 
 	; Return to idle state
-	lda #0
-	sta loader_state
-	jmp @check_uart
-
+	jmp @go_idle
