@@ -421,6 +421,29 @@ for shiftstate in keytab.keys():
 		keytab[shiftstate][0x5a] = chr(0x8d) # shift-CR
 		keytab[shiftstate][0x29] = chr(0xA0) # shift-SPACE
 
+# klc files do not contain table #2 scancodes for the numpad keys
+numpad_scancodes = [
+    (0x70, '0'),
+    (0x69, '1'),
+    (0x72, '2'),
+    (0x7a, '3'),
+    (0x6b, '4'),
+    (0x73, '5'),
+    (0x74, '6'),
+    (0x6c, '7'),
+    (0x75, '8'),
+    (0x7d, '9'),
+    (0x79, '+'),
+    (0x7b, '-'),
+    (0x7c, '*'),
+    # Extended codes (preceeded by 0xe0)
+    (0x4a, '/'),
+    (0x5a, chr(0x0d)),  # Enter
+]
+
+for sc, pet in numpad_scancodes:
+    if keytab[REG][sc] == chr(0):
+        keytab[REG][sc] = pet
 
 # analyze problems
 all_keytabs = keytab[REG] + keytab[SHFT] + keytab[CTRL] + keytab[ALT]
