@@ -43,7 +43,13 @@ movos2	sta (tmp2),y     ;put in user
 	bpl movos1
 	rts
 ;
-vectss	.word key,timb,nnmi
+vectss
+.ifndef C64
+	.word uartirq
+.else
+	.word key
+.endif
+	.word timb,nnmi
 	.word nopen,nclose,nchkin
 	.word nckout,nclrch,nbasin
 	.word nbsout,nstop,ngetin
@@ -172,7 +178,7 @@ i0020	sta d1t1h
 	lda #$c0        ;enable t1 irq's
 	sta d1ier
 .else ; VERA VSYNC IRQ for 60 Hz
-	lda #1
+	lda #9		; VSYNC + UART
 	sta veraien
 .endif
 .endif ; C64

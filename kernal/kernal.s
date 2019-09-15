@@ -27,7 +27,11 @@
 .include "errorhandler.s"
 .include "read.s"
 .include "write.s"
+.include "vera.s"
 .include "init.s"
+.ifndef C64
+.include "uart.s"
+.endif
 .include "rs232nmi.s"
 .include "irqfile.s"
 .include "joystick.s"
