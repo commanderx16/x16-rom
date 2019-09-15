@@ -67,7 +67,6 @@ lower
 	cmp #$0e        ;does he want lower case?
 	bne upper       ;branch if not
 	jsr lowup
-	lda veradat
 	ora #8 >> 2
 	bne ulset
 
@@ -75,7 +74,6 @@ upper
 	cmp #$8e        ;does he want upper case
 	bne lock        ;branch if not
 	jsr lowup
-	lda veradat
 	and #$ff-(8 >> 2)
 ulset	sta veradat
 outhre	jmp loop2
@@ -102,6 +100,7 @@ lowup	lda #$05        ;$F2005: layer 1, TILE_BASE_HI
 	sta veramid
 	lda #$0F
 	sta verahi
+	lda veradat
 	rts
 
 .ifndef PS2

@@ -204,11 +204,42 @@ panic	lda #3          ;reset default i/o
 	lda #0
 	sta dfltn
 
+mapbas	=0
+tilbas	=$1f000         ;top of VRAM
+
 ;init video
 ;
 initv
 	lda #0
 	sta veractl     ;set ADDR1 active
+
+	lda #<tilbas        ;$1F800: VRAM for charset
+	sta veralo
+	lda #>tilbas
+	sta veramid
+	lda #$10 | (tilbas >> 16)
+	sta verahi
+
+	lda d1prb       ;save ROM bank
+	pha
+	lda #4
+	sta d1prb
+	lda #0
+	sta pnt
+	lda #$c0
+	sta pnt+1       ;character data at ROM 4:0000
+	ldx #16
+	ldy #0
+px3	lda (pnt),y
+	sta veradat
+	iny
+	bne px3
+	inc pnt+1
+	dex
+	bne px3
+
+	pla
+	sta d1prb       ;restore ROM bank
 
 	lda #$00        ;$F2000: layer 1 registers
 	sta veralo
@@ -234,9 +265,6 @@ px5	lda tvera_composer,x
 	cpx #tvera_composer_end-tvera_composer
 	bne px5
 	rts
-
-mapbas	=0
-tilbas	=$20000
 
 ;NTSC=1
 
