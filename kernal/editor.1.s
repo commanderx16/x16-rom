@@ -225,18 +225,26 @@ initv
 	lda #4
 	sta d1prb
 	lda #0
+	sta pntr
+	lda #0
 	sta pnt
 	lda #$c0
 	sta pnt+1       ;character data at ROM 4:0000
-	ldx #16
-	ldy #0
-px3	lda (pnt),y
-	sta veradat
-	iny
-	bne px3
-	inc pnt+1
-	dex
-	bne px3
+	ldx #4
+	jsr copyv
+	dec pntr
+	lda #$c0
+	sta pnt+1       ;character data at ROM 4:0000
+	ldx #4
+	jsr copyv
+	inc pntr
+	ldx #4
+	jsr copyv
+	dec pntr
+	lda #$c4
+	sta pnt+1       ;character data at ROM 4:0400
+	ldx #4
+	jsr copyv
 
 	pla
 	sta d1prb       ;restore ROM bank
@@ -264,6 +272,18 @@ px5	lda tvera_composer,x
 	inx
 	cpx #tvera_composer_end-tvera_composer
 	bne px5
+	rts
+
+copyv
+	ldy #0
+px3	lda (pnt),y
+	eor pntr
+	sta veradat
+	iny
+	bne px3
+	inc pnt+1
+	dex
+	bne px3
 	rts
 
 ;NTSC=1
