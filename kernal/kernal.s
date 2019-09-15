@@ -8,6 +8,7 @@
 .endif
 
 .include "declare.s"
+.include "vera.s"
 .include "editor.1.s"
 .include "editor.2.s"
 .include "editor.3.s"
@@ -27,7 +28,6 @@
 .include "errorhandler.s"
 .include "read.s"
 .include "write.s"
-.include "vera.s"
 .include "init.s"
 .ifndef C64
 .include "uart.s"

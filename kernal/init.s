@@ -44,12 +44,7 @@ movos2	sta (tmp2),y     ;put in user
 	rts
 ;
 vectss
-.ifndef C64
-	.word uartirq
-.else
-	.word key
-.endif
-	.word timb,nnmi
+	.word key,timb,nnmi
 	.word nopen,nclose,nchkin
 	.word nckout,nclrch,nbasin
 	.word nbsout,nstop,ngetin

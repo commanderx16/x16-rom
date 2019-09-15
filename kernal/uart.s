@@ -8,16 +8,7 @@ uart_loader_addrh = 1
 ; 02 AL AH     - Read data from address and send back over UART
 ; 03 AL AH     - Jump to address
 
-uartirq
-	; Check for UART IRQ
-	lda veraisr
-	and #8
-	bne @handle_uart
-
-	; Jump to original handler
-	jmp key
-
-@handle_uart
+uart_irq_handler
 	jsr vera_save
 
 @check_uart
@@ -45,12 +36,12 @@ uartirq
 
 @done	; Clear UART IRQ
 	lda #8
-	sta veraisr
+	sta vera_isr
 
 	jsr vera_restore
 
 	; Return from interrupt
-	irq_return
+	jmp irq_return
 
 @go_idle
 	lda #0
@@ -102,7 +93,7 @@ uartirq
 
 	; Transmit the read byte
 	vera_vaddr $0F, uart_data
-	stx veradat
+	stx vera_data0
 
 	; Return to idle state
 	jmp @go_idle

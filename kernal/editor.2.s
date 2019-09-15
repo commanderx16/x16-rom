@@ -211,7 +211,28 @@ dspp2	ldy pntr
 	stx veradat     ;color to screen
 	rts
 
-key	jsr $ffea       ;update jiffy clock
+key
+.ifndef C64
+	; Check for v-sync IRQ
+	lda vera_isr
+	and #1
+	bne @handle_vsync
+
+	; Check for UART IRQ
+	lda vera_isr
+	and #8
+	bne @handle_uart
+
+	jmp irq_return
+
+@handle_uart
+	jmp uart_irq_handler
+
+@handle_vsync
+.endif
+	jsr vera_save
+
+	jsr $ffea       ;update jiffy clock
 	lda blnsw       ;blinking crsr ?
 	bne key4        ;no
 	dec blnct       ;time to blink ?
@@ -249,6 +270,9 @@ kprend
 	sta veraisr
 .endif
 .endif
+	jsr vera_restore
+
+irq_return:
 	pla             ;restore registers
 	tay
 	pla

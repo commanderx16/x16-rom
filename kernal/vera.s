@@ -1,3 +1,5 @@
+	.segment "VERA"
+
 .ifdef C64
 vera_base = $df00
 .else
@@ -104,42 +106,38 @@ vera_restore:
 
 	rts
 
-.macro vera_vaddr hi, addr
+.macro vera_vaddr_lo addr
 	lda #<addr
 	sta vera_addr_lo
+.endmacro
+
+.macro vera_vaddr_mid addr
 	lda #>addr
 	sta vera_addr_mid
+.endmacro
+
+.macro vera_vaddr_hi hi
 	lda #hi
 	sta vera_addr_hi
+.endmacro
+
+.macro vera_vaddr hi, addr
+	vera_vaddr_lo addr
+	vera_vaddr_mid addr
+	vera_vaddr_hi hi
 .endmacro
 
 .macro lda_vaddr hi, addr
-	lda #<addr
-	sta vera_addr_lo
-	lda #>addr
-	sta vera_addr_mid
-	lda #hi
-	sta vera_addr_hi
-	lda veradat
+	vera_vaddr hi, addr
+	lda vera_data0
 .endmacro
 
 .macro lda_vaddr_lo addr
-	lda #<addr
-	sta vera_addr_lo
-	lda veradat
+	vera_vaddr_lo addr
+	lda vera_data0
 .endmacro
 
 .macro ldx_vaddr_lo addr
-	ldx #<addr
-	stx vera_addr_lo
-	ldx veradat
-.endmacro
-
-.macro irq_return
-	pla             ; restore registers
-	tay
-	pla
-	tax
-	pla
-	rti             ; exit from irq routines
+	vera_vaddr_lo addr
+	ldx vera_data0
 .endmacro
