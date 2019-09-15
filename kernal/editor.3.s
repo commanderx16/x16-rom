@@ -96,12 +96,12 @@ lexit	sta mode
 	jmp loop2       ;get out
 
 ; access VERA register TILE_BASE_HI
-lowup	lda #$04        ;$40000: layer 1 registers
-	sta verahi
-	lda #0
-	sta veramid
-	lda #5          ;reg 5: TILE_BASE_HI
+lowup	lda #$05        ;$F2005: layer 1, TILE_BASE_HI
 	sta veralo
+	lda #$20
+	sta veramid
+	lda #$0F
+	sta verahi
 	rts
 
 .ifndef PS2

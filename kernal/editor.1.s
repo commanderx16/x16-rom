@@ -210,11 +210,12 @@ initv
 	lda #0
 	sta veractl     ;set ADDR1 active
 
-	lda #$14        ;$40000: layer 1 registers
-	sta verahi
-	lda #0
-	sta veramid
+	lda #$00        ;$F2000: layer 1 registers
 	sta veralo
+	lda #$20
+	sta veramid
+	lda #$1f
+	sta verahi
 
 	ldx #0
 px4	lda tvera_layer1,x
@@ -223,8 +224,9 @@ px4	lda tvera_layer1,x
 	cpx #tvera_layer1_end-tvera_layer1
 	bne px4
 
-	lda #$40
+	lda #$00        ;$F0000: composer registers
 	sta veralo
+	sta veramid
 	ldx #0
 px5	lda tvera_composer,x
 	sta veradat
