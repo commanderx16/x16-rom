@@ -1798,59 +1798,59 @@
 ; |ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ|
 ; |ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß|
 
-; À (CP850 B7
+; À (based on PXLfont and CP850 B7)
 .byte %___██___
 .byte %____██__
-.byte %__███___
-.byte %_██_██__
-.byte %██___██_
-.byte %███████_
-.byte %██___██_
+.byte %__████__
+.byte %_██__██_
+.byte %_██████_
+.byte %_██__██_
+.byte %_██__██_
 .byte %________
-; Á (CP850 B5
+; Á (based on PXLfont and CP850 B5)
+.byte %___██___
 .byte %__██____
-.byte %_██_____
-.byte %__███___
-.byte %_██_██__
-.byte %██___██_
-.byte %███████_
-.byte %██___██_
+.byte %__████__
+.byte %_██__██_
+.byte %_██████_
+.byte %_██__██_
+.byte %_██__██_
 .byte %________
-; Â (CP850 B6
-.byte %_█████__
-.byte %█_____█_
-.byte %__███___
-.byte %_██_██__
-.byte %██___██_
-.byte %███████_
-.byte %██___██_
+; Â (based on PXLfont and CP850 B6)
+.byte %__████__
+.byte %_█____█_
+.byte %__████__
+.byte %_██__██_
+.byte %_██████_
+.byte %_██__██_
+.byte %_██__██_
 .byte %________
-; Ã (CP850 C7)
+; Ã (based on PXLfont and CP850 C7)
 .byte %_███_██_
 .byte %██_███__
-.byte %__███___
-.byte %_██_██__
-.byte %██___██_
-.byte %███████_
-.byte %██___██_
+.byte %__████__
+.byte %_██__██_
+.byte %_██████_
+.byte %_██__██_
+.byte %_██__██_
 .byte %________
-; Ä (CP850 8E)
-.byte %██___██_
-.byte %__███___
-.byte %_██_██__
-.byte %██___██_
-.byte %███████_
-.byte %██___██_
-.byte %██___██_
+; Ä (based on PXLfont and CP850 8E)
+.byte %_██__██_
 .byte %________
-; Å (CP850 8F)
+.byte %__████__
+.byte %_██__██_
+.byte %_██████_
+.byte %_██__██_
+.byte %_██__██_
+.byte %________
+; Å (based on PXLfont and CP850 8F)
 .byte %__███___
 .byte %_██_██__
-.byte %_█████__
-.byte %██___██_
-.byte %███████_
-.byte %██___██_
-.byte %██___██_
+.byte %__████__
+.byte %_██__██_
+.byte %_██████_
+.byte %_██__██_
+.byte %_██__██_
 .byte %________
 ; Æ (CP850 92)
 .byte %__█████_
@@ -1861,50 +1861,50 @@
 .byte %██__██__
 .byte %██__███_
 .byte %________
-; Ç (CP850 80)
-.byte %_█████__
-.byte %██___██_
-.byte %██______
-.byte %██______
-.byte %██___██_
-.byte %_█████__
+; Ç (based on PXLfont and CP850 80)
+.byte %________
+.byte %__█████_
+.byte %_██_____
+.byte %_██_____
+.byte %_██_____
+.byte %__█████_
 .byte %____██__
 .byte %_████___
-; È (CP850 D4)
+; È (based on PXLfont and CP850 D4)
 .byte %__██____
 .byte %___██___
-.byte %███████_
-.byte %██______
-.byte %██████__
-.byte %██______
-.byte %███████_
-.byte %________
-; É (CP850 90)
-.byte %___██___
-.byte %__██____
-.byte %███████_
-.byte %██______
-.byte %█████___
-.byte %██______
-.byte %███████_
-.byte %________
-; Ê (CP850 D2)
+.byte %_██████_
+.byte %_██_____
 .byte %_█████__
-.byte %█_____█_
-.byte %███████_
-.byte %██______
-.byte %██████__
-.byte %██______
-.byte %███████_
+.byte %_██_____
+.byte %_██████_
 .byte %________
-; Ë (CP850 D3)
-.byte %██___██_
+; É (based on PXLfont and CP850 90)
+.byte %___██___
+.byte %__██____
+.byte %_██████_
+.byte %_██_____
+.byte %_█████__
+.byte %_██_____
+.byte %_██████_
 .byte %________
-.byte %███████_
-.byte %██______
-.byte %██████__
-.byte %██______
-.byte %███████_
+; Ê (based on PXLfont and CP850 D2)
+.byte %__████__
+.byte %_█____█_
+.byte %_██████_
+.byte %_██_____
+.byte %_█████__
+.byte %_██_____
+.byte %_██████_
+.byte %________
+; Ë (based on PXLfont and CP850 D3)
+.byte %_██__██_
+.byte %________
+.byte %_██████_
+.byte %_██_____
+.byte %_█████__
+.byte %_██_____
+.byte %_██████_
 .byte %________
 ; Ì (CP850 DE)
 .byte %__██____
@@ -1942,104 +1942,104 @@
 .byte %___██___
 .byte %__████__
 .byte %________
-; Ð (CP850 D1)
-.byte %█████___
-.byte %_██_██__
+; Ð (based on PXLfont)
+.byte %________
+.byte %_█████__
 .byte %_██__██_
 .byte %████_██_
 .byte %_██__██_
-.byte %_██_██__
-.byte %█████___
+.byte %_██__██_
+.byte %_█████__
 .byte %________
-; Ñ (CP850 A5)
+; Ñ (based on PXLfont and CP850 A5)
 .byte %_███_██_
 .byte %██_███__
+.byte %_██__██_
+.byte %_███_██_
+.byte %_██████_
+.byte %_██_███_
+.byte %_██__██_
 .byte %________
-.byte %███__██_
-.byte %████_██_
-.byte %██_████_
-.byte %██__███_
-.byte %________
-; Ò (CP850 E3)
+; Ò (based on PXLfont and CP850 E3)
 .byte %____██__
 .byte %_____██_
-.byte %__███___
-.byte %_██_██__
-.byte %██___██_
-.byte %_██_██__
-.byte %__███___
+.byte %__████__
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %__████__
 .byte %________
-; Ó (CP850 E0)
+; Ó (based on PXLfont and CP850 E0)
 .byte %__██____
 .byte %_██_____
-.byte %__███___
-.byte %_██_██__
-.byte %██___██_
-.byte %_██_██__
-.byte %__███___
+.byte %__████__
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %__████__
 .byte %________
-; Ô (CP850 E2)
-.byte %_█████__
-.byte %█_____█_
-.byte %__███___
-.byte %_██_██__
-.byte %██___██_
-.byte %_██_██__
-.byte %__███___
+; Ô (based on PXLfont and CP850 E2)
+.byte %__████__
+.byte %_█____█_
+.byte %__████__
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %__████__
 .byte %________
-; Õ (CP850 E5)
+; Õ (based on PXLfont and CP850 E5)
 .byte %_███_██_
 .byte %██_███__
+.byte %__████__
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %__████__
+.byte %________
+; Ö (based on PXLfont and CP850 99)
+.byte %_██__██_
+.byte %________
+.byte %__████__
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %__████__
+.byte %________
+; × (CP850 9E); TODO: should not use left column
+.byte %________
+.byte %██___██_
+.byte %_██_██__
 .byte %__███___
 .byte %_██_██__
 .byte %██___██_
-.byte %_██_██__
-.byte %__███___
-.byte %________
-; Ö (CP850 99)
-.byte %██___██_
-.byte %__███___
-.byte %_██_██__
-.byte %██___██_
-.byte %██___██_
-.byte %_██_██__
-.byte %__███___
-.byte %________
-; × (CP850 9E)
-.byte %________
-.byte %██___██_
-.byte %_██_██__
-.byte %__███___
-.byte %_██_██__
-.byte %██___██_
 .byte %________
 .byte %________
-; Ø (CP850 9D)
-.byte %__███_█_
-.byte %_██_██__
-.byte %██__███_
-.byte %██_█_██_
+; Ø (based on PXLfont)
+.byte %________
+.byte %__████__
+.byte %_██__███
+.byte %_██_███_
+.byte %_███_██_
 .byte %███__██_
-.byte %_██_██__
-.byte %█_███___
+.byte %__████__
 .byte %________
-; Ù (CP850 EB)
+; Ù (based on PXLfont and CP850 EB)
 .byte %_██_____
 .byte %__██____
-.byte %██___██_
-.byte %██___██_
-.byte %██___██_
-.byte %██___██_
-.byte %_█████__
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %__████__
 .byte %________
-; Ú (CP850 E9)
+; Ú (based on PXLfont and based on PXLfont and CP850 E9)
 .byte %___██___
 .byte %__██____
-.byte %██___██_
-.byte %██___██_
-.byte %██___██_
-.byte %██___██_
-.byte %_█████__
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %__████__
 .byte %________
 ; Û (CP850 EA)
 .byte %_█████__
@@ -2050,14 +2050,14 @@
 .byte %██___██_
 .byte %_█████__
 .byte %________
-; Ü (CP850 9A)
-.byte %██___██_
+; Ü (based on PXLfont and CP850 9A)
+.byte %_██__██_
 .byte %________
-.byte %██___██_
-.byte %██___██_
-.byte %██___██_
-.byte %██___██_
-.byte %_█████__
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %__████__
 .byte %________
 ; Ý (CP850 ED)
 .byte %____██__
@@ -2066,9 +2066,9 @@
 .byte %_██__██_
 .byte %__████__
 .byte %___██___
-.byte %__████__
+.byte %___██___
 .byte %________
-; Þ (CP850 E7)
+; Þ (CP850 E7): TODO
 .byte %███_____
 .byte %_██_____
 .byte %_█████__
@@ -2077,7 +2077,7 @@
 .byte %_█████__
 .byte %_██_____
 .byte %████____
-; ß (CP850 E1)
+; ß (CP850 E1): TODO
 .byte %_████___
 .byte %██__██__
 .byte %██__██__
