@@ -758,7 +758,12 @@ ins2	dey
 insext	jmp loop2
 up9	ldx insrt
 	beq up2
-up6	ora #$40
+up6
+.if 0
+	ora #$40
+.else
+	ora #$80 ; shifted control characters, quote mode 
+.endif
 	jmp nc3
 up2	cmp #$11
 	bne nxt2
