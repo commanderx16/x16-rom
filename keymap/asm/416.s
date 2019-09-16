@@ -7,7 +7,7 @@
 ; codes: RUN/STOP SHIFT_DISABLE TEXT_MODE CURSOR_DOWN HOME 
 ; graph: '\xa4\xa6\xa9'
 ; ASCII characters reachable with this layout on Windows but not covered by PETSCII:
-; '\|₢'
+; '\x1b\x1c\x1dABCDEFHIJKLMNOPQRSTUVWXYZ\_{|}~¢£§¨ª¬°²³´¹ºÇç₢'
 
 .segment "KBDMETA"
 

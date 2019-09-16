@@ -5,9 +5,9 @@
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
 ; chars: 'π'
 ; codes: RUN/STOP SHIFT_DISABLE TEXT_MODE CURSOR_DOWN HOME 
-; graph: '\xa4\xa6\xa8\xa9\xba'
+; graph: '\xa6\xa8\xa9\xba'
 ; ASCII characters reachable with this layout on Windows but not covered by PETSCII:
-; '`~ÓĄąĆćĘęŁłŃńŚśŹźŻż€'
+; '\x1b\x1c\x1dABCDEFGHIJKLMNOPQRSTUVWXYZ\_`{|}~ÓóĄąĆćĘęŁłŃńŚśŹźŻż€'
 
 .segment "KBDMETA"
 
@@ -83,7 +83,7 @@ kbtab_415_6: ; AltGr
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$a0,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$a4,$00,$00,$00
 	.byte $00,$00,$00,$00,$f3,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$00

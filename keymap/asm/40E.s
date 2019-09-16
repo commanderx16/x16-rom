@@ -7,7 +7,7 @@
 ; codes: RUN/STOP SHIFT_DISABLE TEXT_MODE CURSOR_DOWN HOME 
 ; graph: '\xa6\xa9\xba'
 ; ASCII characters reachable with this layout on Windows but not covered by PETSCII:
-; '\|ĐđŁłŐőŰűˇ˘˙˛˝€'
+; '\x1b\x1c\x1dBCEFGHJKLNOPQRTUXY\_{|}~¤§¨°´¸ÁÄÉÍÓÖ×ÚÜßáäéíóö÷úüĐđŁłŐőŰűˇ˘˙˛˝€'
 
 .segment "KBDMETA"
 
@@ -83,7 +83,7 @@ kbtab_40e_6: ; AltGr
 	.byte $00,'&','#',$00,$c4,$00,'^',$00
 	.byte $00,$a0,'@','[',$00,$00,$b0,$00
 	.byte $00,'}','{',$00,']',$00,$00,$00
-	.byte $00,$00,'<',$ed,$00,'`',$00,$00
+	.byte $00,$00,'<',$ed,$a4,'`',$00,$00
 	.byte $00,';',$00,$cd,$00,$00,$b4,$00
 	.byte $00,'>','*',$00,'$',$00,$a8,$00
 	.byte $00,$00,$df,$00,$f7,$b8,$00,$00
