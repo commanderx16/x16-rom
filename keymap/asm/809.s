@@ -2,7 +2,7 @@
 ; Locale: en-GB
 ; KLID:   809
 ;
-; ASCII characters reachable with this layout on Windows but not covered by PETSCII:
+; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
 ; '\x1b\x1c\x1d\_`{|}~¦¬ÁÉÍÓÚáéíóú€'
 
 .segment "KBDMETA"
