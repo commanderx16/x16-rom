@@ -205,6 +205,7 @@ panic	lda #3          ;reset default i/o
 	sta dfltn
 
 mapbas	=0
+isobas	=$1e800
 tilbas	=$1f000         ;top of VRAM
 
 ;init video
@@ -213,17 +214,36 @@ initv
 	lda #0
 	sta veractl     ;set ADDR1 active
 
-	lda #<tilbas        ;$1F800: VRAM for charset
+	lda d1prb       ;save ROM bank
+	pha
+	lda #4
+	sta d1prb
+
+	; ISO character set
+	lda #<isobas        ;VRAM for ISO charset
+	sta veralo
+	lda #>isobas
+	sta veramid
+	lda #$10 | (tilbas >> 16)
+	sta verahi
+
+	lda #0
+	sta pntr
+	lda #0
+	sta pnt
+	lda #$c8
+	sta pnt+1       ;character data at ROM 4:0800
+	ldx #8
+	jsr copyv
+
+	; PETSCII character set
+	lda #<tilbas        ;VRAM for PETSCII charset
 	sta veralo
 	lda #>tilbas
 	sta veramid
 	lda #$10 | (tilbas >> 16)
 	sta verahi
 
-	lda d1prb       ;save ROM bank
-	pha
-	lda #4
-	sta d1prb
 	lda #0
 	sta pntr
 	lda #0
@@ -245,7 +265,6 @@ initv
 	sta pnt+1       ;character data at ROM 4:0400
 	ldx #4
 	jsr copyv
-
 	pla
 	sta d1prb       ;restore ROM bank
 
@@ -292,7 +311,11 @@ tvera_layer1
 	.byte 0 << 5 | 1  ;mode=0, enabled=1
 	.byte 1 << 2 | 2  ;maph=64, mapw=128
 	.word mapbas >> 2 ;map_base
-	.word tilbas >> 2 ;tile_base
+.if 0
+	.word tilbas >> 2 ;tile_bas
+.else
+	.word isobas >> 2 ;tile_bas
+.endif
 	.word 0, 0        ;hscroll, vscroll
 tvera_layer1_end
 
@@ -443,6 +466,7 @@ lop5	ldy pntr
 	jsr ldapnty
 notone
 	sta data
+.if 0
 lop51	and #$3f
 	asl data
 	bit data
@@ -453,7 +477,9 @@ lop54	bcc lop52
 	bne lop53
 lop52	bvs lop53
 	ora #$40
-lop53	inc pntr
+lop53
+.endif
+	inc pntr
 	jsr qtswc
 	cpy indx
 	bne clp1
@@ -474,10 +500,13 @@ clp1	sta data
 	pla
 	tay
 	lda data
+.if 0
 	cmp #$de        ;is it <pi> ?
 	bne clp7
 	lda #$ff
-clp7	clc
+clp7
+.endif
+	clc
 	rts
 
 qtswc	cmp #$22
@@ -488,10 +517,18 @@ qtswc	cmp #$22
 	lda #$22
 qtswl	rts
 
-nxt33	ora #$40
+nxt33
+.if 0
+	ora #$40
+.else
+	ora #$80
+.endif
 nxt3	ldx rvs
 	beq nvs
-nc3	ora #$80
+nc3
+.if 0
+	ora #$80
+.endif
 nvs	ldx insrt
 	beq nvs1
 	dec insrt
@@ -587,11 +624,13 @@ prt	pha
 	jmp nxt1
 njt1	cmp #' '
 	bcc ntcn
+.if 0
 	cmp #$60        ;lower case?
 	bcc njt8        ;no...
 	and #$df        ;yes...make screen lower
 	bne njt9        ;always
 njt8	and #$3f
+.endif
 njt9	jsr qtswc
 	jmp nxt3
 ntcn	ldx insrt
@@ -672,11 +711,13 @@ colr1	jsr chkcol      ;check for a color
 nxtx
 keepit
 	and #$7f
+.if 0
 	cmp #$7f
 	bne nxtx1
 	lda #$5e
 nxtx1
 nxtxa
+.endif
 	cmp #$20        ;is it a function key
 	bcc uhuh
 	jmp nxt33
@@ -751,7 +792,9 @@ nxt61	cmp #$13
 	jsr clsr
 jpl2	jmp loop2
 sccl
+.if 0
 	ora #$80        ;make it upper case
+.endif
 	jsr chkcol      ;try for color
 	jmp upper       ;was jmp loop2
 ;

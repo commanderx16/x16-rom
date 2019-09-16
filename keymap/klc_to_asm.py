@@ -150,25 +150,29 @@ def ps2_set2_code_from_hid_code(c):
 		return 0
 
 def petscii_from_ascii(c):
-	if ord(c) >= 0xf800 and ord(c) <= 0xf8ff: # PETSCII code encoded into private Unicode area
-		return chr(ord(c) - 0xf800)
-	if c == '\\' or c == '|' or c == '_' or c == '{' or c == '}' or c == '~':
+	if ord(c) <= 0xff:
+		return c
+	else:
 		return chr(0)
-	if ord(c) == 0xa3: # '£'
-		return chr(0x5c)
-	if ord(c) == 0x2190: # '←'
-		return chr(0x5f)
-	if ord(c) == 0x03c0: # 'π'
-		return chr(0xde)
-	if ord(c) >= ord('A') and ord(c) <= ord('Z'):
-		return chr(ord(c) + 0x80)
-	if ord(c) >= ord('a') and ord(c) <= ord('z'):
-		return chr(ord(c) - 0x20)
-	if ord(c) < 0x20 and c != '\r':
-		return chr(0)
-	if ord(c) >= 0x7e:
-		return chr(0)
-	return c
+#	if ord(c) >= 0xf800 and ord(c) <= 0xf8ff: # PETSCII code encoded into private Unicode area
+#		return chr(ord(c) - 0xf800)
+#	if c == '\\' or c == '|' or c == '_' or c == '{' or c == '}' or c == '~':
+#		return chr(0)
+#	if ord(c) == 0xa3: # '£'
+#		return chr(0x5c)
+#	if ord(c) == 0x2190: # '←'
+#		return chr(0x5f)
+#	if ord(c) == 0x03c0: # 'π'
+#		return chr(0xde)
+#	if ord(c) >= ord('A') and ord(c) <= ord('Z'):
+#		return chr(ord(c) + 0x80)
+#	if ord(c) >= ord('a') and ord(c) <= ord('z'):
+#		return chr(ord(c) - 0x20)
+#	if ord(c) < 0x20 and c != '\r':
+#		return chr(0)
+#	if ord(c) >= 0x7e:
+#		return chr(0)
+#	return c
 
 def ascii_from_petscii(c):
 	# only does the minumum
