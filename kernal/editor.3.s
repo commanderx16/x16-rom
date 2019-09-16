@@ -87,11 +87,35 @@ lock
 
 unlock
 	cmp #9          ;does he want to unlock the keyboard?
-	bne outhre      ;branch if not
+	bne isoon       ;branch if not
 	lda #$7f        ;clear the lock switch
 	and mode        ;dont hurt anything
 lexit	sta mode
 	jmp loop2       ;get out
+
+isoon
+.ifdef PS2
+	cmp #$0f        ;switch to ISO mode?
+	bne isooff      ;branch if not
+	jsr lowup
+	lda #isobas >> 10
+	sta veradat
+	lda #$ff
+	sta isomod
+	bne outhre      ;always
+
+isooff
+	cmp #$8f        ;switch to PETSCII mode?
+	bne outhre      ;branch if not
+xxxx	jsr lowup
+	lda #tilbas >> 10
+	sta veradat
+	lda #0
+	sta isomod
+	beq outhre      ;always
+.else
+	jmp outhre
+.endif
 
 ; access VERA register TILE_BASE_HI
 lowup	lda #$05        ;$F2005: layer 1, TILE_BASE_HI

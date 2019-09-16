@@ -311,7 +311,7 @@ tvera_layer1
 	.byte 0 << 5 | 1  ;mode=0, enabled=1
 	.byte 1 << 2 | 2  ;maph=64, mapw=128
 	.word mapbas >> 2 ;map_base
-.if 0
+.if 1
 	.word tilbas >> 2 ;tile_bas
 .else
 	.word isobas >> 2 ;tile_bas
@@ -466,7 +466,10 @@ lop5	ldy pntr
 	jsr ldapnty
 notone
 	sta data
-.if 0
+.ifdef PS2
+	bit isomod
+	bmi lop53
+.endif
 lop51	and #$3f
 	asl data
 	bit data
@@ -477,9 +480,7 @@ lop54	bcc lop52
 	bne lop53
 lop52	bvs lop53
 	ora #$40
-lop53
-.endif
-	inc pntr
+lop53	inc pntr
 	jsr qtswc
 	cpy indx
 	bne clp1
@@ -500,13 +501,14 @@ clp1	sta data
 	pla
 	tay
 	lda data
-.if 0
+.ifdef PS2
+	bit isomod
+	bmi clp7
+.endif
 	cmp #$de        ;is it <pi> ?
 	bne clp7
 	lda #$ff
-clp7
-.endif
-	clc
+clp7	clc
 	rts
 
 qtswc	cmp #$22
@@ -518,17 +520,14 @@ qtswc	cmp #$22
 qtswl	rts
 
 nxt33
-.if 0
-	ora #$40
-.else
-	ora #$80
+.ifdef PS2
+	bit isomod
+	bmi nc3
 .endif
+	ora #$40
 nxt3	ldx rvs
 	beq nvs
-nc3
-.if 0
-	ora #$80
-.endif
+nc3	ora #$80
 nvs	ldx insrt
 	beq nvs1
 	dec insrt
@@ -624,13 +623,15 @@ prt	pha
 	jmp nxt1
 njt1	cmp #' '
 	bcc ntcn
-.if 0
+.ifdef PS2
+	bit isomod
+	bmi njt9
+.endif
 	cmp #$60        ;lower case?
 	bcc njt8        ;no...
 	and #$df        ;yes...make screen lower
 	bne njt9        ;always
 njt8	and #$3f
-.endif
 njt9	jsr qtswc
 	jmp nxt3
 ntcn	ldx insrt
@@ -711,13 +712,15 @@ colr1	jsr chkcol      ;check for a color
 nxtx
 keepit
 	and #$7f
-.if 0
+.ifdef PS2
+	bit isomod
+	bmi nxtx1
+.endif
 	cmp #$7f
 	bne nxtx1
 	lda #$5e
 nxtx1
 nxtxa
-.endif
 	cmp #$20        ;is it a function key
 	bcc uhuh
 	jmp nxt33
@@ -759,12 +762,12 @@ insext	jmp loop2
 up9	ldx insrt
 	beq up2
 up6
-.if 0
-	ora #$40
-.else
-	ora #$80 ; shifted control characters, quote mode 
+.ifdef PS2
+	bit isomod
+	bmi :+
 .endif
-	jmp nc3
+	ora #$40
+:	jmp nc3
 up2	cmp #$11
 	bne nxt2
 	ldx tblx
@@ -797,9 +800,7 @@ nxt61	cmp #$13
 	jsr clsr
 jpl2	jmp loop2
 sccl
-.if 0
 	ora #$80        ;make it upper case
-.endif
 	jsr chkcol      ;try for color
 	jmp upper       ;was jmp loop2
 ;

@@ -571,7 +571,7 @@ check_mod:
 	beq ckmod1
 	cmp #$11 ; left alt (0011) or right alt (E011)
 	bne nmd_alt
-xxxx:	cpx #$e0 ; right alt
+:	cpx #$e0 ; right alt
 	bne :+
 	lda #MODIFIER_ALT | MODIFIER_CTRL
 	.byte $2c
