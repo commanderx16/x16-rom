@@ -232,7 +232,16 @@ repdo	sta blnct
 	ldx color       ;blink in this color
 	lda gdbln       ;with original character
 ;
-key5	eor #$80        ;blink it
+key5
+.if 0
+	eor #$80        ;blink it
+.else
+	cmp #$9f
+	bne :+
+	lda gdbln
+	.byte $2c
+:	lda #$9f
+.endif
 	jsr dspp2       ;display it
 ;
 key4
