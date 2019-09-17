@@ -66,7 +66,14 @@ scnsiz	stx llen
 setkbd	tax
 	lda d1prb       ;save ROM bank
 	pha
+.ifdef PS2
+	lda isomod
+	lsr
+.endif
 	lda #BANK_KEY1
+.ifdef PS2
+	adc #0
+.endif
 	sta d1prb
 	txa
 setkb2	sta curkbd

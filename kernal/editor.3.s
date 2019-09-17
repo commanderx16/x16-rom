@@ -98,21 +98,21 @@ isoon
 	cmp #$0f        ;switch to ISO mode?
 	bne isooff      ;branch if not
 	jsr lowup
-	lda #isobas >> 10
-	sta veradat
+	ldx #isobas >> 10
 	lda #$ff
-	sta isomod
-	bne outhre      ;always
+	bne isosto      ;always
 
 isooff
 	cmp #$8f        ;switch to PETSCII mode?
 	bne outhre      ;branch if not
-xxxx	jsr lowup
-	lda #tilbas >> 10
-	sta veradat
+	jsr lowup
+	ldx #tilbas >> 10
 	lda #0
+isosto	stx veradat
 	sta isomod
-	beq outhre      ;always
+	lda curkbd
+	jsr setkbd      ;reload keymap
+	jmp outhre      ;always
 .else
 	jmp outhre
 .endif

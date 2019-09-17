@@ -171,13 +171,30 @@ def petscii_from_unicode(c):
 	return c
 
 def latin15_from_unicode(c):
-	# TODO: full unicode -> 8859-15 conversion
-	if ord(c) == 0x20ac: # '€'
-		return chr(0xa4)
+	# Latin-15 and 8 bit Unicode are almost the same
 	if ord(c) <= 0xff:
-		return c
-	else:
-		return chr(0)
+		# Latin-1 characters (i.e. 8 bit Unicode) not included in Latin-15
+		if ord(c) in [0xA4, 0xA6, 0xA8, 0xB4, 0xB8, 0xBC, 0xBD, 0xBE]: #'¤¦¨´¸¼½¾'
+			return chr(0);
+		else:
+			return c
+	
+	# Latin-15 supports some other Unicode characters
+	latin15_from_unicode_tab = { 
+		0x20ac: 0xa4, # '€'
+		0x160: 0xa6,  # 'Š'
+		0x161: 0xa8,  # 'š'
+		0x17d: 0xb4,  # 'Ž'
+		0x17e: 0xb8,  # 'ž'
+		0x152: 0xbc,  # 'Œ'
+		0x153: 0xbd,  # 'œ'
+		0x178: 0xbe   # 'Ÿ'
+	}
+	if ord(c) in latin15_from_unicode_tab:
+		return chr(latin15_from_unicode_tab[ord(c)])
+	
+	# all other characters are unsupported		
+	return chr(0)
 
 def unicode_from_petscii(c):
 	# only does the minumum
@@ -334,37 +351,38 @@ for (scancode, petscii) in petscii_from_alt_scancode:
 		keytab[ALT][scancode] = chr(petscii)
 
 # stamp in Alt graphic characters
-petscii_from_alt_scancode = [
-	(0x1c, 0xb0), # 'A'
-	(0x32, 0xbf), # 'B'
-	(0x21, 0xbc), # 'C'
-	(0x23, 0xac), # 'D'
-	(0x24, 0xb1), # 'E'
-	(0x2b, 0xbb), # 'F'
-	(0x34, 0xa5), # 'G'
-	(0x33, 0xb4), # 'H'
-	(0x43, 0xa2), # 'I'
-	(0x3b, 0xb5), # 'J'
-	(0x42, 0xa1), # 'K'
-	(0x4b, 0xb6), # 'L'
-	(0x3a, 0xa7), # 'M'
-	(0x31, 0xaa), # 'N'
-	(0x44, 0xb9), # 'O'
-	(0x4d, 0xaf), # 'P'
-	(0x15, 0xab), # 'Q'
-	(0x2d, 0xb2), # 'R'
-	(0x1b, 0xae), # 'S'
-	(0x2c, 0xa3), # 'T'
-	(0x3c, 0xb8), # 'U'
-	(0x2a, 0xbe), # 'V'
-	(0x1d, 0xb3), # 'W'
-	(0x22, 0xbd), # 'X'
-	(0x35, 0xb7), # 'Y'
-	(0x1a, 0xad), # 'Z'
-]
-for (scancode, petscii) in petscii_from_alt_scancode:
-	if keytab[ALT][scancode] == chr(0): # only if unassigned
-		keytab[ALT][scancode] = chr(petscii)
+if not iso_mode:
+	petscii_from_alt_scancode = [
+		(0x1c, 0xb0), # 'A'
+		(0x32, 0xbf), # 'B'
+		(0x21, 0xbc), # 'C'
+		(0x23, 0xac), # 'D'
+		(0x24, 0xb1), # 'E'
+		(0x2b, 0xbb), # 'F'
+		(0x34, 0xa5), # 'G'
+		(0x33, 0xb4), # 'H'
+		(0x43, 0xa2), # 'I'
+		(0x3b, 0xb5), # 'J'
+		(0x42, 0xa1), # 'K'
+		(0x4b, 0xb6), # 'L'
+		(0x3a, 0xa7), # 'M'
+		(0x31, 0xaa), # 'N'
+		(0x44, 0xb9), # 'O'
+		(0x4d, 0xaf), # 'P'
+		(0x15, 0xab), # 'Q'
+		(0x2d, 0xb2), # 'R'
+		(0x1b, 0xae), # 'S'
+		(0x2c, 0xa3), # 'T'
+		(0x3c, 0xb8), # 'U'
+		(0x2a, 0xbe), # 'V'
+		(0x1d, 0xb3), # 'W'
+		(0x22, 0xbd), # 'X'
+		(0x35, 0xb7), # 'Y'
+		(0x1a, 0xad), # 'Z'
+	]
+	for (scancode, petscii) in petscii_from_alt_scancode:
+		if keytab[ALT][scancode] == chr(0): # only if unassigned
+			keytab[ALT][scancode] = chr(petscii)
 
 # generate Ctrl codes for A-Z
 for i in range(0, len(keytab[0])):
