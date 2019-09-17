@@ -27,13 +27,15 @@ cbdos/main.o \
 keymap/keymap.o \
 charset/charset.o
 
-.PHONY : all
-all: rom.bin rom-c64.bin
+.PHONY : all x16 c64
+all : x16 c64
+x16 : rom.bin rom.txt
+c64 : rom-c64.bin rom-c64.txt
 
 # C64
 
 rom-c64.bin : DEFINES=$(VERSION_DEFINE)
-rom-c64.bin : $(ROM_C64_OBJ) rom-c64.txt rom-c64.cfg
+rom-c64.bin rom-c64.txt : $(ROM_C64_OBJ) rom-c64.cfg
 	ld65 -C rom-c64.cfg -o $@ $(ROM_C64_OBJ) -Ln rom-c64.txt
 
 basic-c64.bin : rom-c64.bin
@@ -48,7 +50,7 @@ kernal-c64.bin : rom-c64.bin
 # X16
 
 rom.bin : DEFINES=-DPS2 -DCBDOS -DMACHINE_X16=1 -DCPU_65C02=1
-rom.bin : $(ROM_X16_OBJ) rom.cfg rom.txt
+rom.bin rom.txt : $(ROM_X16_OBJ) rom.cfg
 	ld65 -C rom.cfg -o $@ $(ROM_X16_OBJ) -Ln rom.txt
 
 # Rules
