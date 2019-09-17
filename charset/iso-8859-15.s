@@ -2140,8 +2140,8 @@
 .byte %__█████_
 .byte %________
 ; å (based on PXLfont and CP850 86)
-.byte %__██____
-.byte %__██____
+.byte %___███__
+.byte %___█_█__
 .byte %__████__
 .byte %_____██_
 .byte %__█████_
