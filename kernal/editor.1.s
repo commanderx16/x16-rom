@@ -318,11 +318,7 @@ tvera_layer1
 	.byte 0 << 5 | 1  ;mode=0, enabled=1
 	.byte 1 << 2 | 2  ;maph=64, mapw=128
 	.word mapbas >> 2 ;map_base
-.if 1
 	.word tilbas >> 2 ;tile_bas
-.else
-	.word isobas >> 2 ;tile_bas
-.endif
 	.word 0, 0        ;hscroll, vscroll
 tvera_layer1_end
 

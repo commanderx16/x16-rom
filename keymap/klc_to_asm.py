@@ -311,14 +311,25 @@ for hid_scancode in layout.keys():
 
 # stamp in f-keys independent of shiftstate
 for shiftstate in keytab.keys():
-	keytab[shiftstate][2] = chr(0x88)
-	keytab[shiftstate][3] = chr(0x87)
-	keytab[shiftstate][4] = chr(0x86)
-	keytab[shiftstate][5] = chr(0x85)
-	keytab[shiftstate][6] = chr(0x89)
-	keytab[shiftstate][10] = chr(0x8c)
-	keytab[shiftstate][11] = chr(0x8b)
-	keytab[shiftstate][12] = chr(0x8a)
+	keytab[shiftstate][5]    = chr(0x85) # f1
+	keytab[shiftstate][6]    = chr(0x89) # f2
+	keytab[shiftstate][4]    = chr(0x86) # f3
+	keytab[shiftstate][12]   = chr(0x8a) # f4
+	keytab[shiftstate][3]    = chr(0x87) # f5
+	keytab[shiftstate][11]   = chr(0x8b) # f6
+	keytab[shiftstate][2]    = chr(0x88) # f7
+	keytab[shiftstate][10]   = chr(0x8c) # f8
+
+	# C65 additions
+	keytab[shiftstate][1]    = chr(0x10) # f9
+	keytab[shiftstate][9]    = chr(0x15) # f10
+	keytab[shiftstate][0x78] = chr(0x16) # f11
+	keytab[shiftstate][7]    = chr(0x17) # f12
+
+	# * PS/2 keyboards don't have the C65 f12 (chr(0x19)) and f13 (chr(0x1a))
+	#   -> we don't map them
+	# * PS/2 keyboards don't have the C128/C65 "HELP" (chr(0x83))
+	#   -> TODO
 
 # stamp in Ctrl/Alt color codes
 petscii_from_ctrl_scancode = [ # Ctrl
