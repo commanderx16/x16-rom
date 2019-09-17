@@ -233,15 +233,17 @@ repdo	sta blnct
 	lda gdbln       ;with original character
 ;
 key5
-.if 0
-	eor #$80        ;blink it
-.else
+.ifdef PS2
+	bit isomod
+	bpl key3
 	cmp #$9f
-	bne :+
+	bne key2
 	lda gdbln
 	.byte $2c
-:	lda #$9f
+key2	lda #$9f
+	.byte $2c
 .endif
+key3	eor #$80        ;blink it
 	jsr dspp2       ;display it
 ;
 key4
