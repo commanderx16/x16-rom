@@ -684,6 +684,10 @@ ntcn1	ldx qtsw
 cnc3	jmp nc3
 nc3w	cmp #$12
 	bne nc1
+.ifdef PS2
+	bit isomod
+	bmi nc1
+.endif
 	sta rvs
 nc1	cmp #$13
 	bne nc2
