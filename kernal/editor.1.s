@@ -120,7 +120,7 @@ cint	jsr iokeys
 	bne nemu
 	lda $9fbd       ;emulator keyboard layout
 	.byte $2c
-nemu:	lda #0          ;US layout
+nemu	lda #0          ;US layout
 	jsr setkbd
 .else
 	lda #<shflog    ;set shift logic indirects
@@ -643,7 +643,12 @@ njt9	jsr qtswc
 	jmp nxt3
 ntcn	ldx insrt
 	beq cnc3x
-	jmp nc3
+.ifdef PS2
+	bit isomod
+	bpl cnc3y
+	jmp nvs
+.endif
+cnc3y	jmp nc3
 cnc3x	cmp #$14
 	bne ntcn1
 	tya
@@ -671,6 +676,11 @@ bk2	lda #' '
 	bpl jpl3
 ntcn1	ldx qtsw
 	beq nc3w
+.ifdef PS2
+	bit isomod
+	bpl cnc3
+	jmp nvs
+.endif
 cnc3	jmp nc3
 nc3w	cmp #$12
 	bne nc1
@@ -771,10 +781,10 @@ up9	ldx insrt
 up6
 .ifdef PS2
 	bit isomod
-	bmi :+
+	bmi up1
 .endif
 	ora #$40
-:	jmp nc3
+up1	jmp nc3
 up2	cmp #$11
 	bne nxt2
 	ldx tblx
