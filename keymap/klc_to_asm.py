@@ -262,6 +262,11 @@ all_petscii_codes_ok_if_missing = [
 	chr(0x9d), # CURSOR_LEFT  - covered by cursor keys
 ]
 
+if len(sys.argv) >= 3 and sys.argv[2] == '-iso':
+	iso_mode = True
+else:
+	iso_mode = False
+
 kbd_layout = get_kbd_layout(sys.argv[1])
 
 layout = kbd_layout['layout']
@@ -281,42 +286,44 @@ for hid_scancode in layout.keys():
 	for shiftstate in keytab.keys():
 		if shiftstate in l:
 			c_unicode = l[shiftstate]
-			c_latin15 = latin15_from_unicode(c_unicode)
-			keytab[shiftstate][ps2_scancode] = c_latin15
+			if iso_mode:
+				keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
+			else:
+				keytab[shiftstate][ps2_scancode] = petscii_from_unicode(c_unicode)
 
 # stamp in f-keys independent of shiftstate
 for shiftstate in keytab.keys():
-	keytab[shiftstate][2] = chr(0xf888) # 0xf8nn means PETSCII code nn
-	keytab[shiftstate][3] = chr(0xf887)
-	keytab[shiftstate][4] = chr(0xf886)
-	keytab[shiftstate][5] = chr(0xf885)
-	keytab[shiftstate][6] = chr(0xf889)
-	keytab[shiftstate][10] = chr(0xf88c)
-	keytab[shiftstate][11] = chr(0xf88b)
-	keytab[shiftstate][12] = chr(0xf88a)
+	keytab[shiftstate][2] = chr(0x88)
+	keytab[shiftstate][3] = chr(0x87)
+	keytab[shiftstate][4] = chr(0x86)
+	keytab[shiftstate][5] = chr(0x85)
+	keytab[shiftstate][6] = chr(0x89)
+	keytab[shiftstate][10] = chr(0x8c)
+	keytab[shiftstate][11] = chr(0x8b)
+	keytab[shiftstate][12] = chr(0x8a)
 
 # stamp in Ctrl/Alt color codes
 petscii_from_ctrl_scancode = [ # Ctrl
-	(0x16, 0xf890), # '1' # black
-	(0x1e, 0xf805), # '2'
-	(0x26, 0xf81c), # '3'
-	(0x25, 0xf89f), # '4'
-	(0x2e, 0xf89c), # '5'
-	(0x36, 0xf81e), # '6'
-	(0x3d, 0xf81f), # '7'
-	(0x3e, 0xf89e), # '8'
-	(0x46, 0xf812), # '9' REVERSE ON
-	(0x45, 0xf892), # '0' REVERSE OFF
+	(0x16, 0x90), # '1'
+	(0x1e, 0x05), # '2'
+	(0x26, 0x1c), # '3'
+	(0x25, 0x9f), # '4'
+	(0x2e, 0x9c), # '5'
+	(0x36, 0x1e), # '6'
+	(0x3d, 0x1f), # '7'
+	(0x3e, 0x9e), # '8'
+	(0x46, 0x12), # '9' REVERSE ON
+	(0x45, 0x92), # '0' REVERSE OFF
 ]
 petscii_from_alt_scancode = [ # Alt
-	(0x16, 0xf881), # '1' # orange
-	(0x1e, 0xf895), # '2'
-	(0x26, 0xf896), # '3'
-	(0x25, 0xf897), # '4'
-	(0x2e, 0xf898), # '5'
-	(0x36, 0xf899), # '6'
-	(0x3d, 0xf89a), # '7'
-	(0x3e, 0xf89b), # '8'
+	(0x16, 0x81), # '1'
+	(0x1e, 0x95), # '2'
+	(0x26, 0x96), # '3'
+	(0x25, 0x97), # '4'
+	(0x2e, 0x98), # '5'
+	(0x36, 0x99), # '6'
+	(0x3d, 0x9a), # '7'
+	(0x3e, 0x9b), # '8'
 ]
 for (scancode, petscii) in petscii_from_ctrl_scancode:
 	if keytab[CTRL][scancode] == chr(0): # only if unassigned
@@ -327,32 +334,32 @@ for (scancode, petscii) in petscii_from_alt_scancode:
 
 # stamp in Alt graphic characters
 petscii_from_alt_scancode = [
-	(0x1c, 0xf8b0), # 'A'
-	(0x32, 0xf8bf), # 'B'
-	(0x21, 0xf8bc), # 'C'
-	(0x23, 0xf8ac), # 'D'
-	(0x24, 0xf8b1), # 'E'
-	(0x2b, 0xf8bb), # 'F'
-	(0x34, 0xf8a5), # 'G'
-	(0x33, 0xf8b4), # 'H'
-	(0x43, 0xf8a2), # 'I'
-	(0x3b, 0xf8b5), # 'J'
-	(0x42, 0xf8a1), # 'K'
-	(0x4b, 0xf8b6), # 'L'
-	(0x3a, 0xf8a7), # 'M'
-	(0x31, 0xf8aa), # 'N'
-	(0x44, 0xf8b9), # 'O'
-	(0x4d, 0xf8af), # 'P'
-	(0x15, 0xf8ab), # 'Q'
-	(0x2d, 0xf8b2), # 'R'
-	(0x1b, 0xf8ae), # 'S'
-	(0x2c, 0xf8a3), # 'T'
-	(0x3c, 0xf8b8), # 'U'
-	(0x2a, 0xf8be), # 'V'
-	(0x1d, 0xf8b3), # 'W'
-	(0x22, 0xf8bd), # 'X'
-	(0x35, 0xf8b7), # 'Y'
-	(0x1a, 0xf8ad), # 'Z'
+	(0x1c, 0xb0), # 'A'
+	(0x32, 0xbf), # 'B'
+	(0x21, 0xbc), # 'C'
+	(0x23, 0xac), # 'D'
+	(0x24, 0xb1), # 'E'
+	(0x2b, 0xbb), # 'F'
+	(0x34, 0xa5), # 'G'
+	(0x33, 0xb4), # 'H'
+	(0x43, 0xa2), # 'I'
+	(0x3b, 0xb5), # 'J'
+	(0x42, 0xa1), # 'K'
+	(0x4b, 0xb6), # 'L'
+	(0x3a, 0xa7), # 'M'
+	(0x31, 0xaa), # 'N'
+	(0x44, 0xb9), # 'O'
+	(0x4d, 0xaf), # 'P'
+	(0x15, 0xab), # 'Q'
+	(0x2d, 0xb2), # 'R'
+	(0x1b, 0xae), # 'S'
+	(0x2c, 0xa3), # 'T'
+	(0x3c, 0xb8), # 'U'
+	(0x2a, 0xbe), # 'V'
+	(0x1d, 0xb3), # 'W'
+	(0x22, 0xbd), # 'X'
+	(0x35, 0xb7), # 'Y'
+	(0x1a, 0xad), # 'Z'
 ]
 for (scancode, petscii) in petscii_from_alt_scancode:
 	if keytab[ALT][scancode] == chr(0): # only if unassigned
