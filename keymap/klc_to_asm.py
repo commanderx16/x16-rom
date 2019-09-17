@@ -385,12 +385,17 @@ if not iso_mode:
 			keytab[ALT][scancode] = chr(petscii)
 
 # generate Ctrl codes for A-Z
-for i in range(0, len(keytab[0])):
-	c = keytab[0][i]
-	if ord(c) >= ord('A') and ord(c) <= ord('Z'):
-		c = chr(ord(c) - 0x40)
-		if keytab[2][i] == chr(0): # only if unassigned
-			keytab[2][i] = c
+for i in range(0, len(keytab[REG])):
+	c = keytab[REG][i]
+	if iso_mode and ord(c) >= ord('a') and ord(c) <= ord('z'):
+		c = chr(ord(c) - ord('a') + 1)
+	elif not iso_mode and ord(c) >= ord('A') and ord(c) <= ord('Z'):
+		c = chr(ord(c) - ord('A') + 1)
+	else:
+		c = None
+		
+	if c and keytab[CTRL][i] == chr(0): # only if unassigned
+		keytab[CTRL][i] = c
 
 # stamp in backspace and TAB
 for shiftstate in keytab.keys():

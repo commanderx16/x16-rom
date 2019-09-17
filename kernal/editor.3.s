@@ -108,14 +108,15 @@ isooff
 	jsr lowup
 	ldx #tilbas >> 10
 	lda #0
-isosto	stx veradat
+isosto	cmp isomod
+	beq outhre
+	stx veradat
 	sta isomod
 	lda curkbd
 	jsr setkbd      ;reload keymap
-	jmp outhre      ;always
-.else
-	jmp outhre
+	jsr clsr        ;clear screen
 .endif
+	jmp loop2
 
 ; access VERA register TILE_BASE_HI
 lowup	lda #$05        ;$F2005: layer 1, TILE_BASE_HI
