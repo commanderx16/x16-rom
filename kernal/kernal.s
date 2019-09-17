@@ -7,6 +7,8 @@
 .export stavec
 .endif
 
+.include "../banks.inc"
+
 .include "declare.s"
 .include "editor.1.s"
 .include "editor.2.s"

@@ -9,7 +9,7 @@ ALTGR = 6
 
 COMPRESSED_OUTPUT=1
 
-def get_kbd_layout(base_filename):
+def get_kbd_layout(base_filename, load_patch = False):
 	filename_klc = base_filename
 	filename_changes = base_filename + 'patch'
 
@@ -18,7 +18,7 @@ def get_kbd_layout(base_filename):
 	f.close()
 	lines = [x.strip() for x in lines]
 	
-	if (os.path.isfile(filename_changes)):
+	if (load_patch and os.path.isfile(filename_changes)):
 		f = io.open(filename_changes, mode="r", encoding="utf-8")
 		lines_changes = f.readlines()
 		f.close()
@@ -267,7 +267,8 @@ if len(sys.argv) >= 3 and sys.argv[2] == '-iso':
 else:
 	iso_mode = False
 
-kbd_layout = get_kbd_layout(sys.argv[1])
+load_patch = not iso_mode
+kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
 
 layout = kbd_layout['layout']
 shiftstates = kbd_layout['shiftstates']
@@ -409,8 +410,11 @@ for c in all_petscii_graphs:
 
 unicode_not_reachable = ""
 for c_unicode in kbd_layout['all_originally_reachable_characters']:
-	c_petscii = petscii_from_unicode(c_unicode)
-	if (c_petscii == chr(0) or not c_petscii in all_keytabs) and not c_unicode in unicode_not_reachable:
+	if iso_mode:
+		c_encoded = latin15_from_unicode(c_unicode)
+	else:
+		c_encoded = petscii_from_unicode(c_unicode)
+	if (c_encoded == chr(0) or not c_encoded in all_keytabs) and not c_unicode in unicode_not_reachable:
 		unicode_not_reachable += c_unicode
 
 petscii_chars_not_reachable = ''.join(sorted(petscii_chars_not_reachable))
@@ -445,7 +449,10 @@ if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 
 			print("\\x{0:02x}".format(ord(c)), end = '')
 		print("'")
 if len(unicode_not_reachable) > 0:
-	print("; Unicode characters reachable with this layout on Windows but not covered by PETSCII:")
+	if iso_mode:
+		print("; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:")
+	else:
+		print("; Unicode characters reachable with this layout on Windows but not covered by PETSCII:")
 	print("; '", end = '')
 	for c in unicode_not_reachable:
 		if ord(c) < 0x20:
@@ -456,7 +463,12 @@ if len(unicode_not_reachable) > 0:
 	
 print()
 
-print('.segment "KBDMETA"\n')
+if iso_mode:
+	print('.segment "IKBDMETA"\n')
+	prefix = 'i'
+else:
+	print('.segment "KBDMETA"\n')
+	prefix = ''
 locale1 = kbd_layout['localename'][0:2].upper()
 locale2 = kbd_layout['localename'][3:5].upper()
 if locale1 != locale2:
@@ -472,7 +484,7 @@ for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
 		print_shiftstate = ALT
 	else:
 		print_shiftstate = shiftstate
-	print("\t.word kbtab_{}_{}".format(kbd_id, print_shiftstate), end = '')
+	print("\t.word {}kbtab_{}_{}".format(prefix, kbd_id, print_shiftstate), end = '')
 	if shiftstate == REG:
 		print()
 	else:
@@ -480,12 +492,15 @@ for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
 print()
 
 
-print('.segment "KBDTABLES"\n')
+if iso_mode:
+	print('.segment "IKBDTABLES"\n')
+else:
+	print('.segment "KBDTABLES"\n')
 
 for shiftstate in [REG, SHFT, CTRL, ALT, ALTGR]:
 	if shiftstate == ALTGR and not ALTGR in keytab.keys():
 		continue
-	print("kbtab_{}_{}: ; ".format(kbd_id, shiftstate), end = '')
+	print("{}kbtab_{}_{}: ; ".format(prefix, kbd_id, shiftstate), end = '')
 	if shiftstate == 0:
 		print('Unshifted', end='')
 	if shiftstate & 1:

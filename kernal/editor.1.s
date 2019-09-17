@@ -216,7 +216,7 @@ initv
 
 	lda d1prb       ;save ROM bank
 	pha
-	lda #4
+	lda #BANK_CHAR
 	sta d1prb
 
 	; ISO character set
