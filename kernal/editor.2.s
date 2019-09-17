@@ -359,7 +359,7 @@ bit_found:
 	lda kbdtab + 1,x
 	sta ckbtab + 1
 	ldx d1prb
-	lda #3
+	lda #BANK_KEY1
 	sta d1prb
 	lda (ckbtab),y
 	stx d1prb

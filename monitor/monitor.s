@@ -239,7 +239,7 @@ brk_entry:
         jsr     enable_all_roms
 .elseif .defined(MACHINE_X16)
 	pha
-	lda #1 ; UTIL
+	lda #BANK_UTIL
 	sta d1prb ; RAM bank
 	pla
 .endif

@@ -66,7 +66,7 @@ scnsiz	stx llen
 setkbd	tax
 	lda d1prb       ;save ROM bank
 	pha
-	lda #3
+	lda #BANK_KEY1
 	sta d1prb
 	txa
 setkb2	sta curkbd
