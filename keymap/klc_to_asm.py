@@ -326,7 +326,7 @@ for shiftstate in keytab.keys():
 	keytab[shiftstate][0x78] = chr(0x16) # f11
 	keytab[shiftstate][7]    = chr(0x17) # f12
 
-	# * PS/2 keyboards don't have the C65 f12 (chr(0x19)) and f13 (chr(0x1a))
+	# * PS/2 keyboards don't have the C65 f13 (chr(0x19)) and f14 (chr(0x1a))
 	#   -> we don't map them
 	# * PS/2 keyboards don't have the C128/C65 "HELP" (chr(0x83))
 	#   -> TODO
