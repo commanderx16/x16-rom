@@ -44,6 +44,14 @@ clrfac	sta facho
 	sta faclo
 	tay 
 intrts	rts
+.ifndef C64
+finh	bcc fin	; skip test for 0-9
+	cmp #'$'
+	beq finh2
+	cmp #'%'
+	bne fin
+finh2	jmp frmevl
+.endif
 fin	ldy #$00
 	ldx #$09+addprc
 finzlp	sty deccnt,x
