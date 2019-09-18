@@ -563,16 +563,14 @@ for shiftstate in ALL_SHIFTSTATES:
 			else:
 				start = 26
 				end = NUM_SCANCODES
+			print('\t.byte ', end='')
 			for i in range(start, end ):
-				if (i - start) == 0:
-					print()
-					print('\t.byte ', end='')
 				c = keytab[enc][shiftstate][i]
 				if ord(c) >= 0x20 and ord(c) <= 0x7e:
 					print("'{}'".format(c), end = '')
 				else:
 					print("${:02x}".format(ord(c)), end = '')
-				if (i - start) & 7 != 7 and i != end - 1:
+				if i != end - 1:
 					print(',', end = '')
 			print()
 		
