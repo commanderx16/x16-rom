@@ -29,8 +29,8 @@ charset/charset.o
 
 .PHONY : all x16 c64
 all : x16 c64
-x16 : rom.bin rom.txt
-c64 : rom-c64.bin rom-c64.txt
+x16 : rom.bin
+c64 : basic-c64.bin kernal-c64.bin rom-c64.bin
 
 # C64
 
@@ -63,4 +63,4 @@ rom.bin rom.txt : $(ROM_X16_OBJ) rom.cfg
 
 .PHONY : clean
 clean:
-	-rm -f $(ROM_C64_OBJ) $(ROM_X16_OBJ)
+	-rm -f $(ROM_C64_OBJ) $(ROM_X16_OBJ) rom.bin rom.txt basic-c64.bin kernal-c64.bin rom-c64.bin rom-c64.txt
