@@ -8,7 +8,7 @@ endif
 ARGS_KERNAL=-g
 ARGS_BASIC=-g
 #ARGS_MONITOR=-g
-#ARGS_DOS=-g
+ARGS_DOS=-g
 
 
 all:
@@ -30,7 +30,6 @@ all:
 	ca65 $(ARGS_DOS) -o cbdos/util.o cbdos/util.asm
 	ca65 $(ARGS_DOS) -o cbdos/matcher.o cbdos/matcher.asm
 	ca65 $(ARGS_DOS) -o cbdos/sdcard.o cbdos/sdcard.asm
-	ca65 $(ARGS_DOS) -o cbdos/spi_r_byte.o cbdos/spi_r_byte.s
 	ca65 $(ARGS_DOS) -o cbdos/spi_rw_byte.o cbdos/spi_rw_byte.s
 	ca65 $(ARGS_DOS) -o cbdos/spi_select_device.o cbdos/spi_select_device.s
 	ca65 $(ARGS_DOS) -o cbdos/spi_deselect.o cbdos/spi_deselect.s
@@ -40,7 +39,7 @@ all:
 
 	ca65 -o charset/charset.o charset/charset.s
 
-	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_r_byte.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/charset.o -Ln rom.txt -m rom-map.txt
+	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/charset.o -Ln rom.txt -m rom-map.txt
 
 	./generate_x16_rom.sh
 
