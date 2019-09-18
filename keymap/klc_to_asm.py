@@ -476,7 +476,11 @@ def convert_layout(filename):
 	
 	for enc in ALL_ENCODINGS:
 		for shiftstate in ALL_SHIFTSTATES:
-			keytab[enc][shiftstate] = [ keytab[enc][shiftstate][0:26], keytab[enc][shiftstate][26:36], keytab[enc][shiftstate][36:] ]
+			keytab[enc][shiftstate] = [ 
+				keytab[enc][shiftstate][0:26],
+				keytab[enc][shiftstate][26:36],
+				keytab[enc][shiftstate][36:]
+			]
 		
 
 	return (kbd_layout, keytab)
@@ -489,18 +493,41 @@ def encode_label(kbdid, shiftstate, part, enc):
 	return  "kbtab_{}_{}_{}_{}".format(kbdid, shiftstate_desc[shiftstate], part_desc[part], enc_desc[enc])
 
 
-
-layouts = ['406 Danish','407 German','409 US','40A Spanish','40B Finnish','40C French','40E Hungarian','410 Italian','414 Norwegian','415 Polish (Programmers)','416 Portuguese (Brazil ABNT)','41D Swedish','807 Swiss German','809 United Kingdom','80C Belgian French']
-#layouts = ['407 German', '409 US']
-#layouts = ['409 US']
+layouts = [
+	'409 US',
+	'809 United Kingdom',
+	'407 German',
+	'41D Swedish',
+	'406 Danish',
+	'410 Italian',
+	'415 Polish (Programmers)',
+	'414 Norwegian',
+	'40E Hungarian',
+	'40A Spanish',
+	'40B Finnish',
+	'416 Portuguese (Brazil ABNT)',
+	'405 Czech',
+	'411 Japanese',
+	'40C French',
+#	'807 Swiss German',
+#	'10409 United States-Dvorak',
+#	'425 Estonian',
+#	'80C Belgian French',
+#	'1009 Canadian French',
+#	'40F Icelandic'
+]
 
 keytabs = {}
+name = {}
+localename = {}
 for l in layouts:
 	(kbd_layout, keytab) = convert_layout('klc/' + l + '.klc')
 
-	name = kbd_layout['name'].replace(' - Custom', '')
 	kbdid = kbd_layout['short_id'].lower()
+
 	keytabs[kbdid] = keytab
+	name[kbdid] = kbd_layout['name'].replace(' - Custom', '')
+	localename[kbdid] = kbd_layout['localename']
 
 ALL_PARTS = [0, 1, 2]
 
@@ -514,7 +541,7 @@ for kbdid in keytabs.keys():
 			for enc in ALL_ENCODINGS:
 				pointers[kbdid][shiftstate][part][enc] = (kbdid, shiftstate, part, enc)
 
-pprint.pprint(pointers)
+#pprint.pprint(pointers)
 
 for kbdid1 in keytabs.keys():
 	for kbdid2 in keytabs.keys():
@@ -526,12 +553,12 @@ for kbdid1 in keytabs.keys():
 							if kbdid1 == kbdid2 and shiftstate1 == shiftstate2 and enc1 == enc2:
 								continue
 							if keytabs[kbdid1][enc1][shiftstate1][part] == keytabs[kbdid2][enc2][shiftstate2][part]:
-								print(encode_label(kbdid1, shiftstate1, part, enc1), encode_label(kbdid2, shiftstate2, part, enc2))
+								#print(encode_label(kbdid1, shiftstate1, part, enc1), encode_label(kbdid2, shiftstate2, part, enc2))
 								keytabs[kbdid2][enc2][shiftstate2][part] = None
 								pointers[kbdid2][shiftstate2][part][enc2] = (kbdid1, shiftstate1, part, enc1)
 								#break
 
-pprint.pprint(pointers)
+#pprint.pprint(pointers)
 
 
 
@@ -544,16 +571,26 @@ pprint.pprint(pointers)
 #####################
 #####################
 
-print("; Name:   " + name)
-print("; Locale: " + kbd_layout['localename'])
-#print("; KLID:   " + kbdid)
-print(";")
+#for kbdid in keytabs.keys():
+#	print("; KLID:   " + kbdid)
+#	print(";")
 
+for kbdid in keytabs.keys():
+	print("; Name:   " + name[kbdid])
+	print("; Locale: " + localename[kbdid])
+	print("; KLID:   " + kbdid)
+	for enc in ALL_ENCODINGS:
+		for shiftstate in ALL_SHIFTSTATES:
+			for part in ALL_PARTS:
+				(kbdid, shiftstate, part, enc) = pointers[kbdid][shiftstate][part][enc]
+				print(encode_label(kbdid, shiftstate, part, enc))
+				
 
 
 
 print('.segment "KBDTABLES"\n')
 
+bytes = 0
 for part in ALL_PARTS:
 	for shiftstate in ALL_SHIFTSTATES:
 		for enc in ALL_ENCODINGS:
@@ -570,7 +607,9 @@ for part in ALL_PARTS:
 						print("'{}'".format(c), end = '')
 					else:
 						print("${:02x}".format(ord(c)), end = '')
+					bytes += 1
 					if i != len(keytabs[kbdid][enc][shiftstate][part]) - 1:	
 						print(',', end = '')
 				print()
 			
+print(bytes)
