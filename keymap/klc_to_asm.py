@@ -486,29 +486,32 @@ def convert_layout(filename):
 	return (kbd_layout, keytab)
 
 shiftstate_desc = { REG: 'reg', SHFT: 'shft', CTRL: 'ctrl', ALT: 'alt', ALTGR: 'altgr', SHALTGR: 'shaltgr' }
-part_desc = { 0: 'alpha', 1: 'num', 2: 'other' }
-enc_desc = { ISO: 'iso', PET: 'pet' }
+part_desc = { 0: 'A', 1: 'N', 2: 'O' }
+enc_desc = { ISO: 'I', PET: 'P' }
 
 def encode_label(kbdid, shiftstate, part, enc):
 	return  "kbtab_{}_{}_{}_{}".format(kbdid, shiftstate_desc[shiftstate], part_desc[part], enc_desc[enc])
+
+def is_all_zeros(a):
+	return a == [ '\0' ] * len(a)
 
 
 layouts = [
 	'409 US',
 	'809 United Kingdom',
-	'407 German',
-	'41D Swedish',
-	'406 Danish',
-	'410 Italian',
-	'415 Polish (Programmers)',
-	'414 Norwegian',
-	'40E Hungarian',
-	'40A Spanish',
-	'40B Finnish',
-	'416 Portuguese (Brazil ABNT)',
-	'405 Czech',
-	'411 Japanese',
-	'40C French',
+#	'407 German',
+#	'41D Swedish',
+#	'406 Danish',
+#	'410 Italian',
+#	'415 Polish (Programmers)',
+#	'414 Norwegian',
+#	'40E Hungarian',
+#	'40A Spanish',
+#	'40B Finnish',
+#	'416 Portuguese (Brazil ABNT)',
+#	'405 Czech',
+#	'411 Japanese',
+#	'40C French',
 #	'807 Swiss German',
 #	'10409 United States-Dvorak',
 #	'425 Estonian',
@@ -541,8 +544,6 @@ for kbdid in keytabs.keys():
 			for enc in ALL_ENCODINGS:
 				pointers[kbdid][shiftstate][part][enc] = (kbdid, shiftstate, part, enc)
 
-#pprint.pprint(pointers)
-
 for kbdid1 in keytabs.keys():
 	for kbdid2 in keytabs.keys():
 		for shiftstate1 in ALL_SHIFTSTATES:
@@ -552,13 +553,12 @@ for kbdid1 in keytabs.keys():
 						for part in ALL_PARTS:
 							if kbdid1 == kbdid2 and shiftstate1 == shiftstate2 and enc1 == enc2:
 								continue
+							if keytabs[kbdid1][enc1][shiftstate1][part] == None:
+								continue
 							if keytabs[kbdid1][enc1][shiftstate1][part] == keytabs[kbdid2][enc2][shiftstate2][part]:
-								#print(encode_label(kbdid1, shiftstate1, part, enc1), encode_label(kbdid2, shiftstate2, part, enc2))
 								keytabs[kbdid2][enc2][shiftstate2][part] = None
 								pointers[kbdid2][shiftstate2][part][enc2] = (kbdid1, shiftstate1, part, enc1)
-								#break
-
-#pprint.pprint(pointers)
+								#print(encode_label(kbdid2, shiftstate2, part, enc2), '->', encode_label(kbdid1, shiftstate1, part, enc1))
 
 
 
@@ -583,7 +583,12 @@ for kbdid in keytabs.keys():
 		for shiftstate in ALL_SHIFTSTATES:
 			for part in ALL_PARTS:
 				(kbdid, shiftstate, part, enc) = pointers[kbdid][shiftstate][part][enc]
-				print(encode_label(kbdid, shiftstate, part, enc))
+				#pprint.pprint(keytabs[kbdid][enc][shiftstate][part], [ 0 ] * len(keytabs[kbdid][enc][shiftstate][part]))
+				
+				if is_all_zeros(keytabs[kbdid][enc][shiftstate][part]):
+					print('0')
+				else:
+					print(encode_label(kbdid, shiftstate, part, enc))
 				
 
 
@@ -591,15 +596,20 @@ for kbdid in keytabs.keys():
 print('.segment "KBDTABLES"\n')
 
 bytes = 0
-for part in ALL_PARTS:
-	for shiftstate in ALL_SHIFTSTATES:
-		for enc in ALL_ENCODINGS:
-			for kbdid in keytabs.keys():
-				if shiftstate == ALTGR and not ALTGR in ALL_SHIFTSTATES:
-					continue
+#for part in ALL_PARTS:
+#	for shiftstate in ALL_SHIFTSTATES:
+#		for enc in ALL_ENCODINGS:
+#			for kbdid in keytabs.keys():
+for kbdid in keytabs.keys():
+	for enc in ALL_ENCODINGS:
+		for shiftstate in ALL_SHIFTSTATES:
+			for part in ALL_PARTS:
+
 				if not keytabs[kbdid][enc][shiftstate][part]:
 					continue
-				print("kbtab_{}_{}_{}_{}:".format(kbdid, shiftstate_desc[shiftstate], 'alpha' if part == 0 else 'other', 'pet' if enc == PET else 'iso'), end = '')
+				if is_all_zeros(keytabs[kbdid][enc][shiftstate][part]):
+					continue
+				print(encode_label(kbdid, shiftstate, part, enc), end = ':')
 				print('\t.byte ', end='')
 				for i in range(0, len(keytabs[kbdid][enc][shiftstate][part])):
 					c = keytabs[kbdid][enc][shiftstate][part][i]
