@@ -463,7 +463,16 @@ petscii_codes_not_reachable = ''.join(sorted(petscii_codes_not_reachable))
 petscii_graphs_not_reachable = ''.join(sorted(petscii_graphs_not_reachable))
 unicode_not_reachable = ''.join(sorted(unicode_not_reachable))
 
+#####################
+#####################
+# split halves
+#####################
+#####################
 
+for enc in [PET, ISO]:
+	for shiftstate in ALL_SHIFTSTATES:
+		keytab[enc][shiftstate] = [ keytab[enc][shiftstate][0:26], keytab[enc][shiftstate][26:] ]
+		
 #####################
 #####################
 #####################
@@ -542,20 +551,14 @@ for shiftstate in ALL_SHIFTSTATES:
 			if shiftstate == ALTGR and not ALTGR in ALL_SHIFTSTATES:
 				continue
 			print("kbtab_{}_{}_{}_{}:".format(kbd_id, shiftstate_desc[shiftstate], 'alpha' if part == 0 else 'other', 'pet' if enc == PET else 'iso'), end = '')
-			if part == 0:
-				start = 0
-				end =  26
-			else:
-				start = 26
-				end = NUM_SCANCODES
 			print('\t.byte ', end='')
-			for i in range(start, end ):
-				c = keytab[enc][shiftstate][i]
+			for i in range(0, len(keytab[enc][shiftstate][part])):
+				c = keytab[enc][shiftstate][part][i]
 				if ord(c) >= 0x20 and ord(c) <= 0x7e:
 					print("'{}'".format(c), end = '')
 				else:
 					print("${:02x}".format(ord(c)), end = '')
-				if i != end - 1:
+				if i != len(keytab[enc][shiftstate][part]) - 1:	
 					print(',', end = '')
 			print()
 		
