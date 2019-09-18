@@ -628,6 +628,9 @@ for kbdid in keytabs.keys():
 				if not data1:
 					# all zeros
 					continue
+				if isinstance(data1, str):
+					# duplicate
+					continue
 
 				print(encode_label(kbdid, shiftstate, part, enc), end = ':')
 				print('\t.byte ', end='')
