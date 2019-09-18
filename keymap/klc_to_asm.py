@@ -1,13 +1,104 @@
 import io, re, codecs, sys, os.path
 import pprint
 
-REG   = 0
-SHFT  = 1
-CTRL  = 2
-ALT   = 4
-ALTGR = 6
+ISO = 0
+PET = 1
 
-COMPRESSED_OUTPUT=1
+ALL_ENCODINGS = [ISO, PET]
+
+REG     = 0
+SHFT    = 1
+CTRL    = 2
+ALT     = 4
+ALTGR   = 6
+SHALTGR = 7
+
+ALL_SHIFTSTATES = [REG, SHFT, CTRL, ALT, ALTGR, SHALTGR]
+
+# no layout has anything in the Ctrl map other than "^[", "^\" and "^]",
+# shuffled according to the layout of "[", "\" and "]". We can generate
+# these at runtime.
+ALL_OUTPUTSHIFTSTATES = [REG, SHFT, ALTGR, ALT, SHALTGR]
+
+#
+# The core PS/2 scancode set has 132 codes (0x00-0x83) for just 86 keys, so
+# a table mapping scancodes to ASCII would be 1/3 empty.
+# Additionally, of these 86 keys, 38 are control keys like f-keys, modifiers,
+# return, backspace, Esc etc. These are the same on all keyboard layouts and
+# don't need to be included in every mapping table.
+# There are only 48 keys on the keyboard whose function depends on the layout:
+# 26 keys with the characters A-Z, and 10 digit and 12 symbol keys.
+# We are using the following numbering for "X16 scancodes":
+#
+# 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19
+# Q  W  E  R  T  Y  U  I  O  P  A  S  D  F  G  H  J  K  L  Z  X  C  V  B  N  M
+#
+# 1A 1B 1C 1D 1E 1F 20 21 22 23
+# 1  2  3  4  5  6  7  8  9  0
+#
+# 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F
+# -  =  [  ]  \  ;  '  ,  .  /  `  <ISO>
+#
+# The ordering partitions the numbers into "A-Z" and "other", so two QWERTY
+# keymaps could share a table for keys 0x00-0x19.
+# (On AZERTY, ';' (0x2A) becomes 'M' and 'M' (0x19) becomes ',', so the
+# partitioning does not work for all layouts, but this just means that different
+# AZERTY keyboards might not be able to share partial maps if they have a
+# different function on key 0x19.)
+
+x16scancode_from_ps2_set2_code = {
+	0x0E: 0x2E, # `
+	0x15: 0x00, # Q
+	0x16: 0x1A, # 1
+	0x1A: 0x13, # Z
+	0x1B: 0x0B, # S
+	0x1C: 0x0A, # A
+	0x1D: 0x01, # W
+	0x1E: 0x1B, # 2
+	0x21: 0x15, # C
+	0x22: 0x14, # X
+	0x23: 0x0C, # D
+	0x24: 0x02, # E
+	0x25: 0x1D, # 4
+	0x26: 0x1C, # 3
+	0x2A: 0x16, # V
+	0x2B: 0x0D, # F
+	0x2C: 0x04, # T
+	0x2D: 0x03, # R
+	0x2E: 0x1E, # 5
+	0x31: 0x18, # N
+	0x32: 0x17, # B
+	0x33: 0x0F, # H
+	0x34: 0x0E, # G
+	0x35: 0x05, # Y
+	0x36: 0x1F, # 6
+	0x3A: 0x19, # M
+	0x3B: 0x10, # J
+	0x3C: 0x06, # U
+	0x3D: 0x20, # 7
+	0x3E: 0x21, # 8
+	0x41: 0x2B, # ,
+	0x42: 0x11, # K
+	0x43: 0x07, # I
+	0x44: 0x08, # O
+	0x45: 0x23, # 0
+	0x46: 0x22, # 9
+	0x49: 0x2C, # .
+	0x4A: 0x2D, # /
+	0x4B: 0x12, # L
+	0x4C: 0x29, # ;
+	0x4D: 0x09, # P
+	0x4E: 0x24, # -
+	0x52: 0x2A, # '
+	0x54: 0x26, # [
+	0x55: 0x25, # =
+	0x5B: 0x27, # ]
+	0x5D: 0x28, # \
+	0x61: 0x2F, # <ISO>
+}
+
+NUM_SCANCODES = 48
+
 
 def get_kbd_layout(base_filename, load_patch = False):
 	filename_klc = base_filename
@@ -170,7 +261,7 @@ def petscii_from_unicode(c):
 		return chr(0)
 	return c
 
-def latin15_from_unicode(c):
+def iso_from_unicode(c):
 	# Latin-15 and 8 bit Unicode are almost the same
 	if ord(c) <= 0xff:
 		# Latin-1 characters (i.e. 8 bit Unicode) not included in Latin-15
@@ -180,7 +271,7 @@ def latin15_from_unicode(c):
 			return c
 	
 	# Latin-15 supports some other Unicode characters
-	latin15_from_unicode_tab = { 
+	iso_from_unicode_tab = { 
 		0x20ac: 0xa4, # '€'
 		0x160: 0xa6,  # 'Š'
 		0x161: 0xa8,  # 'š'
@@ -190,8 +281,8 @@ def latin15_from_unicode(c):
 		0x153: 0xbd,  # 'œ'
 		0x178: 0xbe   # 'Ÿ'
 	}
-	if ord(c) in latin15_from_unicode_tab:
-		return chr(latin15_from_unicode_tab[ord(c)])
+	if ord(c) in iso_from_unicode_tab:
+		return chr(iso_from_unicode_tab[ord(c)])
 	
 	# all other characters are unsupported		
 	return chr(0)
@@ -279,289 +370,370 @@ all_petscii_codes_ok_if_missing = [
 	chr(0x9d), # CURSOR_LEFT  - covered by cursor keys
 ]
 
-if len(sys.argv) >= 3 and sys.argv[2] == '-iso':
-	iso_mode = True
-else:
-	iso_mode = False
 
-load_patch = not iso_mode
-kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
-
-layout = kbd_layout['layout']
-shiftstates = kbd_layout['shiftstates']
-
-keytab = {}
-for shiftstate in shiftstates:
-	keytab[shiftstate] = [ '\0' ] * 128
-# some layouts don't define Alt at all
-if not ALT in keytab:
-	keytab[ALT] = [ '\0' ] * 128
-
-# create PS/2 Code 2 -> PETSCII tables
-for hid_scancode in layout.keys():
-	ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
-	l = layout[hid_scancode]['chars']
-	for shiftstate in keytab.keys():
-		if shiftstate in l:
-			c_unicode = l[shiftstate]
-			if iso_mode:
-				keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
-			else:
-				keytab[shiftstate][ps2_scancode] = petscii_from_unicode(c_unicode)
-
-# stamp in f-keys independent of shiftstate
-for shiftstate in keytab.keys():
-	keytab[shiftstate][5]    = chr(0x85) # f1
-	keytab[shiftstate][6]    = chr(0x89) # f2
-	keytab[shiftstate][4]    = chr(0x86) # f3
-	keytab[shiftstate][12]   = chr(0x8a) # f4
-	keytab[shiftstate][3]    = chr(0x87) # f5
-	keytab[shiftstate][11]   = chr(0x8b) # f6
-	keytab[shiftstate][2]    = chr(0x88) # f7
-	keytab[shiftstate][10]   = chr(0x8c) # f8
-
-	# C65 additions
-	keytab[shiftstate][1]    = chr(0x10) # f9
-	keytab[shiftstate][9]    = chr(0x15) # f10
-	keytab[shiftstate][0x78] = chr(0x16) # f11
-	keytab[shiftstate][7]    = chr(0x17) # f12
-
-	# * PS/2 keyboards don't have the C65 f13 (chr(0x19)) and f14 (chr(0x1a))
-	#   -> we don't map them
-	# * PS/2 keyboards don't have the C128/C65 "HELP" (chr(0x83))
-	#   -> TODO
-
-# stamp in Ctrl/Alt color codes
-petscii_from_ctrl_scancode = [ # Ctrl
-	(0x16, 0x90), # '1'
-	(0x1e, 0x05), # '2'
-	(0x26, 0x1c), # '3'
-	(0x25, 0x9f), # '4'
-	(0x2e, 0x9c), # '5'
-	(0x36, 0x1e), # '6'
-	(0x3d, 0x1f), # '7'
-	(0x3e, 0x9e), # '8'
-	(0x46, 0x12), # '9' REVERSE ON
-	(0x45, 0x92), # '0' REVERSE OFF
-]
-petscii_from_alt_scancode = [ # Alt
-	(0x16, 0x81), # '1'
-	(0x1e, 0x95), # '2'
-	(0x26, 0x96), # '3'
-	(0x25, 0x97), # '4'
-	(0x2e, 0x98), # '5'
-	(0x36, 0x99), # '6'
-	(0x3d, 0x9a), # '7'
-	(0x3e, 0x9b), # '8'
-]
-for (scancode, petscii) in petscii_from_ctrl_scancode:
-	if keytab[CTRL][scancode] == chr(0): # only if unassigned
-		keytab[CTRL][scancode] = chr(petscii)
-for (scancode, petscii) in petscii_from_alt_scancode:
-	if keytab[ALT][scancode] == chr(0): # only if unassigned
-		keytab[ALT][scancode] = chr(petscii)
-
-# stamp in Alt graphic characters
-if not iso_mode:
-	petscii_from_alt_scancode = [
-		(0x1c, 0xb0), # 'A'
-		(0x32, 0xbf), # 'B'
-		(0x21, 0xbc), # 'C'
-		(0x23, 0xac), # 'D'
-		(0x24, 0xb1), # 'E'
-		(0x2b, 0xbb), # 'F'
-		(0x34, 0xa5), # 'G'
-		(0x33, 0xb4), # 'H'
-		(0x43, 0xa2), # 'I'
-		(0x3b, 0xb5), # 'J'
-		(0x42, 0xa1), # 'K'
-		(0x4b, 0xb6), # 'L'
-		(0x3a, 0xa7), # 'M'
-		(0x31, 0xaa), # 'N'
-		(0x44, 0xb9), # 'O'
-		(0x4d, 0xaf), # 'P'
-		(0x15, 0xab), # 'Q'
-		(0x2d, 0xb2), # 'R'
-		(0x1b, 0xae), # 'S'
-		(0x2c, 0xa3), # 'T'
-		(0x3c, 0xb8), # 'U'
-		(0x2a, 0xbe), # 'V'
-		(0x1d, 0xb3), # 'W'
-		(0x22, 0xbd), # 'X'
-		(0x35, 0xb7), # 'Y'
-		(0x1a, 0xad), # 'Z'
-	]
-	for (scancode, petscii) in petscii_from_alt_scancode:
-		if keytab[ALT][scancode] == chr(0): # only if unassigned
-			keytab[ALT][scancode] = chr(petscii)
-
-# generate Ctrl codes for A-Z
-for i in range(0, len(keytab[REG])):
-	c = keytab[REG][i]
-	if iso_mode and ord(c) >= ord('a') and ord(c) <= ord('z'):
-		c = chr(ord(c) - ord('a') + 1)
-	elif not iso_mode and ord(c) >= ord('A') and ord(c) <= ord('Z'):
-		c = chr(ord(c) - ord('A') + 1)
-	else:
-		c = None
-		
-	if c and keytab[CTRL][i] == chr(0): # only if unassigned
-		keytab[CTRL][i] = c
-
-# stamp in backspace and TAB
-for shiftstate in keytab.keys():
-	if shiftstate == 0:
-		keytab[shiftstate][0x66] = chr(0x14) # backspace
-		keytab[shiftstate][0x0d] = chr(0x09) # TAB
-		keytab[shiftstate][0x5a] = chr(0x0d) # CR
-		keytab[shiftstate][0x29] = chr(0x20) # SPACE
-	else:
-		keytab[shiftstate][0x66] = chr(0x94) # insert
-		keytab[shiftstate][0x0d] = chr(0x18) # shift-TAB
-		keytab[shiftstate][0x5a] = chr(0x8d) # shift-CR
-		keytab[shiftstate][0x29] = chr(0xA0) # shift-SPACE
-
-
-# analyze problems
-all_keytabs = keytab[REG] + keytab[SHFT] + keytab[CTRL] + keytab[ALT]
-if ALTGR in keytab:
-	all_keytabs += keytab[ALTGR]
-petscii_chars_not_reachable = ""
-for c in all_petscii_chars:
-	if not c in all_keytabs:
-		petscii_chars_not_reachable += unicode_from_petscii(c)
-
-petscii_codes_not_reachable = ""
-for c in all_petscii_codes:
-	if not c in all_keytabs:
-		if not c in all_petscii_codes_ok_if_missing:
-			petscii_codes_not_reachable += c
-
-petscii_graphs_not_reachable = ""
-for c in all_petscii_graphs:
-	if not c in all_keytabs:
-		petscii_graphs_not_reachable += c
-
-unicode_not_reachable = ""
-for c_unicode in kbd_layout['all_originally_reachable_characters']:
-	if iso_mode:
-		c_encoded = latin15_from_unicode(c_unicode)
-	else:
-		c_encoded = petscii_from_unicode(c_unicode)
-	if (c_encoded == chr(0) or not c_encoded in all_keytabs) and not c_unicode in unicode_not_reachable:
-		unicode_not_reachable += c_unicode
-
-petscii_chars_not_reachable = ''.join(sorted(petscii_chars_not_reachable))
-petscii_codes_not_reachable = ''.join(sorted(petscii_codes_not_reachable))
-petscii_graphs_not_reachable = ''.join(sorted(petscii_graphs_not_reachable))
-unicode_not_reachable = ''.join(sorted(unicode_not_reachable))
-
-# print
-
-name = kbd_layout['name'].replace(' - Custom', '')
-kbd_id = kbd_layout['short_id'].lower()
-
-print("; Name:   " + name)
-print("; Locale: " + kbd_layout['localename'])
-print("; KLID:   " + kbd_id)
-print(";")
-if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
-	print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
-	if len(petscii_chars_not_reachable) > 0:
-		print("; chars: " + pprint.pformat(petscii_chars_not_reachable))
-	if len(petscii_codes_not_reachable) > 0:
-		print("; codes: ", end = '')
-		for c in petscii_codes_not_reachable:
-			if ord(c) in control_codes:
-				print(control_codes[ord(c)] + ' ', end = '')
-			else:
-				print(hex(ord(c)) + ' ', end = '')
-		print()
-	if len(petscii_graphs_not_reachable) > 0:
-		print("; graph: '", end = '')
-		for c in petscii_graphs_not_reachable:
-			print("\\x{0:02x}".format(ord(c)), end = '')
-		print("'")
-if len(unicode_not_reachable) > 0:
-	if iso_mode:
-		print("; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:")
-	else:
-		print("; Unicode characters reachable with this layout on Windows but not covered by PETSCII:")
-	print("; '", end = '')
-	for c in unicode_not_reachable:
-		if ord(c) < 0x20:
-			print("\\x{0:02x}".format(ord(c)), end = '')
-		else:
-			print(c, end = '')
-	print("'")
+def convert_layout(filename):
+	kbd_layout = get_kbd_layout(filename, False)
+	kbd_layout_patched = get_kbd_layout(filename, True)
 	
-print()
+	layout = kbd_layout['layout']
+	layout_patched = kbd_layout_patched['layout']
+	shiftstates = kbd_layout['shiftstates']
+	
+	keytab = [{}, {}]
+	for shiftstate in ALL_SHIFTSTATES:
+		keytab[PET][shiftstate] = [ '\0' ] * NUM_SCANCODES
+		keytab[ISO][shiftstate] = [ '\0' ] * NUM_SCANCODES
+	
+	# create X16 scancode -> ISO tables
+	for hid_scancode in layout_patched.keys():
+		ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
+		if ps2_scancode in x16scancode_from_ps2_set2_code:
+			x16scancode = x16scancode_from_ps2_set2_code[ps2_scancode]
+			l = layout[hid_scancode]['chars']
+			l2 = layout_patched[hid_scancode]['chars']
+			for shiftstate in ALL_SHIFTSTATES:
+				if shiftstate in l:
+					keytab[PET][shiftstate][x16scancode] = petscii_from_unicode(l[shiftstate])
+				if shiftstate in l2:
+					keytab[ISO][shiftstate][x16scancode] = iso_from_unicode(l2[shiftstate])
+	
+	# stamp in Alt graphic characters into PETSCII map
+	#petscii_from_alt_scancode = [
+	#	(0x1c, 0xb0), # 'A'
+	#	(0x32, 0xbf), # 'B'
+	#	(0x21, 0xbc), # 'C'
+	#	(0x23, 0xac), # 'D'
+	#	(0x24, 0xb1), # 'E'
+	#	(0x2b, 0xbb), # 'F'
+	#	(0x34, 0xa5), # 'G'
+	#	(0x33, 0xb4), # 'H'
+	#	(0x43, 0xa2), # 'I'
+	#	(0x3b, 0xb5), # 'J'
+	#	(0x42, 0xa1), # 'K'
+	#	(0x4b, 0xb6), # 'L'
+	#	(0x3a, 0xa7), # 'M'
+	#	(0x31, 0xaa), # 'N'
+	#	(0x44, 0xb9), # 'O'
+	#	(0x4d, 0xaf), # 'P'
+	#	(0x15, 0xab), # 'Q'
+	#	(0x2d, 0xb2), # 'R'
+	#	(0x1b, 0xae), # 'S'
+	#	(0x2c, 0xa3), # 'T'
+	#	(0x3c, 0xb8), # 'U'
+	#	(0x2a, 0xbe), # 'V'
+	#	(0x1d, 0xb3), # 'W'
+	#	(0x22, 0xbd), # 'X'
+	#	(0x35, 0xb7), # 'Y'
+	#	(0x1a, 0xad), # 'Z'
+	#]
+	#for (scancode, petscii) in petscii_from_alt_scancode:
+	#	if keytab[PETSCII][ALT][scancode] == chr(0): # only if unassigned
+	#		keytab[PETSCII][ALT][scancode] = chr(petscii)
+	
+	
+	#####################
+	#####################
+	#####################
+	# analyze problems
+	#####################
+	#####################
+	#####################
+	
+	all_pet_keytabs = []
+	all_iso_keytabs = []
+	for shiftstate in ALL_SHIFTSTATES:
+		all_pet_keytabs += keytab[PET][shiftstate]
+		all_iso_keytabs += keytab[ISO][shiftstate]
+	
+	petscii_chars_not_reachable = ""
+	for c in all_petscii_chars:
+		if not c in all_pet_keytabs:
+			petscii_chars_not_reachable += unicode_from_petscii(c)
+	
+	petscii_codes_not_reachable = ""
+	for c in all_petscii_codes:
+		if not c in all_pet_keytabs:
+			if not c in all_petscii_codes_ok_if_missing:
+				petscii_codes_not_reachable += c
+	
+	petscii_graphs_not_reachable = ""
+	for c in all_petscii_graphs:
+		if not c in all_pet_keytabs:
+			petscii_graphs_not_reachable += c
+	
+	unicode_not_reachable = ""
+	for c_unicode in kbd_layout['all_originally_reachable_characters']:
+		c_encoded = iso_from_unicode(c_unicode)
+		#c_encoded = petscii_from_unicode(c_unicode)
+		if (c_encoded == chr(0) or not c_encoded in all_iso_keytabs) and not c_unicode in unicode_not_reachable:
+			unicode_not_reachable += c_unicode
+	
+	petscii_chars_not_reachable = ''.join(sorted(petscii_chars_not_reachable))
+	petscii_codes_not_reachable = ''.join(sorted(petscii_codes_not_reachable))
+	petscii_graphs_not_reachable = ''.join(sorted(petscii_graphs_not_reachable))
+	unicode_not_reachable = ''.join(sorted(unicode_not_reachable))
+	
+	#####################
+	#####################
+	# split parts
+	#####################
+	#####################
+	
+	for enc in ALL_ENCODINGS:
+		for shiftstate in ALL_SHIFTSTATES:
+			keytab[enc][shiftstate] = [ 
+				keytab[enc][shiftstate][0:26],
+				keytab[enc][shiftstate][26:36],
+				keytab[enc][shiftstate][36:]
+			]
+		
 
-if iso_mode:
-	print('.segment "IKBDMETA"\n')
-	prefix = 'i'
-else:
-	print('.segment "KBDMETA"\n')
-	prefix = ''
-locale1 = kbd_layout['localename'][0:2].upper()
-locale2 = kbd_layout['localename'][3:5].upper()
-if locale1 != locale2:
-	locale1 = kbd_layout['localename'].upper()
-if len(kbd_layout['localename']) != 5:
-	sys.exit("unknown locale format: " + kbd_layout['localename'])
-print('\t.byte "' + locale1 + '"', end = '')
-for i in range(0, 6 - len(locale1)):
-	print(", 0", end = '')
-print()
-for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
-	if shiftstate == ALTGR and not ALTGR in keytab.keys():
-		print_shiftstate = ALT
-	else:
-		print_shiftstate = shiftstate
-	print("\t.word {}kbtab_{}_{}".format(prefix, kbd_id, print_shiftstate), end = '')
-	if shiftstate == REG:
-		print()
-	else:
-		print("-13")
-print()
+	return (kbd_layout, keytab)
+
+shiftstate_desc = { REG: 'reg', SHFT: 'shft', CTRL: 'ctrl', ALT: 'alt', ALTGR: 'altgr', SHALTGR: 'shaltgr' }
+part_desc = { 0: 'A', 1: 'N', 2: 'O' }
+enc_desc = { ISO: 'I', PET: 'P' }
+
+def encode_label(kbdid, shiftstate, part, enc):
+	return  "kbtab_{}_{}_{}_{}".format(kbdid, shiftstate_desc[shiftstate], part_desc[part], enc_desc[enc])
+
+def is_all_zeros(a):
+	return a and a == [ '\0' ] * len(a)
+
+def ascii_compare(a, b):
+	if a and b and len(a) != len(b):
+		return False
+	if not a or not b:
+		return False
+	for i in range(0, len(a)):
+		ai = ord(a[i])
+		bi = ord(b[i])
+		if not (ai == bi or (ai >= 0x80 and bi == 0)):
+			return False
+	return True
+
+def case_insensitive_compare(a, b):	
+	if a and b and len(a) != len(b):
+		return False
+	if not a or not b:
+		return False
+	for i in range(0, len(a)):
+		ai = ord(a[i])
+		bi = ord(b[i])
+		if ai == bi:
+			continue
+		if not (ai >= ord('A') and ai <= ord('Z')):
+			return False
+		if not (bi == ai + 0x20):
+			return False
+	return True
+
+def pet_case_insensitive_compare(a, b):	
+	if a and b and len(a) != len(b):
+		return False
+	if not a or not b:
+		return False
+	for i in range(0, len(a)):
+		ai = ord(a[i])
+		bi = ord(b[i])
+		if ai == bi:
+			continue
+		if not (ai >= ord('A') and ai <= ord('Z')):
+			return False
+		if not (bi == ai + 0x80):
+			return False
+	return True
 
 
-if iso_mode:
-	print('.segment "IKBDTABLES"\n')
-else:
-	print('.segment "KBDTABLES"\n')
+layouts = [
+	'20409 United States-International',
+	'809 United Kingdom',
+	'407 German',
+	'41D Swedish',
+	'406 Danish',
+	'410 Italian',
+	'415 Polish (Programmers)',
+	'414 Norwegian',
+	'40E Hungarian',
+	'40A Spanish',
+	'40B Finnish',
+	'416 Portuguese (Brazil ABNT)',
+	'405 Czech',
+	'411 Japanese',
+	'40C French',
+	'807 Swiss German',
+	'10409 United States-Dvorak',
+	'425 Estonian',
+	'80C Belgian French',
+	'1009 Canadian French',
+	'40F Icelandic'
+]
 
-for shiftstate in [REG, SHFT, CTRL, ALT, ALTGR]:
-	if shiftstate == ALTGR and not ALTGR in keytab.keys():
+keytabs = {}
+name = {}
+localename = {}
+for l in layouts:
+	(kbd_layout, keytab) = convert_layout('klc/' + l + '.klc')
+
+	kbdid = kbd_layout['short_id'].lower()
+
+	keytabs[kbdid] = keytab
+	name[kbdid] = kbd_layout['name'].replace(' - Custom', '')
+	localename[kbdid] = kbd_layout['localename']
+
+ALL_PARTS = [0, 1, 2]
+
+data = {}
+for kbdid in keytabs.keys():
+	for enc in ALL_ENCODINGS:
+		for shiftstate in ALL_SHIFTSTATES:
+			for part in ALL_PARTS:
+				data[encode_label(kbdid, shiftstate, part, enc)] = keytabs[kbdid][enc][shiftstate][part]
+
+#pprint.pprint(data)
+
+
+# de-duplicate
+for label1 in data.keys():
+	if is_all_zeros(data[label1]):
+		data[label1] = None
 		continue
-	print("{}kbtab_{}_{}: ; ".format(prefix, kbd_id, shiftstate), end = '')
-	if shiftstate == 0:
-		print('Unshifted', end='')
-	if shiftstate & 1:
-		print('Shft ', end='')
-	if shiftstate & 6 == 6:
-		print('AltGr ', end='')
-	else:
-		if shiftstate & 2:
-			print('Ctrl ', end='')
-		if shiftstate & 4:
-			print('Alt ', end='')
-	if COMPRESSED_OUTPUT == 1 and shiftstate != REG:
-		start = 13
-		end = 104
-	else:
-		start = 0
-		end = 128
-	for i in range(start, end):
-		if i == start or i & 7 == 0:
-			print()
-			print('\t.byte ', end='')
-		c = keytab[shiftstate][i]
-		if ord(c) >= 0x20 and ord(c) <= 0x7e:
-			print("'{}'".format(c), end = '')
+	for label2 in data.keys():
+		if is_all_zeros(data[label2]):
+			data[label2] = None
+			continue
+		if label1 == label2:
+			# comparison with itself
+			continue
+		if isinstance(data[label1], str) or isinstance(data[label2], str):
+			# one is a reference already
+			continue
+		if data[label1] == data[label2]:
+			# they are identical
+			data[label2] = label1
+		if ascii_compare(data[label1], data[label2]):
+			# they are identical, except (2) has 0s where (1) has non-ASCII characters
+			data[label2] = '_' + label1
+		if case_insensitive_compare(data[label1], data[label2]):
+			# they are identical, except every alpha character in (2) is the lower case version of (1)
+			data[label2] = '+' + label1
+		if pet_case_insensitive_compare(data[label1], data[label2]):
+			# they are identical, except every alpha character in (2) is the PETSCII lower case version of (1)
+			data[label2] = '~' + label1
+
+
+#pprint.pprint(data)
+
+
+#####################
+#####################
+#####################
+# print
+#####################
+#####################
+#####################
+
+print('FLAG_ASCII_ONLY     = $C000')
+print('FLAG_LOWER_CASE     = $8000')
+print('FLAG_PET_UPPER_CASE = $4000')
+
+print()
+
+print('.segment "KEYMAPS"\n')
+
+bytes_descriptors = 0
+
+for kbdid in keytabs.keys():
+	pointers = []
+	for shiftstate in ALL_OUTPUTSHIFTSTATES:
+		for enc in ALL_ENCODINGS:
+			for part in ALL_PARTS:
+				label = encode_label(kbdid, shiftstate, part, enc)
+				data1 = data[label]
+				clear_zeros = False
+				make_lower = False
+				make_pet_upper = False
+				while isinstance(data1, str):
+					label = data1
+					if label[0] == '_':
+						label = label[1:]
+						clear_zeros = True
+					if label[0] == '+':
+						label = label[1:]
+						make_lower = True
+					if label[0] == '~':
+						label = label[1:]
+						make_pet_upper = True
+					data1 = data[label]
+
+				if not data1:
+					# all zeros
+					pointers.append(0)
+				elif clear_zeros:
+					pointers.append(label + '| FLAG_ASCII_ONLY')
+				elif make_lower:
+					pointers.append(label + '| FLAG_LOWER_CASE')
+				elif make_pet_upper:
+					pointers.append(label + '| FLAG_PET_UPPER_CASE')
+				else:
+					pointers.append(label)
+	
+	# remove trailing 0 pointers
+	while pointers[-1] == 0:
+		pointers = pointers[:-1]
+
+	# print descriptors
+	print("; Name:   " + name[kbdid])
+	print("; Locale: " + localename[kbdid])
+	print("; KLID:   " + kbdid)
+	locale1 = localename[kbdid][0:2].upper()
+	locale2 = localename[kbdid][3:5].upper()
+	if locale1 != locale2:
+		locale1 = localename[kbdid].upper()
+	if len(localename[kbdid]) != 5:
+		sys.exit("unknown locale format: " + localename[kbdid])
+	print("\t.byte {} ; descriptor length".format(6 + len(pointers * 2)))
+	print('\t.byte "' + locale1 + '"', end = '')
+	for i in range(0, 5 - len(locale1)):
+		print(", 0", end = '')
+	bytes_descriptors += 6
+	print()
+	
+	for pointer in pointers:
+		if pointer == 0:
+			print('\t.word 0')
 		else:
-			print("${:02x}".format(ord(c)), end = '')
-		if i & 7 != 7:
-			print(',', end = '')
+			print('\t.word ' + pointer)
+		bytes_descriptors += 2
+				
 	print()
 
+bytes_data = 0
+
+for part in ALL_PARTS:
+	for shiftstate in ALL_OUTPUTSHIFTSTATES:
+		for kbdid in keytabs.keys():
+			for enc in ALL_ENCODINGS:
+				label = encode_label(kbdid, shiftstate, part, enc)
+				data1 = data[label]
+				if not data1:
+					# all zeros
+					continue
+				if isinstance(data1, str):
+					# duplicate
+					continue
+
+				print(encode_label(kbdid, shiftstate, part, enc), end = ':')
+				print('\t.byte ', end='')
+				for i in range(0, len(data1)):
+					c = data1[i]
+					if ord(c) >= 0x20 and ord(c) <= 0x7e:
+						print("'{}'".format(c), end = '')
+					else:
+						print("${:02x}".format(ord(c)), end = '')
+					bytes_data += 1
+					if i != len(data1) - 1:	
+						print(',', end = '')
+				print()
+			
+print('\n; Descriptors: {}\n; Tables:      {}\n; Total:       {}\n; Per Keymap:  {}\n'.format(bytes_descriptors, bytes_data, bytes_descriptors + bytes_data, round((bytes_descriptors + bytes_data) / len(layouts))))
