@@ -470,19 +470,19 @@ def convert_layout(filename):
 	
 	#####################
 	#####################
-	# split halves
+	# split parts
 	#####################
 	#####################
 	
 	for enc in ALL_ENCODINGS:
 		for shiftstate in ALL_SHIFTSTATES:
-			keytab[enc][shiftstate] = [ keytab[enc][shiftstate][0:26], keytab[enc][shiftstate][26:] ]
+			keytab[enc][shiftstate] = [ keytab[enc][shiftstate][0:26], keytab[enc][shiftstate][26:36], keytab[enc][shiftstate][36:] ]
 		
 
 	return (kbd_layout, keytab)
 
 shiftstate_desc = { REG: 'reg', SHFT: 'shft', CTRL: 'ctrl', ALT: 'alt', ALTGR: 'altgr', SHALTGR: 'shaltgr' }
-part_desc = { 0: 'alpha', 1: 'other' }
+part_desc = { 0: 'alpha', 1: 'num', 2: 'other' }
 enc_desc = { ISO: 'iso', PET: 'pet' }
 
 def encode_label(kbdid, shiftstate, part, enc):
@@ -502,13 +502,14 @@ for l in layouts:
 	kbdid = kbd_layout['short_id'].lower()
 	keytabs[kbdid] = keytab
 
+ALL_PARTS = [0, 1, 2]
 
 pointers = {}
 for kbdid in keytabs.keys():
 	pointers[kbdid] = {}
 	for shiftstate in ALL_SHIFTSTATES:
 		pointers[kbdid][shiftstate] = {}
-		for part in [0, 1]:
+		for part in ALL_PARTS:
 			pointers[kbdid][shiftstate][part] = {}
 			for enc in ALL_ENCODINGS:
 				pointers[kbdid][shiftstate][part][enc] = (kbdid, shiftstate, part, enc)
@@ -521,7 +522,7 @@ for kbdid1 in keytabs.keys():
 			for shiftstate2 in ALL_SHIFTSTATES:
 				for enc1 in ALL_ENCODINGS:
 					for enc2 in ALL_ENCODINGS:
-						for part in [0, 1]:
+						for part in ALL_PARTS:
 							if kbdid1 == kbdid2 and shiftstate1 == shiftstate2 and enc1 == enc2:
 								continue
 							if keytabs[kbdid1][enc1][shiftstate1][part] == keytabs[kbdid2][enc2][shiftstate2][part]:
@@ -553,7 +554,7 @@ print(";")
 
 print('.segment "KBDTABLES"\n')
 
-for part in [0, 1]:
+for part in ALL_PARTS:
 	for shiftstate in ALL_SHIFTSTATES:
 		for enc in ALL_ENCODINGS:
 			for kbdid in keytabs.keys():
