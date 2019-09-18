@@ -34,7 +34,7 @@ c64 : basic-c64.bin kernal-c64.bin rom-c64.bin
 
 # C64
 
-rom-c64.bin rom-c64.txt : DEFINES=$(VERSION_DEFINE)
+rom-c64.bin : DEFINES=$(VERSION_DEFINE)
 rom-c64.bin rom-c64.txt : $(ROM_C64_OBJ) rom-c64.cfg
 	ld65 -C rom-c64.cfg -o $@ $(ROM_C64_OBJ) -Ln rom-c64.txt
 
@@ -49,7 +49,7 @@ kernal-c64.bin : rom-c64.bin
 
 # X16
 
-rom.bin rom.txt : DEFINES=-DPS2 -DCBDOS -DMACHINE_X16=1 -DCPU_65C02=1
+rom.bin : DEFINES=-DPS2 -DCBDOS -DMACHINE_X16=1 -DCPU_65C02=1
 rom.bin rom.txt : $(ROM_X16_OBJ) rom.cfg
 	ld65 -C rom.cfg -o $@ $(ROM_X16_OBJ) -Ln rom.txt
 
