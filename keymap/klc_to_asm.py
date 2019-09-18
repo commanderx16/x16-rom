@@ -507,11 +507,11 @@ layouts = [
 	'414 Norwegian',
 	'40E Hungarian',
 	'40A Spanish',
-#	'40B Finnish',
-#	'416 Portuguese (Brazil ABNT)',
-#	'405 Czech',
-#	'411 Japanese',
-#	'40C French',
+	'40B Finnish',
+	'416 Portuguese (Brazil ABNT)',
+	'405 Czech',
+	'411 Japanese',
+	'40C French',
 #	'807 Swiss German',
 #	'10409 United States-Dvorak',
 #	'425 Estonian',
@@ -619,10 +619,10 @@ bytes_data = 0
 
 print('.segment "KBDTABLES"\n')
 
-for kbdid in keytabs.keys():
-	for enc in ALL_ENCODINGS:
-		for shiftstate in ALL_SHIFTSTATES:
-			for part in ALL_PARTS:
+for part in ALL_PARTS:
+	for shiftstate in ALL_SHIFTSTATES:
+		for kbdid in keytabs.keys():
+			for enc in ALL_ENCODINGS:
 				label = encode_label(kbdid, shiftstate, part, enc)
 				data1 = data[label]
 				if not data1:
