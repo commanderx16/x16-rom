@@ -360,11 +360,6 @@ all_petscii_codes_ok_if_missing = [
 	chr(0x9d), # CURSOR_LEFT  - covered by cursor keys
 ]
 
-if len(sys.argv) >= 3 and sys.argv[2] == '-iso':
-	iso_mode = True
-else:
-	iso_mode = False
-
 kbd_layout = get_kbd_layout(sys.argv[1], False)
 kbd_layout_patched = get_kbd_layout(sys.argv[1], True)
 
@@ -458,10 +453,8 @@ for c in all_petscii_graphs:
 
 unicode_not_reachable = ""
 for c_unicode in kbd_layout['all_originally_reachable_characters']:
-	if iso_mode:
-		c_encoded = iso_from_unicode(c_unicode)
-	else:
-		c_encoded = petscii_from_unicode(c_unicode)
+	c_encoded = iso_from_unicode(c_unicode)
+	#c_encoded = petscii_from_unicode(c_unicode)
 	if (c_encoded == chr(0) or not c_encoded in all_iso_keytabs) and not c_unicode in unicode_not_reachable:
 		unicode_not_reachable += c_unicode
 
@@ -486,67 +479,59 @@ print("; Name:   " + name)
 print("; Locale: " + kbd_layout['localename'])
 print("; KLID:   " + kbd_id)
 print(";")
-if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
-	print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
-	if len(petscii_chars_not_reachable) > 0:
-		print("; chars: " + pprint.pformat(petscii_chars_not_reachable))
-	if len(petscii_codes_not_reachable) > 0:
-		print("; codes: ", end = '')
-		for c in petscii_codes_not_reachable:
-			if ord(c) in control_codes:
-				print(control_codes[ord(c)] + ' ', end = '')
-			else:
-				print(hex(ord(c)) + ' ', end = '')
-		print()
-	if len(petscii_graphs_not_reachable) > 0:
-		print("; graph: '", end = '')
-		for c in petscii_graphs_not_reachable:
-			print("\\x{0:02x}".format(ord(c)), end = '')
-		print("'")
-if len(unicode_not_reachable) > 0:
-	if iso_mode:
+
+if False:
+	if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
+		print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
+		if len(petscii_chars_not_reachable) > 0:
+			print("; chars: " + pprint.pformat(petscii_chars_not_reachable))
+		if len(petscii_codes_not_reachable) > 0:
+			print("; codes: ", end = '')
+			for c in petscii_codes_not_reachable:
+				if ord(c) in control_codes:
+					print(control_codes[ord(c)] + ' ', end = '')
+				else:
+					print(hex(ord(c)) + ' ', end = '')
+			print()
+		if len(petscii_graphs_not_reachable) > 0:
+			print("; graph: '", end = '')
+			for c in petscii_graphs_not_reachable:
+				print("\\x{0:02x}".format(ord(c)), end = '')
+			print("'")
+	if len(unicode_not_reachable) > 0:
 		print("; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:")
-	else:
-		print("; Unicode characters reachable with this layout on Windows but not covered by PETSCII:")
-	print("; '", end = '')
-	for c in unicode_not_reachable:
-		if ord(c) < 0x20:
-			print("\\x{0:02x}".format(ord(c)), end = '')
-		else:
-			print(c, end = '')
-	print("'")
+		#print("; Unicode characters reachable with this layout on Windows but not covered by PETSCII:")
+		print("; '", end = '')
+		for c in unicode_not_reachable:
+			if ord(c) < 0x20:
+				print("\\x{0:02x}".format(ord(c)), end = '')
+			else:
+				print(c, end = '')
+		print("'")
+		
+	print()
 	
-print()
-
-if iso_mode:
-	print('.segment "IKBDMETA"\n')
-	prefix = 'i'
-else:
 	print('.segment "KBDMETA"\n')
-	prefix = ''
-locale1 = kbd_layout['localename'][0:2].upper()
-locale2 = kbd_layout['localename'][3:5].upper()
-if locale1 != locale2:
-	locale1 = kbd_layout['localename'].upper()
-if len(kbd_layout['localename']) != 5:
-	sys.exit("unknown locale format: " + kbd_layout['localename'])
-print('\t.byte "' + locale1 + '"', end = '')
-for i in range(0, 6 - len(locale1)):
-	print(", 0", end = '')
-print()
-for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
-	if shiftstate == ALTGR and not ALTGR in ALL_SHIFTSTATES:
-		print_shiftstate = ALT
-	else:
-		print_shiftstate = shiftstate
-	print("\t.word {}kbtab_{}_{}".format(prefix, kbd_id, print_shiftstate))
-print()
+	locale1 = kbd_layout['localename'][0:2].upper()
+	locale2 = kbd_layout['localename'][3:5].upper()
+	if locale1 != locale2:
+		locale1 = kbd_layout['localename'].upper()
+	if len(kbd_layout['localename']) != 5:
+		sys.exit("unknown locale format: " + kbd_layout['localename'])
+	print('\t.byte "' + locale1 + '"', end = '')
+	for i in range(0, 6 - len(locale1)):
+		print(", 0", end = '')
+	print()
+	for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
+		if shiftstate == ALTGR and not ALTGR in ALL_SHIFTSTATES:
+			print_shiftstate = ALT
+		else:
+			print_shiftstate = shiftstate
+		print("\t.word kbtab_{}_{}".format(kbd_id, print_shiftstate))
+	print()
 
 
-if iso_mode:
-	print('.segment "IKBDTABLES"\n')
-else:
-	print('.segment "KBDTABLES"\n')
+print('.segment "KBDTABLES"\n')
 
 
 shiftstate_desc = { REG: 'reg', SHFT: 'shft', CTRL: 'ctrl', ALT: 'alt', ALTGR: 'altgr', SHALTGR: 'shaltgr' }
@@ -556,7 +541,7 @@ for shiftstate in ALL_SHIFTSTATES:
 		for enc in [PET, ISO]:
 			if shiftstate == ALTGR and not ALTGR in ALL_SHIFTSTATES:
 				continue
-			print("{}kbtab_{}_{}_{}_{}:".format(prefix, kbd_id, shiftstate_desc[shiftstate], 'alpha' if part == 0 else 'other', 'pet' if enc == PET else 'iso'), end = '')
+			print("kbtab_{}_{}_{}_{}:".format(kbd_id, shiftstate_desc[shiftstate], 'alpha' if part == 0 else 'other', 'pet' if enc == PET else 'iso'), end = '')
 			if part == 0:
 				start = 0
 				end =  26
