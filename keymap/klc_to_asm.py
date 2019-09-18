@@ -4,7 +4,7 @@ import pprint
 ISO = 0
 PET = 1
 
-ALL_ENCODINGS = [PET, ISO]
+ALL_ENCODINGS = [ISO, PET]
 
 REG     = 0
 SHFT    = 1
@@ -498,7 +498,7 @@ def is_all_zeros(a):
 
 layouts = [
 	'20409 United States-International',
-#	'809 United Kingdom',
+	'809 United Kingdom',
 #	'407 German',
 #	'41D Swedish',
 #	'406 Danish',
@@ -534,42 +534,28 @@ for l in layouts:
 
 ALL_PARTS = [0, 1, 2]
 
-pointers = {}
+data = {}
 for kbdid in keytabs.keys():
-	pointers[kbdid] = {}
 	for enc in ALL_ENCODINGS:
-		pointers[kbdid][enc] = {}
 		for shiftstate in ALL_SHIFTSTATES:
-			pointers[kbdid][enc][shiftstate] = {}
 			for part in ALL_PARTS:
-				pointers[kbdid][enc][shiftstate][part] = (kbdid, enc, shiftstate, part)
+				data[encode_label(kbdid, shiftstate, part, enc)] = keytabs[kbdid][enc][shiftstate][part]
 
-pprint.pprint(pointers)
+#pprint.pprint(data)
 
-for kbdid1 in keytabs.keys():
-	for kbdid2 in keytabs.keys():
-		for shiftstate1 in ALL_SHIFTSTATES:
-			for shiftstate2 in ALL_SHIFTSTATES:
-				for enc1 in ALL_ENCODINGS:
-					for enc2 in ALL_ENCODINGS:
-						for part in ALL_PARTS:
-							if kbdid1 == kbdid2 and shiftstate1 == shiftstate2 and enc1 == enc2:
-								# comparison with itself
-								continue
-							(kbdid1a, enc1a, shiftstate1a, part1a) = pointers[kbdid1][enc1][shiftstate1][part]
-							(kbdid2a, enc2a, shiftstate2a, part2a) = pointers[kbdid2][enc2][shiftstate2][part]
-							if keytabs[kbdid1a][enc1a][shiftstate1a][part] == None:
-								continue
-							if keytabs[kbdid1a][enc1a][shiftstate1a][part] != keytabs[kbdid2a][enc2a][shiftstate2a][part]:
-								continue
-						
-							keytabs[kbdid2a][enc2a][shiftstate2a][part] = None
-							print("before pointers = {}", pointers[kbdid2][enc2][shiftstate2][part])
-							pointers[kbdid2a][enc2a][shiftstate2a][part] = (kbdid1a, enc1a, shiftstate1a, part)
-							print("after  pointers = {}", pointers[kbdid2][enc2][shiftstate2][part])
-							print(encode_label(kbdid2, shiftstate2, part, enc2), '->', encode_label(kbdid1, shiftstate1, part, enc1))
+for label1 in data.keys():
+	if is_all_zeros(data[label1]):
+		data[label1] = None
+		continue
+	for label2 in data.keys():
+		if label1 == label2:
+			# comparison with itself
+			continue
+		if data[label1] == data[label2]:
+			data[label2] = label1
+			#print(label1, label2)
 
-pprint.pprint(pointers)
+pprint.pprint(data)
 
 
 #####################
@@ -604,15 +590,28 @@ for kbdid in keytabs.keys():
 	for enc in ALL_ENCODINGS:
 		for shiftstate in ALL_SHIFTSTATES:
 			for part in ALL_PARTS:
-				(kbdid, enc, shiftstate, part) = pointers[kbdid][enc][shiftstate][part]
-				#pprint.pprint(keytabs[kbdid][enc][shiftstate][part], [ 0 ] * len(keytabs[kbdid][enc][shiftstate][part]))
+				label = encode_label(kbdid, shiftstate, part, enc)
 				print('\t.word ', end = '')
-				if not keytabs[kbdid][enc][shiftstate][part]:
-					print('; error: ' + encode_label(kbdid, shiftstate, part, enc), (kbdid, enc, shiftstate, part))
-				elif is_all_zeros(keytabs[kbdid][enc][shiftstate][part]):
-					print('0 ; ' + encode_label(kbdid, shiftstate, part, enc))
+				data1 = data[label]
+				#print('xxx',data1)
+				while isinstance(data1, str):
+					label = data1
+					data1 = data[label]
+
+				if not data1:
+					# all zeros
+					print('0 ; ')# + encode_label(kbdid, shiftstate, part, enc))
 				else:
-					print(encode_label(kbdid, shiftstate, part, enc))
+					print(label)
+					
+
+				#print('\t.word ', end = '')
+				#if not keytabs[kbdid][enc][shiftstate][part]:
+				#	print('; error: ' + encode_label(kbdid, shiftstate, part, enc), (kbdid, enc, shiftstate, part))
+				#elif is_all_zeros(keytabs[kbdid][enc][shiftstate][part]):
+				#	print('0 ; ' + encode_label(kbdid, shiftstate, part, enc))
+				#else:
+				#	print(encode_label(kbdid, shiftstate, part, enc))
 				bytes_pointers += 2
 				
 
@@ -620,29 +619,26 @@ bytes_data = 0
 
 print('.segment "KBDTABLES"\n')
 
-#for part in ALL_PARTS:
-#	for shiftstate in ALL_SHIFTSTATES:
-#		for enc in ALL_ENCODINGS:
-#			for kbdid in keytabs.keys():
 for kbdid in keytabs.keys():
 	for enc in ALL_ENCODINGS:
 		for shiftstate in ALL_SHIFTSTATES:
 			for part in ALL_PARTS:
+				label = encode_label(kbdid, shiftstate, part, enc)
+				data1 = data[label]
+				if not data1:
+					# all zeros
+					continue
 
-				if not keytabs[kbdid][enc][shiftstate][part]:
-					continue
-				if is_all_zeros(keytabs[kbdid][enc][shiftstate][part]):
-					continue
 				print(encode_label(kbdid, shiftstate, part, enc), end = ':')
 				print('\t.byte ', end='')
-				for i in range(0, len(keytabs[kbdid][enc][shiftstate][part])):
-					c = keytabs[kbdid][enc][shiftstate][part][i]
+				for i in range(0, len(data1)):
+					c = data1[i]
 					if ord(c) >= 0x20 and ord(c) <= 0x7e:
 						print("'{}'".format(c), end = '')
 					else:
 						print("${:02x}".format(ord(c)), end = '')
 					bytes_data += 1
-					if i != len(keytabs[kbdid][enc][shiftstate][part]) - 1:	
+					if i != len(data1) - 1:	
 						print(',', end = '')
 				print()
 			
