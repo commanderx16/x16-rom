@@ -556,18 +556,7 @@ for shiftstate in ALL_SHIFTSTATES:
 		for enc in [PET, ISO]:
 			if shiftstate == ALTGR and not ALTGR in ALL_SHIFTSTATES:
 				continue
-			print("{}kbtab_{}_{}_{}_{}: ; ".format(prefix, kbd_id, shiftstate_desc[shiftstate], 'alpha' if part == 0 else 'other', 'pet' if enc == PET else 'iso'), end = '')
-			if shiftstate == 0:
-				print('Unshifted', end='')
-			if shiftstate & 1:
-				print('Shft ', end='')
-			if shiftstate & 6 == 6:
-				print('AltGr ', end='')
-			else:
-				if shiftstate & 2:
-					print('Ctrl ', end='')
-				if shiftstate & 4:
-					print('Alt ', end='')
+			print("{}kbtab_{}_{}_{}_{}:".format(prefix, kbd_id, shiftstate_desc[shiftstate], 'alpha' if part == 0 else 'other', 'pet' if enc == PET else 'iso'), end = '')
 			if part == 0:
 				start = 0
 				end =  26
@@ -583,7 +572,7 @@ for shiftstate in ALL_SHIFTSTATES:
 					print("'{}'".format(c), end = '')
 				else:
 					print("${:02x}".format(ord(c)), end = '')
-				if i & 7 != 7:
+				if (i - start) & 7 != 7 and i != end - 1:
 					print(',', end = '')
 			print()
 		
