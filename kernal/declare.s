@@ -59,8 +59,11 @@ tmp2	.res 2
 ;
 ;variables for screen editor
 ;
+.ifdef PS2
+isomod	.res 1           ;ISO mode
+.else
 lstx	.res 1           ;key scan index
-; sfst .res 1 ;keyboard shift flag (unused)
+.endif
 ndx	.res 1           ;index to keyboard q
 rvs	.res 1           ;rvs field on flag
 indx	.res 1

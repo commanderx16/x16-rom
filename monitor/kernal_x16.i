@@ -5,6 +5,8 @@
 .import xmon2, ms1, key, bmt2, loop4, xmon1, ldapnty, stapnty, ldtb1, stavec
 .importzp nlines, nlinesm1
 
+.include "../banks.inc"
+
 via1	=$9f60                  ;VIA 6522 #1
 d1prb	=via1+0
 d1pra	=via1+1

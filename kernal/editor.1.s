@@ -66,7 +66,14 @@ scnsiz	stx llen
 setkbd	tax
 	lda d1prb       ;save ROM bank
 	pha
-	lda #3
+.ifdef PS2
+	lda isomod
+	lsr
+.endif
+	lda #BANK_KEY1
+.ifdef PS2
+	adc #0
+.endif
 	sta d1prb
 	txa
 setkb2	sta curkbd
@@ -113,7 +120,7 @@ cint	jsr iokeys
 	bne nemu
 	lda $9fbd       ;emulator keyboard layout
 	.byte $2c
-nemu:	lda #0          ;US layout
+nemu	lda #0          ;US layout
 	jsr setkbd
 .else
 	lda #<shflog    ;set shift logic indirects
@@ -205,6 +212,7 @@ panic	lda #3          ;reset default i/o
 	sta dfltn
 
 mapbas	=0
+isobas	=$1e800
 tilbas	=$1f000         ;top of VRAM
 
 ;init video
@@ -213,17 +221,36 @@ initv
 	lda #0
 	sta veractl     ;set ADDR1 active
 
-	lda #<tilbas        ;$1F800: VRAM for charset
+	lda d1prb       ;save ROM bank
+	pha
+	lda #BANK_CHAR
+	sta d1prb
+
+	; ISO character set
+	lda #<isobas        ;VRAM for ISO charset
+	sta veralo
+	lda #>isobas
+	sta veramid
+	lda #$10 | (tilbas >> 16)
+	sta verahi
+
+	lda #0
+	sta pntr
+	lda #0
+	sta pnt
+	lda #$c8
+	sta pnt+1       ;character data at ROM 4:0800
+	ldx #8
+	jsr copyv
+
+	; PETSCII character set
+	lda #<tilbas        ;VRAM for PETSCII charset
 	sta veralo
 	lda #>tilbas
 	sta veramid
 	lda #$10 | (tilbas >> 16)
 	sta verahi
 
-	lda d1prb       ;save ROM bank
-	pha
-	lda #4
-	sta d1prb
 	lda #0
 	sta pntr
 	lda #0
@@ -245,7 +272,6 @@ initv
 	sta pnt+1       ;character data at ROM 4:0400
 	ldx #4
 	jsr copyv
-
 	pla
 	sta d1prb       ;restore ROM bank
 
@@ -292,7 +318,7 @@ tvera_layer1
 	.byte 0 << 5 | 1  ;mode=0, enabled=1
 	.byte 1 << 2 | 2  ;maph=64, mapw=128
 	.word mapbas >> 2 ;map_base
-	.word tilbas >> 2 ;tile_base
+	.word tilbas >> 2 ;tile_bas
 	.word 0, 0        ;hscroll, vscroll
 tvera_layer1_end
 
@@ -443,6 +469,10 @@ lop5	ldy pntr
 	jsr ldapnty
 notone
 	sta data
+.ifdef PS2
+	bit isomod
+	bmi lop53
+.endif
 lop51	and #$3f
 	asl data
 	bit data
@@ -474,6 +504,10 @@ clp1	sta data
 	pla
 	tay
 	lda data
+.ifdef PS2
+	bit isomod
+	bmi clp7
+.endif
 	cmp #$de        ;is it <pi> ?
 	bne clp7
 	lda #$ff
@@ -488,7 +522,12 @@ qtswc	cmp #$22
 	lda #$22
 qtswl	rts
 
-nxt33	ora #$40
+nxt33
+.ifdef PS2
+	bit isomod
+	bmi nc3
+.endif
+	ora #$40
 nxt3	ldx rvs
 	beq nvs
 nc3	ora #$80
@@ -587,6 +626,10 @@ prt	pha
 	jmp nxt1
 njt1	cmp #' '
 	bcc ntcn
+.ifdef PS2
+	bit isomod
+	bmi njt9
+.endif
 	cmp #$60        ;lower case?
 	bcc njt8        ;no...
 	and #$df        ;yes...make screen lower
@@ -596,7 +639,12 @@ njt9	jsr qtswc
 	jmp nxt3
 ntcn	ldx insrt
 	beq cnc3x
-	jmp nc3
+.ifdef PS2
+	bit isomod
+	bpl cnc3y
+	jmp nvs
+.endif
+cnc3y	jmp nc3
 cnc3x	cmp #$14
 	bne ntcn1
 	tya
@@ -624,9 +672,18 @@ bk2	lda #' '
 	bpl jpl3
 ntcn1	ldx qtsw
 	beq nc3w
+.ifdef PS2
+	bit isomod
+	bpl cnc3
+	jmp nvs
+.endif
 cnc3	jmp nc3
 nc3w	cmp #$12
 	bne nc1
+.ifdef PS2
+	bit isomod
+	bmi nc1
+.endif
 	sta rvs
 nc1	cmp #$13
 	bne nc2
@@ -672,6 +729,10 @@ colr1	jsr chkcol      ;check for a color
 nxtx
 keepit
 	and #$7f
+.ifdef PS2
+	bit isomod
+	bmi nxtx1
+.endif
 	cmp #$7f
 	bne nxtx1
 	lda #$5e
@@ -717,8 +778,13 @@ ins2	dey
 insext	jmp loop2
 up9	ldx insrt
 	beq up2
-up6	ora #$40
-	jmp nc3
+up6
+.ifdef PS2
+	bit isomod
+	bmi up1
+.endif
+	ora #$40
+up1	jmp nc3
 up2	cmp #$11
 	bne nxt2
 	ldx tblx

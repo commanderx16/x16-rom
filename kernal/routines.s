@@ -313,10 +313,10 @@ jmpfr	jmp $ffff
 
 	; this should not live in the vector area, but it's ok for now
 monitor:
-	lda #1
+	lda #BANK_UTIL
 	sta d1prb ; ROM bank
 	jmp ($c000)
 restore_basic:
-	lda #0
+	lda #BANK_BASIC
 	sta d1prb ; ROM bank
 	jmp ($c002)

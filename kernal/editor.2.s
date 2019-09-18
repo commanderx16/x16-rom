@@ -232,7 +232,18 @@ repdo	sta blnct
 	ldx color       ;blink in this color
 	lda gdbln       ;with original character
 ;
-key5	eor #$80        ;blink it
+key5
+.ifdef PS2
+	bit isomod
+	bpl key3
+	cmp #$9f
+	bne key2
+	lda gdbln
+	.byte $2c
+key2	lda #$9f
+	.byte $2c
+.endif
+key3	eor #$80        ;blink it
 	jsr dspp2       ;display it
 ;
 key4
@@ -348,7 +359,14 @@ bit_found:
 	lda kbdtab + 1,x
 	sta ckbtab + 1
 	ldx d1prb
-	lda #3
+.ifdef PS2
+	lda isomod
+	lsr
+.endif
+	lda #BANK_KEY1
+.ifdef PS2
+	adc #0
+.endif
 	sta d1prb
 	lda (ckbtab),y
 	stx d1prb
@@ -394,23 +412,18 @@ is_stop:
 ; ADD CHAR TO KBD BUFFER
 ;****************************************
 add_to_buf:
-	pha
-	lda ndx ; length of keyboard buffer
-	cmp #10
-	bcs add2 ; full, ignore
-	inc ndx
-	tax
-	pla
-	sta keyd,x ; store
 	cmp #3 ; stop
 	bne add1
-	lda #$7f
+	ldx #$7f
 	.byte $2c
-add1:	lda #$ff
-	sta $91
-	rts
-add2:	pla
-	rts
+add1:	ldx #$ff
+	stx $91
+	ldx ndx ; length of keyboard buffer
+	cpx #10
+	bcs add2 ; full, ignore
+	sta keyd,x ; store
+	inc ndx
+add2:	rts
 
 ;****************************************
 ; RECEIVE BYTE
@@ -562,7 +575,7 @@ check_mod:
 	beq ckmod1
 	cmp #$11 ; left alt (0011) or right alt (E011)
 	bne nmd_alt
-xxxx:	cpx #$e0 ; right alt
+:	cpx #$e0 ; right alt
 	bne :+
 	lda #MODIFIER_ALT | MODIFIER_CTRL
 	.byte $2c

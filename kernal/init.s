@@ -5,12 +5,6 @@ start	ldx #$ff
 	sei
 	txs
 	cld
-
-;	lda #2
-;	sta d1prb ; ROM bank
-;	jmp ($c000)
-
-
 	jsr ioinit      ;go initilize i/o devices
 	jsr ramtas      ;go ram test and set
 	jsr restor      ;go set up os vectors

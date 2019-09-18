@@ -19,13 +19,13 @@ cbdos/fat32.o \
 cbdos/util.o \
 cbdos/matcher.o \
 cbdos/sdcard.o \
-cbdos/spi_r_byte.o \
 cbdos/spi_rw_byte.o \
 cbdos/spi_select_device.o \
 cbdos/spi_deselect.o \
 cbdos/main.o \
 keymap/keymap.o \
-charset/charset.o
+charset/charset.o \
+charset/iso-8859-15.o \
 
 .PHONY : all x16 c64
 all : x16 c64
@@ -53,6 +53,10 @@ rom.bin : DEFINES=-DPS2 -DCBDOS -DMACHINE_X16=1 -DCPU_65C02=1
 rom.bin rom.txt : $(ROM_X16_OBJ) rom.cfg
 	ld65 -C rom.cfg -o $@ $(ROM_X16_OBJ) -Ln rom.txt
 
+charset/iso-8859-15.o : charset/iso-8859-16.s
+	cat $^ | sed -e "s/$(echo -e "\xE2\x96\x88")/1/g" | sed -e s/_/0/g > charset/iso-8859-15.tmp.s
+	ca65 $(ARGS) $(DEFINES) -o $@ charset/iso-8859-15.tmp.s
+
 # Rules
 
 %.o : %.asm
@@ -63,4 +67,7 @@ rom.bin rom.txt : $(ROM_X16_OBJ) rom.cfg
 
 .PHONY : clean
 clean:
-	-rm -f $(ROM_C64_OBJ) $(ROM_X16_OBJ) rom.bin rom.txt basic-c64.bin kernal-c64.bin rom-c64.bin rom-c64.txt
+	-rm -f $(ROM_C64_OBJ) $(ROM_X16_OBJ) 
+	-rm -f charset/iso-8859-15.tmp.s
+	-rm -f rom.bin rom.txt
+	-rm -f basic-c64.bin kernal-c64.bin rom-c64.bin rom-c64.txt

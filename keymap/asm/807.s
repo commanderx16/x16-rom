@@ -4,7 +4,7 @@
 ;
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
 ; graph: '\xa4\xa6\xa8\xa9\xba'
-; ASCII characters reachable with this layout on Windows but not covered by PETSCII:
+; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
 ; '\x1b\x1c\x1d\_{|}~¢¦§¨¬°´àäçèéöü€'
 
 .segment "KBDMETA"
@@ -19,8 +19,8 @@
 .segment "KBDTABLES"
 
 kbtab_807_0: ; Unshifted
-	.byte $00,$00,$88,$87,$86,$85,$89,$00
-	.byte $00,$00,$8c,$8b,$8a,$09,'_',$00
+	.byte $00,$10,$88,$87,$86,$85,$89,$17
+	.byte $00,$15,$8c,$8b,$8a,$09,'_',$00
 	.byte $00,$00,$00,$00,$00,'Q','1',$00
 	.byte $00,$00,'Y','S','A','W','2',$00
 	.byte $00,'C','X','D','E','4','3',$00
@@ -34,7 +34,7 @@ kbtab_807_0: ; Unshifted
 	.byte $00,'<',$00,$00,$00,$00,$14,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,'.',$00,$00,$00,$00,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $16,$00,$00,$00,$00,$00,$00,$00
 kbtab_807_1: ; Shft 
 	.byte $18,$de,$00
 	.byte $00,$00,$00,$00,$00,$d1,'+',$00

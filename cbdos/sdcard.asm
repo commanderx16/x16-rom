@@ -31,7 +31,7 @@
 ;.include "errno.inc"
 .include "sdcard.inc"
 .include "spi.inc"
-.include "via.inc"
+.include "vera.inc"
 .include "65c02.inc"
 .macro debug arg1, arg2
 .endmacro
@@ -57,8 +57,7 @@
 ;   out:
 ;     Z=1 sd card available, Z=0 otherwise A=ENODEV
 sdcard_detect:
-      lda via2portb
-      and #SDCARD_DETECT
+	; TODO
       rts
 
 ;---------------------------------------------------------------------
@@ -69,30 +68,14 @@ sdcard_detect:
 ;
 ;---------------------------------------------------------------------
 sdcard_init:
-      ; Port b bit 5and 6 input for sdcard and write protect detection, rest all outputs
-      lda #%10011111
-      sta via2ddrb
-      sta via2portb
-
-      lda #spi_device_sdcard
-      jsr spi_select_device
-      beq @init
-      rts
+	jsr spi_deselect
 @init:
       ; 74 SPI clock cycles - !!!Note: spi clock cycle should be in range 100-400Khz!!!
-			ldx #74
-
-			; set ALL CS lines and DO to HIGH
-			lda #%11111110
-			sta via2portb
-
-			tay
-			iny
+			ldy #10
 
 @l1:
-			sty via2portb
-			sta via2portb
-			dex
+			jsr spi_r_byte
+			dey
 			bne @l1
 
 			jsr sd_select_card
@@ -533,8 +516,13 @@ sd_wait:
 ; select sd card, pull CS line to low
 ;---------------------------------------------------------------------
 sd_select_card:
-			lda #spi_device_sdcard
-			sta via2portb
+			ldx #>VERA_SPI
+			stx veramid
+			ldx #VERA_SPI >> 16
+			stx verahi
+			ldx #1
+			stx veralo  ; ctrl reg
+			stx veradat ; ss=1
 			;TODO FIXME race condition here!
 			
 ; fall through to sd_busy_wait

@@ -1,26 +1,34 @@
 
-.include "asm/409.s"    ;  300  US
-.include "asm/809.s"    ;   88  United Kingdom
-.include "asm/407.s"    ;   45  German
-.include "asm/nordic.s" ;   95  total
-                        ;[  19  Nordic    ]
-                        ;[  33  Swedish   ]
-                        ;[  29  Danish    ]
-                        ;[   9  Norwegian ]
-                        ;[   5  Finnish   ]
-.include "asm/410.s"    ;   15  Italian
-.include "asm/415.s"    ;   10  Polish (Programmers)
-.include "asm/40E.s"    ;   11  Hungarian
-.include "asm/40A.s"    ;    8  Spanish
-.include "asm/40C.s"    ;    4  French
-.include "asm/807.s"    ;    4  Swiss German
-.include "asm/80C.s"    ;    2  Belgian French
-.include "asm/416.s"    ;    7  Portuguese (Brazil ABNT)
-                        ;    5  Japanese
-                        ;    4  Dvorak
-                        ;    2  Canadian French
-                        ;    2  Icelandic
-                        ;    1  Estonia
+; PETSCII
+.include "asm/409.s"    ; US
+.include "asm/809.s"    ; United Kingdom
+.include "asm/407.s"    ; German
+.include "asm/41D.s"    ; Swedish
+.include "asm/410.s"    ; Italian
+.include "asm/415.s"    ; Polish (Programmers)
+.include "asm/40E.s"    ; Hungarian
+.include "asm/40A.s"    ; Spanish
+.include "asm/40C.s"    ; French
+.include "asm/807.s"    ; Swiss German
+.include "asm/80C.s"    ; Belgian French
+.include "asm/416.s"    ; Portuguese (Brazil ABNT)
 
 .segment "KBDMETA"
+	.byte 0 ; terminator
+
+; ISO
+.include "asm/i409.s"
+.include "asm/i809.s"
+.include "asm/i407.s"
+.include "asm/i41D.s"
+.include "asm/i410.s"
+.include "asm/i415.s"
+.include "asm/i40E.s"
+.include "asm/i40A.s"
+.include "asm/i40C.s"
+.include "asm/i807.s"
+.include "asm/i80C.s"
+.include "asm/i416.s"
+
+.segment "IKBDMETA"
 	.byte 0 ; terminator
