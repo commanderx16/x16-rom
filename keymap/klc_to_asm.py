@@ -1,8 +1,10 @@
 import io, re, codecs, sys, os.path
 import pprint
 
-PET = 0
-ISO = 1
+ISO = 0
+PET = 1
+
+ALL_ENCODINGS = [PET, ISO]
 
 REG     = 0
 SHFT    = 1
@@ -469,7 +471,7 @@ unicode_not_reachable = ''.join(sorted(unicode_not_reachable))
 #####################
 #####################
 
-for enc in [PET, ISO]:
+for enc in ALL_ENCODINGS:
 	for shiftstate in ALL_SHIFTSTATES:
 		keytab[enc][shiftstate] = [ keytab[enc][shiftstate][0:26], keytab[enc][shiftstate][26:] ]
 		
@@ -540,14 +542,24 @@ if False:
 	print()
 
 
-print('.segment "KBDTABLES"\n')
-
-
 shiftstate_desc = { REG: 'reg', SHFT: 'shft', CTRL: 'ctrl', ALT: 'alt', ALTGR: 'altgr', SHALTGR: 'shaltgr' }
+
+pointers = {}
+pointers[kbd_id] = {}
+for shiftstate in ALL_SHIFTSTATES:
+	pointers[kbd_id][shiftstate] = {}
+	for part in [0, 1]:
+		pointers[kbd_id][shiftstate][part] = {}
+		for enc in ALL_ENCODINGS:
+			pointers[kbd_id][shiftstate][part][enc] = "kbtab_{}_{}_{}_{}".format(kbd_id, shiftstate_desc[shiftstate], 'alpha' if part == 0 else 'other', 'pet' if enc == PET else 'iso')
+
+pprint.pprint(pointers)
+
+print('.segment "KBDTABLES"\n')
 
 for shiftstate in ALL_SHIFTSTATES:
 	for part in [0, 1]:
-		for enc in [PET, ISO]:
+		for enc in ALL_ENCODINGS:
 			if shiftstate == ALTGR and not ALTGR in ALL_SHIFTSTATES:
 				continue
 			print("kbtab_{}_{}_{}_{}:".format(kbd_id, shiftstate_desc[shiftstate], 'alpha' if part == 0 else 'other', 'pet' if enc == PET else 'iso'), end = '')
