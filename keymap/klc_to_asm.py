@@ -81,20 +81,6 @@ x16scancode_from_ps2_set2_code = {
 	0x61: 0x3F, # <ISO>
 }
 
-#	.byte  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-#	.byte  0x00, 0x00, 0x00, 0x00, 0x00, 0x00,'_', 0x00
-#	.byte  0x00, 0x00, 0x00, 0x00, 0x00,'Q','1', 0x00
-#	.byte  0x00, 0x00,'Z','S','A','W','2', 0x00
-#	.byte  0x00,'C','X','D','E','4','3', 0x00
-#	.byte  0x00,' ','V','F','T','R','5', 0x00
-#	.byte  0x00,'N','B','H','G','Y','6', 0x00
-#	.byte  0x00, 0x00,'M','J','U','7','8', 0x00
-#	.byte  0x00,',','K','I','O','0','9', 0x00
-#	.byte  0x00,'.','/','L',';','P','-', 0x00
-#	.byte  0x00, 0x00,"'", 0x00,'[','=', 0x00, 0x00
-#	.byte  0x00, 0x00, 0x00,']', 0x00,'\\', 0x00, 0x00
-#	.byte  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x14, 0x00
-
 
 
 def get_kbd_layout(base_filename, load_patch = False):
@@ -388,14 +374,16 @@ if not ALT in keytab:
 # create PS/2 Code 2 -> PETSCII tables
 for hid_scancode in layout.keys():
 	ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
-	l = layout[hid_scancode]['chars']
-	for shiftstate in keytab.keys():
-		if shiftstate in l:
-			c_unicode = l[shiftstate]
-			if iso_mode:
-				keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
-			else:
-				keytab[shiftstate][ps2_scancode] = petscii_from_unicode(c_unicode)
+	if ps2_scancode in x16scancode_from_ps2_set2_code:
+		x16scancode = x16scancode_from_ps2_set2_code[ps2_scancode]
+		l = layout[hid_scancode]['chars']
+		for shiftstate in keytab.keys():
+			if shiftstate in l:
+				c_unicode = l[shiftstate]
+				if iso_mode:
+					keytab[shiftstate][x16scancode] = latin15_from_unicode(c_unicode)
+				else:
+					keytab[shiftstate][x16scancode] = petscii_from_unicode(c_unicode)
 
 # stamp in f-keys independent of shiftstate
 for shiftstate in keytab.keys():
