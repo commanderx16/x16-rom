@@ -390,7 +390,7 @@ for hid_scancode in layout_patched.keys():
 			if shiftstate in l:
 				keytab[PET][shiftstate][x16scancode] = petscii_from_unicode(l[shiftstate])
 			if shiftstate in l2:
-				keytab[ISO][shiftstate][x16scancode] = iso_from_unicode(l[shiftstate])
+				keytab[ISO][shiftstate][x16scancode] = iso_from_unicode(l2[shiftstate])
 
 # stamp in Alt graphic characters into PETSCII map
 #petscii_from_alt_scancode = [
