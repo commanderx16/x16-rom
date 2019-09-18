@@ -412,23 +412,18 @@ is_stop:
 ; ADD CHAR TO KBD BUFFER
 ;****************************************
 add_to_buf:
-	pha
-	lda ndx ; length of keyboard buffer
-	cmp #10
-	bcs add2 ; full, ignore
-	inc ndx
-	tax
-	pla
-	sta keyd,x ; store
 	cmp #3 ; stop
 	bne add1
-	lda #$7f
+	ldx #$7f
 	.byte $2c
-add1:	lda #$ff
-	sta $91
-	rts
-add2:	pla
-	rts
+add1:	ldx #$ff
+	stx $91
+	ldx ndx ; length of keyboard buffer
+	cpx #10
+	bcs add2 ; full, ignore
+	sta keyd,x ; store
+	inc ndx
+add2:	rts
 
 ;****************************************
 ; RECEIVE BYTE
