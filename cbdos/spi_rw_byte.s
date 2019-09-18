@@ -13,7 +13,7 @@ spi_r_byte:
 ;----------------------------------------------------------------------------------------------
 ; Transmit byte VIA SPI
 ; Byte to transmit in A, received byte in A at exit
-; Destructive: A,X,Y
+; Destructive: A,X
 ;----------------------------------------------------------------------------------------------
 spi_rw_byte:
 	ldx #>VERA_SPI

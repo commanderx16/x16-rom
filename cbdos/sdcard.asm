@@ -68,17 +68,14 @@ sdcard_detect:
 ;
 ;---------------------------------------------------------------------
 sdcard_init:
-      lda #spi_device_sdcard
-      jsr spi_select_device
-      beq @init
-      rts
+	jsr spi_deselect
 @init:
       ; 74 SPI clock cycles - !!!Note: spi clock cycle should be in range 100-400Khz!!!
-			ldx #74
+			ldy #10
 
 @l1:
 			jsr spi_r_byte
-			dex
+			dey
 			bne @l1
 
 			jsr sd_select_card
