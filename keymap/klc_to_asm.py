@@ -7,8 +7,6 @@ CTRL  = 2
 ALT   = 4
 ALTGR = 6
 
-COMPRESSED_OUTPUT=1
-
 def get_kbd_layout(base_filename, load_patch = False):
 	filename_klc = base_filename
 	filename_changes = base_filename + 'patch'
@@ -546,7 +544,7 @@ for shiftstate in [REG, SHFT, CTRL, ALT, ALTGR]:
 			print('Ctrl ', end='')
 		if shiftstate & 4:
 			print('Alt ', end='')
-	if COMPRESSED_OUTPUT == 1 and shiftstate != REG:
+	if shiftstate != REG:
 		start = 13
 		end = 104
 	else:
