@@ -479,9 +479,11 @@ def convert_layout(filename):
 	return (kbd_layout, keytab)
 
 shiftstate_desc = { REG: 'reg', SHFT: 'shft', CTRL: 'ctrl', ALT: 'alt', ALTGR: 'altgr', SHALTGR: 'shaltgr' }
+part_desc = { 0: 'alpha', 1: 'other' }
+enc_desc = { ISO: 'iso', PET: 'pet' }
 
 def encode_label(kbdid, shiftstate, part, enc):
-	return  "kbtab_{}_{}_{}_{}".format(kbdid, shiftstate_desc[shiftstate], 'alpha' if part == 0 else 'other', 'pet' if enc == PET else 'iso')
+	return  "kbtab_{}_{}_{}_{}".format(kbdid, shiftstate_desc[shiftstate], part_desc[part], enc_desc[enc])
 
 
 
