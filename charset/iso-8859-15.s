@@ -1737,12 +1737,12 @@
 .byte %________
 .byte %________
 .byte %________
-; º (based on CP850 A7)
+; º (based on CP850 A7, but one pixel higher)
 .byte %__███___
 .byte %_██_██__
 .byte %_██_██__
+.byte %_██_██__
 .byte %__███___
-.byte %________
 .byte %________
 .byte %________
 .byte %________
@@ -1996,14 +1996,14 @@
 .byte %_██__██_
 .byte %__████__
 .byte %________
-; Ö (based on PXLfont and CP850 99)
-.byte %_██__██_
-.byte %________
+; Ö (based on CP437 99)
+.byte %██____██
+.byte %___██___
 .byte %__████__
 .byte %_██__██_
 .byte %_██__██_
-.byte %_██__██_
 .byte %__████__
+.byte %___██___
 .byte %________
 ; × (CP850 9E); TODO: should not use left column
 .byte %________
@@ -2292,11 +2292,11 @@
 .byte %_██__██_
 .byte %__████__
 .byte %________
-; ö (based on PXLfont and CP850 94)
+; ö (based on CP437 94, but centered)
+.byte %________
 .byte %_██__██_
 .byte %________
 .byte %__████__
-.byte %_██__██_
 .byte %_██__██_
 .byte %_██__██_
 .byte %__████__
