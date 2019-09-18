@@ -564,7 +564,7 @@ for shiftstate in ALL_SHIFTSTATES:
 				start = 26
 				end = NUM_SCANCODES
 			for i in range(start, end ):
-				if (i - start) & 7 == 0:
+				if (i - start) == 0:
 					print()
 					print('\t.byte ', end='')
 				c = keytab[enc][shiftstate][i]
