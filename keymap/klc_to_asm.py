@@ -497,8 +497,8 @@ def is_all_zeros(a):
 
 
 layouts = [
-	'409 US',
-	'809 United Kingdom',
+	'20409 United States-International',
+#	'809 United Kingdom',
 #	'407 German',
 #	'41D Swedish',
 #	'406 Danish',
@@ -537,12 +537,14 @@ ALL_PARTS = [0, 1, 2]
 pointers = {}
 for kbdid in keytabs.keys():
 	pointers[kbdid] = {}
-	for shiftstate in ALL_SHIFTSTATES:
-		pointers[kbdid][shiftstate] = {}
-		for part in ALL_PARTS:
-			pointers[kbdid][shiftstate][part] = {}
-			for enc in ALL_ENCODINGS:
-				pointers[kbdid][shiftstate][part][enc] = (kbdid, shiftstate, part, enc)
+	for enc in ALL_ENCODINGS:
+		pointers[kbdid][enc] = {}
+		for shiftstate in ALL_SHIFTSTATES:
+			pointers[kbdid][enc][shiftstate] = {}
+			for part in ALL_PARTS:
+				pointers[kbdid][enc][shiftstate][part] = (kbdid, enc, shiftstate, part)
+
+pprint.pprint(pointers)
 
 for kbdid1 in keytabs.keys():
 	for kbdid2 in keytabs.keys():
@@ -552,15 +554,22 @@ for kbdid1 in keytabs.keys():
 					for enc2 in ALL_ENCODINGS:
 						for part in ALL_PARTS:
 							if kbdid1 == kbdid2 and shiftstate1 == shiftstate2 and enc1 == enc2:
+								# comparison with itself
 								continue
-							if keytabs[kbdid1][enc1][shiftstate1][part] == None:
+							(kbdid1a, enc1a, shiftstate1a, part1a) = pointers[kbdid1][enc1][shiftstate1][part]
+							(kbdid2a, enc2a, shiftstate2a, part2a) = pointers[kbdid2][enc2][shiftstate2][part]
+							if keytabs[kbdid1a][enc1a][shiftstate1a][part] == None:
 								continue
-							if keytabs[kbdid1][enc1][shiftstate1][part] == keytabs[kbdid2][enc2][shiftstate2][part]:
-								keytabs[kbdid2][enc2][shiftstate2][part] = None
-								pointers[kbdid2][shiftstate2][part][enc2] = (kbdid1, shiftstate1, part, enc1)
-								#print(encode_label(kbdid2, shiftstate2, part, enc2), '->', encode_label(kbdid1, shiftstate1, part, enc1))
+							if keytabs[kbdid1a][enc1a][shiftstate1a][part] != keytabs[kbdid2a][enc2a][shiftstate2a][part]:
+								continue
+						
+							keytabs[kbdid2a][enc2a][shiftstate2a][part] = None
+							print("before pointers = {}", pointers[kbdid2][enc2][shiftstate2][part])
+							pointers[kbdid2a][enc2a][shiftstate2a][part] = (kbdid1a, enc1a, shiftstate1a, part)
+							print("after  pointers = {}", pointers[kbdid2][enc2][shiftstate2][part])
+							print(encode_label(kbdid2, shiftstate2, part, enc2), '->', encode_label(kbdid1, shiftstate1, part, enc1))
 
-
+pprint.pprint(pointers)
 
 
 #####################
@@ -575,27 +584,42 @@ for kbdid1 in keytabs.keys():
 #	print("; KLID:   " + kbdid)
 #	print(";")
 
+bytes_pointers = 0
+
 for kbdid in keytabs.keys():
 	print("; Name:   " + name[kbdid])
 	print("; Locale: " + localename[kbdid])
 	print("; KLID:   " + kbdid)
+	locale1 = localename[kbdid][0:2].upper()
+	locale2 = localename[kbdid][3:5].upper()
+	if locale1 != locale2:
+		locale1 = localename[kbdid].upper()
+	if len(localename[kbdid]) != 5:
+		sys.exit("unknown locale format: " + localename[kbdid])
+	print('\t.byte "' + locale1 + '"', end = '')
+	for i in range(0, 6 - len(locale1)):
+		print(", 0", end = '')
+	bytes_pointers += 6
+	print()
 	for enc in ALL_ENCODINGS:
 		for shiftstate in ALL_SHIFTSTATES:
 			for part in ALL_PARTS:
-				(kbdid, shiftstate, part, enc) = pointers[kbdid][shiftstate][part][enc]
+				(kbdid, enc, shiftstate, part) = pointers[kbdid][enc][shiftstate][part]
 				#pprint.pprint(keytabs[kbdid][enc][shiftstate][part], [ 0 ] * len(keytabs[kbdid][enc][shiftstate][part]))
-				
-				if is_all_zeros(keytabs[kbdid][enc][shiftstate][part]):
-					print('0')
+				print('\t.word ', end = '')
+				if not keytabs[kbdid][enc][shiftstate][part]:
+					print('; error: ' + encode_label(kbdid, shiftstate, part, enc), (kbdid, enc, shiftstate, part))
+				elif is_all_zeros(keytabs[kbdid][enc][shiftstate][part]):
+					print('0 ; ' + encode_label(kbdid, shiftstate, part, enc))
 				else:
 					print(encode_label(kbdid, shiftstate, part, enc))
+				bytes_pointers += 2
 				
 
-
+bytes_data = 0
 
 print('.segment "KBDTABLES"\n')
 
-bytes = 0
 #for part in ALL_PARTS:
 #	for shiftstate in ALL_SHIFTSTATES:
 #		for enc in ALL_ENCODINGS:
@@ -617,9 +641,9 @@ for kbdid in keytabs.keys():
 						print("'{}'".format(c), end = '')
 					else:
 						print("${:02x}".format(ord(c)), end = '')
-					bytes += 1
+					bytes_data += 1
 					if i != len(keytabs[kbdid][enc][shiftstate][part]) - 1:	
 						print(',', end = '')
 				print()
 			
-print(bytes)
+print(bytes_pointers, bytes_data)
