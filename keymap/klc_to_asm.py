@@ -692,7 +692,7 @@ for kbdid in keytabs.keys():
 		locale1 = localename[kbdid].upper()
 	if len(localename[kbdid]) != 5:
 		sys.exit("unknown locale format: " + localename[kbdid])
-	print("\t.byte {} ; descriptor length".format(5 + len(pointers * 2)))
+	print("\t.byte {} ; descriptor length".format(6 + len(pointers * 2)))
 	print('\t.byte "' + locale1 + '"', end = '')
 	for i in range(0, 5 - len(locale1)):
 		print(", 0", end = '')
