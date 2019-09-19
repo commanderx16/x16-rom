@@ -15,6 +15,11 @@ SHALTGR = 7
 
 ALL_SHIFTSTATES = [REG, SHFT, CTRL, ALT, ALTGR, SHALTGR]
 
+# no layout has anything in the Ctrl map other than "^[", "^\" and "^]",
+# shuffled according to the layout of "[", "\" and "]". We can generate
+# these at runtime.
+ALL_OUTPUTSHIFTSTATES = [REG, SHFT, ALT, ALTGR, SHALTGR]
+
 #
 # The core PS/2 scancode set has 132 codes (0x00-0x83) for just 86 keys, so
 # a table mapping scancodes to ASCII would be 1/3 empty.
@@ -552,16 +557,16 @@ layouts = [
 	'40E Hungarian',
 	'40A Spanish',
 	'40B Finnish',
-	'416 Portuguese (Brazil ABNT)',
-	'405 Czech',
-	'411 Japanese',
-	'40C French',
-	'807 Swiss German',
-	'10409 United States-Dvorak',
-	'425 Estonian',
-	'80C Belgian French',
-	'1009 Canadian French',
-	'40F Icelandic'
+#	'416 Portuguese (Brazil ABNT)',
+#	'405 Czech',
+#	'411 Japanese',
+#	'40C French',
+#	'807 Swiss German',
+#	'10409 United States-Dvorak',
+#	'425 Estonian',
+#	'80C Belgian French',
+#	'1009 Canadian French',
+#	'40F Icelandic'
 ]
 
 keytabs = {}
@@ -654,7 +659,7 @@ for kbdid in keytabs.keys():
 	bytes_pointers += 6
 	print()
 	for enc in ALL_ENCODINGS:
-		for shiftstate in ALL_SHIFTSTATES:
+		for shiftstate in ALL_OUTPUTSHIFTSTATES:
 			for part in ALL_PARTS:
 				label = encode_label(kbdid, shiftstate, part, enc)
 				print('\t.word ', end = '')
@@ -694,7 +699,7 @@ print('\n')
 bytes_data = 0
 
 for part in ALL_PARTS:
-	for shiftstate in ALL_SHIFTSTATES:
+	for shiftstate in ALL_OUTPUTSHIFTSTATES:
 		for kbdid in keytabs.keys():
 			for enc in ALL_ENCODINGS:
 				label = encode_label(kbdid, shiftstate, part, enc)
