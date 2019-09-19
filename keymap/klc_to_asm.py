@@ -18,7 +18,7 @@ ALL_SHIFTSTATES = [REG, SHFT, CTRL, ALT, ALTGR, SHALTGR]
 # no layout has anything in the Ctrl map other than "^[", "^\" and "^]",
 # shuffled according to the layout of "[", "\" and "]". We can generate
 # these at runtime.
-ALL_OUTPUTSHIFTSTATES = [REG, SHFT, ALT, ALTGR, SHALTGR]
+ALL_OUTPUTSHIFTSTATES = [REG, SHFT, ALTGR, ALT, SHALTGR]
 
 #
 # The core PS/2 scancode set has 132 codes (0x00-0x83) for just 86 keys, so
@@ -557,9 +557,9 @@ layouts = [
 	'40E Hungarian',
 	'40A Spanish',
 	'40B Finnish',
-#	'416 Portuguese (Brazil ABNT)',
-#	'405 Czech',
-#	'411 Japanese',
+	'416 Portuguese (Brazil ABNT)',
+	'405 Czech',
+	'411 Japanese',
 #	'40C French',
 #	'807 Swiss German',
 #	'10409 United States-Dvorak',
@@ -641,28 +641,14 @@ print()
 
 print('.segment "KEYMAPS"\n')
 
-bytes_pointers = 0
+bytes_descriptors = 0
 
 for kbdid in keytabs.keys():
-	print("; Name:   " + name[kbdid])
-	print("; Locale: " + localename[kbdid])
-	print("; KLID:   " + kbdid)
-	locale1 = localename[kbdid][0:2].upper()
-	locale2 = localename[kbdid][3:5].upper()
-	if locale1 != locale2:
-		locale1 = localename[kbdid].upper()
-	if len(localename[kbdid]) != 5:
-		sys.exit("unknown locale format: " + localename[kbdid])
-	print('\t.byte "' + locale1 + '"', end = '')
-	for i in range(0, 6 - len(locale1)):
-		print(", 0", end = '')
-	bytes_pointers += 6
-	print()
-	for enc in ALL_ENCODINGS:
-		for shiftstate in ALL_OUTPUTSHIFTSTATES:
+	pointers = []
+	for shiftstate in ALL_OUTPUTSHIFTSTATES:
+		for enc in ALL_ENCODINGS:
 			for part in ALL_PARTS:
 				label = encode_label(kbdid, shiftstate, part, enc)
-				print('\t.word ', end = '')
 				data1 = data[label]
 				clear_zeros = False
 				make_lower = False
@@ -682,19 +668,45 @@ for kbdid in keytabs.keys():
 
 				if not data1:
 					# all zeros
-					print('0 ; ' + encode_label(kbdid, shiftstate, part, enc))
+					pointers.append(0)
 				elif clear_zeros:
-					print(label + '| FLAG_ASCII_ONLY')
+					pointers.append(label + '| FLAG_ASCII_ONLY')
 				elif make_lower:
-					print(label + '| FLAG_LOWER_CASE')
+					pointers.append(label + '| FLAG_LOWER_CASE')
 				elif make_pet_upper:
-					print(label + '| FLAG_PET_UPPER_CASE')
+					pointers.append(label + '| FLAG_PET_UPPER_CASE')
 				else:
-					print(label)
-					
-				bytes_pointers += 2
+					pointers.append(label)
+	
+	# remove trailing 0 pointers
+	while pointers[-1] == 0:
+		pointers = pointers[:-1]
+
+	# print descriptors
+	print("; Name:   " + name[kbdid])
+	print("; Locale: " + localename[kbdid])
+	print("; KLID:   " + kbdid)
+	locale1 = localename[kbdid][0:2].upper()
+	locale2 = localename[kbdid][3:5].upper()
+	if locale1 != locale2:
+		locale1 = localename[kbdid].upper()
+	if len(localename[kbdid]) != 5:
+		sys.exit("unknown locale format: " + localename[kbdid])
+	print("\t.byte {} ; descriptor length".format(5 + len(pointers * 2)))
+	print('\t.byte "' + locale1 + '"', end = '')
+	for i in range(0, 5 - len(locale1)):
+		print(", 0", end = '')
+	bytes_descriptors += 6
+	print()
+	
+	for pointer in pointers:
+		if pointer == 0:
+			print('\t.word 0')
+		else:
+			print('\t.word ' + pointer)
+		bytes_descriptors += 2
 				
-print('\n')
+	print()
 
 bytes_data = 0
 
@@ -724,4 +736,4 @@ for part in ALL_PARTS:
 						print(',', end = '')
 				print()
 			
-print('\n; Descriptors: {}\n; Tables:      {}\n; Total:       {}\n; Per Keymap:  {}\n'.format(bytes_pointers, bytes_data, bytes_pointers + bytes_data, round((bytes_pointers + bytes_data) / len(layouts))))
+print('\n; Descriptors: {}\n; Tables:      {}\n; Total:       {}\n; Per Keymap:  {}\n'.format(bytes_descriptors, bytes_data, bytes_descriptors + bytes_data, round((bytes_descriptors + bytes_data) / len(layouts))))
