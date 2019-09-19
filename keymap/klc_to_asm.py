@@ -590,6 +590,10 @@ for label1 in data.keys():
 #####################
 #####################
 
+print('FLAG_ASCII_ONLY = $8000\n')
+
+print('\n')
+
 print('.segment "KEYMAPS"\n')
 
 bytes_pointers = 0
@@ -627,7 +631,7 @@ for kbdid in keytabs.keys():
 					# all zeros
 					print('0 ; ' + encode_label(kbdid, shiftstate, part, enc))
 				elif clear_zeros:
-					print(label + '| $8000')
+					print(label + '| FLAG_ASCII_ONLY')
 				else:
 					print(label)
 					
