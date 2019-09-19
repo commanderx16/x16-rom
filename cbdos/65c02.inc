@@ -1,5 +1,31 @@
-;.setcpu "65c02"
+; This header allows building the FAT32 code for a non-C 6502 CPU.
+; Just flip the ".if" to enable emulation of the new instructions.
+; Note that it will require two zeropage locations.
 
+.if 1
+.setcpu "65c02"
+
+.macro bitimm arg1
+	bit #arg1
+.endmacro
+
+.macro ldaind arg1
+	lda (arg1)
+.endmacro
+
+.macro staind arg1
+	sta (arg1)
+.endmacro
+
+.macro cmpind arg1
+	cmp (arg1)
+.endmacro
+
+.macro inca
+	inc
+.endmacro
+
+.else
 zptmp65c02_0 = $00
 zptmp65c02_1 = $01
 
@@ -107,3 +133,4 @@ zptmp65c02_1 = $01
 	plp
 .endmacro
 
+.endif
