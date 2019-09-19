@@ -2292,11 +2292,11 @@
 .byte %_██__██_
 .byte %__████__
 .byte %________
-; ö (based on CP437 94, but centered)
-.byte %________
+; ö (based on PXLfont and CP850 94)
 .byte %_██__██_
 .byte %________
 .byte %__████__
+.byte %_██__██_
 .byte %_██__██_
 .byte %_██__██_
 .byte %__████__
