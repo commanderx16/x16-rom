@@ -22,7 +22,7 @@ ALL_SHIFTSTATES = [REG, SHFT, CTRL, ALT, ALTGR, SHALTGR]
 # return, backspace, Esc etc. These are the same on all keyboard layouts and
 # don't need to be included in every mapping table.
 # There are only 48 keys on the keyboard whose function depends on the layout:
-# 26 keys with the characters A-Z, and 22 digit and symbol keys.
+# 26 keys with the characters A-Z, and 10 digit and 12 symbol keys.
 # We are using the following numbering for "X16 scancodes":
 #
 # 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19
@@ -493,8 +493,20 @@ def encode_label(kbdid, shiftstate, part, enc):
 	return  "kbtab_{}_{}_{}_{}".format(kbdid, shiftstate_desc[shiftstate], part_desc[part], enc_desc[enc])
 
 def is_all_zeros(a):
-	return a == [ '\0' ] * len(a)
+	return a and a == [ '\0' ] * len(a)
 
+def ascii_compare(a, b):
+	if a and b and len(a) != len(b):
+		return False
+	if not a or not b:
+		return False
+	for i in range(0, len(a)):
+		ai = ord(a[i]) if a else 0
+		bi = ord(b[i]) if b else 0
+		if not (ai == bi or (ai >= 0x80 and bi == 0)):
+			return False
+	return True
+			
 
 layouts = [
 	'20409 United States-International',
@@ -512,12 +524,12 @@ layouts = [
 	'405 Czech',
 	'411 Japanese',
 	'40C French',
-#	'807 Swiss German',
-#	'10409 United States-Dvorak',
-#	'425 Estonian',
-#	'80C Belgian French',
-#	'1009 Canadian French',
-#	'40F Icelandic'
+	'807 Swiss German',
+	'10409 United States-Dvorak',
+	'425 Estonian',
+	'80C Belgian French',
+	'1009 Canadian French',
+	'40F Icelandic'
 ]
 
 keytabs = {}
@@ -543,17 +555,29 @@ for kbdid in keytabs.keys():
 
 #pprint.pprint(data)
 
+
+# de-duplicate
 for label1 in data.keys():
 	if is_all_zeros(data[label1]):
 		data[label1] = None
 		continue
 	for label2 in data.keys():
+		if is_all_zeros(data[label2]):
+			data[label2] = None
+			continue
 		if label1 == label2:
 			# comparison with itself
 			continue
+		if isinstance(data[label1], str) or isinstance(data[label2], str):
+			# one is a reference already
+			continue
 		if data[label1] == data[label2]:
+			# they are identical
 			data[label2] = label1
-			#print(label1, label2)
+		if ascii_compare(data[label1], data[label2]):
+			# they are identical, except for non-ASCII characters in one that are 0s in the other
+			data[label2] = '_' + label1
+
 
 #pprint.pprint(data)
 
@@ -566,9 +590,7 @@ for label1 in data.keys():
 #####################
 #####################
 
-#for kbdid in keytabs.keys():
-#	print("; KLID:   " + kbdid)
-#	print(";")
+print('.segment "KEYMAPS"\n')
 
 bytes_pointers = 0
 
@@ -593,23 +615,27 @@ for kbdid in keytabs.keys():
 				label = encode_label(kbdid, shiftstate, part, enc)
 				print('\t.word ', end = '')
 				data1 = data[label]
-				#print('xxx',data1)
+				clear_zeros = False
 				while isinstance(data1, str):
 					label = data1
+					if label[0] == '_':
+						label = label[1:]
+						clear_zeros = True
 					data1 = data[label]
 
 				if not data1:
 					# all zeros
 					print('0 ; ' + encode_label(kbdid, shiftstate, part, enc))
+				elif clear_zeros:
+					print(label + '| $8000')
 				else:
 					print(label)
 					
 				bytes_pointers += 2
 				
+print('\n')
 
 bytes_data = 0
-
-print('.segment "KBDTABLES"\n')
 
 for part in ALL_PARTS:
 	for shiftstate in ALL_SHIFTSTATES:
@@ -637,4 +663,4 @@ for part in ALL_PARTS:
 						print(',', end = '')
 				print()
 			
-print('\nDescriptors: {}\nTables:      {}\nTotal:       {}\nPer Keymap:  {}\n'.format(bytes_pointers, bytes_data, bytes_pointers + bytes_data, round((bytes_pointers + bytes_data) / len(layouts))))
+print('\n; Descriptors: {}\n; Tables:      {}\n; Total:       {}\n; Per Keymap:  {}\n'.format(bytes_pointers, bytes_data, bytes_pointers + bytes_data, round((bytes_pointers + bytes_data) / len(layouts))))
