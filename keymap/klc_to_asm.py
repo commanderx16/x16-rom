@@ -523,6 +523,22 @@ def case_insensitive_compare(a, b):
 			return False
 	return True
 
+def pet_case_insensitive_compare(a, b):	
+	if a and b and len(a) != len(b):
+		return False
+	if not a or not b:
+		return False
+	for i in range(0, len(a)):
+		ai = ord(a[i])
+		bi = ord(b[i])
+		if ai == bi:
+			continue
+		if not (ai >= ord('A') and ai <= ord('Z')):
+			return False
+		if not (bi == ai + 0x80):
+			return False
+	return True
+
 
 layouts = [
 	'20409 United States-International',
@@ -596,6 +612,9 @@ for label1 in data.keys():
 		if case_insensitive_compare(data[label1], data[label2]):
 			# they are identical, except every alpha character in (2) is the lower case version of (1)
 			data[label2] = '+' + label1
+		if pet_case_insensitive_compare(data[label1], data[label2]):
+			# they are identical, except every alpha character in (2) is the PETSCII lower case version of (1)
+			data[label2] = '~' + label1
 
 
 #pprint.pprint(data)
@@ -609,10 +628,11 @@ for label1 in data.keys():
 #####################
 #####################
 
-print('FLAG_ASCII_ONLY = $8000\n')
-print('FLAG_UPPER_CASE = $4000\n')
+print('FLAG_ASCII_ONLY     = $C000')
+print('FLAG_LOWER_CASE     = $8000')
+print('FLAG_PET_UPPER_CASE = $4000')
 
-print('\n')
+print()
 
 print('.segment "KEYMAPS"\n')
 
@@ -640,7 +660,8 @@ for kbdid in keytabs.keys():
 				print('\t.word ', end = '')
 				data1 = data[label]
 				clear_zeros = False
-				make_upper = False
+				make_lower = False
+				make_pet_upper = False
 				while isinstance(data1, str):
 					label = data1
 					if label[0] == '_':
@@ -648,7 +669,10 @@ for kbdid in keytabs.keys():
 						clear_zeros = True
 					if label[0] == '+':
 						label = label[1:]
-						make_upper = True
+						make_lower = True
+					if label[0] == '~':
+						label = label[1:]
+						make_pet_upper = True
 					data1 = data[label]
 
 				if not data1:
@@ -656,8 +680,10 @@ for kbdid in keytabs.keys():
 					print('0 ; ' + encode_label(kbdid, shiftstate, part, enc))
 				elif clear_zeros:
 					print(label + '| FLAG_ASCII_ONLY')
-				elif make_upper:
-					print(label + '| FLAG_UPPER_CASE')
+				elif make_lower:
+					print(label + '| FLAG_LOWER_CASE')
+				elif make_pet_upper:
+					print(label + '| FLAG_PET_UPPER_CASE')
 				else:
 					print(label)
 					
