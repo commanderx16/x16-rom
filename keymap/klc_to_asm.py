@@ -501,12 +501,28 @@ def ascii_compare(a, b):
 	if not a or not b:
 		return False
 	for i in range(0, len(a)):
-		ai = ord(a[i]) if a else 0
-		bi = ord(b[i]) if b else 0
+		ai = ord(a[i])
+		bi = ord(b[i])
 		if not (ai == bi or (ai >= 0x80 and bi == 0)):
 			return False
 	return True
-			
+
+def case_insensitive_compare(a, b):	
+	if a and b and len(a) != len(b):
+		return False
+	if not a or not b:
+		return False
+	for i in range(0, len(a)):
+		ai = ord(a[i])
+		bi = ord(b[i])
+		if ai == bi:
+			continue
+		if not (ai >= ord('A') and ai <= ord('Z')):
+			return False
+		if not (bi == ai + 0x20):
+			return False
+	return True
+
 
 layouts = [
 	'20409 United States-International',
@@ -575,8 +591,13 @@ for label1 in data.keys():
 			# they are identical
 			data[label2] = label1
 		if ascii_compare(data[label1], data[label2]):
-			# they are identical, except for non-ASCII characters in one that are 0s in the other
+			# they are identical, except (2) has 0s where (1) has non-ASCII characters
 			data[label2] = '_' + label1
+		if case_insensitive_compare(data[label1], data[label2]):
+			# they are identical, except every alpha character in (2) is the lower case version of (1)
+			print(data[label1])
+			print(data[label2])
+			data[label2] = '+' + label1
 
 
 #pprint.pprint(data)
@@ -591,6 +612,7 @@ for label1 in data.keys():
 #####################
 
 print('FLAG_ASCII_ONLY = $8000\n')
+print('FLAG_UPPER_CASE = $4000\n')
 
 print('\n')
 
@@ -620,11 +642,15 @@ for kbdid in keytabs.keys():
 				print('\t.word ', end = '')
 				data1 = data[label]
 				clear_zeros = False
+				make_upper = False
 				while isinstance(data1, str):
 					label = data1
 					if label[0] == '_':
 						label = label[1:]
 						clear_zeros = True
+					if label[0] == '+':
+						label = label[1:]
+						make_upper = True
 					data1 = data[label]
 
 				if not data1:
@@ -632,6 +658,8 @@ for kbdid in keytabs.keys():
 					print('0 ; ' + encode_label(kbdid, shiftstate, part, enc))
 				elif clear_zeros:
 					print(label + '| FLAG_ASCII_ONLY')
+				elif make_upper:
+					print(label + '| FLAG_UPPER_CASE')
 				else:
 					print(label)
 					
