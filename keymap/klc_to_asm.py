@@ -595,8 +595,6 @@ for label1 in data.keys():
 			data[label2] = '_' + label1
 		if case_insensitive_compare(data[label1], data[label2]):
 			# they are identical, except every alpha character in (2) is the lower case version of (1)
-			print(data[label1])
-			print(data[label2])
 			data[label2] = '+' + label1
 
 
