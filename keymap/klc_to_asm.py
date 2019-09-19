@@ -555,7 +555,7 @@ for label1 in data.keys():
 			data[label2] = label1
 			#print(label1, label2)
 
-pprint.pprint(data)
+#pprint.pprint(data)
 
 
 #####################
@@ -600,18 +600,10 @@ for kbdid in keytabs.keys():
 
 				if not data1:
 					# all zeros
-					print('0 ; ')# + encode_label(kbdid, shiftstate, part, enc))
+					print('0 ; ' + encode_label(kbdid, shiftstate, part, enc))
 				else:
 					print(label)
 					
-
-				#print('\t.word ', end = '')
-				#if not keytabs[kbdid][enc][shiftstate][part]:
-				#	print('; error: ' + encode_label(kbdid, shiftstate, part, enc), (kbdid, enc, shiftstate, part))
-				#elif is_all_zeros(keytabs[kbdid][enc][shiftstate][part]):
-				#	print('0 ; ' + encode_label(kbdid, shiftstate, part, enc))
-				#else:
-				#	print(encode_label(kbdid, shiftstate, part, enc))
 				bytes_pointers += 2
 				
 
@@ -645,4 +637,4 @@ for part in ALL_PARTS:
 						print(',', end = '')
 				print()
 			
-print(bytes_pointers, bytes_data)
+print('\nDescriptors: {}\nTables:      {}\nTotal:       {}\nPer Keymap:  {}\n'.format(bytes_pointers, bytes_data, bytes_pointers + bytes_data, round((bytes_pointers + bytes_data) / len(layouts))))
