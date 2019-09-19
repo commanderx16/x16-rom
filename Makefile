@@ -8,7 +8,7 @@ endif
 ARGS_KERNAL=-g
 ARGS_BASIC=-g
 #ARGS_MONITOR=-g
-ARGS_DOS=-g
+#ARGS_DOS=-g
 
 
 all:
