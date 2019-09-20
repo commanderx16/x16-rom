@@ -75,6 +75,19 @@ FAT32 and SD card drivers: Copyright (c) 2018 Thomas Woinke, Marko Lauke, [www.s
 
 ## Release Notes
 
+### Release 31
+
+* switched to VERA 0.8 register layout; character ROM is uploaded on startup
+* ISO mode: ISO-8859-15 character set, standard ASCII keyboard
+* keyboard
+	* completed US and UK keymaps so all C64 characters are reachable
+	* support for AltGr
+	* support for F9-F12
+* allow hex and binary numbers in DATA statements [Frank Buss]
+* switched SD card from VIA SPI to VERA SPI (works on real hardware!)
+* fix: VPEEK overwriting POKER ($14/$15)
+* fix: STOP sometimes not registering in BASIC programs
+
 ### Release 30
 
 * support for 13 keyboard layouts; cycle through them using F9
