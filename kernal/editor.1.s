@@ -621,6 +621,11 @@ prt	pha
 	lda data
 	bpl *+5
 	jmp nxtx
+.ifdef PS2
+	ldx qtsw
+	cpx #2          ;"no exceptions" quote mode (used by monitor)
+	beq njt1
+.endif
 	cmp #$d
 	bne njt1
 	jmp nxt1
@@ -742,6 +747,11 @@ nxtxa
 	bcc uhuh
 	jmp nxt33
 uhuh
+.ifdef PS2
+	ldx qtsw
+	cpx #2
+	beq up5
+.endif
 	cmp #$d
 	bne up5
 	jmp nxt1

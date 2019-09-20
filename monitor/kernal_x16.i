@@ -32,6 +32,7 @@ LA              := $B8   ; logical file number
 SA              := $B9   ; secondary address
 FA              := $BA   ; device number
 FNADR           := $BB   ; file name
+ISOMOD          := $C5   ; ISO mode: $ff
 NDX             := $C6   ; number of characters in keyboard buffer
 RVS             := $C7   ; print reverse characters flag
 BLNSW           := $CC   ; cursor blink enable
@@ -43,6 +44,7 @@ QTSW            := $D4   ; quote mode flag
 TBLX            := $D6   ; cursor line
 INSRT           := $D8   ; insert mode counter
 LDTB1           := ldtb1 ; screen line link table
+
 
 BUF             := $0200 ; system input buffer
 KEYD            := $0277 ; keyboard buffer

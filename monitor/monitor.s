@@ -1971,7 +1971,15 @@ dump_8_ascii_characters:
 dump_ascii_characters:
         ldy     #0
 LB594:  jsr     load_byte
-        cmp     #$20
+.ifdef MACHINE_X16
+        bit     ISOMOD
+	bpl     :+
+	inc     QTSW
+	inc     QTSW
+	inc     INSRT
+	jmp     LB5AD
+.endif
+:       cmp     #$20
         bcs     LB59F
         inc     RVS
         ora     #$40
@@ -2009,9 +2017,13 @@ LB5C8:  sty     tmp9
         ldy     tmp9
         plp
         bmi     :+
+.ifdef MACHINE_X16
+        bit     ISOMOD
+        bmi     @l1
+.endif
         cmp     #$60
         bcs     :+
-        jsr     store_byte
+@l1:    jsr     store_byte
 :       iny
         dex
         bne     LB5C8
