@@ -1,16 +1,20 @@
 ;**********************************
 ;* load ram function              *
 ;*                                *
-;* loads from cassette 1 or 2, or *
-;* serial bus devices >=4 to 31   *
-;* as determined by contents of   *
-;* variable fa. verify flag in .a *
+;* loads or verifies from serial  *
+;* bus devices >=4 to 31 as       *
+;* determined by contents of      *
+;* variable fa.                   *
 ;*                                *
 ;* alt load if sa=0, normal sa=1  *
 ;* .x , .y load address if sa=0   *
-;* .a=0 performs load,<> is verify*
+;* .a=0 performs load to ram      *
+;* .a=1 performs verify           *
+;* .a>1 performs load to vram;    *
+;*      (.a-2)&0x0f is the bank   *
+;*      number.                   *
 ;*                                *
-;* high load return in x,y.       *
+;* high load return in x,y,a      *
 ;*                                *
 ;**********************************
 
@@ -18,7 +22,9 @@ loadsp	stx memuss      ;.x has low alt start
 	sty memuss+1
 load	jmp (iload)     ;monitor load entry
 ;
-nload	sta verck       ;store verify flag
+nload	and #$1f
+	sta verck       ;store verify flag
+	dec verck
 	lda #0
 	sta status
 ;
@@ -27,9 +33,10 @@ nload	sta verck       ;store verify flag
 ;
 ld10	jmp error9      ;bad device #-keyboard
 ;
-ld20	cmp #3
-	beq ld10        ;disallow screen load
-	bcc ld100       ;handle tapes different
+ld15	jmp error4      ;file not found
+;
+ld20	cmp #4
+	bcc ld10        ;disallow load from screen or tape
 ;
 ;load from cbm ieee device
 ;
@@ -55,7 +62,7 @@ ld25	ldx sa          ;save sa in .x
 	lda status      ;test status for error
 	lsr a
 	lsr a
-	bcs ld90        ;file not found...
+	bcs ld15        ;file not found...
 	jsr acptr
 	sta eah
 ;
@@ -66,6 +73,22 @@ ld25	ldx sa          ;save sa in .x
 	lda memuss+1
 	sta eah
 ld30	jsr loding      ;tell user loading
+;
+	ldy verck       ;are we loading into vram?
+	beq ld40        ;no
+	bmi ld40        ;no
+;
+;initialize vera registers
+;
+	dey
+	tya
+	and #$0f        ;mask the bank number
+	ora #$10        ;set vera increment = 1
+	sta verahi      ;set the bank and increment
+	lda eal
+	sta veralo      ;set address bits 7:0
+	lda eah
+	sta veramid     ;set address bits 15:8
 ;
 ld40	lda #$fd        ;mask off timeout
 	and status
@@ -83,10 +106,14 @@ ld45	jsr acptr       ;get byte off ieee
 	lsr a
 	bcs ld40        ;yes...try again
 	txa
-	ldy verck       ;performing verify?
-	beq ld50        ;no...load
-	ldy #0
-	cmp (eal),y      ;verify it
+	ldy verck       ;what operation are we doing?
+	bmi ld50        ;load into ram
+	beq ld47        ;verify
+;
+	sta veradat     ;write into vram
+	bne ld60        ;branch always
+;
+ld47	cmp (eal),y     ;verify it
 	beq ld60        ;o.k....
 	lda #16         ;no good...verify error (sperr)
 	jsr udst        ;update status
@@ -102,22 +129,22 @@ ld64	bit status      ;eoi?
 	jsr untlk       ;close channel
 	jsr clsei       ;close the file
 	jsr prnto
-	bne ld180       ;branch always
 ;
-ld90	jmp error4      ;file not found
+;set up return values
 ;
-;load from tape
-;
-ld100
-	jmp error9      ;bad device #
-ld180	clc             ;good exit
-;
-; set up end load address
-;
-	ldx eal
+	lda verck
+	clc
+	bmi ld80
+	beq ld80
+	ldx veralo
+	ldy veramid
+	lda verahi
+	and #$0f
+	rts
+ld80	ldx eal
 	ldy eah
-;
-ld190	rts
+	lda #0
+	rts
 
 ;subroutine to print to console:
 ;
@@ -151,13 +178,13 @@ ld115	rts
 ;
 loding	ldy #ms10-ms1   ;assume 'loading'
 	lda verck       ;check flag
-	beq ld410       ;are doing load
+	bne ld410       ;are doing load
 	ldy #ms21-ms1   ;are 'verifying'
 ld410	jsr spmsg
 	bit msgflg      ;printing messages?
 	bpl frmto1      ;no...
 	lda verck       ;check flag
-	bne frmto1      ;skip if verify
+	beq frmto1      ;skip if verify
 	ldy #ms7-ms1    ;"from $"
 msghex	jsr msg
 	lda eah
@@ -180,6 +207,6 @@ frmto1	rts
 prnto	bit msgflg      ;printing messages?
 	bpl frmto1      ;no...
 	lda verck       ;check flag
-	bne frmto1      ;skip if verify
+	beq frmto1      ;skip if verify
 	ldy #ms8-ms1    ;"to $"
 	bne msghex      ;branch always
