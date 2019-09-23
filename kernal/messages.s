@@ -6,9 +6,7 @@ ms7	.byte " FROM ",'$'+$80
 ms8	.byte " TO ",'$'+$80
 ms10	.byt $d,"LOADIN",$c7
 ms11	.byt $d,"SAVING",$a0
-ms21	.byt $d,"VERIFYIN",$c7
 ms17	.byt $d,"FOUND",$a0
-ms18	.byt $d,"OK",$8d
 ; ms34 .byt $d,"MONITOR",$8d
 ; ms36 .byt $d,"BREA",$cb
 

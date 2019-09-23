@@ -99,7 +99,7 @@ vload	jsr plsv   ;parse the parameters
 	bcc vld1   ;require bank/addr
 	jmp snerr
 vld1	lda andmsk ;bank number
-	adc #2
+	adc #1
 	jmp cld10  ;jump to load command
 
 ;***************

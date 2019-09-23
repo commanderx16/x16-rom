@@ -9,6 +9,8 @@ erexit	cmp #$f0        ;check for special case
 erexix	tax             ;set termination flags
 	bne erexiy
 	ldx #erbrk      ;break error
+	.byt $2c
+lderr	ldx #erload     ;load error
 erexiy	jmp error       ;normal error
 
 clschn	=$ffcc
@@ -78,59 +80,29 @@ csv10	ldx vartab      ;end save addr
 	bcs erexit
 	rts
 
-cverf	lda #1          ;verify flag
-	.byt $2c        ;skip two bytes
-
-cload	lda #0          ;load flag
-	pha
-	jsr plsv        ;parse parameters
+cverf
+cload	jsr plsv        ;parse parameters
+	lda #0
 	bcs cld10
 	ldx andmsk
 	stx $9f61
-	pla
 ;
 cld10	; jsr $ffe1 ;check run/stop
 ; cmp #$ff ;done yet?
 ; bne cld10 ;still bouncing
-	sta verck
 	ldx poker       ;.x and .y have alt...
 	ldy poker+1     ;...load address
 	jsr $ffd5       ;load it
 	bcs jerxit      ;problems
 ;
-	lda verck
-	cmp #1
-	bne cld50       ;was load
-;
-;finish verify
-;
-	ldx #ervfy      ;assume error
-	jsr $ffb7       ;read status
-	and #$10        ;check error
-	bne cld55       ;replaces beq *+5/jmp error
-;
-;print verify 'ok' if direct
-;
-	lda txtptr
-	cmp #bufpag
-	beq cld20
-	lda #<okmsg
-	ldy #>okmsg
-	jmp strout
-;
-cld20	rts
-
-;
 ;finish load
 ;
 cld50	jsr $ffb7       ;read status
 	and #$ff-$40    ;clear e.o.i.
-	beq cld60       ;was o.k.
-	ldx #erload
-cld55	jmp error
+	bne lderr       ;load error
 ;
-cld60	lda eormsk
-	bne cld20
+	lda eormsk
+	bne cop10
 	lda txtptr+1
 	cmp #bufpag     ;direct?
 	bne cld70       ;no...
@@ -151,12 +123,12 @@ cld70	jsr stxtpt
 copen	jsr paoc        ;parse statement
 	jsr $ffc0       ;open it
 	bcs jerxit      ;bad stuff or memsiz change
-	rts             ;a.o.k.
+cop10	rts             ;a.o.k.
 
 cclos	jsr paoc        ;parse statement
 	lda andmsk      ;get la
 	jsr $ffc3       ;close it
-	bcc cld20       ;it's okay...no memsize change
+	bcc cop10       ;it's okay...no memsize change
 ;
 jerxit	jmp erexit
 

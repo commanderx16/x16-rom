@@ -21,7 +21,7 @@ integr
 charac	.res 1
 endchr	.res 1
 trmpos	.res 1
-verck	.res 1
+	.res 1           ;unused (was verck)
 count	.res 1
 dimflg	.res 1
 valtyp	.res 1

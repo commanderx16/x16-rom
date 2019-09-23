@@ -1,7 +1,7 @@
 ;**********************************
 ;* load ram function              *
 ;*                                *
-;* loads or verifies from serial  *
+;* loads from serial              *
 ;* bus devices >=4 to 31 as       *
 ;* determined by contents of      *
 ;* variable fa.                   *
@@ -9,9 +9,8 @@
 ;* alt load if sa=0, normal sa=1  *
 ;* .x , .y load address if sa=0   *
 ;* .a=0 performs load to ram      *
-;* .a=1 performs verify           *
-;* .a>1 performs load to vram;    *
-;*      (.a-2)&0x0f is the bank   *
+;* .a>0 performs load to vram;    *
+;*      (.a-1)&0x0f is the bank   *
 ;*      number.                   *
 ;*                                *
 ;* high load return in x,y,a      *
@@ -23,8 +22,7 @@ loadsp	stx memuss      ;.x has low alt start
 load	jmp (iload)     ;monitor load entry
 ;
 nload	and #$1f
-	sta verck       ;store verify flag
-	dec verck
+	sta verck       ;store vram flag/bank
 	lda #0
 	sta status
 ;
@@ -76,7 +74,6 @@ ld30	jsr loding      ;tell user loading
 ;
 	ldy verck       ;are we loading into vram?
 	beq ld40        ;no
-	bmi ld40        ;no
 ;
 ;initialize vera registers
 ;
@@ -107,17 +104,10 @@ ld45	jsr acptr       ;get byte off ieee
 	bcs ld40        ;yes...try again
 	txa
 	ldy verck       ;what operation are we doing?
-	bmi ld50        ;load into ram
-	beq ld47        ;verify
+	beq ld50        ;load into ram
 ;
 	sta veradat     ;write into vram
 	bne ld60        ;branch always
-;
-ld47	cmp (eal),y     ;verify it
-	beq ld60        ;o.k....
-	lda #16         ;no good...verify error (sperr)
-	jsr udst        ;update status
-	.byt $2c        ;skip next store
 ;
 ld50	sta (eal),y
 ld60	inc eal         ;increment store addr
@@ -134,7 +124,6 @@ ld64	bit status      ;eoi?
 ;
 	lda verck
 	clc
-	bmi ld80
 	beq ld80
 	ldx veralo
 	ldy veramid
@@ -174,17 +163,12 @@ ld115	rts
 
 ;subroutine to print:
 ;
-;loading/verifing
+;loading
 ;
-loding	ldy #ms10-ms1   ;assume 'loading'
-	lda verck       ;check flag
-	bne ld410       ;are doing load
-	ldy #ms21-ms1   ;are 'verifying'
-ld410	jsr spmsg
+loding	ldy #ms10-ms1   ;'loading'
+	jsr spmsg
 	bit msgflg      ;printing messages?
 	bpl frmto1      ;no...
-	lda verck       ;check flag
-	beq frmto1      ;skip if verify
 	ldy #ms7-ms1    ;"from $"
 msghex	jsr msg
 	lda eah
@@ -206,7 +190,5 @@ hex010	adc #$30
 frmto1	rts
 prnto	bit msgflg      ;printing messages?
 	bpl frmto1      ;no...
-	lda verck       ;check flag
-	beq frmto1      ;skip if verify
 	ldy #ms8-ms1    ;"to $"
 	bne msghex      ;branch always
