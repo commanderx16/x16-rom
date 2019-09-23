@@ -62,12 +62,11 @@ vpeek	jsr chrget
 	jsr getbyt ; byte: bank
 	stx verahi
 	jsr chkcom
-	jsr frmnum
 	lda poker
 	pha
 	lda poker + 1
 	pha
-	jsr getadr ; word: offset
+	jsr frmadr ; word: offset
 	sty veralo
 	sta veramid
 	pla

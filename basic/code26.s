@@ -46,8 +46,7 @@ setmsg	=$ff90
 
 plot	=$fff0
 
-csys	jsr frmnum      ;eval formula
-	jsr getadr      ;convert to int. addr
+csys	jsr frmadr      ;get int. addr
 	lda #>csysrz    ;push return address
 	pha
 	lda #<csysrz
@@ -69,9 +68,8 @@ csysrz	=*-1            ;return to here
 	rts             ;return to system
 
 csave	jsr plsv        ;parse parms
-	bcs csv10       ;disallow bank/address parms
-	jmp snerr
-csv10	ldx vartab      ;end save addr
+	bcc snerr6      ;disallow bank/address parms
+	ldx vartab      ;end save addr
 	ldy vartab+1
 	lda #<txttab    ;indirect with start address
 	jsr $ffd8       ;save it
@@ -153,6 +151,8 @@ copen	jsr paoc        ;parse statement
 	bcs jerxit      ;bad stuff or memsiz change
 	rts             ;a.o.k.
 
+snerr6	jmp snerr
+
 cclos	jsr paoc        ;parse statement
 	lda andmsk      ;get la
 	jsr $ffc3       ;close it
@@ -198,76 +198,75 @@ plsv
 	lda txttab+1
 	sta poker+1
 ;
-	jsr paoc20      ;by-pass junk
+	jsr chrgot      ;end of statement?
+	beq plsv30      ;yes
 	jsr paoc15      ;get/set file name
-	jsr paoc20      ;by-pass junk
-	jsr plsv7       ;get ',fa'
+	jsr paoc20      ;quit if no comma
+	jsr getbyt      ;get 'fa'
 	ldy #0          ;command 0
 	stx andmsk
-	jsr paoc19      ;store then by-pass junk
-	jsr plsv7       ;get ',sa'
+	jsr paoc19      ;store x,y then maybe quit
+	jsr getbyt      ;get 'sa'
 	txa             ;new command
 	tay
 	ldx andmsk      ;device #
-	jsr paoc19      ;store then by-pass junk
+	jsr paoc19      ;store x,y then maybe quit
 	sty andmsk      ;bank number
-	jsr chkcom
 	ldy #0
 	jsr $ffba
-	jsr frmevl
-	jsr getadr
-	inc eormsk
-	rts
-
-;look for comma followed by byte
-plsv7	jsr paoc30
-	jmp getbyt
+	jsr frmadr      ;put address in poker
+;
+;eat trailing garbage after address parm
+;
+;	jsr chrgot
+;	beq plsv20
+;plsv10	jsr chrget
+;	bne plsv10
+;
+plsv20	inc eormsk
+plsv30	rts
 
 ;store file parms then maybe end
 paoc19	jsr $ffba
 
-;skip return if next char is end
+;quit if there's no comma
 ;
 paoc20	jsr chrgot
-	bne paocx
+	cmp #','
+	beq paoc30
 	pla
 	pla
-paocx	rts
-
-;check for comma and good stuff
-;
-paoc30	jsr chkcom      ;check comma
-paoc32	jsr chrgot      ;get current
-	bne paocx       ;is o.k.
-paoc40	jmp snerr       ;bad...end of line
+	sec
+	rts
+paoc30	jmp chrget
 
 ;parse open/close
 ;
 paoc	lda #0
 	jsr $ffbd       ;default file name
 ;
-	jsr paoc32      ;must got something
+	jsr chrgot
+	beq snerr6      ;must got something
 	jsr getbyt      ;get la
 	stx andmsk
 	txa
 	ldx #1          ;default device
 	ldy #0          ;default command
-	jsr paoc19      ;store then by-pass junk
-	jsr plsv7
+	jsr paoc19      ;store x,y then maybe quit
+	jsr getbyt
 	stx eormsk
 	ldy #0          ;default command
 	lda andmsk      ;get la
 	cpx #3
 	bcc paoc5
 	dey             ;default ieee to $ff
-paoc5	jsr paoc19      ;store then by-pass junk
-	jsr plsv7       ;get sa
+paoc5	jsr paoc19      ;store x,y then maybe quit
+	jsr getbyt      ;get sa
 	txa
 	tay
 	ldx eormsk
 	lda andmsk
-	jsr paoc19      ;store then by-pass junk
-	jsr paoc30
+	jsr paoc19      ;store x,y then maybe quit
 paoc15	jsr frmevl
 	jsr frestr      ;length in .a
 	ldx index1
