@@ -69,7 +69,9 @@ csysrz	=*-1            ;return to here
 	rts             ;return to system
 
 csave	jsr plsv        ;parse parms
-	ldx vartab      ;end save addr
+	bcs csv10       ;disallow bank/address parms
+	jmp snerr
+csv10	ldx vartab      ;end save addr
 	ldy vartab+1
 	lda #<txttab    ;indirect with start address
 	jsr $ffd8       ;save it
@@ -82,13 +84,16 @@ cverf	lda #1          ;verify flag
 cload	lda #0          ;load flag
 	sta verck
 	jsr plsv        ;parse parameters
+	bcs cld10
+	ldx andmsk
+	stx $9f61
 ;
 cld10	; jsr $ffe1 ;check run/stop
 ; cmp #$ff ;done yet?
 ; bne cld10 ;still bouncing
 	lda verck
-	ldx txttab      ;.x and .y have alt...
-	ldy txttab+1    ;...load address
+	ldx poker       ;.x and .y have alt...
+	ldy poker+1     ;...load address
 	jsr $ffd5       ;load it
 	bcs jerxit      ;problems
 ;
@@ -122,7 +127,9 @@ cld50	jsr $ffb7       ;read status
 	ldx #erload
 cld55	jmp error
 ;
-cld60	lda txtptr+1
+cld60	lda eormsk
+	bne cld20
+	lda txtptr+1
 	cmp #bufpag     ;direct?
 	bne cld70       ;no...
 ;
@@ -154,10 +161,26 @@ jerxit	jmp erexit
 ;
 ;parse load and save commands
 ;
+;[filename[,dev[,relocate]]]
+; or:
+;[filename[,dev[,bank,address]]]
+;
+;if the first form is used:
+;- poker points to the start of basic
+;- the carry flag is set
+;- eormsk contains 0
+;otherwise:
+;- relocate is taken as 0
+;- the bank number is in andmsk
+;- poker contains the specified address
+;- the carry flag is clear
+;- eormsk contains 1
+;
 plsv
 ;default file name
 ;
 	lda #0          ;length=0
+	sta eormsk
 	jsr $ffbd
 ;
 ;default device #
@@ -165,6 +188,13 @@ plsv
 	ldx #1          ;device #1
 	ldy #0          ;command 0
 	jsr $ffba
+;
+;default address
+;
+	lda txttab
+	sta poker
+	lda txttab+1
+	sta poker+1
 ;
 	jsr paoc20      ;by-pass junk
 	jsr paoc15      ;get/set file name
@@ -177,7 +207,15 @@ plsv
 	txa             ;new command
 	tay
 	ldx andmsk      ;device #
-	jmp $ffba
+	jsr paoc19      ;store then by-pass junk
+	sty andmsk      ;bank number
+	jsr chkcom
+	ldy #0
+	jsr $ffba
+	jsr frmevl
+	jsr getadr
+	inc eormsk
+	rts
 
 ;look for comma followed by byte
 plsv7	jsr paoc30
