@@ -89,6 +89,7 @@ stmdsp2	; statements
 	.word old-1
 	.word geos-1
 	.word vpoke-1
+	.word vload-1
 	; functions
 	.word vpeek
 ;**************************************

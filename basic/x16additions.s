@@ -91,6 +91,14 @@ vpoke	jsr getbyt ; bank
 	rts
 
 ;***************
+vload	jsr plsv   ;parse the parameters
+	bcc vld1   ;require bank/addr
+	jmp snerr
+vld1	lda andmsk ;bank number
+	adc #2
+	jmp cld10  ;jump to load command
+
+;***************
 old	beq old1
 	jmp snerr
 old1	lda txttab+1
