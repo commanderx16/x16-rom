@@ -87,6 +87,7 @@ stmdsp2	; statements
 	.word monitor-1
 	.word dos-1
 	.word vpoke-1
+	.word vload-1
 	; functions
 	.word vpeek
 .endif

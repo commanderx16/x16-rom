@@ -82,23 +82,25 @@ cverf	lda #1          ;verify flag
 	.byt $2c        ;skip two bytes
 
 cload	lda #0          ;load flag
-	sta verck
+	pha
 	jsr plsv        ;parse parameters
 	bcs cld10
 	ldx andmsk
 	stx $9f61
+	pla
 ;
 cld10	; jsr $ffe1 ;check run/stop
 ; cmp #$ff ;done yet?
 ; bne cld10 ;still bouncing
-	lda verck
+	sta verck
 	ldx poker       ;.x and .y have alt...
 	ldy poker+1     ;...load address
 	jsr $ffd5       ;load it
 	bcs jerxit      ;problems
 ;
 	lda verck
-	beq cld50       ;was load
+	cmp #1
+	bne cld50       ;was load
 ;
 ;finish verify
 ;
