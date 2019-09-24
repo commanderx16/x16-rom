@@ -14,7 +14,7 @@ nready	jmp readyx
 init	jsr initv       ;go init vectors
 	jsr initcz      ;go init charget & z-page
 	jsr initms      ;go print initilization messages
-	ldx #stkend-256 ;set up end of stack
+init2	ldx #stkend-256 ;set up end of stack
 	txs
 	bne ready       ;jmp...ready
 

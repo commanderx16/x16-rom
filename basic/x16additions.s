@@ -95,6 +95,22 @@ vpoke	jsr getbyt ; bank
 	rts
 
 ;***************
+old	beq old1
+	jmp snerr
+old1	lda txttab+1
+	ldy #1
+	sta (txttab),y
+	jsr lnkprg
+	clc
+	lda index
+	adc #2
+	sta vartab
+	lda index+1
+	adc #0
+	sta vartab+1
+	jmp init2
+
+;***************
 dos	beq ptstat      ;no argument: print status
 	jsr frmevl
 	jsr frestr      ;length in .a

@@ -86,6 +86,7 @@ q=128-1
 stmdsp2	; statements
 	.word monitor-1
 	.word dos-1
+	.word old-1
 	.word vpoke-1
 	; functions
 	.word vpeek
