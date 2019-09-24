@@ -172,8 +172,7 @@ plsv
 	jsr plsv7       ;get ',fa'
 	ldy #0          ;command 0
 	stx andmsk
-	jsr $ffba
-	jsr paoc20      ;by-pass junk
+	jsr paoc19      ;store then by-pass junk
 	jsr plsv7       ;get ',sa'
 	txa             ;new command
 	tay
@@ -183,6 +182,9 @@ plsv
 ;look for comma followed by byte
 plsv7	jsr paoc30
 	jmp getbyt
+
+;store file parms then maybe end
+paoc19	jsr $ffba
 
 ;skip return if next char is end
 ;
@@ -210,8 +212,7 @@ paoc	lda #0
 	txa
 	ldx #1          ;default device
 	ldy #0          ;default command
-	jsr $ffba       ;store it
-	jsr paoc20      ;skip junk
+	jsr paoc19      ;store then by-pass junk
 	jsr plsv7
 	stx eormsk
 	ldy #0          ;default command
@@ -219,15 +220,13 @@ paoc	lda #0
 	cpx #3
 	bcc paoc5
 	dey             ;default ieee to $ff
-paoc5	jsr $ffba       ;store them
-	jsr paoc20      ;skip junk
+paoc5	jsr paoc19      ;store then by-pass junk
 	jsr plsv7       ;get sa
 	txa
 	tay
 	ldx eormsk
 	lda andmsk
-	jsr $ffba       ;set up real eveything
-paoc7	jsr paoc20
+	jsr paoc19      ;store then by-pass junk
 	jsr paoc30
 paoc15	jsr frmevl
 	jsr frestr      ;length in .a
