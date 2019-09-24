@@ -1,8 +1,4 @@
-.ifdef C64
-verareg =$df00
-.else
 verareg =$9f20
-.endif
 veralo  =verareg+0
 veramid =verareg+1
 verahi  =verareg+2

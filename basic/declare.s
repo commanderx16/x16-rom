@@ -1,9 +1,5 @@
 addprc	=1
-.ifdef C64
-romloc	=$a000          ;vic-40 basic rom
-.else
 romloc	=$c000          ;x16 basic rom
-.endif
 linlen	=40             ;vic screen size ?why?
 buflen	=89             ;vic buffer
 bufpag	=2

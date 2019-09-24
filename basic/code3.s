@@ -65,7 +65,6 @@ nqplop	bpl ploop
 	beq ploop
 	bit dores
 	bmi ploop
-.ifndef C64
 ;**************************************
 ; new de-tokenization
 ;**************************************
@@ -91,7 +90,6 @@ prit32	iny
 	bne prit32
 nesctk:
 ;**************************************
-.endif
 	sec
 	sbc #127
 	tax

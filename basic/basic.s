@@ -31,7 +31,5 @@
 .include "code26.s"
 .include "trig.s"
 .include "init.s"
-.ifndef C64
 .include "x16additions.s"
-.endif
 

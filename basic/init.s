@@ -117,11 +117,7 @@ fremes
 	.byt 5, "  **** COMMANDER X16 BASIC V2 ****", 13
 	.byt $9f, $20, $20, $df, $12, $20, $20, $92, $20, $12, $20, $20, $92, $a9, 13
 	.byt $1e, $20, $20, $20, $20, $12, $20, $92, $20, $12, $20, $92
-.ifdef C64
-	.byt 5, "     DEVELOPMENT SYSTEM"
-.else
 	.byt 5, "     2048K RAM SYSTEM"
-.endif
 .ifdef PRERELEASE_VERSION
 	.byte " - ROM VERSION R"
 .if PRERELEASE_VERSION >= 100
