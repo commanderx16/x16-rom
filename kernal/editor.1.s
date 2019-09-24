@@ -19,13 +19,8 @@ nwrap=2 ;max number of physical lines per logical line
 ;return address of first 6522
 ;
 iobase
-.ifdef C64
-	ldx #<d1pra
-	ldy #>d1pra
-.else
 	ldx #<via1
 	ldy #>via1
-.endif
 	rts
 ;
 ;return max rows,cols of screen

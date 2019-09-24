@@ -2,14 +2,8 @@
 ; NES & SNES Controller Driver for 6502
 ;----------------------------------------------------------------------
 
-.ifdef C64
-; C64 CIA#2 PB (user port)
-nes_data = $dd01
-nes_ddr  = $dd03
-.else
 nes_data = d2pra
 nes_ddr  = d2ddra
-.endif
 
 bit_latch = $08 ; PB3 (user port pin F): LATCH (both controllers)
 bit_data1 = $10 ; PB4 (user port pin H): DATA  (controller #1)
