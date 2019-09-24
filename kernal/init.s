@@ -191,15 +191,6 @@ setlfs	sta la
 	sty sa
 	rts
 
-readss	lda fa          ;see which devices' to read
-	cmp #2          ;is it rs-232?
-	bne readst      ;no...read serial/cass
-	lda rsstat      ;yes...get rs-232 up
-	pha
-	lda #00         ;clear rs232 status when read
-	sta rsstat
-	pla
-	rts
 setmsg	sta msgflg
 readst	lda status
 udst	ora status

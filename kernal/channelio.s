@@ -83,6 +83,8 @@ bn35	jmp acptr       ;good...handshake
 ;input from rs232
 ;
 bn50	jsr gn232       ;get info
+	brk
+.if 0 ; original RS232 code; needs to be adapted
 	bcs bn33        ;error return
 	cmp #00
 	bne bn32        ;good data...exit
@@ -90,6 +92,7 @@ bn50	jsr gn232       ;get info
 	and #$60
 	bne bn31        ;an error...exit with c/r
 	beq bn50        ;no error...stay in loop
+.endif
 
 ;***************************************
 ;* bsout -- out character to channel   *

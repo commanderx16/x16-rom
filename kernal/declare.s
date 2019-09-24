@@ -27,11 +27,7 @@ bsour1	;temp used by serial routine
 	.res 1           ;also used by CBDOS
 count	.res 1           ;temp used by serial routine
 	.res 1           ;unused (tape)
-inbit	.res 1           ;rs-232 rcvr input bit storage
-bitci	.res 1           ;rs-232 rcvr bit count in
-rinone	.res 1           ;rs-232 rcvr flag for start bit check
-ridata	.res 1           ;rs-232 rcvr byte buffer
-riprty	.res 1           ;rs-232 rcvr parity storage
+	.res 5           ;unused (rs-232)
 sal	.res 1
 sah	.res 1
 eal	.res 1
@@ -40,15 +36,13 @@ kbdbyte	.res 1           ;PS/2: bit input (was: tape)
 prefix	.res 1           ;PS/2: prefix code (e0/e1) (was: tape)
 brkflg	.res 1           ;PS/2: was key-up event (was: tape)
 shflag2	.res 1           ;PS/2: modifier state (was: tape)
-bitts	.res 1           ;rs-232 trns bit count
-nxtbit	.res 1           ;rs-232 trns next bit to be sent
-rodata	.res 1           ;rs-232 trns byte buffer
+	.res 3           ;unused (rs-232)
 fnlen	.res 1           ;length current file n str
 la	.res 1           ;current file logical addr
 sa	.res 1           ;current file 2nd addr
 fa	.res 1           ;current file primary addr
 fnadr	.res 2           ;addr current file name str
-roprty	.res 1           ;rs-232 trns parity buffer
+	.res 1           ;unused (rs-232)
 ckbtab	.res 2           ;used for keyboard lookup
 	.res 1           ;unused (tape)
 tmp0
@@ -93,9 +87,7 @@ nlinesm2 .res 1          ;y resolution - 2
 joy1	.res 3           ;joystick 1 status
 joy2	.res 3           ;joystick 2 status
 keytab	.res 2           ;keyscan table indirect
-;rs-232 z-page
-ribuf	.res 2           ;rs-232 input buffer pointer
-robuf	.res 2           ;rs-232 output buffer pointer
+	.res 4           ;unused (rs-232)
 frekzp	.res 4           ;free kernal zero page 9/24/80
 baszpt	.res 1           ;location ($00ff) used by basic
 
@@ -137,40 +129,13 @@ keylog	.res 2           ;indirect for keyboard table setup
 mode	.res 1           ;0-pet mode, 1-cattacanna
 autodn	.res 1           ;auto scroll down flag(=0 on,<>0 off)
 
-; rs-232 storage
-;
-m51ctr	.res 1           ;6551 control register
-m51cdr	.res 1           ;6551 command register
-m51ajb	.res 2           ;non standard (bittime/2-100)
-rsstat	.res 1           ; rs-232 status register
-bitnum	.res 1           ;number of bits to send (fast response)
-baudof	.res 2           ;baud rate full bit time (created by open)
-;
-; reciever storage
-;
-; inbit .res 1 ;input bit storage
-; bitci .res 1 ;bit count in
-; rinone .res 1 ;flag for start bit check
-; ridata .res 1 ;byte in buffer
-; riprty .res 1 ;byte in parity storage
-ridbe	.res 1           ;input buffer index to end
-ridbs	.res 1           ;input buffer pointer to start
-;
-; transmitter storage
-;
-; bitts .res 1 ;# of bits to be sent
-; nxtbit .res 1 ;next bit to be sent
-; roprty .res 1 ;parity of byte sent
-; rodata .res 1 ;byte buffer out
-rodbs	.res 1           ;output buffer index to start
-rodbe	.res 1           ;output buffer index to end
-;
-joy0	.res 1           ;keyboard joystick temp
+	.res 12          ;unused (rs-232)
 	.res 1           ;unused (tape)
+joy0	.res 1           ;keyboard joystick temp
 ;
 ; temp space for vic-40 variables ****
 ;
-enabl	.res 1           ;rs-232 enables (replaces ier)
+	.res 1           ;rs-232 enables (replaces ier)
 curkbd	.res 1           ;current keyboard layout index
 	.res 2           ;unused (tape)
 lintmp	.res 1           ;temporary for line index

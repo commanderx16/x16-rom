@@ -21,7 +21,6 @@ listn
 	rts
 .endif
 	ora #$20        ;make a listen adr
-	jsr rsp232      ;protect self from rs232 nmi's
 list1	pha
 ;
 ;
