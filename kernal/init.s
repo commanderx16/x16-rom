@@ -67,9 +67,7 @@ ramtz0	sta $0000,y     ;zero page
 ;
 ioinit
 	; XXX TODO: VIC-20: $FDF9
-.ifdef PS2
 	jsr kbdis       ;inhibit ps/2 communcation
-.endif
 ;
 ; set up banking
 ;

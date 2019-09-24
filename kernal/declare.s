@@ -48,11 +48,7 @@ tmp2	.res 2
 ;
 ;variables for screen editor
 ;
-.ifdef PS2
 isomod	.res 1           ;ISO mode
-.else
-lstx	.res 1           ;key scan index
-.endif
 ndx	.res 1           ;index to keyboard q
 rvs	.res 1           ;rvs field on flag
 indx	.res 1
@@ -110,17 +106,12 @@ color	.res 1           ;activ color nybble
 gdcol	.res 1           ;original color before cursor
 hibase	.res 1           ;base location of screen (top)
 xmax	.res 1
-.ifdef PS2
 ps2byte	.res 1           ;byte storage for ps/2 communication
 ps2par	.res 1           ;parity for ps/2 communication
-.else
-rptflg	.res 1           ;key repeat flag
-kount	.res 1
-.endif
 delay	.res 1
 shflag	.res 1           ;shift flag byte
 lstshf	.res 1           ;last shift pattern
-keylog	.res 2           ;indirect for keyboard table setup
+	.res 2           ;unused (keyboard)
 mode	.res 1           ;0-pet mode, 1-cattacanna
 autodn	.res 1           ;auto scroll down flag(=0 on,<>0 off)
 

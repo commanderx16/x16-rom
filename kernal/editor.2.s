@@ -48,21 +48,9 @@ scrl3	sta ldtb1,x
 ;
 	inc tblx
 	inc lintmp
-.ifdef PS2
 	lda shflag
 	and #4
 	beq mlp42
-.else
-	lda #$7f        ;check for control key
-	sta colm        ;drop line 2 on port b
-	lda rows
-	cmp #$fb        ;slow scroll key?(control)
-	php             ;save status. restore port b
-	lda #$7f        ;for stop key check
-	sta colm
-	plp
-	bne mlp42
-.endif
 ;
 	lda #mhz
 	ldy #0
@@ -233,7 +221,6 @@ repdo	sta blnct
 	lda gdbln       ;with original character
 ;
 key5
-.ifdef PS2
 	bit isomod
 	bpl key3
 	cmp #$9f
@@ -242,7 +229,6 @@ key5
 	.byte $2c
 key2	lda #$9f
 	.byte $2c
-.endif
 key3	eor #$80        ;blink it
 	jsr dspp2       ;display it
 ;
@@ -265,7 +251,6 @@ kprend
 
 ; ****** general keyboard scan ******
 ;
-.ifdef PS2
 port_ddr  =d2ddra
 port_data   =d2pra
 bit_data=1              ; 6522 IO port data bit mask  (PA0)
@@ -345,14 +330,10 @@ bit_found:
 	lda kbdtab + 1,x
 	sta ckbtab + 1
 	ldx d1prb
-.ifdef PS2
 	lda isomod
 	lsr
-.endif
 	lda #BANK_KEY1
-.ifdef PS2
 	adc #0
-.endif
 	sta d1prb
 	lda (ckbtab),y
 	stx d1prb
@@ -600,137 +581,6 @@ tab_extended:
 	.byte $94,$14,$11,$00,$1d,$91,$00,$00 ; @$70
 	;             pgd         pgu brk
 	.byte $00,$00,$00,$00,$00,$00,$03,$00 ; @$78
-
-.else
-scnkey	lda #$00
-	sta shflag
-	ldy #64         ;last key index
-	sty sfdx        ;null key found
-	sta colm        ;raise all lines
-	ldx rows        ;check for a key down
-	cpx #$ff        ;no keys down?
-	beq scnout      ;branch if none
-	tay             ;.a=0 ldy #0
-	lda #<mode1
-	sta keytab
-	lda #>mode1
-	sta keytab+1
-	lda #$fe        ;start with 1st column
-	sta colm
-scn20	ldx #8          ;8 row keyboard
-	pha             ;save column output info
-scn22	lda rows
-	cmp rows        ;debounce keyboard
-	bne scn22
-scn30	lsr a           ;look for key down
-	bcs ckit        ;none
-	pha
-	lda (keytab),y  ;get char code
-	cmp #$05
-	bcs spck2       ;if not special key go on
-	cmp #$03        ;could it be a stop key?
-	beq spck2       ;branch if so
-	ora shflag
-	sta shflag      ;put shift bit in flag byte
-	bpl ckut
-spck2
-	sty sfdx        ;save key number
-ckut	pla
-ckit	iny
-	cpy #65
-	bcs ckit1       ;branch if finished
-	dex
-	bne scn30
-	sec
-	pla             ;reload column info
-	rol a
-	sta colm        ;next column on keyboard
-	bne scn20       ;always branch
-ckit1	pla             ;dump column output...all done
-	jmp (keylog)    ;evaluate shift functions
-rekey	ldy sfdx        ;get key index
-	lda (keytab),y   ;get char code
-	tax             ;save the char
-	cpy lstx        ;same as prev char index?
-	beq rpt10       ;yes
-	ldy #$10        ;no - reset delay before repeat
-	sty delay
-	bne ckit2       ;always
-rpt10	and #$7f        ;unshift it
-	bit rptflg      ;check for repeat disable
-	bmi rpt20       ;yes
-	bvs scnrts
-	cmp #$7f        ;no keys ?
-scnout	beq ckit2       ;yes - get out
-	cmp #$14        ;an inst/del key ?
-	beq rpt20       ;yes - repeat it
-	cmp #$20        ;a space key ?
-	beq rpt20       ;yes
-	cmp #$1d        ;a crsr left/right ?
-	beq rpt20       ;yes
-	cmp #$11        ;a crsr up/dwn ?
-	bne scnrts      ;no - exit
-rpt20	ldy delay       ;time to repeat ?
-	beq rpt40       ;yes
-	dec delay
-	bne scnrts
-rpt40	dec kount       ;time for next repeat ?
-	bne scnrts      ;no
-	ldy #4          ;yes - reset ctr
-	sty kount
-	ldy ndx         ;no repeat if queue full
-	dey
-	bpl scnrts
-ckit2
-	ldy sfdx        ;get index of key
-	sty lstx        ;save this index to key found
-	ldy shflag      ;update shift status
-	sty lstshf
-ckit3	cpx #$ff        ;a null key or no key ?
-	beq scnrts      ;branch if so
-	txa             ;need x as index so...
-	ldx ndx         ;get # of chars in key queue
-	cpx xmax        ;irq buffer full ?
-	bcs scnrts      ;yes - no more insert
-	sta keyd,x      ;put raw data here
-	inx
-	stx ndx         ;update key queue count
-scnrts	lda #$7f        ;setup pb7 for stop key sense
-	sta colm
-	rts
-;
-; shift logic
-;
-shflog
-	lda shflag
-	cmp #$03        ;commodore shift combination?
-	bne keylg2      ;branch if not
-	cmp lstshf      ;did i do this already
-	beq scnrts      ;branch if so
-	lda mode
-	bmi shfout      ;dont shift if its minus
-
-switch
-	; XXX TODO: switch upper/lower case character set
-	jmp shfout
-
-;
-keylg2
-	asl a
-	cmp #$08        ;was it a control key
-	bcc nctrl       ;branch if not
-	lda #6          ;else use table #4
-;
-nctrl
-notkat
-	tax
-	lda keycod,x
-	sta keytab
-	lda keycod+1,x
-	sta keytab+1
-shfout
-	jmp rekey
-.endif
 
 ; rsr 12/08/81 modify for vic-40
 ; rsr  2/18/82 modify for 6526 input pad sense
