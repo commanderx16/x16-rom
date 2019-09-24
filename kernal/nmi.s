@@ -18,11 +18,10 @@ nnmi	pha
 timb	jsr restor      ;restore system indirects
 	jsr ioinit      ;restore i/o for basic
 	jsr cint        ;restore screen for basic
-.ifdef C64
-	jmp ($a002)     ;...no, so basic warm start
-.else
-	jmp ($c002)     ;...no, so basic warm start
-.endif
+	jsr jsrfar
+	.word $c000 + 3 ;basic warm start
+	.byte BANK_BASIC
+	;not reached
 
 prend	pla             ;because of missing screen editor
 	tay

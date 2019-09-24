@@ -1,11 +1,10 @@
 .feature labels_without_colons, pc_assignment
+.setcpu "65c02"
 
 ; for monitor
 ; XXX these should be removed or at least minimized
 .export xmon2, ms1, key, bmt2, loop4, xmon1, ldapnty, stapnty, ldtb1, nlines, nlinesm1
-.ifndef C64
 .export stavec
-.endif
 
 .include "../banks.inc"
 
@@ -31,8 +30,6 @@
 .include "nmi.s"
 .include "irqfile.s"
 .include "joystick.s"
-.ifndef C64
 .include "routines.s"
-.endif
 .include "vectors.s"
 

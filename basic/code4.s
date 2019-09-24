@@ -31,7 +31,6 @@ ngone1	jsr gone3
 	jmp newstt
 gone3	beq iscrts
 gone2
-.ifndef C64
 ;**************************************
 ; new statement execution
 ;**************************************
@@ -51,7 +50,6 @@ gone2
 nesct2:
 	sec
 ;**************************************
-.endif
 	sbc #endtk
 	bcc glet
 	cmp #scratk-endtk+1

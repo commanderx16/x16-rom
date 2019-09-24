@@ -1,8 +1,4 @@
-.ifdef C64
-verareg =$df00
-.else
 verareg =$9f20
-.endif
 veralo  =verareg+0
 veramid =verareg+1
 verahi  =verareg+2
@@ -58,7 +54,7 @@ sa = $b9
 fa = $ba
 
 ;***************
-monitor	jmp $ff00
+monitor	jmp $fff6
 
 ;***************
 vpeek	jsr chrget

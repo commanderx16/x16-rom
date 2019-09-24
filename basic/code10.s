@@ -80,7 +80,6 @@ gomovf	lda facmo
 	ldy facmo+1
 	jmp movfm
 isfun
-.ifndef C64
 ;**************************************
 ; new function execution
 ;**************************************
@@ -106,7 +105,6 @@ snerr9:	jmp snerr
 
 nesct3
 ;**************************************
-.endif
 	asl a
 	pha
 	tax

@@ -5,7 +5,7 @@ talk
 .ifdef CBDOS
 	jsr jsrfar
 	.word $c000 + 3 * 7
-	.byte 2
+	.byte BANK_CBDOS
 	rts
 .endif
 	ora #$40        ;make a talk adr
@@ -17,7 +17,7 @@ listn
 .ifdef CBDOS
 	jsr jsrfar
 	.word $c000 + 3 * 6
-	.byte 2
+	.byte BANK_CBDOS
 	rts
 .endif
 	ora #$20        ;make a listen adr
@@ -132,7 +132,7 @@ secnd
 .ifdef CBDOS
 	jsr jsrfar
 	.word $c000 + 3 * 0
-	.byte 2
+	.byte BANK_CBDOS
 	rts
 .endif
 	sta bsour       ;buffer character
@@ -151,7 +151,7 @@ tksa
 .ifdef CBDOS
 	jsr jsrfar
 	.word $c000 + 3 * 1
-	.byte 2
+	.byte BANK_CBDOS
 	rts
 .endif
 	sta bsour       ;buffer character
@@ -173,7 +173,7 @@ ciout
 .ifdef CBDOS
 	jsr jsrfar
 	.word $c000 + 3 * 3
-	.byte 2
+	.byte BANK_CBDOS
 	rts
 .endif
 	bit c3p0        ;buffered char?
@@ -196,7 +196,7 @@ untlk
 .ifdef CBDOS
 	jsr jsrfar
 	.word $c000 + 3 * 4
-	.byte 2
+	.byte BANK_CBDOS
 	rts
 .endif
 	sei
@@ -213,7 +213,7 @@ unlsn
 .ifdef CBDOS
 	jsr jsrfar
 	.word $c000 + 3 * 5
-	.byte 2
+	.byte BANK_CBDOS
 	rts
 .endif
 	lda #$3f        ;unlisten command
@@ -237,7 +237,7 @@ acptr
 .ifdef CBDOS
 	jsr jsrfar
 	.word $c000 + 3 * 2
-	.byte 2
+	.byte BANK_CBDOS
 	rts
 .endif
 	sei             ;no irq allowed

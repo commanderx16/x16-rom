@@ -1,3 +1,5 @@
+.import kbdmeta, ikbdmeta
+
 	.segment "EDITOR"
 maxchr=80
 nwrap=2 ;max number of physical lines per logical line
@@ -19,13 +21,8 @@ nwrap=2 ;max number of physical lines per logical line
 ;return address of first 6522
 ;
 iobase
-.ifdef C64
-	ldx #<d1pra
-	ldy #>d1pra
-.else
 	ldx #<via1
 	ldy #>via1
-.endif
 	rts
 ;
 ;return max rows,cols of screen
@@ -63,36 +60,38 @@ scnsiz	stx llen
 ;
 ; set keyboard layout .a
 ;
-setkbd	tax
-	lda d1prb       ;save ROM bank
-	pha
-.ifdef PS2
+setkbd	tay
 	lda isomod
-	lsr
-.endif
-	lda #BANK_KEY1
-.ifdef PS2
-	adc #0
-.endif
-	sta d1prb
-	txa
+	bne setkb0
+	lda #<kbdmeta
+	ldx #>kbdmeta
+	bne setkb3
+setkb0	lda #<ikbdmeta
+	ldx #>ikbdmeta
+setkb3	sta 2
+	stx 3
+	lda #2
+	sta fetvec
+	tya
 setkb2	sta curkbd
 	asl
 	asl
 	asl
 	asl             ;*16
-	tax
-	lda $c000,x
+	tay
+	ldx #BANK_KEYBD
+	jsr fetch
 	beq setkb2      ;end of list? set #0
-	ldy #0
-setkb1	lda $c000,x
-	sta kbdnam,y    ;8 bytes kbnam, 8  bytes kbtab
+	ldx #0
+setkb1	phx
+	ldx #BANK_KEYBD
+	jsr fetch
+	plx
+	sta kbdnam,x    ;8 bytes kbnam, 8  bytes kbtab
 	inx
 	iny
-	cpy #16
+	cpx #16
 	bne setkb1
-	pla
-	sta d1prb       ;restore ROM bank
 	rts
 
 ;initialize i/o
@@ -111,7 +110,6 @@ cint	jsr iokeys
 	sta mode
 	sta blnon       ;we dont have a good char from the screen yet
 
-.ifdef PS2
 	lda $9fbe       ;emulator detection
 	cmp #'1'
 	bne nemu
@@ -122,21 +120,11 @@ cint	jsr iokeys
 	.byte $2c
 nemu	lda #0          ;US layout
 	jsr setkbd
-.else
-	lda #<shflog    ;set shift logic indirects
-	sta keylog
-	lda #>shflog
-	sta keylog+1
-.endif
 	lda #10
 	sta xmax        ;maximum type ahead buffer size
 	sta delay
 	lda #blue << 4 | white
 	sta color       ;init text color
-.ifndef PS2
-	lda #4
-	sta kount       ;delay between key repeats
-.endif
 	lda #$c
 	sta blnct
 	sta blnsw
@@ -221,11 +209,6 @@ initv
 	lda #0
 	sta veractl     ;set ADDR1 active
 
-	lda d1prb       ;save ROM bank
-	pha
-	lda #BANK_CHAR
-	sta d1prb
-
 	; ISO character set
 	lda #<isobas        ;VRAM for ISO charset
 	sta veralo
@@ -239,7 +222,7 @@ initv
 	lda #0
 	sta pnt
 	lda #$c8
-	sta pnt+1       ;character data at ROM 4:0800
+	sta pnt+1       ;character data at ROM 0800
 	ldx #8
 	jsr copyv
 
@@ -256,12 +239,12 @@ initv
 	lda #0
 	sta pnt
 	lda #$c0
-	sta pnt+1       ;character data at ROM 4:0000
+	sta pnt+1       ;character data at ROM 0000
 	ldx #4
 	jsr copyv
 	dec pntr
 	lda #$c0
-	sta pnt+1       ;character data at ROM 4:0000
+	sta pnt+1       ;character data at ROM 0000
 	ldx #4
 	jsr copyv
 	inc pntr
@@ -269,11 +252,9 @@ initv
 	jsr copyv
 	dec pntr
 	lda #$c4
-	sta pnt+1       ;character data at ROM 4:0400
+	sta pnt+1       ;character data at ROM 0400
 	ldx #4
 	jsr copyv
-	pla
-	sta d1prb       ;restore ROM bank
 
 	lda #$00        ;$F2000: layer 1 registers
 	sta veralo
@@ -469,10 +450,8 @@ lop5	ldy pntr
 	jsr ldapnty
 notone
 	sta data
-.ifdef PS2
 	bit isomod
 	bmi lop53
-.endif
 lop51	and #$3f
 	asl data
 	bit data
@@ -504,10 +483,8 @@ clp1	sta data
 	pla
 	tay
 	lda data
-.ifdef PS2
 	bit isomod
 	bmi clp7
-.endif
 	cmp #$de        ;is it <pi> ?
 	bne clp7
 	lda #$ff
@@ -523,10 +500,8 @@ qtswc	cmp #$22
 qtswl	rts
 
 nxt33
-.ifdef PS2
 	bit isomod
 	bmi nc3
-.endif
 	ora #$40
 nxt3	ldx rvs
 	beq nvs
@@ -621,20 +596,16 @@ prt	pha
 	lda data
 	bpl *+5
 	jmp nxtx
-.ifdef PS2
 	ldx qtsw
 	cpx #2          ;"no exceptions" quote mode (used by monitor)
 	beq njt1
-.endif
 	cmp #$d
 	bne njt1
 	jmp nxt1
 njt1	cmp #' '
 	bcc ntcn
-.ifdef PS2
 	bit isomod
 	bmi njt9
-.endif
 	cmp #$60        ;lower case?
 	bcc njt8        ;no...
 	and #$df        ;yes...make screen lower
@@ -644,11 +615,9 @@ njt9	jsr qtswc
 	jmp nxt3
 ntcn	ldx insrt
 	beq cnc3x
-.ifdef PS2
 	bit isomod
 	bpl cnc3y
 	jmp nvs
-.endif
 cnc3y	jmp nc3
 cnc3x	cmp #$14
 	bne ntcn1
@@ -677,18 +646,14 @@ bk2	lda #' '
 	bpl jpl3
 ntcn1	ldx qtsw
 	beq nc3w
-.ifdef PS2
 	bit isomod
 	bpl cnc3
 	jmp nvs
-.endif
 cnc3	jmp nc3
 nc3w	cmp #$12
 	bne nc1
-.ifdef PS2
 	bit isomod
 	bmi nc1
-.endif
 	sta rvs
 nc1	cmp #$13
 	bne nc2
@@ -734,10 +699,8 @@ colr1	jsr chkcol      ;check for a color
 nxtx
 keepit
 	and #$7f
-.ifdef PS2
 	bit isomod
 	bmi nxtx1
-.endif
 	cmp #$7f
 	bne nxtx1
 	lda #$5e
@@ -747,11 +710,9 @@ nxtxa
 	bcc uhuh
 	jmp nxt33
 uhuh
-.ifdef PS2
 	ldx qtsw
 	cpx #2
 	beq up5
-.endif
 	cmp #$d
 	bne up5
 	jmp nxt1
@@ -789,10 +750,8 @@ insext	jmp loop2
 up9	ldx insrt
 	beq up2
 up6
-.ifdef PS2
 	bit isomod
 	bmi up1
-.endif
 	ora #$40
 up1	jmp nc3
 up2	cmp #$11

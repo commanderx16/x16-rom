@@ -1,4 +1,5 @@
-.ifndef C64
+.global monitor
+
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***
 ; for now, these are private API, they have not been
@@ -95,7 +96,6 @@
 ; $FF7D: PRIMM – print string following the caller’s code
 	; COMPATIBLE
 	jmp primm
-.endif
 
 
 	.segment "JMPTBL"

@@ -1,8 +1,3 @@
-.ifdef C64
-	;declare 6510 ports
-d6510	= 0              ;6510 data direction register
-r6510	= 1              ;6510 data register
-.endif
 	.segment "ZPKERNAL" : zeropage
 status	.res 1           ;i/o operation status byte
 ; crfac .res 2 ;correction factor (unused)
@@ -53,11 +48,7 @@ tmp2	.res 2
 ;
 ;variables for screen editor
 ;
-.ifdef PS2
 isomod	.res 1           ;ISO mode
-.else
-lstx	.res 1           ;key scan index
-.endif
 ndx	.res 1           ;index to keyboard q
 rvs	.res 1           ;rvs field on flag
 indx	.res 1
@@ -115,17 +106,12 @@ color	.res 1           ;activ color nybble
 gdcol	.res 1           ;original color before cursor
 hibase	.res 1           ;base location of screen (top)
 xmax	.res 1
-.ifdef PS2
 ps2byte	.res 1           ;byte storage for ps/2 communication
 ps2par	.res 1           ;parity for ps/2 communication
-.else
-rptflg	.res 1           ;key repeat flag
-kount	.res 1
-.endif
 delay	.res 1
 shflag	.res 1           ;shift flag byte
 lstshf	.res 1           ;last shift pattern
-keylog	.res 2           ;indirect for keyboard table setup
+	.res 2           ;unused (keyboard)
 mode	.res 1           ;0-pet mode, 1-cattacanna
 autodn	.res 1           ;auto scroll down flag(=0 on,<>0 off)
 
@@ -161,16 +147,12 @@ isave	.res 2           ;savesp
 
 ldtb1	.res 61          ;flags+endspace
 
-kbdnam  =$0400           ;6 character keyboard layout name
-kbdtab  =$0406           ;5 pointers to shift/alt/ctrl/altgr/unshifted tables
+kbdnam  =$0500           ;6 character keyboard layout name
+kbdtab  =$0506           ;5 pointers to shift/alt/ctrl/altgr/unshifted tables
 
 vicscn	=$0000
 
-.ifdef C64
-verareg =$df00
-.else
 verareg =$9f20
-.endif
 veralo  =verareg+0
 veramid =verareg+1
 verahi  =verareg+2
@@ -182,57 +164,8 @@ veraisr =verareg+7
 
 ; i/o devices
 ;
-.ifdef C64
-mmtop   =$a000
-.else
 mmtop   =$9f00
-.endif
 
-.ifdef C64
-sidreg	=$d400
-.endif
-
-.ifdef C64
-cia1	=$dc00                  ;device1 6526 (page1 irq)
-d1pra	=cia1+0
-colm	=d1pra                  ;keyboard matrix
-d1prb	=cia1+1
-rows	=d1prb                  ;keyboard matrix
-d1ddra	=cia1+2
-d1ddrb	=cia1+3
-d1t1l	=cia1+4
-d1t1h	=cia1+5
-d1t2l	=cia1+6
-d1t2h	=cia1+7
-d1tod1	=cia1+8
-d1tods	=cia1+9
-d1todm	=cia1+10
-d1todh	=cia1+11
-d1sdr	=cia1+12
-d1icr	=cia1+13
-d1cra	=cia1+14
-d1crb	=cia1+15
-
-cia2	=$dd00                  ;device2 6526 (page2 nmi)
-d2pra	=cia2+0
-d2prb	=cia2+1
-d2ddra	=cia2+2
-d2ddrb	=cia2+3
-d2t1l	=cia2+4
-d2t1h	=cia2+5
-d2t2l	=cia2+6
-d2t2h	=cia2+7
-d2tod1	=cia2+8
-d2tods	=cia2+9
-d2todm	=cia2+10
-d2todh	=cia2+11
-d2sdr	=cia2+12
-d2icr	=cia2+13
-d2cra	=cia2+14
-d2crb	=cia2+15
-
-timrb	=$19            ;6526 crb enable one-shot tb
-.else
 via1	=$9f60                  ;VIA 6522 #1
 d1prb	=via1+0
 d1pra	=via1+1
@@ -287,7 +220,6 @@ rows	=d1prb                  ;keyboard matrix
 
 ; XXX TODO
 timrb	=$19            ;6526 crb enable one-shot tb
-.endif
 
 ;screen editor constants
 ;
@@ -295,11 +227,7 @@ white	=$01            ;white char color
 blue	=$06            ;blue screen color
 cr	=$d             ;carriage return
 
-.ifdef C64
-mhz     =1              ;for the scroll delay loop
-.else
 mhz     =8              ;for the scroll delay loop
-.endif
 
 ;rsr 8/3/80 add & change z-page
 ;rsr 8/11/80 add memuss & plf type

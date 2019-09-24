@@ -12,17 +12,13 @@ ARGS_BASIC=-g
 
 
 all:
-	# C64
-	ca65 -g -DC64 -o basic/basic-c64.o basic/basic.s
-	ca65 -g -DC64 $(VERSION_DEFINE) -o kernal/kernal-c64.o kernal/kernal.s
-	ld65 -C rom-c64.cfg -o rom-c64.bin basic/basic-c64.o kernal/kernal-c64.o -Ln rom-c64.txt
-	dd if=rom-c64.bin of=basic-c64.bin bs=8k count=1
-	dd if=rom-c64.bin of=kernal-c64.bin bs=8k skip=1 count=1
-
 	#x16
-	ca65 $(ARGS_BASIC) -DPS2 $(VERSION_DEFINE) -o basic/basic.o basic/basic.s
+	ca65 -o kernsup/kernsup.o kernsup/kernsup.s
+	ca65 -o kernsup/irqsup.o kernsup/irqsup.s
 
-	ca65 $(ARGS_KERNAL) -g -DPS2 -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
+	ca65 $(ARGS_BASIC) $(VERSION_DEFINE) -o basic/basic.o basic/basic.s
+
+	ca65 $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
 
 	ca65 $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
 
@@ -37,14 +33,14 @@ all:
 
 	ca65 -o keymap/keymap.o keymap/keymap.s
 
-	ca65 -o charset/charset.o charset/charset.s
 	(cd charset; bash convert.sh)
+	ca65 -o charset/petscii.o charset/petscii.tmp.s
 	ca65 -o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
 
-	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/charset.o charset/iso-8859-15.o -Ln rom.txt
+	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/charset.o charset/iso-8859-15.o kernsup/kernsup.o kernsup/irqsup.o -Ln rom.txt
 
 clean:
-	rm -f basic/basic-c64.o kernal/kernal-c64.o rom-c64.bin basic-c64.bin kernal-c64.bin
+	rm -f kernsup/*.o
 	rm -f basic/basic.o kernal/kernal.o rom.bin
 	rm -f monitor/monitor.o monitor/monitor_support.o
 	rm -f cbdos/*.o
