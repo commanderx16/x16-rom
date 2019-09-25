@@ -18,47 +18,47 @@ symbol:
 
 	.byte $ff       ;
 
-	.byte 0, 0, 0   ;cint
-	.byte 0, 0, 0   ;ioinit
-	.byte 0, 0, 0   ;ramtas
+	bridge cint
+	bridge ioinit
+	bridge ramtas
 
-	.byte 0, 0, 0   ;restor
-	.byte 0, 0, 0   ;vector
+	bridge restor
+	bridge vector
 
 	bridge setmsg
-	.byte 0, 0, 0   ;secnd
-	.byte 0, 0, 0   ;tksa
+	bridge secnd
+	bridge tksa
 	bridge memtop
 	bridge membot
-	.byte 0, 0, 0   ;scnkey
-	.byte 0, 0, 0   ;settmo
-	.byte 0, 0, 0   ;acptr
-	.byte 0, 0, 0   ;ciout
-	.byte 0, 0, 0   ;untlk
-	.byte 0, 0, 0   ;unlsn
-	.byte 0, 0, 0   ;listn
-	.byte 0, 0, 0   ;talk
-	.byte 0, 0, 0   ;readst
-	.byte 0, 0, 0   ;setlfs
-	.byte 0, 0, 0   ;setnam
-	.byte 0, 0, 0   ;open
-	.byte 0, 0, 0   ;close
-	.byte 0, 0, 0   ;chkin
-	.byte 0, 0, 0   ;ckout
+	bridge scnkey
+	bridge settmo
+	bridge acptr
+	bridge ciout
+	bridge untlk
+	bridge unlsn
+	bridge listn
+	bridge talk
+	bridge readst
+	bridge setlfs
+	bridge setnam
+	bridge open
+	bridge close
+	bridge chkin
+	bridge ckout
 	bridge clrch
 	bridge basin
 	bridge bsout
-	.byte 0, 0, 0   ;loadsp
-	.byte 0, 0, 0   ;savesp
-	.byte 0, 0, 0   ;settim
-	.byte 0, 0, 0   ;rdtim
-	.byte 0, 0, 0   ;stop
-	.byte 0, 0, 0   ;getin
+	bridge loadsp
+	bridge savesp
+	bridge settim
+	bridge rdtim
+	bridge stop
+	bridge getin
 	bridge clall
-	.byte 0, 0, 0   ;udtim
-	.byte 0, 0, 0   ;scrorg
-	.byte 0, 0, 0   ;plot
-	.byte 0, 0, 0   ;iobase
+	bridge udtim
+	bridge scrorg
+	bridge plot
+	bridge iobase
 
 	;signature
 	.byte "MIST"

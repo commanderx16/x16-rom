@@ -1,3 +1,4 @@
+.setcpu "65c02"
 .export jsrfar, banked_irq
 
 	.segment "ROUTINES"
@@ -251,22 +252,21 @@ jmpfr	jmp $ffff
 ; .word address
 ; .byte bank
 
-jsrfar	pha             ;save registers
-	txa
+jsrfar	php             ;save registers & status
 	pha
-	tya
-	pha
+	phx
+	phy
 
         tsx
-	lda $104,x      ;return address lo
+	lda $105,x      ;return address lo
 	sta imparm
 	clc
 	adc #3
-	sta $104,x      ;and write back with 3 added
-	lda $105,x      ;return address hi
+	sta $105,x      ;and write back with 3 added
+	lda $106,x      ;return address hi
 	sta imparm+1
 	adc #0
-	sta $105,x
+	sta $106,x
 
 	ldy #1
 	lda (imparm),y  ;target address lo
@@ -282,16 +282,17 @@ jsrfar	pha             ;save registers
 	iny
 	lda (imparm),y  ;target address bank
 	sta d1pra       ;set RAM bank
-	pla             ;restore registers
-	tay
+	ply             ;restore registers
+	plx
 	pla
-	tax
-	pla
+	plp
 	jsr jmpfr
+	php
 	pha
 	lda savbank
 	sta d1pra
 	pla
+	plp
 	rts
 
 @1	lda d1prb
@@ -300,19 +301,20 @@ jsrfar	pha             ;save registers
 	lda (imparm),y  ;target address bank
 	and #$07
 	sta d1prb       ;set ROM bank
-	pla             ;restore registers
-	tay
+	ply             ;restore registers
+	plx
 	pla
-	tax
-	pla
+	plp
 	jsr jmpfr
+	php
 	pha
 	lda savbank
 	sta d1prb
 	pla
+	plp
 	rts
 
-.setcpu "65c02"
+
 banked_irq
 	pha
 	phx
