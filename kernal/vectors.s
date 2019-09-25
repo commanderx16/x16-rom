@@ -1,3 +1,5 @@
+.global monitor
+
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***
 ; for now, these are private API, they have not been

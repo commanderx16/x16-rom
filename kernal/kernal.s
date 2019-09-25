@@ -1,4 +1,5 @@
 .feature labels_without_colons, pc_assignment
+.setcpu "65c02"
 
 ; for monitor
 ; XXX these should be removed or at least minimized

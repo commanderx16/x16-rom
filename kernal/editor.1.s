@@ -58,32 +58,36 @@ scnsiz	stx llen
 ;
 ; set keyboard layout .a
 ;
-setkbd	tax
-	lda d1prb       ;save ROM bank
-	pha
-	lda isomod
-	lsr
-	lda #BANK_KEY1
-	adc #0
-	;sta d1prb
-	txa
+setkbd	tay
+;	lda isomod
+;	lsr
+;	adc #0
+	lda #$00
+	sta 2
+	lda #$c0
+	sta 3
+	lda #2
+	sta fetvec
+	tya
 setkb2	sta curkbd
 	asl
 	asl
 	asl
 	asl             ;*16
-	tax
-	lda $c000,x
+	tay
+	ldx #BANK_KEYBD
+	jsr fetch
 	beq setkb2      ;end of list? set #0
-	ldy #0
-setkb1	lda $c000,x
-	sta kbdnam,y    ;8 bytes kbnam, 8  bytes kbtab
+	ldx #0
+setkb1	phx
+	ldx #BANK_KEYBD
+	jsr fetch
+	plx
+	sta kbdnam,x    ;8 bytes kbnam, 8  bytes kbtab
 	inx
 	iny
-	cpy #16
+	cpx #16
 	bne setkb1
-	pla
-	sta d1prb       ;restore ROM bank
 	rts
 
 ;initialize i/o

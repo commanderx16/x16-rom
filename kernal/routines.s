@@ -1,4 +1,3 @@
-.setcpu "65c02"
 .export jsrfar, banked_irq
 
 	.segment "ROUTINES"
@@ -244,8 +243,6 @@ cmpvec	=*+1
 	plp
 	rts
 
-jmpfr	jmp $ffff
-
 ; LONG CALL  utility
 ;
 ; jsr jsrfar
@@ -314,13 +311,15 @@ jsrfar	php             ;save registers & status
 	plp
 	rts
 
+jmpfr	jmp $ffff
+
 
 banked_irq
 	pha
 	phx
 	lda d1prb
 	pha
-	lda #7
+	lda #BANK_KERNAL
 	sta d1prb
 	lda #>@l1
 	pha
@@ -338,10 +337,6 @@ banked_irq
 
 
 	; this should not live in the vector area, but it's ok for now
-monitor:
-	lda #BANK_UTIL
-	sta d1prb ; ROM bank
-	jmp ($c000)
 restore_basic:
 	jsr jsrfar
 	.word $c000 + 3

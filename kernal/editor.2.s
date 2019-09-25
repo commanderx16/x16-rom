@@ -329,14 +329,13 @@ bit_found:
 	sta ckbtab
 	lda kbdtab + 1,x
 	sta ckbtab + 1
-	ldx d1prb
-	lda isomod
-	lsr
-	lda #BANK_KEY1
-	adc #0
-	;sta d1prb
-	lda (ckbtab),y
-	stx d1prb
+;	lda isomod
+;	lsr
+;	adc #0
+	ldx #BANK_KEYBD
+	lda #ckbtab
+	sta fetvec
+	jsr fetch
 	beq drv_end
 	jmp add_to_buf
 
