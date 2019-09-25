@@ -14,6 +14,13 @@ symbol:
 	jmp symbol
 .endmacro
 
+.segment "KERNSUP"
+monitor:
+	jsr jsrfar
+	.word $ff00
+	.byte 7
+	rts
+
 .segment "KERNSUPV"
 
 	.byte $ff       ;
@@ -60,8 +67,9 @@ symbol:
 	bridge plot
 	bridge iobase
 
-	;signature
-	.byte "MIST"
+	;private
+	jmp monitor
+	.byte 0
 
 	.word $ffff ; nmi
 	.word $ffff ; reset

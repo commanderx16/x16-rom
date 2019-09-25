@@ -74,7 +74,7 @@ DEFAULT_BANK    := $37
 zp1             := $C1
 zp2             := $C3
 zp3             := $FF
-DEFAULT_BANK    := 0
+DEFAULT_BANK    := 7
 .endif
 
 .ifdef MACHINE_TED
@@ -147,11 +147,6 @@ video_bank_flag := ram_code_end + 20
 
 .import __asmchars1_RUN__
 .import __asmchars2_RUN__
-
-.ifdef MACHINE_X16
-	.word monitor ; cold start
-	.word monitor ; warm start
-.endif
 
 monitor:
 .ifdef MACHINE_TED

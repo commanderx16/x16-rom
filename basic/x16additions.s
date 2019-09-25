@@ -54,7 +54,7 @@ sa = $b9
 fa = $ba
 
 ;***************
-monitor	jmp $ff00
+monitor	jmp $fff6
 
 ;***************
 vpeek	jsr chrget
