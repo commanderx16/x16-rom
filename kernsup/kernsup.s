@@ -1,3 +1,5 @@
+.import jsrfar, banked_irq
+
 .macro bridge symbol
 	.local address
 	.segment "KERNSUPV"
@@ -11,11 +13,6 @@ symbol:
 	.segment "KERNSUPV"
 	jmp symbol
 .endmacro
-
-
-.segment "KERNSUP"
-
-.import jsrfar
 
 .segment "KERNSUPV"
 
@@ -68,5 +65,5 @@ symbol:
 
 	.word $ffff ; nmi
 	.word $ffff ; reset
-	.word $ffff ; irq
+	.word banked_irq
 

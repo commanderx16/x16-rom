@@ -1,4 +1,4 @@
-.export jsrfar
+.export jsrfar, banked_irq
 
 	.segment "ROUTINES"
 
@@ -311,6 +311,28 @@ jsrfar	pha             ;save registers
 	sta d1prb
 	pla
 	rts
+
+.setcpu "65c02"
+banked_irq
+	pha
+	phx
+	lda d1prb
+	pha
+	lda #7
+	sta d1prb
+	lda #>@l1
+	pha
+	lda #<@l1
+	pha
+	tsx
+	lda $0106,x
+	pha
+	jmp ($fffe)
+@l1	pla
+	sta d1prb
+	plx
+	pla
+	rti
 
 
 	; this should not live in the vector area, but it's ok for now
