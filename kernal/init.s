@@ -11,7 +11,12 @@ start	ldx #$ff
 ;
 	jsr cint        ;go initilize screen
 	cli             ;interrupts okay now
-	jmp ($c000)     ;go to basic system
+
+
+	jsr jsrfar
+	.word $c000     ;go to basic system
+	.byte 0
+	                ;not reached
 
 ; restor - set kernal indirects and vectors (system)
 ;
@@ -61,6 +66,15 @@ ramtz0	sta $0000,y     ;zero page
 	sta memstr+1    ;always at $0800
 	lda #>vicscn
 	sta hibase      ;set base of screen
+;
+;
+;
+.import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
+	ldx #<__KERNRAM_SIZE__
+ramtz1	lda __KERNRAM_LOAD__-1,x
+	sta __KERNRAM_RUN__-1,x
+	dex
+	bne ramtz1
 	rts
 
 ; ioinit - initilize io devices

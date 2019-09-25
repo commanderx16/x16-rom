@@ -1,6 +1,6 @@
 	.segment "BASIC"
-	.word init       ;c000 hard reset
-	.word panic      ;c000 soft reset
+	jmp init         ;hard reset
+	jmp panic        ;soft reset
 	.byt "CBMBASIC"
 stmdsp	.word end-1
 	.word for-1

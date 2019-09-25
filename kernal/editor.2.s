@@ -334,7 +334,7 @@ bit_found:
 	lsr
 	lda #BANK_KEY1
 	adc #0
-	sta d1prb
+	;sta d1prb
 	lda (ckbtab),y
 	stx d1prb
 	beq drv_end
@@ -542,7 +542,7 @@ check_mod:
 	beq ckmod1
 	cmp #$11 ; left alt (0011) or right alt (E011)
 	bne nmd_alt
-:	cpx #$e0 ; right alt
+	cpx #$e0 ; right alt
 	bne :+
 	lda #MODIFIER_ALT | MODIFIER_CTRL
 	.byte $2c

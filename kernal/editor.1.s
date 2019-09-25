@@ -65,7 +65,7 @@ setkbd	tax
 	lsr
 	lda #BANK_KEY1
 	adc #0
-	sta d1prb
+	;sta d1prb
 	txa
 setkb2	sta curkbd
 	asl
@@ -201,11 +201,6 @@ initv
 	lda #0
 	sta veractl     ;set ADDR1 active
 
-	lda d1prb       ;save ROM bank
-	pha
-	lda #BANK_CHAR
-	sta d1prb
-
 	; ISO character set
 	lda #<isobas        ;VRAM for ISO charset
 	sta veralo
@@ -219,7 +214,7 @@ initv
 	lda #0
 	sta pnt
 	lda #$c8
-	sta pnt+1       ;character data at ROM 4:0800
+	sta pnt+1       ;character data at ROM 0800
 	ldx #8
 	jsr copyv
 
@@ -236,12 +231,12 @@ initv
 	lda #0
 	sta pnt
 	lda #$c0
-	sta pnt+1       ;character data at ROM 4:0000
+	sta pnt+1       ;character data at ROM 0000
 	ldx #4
 	jsr copyv
 	dec pntr
 	lda #$c0
-	sta pnt+1       ;character data at ROM 4:0000
+	sta pnt+1       ;character data at ROM 0000
 	ldx #4
 	jsr copyv
 	inc pntr
@@ -249,11 +244,9 @@ initv
 	jsr copyv
 	dec pntr
 	lda #$c4
-	sta pnt+1       ;character data at ROM 4:0400
+	sta pnt+1       ;character data at ROM 0400
 	ldx #4
 	jsr copyv
-	pla
-	sta d1prb       ;restore ROM bank
 
 	lda #$00        ;$F2000: layer 1 registers
 	sta veralo

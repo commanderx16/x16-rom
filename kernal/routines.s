@@ -94,74 +94,6 @@ indfet
 	jmp fetch
 
 
-; LONG CALL  utility
-;
-; jsr jsrfar
-; .word address
-; .byte bank
-
-jsrfar	pha             ;save registers
-	txa
-	pha
-	tya
-	pha
-
-        tsx
-	lda $104,x      ;return address lo
-	sta imparm
-	clc
-	adc #3
-	sta $104,x      ;and write back with 3 added
-	lda $105,x      ;return address hi
-	sta imparm+1
-	adc #0
-	sta $105,x
-
-	ldy #1
-	lda (imparm),y  ;target address lo
-	sta jmpfr+1
-	iny
-	lda (imparm),y  ;target address hi
-	sta jmpfr+2
-	cmp #$c0
-	bcs @1          ;target is in ROM
-; target is in RAM
-	lda d1pra
-	sta savbank     ;save original bank
-	iny
-	lda (imparm),y  ;target address bank
-	sta d1pra       ;set RAM bank
-	pla             ;restore registers
-	tay
-	pla
-	tax
-	pla
-	jsr jmpfr
-	pha
-	lda savbank
-	sta d1pra
-	pla
-	rts
-
-@1	lda d1prb
-	sta savbank     ;save original bank
-	iny
-	lda (imparm),y  ;target address bank
-	and #$07
-	sta d1prb       ;set ROM bank
-	pla             ;restore registers
-	tay
-	pla
-	tax
-	pla
-	jsr jmpfr
-	pha
-	lda savbank
-	sta d1prb
-	pla
-	rts
-
-
 ; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;     *** print immediate ***
 ;  a jsr to this routine is followed by an immediate ascii string,
@@ -311,12 +243,81 @@ cmpvec	=*+1
 
 jmpfr	jmp $ffff
 
+; LONG CALL  utility
+;
+; jsr jsrfar
+; .word address
+; .byte bank
+
+jsrfar	pha             ;save registers
+	txa
+	pha
+	tya
+	pha
+
+        tsx
+	lda $104,x      ;return address lo
+	sta imparm
+	clc
+	adc #3
+	sta $104,x      ;and write back with 3 added
+	lda $105,x      ;return address hi
+	sta imparm+1
+	adc #0
+	sta $105,x
+
+	ldy #1
+	lda (imparm),y  ;target address lo
+	sta jmpfr+1
+	iny
+	lda (imparm),y  ;target address hi
+	sta jmpfr+2
+	cmp #$c0
+	bcs @1          ;target is in ROM
+; target is in RAM
+	lda d1pra
+	sta savbank     ;save original bank
+	iny
+	lda (imparm),y  ;target address bank
+	sta d1pra       ;set RAM bank
+	pla             ;restore registers
+	tay
+	pla
+	tax
+	pla
+	jsr jmpfr
+	pha
+	lda savbank
+	sta d1pra
+	pla
+	rts
+
+@1	lda d1prb
+	sta savbank     ;save original bank
+	iny
+	lda (imparm),y  ;target address bank
+	and #$07
+	sta d1prb       ;set ROM bank
+	pla             ;restore registers
+	tay
+	pla
+	tax
+	pla
+	jsr jmpfr
+	pha
+	lda savbank
+	sta d1prb
+	pla
+	rts
+
+
 	; this should not live in the vector area, but it's ok for now
 monitor:
 	lda #BANK_UTIL
 	sta d1prb ; ROM bank
 	jmp ($c000)
 restore_basic:
-	lda #BANK_BASIC
-	sta d1prb ; ROM bank
-	jmp ($c002)
+	jsr jsrfar
+	.word $c000 + 3
+	.byte BANK_BASIC
+	;not reached
