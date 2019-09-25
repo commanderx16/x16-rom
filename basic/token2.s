@@ -113,8 +113,10 @@ err26	.byt "CAN",$27,"T CONTINU",$c5
 errcn	=26
 err27	.byt "UNDEF",$27,"D FUNCTIO",$ce
 erruf	=27
-err28	.byt "LOA",$c4
-erload	=28
+err28	.byt "VERIF",$d9
+ervfy	=28
+err29	.byt "LOA",$c4
+erload	=29
 
 ; table to translate error message #
 ; to address of string containing message
@@ -148,13 +150,15 @@ errtab	.word err01
 	.word err27
 	.word err28
 	.word err29
+	.word err30
 
+okmsg	.byt $d,"OK",$d,$0
 err	.byt $20," ERROR",0 ;add a space for vic-40 screen
 intxt	.byt " IN ",0
 reddy	.byt $d,$a,"READY.",$d,$a,0
-erbrk	=29
+erbrk	=30
 brktxt	.byt $d,$a
-err29	.byt "BREAK",0,$a0 ;shifted space
+err30	.byt "BREAK",0,$a0 ;shifted space
 
 forsiz	=$12
 fndfor	tsx

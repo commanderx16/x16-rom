@@ -8,7 +8,7 @@ status	.res 1           ;i/o operation status byte
 ; crfac .res 2 ;correction factor (unused)
 stkey	.res 1           ;stop key flag
 savbank	.res 1           ;old bank when switching (was: tape)
-verck	.res 1           ;load or vload flag
+verck	.res 1           ;load or verify flag
 c3p0	.res 1           ;ieee buffered char flag
 bsour	.res 1           ;char buffer for ieee
 	.res 1           ;unused (tape)
