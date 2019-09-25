@@ -51,11 +51,7 @@ get	jsr errdir
 	cmp #'#'
 	bne gettty
 	jsr chrget
-	jsr getbyt
-	lda #44
-	jsr synchr
-	stx channl
-	jsr coin
+	jsr inpn10
 zz2=buf+1
 gettty	ldx #<zz2
 zz3=buf+2
@@ -67,11 +63,12 @@ zz3=buf+2
 	ldx channl
 	bne iorele
 	rts
-inputn	jsr getbyt
+inpn10	jsr getbyt
 	lda #44
 	jsr synchr
 	stx channl
-	jsr coin
+	jmp coin
+inputn	jsr inpn10
 	jsr notqti
 iodone	lda channl
 iorele	jsr clschn

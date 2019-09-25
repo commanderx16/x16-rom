@@ -74,12 +74,12 @@ onglop	dec faclo
 	bne onglp1
 	pla
 	jmp gone2
-onglp1	jsr chrget
-	jsr linget
+onglp1	jsr clnget
 	cmp #44
 	beq onglop
 	pla
 ongrts	rts
+clnget	jsr chrget
 linget	ldx #0
 	stx linnum
 	stx linnum+1

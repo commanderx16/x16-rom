@@ -8,8 +8,7 @@ golst	jsr linget
 	beq lstend
 	cmp #minutk
 	bne flnrts
-	jsr chrget
-	jsr linget
+	jsr clnget
 	bne flnrts
 lstend	pla
 	pla

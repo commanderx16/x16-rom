@@ -21,6 +21,7 @@ mvdone	clc
 	bcc mvstrt
 	inc frespc+1
 mvstrt	rts
+frmstr	jsr frmevl
 frestr	jsr chkstr
 frefac	lda facmo
 	ldy facmo+1
@@ -109,8 +110,7 @@ midd	lda #255
 	jsr chrgot
 	cmp #41
 	beq mid2
-	jsr chkcom
-	jsr getbyt
+	jsr combyt
 mid2	jsr pream
 	beq gofuc
 	dex

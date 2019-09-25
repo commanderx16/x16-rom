@@ -103,8 +103,7 @@ vld1	lda andmsk ;bank number
 
 ;***************
 dos	beq ptstat      ;no argument: print status
-	jsr frmevl
-	jsr frestr      ;length in .a
+	jsr frmstr      ;length in .a
 	cmp #0
 	beq ptstat      ;no argument: print status
 	ldx index1

@@ -267,8 +267,7 @@ paoc5	jsr paoc19      ;store x,y then maybe quit
 	ldx eormsk
 	lda andmsk
 	jsr paoc19      ;store x,y then maybe quit
-paoc15	jsr frmevl
-	jsr frestr      ;length in .a
+paoc15	jsr frmstr      ;length in .a
 	ldx index1
 	ldy index1+1
 	jmp $ffbd
