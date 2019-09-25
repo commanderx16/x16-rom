@@ -32,8 +32,8 @@ all:
 
 	ca65 -o keymap/keymap.o keymap/keymap.s
 
-	ca65 -o charset/charset.o charset/charset.s
 	(cd charset; bash convert.sh)
+	ca65 -o charset/petscii.o charset/petscii.tmp.s
 	ca65 -o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
 
 	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/charset.o charset/iso-8859-15.o kernsup/kernsup.o -Ln rom.txt
