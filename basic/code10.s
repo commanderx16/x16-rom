@@ -28,11 +28,11 @@ isvret	sta facmo
 	lda #0
 	sta facov
 	jsr tstrom      ;see if an array
-	bcc strrts      ;don't test st(i),ti(i)
+	bcc tstr10      ;don't test st(i),ti(i)
 	cpx #'T'
-	bne strrts
+	bne tstr10
 	cpy #$c9
-	bne strrts
+	bne tstr10
 	jsr gettim
 	sty tenexp
 	dey
@@ -42,7 +42,6 @@ isvret	sta facmo
 	ldy #fdcend-foutbl
 	jsr foutim
 	jmp timstr
-strrts	rts
 gooo	bit intflg
 	bpl gooooo
 	ldy #0
