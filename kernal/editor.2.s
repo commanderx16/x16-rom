@@ -329,9 +329,6 @@ bit_found:
 	sta ckbtab
 	lda kbdtab + 1,x
 	sta ckbtab + 1
-;	lda isomod
-;	lsr
-;	adc #0
 	ldx #BANK_KEYBD
 	lda #ckbtab
 	sta fetvec

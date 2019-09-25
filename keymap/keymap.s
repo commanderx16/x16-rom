@@ -1,3 +1,7 @@
+.export kbdmeta, ikbdmeta
+
+.segment "KBDMETA"
+kbdmeta:
 
 ; PETSCII
 .include "asm/409.s"    ; US
@@ -15,6 +19,9 @@
 
 .segment "KBDMETA"
 	.byte 0 ; terminator
+
+.segment "IKBDMETA"
+ikbdmeta:
 
 ; ISO
 .include "asm/i409.s"

@@ -1,3 +1,5 @@
+.import kbdmeta, ikbdmeta
+
 	.segment "EDITOR"
 maxchr=80
 nwrap=2 ;max number of physical lines per logical line
@@ -59,13 +61,15 @@ scnsiz	stx llen
 ; set keyboard layout .a
 ;
 setkbd	tay
-;	lda isomod
-;	lsr
-;	adc #0
-	lda #$00
-	sta 2
-	lda #$c0
-	sta 3
+	lda isomod
+	bne setkb0
+	lda #<kbdmeta
+	ldx #>kbdmeta
+	bne setkb3
+setkb0	lda #<ikbdmeta
+	ldx #>ikbdmeta
+setkb3	sta 2
+	stx 3
 	lda #2
 	sta fetvec
 	tya
