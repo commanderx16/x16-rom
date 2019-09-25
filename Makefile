@@ -53,7 +53,7 @@ rom.bin : DEFINES=-DPS2 -DCBDOS -DMACHINE_X16=1 -DCPU_65C02=1
 rom.bin rom.txt : $(ROM_X16_OBJ) rom.cfg
 	ld65 -C rom.cfg -o $@ $(ROM_X16_OBJ) -Ln rom.txt
 
-charset/iso-8859-15.o : charset/iso-8859-16.s
+charset/iso-8859-15.o : charset/iso-8859-15.s
 	cat $^ | sed -e "s/$(echo -e "\xE2\x96\x88")/1/g" | sed -e s/_/0/g > charset/iso-8859-15.tmp.s
 	ca65 $(ARGS) $(DEFINES) -o $@ charset/iso-8859-15.tmp.s
 
@@ -67,7 +67,7 @@ charset/iso-8859-15.o : charset/iso-8859-16.s
 
 .PHONY : clean
 clean:
-	-rm -f $(ROM_C64_OBJ) $(ROM_X16_OBJ) 
+	-rm -f $(ROM_C64_OBJ) $(ROM_X16_OBJ)
 	-rm -f charset/iso-8859-15.tmp.s
 	-rm -f rom.bin rom.txt
 	-rm -f basic-c64.bin kernal-c64.bin rom-c64.bin rom-c64.txt
