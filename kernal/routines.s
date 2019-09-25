@@ -1,3 +1,5 @@
+.export jsrfar
+
 	.segment "ROUTINES"
 
 ;//////////////////   J U M P   T A B L E   R O U T I N E S   \\\\\\\\\\\\\\\\\

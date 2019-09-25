@@ -13,9 +13,11 @@ ARGS_BASIC=-g
 
 all:
 	#x16
-	ca65 $(ARGS_BASIC) -DPS2 $(VERSION_DEFINE) -o basic/basic.o basic/basic.s
+	ca65 -o kernsup/kernsup.o kernsup/kernsup.s
 
-	ca65 $(ARGS_KERNAL) -g -DPS2 -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
+	ca65 $(ARGS_BASIC) $(VERSION_DEFINE) -o basic/basic.o basic/basic.s
+
+	ca65 $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
 
 	ca65 $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
 
@@ -34,7 +36,7 @@ all:
 	(cd charset; bash convert.sh)
 	ca65 -o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
 
-	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/charset.o charset/iso-8859-15.o -Ln rom.txt
+	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/charset.o charset/iso-8859-15.o kernsup/kernsup.o -Ln rom.txt
 
 clean:
 	rm -f basic/basic.o kernal/kernal.o rom.bin
