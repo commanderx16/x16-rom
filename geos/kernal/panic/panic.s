@@ -129,37 +129,16 @@ _Panic:
 	lda r0H
 .endif
 	ldx #0
-	jsr @1
 .ifdef wheels
 	tya
 .else
 	lda r0L
 .endif
-	jsr @1
 	LoadW r0, _PanicDB_DT
 	jsr DoDlgBox
 .ifdef wheels
 	jmp EnterDeskTop
 .endif
-@1:	pha
-	lsr
-	lsr
-	lsr
-	lsr
-	jsr @2
-	inx
-	pla
-	and #%00001111
-	jsr @2
-	inx
-	rts
-@2:	cmp #10
-	bcs @3
-	addv '0'
-	bne @4
-@3:	addv '0'+7
-@4:	sta _PanicAddr,x
-	rts
 
 .segment "panic2"
 
@@ -179,7 +158,6 @@ _PanicDB_Str:
 .ifdef wheels_size
 	.byte "Error near "
 .else
-	.byte "System error near "
 .endif
 .endif
 

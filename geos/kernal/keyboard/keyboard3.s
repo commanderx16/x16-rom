@@ -66,6 +66,7 @@ _GetNextChar:
 @1:	lda #0
 	rts
 
+.if 0
 KbdScanHelp5:
 	LoadB cia1base+0, %11111101
 	lda cia1base+1
@@ -147,3 +148,4 @@ KbdScanHelp6:
 .endif
 @1:	pla
 	rts
+.endif ; X16

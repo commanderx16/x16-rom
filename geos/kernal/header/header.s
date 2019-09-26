@@ -21,6 +21,8 @@
 
 .segment "header"
 
+.if 0 ; X16
+
 .assert * = $C000, error, "Header not at $C000"
 
 BootGEOS:
@@ -77,6 +79,8 @@ c128Flag:
 .endif
 	.byte 0, 0, 0 ; ???
 
+.endif ; X16
+
 dateCopy:
 .ifdef wheels
 	.byte 99,1,1
@@ -86,8 +90,10 @@ dateCopy:
 	; so it a different date here.
 	.byte 92,3,23
 .else
-	.byte 88,4,20
+	.byte 19,08,21
 .endif
+
+.if 0 ; X16
 
 .ifndef wheels_remove_BootGEOS
 _BootGEOS:
@@ -143,3 +149,5 @@ BootREUTab:
 	.word $0500
 	.word $0000
 .endif
+
+.endif ; X16

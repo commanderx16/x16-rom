@@ -15,6 +15,7 @@
 
 .segment "time2"
 
+.if 0
 pingTab:
 	.byte $00, $10, $00, $08, $40, $08, $00, $00
 	.byte $00, $00, $00, $00, $00, $00, $00, $00
@@ -29,4 +30,6 @@ pingTabEnd:
 .else
 	.word $0f00
 .endif
+.endif
+
 .endif

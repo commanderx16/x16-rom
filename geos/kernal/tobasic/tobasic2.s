@@ -30,6 +30,7 @@
 
 .segment "tobasic2"
 
+.if 0
 .ifndef wheels
 _ToBASIC:
 .ifdef removeToBASIC
@@ -117,4 +118,8 @@ ToBASICTab:
 	.byte 0
 ToBASICTab_end:
 .endif
+.endif
+.else ; X16
+_ToBASIC:
+	brk
 .endif

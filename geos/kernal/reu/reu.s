@@ -19,6 +19,7 @@
 
 .segment "reu"
 
+.if 0
 .ifdef REUPresent
 _VerifyRAM:
 	ldy #$93
@@ -103,3 +104,11 @@ _DoRAMOp:
 @3:	rts
 .endif ; REUPresent
 
+.else ; X16
+_DoRAMOp:
+_FetchRAM:
+_StashRAM:
+_SwapRAM:
+_VerifyRAM:
+	brk
+.endif

@@ -162,8 +162,8 @@ REUPresent = 1
 .endif
 
 .ifdef traps
-	trap1 = 1
-	trap2 = 1
+;	trap1 = 1
+;	trap2 = 1
 .endif
 
 .if .defined(drv1541)

@@ -30,6 +30,8 @@
 .import FirstInit
 .import i_FillRam
 
+.import MouseInit
+
 ; used by header.s
 .global _ResetHandle
 
@@ -77,29 +79,10 @@ ASSERT_NOT_BELOW_IO
 	lda #IO_IN
 	sta CPU_DATA
 
-	LoadW NMI_VECTOR, _NMIHandler
-	LoadW IRQ_VECTOR, _IRQHandler
+;	LoadW NMI_VECTOR, _NMIHandler
+;	LoadW IRQ_VECTOR, _IRQHandler
 
-	; draw background pattern
-	LoadW r0, SCREEN_BASE
-	ldx #$7D
-@2:	ldy #$3F
-@3:	lda #$55
-	sta (r0),y
-	dey
-	lda #$AA
-	sta (r0),y
-	dey
-	bpl @3
-	lda #$40
-	clc
-	adc r0L
-	sta r0L
-	bcc @4
-	inc r0H
-@4:	dex
-	bne @2
-
+.if 0
 	; set clock in CIA1
 	lda cia1base+15
 	and #$7F
@@ -110,15 +93,80 @@ ASSERT_NOT_BELOW_IO
 	sta cia1base+10 ; minute: 0
 	sta cia1base+9 ; seconds: 0
 	sta cia1base+8 ; 10ths: 0
+.endif
 
 	lda #RAM_64K
 	sta CPU_DATA
 ASSERT_NOT_BELOW_IO
 
+.if 0
 	jsr i_FillRam
 	.word $0500
 	.word dirEntryBuf
 	.byte 0
+.endif
+
+.import __RAM_SIZE__, __RAM_LOAD__, __RAM_RUN__
+.import _i_MoveData
+
+	jsr _i_MoveData
+	.word __RAM_LOAD__
+	.word __RAM_RUN__
+	.word __RAM_SIZE__
+
+.import __drvrom_SIZE__, __drvrom_LOAD__, __drvrom_RUN__
+.import _i_MoveData
+
+	jsr _i_MoveData
+	.word __drvrom_LOAD__
+	.word __drvrom_RUN__
+	.word __drvrom_SIZE__
+
+	; init sprites
+	lda #$20
+	sta veralo
+	lda #0
+	sta veramid
+	lda #$14
+	sta verahi
+	lda #1
+	sta veradat ; enable sprites
+
+	lda #$04
+	sta veralo
+	lda #$08
+	sta veramid
+	lda #0
+	sta veradat
+	lda #8
+	sta veradat ; $10000
+
+	lda #0
+	sta veralo
+	sta veramid
+	lda #$11
+	sta verahi
+	ldx #8
+xx2:	txa
+	tay
+	lda #6
+:	sta veradat
+	dey
+	bne :-
+	txa
+	sec
+	sbc #8
+	eor #$ff
+	clc
+	adc #1
+	beq xx1
+	tay
+	lda #0
+:	sta veradat
+	dey
+	bne :-
+xx1:	dex
+	bne xx2
 
 	; set date
 	ldy #2
@@ -199,6 +247,9 @@ OrigResetHandle:
 	LoadW EnterDeskTop+1, _ResetHandle
 	LoadB r0L, 0
 	jsr LdApplic
+
+.segment "RAM"
+
 bootTr:
 	.byte DIR_TRACK
 bootSec:
@@ -209,3 +260,15 @@ bootSec2:
 	.byte 0
 bootOffs:
 	.byte 0
+
+.segment "entry"
+entry:
+	sei
+	lda #0
+	sta $9f60 ; ROM bank
+	jmp _ResetHandle
+
+.segment "vectors"
+stop:	.word _NMIHandler
+	.word entry
+	.word _IRQHandler

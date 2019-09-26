@@ -18,6 +18,7 @@
 
 .segment "keyboard2"
 
+.if 0
 .ifdef bsw128
 KbdTestTab:
 	.byte $fe, $fd, $fb, $f7, $ef, $df, $bf, $7f
@@ -93,3 +94,5 @@ KbdDecodeTab2:
 	.byte KEY_ALT, "0", ".", KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_NOSCRL
 .endif
 
+.else; X16
+.endif

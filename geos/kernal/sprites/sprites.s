@@ -25,6 +25,7 @@
 
 .segment "sprites"
 
+.if 0
 ;---------------------------------------------------------------
 ; DrawSprite                                              $C1C6
 ;
@@ -165,5 +166,37 @@ _DisablSprite:
 	and mobenble
 	sta mobenble
 	END_IO_X
+	rts
+.endif
+.else ; X16
+_DisablSprite:
+_DrawSprite:
+_EnablSprite:
+	rts
+
+;---------------------------------------------------------------
+; PosSprite                                               $C1CF
+;
+; Pass:      r3L sprite nbr (0-7)
+;            r4  x pos (0-319)
+;            r5L y pos (0-199)
+; Return:    r3L unchanged
+; Destroyed: a, x, y, r6
+;---------------------------------------------------------------
+_PosSprite:
+	lda #0
+	sta veralo
+	lda #8
+	sta veramid
+	lda #$14
+	sta verahi
+	lda r4L
+	sta veradat
+	lda r4H
+	sta veradat
+	lda r5L
+	sta veradat
+	lda #3 << 2 | 1 << 1
+	sta veradat
 	rts
 .endif
