@@ -222,7 +222,6 @@ stavec	=*+1
 ;  exits with .a= data byte & status flags valid, .x is altered
 
 cmpare
-.if 0
 	pha
 	lda d1pra       ;save current config (RAM)
 	pha
@@ -244,7 +243,6 @@ cmpvec	=*+1
 	pha
 	plp
 	rts
-.endif
 
 ; LONG CALL  utility
 ;
@@ -279,7 +277,7 @@ jsrfar	pha             ;reserve 1 byte on the stack
 	bcs @1          ;target is in ROM
 ; target is in RAM
 	lda d1pra
-	sta $0105,x     ;save original bank
+	sta $0105,x     ;save original bank into reserved byte
 	iny
 	lda (imparm),y  ;target address bank
 	sta d1pra       ;set RAM bank
@@ -294,16 +292,10 @@ jsrfar	pha             ;reserve 1 byte on the stack
 	tsx
 	lda $0104,x
 	sta d1pra       ;restore RAM bank
-	lda $0103,x
-	sta $0104,x     ;make copy of .p
-	plx
-	pla
-	plp
-	plp
-	rts
+	jmp @2
 
 @1	lda d1prb
-	sta $0105,x     ;save original bank
+	sta $0105,x     ;save original bank into reserved byte
 	iny
 	lda (imparm),y  ;target address bank
 	and #$07
@@ -319,9 +311,9 @@ jsrfar	pha             ;reserve 1 byte on the stack
 	tsx
 	lda $0104,x
 	sta d1prb       ;restore ROM bank
-	lda $0103,x
-	sta $0104,x     ;make copy of .p
-	plx
+	lda $0103,x     ;overwrite reserved byte...
+	sta $0104,x     ;...with copy of .p
+@2	plx
 	pla
 	plp
 	plp

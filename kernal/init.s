@@ -70,6 +70,7 @@ ramtz0	sta $0000,y     ;zero page
 ;
 ;
 .import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
+.assert __KERNRAM_SIZE__ < $0100, error, "KERNRAM size overflows one page"
 	ldx #<__KERNRAM_SIZE__
 ramtz1	lda __KERNRAM_LOAD__-1,x
 	sta __KERNRAM_RUN__-1,x
