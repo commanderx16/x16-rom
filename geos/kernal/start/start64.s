@@ -30,6 +30,8 @@
 .import FirstInit
 .import i_FillRam
 
+.import MouseInit
+
 ; used by header.s
 .global _ResetHandle
 
@@ -67,6 +69,21 @@
 ;         here.
 ;
 
+hstart  =0
+hstop   =640
+vstart  =0
+vstop   =480
+tvera_composer:
+	.byte 7 << 5 | 1  ;256c bitmap, VGA
+	.byte 64, 64      ;hscale, vscale
+	.byte 14          ;border color
+	.byte <hstart
+	.byte <hstop
+	.byte <vstart
+	.byte <vstop
+	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
+tvera_composer_end:
+
 _ResetHandle:
 	sei
 	cld
@@ -77,29 +94,10 @@ ASSERT_NOT_BELOW_IO
 	lda #IO_IN
 	sta CPU_DATA
 
-	LoadW NMI_VECTOR, _NMIHandler
-	LoadW IRQ_VECTOR, _IRQHandler
+;	LoadW NMI_VECTOR, _NMIHandler
+;	LoadW IRQ_VECTOR, _IRQHandler
 
-	; draw background pattern
-	LoadW r0, SCREEN_BASE
-	ldx #$7D
-@2:	ldy #$3F
-@3:	lda #$55
-	sta (r0),y
-	dey
-	lda #$AA
-	sta (r0),y
-	dey
-	bpl @3
-	lda #$40
-	clc
-	adc r0L
-	sta r0L
-	bcc @4
-	inc r0H
-@4:	dex
-	bne @2
-
+.if 0
 	; set clock in CIA1
 	lda cia1base+15
 	and #$7F
@@ -110,15 +108,109 @@ ASSERT_NOT_BELOW_IO
 	sta cia1base+10 ; minute: 0
 	sta cia1base+9 ; seconds: 0
 	sta cia1base+8 ; 10ths: 0
+.endif
 
 	lda #RAM_64K
 	sta CPU_DATA
 ASSERT_NOT_BELOW_IO
 
+.if 0
 	jsr i_FillRam
 	.word $0500
 	.word dirEntryBuf
 	.byte 0
+.endif
+
+.import __RAM_SIZE__, __RAM_LOAD__, __RAM_RUN__
+.import _i_MoveData
+
+	jsr _i_MoveData
+	.word __RAM_LOAD__
+	.word __RAM_RUN__
+	.word __RAM_SIZE__
+
+.import __drvcbdos_SIZE__, __drvcbdos_LOAD__, __drvcbdos_RUN__
+.import _i_MoveData
+
+	jsr _i_MoveData
+	.word __drvcbdos_LOAD__
+	.word __drvcbdos_RUN__
+	.word __drvcbdos_SIZE__
+
+	lda #$00 ; layer0
+	sta veralo
+	lda #$20
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda #7 << 5 | 1; 256c bitmap
+	sta veradat
+	lda #0
+	sta veradat; tile_w=320px
+	sta veradat; map_base_lo: ignore
+	sta veradat; map_base_hi: ignore
+	sta veradat; tile_base_lo = 0
+	sta veradat; tile_base_hi = 0
+
+	lda #$00        ;$F0000: composer registers
+	sta veralo
+	sta veramid
+	ldx #0
+px5:	lda tvera_composer,x
+	sta veradat
+	inx
+	cpx #tvera_composer_end-tvera_composer
+	bne px5
+
+	; init sprites
+	lda #$00
+	sta veralo
+	lda #$40
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda #1
+	sta veradat ; enable sprites
+
+	lda #$00
+	sta veralo
+	lda #$50
+	sta veramid
+	lda #0
+	sta veradat
+	lda #1 << 7 | 8 ; 8 bpp, address=$10000
+	sta veradat
+
+	lda #0
+	sta veralo
+	sta veramid
+	lda #$11
+	sta verahi
+	ldx #8
+xx2:	txa
+	tay
+	lda #6
+:	sta veradat
+	dey
+	bne :-
+	txa
+	sec
+	sbc #8
+	eor #$ff
+	clc
+	adc #1
+	beq xx1
+	tay
+	lda #0
+:	sta veradat
+	dey
+	bne :-
+xx1:	dex
+	bne xx2
+
+	; IRQ
+	lda #1
+	sta veraien
 
 	; set date
 	ldy #2
@@ -199,6 +291,9 @@ OrigResetHandle:
 	LoadW EnterDeskTop+1, _ResetHandle
 	LoadB r0L, 0
 	jsr LdApplic
+
+.segment "RAM"
+
 bootTr:
 	.byte DIR_TRACK
 bootSec:
@@ -209,3 +304,95 @@ bootSec2:
 	.byte 0
 bootOffs:
 	.byte 0
+
+.segment "entry"
+entry:
+	jmp _ResetHandle
+
+.segment "vectors"
+stop:	.word _NMIHandler
+	.word entry
+	.word _IRQHandler
+
+.if 1
+.segment "RAM"
+
+.setcpu "65c02"
+imparm = 0
+via1	=$9f60                  ;VIA 6522 #1
+d1prb	=via1+0
+d1pra	=via1+1
+.global gjsrfar
+gjsrfar:
+	pha             ;reserve 1 byte on the stack
+	php             ;save registers & status
+	pha
+	phx
+	phy
+
+        tsx
+	lda $106,x      ;return address lo
+	sta imparm
+	clc
+	adc #3
+	sta $106,x      ;and write back with 3 added
+	lda $107,x      ;return address hi
+	sta imparm+1
+	adc #0
+	sta $107,x
+
+	ldy #1
+	lda (imparm),y  ;target address lo
+	sta jmpfr+1
+	iny
+	lda (imparm),y  ;target address hi
+	sta jmpfr+2
+	cmp #$c0
+	bcs @1          ;target is in ROM
+; target is in RAM
+	lda d1pra
+	sta $0105,x     ;save original bank into reserved byte
+	iny
+	lda (imparm),y  ;target address bank
+	sta d1pra       ;set RAM bank
+	ply             ;restore registers
+	plx
+	pla
+	plp
+	jsr jmpfr
+	php
+	pha
+	phx
+	tsx
+	lda $0104,x
+	sta d1pra       ;restore RAM bank
+	jmp @2
+
+@1:	lda d1prb
+	sta $0105,x     ;save original bank into reserved byte
+	iny
+	lda (imparm),y  ;target address bank
+	and #$07
+	sta d1prb       ;set ROM bank
+	ply             ;restore registers
+	plx
+	pla
+	plp
+	jsr jmpfr
+	php
+	pha
+	phx
+	tsx
+	lda $0104,x
+	sta d1prb       ;restore ROM bank
+	lda $0103,x     ;overwrite reserved byte...
+	sta $0104,x     ;...with copy of .p
+@2:	plx
+	pla
+	plp
+	plp
+	rts
+
+jmpfr:	jmp $ffff
+
+.endif

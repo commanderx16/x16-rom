@@ -86,6 +86,8 @@ FontGt4_2:
 	beq FontGt2_1
 .endif
 
+.segment "RAM"
+
 .ifndef bsw128
 
 .ifndef wheels

@@ -146,8 +146,18 @@ CheckMsePos:
 	sty mouseYPos
 @8:	bbrf MENUON_BIT, mouseOn, @B
 	lda mouseYPos
-	cmp menuTop
-	bcc @A
+; x16-emulator:
+; When opening a menu, GEOS repositions the mouse. x16-emulator
+; only knows absolute mouse positions based on the system mouse
+; position, so this has no effect. The next time the mouse is
+; read, it will be a its original location, which is above the
+; menu, so the menu gets closed. As a hack, disable the check.
+; The side effect of this is that the mouse can escape the menu
+; vertically, and weird things can happen.
+; The correct fix is to not reposition the mouse, and dismiss the
+; menu on a *click* outside.
+;	cmp menuTop
+;	bcc @A
 	cmp menuBottom
 	beq @9
 	bcs @A
@@ -242,4 +252,37 @@ DoMouseFault:
 	bbsf 6, menuOptNumber, @3
 @2:	jsr _DoPreviousMenu
 @3:	rts
+
+
+.export MouseInit
+MouseInit:
+SlowMouse:
+SetMouse:
+	rts ;XXX X16 TODO
+
+tmpFire = $9eff
+
+UpdateMouse:
+	lda $9fa1
+	lsr
+	sta mouseXPos + 1
+	lda $9fa0
+	ror
+	sta mouseXPos
+	lda $9fa3
+	lsr
+	lda $9fa2
+	ror
+	sta mouseYPos
+	lda $9fa4
+	and #1
+	eor #1
+	cmp tmpFire
+	beq :+
+	sta tmpFire
+	lsr
+	ror
+	sta mouseData
+	smbf MOUSE_BIT, pressFlag
+:	rts
 

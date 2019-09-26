@@ -184,10 +184,13 @@
 	PopB dest+1
 .endmacro
 
+.ifpc02
+.else
 .macro bra addr
 	clv
 	bvc addr
 .endmacro
+.endif
 
 .macro smb bitN, dest
 	pha
@@ -318,7 +321,6 @@
 
 
 .macro ASSERT_NOT_BELOW_IO
-	.assert * < $D000 || * >= $E000, error, "This code can't run below the C64 I/O area."
 .endmacro
 
 .ifdef bsw128
@@ -343,31 +345,16 @@
 .endmacro
 .else
 .macro START_IO
-	PushB CPU_DATA
-ASSERT_NOT_BELOW_IO
-	LoadB CPU_DATA, IO_IN
 .endmacro
 .macro END_IO
-	PopB CPU_DATA
-ASSERT_NOT_BELOW_IO
 .endmacro
 .macro START_IO_X
-	ldx CPU_DATA
-ASSERT_NOT_BELOW_IO
-	LoadB CPU_DATA, IO_IN
 .endmacro
 .macro END_IO_X
-	stx CPU_DATA
-ASSERT_NOT_BELOW_IO
 .endmacro
 .macro START_IO_Y
-	ldy CPU_DATA
-ASSERT_NOT_BELOW_IO
-	LoadB CPU_DATA, IO_IN
 .endmacro
 .macro END_IO_Y
-	sty CPU_DATA
-ASSERT_NOT_BELOW_IO
 .endmacro
 .macro START_IO_128
 .endmacro

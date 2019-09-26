@@ -18,6 +18,7 @@
 
 .segment "tobasic1"
 
+.if 0
 .if (!.defined(wheels)) && (!.defined(removeToBASIC))
 ToBASICBuf:
 	.res 40, 0
@@ -110,4 +111,5 @@ execBASIC:
 .endif ; remove_dead_bytes
 
 .endif 
-
+.else; X16
+.endif

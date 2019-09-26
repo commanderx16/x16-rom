@@ -107,6 +107,12 @@ old1	lda txttab+1
 	jmp init2
 
 ;***************
+.import _ResetHandle, jsrfar
+geos	jsr jsrfar
+	.word _ResetHandle
+	.byte BANK_GEOS
+
+;***************
 dos	beq ptstat      ;no argument: print status
 	jsr frmevl
 	jsr frestr      ;length in .a

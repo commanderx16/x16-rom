@@ -141,7 +141,9 @@ _Panic:
 .ifdef wheels
 	jmp EnterDeskTop
 .endif
-@1:	pha
+@1:
+.if 0 ; XXX X16: removed for size, has to be enabled again!
+	pha
 	lsr
 	lsr
 	lsr
@@ -159,6 +161,7 @@ _Panic:
 	bne @4
 @3:	addv '0'+7
 @4:	sta _PanicAddr,x
+.endif
 	rts
 
 .segment "panic2"

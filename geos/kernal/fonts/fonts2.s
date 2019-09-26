@@ -578,6 +578,7 @@ clc_rts:
         rts
 .endif
 
+.segment "RAM"
 Font_4:
 	ldy r1L
 	ldx FontTVar1
@@ -760,6 +761,8 @@ LE4BC:	ldx FontTVar1
 	ora #0
 	jmp LF5AE
 .endif
+
+.segment "fonts2"
 
 Font_5:
 	ldx r8L

@@ -26,7 +26,7 @@
 .global _CopyFString
 .global _CopyString
 
-.segment "memory2"
+.segment "RAM"
 
 ;---------------------------------------------------------------
 ; CopyString                                              $C265
@@ -63,6 +63,8 @@ _CopyFString:
 	dex
 	bne @0
 @2:	rts
+
+.segment "memory2"
 
 ;---------------------------------------------------------------
 ; i_MoveData                                              $C1B7
@@ -224,6 +226,8 @@ _MoveData:
 	dec r2H
 	bra @A
 .endif
+
+.segment "RAM"
 
 ;---------------------------------------------------------------
 ; CmpString                                               $C26B
