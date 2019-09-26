@@ -26,11 +26,7 @@ nowge1	jsr strlt2
 	jsr inpcom
 	jmp strdn2
 numins
-.ifdef C64
-	jsr fin
-.else
 	jsr finh
-.endif
 	lda intflg
 	jsr qintgr
 strdn2	jsr chrgot

@@ -1,11 +1,10 @@
 .feature labels_without_colons, pc_assignment
+.setcpu "65c02"
 
 ; for monitor
 ; XXX these should be removed or at least minimized
 .export xmon2, ms1, key, bmt2, loop4, xmon1, ldapnty, stapnty, ldtb1, nlines, nlinesm1
-.ifndef C64
 .export stavec
-.endif
 
 .include "../banks.inc"
 
@@ -14,9 +13,7 @@
 .include "editor.2.s"
 .include "editor.3.s"
 .include "serial4.0.s"
-.include "rs232trans.s"
-.include "rs232rcvr.s"
-.include "rs232inout.s"
+.include "rs232.s"
 .include "messages.s"
 .include "channelio.s"
 .include "openchannel.s"
@@ -30,11 +27,9 @@
 .include "read.s"
 .include "write.s"
 .include "init.s"
-.include "rs232nmi.s"
+.include "nmi.s"
 .include "irqfile.s"
 .include "joystick.s"
-.ifndef C64
 .include "routines.s"
-.endif
 .include "vectors.s"
 

@@ -70,7 +70,6 @@ nthis1	iny
 	bpl nthis1
 	lda reslst,y
 	bne rescon
-.ifndef C64
 ;**************************************
 ; new tokenization
 ;**************************************
@@ -115,14 +114,9 @@ nthis12	iny
 	iny
 	jmp crdone0
 ;**************************************
-.endif
 	lda bufofs,x
-.ifdef C64
-	bpl getbpt
-.else
 	bmi crdone
 	jmp getbpt
-.endif
 crdone	sta buf-3,y
 	dec txtptr+1
 zz1	=buf-1

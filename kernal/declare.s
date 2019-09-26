@@ -1,8 +1,3 @@
-.ifdef C64
-	;declare 6510 ports
-d6510	= 0              ;6510 data direction register
-r6510	= 1              ;6510 data register
-.endif
 	.segment "ZPKERNAL" : zeropage
 status	.res 1           ;i/o operation status byte
 ; crfac .res 2 ;correction factor (unused)
@@ -27,11 +22,7 @@ bsour1	;temp used by serial routine
 	.res 1           ;also used by CBDOS
 count	.res 1           ;temp used by serial routine
 	.res 1           ;unused (tape)
-inbit	.res 1           ;rs-232 rcvr input bit storage
-bitci	.res 1           ;rs-232 rcvr bit count in
-rinone	.res 1           ;rs-232 rcvr flag for start bit check
-ridata	.res 1           ;rs-232 rcvr byte buffer
-riprty	.res 1           ;rs-232 rcvr parity storage
+	.res 5           ;unused (rs-232)
 sal	.res 1
 sah	.res 1
 eal	.res 1
@@ -40,15 +31,13 @@ kbdbyte	.res 1           ;PS/2: bit input (was: tape)
 prefix	.res 1           ;PS/2: prefix code (e0/e1) (was: tape)
 brkflg	.res 1           ;PS/2: was key-up event (was: tape)
 shflag2	.res 1           ;PS/2: modifier state (was: tape)
-bitts	.res 1           ;rs-232 trns bit count
-nxtbit	.res 1           ;rs-232 trns next bit to be sent
-rodata	.res 1           ;rs-232 trns byte buffer
+	.res 3           ;unused (rs-232)
 fnlen	.res 1           ;length current file n str
 la	.res 1           ;current file logical addr
 sa	.res 1           ;current file 2nd addr
 fa	.res 1           ;current file primary addr
 fnadr	.res 2           ;addr current file name str
-roprty	.res 1           ;rs-232 trns parity buffer
+	.res 1           ;unused (rs-232)
 ckbtab	.res 2           ;used for keyboard lookup
 	.res 1           ;unused (tape)
 tmp0
@@ -59,11 +48,7 @@ tmp2	.res 2
 ;
 ;variables for screen editor
 ;
-.ifdef PS2
 isomod	.res 1           ;ISO mode
-.else
-lstx	.res 1           ;key scan index
-.endif
 ndx	.res 1           ;index to keyboard q
 rvs	.res 1           ;rvs field on flag
 indx	.res 1
@@ -93,9 +78,7 @@ nlinesm2 .res 1          ;y resolution - 2
 joy1	.res 3           ;joystick 1 status
 joy2	.res 3           ;joystick 2 status
 keytab	.res 2           ;keyscan table indirect
-;rs-232 z-page
-ribuf	.res 2           ;rs-232 input buffer pointer
-robuf	.res 2           ;rs-232 output buffer pointer
+	.res 4           ;unused (rs-232)
 frekzp	.res 4           ;free kernal zero page 9/24/80
 baszpt	.res 1           ;location ($00ff) used by basic
 
@@ -123,54 +106,22 @@ color	.res 1           ;activ color nybble
 gdcol	.res 1           ;original color before cursor
 hibase	.res 1           ;base location of screen (top)
 xmax	.res 1
-.ifdef PS2
 ps2byte	.res 1           ;byte storage for ps/2 communication
 ps2par	.res 1           ;parity for ps/2 communication
-.else
-rptflg	.res 1           ;key repeat flag
-kount	.res 1
-.endif
 delay	.res 1
 shflag	.res 1           ;shift flag byte
 lstshf	.res 1           ;last shift pattern
-keylog	.res 2           ;indirect for keyboard table setup
+	.res 2           ;unused (keyboard)
 mode	.res 1           ;0-pet mode, 1-cattacanna
 autodn	.res 1           ;auto scroll down flag(=0 on,<>0 off)
 
-; rs-232 storage
-;
-m51ctr	.res 1           ;6551 control register
-m51cdr	.res 1           ;6551 command register
-m51ajb	.res 2           ;non standard (bittime/2-100)
-rsstat	.res 1           ; rs-232 status register
-bitnum	.res 1           ;number of bits to send (fast response)
-baudof	.res 2           ;baud rate full bit time (created by open)
-;
-; reciever storage
-;
-; inbit .res 1 ;input bit storage
-; bitci .res 1 ;bit count in
-; rinone .res 1 ;flag for start bit check
-; ridata .res 1 ;byte in buffer
-; riprty .res 1 ;byte in parity storage
-ridbe	.res 1           ;input buffer index to end
-ridbs	.res 1           ;input buffer pointer to start
-;
-; transmitter storage
-;
-; bitts .res 1 ;# of bits to be sent
-; nxtbit .res 1 ;next bit to be sent
-; roprty .res 1 ;parity of byte sent
-; rodata .res 1 ;byte buffer out
-rodbs	.res 1           ;output buffer index to start
-rodbe	.res 1           ;output buffer index to end
-;
-joy0	.res 1           ;keyboard joystick temp
+	.res 12          ;unused (rs-232)
 	.res 1           ;unused (tape)
+joy0	.res 1           ;keyboard joystick temp
 ;
 ; temp space for vic-40 variables ****
 ;
-enabl	.res 1           ;rs-232 enables (replaces ier)
+	.res 1           ;rs-232 enables (replaces ier)
 curkbd	.res 1           ;current keyboard layout index
 	.res 2           ;unused (tape)
 lintmp	.res 1           ;temporary for line index
@@ -196,16 +147,12 @@ isave	.res 2           ;savesp
 
 ldtb1	.res 61          ;flags+endspace
 
-kbdnam  =$0400           ;6 character keyboard layout name
-kbdtab  =$0406           ;5 pointers to shift/alt/ctrl/altgr/unshifted tables
+kbdnam  =$0500           ;6 character keyboard layout name
+kbdtab  =$0506           ;5 pointers to shift/alt/ctrl/altgr/unshifted tables
 
 vicscn	=$0000
 
-.ifdef C64
-verareg =$df00
-.else
 verareg =$9f20
-.endif
 veralo  =verareg+0
 veramid =verareg+1
 verahi  =verareg+2
@@ -217,57 +164,8 @@ veraisr =verareg+7
 
 ; i/o devices
 ;
-.ifdef C64
-mmtop   =$a000
-.else
 mmtop   =$9f00
-.endif
 
-.ifdef C64
-sidreg	=$d400
-.endif
-
-.ifdef C64
-cia1	=$dc00                  ;device1 6526 (page1 irq)
-d1pra	=cia1+0
-colm	=d1pra                  ;keyboard matrix
-d1prb	=cia1+1
-rows	=d1prb                  ;keyboard matrix
-d1ddra	=cia1+2
-d1ddrb	=cia1+3
-d1t1l	=cia1+4
-d1t1h	=cia1+5
-d1t2l	=cia1+6
-d1t2h	=cia1+7
-d1tod1	=cia1+8
-d1tods	=cia1+9
-d1todm	=cia1+10
-d1todh	=cia1+11
-d1sdr	=cia1+12
-d1icr	=cia1+13
-d1cra	=cia1+14
-d1crb	=cia1+15
-
-cia2	=$dd00                  ;device2 6526 (page2 nmi)
-d2pra	=cia2+0
-d2prb	=cia2+1
-d2ddra	=cia2+2
-d2ddrb	=cia2+3
-d2t1l	=cia2+4
-d2t1h	=cia2+5
-d2t2l	=cia2+6
-d2t2h	=cia2+7
-d2tod1	=cia2+8
-d2tods	=cia2+9
-d2todm	=cia2+10
-d2todh	=cia2+11
-d2sdr	=cia2+12
-d2icr	=cia2+13
-d2cra	=cia2+14
-d2crb	=cia2+15
-
-timrb	=$19            ;6526 crb enable one-shot tb
-.else
 via1	=$9f60                  ;VIA 6522 #1
 d1prb	=via1+0
 d1pra	=via1+1
@@ -322,7 +220,6 @@ rows	=d1prb                  ;keyboard matrix
 
 ; XXX TODO
 timrb	=$19            ;6526 crb enable one-shot tb
-.endif
 
 ;screen editor constants
 ;
@@ -330,11 +227,7 @@ white	=$01            ;white char color
 blue	=$06            ;blue screen color
 cr	=$d             ;carriage return
 
-.ifdef C64
-mhz     =1              ;for the scroll delay loop
-.else
 mhz     =8              ;for the scroll delay loop
-.endif
 
 ;rsr 8/3/80 add & change z-page
 ;rsr 8/11/80 add memuss & plf type

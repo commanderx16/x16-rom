@@ -34,25 +34,7 @@ jx050	jsr jz100       ;extract table data
 ; rs-232 close
 ;
 ; remove file from tables
-	pla
-	jsr jxrmv
-;
-	jsr cln232      ;clean up rs232 for close
-;
-; deallocate buffers
-;
-	jsr gettop      ;get memsiz
-	lda ribuf+1     ;check input allocation
-	beq cls010      ;not...allocated
-	iny
-cls010	lda robuf+1     ;check output allocation
-	beq cls020
-	iny
-cls020	lda #00         ;deallocate
-	sta ribuf+1
-	sta robuf+1
-; flag top of memory change
-	jmp memtcf      ;go set new top
+	jmp cls232
 
 ;
 ;close an serial file

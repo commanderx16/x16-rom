@@ -1,8 +1,4 @@
-.ifdef C64
-verareg =$df00
-.else
 verareg =$9f20
-.endif
 veralo  =verareg+0
 veramid =verareg+1
 verahi  =verareg+2
@@ -58,7 +54,7 @@ sa = $b9
 fa = $ba
 
 ;***************
-monitor	jmp $ff00
+monitor	jmp $fff6
 
 ;***************
 vpeek	jsr chrget
@@ -100,6 +96,22 @@ vload	jsr plsv   ;parse the parameters
 vld1	lda andmsk ;bank number
 	adc #2
 	jmp cld10  ;jump to load command
+
+;***************
+old	beq old1
+	jmp snerr
+old1	lda txttab+1
+	ldy #1
+	sta (txttab),y
+	jsr lnkprg
+	clc
+	lda index
+	adc #2
+	sta vartab
+	lda index+1
+	adc #0
+	sta vartab+1
+	jmp init2
 
 ;***************
 dos	beq ptstat      ;no argument: print status

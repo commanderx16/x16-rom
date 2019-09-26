@@ -1,6 +1,6 @@
-	.segment "LOBASIC"
-	.word init       ;c000 hard reset
-	.word panic      ;c000 soft reset
+	.segment "BASIC"
+	jmp init         ;hard reset
+	jmp panic        ;soft reset
 	.byt "CBMBASIC"
 stmdsp	.word end-1
 	.word for-1
@@ -82,15 +82,16 @@ ptdorl	.byt 100
 	.word dorel-1
 q=128-1
 
-.ifndef C64
+;**************************************
 stmdsp2	; statements
 	.word monitor-1
 	.word dos-1
+	.word old-1
 	.word vpoke-1
 	.word vload-1
 	; functions
 	.word vpeek
-.endif
+;**************************************
 
 reslst	.byt "EN",$c4
 endtk	=$80

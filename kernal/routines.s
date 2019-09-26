@@ -1,3 +1,5 @@
+.export jsrfar, banked_irq
+
 	.segment "ROUTINES"
 
 ;//////////////////   J U M P   T A B L E   R O U T I N E S   \\\\\\\\\\\\\\\\\
@@ -92,74 +94,6 @@ getlfs
 indfet
 	sta fetvec      ; LDA (fetvec),Y  utility
 	jmp fetch
-
-
-; LONG CALL  utility
-;
-; jsr jsrfar
-; .word address
-; .byte bank
-
-jsrfar	pha             ;save registers
-	txa
-	pha
-	tya
-	pha
-
-        tsx
-	lda $104,x      ;return address lo
-	sta imparm
-	clc
-	adc #3
-	sta $104,x      ;and write back with 3 added
-	lda $105,x      ;return address hi
-	sta imparm+1
-	adc #0
-	sta $105,x
-
-	ldy #1
-	lda (imparm),y  ;target address lo
-	sta jmpfr+1
-	iny
-	lda (imparm),y  ;target address hi
-	sta jmpfr+2
-	cmp #$c0
-	bcs @1          ;target is in ROM
-; target is in RAM
-	lda d1pra
-	sta savbank     ;save original bank
-	iny
-	lda (imparm),y  ;target address bank
-	sta d1pra       ;set RAM bank
-	pla             ;restore registers
-	tay
-	pla
-	tax
-	pla
-	jsr jmpfr
-	pha
-	lda savbank
-	sta d1pra
-	pla
-	rts
-
-@1	lda d1prb
-	sta savbank     ;save original bank
-	iny
-	lda (imparm),y  ;target address bank
-	and #$07
-	sta d1prb       ;set ROM bank
-	pla             ;restore registers
-	tay
-	pla
-	tax
-	pla
-	jsr jmpfr
-	pha
-	lda savbank
-	sta d1prb
-	pla
-	rts
 
 
 ; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -287,7 +221,8 @@ stavec	=*+1
 ;
 ;  exits with .a= data byte & status flags valid, .x is altered
 
-cmpare	pha
+cmpare
+	pha
 	lda d1pra       ;save current config (RAM)
 	pha
 	txa
@@ -309,14 +244,109 @@ cmpvec	=*+1
 	plp
 	rts
 
+; LONG CALL  utility
+;
+; jsr jsrfar
+; .word address
+; .byte bank
+
+jsrfar	pha             ;reserve 1 byte on the stack
+	php             ;save registers & status
+	pha
+	phx
+	phy
+
+        tsx
+	lda $106,x      ;return address lo
+	sta imparm
+	clc
+	adc #3
+	sta $106,x      ;and write back with 3 added
+	lda $107,x      ;return address hi
+	sta imparm+1
+	adc #0
+	sta $107,x
+
+	ldy #1
+	lda (imparm),y  ;target address lo
+	sta jmpfr+1
+	iny
+	lda (imparm),y  ;target address hi
+	sta jmpfr+2
+	cmp #$c0
+	bcs @1          ;target is in ROM
+; target is in RAM
+	lda d1pra
+	sta $0105,x     ;save original bank into reserved byte
+	iny
+	lda (imparm),y  ;target address bank
+	sta d1pra       ;set RAM bank
+	ply             ;restore registers
+	plx
+	pla
+	plp
+	jsr jmpfr
+	php
+	pha
+	phx
+	tsx
+	lda $0104,x
+	sta d1pra       ;restore RAM bank
+	jmp @2
+
+@1	lda d1prb
+	sta $0105,x     ;save original bank into reserved byte
+	iny
+	lda (imparm),y  ;target address bank
+	and #$07
+	sta d1prb       ;set ROM bank
+	ply             ;restore registers
+	plx
+	pla
+	plp
+	jsr jmpfr
+	php
+	pha
+	phx
+	tsx
+	lda $0104,x
+	sta d1prb       ;restore ROM bank
+	lda $0103,x     ;overwrite reserved byte...
+	sta $0104,x     ;...with copy of .p
+@2	plx
+	pla
+	plp
+	plp
+	rts
+
 jmpfr	jmp $ffff
 
+
+banked_irq
+	pha
+	phx
+	lda d1prb
+	pha
+	lda #BANK_KERNAL
+	sta d1prb
+	lda #>@l1
+	pha
+	lda #<@l1
+	pha
+	tsx
+	lda $0106,x
+	pha
+	jmp ($fffe)
+@l1	pla
+	sta d1prb
+	plx
+	pla
+	rti
+
+
 	; this should not live in the vector area, but it's ok for now
-monitor:
-	lda #BANK_UTIL
-	sta d1prb ; ROM bank
-	jmp ($c000)
 restore_basic:
-	lda #BANK_BASIC
-	sta d1prb ; ROM bank
-	jmp ($c002)
+	jsr jsrfar
+	.word $c000 + 3
+	.byte BANK_BASIC
+	;not reached

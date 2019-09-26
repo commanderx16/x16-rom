@@ -11,11 +11,12 @@ start	ldx #$ff
 ;
 	jsr cint        ;go initilize screen
 	cli             ;interrupts okay now
-.ifdef C64
-	jmp ($a000)     ;go to basic system
-.else
-	jmp ($c000)     ;go to basic system
-.endif
+
+
+	jsr jsrfar
+	.word $c000     ;go to basic system
+	.byte 0
+	                ;not reached
 
 ; restor - set kernal indirects and vectors (system)
 ;
@@ -48,13 +49,8 @@ vectse
 ; ramtas - memory size check and set
 ;
 ramtas	lda #0          ;zero low memory
-.ifdef C64
-	tay             ;start at 0002
-ramtz0	sta $0002,y     ;zero page
-.else
 	tay
 ramtz0	sta $0000,y     ;zero page
-.endif
 	sta $0200,y     ;user buffers and vars
 	sta $0300,y     ;system space and user space
 	iny
@@ -70,92 +66,35 @@ ramtz0	sta $0000,y     ;zero page
 	sta memstr+1    ;always at $0800
 	lda #>vicscn
 	sta hibase      ;set base of screen
-
-.ifndef C64
+;
+;
+;
 .import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
-;
-; copy ram code
-;
-	.assert __KERNRAM_SIZE__ <= 128, error, "RAM download code can't handle more than 128 bytes"
-	ldx #<__KERNRAM_SIZE__-1
-:	lda __KERNRAM_LOAD__,x
-	sta __KERNRAM_RUN__,x     ;download 'FETCH, STASH, CMPARE, JSRFAR, JMPFAR' ram code
+.assert __KERNRAM_SIZE__ < $0100, error, "KERNRAM size overflows one page"
+	ldx #<__KERNRAM_SIZE__
+ramtz1	lda __KERNRAM_LOAD__-1,x
+	sta __KERNRAM_RUN__-1,x
 	dex
-	bpl :-
-.endif
+	bne ramtz1
 	rts
 
 ; ioinit - initilize io devices
 ;
 ioinit
-.ifdef C64
-	lda #$7f        ;kill interrupts
-	sta d1icr
-	sta d2icr
-	sta d1pra       ;turn on stop key
-	lda #%00001000  ;shut off timers
-	sta d1cra
-	sta d2cra
-	sta d1crb
-	sta d2crb
-; configure ports
-	ldx #$00        ;set up keyboard inputs
-	stx d1ddrb      ;keyboard inputs
-	stx d2ddrb      ;user port (no rs-232)
-	stx sidreg+24   ;turn off sid
-	dex
-	stx d1ddra      ;keyboard outputs
-	lda #%00000111  ;set serial/va14/15 (clkhi)
-	sta d2pra
-	lda #%00111111  ;set serial in/out, va14/15out
-	sta d2ddra
-.else
 	; XXX TODO: VIC-20: $FDF9
-.endif
-.ifdef PS2
 	jsr kbdis       ;inhibit ps/2 communcation
-.endif
-.ifdef C64
-	lda #0
-	sta $d011
-.endif
 ;
 ; set up banking
 ;
-.ifdef C64
-;	lda #%11100111  ;motor on, hiram lowram charen high
-;	sta r6510
-;	lda #%00101111  ;mtr out,sw in,wr out,control out
-;	sta d6510
-.endif
 	lda #$ff
 	sta d1ddra
 	sta d1ddrb
 	lda #0
 	sta d1pra ; RAM bank
-	sta d1prb ; ROM bank
 ;
 ;jsr clkhi ;clkhi to release serial devices  ^
 ;
 iokeys
-.ifdef C64
-	lda palnts      ;pal or ntsc
-	beq i0010	;ntsc
-	lda #<sixtyp
-	sta d1t1l
-	lda #>sixtyp
-	jmp i0020
-i0010	lda #<sixty     ;keyboard scan irq's
-	sta d1t1l
-	lda #>sixty
-i0020	sta d1t1h
-	lda #$81        ;enable t1 irq's
-	sta d1icr
-	lda d1cra
-	and #$80        ;save only tod bit
-	ora #%00010001  ;enable timer1
-	sta d1cra
-.else ; C64
 .if 0 ; VIA#2 timer IRQ for 60 Hz
 	lda #<sixty     ;keyboard scan irq's
 	sta d1t1l
@@ -169,17 +108,11 @@ i0020	sta d1t1h
 	lda #1
 	sta veraien
 .endif
-.endif ; C64
 	jmp clklo       ;release the clock line***901227-03***
 ;
 ; sixty hertz value
 ;
-.ifdef C64
-sixty	= 17045         ; ntsc
-sixtyp	= 16421         ; pal
-.else
-sixty	= 8 * 1000000 / 60
-.endif
+sixty	= mhz * 1000000 / 60
 
 setnam	sta fnlen
 	stx fnadr
@@ -191,15 +124,6 @@ setlfs	sta la
 	sty sa
 	rts
 
-readss	lda fa          ;see which devices' to read
-	cmp #2          ;is it rs-232?
-	bne readst      ;no...read serial/cass
-	lda rsstat      ;yes...get rs-232 up
-	pha
-	lda #00         ;clear rs232 status when read
-	sta rsstat
-	pla
-	rts
 setmsg	sta msgflg
 readst	lda status
 udst	ora status

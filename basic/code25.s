@@ -1,5 +1,3 @@
-	.segment "HIBASIC"         ;start of vic-40 kernal rom
-
 ; continuation of exponent routine
 ;
 stold	sta oldov

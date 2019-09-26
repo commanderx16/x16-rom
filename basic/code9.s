@@ -135,7 +135,6 @@ eval0	jsr chrget
 	bcs eval2
 eval1	jmp fin
 eval2
-.ifndef C64
 ;**************************************
 ; hex literal input
 ;**************************************
@@ -183,7 +182,6 @@ evalh6	clc
 	rts
 evalb0
 ;**************************************
-.endif
 	jsr isletc
 	bcc *+5
 	jmp isvar

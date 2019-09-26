@@ -19,5 +19,5 @@ exp	lda #<logeb2
 	adc #$50
 	bcc stoldx
 	jsr incrnd
-stoldx	jmp stold       ;cross boundries
-
+; continues into stold
+stoldx
