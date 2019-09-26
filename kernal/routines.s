@@ -1,4 +1,4 @@
-.export jsrfar, banked_irq
+.export jsrfar, banked_irq, jsrfar
 
 	.segment "ROUTINES"
 

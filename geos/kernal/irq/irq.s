@@ -191,8 +191,7 @@ convert_vic_to_vera:
 	sta $9efe
 	beq :+
 	rts
-	nop
-:	inc $a000 + 7999
+:	;inc $a000 + 7999
 
 	PushW r0
 	PushW r1
@@ -242,7 +241,6 @@ l1:	asl
 	PopW r2
 	PopW r1
 	PopW r0
-	nop
 	rts
 
 hstart  =0

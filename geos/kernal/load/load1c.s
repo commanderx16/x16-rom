@@ -32,6 +32,28 @@ DeskTopName:
 .segment "load1d"
 
 _EnterDT_Str0:
-	.byte "!", 0
+.ifdef bsw128
+       .byte BOLDON, "Please insert a disk with the", 0
+.else
+       .byte BOLDON, "Please insert a disk", 0
+.endif
 _EnterDT_Str1:
-	.byte "?", 0
+.ifndef bsw128
+       .byte "with "
+.endif
+.ifdef bsw128
+       .byte "128 DESKTOP"
+.elseif .defined(gateway)
+       .byte "gateWay"
+.else
+       .byte "deskTop"
+.endif
+       .byte " V"
+.ifdef bsw128
+       .byte "2.0"
+.elseif .defined(wheels)
+       .byte "3.0"
+.else
+       .byte "1.5"
+.endif
+       .byte " or higher", 0

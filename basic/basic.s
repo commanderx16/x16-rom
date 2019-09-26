@@ -1,5 +1,7 @@
 .feature labels_without_colons, pc_assignment
 
+.include "../banks.inc"
+
 .include "declare.s"
 .include "tokens.s"
 .include "token2.s"

@@ -154,14 +154,15 @@ _PanicDB_DT:
 .segment "panic3"
 
 _PanicDB_Str:
-	.byte BOLDON
+       .byte BOLDON
 .ifdef wheels_size
-	.byte "Error near "
+       .byte "Error near "
 .else
+       .byte "System error near "
 .endif
 .endif
 
-	.byte "$"
+       .byte "$"
 _PanicAddr:
-	.byte "xxxx"
-	.byte NULL
+       .byte "xxxx"
+       .byte NULL
