@@ -37,7 +37,7 @@ all:
 	ca65 -o charset/petscii.o charset/petscii.tmp.s
 	ca65 -o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
 
-	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/charset.o charset/iso-8859-15.o kernsup/kernsup.o kernsup/irqsup.o -Ln rom.txt
+	ld65 -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/petscii.o charset/iso-8859-15.o kernsup/kernsup.o kernsup/irqsup.o -Ln rom.txt
 
 clean:
 	rm -f kernsup/*.o
@@ -45,4 +45,4 @@ clean:
 	rm -f monitor/monitor.o monitor/monitor_support.o
 	rm -f cbdos/*.o
 	rm -f keymap/keymap.o
-	rm -f charset/charset.o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
+	rm -f charset/petscii.o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
