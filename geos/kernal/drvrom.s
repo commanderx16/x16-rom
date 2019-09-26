@@ -200,7 +200,7 @@ get_dir_head:
 	; fallthrough
 get_block:
 	cmp #$ff
-	bne not_empty_block
+;	bne not_empty_block
 	ldy #0
 	tya
 :	sta (r4),y ; clear block
@@ -211,6 +211,7 @@ get_block:
 	sta (r4),y ; link $00/$FF
 	rts
 
+.if 0
 not_empty_block:
 	php
 	sei
@@ -223,7 +224,7 @@ not_empty_block:
 	clc
 	adc #1 ; skip code ROM bank
 	ldx $9f60
-	sta $9f60 ; ROM bank
+	bit $9f60 ; ROM bank
 	pla
 	tay
 	PushW r5
@@ -244,3 +245,4 @@ not_empty_block:
 	stx $9f60
 	plp
 	rts
+.endif

@@ -68,6 +68,8 @@ _IRQHandler:
 	pha
 	tya
 	pha
+	lda #1
+	sta veraisr
 .ifdef use2MHz
 	LoadB clkreg, 0
 .endif
@@ -182,35 +184,15 @@ IRQ2Handler:
 
 ; convert VIC-II bitmap to VERA bitmap
 convert_vic_to_vera:
-;	lda $9efe
-;	clc
-;	adc #1
-;	and #3
-;	sta $9efe
-;	beq :+
-;	rts
+	lda $9efe
+	clc
+	adc #1
+	and #3
+	sta $9efe
+	beq :+
+	rts
+	nop
 :	inc $a000 + 7999
-	lda #0 ; layer1
-	sta veralo
-	sta veramid
-	lda #$14
-	sta verahi
-	lda #7 << 5 | 1; 256c bitmap
-	sta veradat
-	lda #0; tile_w=320px
-	sta veradat
-	sta veradat; ignore
-	sta veradat; ignore
-	sta veradat; tile_base_lo = 0
-	sta veradat; tile_base_hi = 0
-
-	lda #$40 ; composer
-	sta veralo
-	lda #1; VGA
-	sta veradat
-	lda #64
-	sta veradat; hscale=2x
-	sta veradat; vscale=2x
 
 	PushW r0
 	PushW r1
@@ -260,4 +242,20 @@ l1:	asl
 	PopW r2
 	PopW r1
 	PopW r0
+	nop
 	rts
+
+hstart  =0
+hstop   =640
+vstart  =0
+vstop   =480
+tvera_composer:
+	.byte 7 << 5 | 1  ;256c bitmap, VGA
+	.byte 64, 64      ;hscale, vscale
+	.byte 14          ;border color
+	.byte <hstart
+	.byte <hstop
+	.byte <vstart
+	.byte <vstop
+	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
+tvera_composer_end:

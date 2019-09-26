@@ -69,6 +69,21 @@
 ;         here.
 ;
 
+hstart  =0
+hstop   =640
+vstart  =0
+vstop   =480
+tvera_composer:
+	.byte 7 << 5 | 1  ;256c bitmap, VGA
+	.byte 64, 64      ;hscale, vscale
+	.byte 14          ;border color
+	.byte <hstart
+	.byte <hstop
+	.byte <vstart
+	.byte <vstop
+	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
+tvera_composer_end:
+
 _ResetHandle:
 	sei
 	cld
@@ -122,24 +137,49 @@ ASSERT_NOT_BELOW_IO
 	.word __drvrom_RUN__
 	.word __drvrom_SIZE__
 
-	; init sprites
-	lda #$20
+	lda #$00 ; layer0
 	sta veralo
-	lda #0
+	lda #$20
 	sta veramid
-	lda #$14
+	lda #$1F
+	sta verahi
+	lda #7 << 5 | 1; 256c bitmap
+	sta veradat
+	lda #0
+	sta veradat; tile_w=320px
+	sta veradat; map_base_lo: ignore
+	sta veradat; map_base_hi: ignore
+	sta veradat; tile_base_lo = 0
+	sta veradat; tile_base_hi = 0
+
+	lda #$00        ;$F0000: composer registers
+	sta veralo
+	sta veramid
+	ldx #0
+px5:	lda tvera_composer,x
+	sta veradat
+	inx
+	cpx #tvera_composer_end-tvera_composer
+	bne px5
+
+	; init sprites
+	lda #$00
+	sta veralo
+	lda #$40
+	sta veramid
+	lda #$1F
 	sta verahi
 	lda #1
 	sta veradat ; enable sprites
 
-	lda #$04
+	lda #$00
 	sta veralo
-	lda #$08
+	lda #$50
 	sta veramid
 	lda #0
 	sta veradat
-	lda #8
-	sta veradat ; $10000
+	lda #1 << 7 | 8 ; 8 bpp, address=$10000
+	sta veradat
 
 	lda #0
 	sta veralo
@@ -167,6 +207,10 @@ xx2:	txa
 	bne :-
 xx1:	dex
 	bne xx2
+
+	; IRQ
+	lda #1
+	sta veraien
 
 	; set date
 	ldy #2
@@ -263,9 +307,6 @@ bootOffs:
 
 .segment "entry"
 entry:
-	sei
-	lda #0
-	sta $9f60 ; ROM bank
 	jmp _ResetHandle
 
 .segment "vectors"

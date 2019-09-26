@@ -184,11 +184,11 @@ _EnablSprite:
 ; Destroyed: a, x, y, r6
 ;---------------------------------------------------------------
 _PosSprite:
-	lda #0
+	lda #$02
 	sta veralo
-	lda #8
+	lda #$50
 	sta veramid
-	lda #$14
+	lda #$1F
 	sta verahi
 	lda r4L
 	sta veradat
@@ -196,7 +196,9 @@ _PosSprite:
 	sta veradat
 	lda r5L
 	sta veradat
-	lda #3 << 2 | 1 << 1
+	lda #0
+	sta veradat
+	lda #3 << 2 ; z-depth
 	sta veradat
 	rts
 .endif
