@@ -1,4 +1,6 @@
 	.feature labels_without_colons
+	;use cpu 65C02
+	.pc02
 
 	.import __BANK0_LOAD__
 	.import __BANK1_LOAD__
@@ -22,7 +24,7 @@ DFLTO   = $9A
 CHROUT  = $FFD2
 PTR	= $FB
 BANKSEL	= $9F61
-JSRFAR	= $FF6E
+JSRFAR	= $03D1
 
 .macro print addr
 	ldx #<addr
@@ -35,6 +37,61 @@ JSRFAR	= $FF6E
 	.word addr
 	.byte bank
 .endmacro
+
+.macro savestack
+	tsx
+	phx
+.endmacro
+
+.macro checkstack
+	plx
+	stx $00
+	tsx
+	cpx $00
+	beq @end
+	print aErrSP
+@end:
+.endmacro
+
+.macro setregs aa, xx, yy
+	lda #aa
+	ldx #xx
+	ldy #yy
+	.byte $ff
+.endmacro
+
+.macro checkregs aa, xx, yy
+	.byte $ff
+	.scope
+	cmp #aa
+	beq @cx
+	lda #1
+	.byte $2c
+@cx	lda #0
+	cpx #xx
+	beq @cy
+	ora #2
+@cy	cpy #yy
+	beq @px
+	pha
+	print aErrY
+	pla
+@px	cmp #2
+	bcc @pa
+	pha
+	print aErrX
+	pla
+@pa	ora #0
+	beq @end
+	print aErrA
+@end:
+	.endscope
+.endmacro
+
+aErrA	.byte $81,"register a mismatch!",5,0
+aErrX	.byte $81,"register x mismatch!",5,0
+aErrY	.byte $81,"register y mismatch!",5,0
+aErrSP	.byte $81,"stack pointer mismatch!",5,0
 
 	;.data
 aCopy	.byte "copying code to bank "
@@ -70,7 +127,11 @@ aMainRt	.byte "we returned to main program.",0
 	jsr copy2bank
 
 	print aMain0
+	savestack
+	setregs $1A, $2B, $3C
 	jsrfar $A000, 0
+	checkregs $1A, $2B, $3C
+	checkstack
 	print aMainRt
 
 	rts
@@ -109,7 +170,11 @@ aMainRt	.byte "we returned to main program.",0
 	.proc hello0
 	print aMsg
 	print aCall
+	savestack
+	setregs $4D, $5E, $6F
 	jsrfar $A000,2
+	checkregs $4D, $5E, $6F
+	checkstack
 	print aRet
 	rts
 aMsg	.byte "hello from bank zero",0
@@ -128,7 +193,11 @@ aMsg	.byte "hello from bank one",0
 	.proc hello2
 	print aMsg
 	print aCall
+	savestack
+	setregs $9A, $8B, $7C
 	jsrfar $A000,1
+	checkregs $9A, $8B, $7C
+	checkstack
 	print aRet
 	rts
 aMsg	.byte "hello from bank two",0
