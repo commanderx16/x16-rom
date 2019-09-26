@@ -221,7 +221,9 @@ stavec	=*+1
 ;
 ;  exits with .a= data byte & status flags valid, .x is altered
 
-cmpare	pha
+cmpare
+.if 0
+	pha
 	lda d1pra       ;save current config (RAM)
 	pha
 	txa
@@ -242,6 +244,7 @@ cmpvec	=*+1
 	pha
 	plp
 	rts
+.endif
 
 ; LONG CALL  utility
 ;
@@ -249,21 +252,22 @@ cmpvec	=*+1
 ; .word address
 ; .byte bank
 
-jsrfar	php             ;save registers & status
+jsrfar	pha             ;reserve 1 byte on the stack
+	php             ;save registers & status
 	pha
 	phx
 	phy
 
         tsx
-	lda $105,x      ;return address lo
+	lda $106,x      ;return address lo
 	sta imparm
 	clc
 	adc #3
-	sta $105,x      ;and write back with 3 added
-	lda $106,x      ;return address hi
+	sta $106,x      ;and write back with 3 added
+	lda $107,x      ;return address hi
 	sta imparm+1
 	adc #0
-	sta $106,x
+	sta $107,x
 
 	ldy #1
 	lda (imparm),y  ;target address lo
@@ -275,7 +279,7 @@ jsrfar	php             ;save registers & status
 	bcs @1          ;target is in ROM
 ; target is in RAM
 	lda d1pra
-	sta savbank     ;save original bank
+	sta $0105,x     ;save original bank
 	iny
 	lda (imparm),y  ;target address bank
 	sta d1pra       ;set RAM bank
@@ -286,14 +290,20 @@ jsrfar	php             ;save registers & status
 	jsr jmpfr
 	php
 	pha
-	lda savbank
-	sta d1pra
+	phx
+	tsx
+	lda $0104,x
+	sta d1pra       ;restore RAM bank
+	lda $0103,x
+	sta $0104,x     ;make copy of .p
+	plx
 	pla
+	plp
 	plp
 	rts
 
 @1	lda d1prb
-	sta savbank     ;save original bank
+	sta $0105,x     ;save original bank
 	iny
 	lda (imparm),y  ;target address bank
 	and #$07
@@ -305,9 +315,15 @@ jsrfar	php             ;save registers & status
 	jsr jmpfr
 	php
 	pha
-	lda savbank
-	sta d1prb
+	phx
+	tsx
+	lda $0104,x
+	sta d1prb       ;restore ROM bank
+	lda $0103,x
+	sta $0104,x     ;make copy of .p
+	plx
 	pla
+	plp
 	plp
 	rts
 
