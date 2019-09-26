@@ -57,11 +57,11 @@ JSRFAR	= $03D1
 	lda #aa
 	ldx #xx
 	ldy #yy
-	.byte $ff
+	;.byte $ff
 .endmacro
 
 .macro checkregs aa, xx, yy
-	.byte $ff
+	;.byte $ff
 	.scope
 	cmp #aa
 	beq @cx
