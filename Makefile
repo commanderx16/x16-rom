@@ -30,7 +30,7 @@ charset/iso-8859-15.o \
 .PHONY : all x16 c64
 all : x16 c64
 x16 : rom.bin
-c64 : basic-c64.bin kernal-c64.bin rom-c64.bin
+c64 : basic-c64.bin kernal-c64.bin
 
 # C64
 
