@@ -23,8 +23,9 @@ basic_stub
 DFLTO   = $9A
 CHROUT  = $FFD2
 PTR	= $FB
+BANKROM	= $9F60
 BANKSEL	= $9F61
-JSRFAR	= $03D1
+JSRFAR	= $FF6E
 
 .macro print addr
 	ldx #<addr
@@ -33,6 +34,10 @@ JSRFAR	= $03D1
 .endmacro
 
 .macro jsrfar addr, bank
+	pha
+	lda #7
+	sta BANKROM
+	pla
 	jsr JSRFAR
 	.word addr
 	.byte bank
@@ -134,6 +139,9 @@ aMainRt	.byte "we returned to main program.",0
 	checkstack
 	print aMainRt
 
+	lda #0
+	sta BANKROM
+	
 	rts
 
 	.endproc
