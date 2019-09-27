@@ -57,8 +57,17 @@ peek	lda poker+1
 	pha
 	jsr getadr
 	ldy #0
-getcon	lda (poker),y
-	tay
+	lda poker+1
+	cmp #$c0
+	bcs peek1
+	lda (poker),y   ;RAM
+	jmp peek2
+peek1	lda #poker
+.import fetvec, fetch
+	sta fetvec
+	ldx #BANK_KERNAL
+	jsr fetch       ;ROM
+peek2	tay
 dosgfl	pla
 	sta poker
 	pla

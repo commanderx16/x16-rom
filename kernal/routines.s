@@ -1,4 +1,5 @@
 .export jsrfar, banked_irq
+.export fetvec, fetch
 
 	.segment "ROUTINES"
 
