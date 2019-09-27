@@ -313,3 +313,86 @@ entry:
 stop:	.word _NMIHandler
 	.word entry
 	.word _IRQHandler
+
+.if 1
+.segment "RAM"
+
+.setcpu "65c02"
+imparm = 0
+via1	=$9f60                  ;VIA 6522 #1
+d1prb	=via1+0
+d1pra	=via1+1
+.global gjsrfar
+gjsrfar:
+	pha             ;reserve 1 byte on the stack
+	php             ;save registers & status
+	pha
+	phx
+	phy
+
+        tsx
+	lda $106,x      ;return address lo
+	sta imparm
+	clc
+	adc #3
+	sta $106,x      ;and write back with 3 added
+	lda $107,x      ;return address hi
+	sta imparm+1
+	adc #0
+	sta $107,x
+
+	ldy #1
+	lda (imparm),y  ;target address lo
+	sta jmpfr+1
+	iny
+	lda (imparm),y  ;target address hi
+	sta jmpfr+2
+	cmp #$c0
+	bcs @1          ;target is in ROM
+; target is in RAM
+	lda d1pra
+	sta $0105,x     ;save original bank into reserved byte
+	iny
+	lda (imparm),y  ;target address bank
+	sta d1pra       ;set RAM bank
+	ply             ;restore registers
+	plx
+	pla
+	plp
+	jsr jmpfr
+	php
+	pha
+	phx
+	tsx
+	lda $0104,x
+	sta d1pra       ;restore RAM bank
+	jmp @2
+
+@1:	lda d1prb
+	sta $0105,x     ;save original bank into reserved byte
+	iny
+	lda (imparm),y  ;target address bank
+	and #$07
+	sta d1prb       ;set ROM bank
+	ply             ;restore registers
+	plx
+	pla
+	plp
+	jsr jmpfr
+	php
+	pha
+	phx
+	tsx
+	lda $0104,x
+	sta d1prb       ;restore ROM bank
+	lda $0103,x     ;overwrite reserved byte...
+	sta $0104,x     ;...with copy of .p
+@2:	plx
+	pla
+	plp
+	plp
+	rts
+
+jmpfr:	jmp $ffff
+
+.endif

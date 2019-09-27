@@ -9,6 +9,8 @@
 .include "kernal.inc"
 .include "jumptab.inc"
 
+.include "../banks.inc"
+
 .segment "drvrom"
 
 ; CALL ffffff33 GetNxtDirEntry
@@ -119,130 +121,69 @@ _ReadLink:
 	; TODO
 	rts
 
+.import gjsrfar
 
 __OpenDisk:
-	jsr get_dir_head
-	LoadB $848b, $ff ; isGEOS
-	ldx #17
-:	lda $8290,x
-	sta $841e,x
-	dex
-	bpl :-
-	LoadW r5, $841e
-	ldx #0
+	php
+	sei
+	jsr gjsrfar
+	.word $c000 + 3 * 8
+	.byte BANK_CBDOS
+	plp
 	rts
 
 _ReadBuff:
-	LoadW r4, $8000
+	php
+	sei
+	jsr gjsrfar
+	.word $c000 + 3 * 9
+	.byte BANK_CBDOS
+	plp
+	rts
+
 __ReadBlock:
 __GetBlock:
-	lda r1L
-	cmp #18
-	bne not_18
-	lda r1H
-	beq get_block_1
-	cmp #1
-	beq get_block_1
-	bne empty_block ; always
-
-not_18:	bcc empty_block
-
-	lda r1H
-	clc
-	adc #2
-get_block_1:
-	jsr get_block
-	ldx #0
-	sec
+	php
+	sei
+	jsr gjsrfar
+	.word $c000 + 3 * 10
+	.byte BANK_CBDOS
+	plp
 	rts
-
-empty_block:
-	lda #$ff
-	bne get_block_1 ; always
-
 
 __GetDirHead:
-	jsr get_dir_head
-	LoadB r1L, 18
-	LoadB r1H, 0
-	LoadW r4, $8200
+	php
+	sei
+	jsr gjsrfar
+	.word $c000 + 3 * 11
+	.byte BANK_CBDOS
+	plp
 	rts
-
 
 __CalcBlksFree:
-	LoadW r4, 999*4
-	LoadW r3, 999*4
-	ldx #0
+	php
+	sei
+	jsr gjsrfar
+	.word $c000 + 3 * 12
+	.byte BANK_CBDOS
+	plp
 	rts
 
-
 _Get1stDirEntry:
-	LoadW r4, $8000
-	lda #1
-	jsr get_block
-	lda #$02
-	sta r4L
-	sta r5L
-	lda #$80
-	sta r4H
-	sta r5H
-	ldx #0
-	sec
+	php
+	sei
+	jsr gjsrfar
+	.word $c000 + 3 * 13
+	.byte BANK_CBDOS
+	plp
 	rts
 
 _GetNxtDirEntry:
-	ldy #1
-	clc
-	rts
-
-get_dir_head:
-	lda #0
-	; fallthrough
-get_block:
-	cmp #$ff
-;	bne not_empty_block
-	ldy #0
-	tya
-:	sta (r4),y ; clear block
-	iny
-	bne :-
-	lda #$ff
-	iny
-	sta (r4),y ; link $00/$FF
-	rts
-
-.if 0
-not_empty_block:
 	php
 	sei
-	pha
-	lsr
-	lsr
-	lsr
-	lsr
-	lsr ; bank
-	clc
-	adc #1 ; skip code ROM bank
-	ldx $9f60
-	bit $9f60 ; ROM bank
-	pla
-	tay
-	PushW r5
-	tya
-	and #$1f
-	clc
-	adc #$c0
-	sta r5H
-	lda #0
-	sta r5L
-	ldy #0
-:	lda (r5),y
-	sta (r4),y
-	iny
-	bne :-
-
-	PopW r5
-	stx $9f60
+	jsr gjsrfar
+	.word $c000 + 3 * 14
+	.byte BANK_CBDOS
 	plp
 	rts
-.endif
+

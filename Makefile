@@ -8,10 +8,10 @@ endif
 AS           = ca65
 LD           = ld65
 
-ARGS_KERNAL=-g
-ARGS_BASIC=-g
+#ARGS_KERNAL=-g
+#ARGS_BASIC=-g
 #ARGS_MONITOR=-g
-#ARGS_DOS=-g
+ARGS_DOS=-g
 
 
 ASFLAGS      = -I geos/inc -I geos -g

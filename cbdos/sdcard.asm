@@ -44,6 +44,8 @@
 .export sd_select_card, sd_deselect_card
 .export sd_read_block, sd_read_multiblock, sd_write_block
 
+.export sd_read_block_lower, sd_read_block_upper
+
 ; public bock api
 .export read_block=sd_read_block
 .export write_block=sd_write_block
@@ -300,6 +302,51 @@ sd_deselect_card:
       pla
 
       rts
+
+sd_read_block_lower:
+			jsr sd_select_card
+
+			jsr sd_cmd_lba
+			lda #cmd17
+			jsr sd_cmd
+
+		   	bne @exit
+@l1:
+			; wait for sd card data token
+			lda #sd_data_token
+			jsr sd_wait
+            		bne @exit
+
+			ldy #$00
+			jsr halfblock
+
+@discard:		jsr spi_r_byte ; discard second half
+			iny
+			bne @discard
+
+@exit: 			jmp sd_deselect_card
+
+sd_read_block_upper:
+			jsr sd_select_card
+
+			jsr sd_cmd_lba
+			lda #cmd17
+			jsr sd_cmd
+
+		   	bne @exit
+@l1:
+			; wait for sd card data token
+			lda #sd_data_token
+			jsr sd_wait
+            		bne @exit
+
+			ldy #$00
+			jsr halfblock
+			jsr halfblock	; overwrite first half
+
+@exit: 			jmp sd_deselect_card
+
+
 
 fullblock:
 			; wait for sd card data token
