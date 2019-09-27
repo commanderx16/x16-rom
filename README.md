@@ -1,12 +1,13 @@
-# Commander X16 BASIC/KERNAL/DOS ROM
+# Commander X16 BASIC/KERNAL/DOS/GEOS ROM
 
-This is the Commander X16 ROM containing BASIC, KERNAL and DOS. BASIC and KERNAL are derived from the [Commodore 64 versions](https://github.com/mist64/c64rom).
+This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and KERNAL are derived from the [Commodore 64 versions](https://github.com/mist64/c64rom). GEOS is derived from the [C64/C128 version](https://github.com/mist64/geos).
 
 * BASIC is fully compatible with Commodore BASIC V2.
 * KERNAL
 	* supports the complete $FF81+ API.
 	* has the same zero page and $0200-$033C memory layout as the C64.
 	* does not support tape (device 1).
+* GEOS is fully compatible with the C64 version.
 
 ## New Features
 
@@ -50,11 +51,14 @@ This is the Commander X16 ROM containing BASIC, KERNAL and DOS. BASIC and KERNAL
 
 ## ROM Map
 
-* fixed ROM ($E000-$FFFF): KERNAL
-* banked ROM ($C000-$DFFF):
-	* bank 0: BASIC
-	* bank 1: UTIL (monitor)
-	* bank 2: DOS
+|Bank|Name   |Description                                            |
+|----|-------|-------------------------------------------------------|
+|0   |BASIC  |BASIC interpreter                                      |
+|1-3 |–      |*[Currently unused]*                                   |
+|4   |GEOS   |GEOS KERNAL                                            |
+|5   |CBDOS  |The computer-based CBM-DOS for FAT32 SD cards          |
+|6   |KEYMAP |Keyboard layout tables                                 |
+|7   |KERNAL |character sets (uploaded into VRAM), MONITOR, KERNAL   |
 
 ## RAM Map
 
@@ -69,11 +73,22 @@ This is the Commander X16 ROM containing BASIC, KERNAL and DOS. BASIC and KERNAL
 
 ## Credits
 
-KERNAL and BASIC additions, DOS: Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
+KERNAL, BASIC and GEOS additions, DOS: Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
 
 FAT32 and SD card drivers: Copyright (c) 2018 Thomas Woinke, Marko Lauke, [www.steckschein.de](https://steckschwein.de); MIT License
 
 ## Release Notes
+
+### Release 31
+
+* correct ROM banking:
+	* BASIC and KERNAL now live on separate 16 KB banks ($C000-$FFFF)
+	* BASIC "PEEK" will always access KERNAL ROM
+	* BASIC "SYS" will have BASIC ROM enabled
+* added GEOS
+* added OLD statement to recover deleted BASIC program after NEW or RESET
+* removed software RS-232, will be replaced by VERA UART later
+* Full ISO mode support in Monitor
 
 ### Release 31
 
