@@ -242,10 +242,8 @@ kprend
 	lda #1
 	sta veraisr
 .endif
-	pla             ;restore registers
-	tay
-	pla
-	tax
+	ply             ;restore registers
+	plx
 	pla
 	rti             ;exit from irq routines
 

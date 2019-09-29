@@ -1,11 +1,10 @@
 	.segment "RS232NMI"
 nmi	sei             ;no irq's allowed...
 	jmp (nminv)     ;...could mess up cassettes
-nnmi	pha
-	txa
+nnmi	cld
 	pha
-	tya
-	pha
+	phx
+	phy
 ;
 ; check for stop key down
 ;
@@ -23,9 +22,7 @@ timb	jsr restor      ;restore system indirects
 	.byte BANK_BASIC
 	;not reached
 
-prend	pla             ;because of missing screen editor
-	tay
-	pla
-	tax
+prend	ply             ;because of missing screen editor
+	plx
 	pla
 	rti
