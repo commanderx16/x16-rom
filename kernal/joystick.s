@@ -123,23 +123,19 @@ NES_RIGHT  = (1 << 0)
 @l3:
 	plp ; C: 0 = down, 1 = up
 	php
-	bcc :+
-	sta 2
-	jsr @l5
-	ora 2
-	bne @l4
-:	eor #$ff
-	sta 2
+	bcc @l5    ; down
+	sta j0tmp
+	lda joy0   ; init joy0 the first time a key was pressed
+	bne :+     ; this way, query_joysticks can know
+	lda #$ff   ; whether a keyboard is attached
+:	ora j0tmp
+	bra @l4
+@l5:	eor #$ff
+	sta j0tmp
 	lda joy0
-	and 2
+	and j0tmp
 @l4:	sta joy0
 @l2:	plp
 	pla
 	rts
-; init joy0 the first time a key was pressed
-; this way, query_joysticks can know whether a keyboard is attached
-@l5:	lda joy0
-	bne :+
-	lda #$ff
-:	rts
 

@@ -14,7 +14,7 @@ dflto	.res 1           ;default output device #
 imparm	.res 2           ;PRIMM utility string pointer (was: tape)
 msgflg	.res 1           ;os message flag
 t1	.res 1           ;temporary 1
-	.res 1           ;unused (tape)
+j0tmp	.res 1           ;keyboard joystick temp (was:tape)
 time	.res 3           ;24 hour clock in 1/60th seconds
 r2d2	.res 1           ;serial bus usage
 ; ptch .res 1  (unused)
