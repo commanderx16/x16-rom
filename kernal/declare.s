@@ -6,7 +6,7 @@ savbank	.res 1           ;old bank when switching (was: tape)
 verck	.res 1           ;load or verify flag
 c3p0	.res 1           ;ieee buffered char flag
 bsour	.res 1           ;char buffer for ieee
-	.res 1           ;unused (tape)
+rambks	.res 1           ;number of ram banks (0 means 256)
 xsav	.res 1           ;temp for basin
 ldtnd	.res 1           ;index to logical file
 dfltn	.res 1           ;default input device #

@@ -88,6 +88,26 @@ initms	lda txttab
 	lda #<fremes
 	ldy #>fremes
 	jsr strout
+	sec
+	jsr $ff99       ;read num ram banks
+	tax
+	bne initm2
+	ldx #<2048
+	lda #>2048
+	bne initm3
+initm2	sta facho
+	lda #0
+	asl facho
+	rol
+	asl facho
+	rol
+	asl facho
+	rol
+	ldx facho
+initm3	jsr linprt
+	lda #<freme2
+	ldy #>freme2
+	jsr strout
 	lda memsiz
 	sec
 	sbc txttab
@@ -117,7 +137,9 @@ fremes
 	.byt 5, "  **** COMMANDER X16 BASIC V2 ****", 13
 	.byt $9f, $20, $20, $df, $12, $20, $20, $92, $20, $12, $20, $20, $92, $a9, 13
 	.byt $1e, $20, $20, $20, $20, $12, $20, $92, $20, $12, $20, $92
-	.byt 5, "     2048K RAM SYSTEM"
+	.byt 5, "     ",0
+
+freme2	.byt "K RAM SYSTEM"
 .ifdef PRERELEASE_VERSION
 	.byte " - ROM VERSION R"
 .if PRERELEASE_VERSION >= 100

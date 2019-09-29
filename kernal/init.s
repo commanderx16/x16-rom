@@ -67,7 +67,7 @@ ramtz0	sta $0000,y     ;zero page
 	lda #>vicscn
 	sta hibase      ;set base of screen
 ;
-;
+; copy banking code into RAM
 ;
 .import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
 .assert __KERNRAM_SIZE__ < $0100, error, "KERNRAM size overflows one page"
@@ -76,6 +76,32 @@ ramtz1	lda __KERNRAM_LOAD__-1,x
 	sta __KERNRAM_RUN__-1,x
 	dex
 	bne ramtz1
+
+;
+; detect number of RAM banks
+;
+	lda d1pra       ;RAM bank
+	pha
+	stz d1pra
+	ldx $a000
+	inx
+	lda #1
+:	sta d1pra
+	ldy $a000
+	stx $a000
+	stz d1pra
+	cpx $a000
+	sta d1pra
+	sty $a000
+	beq :+
+	asl
+	bne :-
+:	sta rambks
+	stz d1pra
+	dex
+	stx $a000
+	pla
+	sta d1pra
 	rts
 
 ; ioinit - initilize io devices
@@ -139,6 +165,7 @@ memtop	bcc settop
 ;
 gettop	ldx memsiz
 	ldy memsiz+1
+	lda rambks
 ;
 ;carry clear--set top of memory
 ;
