@@ -4,7 +4,6 @@
 start	ldx #$ff
 	sei
 	txs
-	cld
 	jsr ioinit      ;go initilize i/o devices
 	jsr ramtas      ;go ram test and set
 	jsr restor      ;go set up os vectors

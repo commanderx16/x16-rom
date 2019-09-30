@@ -1,8 +1,7 @@
 	.segment "IRQFILE"
 ; puls - checks for real irq's or breaks
 ;
-puls	cld
-	pha
+puls	pha
 	phx
 	phy
 	tsx
