@@ -327,7 +327,7 @@ bit_found:
 	sta ckbtab
 	lda kbdtab + 1,x
 	sta ckbtab + 1
-	ldx #BANK_KEYBD
+	ldx #BANK_KERNAL
 	lda #ckbtab
 	sta fetvec
 	jsr fetch

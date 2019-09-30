@@ -1,4 +1,5 @@
-.import kbdmeta, ikbdmeta
+kbdmeta:
+ikbdmeta:
 
 	.segment "EDITOR"
 maxchr=80
@@ -79,12 +80,12 @@ setkb2	sta curkbd
 	asl
 	asl             ;*16
 	tay
-	ldx #BANK_KEYBD
+	ldx #BANK_KERNAL
 	jsr fetch
 	beq setkb2      ;end of list? set #0
 	ldx #0
 setkb1	phx
-	ldx #BANK_KEYBD
+	ldx #BANK_KERNAL
 	jsr fetch
 	plx
 	sta kbdnam,x    ;8 bytes kbnam, 8  bytes kbtab
@@ -281,9 +282,14 @@ px5	lda tvera_composer,x
 	bne px5
 	rts
 
+;this should be *way* faster! :(
 copyv
 	ldy #0
-px3	lda (pnt),y
+px3	lda #pnt
+	phx
+	ldx #BANK_CHARSET
+	jsr indfet
+	plx
 	eor pntr
 	sta veradat
 	iny
