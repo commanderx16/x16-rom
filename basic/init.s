@@ -139,7 +139,7 @@ fremes
 	.byt $1e, $20, $20, $20, $20, $12, $20, $92, $20, $12, $20, $92
 	.byt 5, "     ",0
 
-freme2	.byt "K RAM SYSTEM"
+freme2	.byt "K HIGH RAM"
 .ifdef PRERELEASE_VERSION
 	.byte " - ROM VERSION R"
 .if PRERELEASE_VERSION >= 100
