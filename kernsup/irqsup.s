@@ -1,5 +1,5 @@
 .import banked_irq
-.segment "IRQ5"
+.segment "IRQA"
 	.word banked_irq
-.segment "IRQ6"
+.segment "IRQB"
 	.word banked_irq

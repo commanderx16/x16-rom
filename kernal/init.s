@@ -14,7 +14,7 @@ start	ldx #$ff
 
 	jsr jsrfar
 	.word $c000     ;go to basic system
-	.byte 0
+	.byte BANK_BASIC
 	                ;not reached
 
 ; restor - set kernal indirects and vectors (system)

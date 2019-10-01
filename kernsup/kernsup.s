@@ -1,3 +1,5 @@
+.include "../banks.inc"
+
 .import jsrfar, banked_irq
 
 .macro bridge_internal segment, symbol
@@ -8,7 +10,7 @@ address = *
 symbol:
 	jsr jsrfar
 	.word address
-	.byte 7
+	.byte BANK_KERNAL
 	rts
 	.segment segment
 	jmp symbol
