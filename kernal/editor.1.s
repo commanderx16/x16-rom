@@ -1,5 +1,4 @@
-kbdmeta:
-ikbdmeta:
+.import keymaps
 
 	.segment "EDITOR"
 maxchr=80
@@ -61,39 +60,28 @@ scnsiz	stx llen
 ;
 ; set keyboard layout .a
 ;
-setkbd	tay
-	lda isomod
-	bne setkb0
-	lda #<kbdmeta
-	ldx #>kbdmeta
-	bne setkb3
-setkb0	lda #<ikbdmeta
-	ldx #>ikbdmeta
-setkb3	sta 2
-	stx 3
-	lda #2
-	sta fetvec
-	tya
-setkb2	sta curkbd
-	asl
-	asl
-	asl
-	asl             ;*16
-	tay
-	ldx #BANK_KERNAL
-	jsr fetch
-	beq setkb2      ;end of list? set #0
-	ldx #0
-setkb1	phx
-	ldx #BANK_KERNAL
-	jsr fetch
-	plx
-	sta kbdnam,x    ;8 bytes kbnam, 8  bytes kbtab
-	inx
-	iny
-	cpx #16
-	bne setkb1
-	rts
+setkbd	tax
+	lda #<keymaps
+	sta keytab
+	lda #>keymaps
+	sta keytab+1
+	txa
+	beq setkb1      ;found
+setkb5	ldy #0
+setkb4	lda (keytab),y  ;descriptor length
+	beq setkbd      ;end of list
+setkb2	clc
+	adc keytab
+	sta keytab
+	bcc setkb3
+	inc keytab+1
+setkb3	dex
+	bne setkb4
+setkb1	rts
+
+nxtkbd	ldx #1
+	bne setkb5
+
 
 ;initialize i/o
 ;
@@ -111,6 +99,7 @@ cint	jsr iokeys
 	sta mode
 	sta blnon       ;we dont have a good char from the screen yet
 
+	jsr kbdis       ;inhibit ps/2 communcation
 	lda $9fbe       ;emulator detection
 	cmp #'1'
 	bne nemu

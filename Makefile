@@ -9,7 +9,7 @@ AS           = ca65
 LD           = ld65
 
 ARGS_KERNAL=-g
-ARGS_BASIC=-g
+#ARGS_BASIC=-g
 #ARGS_MONITOR=-g
 #ARGS_DOS=-g
 

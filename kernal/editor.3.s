@@ -46,8 +46,6 @@ isosto	cmp isomod
 	beq outhre
 	stx veradat
 	sta isomod
-	lda curkbd
-	jsr setkbd      ;reload keymap
 	jsr clsr        ;clear screen
 	jmp loop2
 

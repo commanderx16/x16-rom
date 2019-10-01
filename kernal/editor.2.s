@@ -262,25 +262,22 @@ MODIFIER_CAPS  = 16; C128: Caps
 
 ; cycle keyboard layouts
 cycle_layout:
-	ldx curkbd
-	inx
-	txa
-	jsr setkbd
+	jsr nxtkbd
 ; put name into keyboard buffer
-	ldy #$8d ; shift + cr
-	sty keyd
-	ldx #0
-:	lda kbdnam,x
+	ldx #$8d ; shift + cr
+	stx keyd
+	ldy #1
+:	lda (keytab),y
 	beq :+
-	sta keyd + 1,x
-	inx
-	cpx #6
+	sta keyd,y
+	iny
+	cpy #6
 	bne :-
-:	tya
-	sta keyd + 1,x
-	inx
-	inx
-	stx ndx
+:	txa
+	sta keyd,y
+	iny
+	iny
+	sty ndx
 	rts
 
 scnkey	jsr receive_down_scancode_no_modifiers
@@ -323,9 +320,9 @@ find_bit:
 	bne find_bit
 
 bit_found:
-	lda kbdtab,x
+;	lda kbdtab,x
 	sta ckbtab
-	lda kbdtab + 1,x
+;	lda kbdtab + 1,x
 	sta ckbtab + 1
 	ldx #BANK_KERNAL
 	lda #ckbtab

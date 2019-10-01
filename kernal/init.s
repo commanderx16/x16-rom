@@ -107,7 +107,6 @@ ramtz1	lda __KERNRAM_LOAD__-1,x
 ;
 ioinit
 	; XXX TODO: VIC-20: $FDF9
-	jsr kbdis       ;inhibit ps/2 communcation
 ;
 ; set up banking
 ;

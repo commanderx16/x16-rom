@@ -122,8 +122,7 @@ joy0	.res 1           ;keyboard joystick temp
 ; temp space for vic-40 variables ****
 ;
 	.res 1           ;rs-232 enables (replaces ier)
-curkbd	.res 1           ;current keyboard layout index
-	.res 2           ;unused (tape)
+	.res 3           ;unused (tape)
 lintmp	.res 1           ;temporary for line index
 palnts	.res 1           ;pal vs ntsc flag 0=ntsc 1=pal
 
@@ -146,9 +145,6 @@ iload	.res 2
 isave	.res 2           ;savesp
 
 ldtb1	.res 61          ;flags+endspace
-
-kbdnam  =$0500           ;6 character keyboard layout name
-kbdtab  =$0506           ;5 pointers to shift/alt/ctrl/altgr/unshifted tables
 
 vicscn	=$0000
 

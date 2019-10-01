@@ -636,10 +636,13 @@ for label1 in data.keys():
 print('FLAG_ASCII_ONLY     = $C000')
 print('FLAG_LOWER_CASE     = $8000')
 print('FLAG_PET_UPPER_CASE = $4000')
+print('ADDRESS_MASK        = $3FFF')
 
 print()
 
 print('.segment "KEYMAPS"\n')
+print('.global keymaps\n')
+print('keymaps:\n')
 
 bytes_descriptors = 0
 
@@ -666,15 +669,17 @@ for kbdid in keytabs.keys():
 						make_pet_upper = True
 					data1 = data[label]
 
+				label = "(" + label + " & ADDRESS_MASK)"
+
 				if not data1:
 					# all zeros
 					pointers.append(0)
 				elif clear_zeros:
-					pointers.append(label + '| FLAG_ASCII_ONLY')
+					pointers.append(label + ' | FLAG_ASCII_ONLY')
 				elif make_lower:
-					pointers.append(label + '| FLAG_LOWER_CASE')
+					pointers.append(label + ' | FLAG_LOWER_CASE')
 				elif make_pet_upper:
-					pointers.append(label + '| FLAG_PET_UPPER_CASE')
+					pointers.append(label + ' | FLAG_PET_UPPER_CASE')
 				else:
 					pointers.append(label)
 	
@@ -707,6 +712,10 @@ for kbdid in keytabs.keys():
 		bytes_descriptors += 2
 				
 	print()
+
+print('; end marker')
+print('\t.word 0\n\n')
+
 
 bytes_data = 0
 
