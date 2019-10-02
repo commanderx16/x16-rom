@@ -57,32 +57,6 @@ scnsiz	stx llen
 	sty nlinesm2
 	jmp clsr ; clear screen
 
-;
-; set keyboard layout .a
-;
-setkbd	tax
-	lda #<keymaps
-	sta keytab
-	lda #>keymaps
-	sta keytab+1
-	txa
-	beq setkb1      ;found
-setkb5	ldy #0
-setkb4	lda (keytab),y  ;descriptor length
-	beq setkbd      ;end of list
-setkb2	clc
-	adc keytab
-	sta keytab
-	bcc setkb3
-	inc keytab+1
-setkb3	dex
-	bne setkb4
-setkb1	rts
-
-nxtkbd	ldx #1
-	bne setkb5
-
-
 ;initialize i/o
 ;
 cint	jsr iokeys
