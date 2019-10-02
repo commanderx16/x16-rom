@@ -446,7 +446,7 @@ tab_unshifted:
 	.byte 0
 
 	.byte 0
-	.byte 0
+	.byte KEY_ISO          ; $61
 	.byte 0
 	.byte 0
 	.byte 0
@@ -454,28 +454,28 @@ tab_unshifted:
 	.byte KEY_BACKSPACE    ; $66
 	.byte 0
 	.byte 0
-	.byte KEY_1            ; $69
+	.byte KEY_NUM_1        ; $69
 	.byte 0
-	.byte KEY_4            ; $6B
-	.byte KEY_7            ; $6C
+	.byte KEY_NUM_4        ; $6B
+	.byte KEY_NUM_7        ; $6C
 	.byte 0
 	.byte 0
 	.byte 0
 
-	.byte KEY_0            ; $70
+	.byte KEY_NUM_0        ; $70
 	.byte KEY_NUM_PERIOD   ; $71
-	.byte KEY_2            ; $72
-	.byte KEY_5            ; $73
-	.byte KEY_6            ; $74
-	.byte KEY_8            ; $75
+	.byte KEY_NUM_2        ; $72
+	.byte KEY_NUM_5        ; $73
+	.byte KEY_NUM_6        ; $74
+	.byte KEY_NUM_8        ; $75
 	.byte KEY_ESC          ; $76
 	.byte 0
-	.byte 0
-	.byte KEY_PLUS         ; $79
-	.byte KEY_3            ; $7A
-	.byte KEY_MINUS        ; $7B
-	.byte KEY_MULTIPLY     ; $7C
-	.byte KEY_9            ; $7D
+	.byte KEY_F11          ; $78
+	.byte KEY_NUM_PLUS     ; $79
+	.byte KEY_NUM_3        ; $7A
+	.byte KEY_NUM_MINUS    ; $7B
+	.byte KEY_NUM_MULTIPLY ; $7C
+	.byte KEY_NUM_9        ; $7D
 	.byte 0                ; Scroll Lock
 	.byte 0
 
@@ -519,3 +519,97 @@ tab_extended:
 
 
 
+
+
+
+
+KEY_Q            = $00
+KEY_W            = $01
+KEY_E            = $02
+KEY_R            = $03
+KEY_T            = $04
+KEY_Y            = $05
+KEY_U            = $06
+KEY_I            = $07
+KEY_O            = $08
+KEY_P            = $09
+KEY_A            = $0A
+KEY_S            = $0B
+KEY_D            = $0C
+KEY_F            = $0D
+KEY_G            = $0E
+KEY_H            = $0F
+KEY_J            = $10
+KEY_K            = $11
+KEY_L            = $12
+KEY_Z            = $13
+KEY_X            = $14
+KEY_C            = $15
+KEY_V            = $16
+KEY_B            = $17
+KEY_N            = $18
+KEY_M            = $19
+KEY_1            = $1A
+KEY_2            = $1B
+KEY_3            = $1C
+KEY_4            = $1D
+KEY_5            = $1E
+KEY_6            = $1F
+KEY_7            = $20
+KEY_8            = $21
+KEY_9            = $22
+KEY_0            = $23
+KEY_MINUS        = $24
+KEY_EQUALS       = $25
+KEY_LEFTBRACKET  = $26
+KEY_RIGHTBRACKET = $27
+KEY_BACKSLASH    = $28
+KEY_SEMICOLON    = $29
+KEY_APOSTROPHE   = $2A
+KEY_COMMA        = $2B
+KEY_PERIOD       = $2C
+KEY_SLASH        = $2D
+KEY_GRAVE        = $2E
+KEY_ISO          = $2F
+
+KEY_ESC          = $80
+KEY_BACKSPACE    = $81
+KEY_TAB          = $82
+KEY_RETURN       = $83
+KEY_SPACE        = $84
+KEY_F1           = $85
+KEY_F2           = $86
+KEY_F3           = $87
+KEY_F4           = $88
+KEY_F5           = $89
+KEY_F6           = $8A
+KEY_F7           = $8B
+KEY_F8           = $8C
+KEY_F9           = $8D
+KEY_F10          = $8E
+KEY_F11          = $8F
+KEY_F12          = $90
+KEY_LEFT         = $90
+KEY_RIGHT        = $91
+KEY_UP           = $92
+KEY_DOWN         = $93
+KEY_INSERT       = $94
+KEY_DELETE       = $95
+KEY_HOME         = $96
+KEY_END          = $97
+KEY_PAGEDOWN     = $98
+KEY_PAGEUP       = $99
+KEY_NUM_0        = $9A
+KEY_NUM_1        = $9B
+KEY_NUM_2        = $9C
+KEY_NUM_3        = $9D
+KEY_NUM_4        = $9E
+KEY_NUM_5        = $9F
+KEY_NUM_6        = $A0
+KEY_NUM_7        = $A1
+KEY_NUM_8        = $A2
+KEY_NUM_9        = $A3
+KEY_NUM_PLUS     = $A4
+KEY_NUM_MINUS    = $A5
+KEY_NUM_MULTIPLY = $A6
+KEY_NUM_PERIOD   = $A7
