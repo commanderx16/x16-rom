@@ -1,3 +1,14 @@
+port_ddr  =d2ddra
+port_data   =d2pra
+bit_data=1              ; 6522 IO port data bit mask  (PA0)
+bit_clk =2              ; 6522 IO port clock bit mask (PA1)
+
+MODIFIER_SHIFT = 1 ; C64:  Shift
+MODIFIER_ALT   = 2 ; C64:  Commodore
+MODIFIER_CTRL  = 4 ; C64:  Ctrl
+MODIFIER_WIN   = 8 ; C128: Alt
+MODIFIER_CAPS  = 16; C128: Caps
+
 ;
 ; set keyboard layout .a
 ;
@@ -20,25 +31,11 @@ setkb3	dex
 	bne setkb4
 setkb1	rts
 
-nxtkbd	ldx #1
-	bne setkb5
-
-; ****** general keyboard scan ******
-;
-port_ddr  =d2ddra
-port_data   =d2pra
-bit_data=1              ; 6522 IO port data bit mask  (PA0)
-bit_clk =2              ; 6522 IO port clock bit mask (PA1)
-
-MODIFIER_SHIFT = 1 ; C64:  Shift
-MODIFIER_ALT   = 2 ; C64:  Commodore
-MODIFIER_CTRL  = 4 ; C64:  Ctrl
-MODIFIER_WIN   = 8 ; C128: Alt
-MODIFIER_CAPS  = 16; C128: Caps
 
 ; cycle keyboard layouts
 cycle_layout:
-	jsr nxtkbd
+	ldx #1
+	jsr setkb5
 ; put name into keyboard buffer
 	ldx #$8d ; shift + cr
 	stx keyd
@@ -80,6 +77,10 @@ is_unshifted:
 	bne bit_found ; use unshifted table
 
 not_numpad:
+
+
+
+
 	ldx #0
 	lda shflag2
 	cmp #MODIFIER_ALT | MODIFIER_CTRL
@@ -153,7 +154,7 @@ add_to_buf:
 add1:	ldx #$ff
 	stx $91
 	ldx ndx ; length of keyboard buffer
-	cpx #10
+	cpx xmax
 	bcs add2 ; full, ignore
 	sta keyd,x ; store
 	inc ndx
@@ -341,11 +342,180 @@ md_sh:	lda #MODIFIER_SHIFT
 	sec
 	rts
 
+tab_unshifted:
+	.byte 0
+	.byte KEY_F9           ; $01
+	.byte 0
+	.byte KEY_F5           ; $03
+	.byte KEY_F3           ; $04
+	.byte KEY_F1           ; $05
+	.byte KEY_F2           ; $06
+	.byte KEY_F12          ; $07
+	.byte 0
+	.byte KEY_F10          ; $09
+	.byte KEY_F8           ; $0A
+	.byte KEY_F6           ; $0B
+	.byte KEY_F4           ; $0C
+	.byte KEY_TAB          ; $0D
+	.byte KEY_GRAVE        ; $0E
+	.byte 0
+
+	.byte 0
+	.byte 0                ; $11: Alt
+	.byte 0                ; $12: Shift
+	.byte 0
+	.byte 0                ; $14: Ctrl
+	.byte KEY_Q            ; $15
+	.byte KEY_1            ; $16
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte KEY_Z            ; $1A
+	.byte KEY_S            ; $1B
+	.byte KEY_A            ; $1C
+	.byte KEY_W            ; $1D
+	.byte KEY_2            ; $1E
+	.byte 0
+
+	.byte 0
+	.byte KEY_C            ; $21
+	.byte KEY_X            ; $22
+	.byte KEY_D            ; $23
+	.byte KEY_E            ; $24
+	.byte KEY_4            ; $25
+	.byte KEY_3            ; $26
+	.byte 0
+	.byte 0
+	.byte KEY_SPACE        ; $29
+	.byte KEY_V            ; $2A
+	.byte KEY_F            ; $2B
+	.byte KEY_T            ; $2C
+	.byte KEY_R            ; $2D
+	.byte KEY_5            ; $2E
+	.byte 0
+
+	.byte 0
+	.byte KEY_N            ; $31
+	.byte KEY_B            ; $32
+	.byte KEY_H            ; $33
+	.byte KEY_G            ; $34
+	.byte KEY_Y            ; $35
+	.byte KEY_6            ; $36
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte KEY_M            ; $3A
+	.byte KEY_J            ; $3B
+	.byte KEY_U            ; $3C
+	.byte KEY_7            ; $3D
+	.byte KEY_8            ; $3E
+	.byte 0
+
+	.byte 0
+	.byte KEY_COMMA        ; $41
+	.byte KEY_K            ; $42
+	.byte KEY_I            ; $43
+	.byte KEY_O            ; $44
+	.byte KEY_0            ; $45
+	.byte KEY_9            ; $46
+	.byte 0
+	.byte 0
+	.byte KEY_PERIOD       ; $49
+	.byte KEY_SLASH        ; $4A
+	.byte KEY_L            ; $4B
+	.byte KEY_SEMICOLON    ; $4C
+	.byte KEY_P            ; $4D
+	.byte KEY_MINUS        ; $4E
+	.byte 0
+
+	.byte 0
+	.byte 0
+	.byte KEY_APOSTROPHE   ; $52
+	.byte 0
+	.byte KEY_LEFTBRACKET  ; $54
+	.byte KEY_EQUALS       ; $55
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte KEY_RETURN       ; $5A
+	.byte KEY_RIGHTBRACKET ; $5B
+	.byte 0
+	.byte KEY_BACKSLASH    ; $5D
+	.byte 0
+	.byte 0
+
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte KEY_BACKSPACE    ; $66
+	.byte 0
+	.byte 0
+	.byte KEY_1            ; $69
+	.byte 0
+	.byte KEY_4            ; $6B
+	.byte KEY_7            ; $6C
+	.byte 0
+	.byte 0
+	.byte 0
+
+	.byte KEY_0            ; $70
+	.byte KEY_NUM_PERIOD   ; $71
+	.byte KEY_2            ; $72
+	.byte KEY_5            ; $73
+	.byte KEY_6            ; $74
+	.byte KEY_8            ; $75
+	.byte KEY_ESC          ; $76
+	.byte 0
+	.byte 0
+	.byte KEY_PLUS         ; $79
+	.byte KEY_3            ; $7A
+	.byte KEY_MINUS        ; $7B
+	.byte KEY_MULTIPLY     ; $7C
+	.byte KEY_9            ; $7D
+	.byte 0                ; Scroll Lock
+	.byte 0
+
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte KEY_F7           ; $83
+
 tab_extended:
-	;         end      lf hom
-	.byte $00,$00,$00,$9d,$00,$00,$00,$00 ; @$68 (HOME is special cased)
-	;     ins del  dn      rt  up
-	.byte $94,$14,$11,$00,$1d,$91,$00,$00 ; @$70
-	;             pgd         pgu brk
-	.byte $00,$00,$00,$00,$00,$00,$03,$00 ; @$78
+	.byte 0
+	.byte KEY_END          ; $69
+	.byte 0
+	.byte KEY_LEFT         ; $6B
+	.byte KEY_HOME         ; $6C
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte KEY_INSERT       ; $70
+	.byte KEY_DELETE       ; $71
+	.byte KEY_DOWN         ; $72
+	.byte 0
+	.byte KEY_RIGHT        ; $74
+	.byte KEY_UP           ; $75
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte KEY_PAGEDOWN     ; $7A
+	.byte 0
+	.byte 0
+	.byte KEY_PAGEUP       ; $7D
+
+
+
+
+
+
+
+
+
+
+
 
