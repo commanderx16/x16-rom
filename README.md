@@ -1,4 +1,5 @@
-# Commander X16 BASIC/KERNAL/DOS/GEOS ROM
+Commander X16 BASIC/KERNAL/DOS/GEOS ROM
+=======================================
 
 This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and KERNAL are derived from the [Commodore 64 versions](https://github.com/mist64/c64rom). GEOS is derived from the [C64/C128 version](https://github.com/mist64/geos).
 
@@ -9,7 +10,9 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 	* does not support tape (device 1).
 * GEOS is fully compatible with the C64 version.
 
-## New Features
+
+New Features
+------------
 
 * F-keys:
 	F1: `LIST`
@@ -42,14 +45,18 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 	* everything else is unimplemented
 * Some new KERNAL APIs (to be documented)
 
-## Big TODOs
+
+Big TODOs
+---------
 
 * DOS needs more features.
 * BASIC needs more features.
 * RS232 and IEC are not working.
 * PS/2 and SD have issues on real hardware.
 
-## ROM Map
+
+ROM Map
+-------
 
 |Bank|Name   |Description                                            |
 |----|-------|-------------------------------------------------------|
@@ -60,7 +67,9 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 |6   |KEYMAP |Keyboard layout tables                                 |
 |7   |KERNAL |character sets (uploaded into VRAM), MONITOR, KERNAL   |
 
-## RAM Map
+
+RAM Map
+-------
 
 * fixed RAM:
 	* $0000-$0400 KERNAL/BASIC/DOS system variables
@@ -71,13 +80,16 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 	* bank 255: DOS buffers and variables
 
 
-## Credits
+Credits
+-------
 
 KERNAL, BASIC and GEOS additions, DOS: Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
 
 FAT32 and SD card drivers: Copyright (c) 2018 Thomas Woinke, Marko Lauke, [www.steckschein.de](https://steckschwein.de); MIT License
 
-## Release Notes
+
+Release Notes
+-------------
 
 ### Release 31
 
