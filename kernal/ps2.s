@@ -63,21 +63,18 @@ scnkey	jsr receive_down_scancode_no_modifiers
 ; *** regular scancodes
 	cpy #$01 ; f9
 	beq cycle_layout
-	cmp #$83 ; convert weird f7 scancode
-	bne not_f7
-	lda #$02 ; this one is unused
-	tay
-not_f7:
-	cmp #$0e ; scancodes < $0E and > $68 are independent of modifiers
-	bcc is_unshifted
-	cmp #$68
-	bcc not_numpad
-is_unshifted:
-	ldx #4 * 2
-	bne bit_found ; use unshifted table
 
-not_numpad:
+xxxx:	lda l1code_from_ps2,y ; convert to l1code
+	bmi @l1
+	tax
+	lda petscii_from_l1code,x
+	jmp add_to_buf
 
+@l1:	;
+	cmp #$ff              ; unknown/impossible PS/2 code
+	beq drv_end
+	and #$80
+	jmp drv_end;XXX
 
 
 
@@ -123,7 +120,7 @@ not_5a: cmp #$68
 	bcc drv_end
 	cmp #$80
 	bcs drv_end
-nhome:	lda tab_extended-$68,y
+nhome:	;lda tab_extended-$68,y
 	bne add_to_buf
 drv_end:
 	rts
@@ -342,125 +339,125 @@ md_sh:	lda #MODIFIER_SHIFT
 	sec
 	rts
 
-tab_unshifted:
-	.byte 0
+l1code_from_ps2:
+	.byte $ff
 	.byte KEY_F9           ; $01
-	.byte 0
+	.byte $ff
 	.byte KEY_F5           ; $03
 	.byte KEY_F3           ; $04
 	.byte KEY_F1           ; $05
 	.byte KEY_F2           ; $06
 	.byte KEY_F12          ; $07
-	.byte 0
+	.byte $ff
 	.byte KEY_F10          ; $09
 	.byte KEY_F8           ; $0A
 	.byte KEY_F6           ; $0B
 	.byte KEY_F4           ; $0C
 	.byte KEY_TAB          ; $0D
 	.byte KEY_GRAVE        ; $0E
-	.byte 0
+	.byte $ff
 
-	.byte 0
-	.byte 0                ; $11: Alt
-	.byte 0                ; $12: Shift
-	.byte 0
-	.byte 0                ; $14: Ctrl
+	.byte $ff
+	.byte $ff              ; $11: Alt
+	.byte $ff              ; $12: Shift
+	.byte $ff
+	.byte $ff              ; $14: Ctrl
 	.byte KEY_Q            ; $15
 	.byte KEY_1            ; $16
-	.byte 0
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
+	.byte $ff
 	.byte KEY_Z            ; $1A
 	.byte KEY_S            ; $1B
 	.byte KEY_A            ; $1C
 	.byte KEY_W            ; $1D
 	.byte KEY_2            ; $1E
-	.byte 0
+	.byte $ff
 
-	.byte 0
+	.byte $ff
 	.byte KEY_C            ; $21
 	.byte KEY_X            ; $22
 	.byte KEY_D            ; $23
 	.byte KEY_E            ; $24
 	.byte KEY_4            ; $25
 	.byte KEY_3            ; $26
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
 	.byte KEY_SPACE        ; $29
 	.byte KEY_V            ; $2A
 	.byte KEY_F            ; $2B
 	.byte KEY_T            ; $2C
 	.byte KEY_R            ; $2D
 	.byte KEY_5            ; $2E
-	.byte 0
+	.byte $ff
 
-	.byte 0
+	.byte $ff
 	.byte KEY_N            ; $31
 	.byte KEY_B            ; $32
 	.byte KEY_H            ; $33
 	.byte KEY_G            ; $34
 	.byte KEY_Y            ; $35
 	.byte KEY_6            ; $36
-	.byte 0
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
+	.byte $ff
 	.byte KEY_M            ; $3A
 	.byte KEY_J            ; $3B
 	.byte KEY_U            ; $3C
 	.byte KEY_7            ; $3D
 	.byte KEY_8            ; $3E
-	.byte 0
+	.byte $ff
 
-	.byte 0
+	.byte $ff
 	.byte KEY_COMMA        ; $41
 	.byte KEY_K            ; $42
 	.byte KEY_I            ; $43
 	.byte KEY_O            ; $44
 	.byte KEY_0            ; $45
 	.byte KEY_9            ; $46
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
 	.byte KEY_PERIOD       ; $49
 	.byte KEY_SLASH        ; $4A
 	.byte KEY_L            ; $4B
 	.byte KEY_SEMICOLON    ; $4C
 	.byte KEY_P            ; $4D
 	.byte KEY_MINUS        ; $4E
-	.byte 0
+	.byte $ff
 
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
 	.byte KEY_APOSTROPHE   ; $52
-	.byte 0
+	.byte $ff
 	.byte KEY_LEFTBRACKET  ; $54
 	.byte KEY_EQUALS       ; $55
-	.byte 0
-	.byte 0
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
+	.byte $ff
+	.byte $ff
 	.byte KEY_RETURN       ; $5A
 	.byte KEY_RIGHTBRACKET ; $5B
-	.byte 0
+	.byte $ff
 	.byte KEY_BACKSLASH    ; $5D
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
 
-	.byte 0
+	.byte $ff
 	.byte KEY_ISO          ; $61
-	.byte 0
-	.byte 0
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
+	.byte $ff
+	.byte $ff
 	.byte KEY_BACKSPACE    ; $66
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
 	.byte KEY_NUM_1        ; $69
-	.byte 0
+	.byte $ff
 	.byte KEY_NUM_4        ; $6B
 	.byte KEY_NUM_7        ; $6C
-	.byte 0
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
+	.byte $ff
 
 	.byte KEY_NUM_0        ; $70
 	.byte KEY_NUM_PERIOD   ; $71
@@ -469,147 +466,176 @@ tab_unshifted:
 	.byte KEY_NUM_6        ; $74
 	.byte KEY_NUM_8        ; $75
 	.byte KEY_ESC          ; $76
-	.byte 0
+	.byte $ff
 	.byte KEY_F11          ; $78
 	.byte KEY_NUM_PLUS     ; $79
 	.byte KEY_NUM_3        ; $7A
 	.byte KEY_NUM_MINUS    ; $7B
 	.byte KEY_NUM_MULTIPLY ; $7C
 	.byte KEY_NUM_9        ; $7D
-	.byte 0                ; Scroll Lock
-	.byte 0
+	.byte $ff              ; Scroll Lock
+	.byte $ff
 
-	.byte 0
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
+	.byte $ff
 	.byte KEY_F7           ; $83
 
-tab_extended:
-	.byte 0
+l1code_from_ps2_ext:
+	.byte $ff
 	.byte KEY_END          ; $69
-	.byte 0
+	.byte $ff
 	.byte KEY_LEFT         ; $6B
 	.byte KEY_HOME         ; $6C
-	.byte 0
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
+	.byte $ff
 	.byte KEY_INSERT       ; $70
 	.byte KEY_DELETE       ; $71
 	.byte KEY_DOWN         ; $72
-	.byte 0
+	.byte $ff
 	.byte KEY_RIGHT        ; $74
 	.byte KEY_UP           ; $75
-	.byte 0
-	.byte 0
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
+	.byte $ff
+	.byte $ff
 	.byte KEY_PAGEDOWN     ; $7A
-	.byte 0
-	.byte 0
+	.byte $ff
+	.byte $ff
 	.byte KEY_PAGEUP       ; $7D
 
 
+KEY_Q            = $00 + $80
+KEY_W            = $01 + $80
+KEY_E            = $02 + $80
+KEY_R            = $03 + $80
+KEY_T            = $04 + $80
+KEY_Y            = $05 + $80
+KEY_U            = $06 + $80
+KEY_I            = $07 + $80
+KEY_O            = $08 + $80
+KEY_P            = $09 + $80
+KEY_A            = $0A + $80
+KEY_S            = $0B + $80
+KEY_D            = $0C + $80
+KEY_F            = $0D + $80
+KEY_G            = $0E + $80
+KEY_H            = $0F + $80
+KEY_J            = $10 + $80
+KEY_K            = $11 + $80
+KEY_L            = $12 + $80
+KEY_Z            = $13 + $80
+KEY_X            = $14 + $80
+KEY_C            = $15 + $80
+KEY_V            = $16 + $80
+KEY_B            = $17 + $80
+KEY_N            = $18 + $80
+KEY_M            = $19 + $80
+KEY_1            = $1A + $80
+KEY_2            = $1B + $80
+KEY_3            = $1C + $80
+KEY_4            = $1D + $80
+KEY_5            = $1E + $80
+KEY_6            = $1F + $80
+KEY_7            = $20 + $80
+KEY_8            = $21 + $80
+KEY_9            = $22 + $80
+KEY_0            = $23 + $80
+KEY_MINUS        = $24 + $80
+KEY_EQUALS       = $25 + $80
+KEY_LEFTBRACKET  = $26 + $80
+KEY_RIGHTBRACKET = $27 + $80
+KEY_BACKSLASH    = $28 + $80
+KEY_SEMICOLON    = $29 + $80
+KEY_APOSTROPHE   = $2A + $80
+KEY_COMMA        = $2B + $80
+KEY_PERIOD       = $2C + $80
+KEY_SLASH        = $2D + $80
+KEY_GRAVE        = $2E + $80
+KEY_ISO          = $2F + $80
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-KEY_Q            = $00
-KEY_W            = $01
-KEY_E            = $02
-KEY_R            = $03
-KEY_T            = $04
-KEY_Y            = $05
-KEY_U            = $06
-KEY_I            = $07
-KEY_O            = $08
-KEY_P            = $09
-KEY_A            = $0A
-KEY_S            = $0B
-KEY_D            = $0C
-KEY_F            = $0D
-KEY_G            = $0E
-KEY_H            = $0F
-KEY_J            = $10
-KEY_K            = $11
-KEY_L            = $12
-KEY_Z            = $13
-KEY_X            = $14
-KEY_C            = $15
-KEY_V            = $16
-KEY_B            = $17
-KEY_N            = $18
-KEY_M            = $19
-KEY_1            = $1A
-KEY_2            = $1B
-KEY_3            = $1C
-KEY_4            = $1D
-KEY_5            = $1E
-KEY_6            = $1F
-KEY_7            = $20
-KEY_8            = $21
-KEY_9            = $22
-KEY_0            = $23
-KEY_MINUS        = $24
-KEY_EQUALS       = $25
-KEY_LEFTBRACKET  = $26
-KEY_RIGHTBRACKET = $27
-KEY_BACKSLASH    = $28
-KEY_SEMICOLON    = $29
-KEY_APOSTROPHE   = $2A
-KEY_COMMA        = $2B
-KEY_PERIOD       = $2C
-KEY_SLASH        = $2D
-KEY_GRAVE        = $2E
-KEY_ISO          = $2F
-
-KEY_ESC          = $80
-KEY_BACKSPACE    = $81
-KEY_TAB          = $82
-KEY_RETURN       = $83
-KEY_SPACE        = $84
-KEY_F1           = $85
-KEY_F2           = $86
-KEY_F3           = $87
-KEY_F4           = $88
-KEY_F5           = $89
-KEY_F6           = $8A
-KEY_F7           = $8B
-KEY_F8           = $8C
-KEY_F9           = $8D
-KEY_F10          = $8E
-KEY_F11          = $8F
-KEY_F12          = $90
-KEY_LEFT         = $90
-KEY_RIGHT        = $91
-KEY_UP           = $92
-KEY_DOWN         = $93
-KEY_INSERT       = $94
-KEY_DELETE       = $95
-KEY_HOME         = $96
-KEY_END          = $97
-KEY_PAGEDOWN     = $98
-KEY_PAGEUP       = $99
-KEY_NUM_0        = $9A
-KEY_NUM_1        = $9B
-KEY_NUM_2        = $9C
-KEY_NUM_3        = $9D
-KEY_NUM_4        = $9E
-KEY_NUM_5        = $9F
-KEY_NUM_6        = $A0
-KEY_NUM_7        = $A1
-KEY_NUM_8        = $A2
-KEY_NUM_9        = $A3
-KEY_NUM_PLUS     = $A4
-KEY_NUM_MINUS    = $A5
-KEY_NUM_MULTIPLY = $A6
-KEY_NUM_PERIOD   = $A7
+; table l1code -> PETSCII
+petscii_from_l1code:
+KEY_ESC          = *-petscii_from_l1code
+	.byte $1b
+KEY_BACKSPACE    = *-petscii_from_l1code
+	.byte $14
+KEY_TAB          = *-petscii_from_l1code
+	.byte $09
+KEY_RETURN       = *-petscii_from_l1code
+	.byte $0d
+KEY_SPACE        = *-petscii_from_l1code
+	.byte ' '
+KEY_F1           = *-petscii_from_l1code
+	.byte $85
+KEY_F2           = *-petscii_from_l1code
+	.byte $89
+KEY_F3           = *-petscii_from_l1code
+	.byte $86
+KEY_F4           = *-petscii_from_l1code
+	.byte $8A
+KEY_F5           = *-petscii_from_l1code
+	.byte $87
+KEY_F6           = *-petscii_from_l1code
+	.byte $8B
+KEY_F7           = *-petscii_from_l1code
+	.byte $88
+KEY_F8           = *-petscii_from_l1code
+	.byte $8C
+KEY_F9           = *-petscii_from_l1code
+	.byte $10
+KEY_F10          = *-petscii_from_l1code
+	.byte $15
+KEY_F11          = *-petscii_from_l1code
+	.byte $16
+KEY_F12          = *-petscii_from_l1code
+	.byte $17
+KEY_LEFT         = *-petscii_from_l1code
+	.byte $9D
+KEY_RIGHT        = *-petscii_from_l1code
+	.byte $1D
+KEY_UP           = *-petscii_from_l1code
+	.byte $91
+KEY_DOWN         = *-petscii_from_l1code
+	.byte $11
+KEY_INSERT       = *-petscii_from_l1code
+	.byte $94
+KEY_DELETE       = *-petscii_from_l1code
+	.byte $14 ; DEL (XXX same as BACKSPACE)
+KEY_HOME         = *-petscii_from_l1code
+	.byte $13
+KEY_END          = *-petscii_from_l1code
+	.byte $93 ; CLR
+KEY_PAGEUP       = *-petscii_from_l1code
+	.byte $84 ; HELP
+KEY_PAGEDOWN     = *-petscii_from_l1code
+	.byte $00 ; 40/80 DISPLAY (XXX no code assigned yet!)
+KEY_NUM_0        = *-petscii_from_l1code
+	.byte '0'
+KEY_NUM_1        = *-petscii_from_l1code
+	.byte '1'
+KEY_NUM_2        = *-petscii_from_l1code
+	.byte '2'
+KEY_NUM_3        = *-petscii_from_l1code
+	.byte '3'
+KEY_NUM_4        = *-petscii_from_l1code
+	.byte '4'
+KEY_NUM_5        = *-petscii_from_l1code
+	.byte '5'
+KEY_NUM_6        = *-petscii_from_l1code
+	.byte '6'
+KEY_NUM_7        = *-petscii_from_l1code
+	.byte '7'
+KEY_NUM_8        = *-petscii_from_l1code
+	.byte '8'
+KEY_NUM_9        = *-petscii_from_l1code
+	.byte '9'
+KEY_NUM_PLUS     = *-petscii_from_l1code
+	.byte '+'
+KEY_NUM_MINUS    = *-petscii_from_l1code
+	.byte '-'
+KEY_NUM_MULTIPLY = *-petscii_from_l1code
+	.byte '*'
+KEY_NUM_PERIOD   = *-petscii_from_l1code
+	.byte '.'
