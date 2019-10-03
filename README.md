@@ -1,4 +1,5 @@
-# Commander X16 BASIC/KERNAL/DOS/GEOS ROM
+Commander X16 BASIC/KERNAL/DOS/GEOS ROM
+=======================================
 
 This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and KERNAL are derived from the [Commodore 64 versions](https://github.com/mist64/c64rom). GEOS is derived from the [C64/C128 version](https://github.com/mist64/geos).
 
@@ -9,7 +10,48 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 	* does not support tape (device 1).
 * GEOS is fully compatible with the C64 version.
 
-## New Features
+
+Releases and Building
+---------------------
+
+Each [release of the X16 emulator][emu-releases] includes a compatible build of `rom.bin`. If you wish to build this yourself (perhaps because you're also building the emulator) see below.
+
+> __WARNING:__ The emulator will currently work only with a contemporary version of `rom.bin`; earlier or later versions are likely to fail.
+
+### Building the ROM
+
+Building this source code requires only [GNU Make] and the [cc65] assembler. GNU Make is almost invariably available as a system package with any Linux distribution; cc65 less often so.
+- Red Hat: `sudo yum install make cc65`
+- Debian: `sudo apt-get install make`
+
+If cc65 is not available as a package on your system, you'll need to install or build/install it per the instructions below.
+
+Once the prerequisites are available, type `make` to build `rom.bin`. To use that with the emulator, copy it to the same directory as the `x16emu` binary or use `x16emu -rom .../path/to/rom.bin`.
+
+### Building/Installing cc65
+
+#### Linux Builds from Source
+
+You'll need the basic set of tools for building C programs:
+- Debian/Ubuntu: `sudo apt-get install build-essential git`
+
+The cc65 source is [on GitHub][cc65]; clone and build it with:
+
+    git clone https://github.com/cc65/cc65.git
+    make -j4    # -j4 may be left off; it merely speeds the build
+
+This will leave the binaries in the `bin/` subdirectory; you may use thes directly by adding them to your path, or install them to a standard directory:
+
+    #   This assumes you have ~/.local/bin in your path.
+    make install PREFIX=~/.local
+
+#### Building and Packages for Other Systems
+
+Consult the Nesdev Wiki [Installing CC65][nd-cc65] page for some hints, including Windows installs. However, the Debian packages they suggest from [trikaliotis.net] appear to have signature errors.
+
+
+New Features
+------------
 
 * F-keys:
 	F1: `LIST`
@@ -42,14 +84,18 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 	* everything else is unimplemented
 * Some new KERNAL APIs (to be documented)
 
-## Big TODOs
+
+Big TODOs
+---------
 
 * DOS needs more features.
 * BASIC needs more features.
 * RS232 and IEC are not working.
 * PS/2 and SD have issues on real hardware.
 
-## ROM Map
+
+ROM Map
+-------
 
 |Bank|Name   |Description                                            |
 |----|-------|-------------------------------------------------------|
@@ -60,7 +106,9 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 |6   |KEYMAP |Keyboard layout tables                                 |
 |7   |KERNAL |character sets (uploaded into VRAM), MONITOR, KERNAL   |
 
-## RAM Map
+
+RAM Map
+-------
 
 * fixed RAM:
 	* $0000-$0400 KERNAL/BASIC/DOS system variables
@@ -71,13 +119,16 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 	* bank 255: DOS buffers and variables
 
 
-## Credits
+Credits
+-------
 
 KERNAL, BASIC and GEOS additions, DOS: Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
 
 FAT32 and SD card drivers: Copyright (c) 2018 Thomas Woinke, Marko Lauke, [www.steckschein.de](https://steckschwein.de); MIT License
 
-## Release Notes
+
+Release Notes
+-------------
 
 ### Release 31
 
@@ -113,3 +164,12 @@ FAT32 and SD card drivers: Copyright (c) 2018 Thomas Woinke, Marko Lauke, [www.s
 * fix: VPEEK tokenization
 * fix: CBDOS was not correctly preserving the RAM bank
 * fix: KERNAL no longer uses zero page $FC-$FE
+
+
+
+<!-------------------------------------------------------------------->
+[GNU Make]: https://www.gnu.org/software/make/
+[cc65]: https://cc65.github.io/
+[emu-releases]: https://github.com/commanderx16/x16-emulator/releases
+[nd-cc65]: https://wiki.nesdev.com/w/index.php/Installing_CC65
+[trikaliotis.net]: https://spiro.trikaliotis.net/debian
