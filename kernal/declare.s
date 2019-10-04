@@ -1,4 +1,5 @@
 	.segment "ZPKERNAL" : zeropage
+.segment "KVAR2"
 status	.res 1           ;$90 i/o operation status byte
 stkey	.res 1           ;$91 stop key flag
 savbank	.res 1           ;$92 old bank when switching (was: tape)
@@ -10,7 +11,9 @@ xsav	.res 1           ;$97 temp for basin
 ldtnd	.res 1           ;$98 index to logical file
 dfltn	.res 1           ;$99 default input device #
 dflto	.res 1           ;$9A default output device #
+.segment "ZPKERNAL" : zeropage
 imparm	.res 2           ;$9B PRIMM utility string pointer (was: tape)
+.segment "KVAR2"
 msgflg	.res 1           ;$9D os message flag
 t1	.res 1           ;$9E temporary 1
 j0tmp	.res 1           ;$9F keyboard joystick temp (was:tape)
@@ -21,10 +24,12 @@ bsour1                   ;$A4 temp used by serial routine
 count	.res 1           ;$A5 temp used by serial routine
 	.res 1           ;$A6 unused (tape)
 	.res 5           ;$A7 unused (rs-232)
+.segment "ZPKERNAL" : zeropage
 sal	.res 1           ;$AC
 sah	.res 1           ;$AD
 eal	.res 1           ;$AE
 eah	.res 1           ;$AF
+.segment "KVAR2"
 kbdbyte	.res 1           ;$B0 PS/2: bit input (was: tape)
 prefix	.res 1           ;$B1 PS/2: prefix code (e0/e1) (was: tape)
 brkflg	.res 1           ;$B2 PS/2: was key-up event (was: tape)
@@ -34,18 +39,24 @@ fnlen	.res 1           ;$B7 length current file n str
 la	.res 1           ;$B8 current file logical addr
 sa	.res 1           ;$B9 current file 2nd addr
 fa	.res 1           ;$BA current file primary addr
+.segment "ZPKERNAL" : zeropage
 fnadr	.res 2           ;$BB addr current file name str
+.segment "KVAR2"
 	.res 1           ;$BD unused (rs-232)
+.segment "ZPKERNAL" : zeropage
 ckbtab	.res 2           ;$BE used for keyboard lookup
+.segment "KVAR2"
 	.res 1           ;$C0 unused (tape)
 tmp0                     ;$C1
 stal	.res 1           ;$C1
 stah	.res 1           ;$C2
 memuss                   ;$C3 cassette load temps (2 bytes)
+.segment "ZPKERNAL" : zeropage
 tmp2	.res 2           ;$C3
 ;
 ;variables for screen editor
 ;
+.segment "KVAR2"
 isomod	.res 1           ;$C5 ISO mode
 ndx	.res 1           ;$C6 index to keyboard q
 rvs	.res 1           ;$C7 rvs field on flag
@@ -58,7 +69,9 @@ blnct	.res 1           ;$CD count to toggle cur
 gdbln	.res 1           ;$CE char before cursor
 blnon	.res 1           ;$CF on/off blink flag
 crsw	.res 1           ;$D0 input vs get flag
+.segment "ZPKERNAL" : zeropage
 pnt	.res 2           ;$D1 pointer to row
+.segment "KVAR2"
 pntr	.res 1           ;$D3 pointer to column
 qtsw	.res 1           ;$D4 quote switch
 lnmx	.res 1           ;$D5 40/80 max positon
@@ -77,7 +90,6 @@ joy2	.res 3           ;$F2 joystick 2 status
 keytab	.res 2           ;$F5 keyscan table indirect
 	.res 4           ;$F7 unused (rs-232)
 frekzp	.res 4           ;$FB free kernal zero page 9/24/80
-baszpt	.res 1           ;$FF location ($00ff) used by basic
 
 	.segment "STACK"
 bad	.res 1
