@@ -1,3 +1,67 @@
+.if 0
+;;;;;;
+.feature labels_without_colons, pc_assignment
+.importzp deccnt
+
+.importzp fac
+.importzp facexp
+.importzp facho
+.importzp facmoh
+.importzp facmo
+.importzp faclo
+.importzp facsgn
+.importzp degree
+.importzp sgnflg
+.importzp bits
+.importzp argexp
+.importzp argho
+.importzp argmoh
+.importzp argmo
+.importzp arglo
+.importzp argsgn
+.importzp addprc
+.importzp errov
+.importzp resho
+.importzp index
+.importzp index1
+.importzp index2
+.importzp errdvo
+.importzp tempf1
+.importzp tempf2
+.importzp txtptr
+.importzp polypt
+.importzp plustk
+.importzp minutk
+
+.import rndx
+.import rdbas
+.import tempf3
+.import fdecpt
+.import fbufpt
+.import fbuffr
+.import strout
+.import curlin
+.import intxt
+.import dptflg
+.import tenexp
+.import expsgn
+.import chrget
+.import frmevl
+.import integr
+.import forpnt
+.import reslo
+.import resmo
+.import resmoh
+.import fcerr
+.import error
+.import oldov
+.import facov
+.import arisgn
+zerrts
+;;;;;;
+.endif
+
+
 faddh	lda #<fhalf
 	ldy #>fhalf
 	jmp fadd
