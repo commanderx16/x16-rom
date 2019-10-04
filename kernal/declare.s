@@ -12,9 +12,48 @@ eah	.res 1           ;$AF
 fnadr	.res 2           ;$BB addr current file name str
 ckbtab	.res 2           ;$BE used for keyboard lookup
 tmp2	.res 2           ;$C3
+memuss                   ;$C3 load temps (2 bytes)
 pnt	.res 2           ;$D1 pointer to row
+	.segment "STACK"
+bad	.res 1
+	.segment "KVAR"
+buf	.res 81          ;basic/monitor buffer
 
-.segment "KVAR2"
+; tables for open files
+;
+lat	.res 10          ;logical file numbers
+fat	.res 10          ;primary device numbers
+sat	.res 10          ;secondary addresses
+
+; system storage
+;
+keyd	.res 10          ;irq keyboard buffer
+memstr	.res 2           ;start of memory
+memsiz	.res 2           ;top of memory
+timout	.res 1           ;ieee timeout flag
+
+; screen editor storage
+;
+color	.res 1           ;activ color nybble
+gdcol	.res 1           ;original color before cursor
+hibase	.res 1           ;base location of screen (top)
+xmax	.res 1
+ps2byte	.res 1           ;byte storage for ps/2 communication
+ps2par	.res 1           ;parity for ps/2 communication
+delay	.res 1
+shflag	.res 1           ;shift flag byte
+lstshf	.res 1           ;last shift pattern
+mode	.res 1           ;0-pet mode, 1-cattacanna
+autodn	.res 1           ;auto scroll down flag(=0 on,<>0 off)
+joy0	.res 1           ;keyboard joystick temp
+;
+; temp space for vic-40 variables ****
+;
+curkbd	.res 1           ;current keyboard layout index
+lintmp	.res 1           ;temporary for line index
+palnts	.res 1           ;pal vs ntsc flag 0=ntsc 1=pal
+
+;.segment "KVAR2"
 status	.res 1           ;$90 i/o operation status byte
 stkey	.res 1           ;$91 stop key flag
 savbank	.res 1           ;$92 old bank when switching (was: tape)
@@ -31,8 +70,7 @@ t1	.res 1           ;$9E temporary 1
 j0tmp	.res 1           ;$9F keyboard joystick temp (was:tape)
 time	.res 3           ;$A0 24 hour clock in 1/60th seconds
 r2d2	.res 1           ;$A3 serial bus usage
-bsour1                   ;$A4 temp used by serial routine
-	.res 1           ;$A4 also used by CBDOS
+bsour1	.res 1           ;$A4 temp used by serial routine
 count	.res 1           ;$A5 temp used by serial routine
 kbdbyte	.res 1           ;$B0 PS/2: bit input (was: tape)
 prefix	.res 1           ;$B1 PS/2: prefix code (e0/e1) (was: tape)
@@ -42,10 +80,9 @@ fnlen	.res 1           ;$B7 length current file n str
 la	.res 1           ;$B8 current file logical addr
 sa	.res 1           ;$B9 current file 2nd addr
 fa	.res 1           ;$BA current file primary addr
-tmp0                     ;$C1
 stal	.res 1           ;$C1
 stah	.res 1           ;$C2
-memuss                   ;$C3 cassette load temps (2 bytes)
+tmp0	=stal            ;$C1
 ;
 ;variables for screen editor
 ;
@@ -75,52 +112,7 @@ nlinesm1 .res 1          ;$DD y resolution - 1
 nlinesm2 .res 1          ;$DE y resolution - 2
 joy1	.res 3           ;$EF joystick 1 status
 joy2	.res 3           ;$F2 joystick 2 status
-keytab	.res 2           ;$F5 keyscan table indirect
 
-	.segment "STACK"
-bad	.res 1
-	.segment "KVAR"
-buf	.res 89          ;basic/monitor buffer
-
-; tables for open files
-;
-lat	.res 10          ;logical file numbers
-fat	.res 10          ;primary device numbers
-sat	.res 10          ;secondary addresses
-
-; system storage
-;
-keyd	.res 10          ;irq keyboard buffer
-memstr	.res 2           ;start of memory
-memsiz	.res 2           ;top of memory
-timout	.res 1           ;ieee timeout flag
-
-; screen editor storage
-;
-color	.res 1           ;activ color nybble
-gdcol	.res 1           ;original color before cursor
-hibase	.res 1           ;base location of screen (top)
-xmax	.res 1
-ps2byte	.res 1           ;byte storage for ps/2 communication
-ps2par	.res 1           ;parity for ps/2 communication
-delay	.res 1
-shflag	.res 1           ;shift flag byte
-lstshf	.res 1           ;last shift pattern
-	.res 2           ;unused (keyboard)
-mode	.res 1           ;0-pet mode, 1-cattacanna
-autodn	.res 1           ;auto scroll down flag(=0 on,<>0 off)
-
-	.res 12          ;unused (rs-232)
-	.res 1           ;unused (tape)
-joy0	.res 1           ;keyboard joystick temp
-;
-; temp space for vic-40 variables ****
-;
-	.res 1           ;rs-232 enables (replaces ier)
-curkbd	.res 1           ;current keyboard layout index
-	.res 2           ;unused (tape)
-lintmp	.res 1           ;temporary for line index
-palnts	.res 1           ;pal vs ntsc flag 0=ntsc 1=pal
 
 	.segment "KVECTORS";rem kernal/os indirects(20)
 cinv	.res 2           ;irq ram vector
