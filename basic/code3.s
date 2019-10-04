@@ -7,9 +7,11 @@ golst	jsr linget
 	jsr chrgot
 	beq lstend
 	cmp #minutk
-	bne flnrts
-	jsr clnget
-	bne flnrts
+	beq nflnrts
+	jmp flnrts
+nflnrts	jsr clnget
+	beq lstend
+	jmp flnrts
 lstend	pla
 	pla
 	lda linnum
