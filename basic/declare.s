@@ -11,17 +11,17 @@ strsiz	=3
 
 .segment "ZPBASIC" : zeropage
 
-;.segment "BVARS"
+.segment "BVARS"
 charac	.res 1           ;$07 a delimiting character
 integr	=charac          ;$07 a one-byte integer from "qint"
 .segment "ZPBASIC"
 endchr	.res 1           ;$08 the other delimiting character YYY
-;.segment "BVARS"
+.segment "BVARS"
 trmpos	.res 1           ;$09 position of terminal carriage
 verck	.res 1           ;$0A CBM: single-use tmp for LOAD
 .segment "ZPBASIC"
 count	.res 1           ;$0B a general counter YYY
-;.segment "BVARS"
+.segment "BVARS"
 dimflg	.res 1           ;$0C in getting a pointer to a variable
                          ;    it is important to remember whether it
                          ;    is being done for "dim" or not.
@@ -37,7 +37,7 @@ dores	.res 1           ;$0F whether can or can't crunch res'd words YYY
                          ;    strings won't be crunched
 garbfl	=dores           ;$0F whether to do garbage collection
 
-;.segment "BVARS"
+.segment "BVARS"
 subflg	.res 1           ;$10 flag whether sub'd variable allowed.
                          ;    "for" and user-defined function
                          ;    pointer fetching turn
@@ -63,7 +63,7 @@ linnum	.res 2           ;$14 location to store line number before buf
 poker	=linnum          ;$14 set up location used by poke
                          ;    temporary for input and read code
 
-;.segment "BVARS"
+.segment "BVARS"
 temppt	.res 1           ;$16 pointer at first free temp descriptor
                          ;    initialized to point to tempst
 
@@ -95,7 +95,7 @@ arytab	.res 2           ;$2F pointer to beginning of array YYY
                          ;    incremented by 6 whenever
                          ;    a new simple variable is found, and
                          ;    set to [vartab] by "clearc".
-;.segment "BVARS"
+.segment "BVARS"
 strend	.res 2           ;$31end of storage in use.
                          ;    increased whenever a new array
                          ;    or simple variable is encountered.
@@ -103,7 +103,7 @@ strend	.res 2           ;$31end of storage in use.
 fretop	.res 2           ;$33 top of string free space
 .segment "ZPBASIC"
 frespc	.res 2           ;$35 pointer to new string
-;.segment "BVARS"
+.segment "BVARS"
 memsiz	.res 2           ;$37 highest location in memory
 
 ; --- line numbers and textual pointers ---:
@@ -132,7 +132,7 @@ lstpnt	=forpnt          ;$49 pntr to list string
 andmsk	=forpnt          ;$49 the mask used by wait for anding
 eormsk	=forpnt+1        ;$4A the mask for eoring in wait
 
-;.segment "BVARS"
+.segment "BVARS"
 opptr	.res 2           ;$4B pointer to current op's entry in "optab"
 vartxt	=opptr           ;$4B pointer into list of variables
 opmask	.res 1           ;$4D mask created by current operator
@@ -144,7 +144,7 @@ tempf3	=defpnt          ;$4E a third fac temporary (5 bytes)
 dscpnt	.res 2           ;$50 pointer to a string descriptor
 	.res 1           ;$52 fifth byte of tempf3
 
-;.segment "BVARS"
+.segment "BVARS"
 four6	.res 1           ;$53 variable constant used by garb collect
 
 ; --- ET CETERA ---:
@@ -181,7 +181,7 @@ dsctmp	=fac             ;$61 this is where temp descs are built
 indice	=facmo           ;$64 indice is set up here by "qint"
 degree	=sgnflg          ;$67 a count used by polynomials
 
-;.segment "BVARS"
+.segment "BVARS"
 bits	.res 1           ;$68 something for "shiftr" to use
 
 ; --- the floating argument (unpacked) ---:
