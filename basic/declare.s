@@ -14,30 +14,24 @@ strsiz	=3
 .segment "BVARS"
 charac	.res 1           ;$07 a delimiting character
 integr	=charac          ;$07 a one-byte integer from "qint"
-.segment "ZPBASIC"
-endchr	.res 1           ;$08 the other delimiting character YYY
-.segment "BVARS"
+endchr	.res 1           ;$08 the other delimiting character
 trmpos	.res 1           ;$09 position of terminal carriage
 verck	.res 1           ;$0A CBM: single-use tmp for LOAD
-.segment "ZPBASIC"
-count	.res 1           ;$0B a general counter YYY
-.segment "BVARS"
+count	.res 1           ;$0B a general counter
 dimflg	.res 1           ;$0C in getting a pointer to a variable
                          ;    it is important to remember whether it
                          ;    is being done for "dim" or not.
                          ;    dimflg and valtyp must be
                          ;    consecutive locations.
-.segment "ZPBASIC"
-valtyp	.res 1           ;$0D the type indicator YYY
+valtyp	.res 1           ;$0D the type indicator
                          ;    0=numeric 1=string
-intflg	.res 1           ;$0E tells if integer YYY
+intflg	.res 1           ;$0E tells if integer
 dores	.res 1           ;$0F whether can or can't crunch res'd words YYY
                          ;    turned on when "data"
                          ;    being scanned by crunch so unquoted
                          ;    strings won't be crunched
 garbfl	=dores           ;$0F whether to do garbage collection
 
-.segment "BVARS"
 subflg	.res 1           ;$10 flag whether sub'd variable allowed.
                          ;    "for" and user-defined function
                          ;    pointer fetching turn
@@ -85,11 +79,13 @@ addend	=resmo           ;$28 temporary used by "umult"
 txttab	.res 2           ;$2B pointer to beginning of text.
                          ;    doesn't change after being
                          ;    setup by "init".
+;.segment "BVARS"
 vartab	.res 2           ;$2D pointer to start of simple YYY
                          ;    variable space.
                          ;    updated whenever the size of the
                          ;    program changes, set to [txttab]
                          ;    by "scratch" ("new").
+;.segment "ZPBASIC"
 arytab	.res 2           ;$2F pointer to beginning of array YYY
                          ;    table.
                          ;    incremented by 6 whenever
