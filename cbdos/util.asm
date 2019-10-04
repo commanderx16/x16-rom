@@ -25,7 +25,7 @@
 .endif
 ;.setcpu "65c02"
 .include "65c02.inc"
-.include	"zeropage.inc"
+.importzp filenameptr, krn_ptr2, krn_ptr3, dirptr
 .include	"fat32.inc"
 .include	"errno.inc"
 
