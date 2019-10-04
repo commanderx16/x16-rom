@@ -44,8 +44,9 @@ stuffh	inx
 	iny
 crdone0	sta buf-5,y
 	lda buf-5,y
-	beq crdone
-	sec
+	bne ncrdone
+	jmp crdone
+ncrdone	sec
 	sbc #':'
 	beq colis
 	cmp #datatk-$3a

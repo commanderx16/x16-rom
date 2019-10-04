@@ -35,8 +35,9 @@ loprel	sec
 	jmp loprel
 endrel	ldx opmask
 	bne finrel
-	bcs qop
-	adc #greatk-plustk
+	bcc nqop
+	jmp qop
+nqop	adc #greatk-plustk
 	bcc qop
 	adc valtyp
 	bne *+5

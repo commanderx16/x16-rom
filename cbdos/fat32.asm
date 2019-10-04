@@ -34,7 +34,7 @@ FAT_NOWRITE=1
 ;  2. avoid fat block read - calculate fat lba address, but before reading a the fat block, compare the new lba_addr with the previously saved fat_lba 
 ;
 ;
-.include "zeropage.inc"
+.importzp filenameptr, krn_ptr1, krn_ptr2, krn_ptr3, dirptr, write_blkptr, read_blkptr
 .include "common.inc"
 .include "fat32.inc"
 .include "rtc.inc"

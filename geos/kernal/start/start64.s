@@ -69,50 +69,9 @@
 ;         here.
 ;
 
-hstart  =0
-hstop   =640
-vstart  =0
-vstop   =480
-tvera_composer:
-	.byte 7 << 5 | 1  ;256c bitmap, VGA
-	.byte 64, 64      ;hscale, vscale
-	.byte 14          ;border color
-	.byte <hstart
-	.byte <hstop
-	.byte <vstart
-	.byte <vstop
-	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
-tvera_composer_end:
+.global geos_init_vera
 
-_ResetHandle:
-	sei
-	cld
-	ldx #$FF
-	txs
-
-.if 0
-	jsr i_FillRam
-	.word $0500
-	.word dirEntryBuf
-	.byte 0
-.endif
-
-.import __RAM_SIZE__, __RAM_LOAD__, __RAM_RUN__
-.import _i_MoveData
-
-	jsr _i_MoveData
-	.word __RAM_LOAD__
-	.word __RAM_RUN__
-	.word __RAM_SIZE__
-
-.import __drvcbdos_SIZE__, __drvcbdos_LOAD__, __drvcbdos_RUN__
-.import _i_MoveData
-
-	jsr _i_MoveData
-	.word __drvcbdos_LOAD__
-	.word __drvcbdos_RUN__
-	.word __drvcbdos_SIZE__
-
+geos_init_vera:
 	lda #$00 ; layer0
 	sta veralo
 	lda #$20
@@ -126,7 +85,8 @@ _ResetHandle:
 	sta veradat; map_base_lo: ignore
 	sta veradat; map_base_hi: ignore
 	sta veradat; tile_base_lo = 0
-	sta veradat; tile_base_hi = 0
+	lda #$10
+	sta veradat; tile_base_hi = 0x10
 
 	lda #$00        ;$F0000: composer registers
 	sta veralo
@@ -186,6 +146,62 @@ xx2:	txa
 	bne :-
 xx1:	dex
 	bne xx2
+	rts
+
+hstart  =0
+hstop   =640
+vstart  =0
+vstop   =480
+tvera_composer:
+	.byte 7 << 5 | 1  ;256c bitmap, VGA
+	.byte 64, 64      ;hscale, vscale
+	.byte 14          ;border color
+	.byte <hstart
+	.byte <hstop
+	.byte <vstart
+	.byte <vstop
+	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
+tvera_composer_end:
+
+_ResetHandle:
+	sei
+	cld
+	ldx #$FF
+	txs
+
+.if 0
+	jsr i_FillRam
+	.word $0500
+	.word dirEntryBuf
+	.byte 0
+.endif
+
+.import __RAM_SIZE__, __RAM_LOAD__, __RAM_RUN__
+.import _i_MoveData
+
+	jsr _i_MoveData
+	.word __RAM_LOAD__
+	.word __RAM_RUN__
+	.word __RAM_SIZE__
+
+.import __drvcbdos_SIZE__, __drvcbdos_LOAD__, __drvcbdos_RUN__
+.import _i_MoveData
+
+	jsr _i_MoveData
+	.word __drvcbdos_LOAD__
+	.word __drvcbdos_RUN__
+	.word __drvcbdos_SIZE__
+
+	jsr geos_init_vera
+
+	lda #$00 ; layer1
+	sta veralo
+	lda #$30
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda #0 ; disable
+	sta veradat
 
 	; IRQ
 	lda #1

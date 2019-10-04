@@ -18,7 +18,7 @@
 .export tmp1, krn_tmp, krn_tmp2, krn_tmp3, sd_tmp, lba_addr, blocks
 .export fd_area, sd_blktarget, block_data, block_fat
 
-.include "zeropage.inc"
+.importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
 .include "common.inc"
 IMPORTED_FROM_MAIN=1
 .include "fat32.inc"

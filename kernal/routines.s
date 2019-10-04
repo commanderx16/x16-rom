@@ -132,7 +132,7 @@ primm
 	pla
 	rts             ;return
 
-
+.global swpp1 ; for BASIC
 swapper	lda llen
 	cmp #80
 	beq swpp1

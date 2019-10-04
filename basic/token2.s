@@ -63,9 +63,11 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "GEO", 'S' + $80
 	.byt "VPOK", 'E' + $80
 	.byt "VLOA", 'D' + $80
+	.byt "SCREE", 'N' + $80
+	.byt "LIN", 'E' + $80
 	.byt "VPEE", 'K' + $80
 	.byt 0
-num_esc_statements = 6
+num_esc_statements = 8
 num_esc_functions = 1
 ;**************************************
 
