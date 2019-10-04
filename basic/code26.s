@@ -68,8 +68,9 @@ csysrz	=*-1            ;return to here
 	rts             ;return to system
 
 csave	jsr plsv        ;parse parms
-	bcc snerr6      ;disallow bank/address parms
-	ldx vartab      ;end save addr
+	bcs nsnerr6
+	jmp snerr6      ;disallow bank/address parms
+nsnerr6	ldx vartab      ;end save addr
 	ldy vartab+1
 	lda #<txttab    ;indirect with start address
 	jsr $ffd8       ;save it

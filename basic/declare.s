@@ -79,19 +79,17 @@ addend	=resmo           ;$28 temporary used by "umult"
 txttab	.res 2           ;$2B pointer to beginning of text.
                          ;    doesn't change after being
                          ;    setup by "init".
-;.segment "BVARS"
-vartab	.res 2           ;$2D pointer to start of simple YYY
+.segment "BVARS"
+vartab	.res 2           ;$2D pointer to start of simple
                          ;    variable space.
                          ;    updated whenever the size of the
                          ;    program changes, set to [txttab]
                          ;    by "scratch" ("new").
-;.segment "ZPBASIC"
-arytab	.res 2           ;$2F pointer to beginning of array YYY
+arytab	.res 2           ;$2F pointer to beginning of array
                          ;    table.
                          ;    incremented by 6 whenever
                          ;    a new simple variable is found, and
                          ;    set to [vartab] by "clearc".
-.segment "BVARS"
 strend	.res 2           ;$31end of storage in use.
                          ;    increased whenever a new array
                          ;    or simple variable is encountered.
@@ -118,7 +116,9 @@ datptr	.res 2           ;$41 pointer to data. initialized to point
 inpptr	.res 2           ;$43 this remembers where input is coming from
 
 ; --- stuff used in evaluations ---:
-varnam	.res 2           ;$45 variable's name is stored here YYY
+.segment "BVARS"
+varnam	.res 2           ;$45 variable's name is stored here
+.segment "ZPBASIC"
 varpnt	.res 2           ;$47 pointer to variable in memory
 fdecpt	=varpnt          ;$47 pointer into power of tens of "fout"
 
