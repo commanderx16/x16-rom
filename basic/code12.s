@@ -14,7 +14,8 @@ ayint	lda facexp
 	lda #<n32768
 	ldy #>n32768
 	jsr fcomp
-nonono	bne fcerr
+nonono	beq qintgo
+	jmp fcerr
 qintgo	jmp qint
 isary	lda dimflg
 	ora intflg
