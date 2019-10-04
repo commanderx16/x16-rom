@@ -40,14 +40,6 @@ initcz	lda #76
 	ldy #>fcerr
 	sta usrpok+1
 	sty usrpok+2
-	lda #<givayf
-	ldy #>givayf
-	sta adray2
-	sty adray2+1
-	lda #<flpint
-	ldy #>flpint
-	sta adray1
-	sty adray1+1
 	ldx #initcz-initat-1
 movchg	lda initat,x
 	sta chrget,x
