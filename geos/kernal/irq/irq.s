@@ -196,9 +196,10 @@ convert_vic_to_vera:
 	PushW r2
 
 	LoadW r0, $a000
-	ldy #0
+	ldy #$00
 	sty veralo
-	sty veramid
+	lda #$40
+	sta veramid
 	lda #$10
 	sta verahi
 

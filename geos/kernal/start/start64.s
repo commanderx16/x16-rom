@@ -126,7 +126,8 @@ _ResetHandle:
 	sta veradat; map_base_lo: ignore
 	sta veradat; map_base_hi: ignore
 	sta veradat; tile_base_lo = 0
-	sta veradat; tile_base_hi = 0
+	lda #$10
+	sta veradat; tile_base_hi = 0x10
 
 	lda #$00        ;$F0000: composer registers
 	sta veralo
@@ -157,6 +158,7 @@ px5:	lda tvera_composer,x
 	lda #1 << 7 | 8 ; 8 bpp, address=$10000
 	sta veradat
 
+.if 0
 	lda #0
 	sta veralo
 	sta veramid
@@ -183,6 +185,7 @@ xx2:	txa
 	bne :-
 xx1:	dex
 	bne xx2
+.endif
 
 	; IRQ
 	lda #1
