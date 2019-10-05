@@ -14,11 +14,3 @@
 .global VIC_IniTbl_end
 
 .segment "hw1a"
-
-VIC_IniTbl:
-	.byte $00, $00, $00, $00, $00, $00, $00, $00
-	.byte $00, $00, $00, $00, $00, $00, $00, $00
-	.byte $00, $3b, $fb, $aa, $aa, $01, $08, $00
-	.byte $38, $0f, $01, $00, $00, $00
-VIC_IniTbl_end:
-

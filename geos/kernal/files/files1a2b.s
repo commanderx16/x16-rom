@@ -72,11 +72,6 @@ _ReadFile:
 	ldx #BFR_OVERFLOW
 	bne @7
 @3:	sty r1L
-.ifdef bsw128
-	LoadB config, CRAM64K
-.else
-	LoadB CPU_DATA, RAM_64K
-.endif
 .ifdef wheels_external_readwrite_file
 	; special case RAM area occupied by this code
 	lda r7H
@@ -92,11 +87,6 @@ _ReadFile:
 	sta (r7),y
 	bne @4
 @Y:
-.ifdef bsw128
-	LoadB config, CIOIN
-.else
-	LoadB CPU_DATA, KRNL_IO_IN
-.endif
 	AddB r1L, r7L
 	bcc @5
 	inc r7H

@@ -18,11 +18,6 @@
 
 .if (!.defined(wheels)) && (!.defined(bsw128))
 _MainLoop2:
-	START_IO_X
-	lda grcntrl1
-	and #%01111111
-	sta grcntrl1
-	END_IO_X
 	jmp _MainLoop
 .endif
 

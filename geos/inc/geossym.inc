@@ -4,8 +4,6 @@
 zpage           =       $00
 ;
 
-CPU_DDR         =       $00
-CPU_DATA        =       $01
 ;
 r0              =       $02
 r0L             =       $02

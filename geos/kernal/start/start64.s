@@ -90,30 +90,6 @@ _ResetHandle:
 	ldx #$FF
 	txs
 
-ASSERT_NOT_BELOW_IO
-	lda #IO_IN
-	sta CPU_DATA
-
-;	LoadW NMI_VECTOR, _NMIHandler
-;	LoadW IRQ_VECTOR, _IRQHandler
-
-.if 0
-	; set clock in CIA1
-	lda cia1base+15
-	and #$7F
-	sta cia1base+15 ; prepare for setting time
-	lda #$81
-	sta cia1base+11 ; hour: 1 + PM
-	lda #0
-	sta cia1base+10 ; minute: 0
-	sta cia1base+9 ; seconds: 0
-	sta cia1base+8 ; 10ths: 0
-.endif
-
-	lda #RAM_64K
-	sta CPU_DATA
-ASSERT_NOT_BELOW_IO
-
 .if 0
 	jsr i_FillRam
 	.word $0500

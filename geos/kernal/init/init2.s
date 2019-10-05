@@ -10,7 +10,6 @@
 .include "kernal.inc"
 .include "c64.inc"
 
-.import InitMsePic
 .import _EnterDeskTop
 .import _InitMachine
 .import UNK_6
@@ -72,26 +71,8 @@ _FirstInit:
 	.word 1000
 	.word COLOR_MATRIX
 @1:	.byte (DKGREY << 4)+LTGREY
-	START_IO_X
-	LoadB mob0clr, BLUE
-	sta mob1clr
-	LoadB extclr, BLACK
-	END_IO_X
 .endif
-	ldy #62
-@2:	lda #0
-	sta mousePicData,Y
-	dey
-	bpl @2
-.ifdef bsw128
-	sta r0L
-	sta r0H
-.endif
-	ldx #24
-@3:	lda InitMsePic-1,x
-	sta mousePicData-1,x
-	dex
-	bne @3
+
 .ifdef wheels
 .import sysMob0Clr
 .import sysExtClr

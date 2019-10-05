@@ -110,11 +110,9 @@ KbdNextKey:     .byte 0
 .global TmpFilename
 TmpFilename:    .res 28, 0
 .else
-KbdDBncTab:     .res 8, 0
 .ifdef bsw128
 		.res 3, 0
 .endif
-KbdDMltTab:	.res 20, 0
 .endif
 
 .ifdef bsw128

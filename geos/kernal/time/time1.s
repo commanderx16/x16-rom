@@ -21,40 +21,7 @@
 
 _DoUpdateTime:
 	sei
-	START_IO_X
-	lda cia1base+15
-	and #%01111111
-	sta cia1base+15
-	lda hour
-	cmp #12
-	bmi @1
-	bbsf 7, cia1base+11, @1
-	jsr DateUpdate
-@1:	lda cia1base+11
-	and #%00011111
-	cmp #$12
-	bne @2
-	lda #0
-@2:	bbrf 7, cia1base+11, @3
-	sed
-	addv $12
-	cld
-@3:	jsr ConvertBCD
-	sta hour
-	lda cia1base+10
-	jsr ConvertBCD
-	sta minutes
-	lda cia1base+9
-	jsr ConvertBCD
-	sta seconds
-	lda cia1base+8
-	ldy #2
-@4:	lda year,y
-	sta dateCopy,y
-	dey
-	bpl @4
-	MoveB cia1base+13, r1L
-	END_IO_X
+	;XXX TODO RTC
 	bbrf 7, alarmSetFlag, @5
 	and #ALARMMASK
 	beq @6

@@ -41,21 +41,17 @@ DlgBoxPrep:
 Dialog_2:
 	clc
 DlgBoxPrep2:
-	START_IO
 	LoadW r4, dlgBoxRamBuf
 	bcc @1
 	jsr DialogSave
-	LoadB mobenble, 1
-	bne @2
+	bra @2
 @1:	jsr DialogRestore
-@2:	END_IO
-	rts
+@2:	rts
 .else
 	START_IO_128
 	START_IO
 	LoadW r4, dlgBoxRamBuf
 	jsr DialogSave
-	LoadB mobenble, 1
 	END_IO_128
 	END_IO
 	jsr InitGEOEnv

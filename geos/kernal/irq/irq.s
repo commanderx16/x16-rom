@@ -123,9 +123,7 @@ _IRQHandler:
 	lda intBotVector
 	ldx intBotVector+1
 	jsr CallRoutine
-@X:	lda #1
-	sta grirq
-	END_IO
+@X:	END_IO
 .ifdef use2MHz
 	LoadW $fffe, IRQ2Handler
 	LoadB rasreg, $fc

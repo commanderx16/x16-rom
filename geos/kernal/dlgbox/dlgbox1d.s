@@ -119,20 +119,6 @@ DialogCopyTab:
 	.byte 49
 	.word TimersTab
 	.byte 227
-	.word obj0Pointer
-	.byte 8
-	.word mob0xpos
-	.byte 17
-	.word mobenble
-	.byte 1
-	.word mobprior
-	.byte 3
-	.word mcmclr0
-	.byte 2
-	.word mob1clr
-	.byte 7
-	.word moby2
-	.byte 1
 	.word NULL
 .endif
 

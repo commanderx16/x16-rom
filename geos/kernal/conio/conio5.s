@@ -67,6 +67,7 @@ PrmptOff1:
 
 _InitTextPrompt:
 	tay
+.if 0
 	START_IO
 	MoveB mob0clr, mob1clr
 	lda moby2
@@ -115,5 +116,8 @@ _InitTextPrompt:
 	bpl @3
 .endif
 	END_IO
+.else
+;XXX TODO X16 cursor sprite
+.endif
 	rts
 

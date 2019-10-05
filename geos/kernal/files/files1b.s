@@ -75,11 +75,6 @@ DoWriteFile:
 	lda (r6),y
 	sta (r4),y
 	ldy #$fe
-.ifdef bsw128
-	LoadB config, CRAM64K
-.else
-	LoadB CPU_DATA, RAM_64K
-.endif
 .ifdef wheels_external_readwrite_file
 ; special case RAM area occupied by this code
 	lda r7H
@@ -96,11 +91,6 @@ DoWriteFile:
 	tya
 	bne @1
 @Y:
-.ifdef bsw128
-	LoadB config, CIOIN
-.else
-	LoadB CPU_DATA, KRNL_IO_IN
-.endif
 .ifdef wheels
 	jsr WriteBlock
 	bnex @3

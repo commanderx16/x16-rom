@@ -10,17 +10,4 @@
 .include "kernal.inc"
 .include "c64.inc"
 
-.global Init_KRNLVec
-
 .segment "hw2"
-
-.if !.defined(wheels) && (!.defined(removeToBASIC))
-Init_KRNLVec:
-	ldx #32
-@1:	lda KERNALVecTab-1,x
-	sta irqvec-1,x
-	dex
-	bne @1
-	rts
-.endif
-
