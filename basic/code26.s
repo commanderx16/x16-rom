@@ -82,10 +82,10 @@ cverf	lda #1          ;verify flag
 cload	lda #0          ;load flag
 	pha
 	jsr plsv        ;parse parameters
-	bcs cld10
+	bcs cld9
 	ldx andmsk
 	stx $9f61
-	pla
+cld9	pla
 ;
 cld10	; jsr $ffe1 ;check run/stop
 ; cmp #$ff ;done yet?
