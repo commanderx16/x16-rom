@@ -14,10 +14,14 @@ ckbtab	.res 2           ;$BE used for keyboard lookup
 tmp2	.res 2           ;$C3
 memuss                   ;$C3 load temps (2 bytes)
 pnt	.res 2           ;$D1 pointer to row
-	.segment "STACK"
+
+.segment "STACK"
+
 bad	.res 1
-	.segment "KVAR"
-buf	.res 81          ;basic/monitor buffer
+
+.segment "KVAR"
+
+buf	.res 2*40+1      ;basic/monitor buffer
 
 ; tables for open files
 ;

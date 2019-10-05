@@ -256,9 +256,9 @@ initv
 	ldx #4
 	jsr copyv
 
-	lda #$00        ;$F2000: layer 1 registers
+	lda #$00        ;$F3000: layer 1 registers
 	sta veralo
-	lda #$20
+	lda #$30
 	sta veramid
 	lda #$1f
 	sta verahi
