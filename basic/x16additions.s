@@ -135,7 +135,7 @@ dispBufferOn            =       $2f
 cscreen	lda #$0e ; light gray
 	sta color
 	jsr jsrfar
-	.word swpp1
+	.word swpp1 ; switch to 40 columns
 	.byte BANK_KERNAL
 
 	sei
@@ -145,10 +145,10 @@ cscreen	lda #$0e ; light gray
 	.byte BANK_GEOS
 
 	lda #$80
-	sta dispBufferOn
+	sta dispBufferOn ; draw to foreground
 	lda #1
 	jsr jsrfar
-	.word SetPattern
+	.word SetPattern ; black
 	.byte BANK_GEOS
 
 	ldx #32
@@ -170,60 +170,62 @@ cscreen	lda #$0e ; light gray
 	cli
 	rts
 
+linfc	jmp fcerr
+
 ;***************
-.import _DrawLine, convert_vic_to_vera2
+.import DrawLine, convert_vic_to_vera2
 .import SetPattern
-line	sei
-.if 1
-	lda #0
+line	jsr frmadr
+	lda poker
 	sta r3L
+	sec
+	sbc #<320
+	lda poker+1
 	sta r3H
+	sbc #>320
+	bcs linfc
+	jsr chkcom
+	jsr frmadr
+	lda poker
 	sta r11L
-	lda #<319
+	sec
+	sbc #<200
+	lda poker+1
+	sbc #>200
+	bcs linfc
+	jsr chkcom
+	jsr frmadr
+	lda poker
 	sta r4L
-	lda #>319
+	sec
+	sbc #<320
+	lda poker+1
 	sta r4H
-	lda #199
+	sbc #>320
+	bcs linfc
+	jsr chkcom
+	jsr frmadr
+	lda poker
 	sta r11H
+	sec
+	sbc #<200
+	lda poker+1
+	sbc #>200
+	bcs linfc
 	lda #0
 	sec
+	sei
 	jsr jsrfar
-	.word _DrawLine
+	.word DrawLine
 	.byte BANK_GEOS
+	jsr jsrfar
+	.word convert_vic_to_vera2
+	.byte BANK_GEOS
+	cli
+	rts
 
-	lda #<319
-	sta r3L
-	lda #>319
-	sta r3H
-	lda #0
-	sta r11L
-	lda #0
-	sta r4L
-	sta r4H
-	lda #199
-	sta r11H
-	lda #0
-	sec
-	jsr jsrfar
-	.word _DrawLine
-	.byte BANK_GEOS
 
-	lda #0
-	sta r3L
-	sta r3H
-	sta r11L
-	lda #100
-	sta r4L
-	lda #0
-	sta r4H
-	lda #100
-	sta r11H
-	lda #0
-	sec
-	jsr jsrfar
-	.word _DrawLine
-	.byte BANK_GEOS
-.endif
+.if 0
 .import _Rectangle
 	lda #0
 	sta r3L
@@ -238,42 +240,7 @@ line	sei
 	jsr jsrfar
 	.word _Rectangle
 	.byte BANK_GEOS
-
-	jsr jsrfar
-	.word convert_vic_to_vera2
-	.byte BANK_GEOS
-	cli
-	rts
-
-	nop
-xxxx	jsr getnum
-	lda poker
-	ldy poker+1
-	jsr linprt
-	lda #' '
-	jsr $ffd2
-	jsr chkcom
-	jsr getnum
-	ldy poker
-	lda poker+1
-	jsr linprt
-	lda #' '
-	jsr $ffd2
-	jsr chkcom
-	jsr getnum
-	ldy poker
-	lda poker+1
-	jsr linprt
-	lda #' '
-	jsr $ffd2
-	jsr chkcom
-	jsr getnum
-	ldy poker
-	lda poker+1
-	jsr linprt
-	lda #' '
-	jsr $ffd2
-	rts
+.endif
 
 
 ;***************
