@@ -69,6 +69,87 @@
 ;         here.
 ;
 
+.global geos_init_vera
+
+geos_init_vera:
+	lda #$00 ; layer0
+	sta veralo
+	lda #$20
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda #7 << 5 | 1; 256c bitmap
+	sta veradat
+	lda #0
+	sta veradat; tile_w=320px
+	sta veradat; map_base_lo: ignore
+	sta veradat; map_base_hi: ignore
+	sta veradat; tile_base_lo = 0
+	lda #$10
+	sta veradat; tile_base_hi = 0x10
+
+	lda #$00        ;$F0000: composer registers
+	sta veralo
+	sta veramid
+	ldx #0
+px5:	lda tvera_composer,x
+	sta veradat
+	inx
+	cpx #tvera_composer_end-tvera_composer
+	bne px5
+
+;
+; init sprites
+;
+vram_sprite = $16c00
+
+	lda #$00
+	sta veralo
+	lda #$40
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda #1
+	sta veradat ; enable sprites
+
+	lda #$00
+	sta veralo
+	lda #$50
+	sta veramid
+	lda #<(vram_sprite >> 5)
+	sta veradat
+	lda #1 << 7 | (vram_sprite >> 13) ; 8 bpp
+	sta veradat
+
+	lda #<vram_sprite
+	sta veralo
+	lda #<(vram_sprite >> 8)
+	sta veramid
+	lda #$10 | (vram_sprite >> 16)
+	sta verahi
+	ldx #8
+xx2:	txa
+	tay
+	lda #6
+:	sta veradat
+	dey
+	bne :-
+	txa
+	sec
+	sbc #8
+	eor #$ff
+	clc
+	adc #1
+	beq xx1
+	tay
+	lda #0
+:	sta veradat
+	dey
+	bne :-
+xx1:	dex
+	bne xx2
+	rts
+
 hstart  =0
 hstop   =640
 vstart  =0
@@ -113,21 +194,7 @@ _ResetHandle:
 	.word __drvcbdos_RUN__
 	.word __drvcbdos_SIZE__
 
-	lda #$00 ; layer0
-	sta veralo
-	lda #$20
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #7 << 5 | 1; 256c bitmap
-	sta veradat
-	lda #0
-	sta veradat; tile_w=320px
-	sta veradat; map_base_lo: ignore
-	sta veradat; map_base_hi: ignore
-	sta veradat; tile_base_lo = 0
-	lda #$10
-	sta veradat; tile_base_hi = 0x10
+	jsr geos_init_vera
 
 	lda #$00 ; layer1
 	sta veralo
@@ -137,65 +204,6 @@ _ResetHandle:
 	sta verahi
 	lda #0 ; disable
 	sta veradat
-
-	lda #$00        ;$F0000: composer registers
-	sta veralo
-	sta veramid
-	ldx #0
-px5:	lda tvera_composer,x
-	sta veradat
-	inx
-	cpx #tvera_composer_end-tvera_composer
-	bne px5
-
-	; init sprites
-	lda #$00
-	sta veralo
-	lda #$40
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #1
-	sta veradat ; enable sprites
-
-vram_sprite = $16c00
-
-	lda #$00
-	sta veralo
-	lda #$50
-	sta veramid
-	lda #<(vram_sprite >> 5)
-	sta veradat
-	lda #1 << 7 | (vram_sprite >> 13) ; 8 bpp
-	sta veradat
-
-	lda #<vram_sprite
-	sta veralo
-	lda #<(vram_sprite >> 8)
-	sta veramid
-	lda #$10 | (vram_sprite >> 16)
-	sta verahi
-	ldx #8
-xx2:	txa
-	tay
-	lda #6
-:	sta veradat
-	dey
-	bne :-
-	txa
-	sec
-	sbc #8
-	eor #$ff
-	clc
-	adc #1
-	beq xx1
-	tay
-	lda #0
-:	sta veradat
-	dey
-	bne :-
-xx1:	dex
-	bne xx2
 
 	; IRQ
 	lda #1

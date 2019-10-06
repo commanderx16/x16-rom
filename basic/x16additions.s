@@ -120,9 +120,90 @@ geos	jsr jsrfar
 	.byte BANK_GEOS
 
 ;***************
-cscreen	jsr jsrfar
-	.word _ResetHandle
+.import geos_init_vera, color
+cscreen	lda #$06
+	sta color
+	lda #$93
+	jsr $ffd2
+	jsr jsrfar
+	.word geos_init_vera
 	.byte BANK_GEOS
+	ldx #32
+	ldy #0
+	sty 2
+	lda #$a0
+	sta 3
+	tya
+:	sta (2),y
+	iny
+	bne :-
+	inc 3
+	dex
+	bne :-
+	jsr jsrfar
+	.word convert_vic_to_vera2
+	.byte BANK_GEOS
+	rts
+
+;***************
+.import _DrawLine, convert_vic_to_vera2
+r3L             =       $08
+r3H             =       $09
+r4L             =       $0a
+r4H             =       $0b
+r11L            =       $18
+r11H            =       $19
+line	lda #0
+	sta r3L
+	sta r3H
+	sta r11L
+	lda #<319
+	sta r4L
+	lda #>319
+	sta r4H
+	lda #199
+	sta r11H
+	lda #0
+	sec
+	jsr jsrfar
+	.word _DrawLine
+	.byte BANK_GEOS
+
+	jsr jsrfar
+	.word convert_vic_to_vera2
+	.byte BANK_GEOS
+	rts
+
+	nop
+xxxx	jsr getnum
+	lda poker
+	ldy poker+1
+	jsr linprt
+	lda #' '
+	jsr $ffd2
+	jsr chkcom
+	jsr getnum
+	ldy poker
+	lda poker+1
+	jsr linprt
+	lda #' '
+	jsr $ffd2
+	jsr chkcom
+	jsr getnum
+	ldy poker
+	lda poker+1
+	jsr linprt
+	lda #' '
+	jsr $ffd2
+	jsr chkcom
+	jsr getnum
+	ldy poker
+	lda poker+1
+	jsr linprt
+	lda #' '
+	jsr $ffd2
+	rts
+
 
 ;***************
 dos	beq ptstat      ;no argument: print status

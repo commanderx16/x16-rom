@@ -181,6 +181,7 @@ IRQ2Handler:
 
 
 ; convert VIC-II bitmap to VERA bitmap
+.global convert_vic_to_vera2
 convert_vic_to_vera:
 	lda $9efe
 	clc
@@ -191,6 +192,7 @@ convert_vic_to_vera:
 	rts
 :	;inc $a000 + 7999
 
+convert_vic_to_vera2:
 	PushW r0
 	PushW r1
 	PushW r2

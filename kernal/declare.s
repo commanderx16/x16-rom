@@ -3,6 +3,9 @@
 .global status, fnlen, la, sa, fa, isomod, ndx, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
 .global buf, keyd, rptflg
 
+; for basic
+.global color
+
 .segment "ZPKERNAL" : zeropage
 imparm	.res 2           ;$9B PRIMM utility string pointer (was: tape)
 sal	.res 1           ;$AC
