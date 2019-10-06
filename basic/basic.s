@@ -27,4 +27,5 @@
 .include "code26.s"
 .include "init.s"
 .include "x16additions.s"
+.include "geos.s"
 
