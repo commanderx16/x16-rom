@@ -120,6 +120,11 @@ geos	jsr jsrfar
 	.byte BANK_GEOS
 
 ;***************
+cscreen	jsr jsrfar
+	.word _ResetHandle
+	.byte BANK_GEOS
+
+;***************
 dos	beq ptstat      ;no argument: print status
 	jsr frmstr      ;length in .a
 	cmp #0

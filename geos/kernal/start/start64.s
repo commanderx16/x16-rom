@@ -129,6 +129,15 @@ _ResetHandle:
 	lda #$10
 	sta veradat; tile_base_hi = 0x10
 
+	lda #$00 ; layer1
+	sta veralo
+	lda #$30
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda #0 ; disable
+	sta veradat
+
 	lda #$00        ;$F0000: composer registers
 	sta veralo
 	sta veramid
@@ -149,20 +158,22 @@ px5:	lda tvera_composer,x
 	lda #1
 	sta veradat ; enable sprites
 
+vram_sprite = $16c00
+
 	lda #$00
 	sta veralo
 	lda #$50
 	sta veramid
-	lda #0
+	lda #<(vram_sprite >> 5)
 	sta veradat
-	lda #1 << 7 | 8 ; 8 bpp, address=$10000
+	lda #1 << 7 | (vram_sprite >> 13) ; 8 bpp
 	sta veradat
 
-.if 0
-	lda #0
+	lda #<vram_sprite
 	sta veralo
+	lda #<(vram_sprite >> 8)
 	sta veramid
-	lda #$11
+	lda #$10 | (vram_sprite >> 16)
 	sta verahi
 	ldx #8
 xx2:	txa
@@ -185,7 +196,6 @@ xx2:	txa
 	bne :-
 xx1:	dex
 	bne xx2
-.endif
 
 	; IRQ
 	lda #1

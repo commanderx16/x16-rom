@@ -90,6 +90,7 @@ stmdsp2	; statements
 	.word geos-1
 	.word vpoke-1
 	.word vload-1
+	.word cscreen-1
 	; functions
 	.word vpeek
 ;**************************************
