@@ -123,6 +123,19 @@ ld50	sta (eal),y
 ld60	inc eal         ;increment store addr
 	bne ld64
 	inc eah
+;
+;if necessary, wrap to next bank
+;
+	lda eah
+	cmp #$c0        ;reached top of high ram?
+	bne ld64        ;no
+	lda verck       ;check mode
+	beq ld62        ;verify
+	bpl ld64        ;loading into vram
+ld62	lda #$a0        ;wrap to bottom of high ram
+	sta eah
+	inc $9f61       ;move to next ram bank
+
 ld64	bit status      ;eoi?
 	bvc ld40        ;no...continue load
 ;
