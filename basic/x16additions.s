@@ -121,13 +121,36 @@ geos	jsr jsrfar
 
 ;***************
 .import geos_init_vera, color
-cscreen	lda #$06
+.import swpp1
+r2              =       $06
+r2L             =       $06
+r2H             =       $07
+r3L             =       $08
+r3H             =       $09
+r4L             =       $0a
+r4H             =       $0b
+r11L            =       $18
+r11H            =       $19
+dispBufferOn            =       $2f
+cscreen	lda #$0e ; light gray
 	sta color
-	lda #$93
-	jsr $ffd2
+	jsr jsrfar
+	.word swpp1
+	.byte BANK_KERNAL
+
+	sei
+
 	jsr jsrfar
 	.word geos_init_vera
 	.byte BANK_GEOS
+
+	lda #$80
+	sta dispBufferOn
+	lda #1
+	jsr jsrfar
+	.word SetPattern
+	.byte BANK_GEOS
+
 	ldx #32
 	ldy #0
 	sty 2
@@ -140,20 +163,19 @@ cscreen	lda #$06
 	inc 3
 	dex
 	bne :-
+
 	jsr jsrfar
 	.word convert_vic_to_vera2
 	.byte BANK_GEOS
+	cli
 	rts
 
 ;***************
 .import _DrawLine, convert_vic_to_vera2
-r3L             =       $08
-r3H             =       $09
-r4L             =       $0a
-r4H             =       $0b
-r11L            =       $18
-r11H            =       $19
-line	lda #0
+.import SetPattern
+line	sei
+.if 1
+	lda #0
 	sta r3L
 	sta r3H
 	sta r11L
@@ -169,9 +191,58 @@ line	lda #0
 	.word _DrawLine
 	.byte BANK_GEOS
 
+	lda #<319
+	sta r3L
+	lda #>319
+	sta r3H
+	lda #0
+	sta r11L
+	lda #0
+	sta r4L
+	sta r4H
+	lda #199
+	sta r11H
+	lda #0
+	sec
+	jsr jsrfar
+	.word _DrawLine
+	.byte BANK_GEOS
+
+	lda #0
+	sta r3L
+	sta r3H
+	sta r11L
+	lda #100
+	sta r4L
+	lda #0
+	sta r4H
+	lda #100
+	sta r11H
+	lda #0
+	sec
+	jsr jsrfar
+	.word _DrawLine
+	.byte BANK_GEOS
+.endif
+.import _Rectangle
+	lda #0
+	sta r3L
+	sta r3H
+	sta r2L
+	lda #100
+	sta r4L
+	lda #0
+	sta r4H
+	lda #100
+	sta r2H
+	jsr jsrfar
+	.word _Rectangle
+	.byte BANK_GEOS
+
 	jsr jsrfar
 	.word convert_vic_to_vera2
 	.byte BANK_GEOS
+	cli
 	rts
 
 	nop
