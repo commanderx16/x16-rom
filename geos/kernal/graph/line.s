@@ -55,62 +55,43 @@ PrepareXCoord:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _HorizontalLine:
-	sta r7L
-	PushW r3
-	PushW r4
-	jsr PrepareXCoord
-	ldy r3L
-	lda r3H
+	pha
+	LoadW r5, $4000
+	ldx r11L
+	beq :+
+:	AddVW 320, r5
+	dex
+	bne :-
+:
+
+	AddW r3, r5
+
+	ldy r5L
+	sty veralo
+	lda r5H
+	sta veramid
+	lda #$10
+	sta verahi
+
+	MoveW r4, r6
+	SubW r3, r6
+
+	pla
+
+	ldx r6L
+	ldy r6H
+	cpx #0
+	bne :+
+	cpy #0
 	beq @1
-	inc r5H
-	inc r6H
-@1:
-	CmpW r3, r4
-	beq @4
-	SubW r3, r4
-	lsr r4H
-	ror r4L
-	lsr r4L
-	lsr r4L
-	lda r8L
-	jsr HLineHelp
-@2:	sta (r6),Y
-	sta (r5),Y
-	tya
-	addv 8
-	tay
-	bcc @3
-	inc r5H
-	inc r6H
-@3:	dec r4L
-	beq @5
-	lda r7L
-	bra @2
-@4:	lda r8L
-	ora r8H
-	bra @6
 
-@5:	lda r8H
-@6:	jsr HLineHelp
-HLinEnd1:
-	sta (r6),Y
-	sta (r5),Y
-HLinEnd2:
-	PopW r4
-	PopW r3
-	rts
+:	sta veradat
 
-
-HLineHelp:
-	sta r11H
-	and (r6),Y
-HLineHelp2:
-	sta r7H
-	lda r11H
-	eor #$FF
-	and r7L
-	ora r7H
-	rts
+	dex
+	bne :-
+	dey
+	bpl :-
+@1:	rts
 
 ;---------------------------------------------------------------
 ; InvertLine                                              $C11B
@@ -242,6 +223,14 @@ RecLineHelp:
 	and (r6),Y
 	ora r7H
 	sta (r5),Y
+	rts
+
+HLinEnd1:
+	sta (r6),Y
+	sta (r5),Y
+HLinEnd2:
+	PopW r4
+	PopW r3
 	rts
 
 ;---------------------------------------------------------------

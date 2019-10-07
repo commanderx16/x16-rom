@@ -74,7 +74,7 @@ _IRQHandler:
 	LoadB clkreg, 0
 .endif
 .endif
-	jsr convert_vic_to_vera
+;	jsr convert_vic_to_vera
 
 	PushW CallRLo
 	PushW returnAddress
