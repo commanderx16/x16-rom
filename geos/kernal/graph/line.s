@@ -21,6 +21,8 @@
 .global _RecoverLine
 .global _VerticalLine
 
+bitmap_base = 0
+
 .segment "graph2a"
 
 PrepareXCoord:
@@ -55,8 +57,9 @@ PrepareXCoord:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _HorizontalLine:
+	jsr convcol
 	pha
-	LoadW r5, $4000
+	LoadW r5, bitmap_base
 	ldx r11L
 	beq :+
 :	AddVW 320, r5
@@ -244,8 +247,9 @@ HLinEnd2:
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 _VerticalLine:
+	jsr convcol
 	pha
-	LoadW r5, $4000
+	LoadW r5, bitmap_base
 	ldx r3L
 	beq :+
 :	AddVW 320, r5
@@ -281,3 +285,20 @@ _VerticalLine:
 	bne :-
 
 @1:	rts
+
+convcol:
+	ldx #8
+	ldy #8
+@1:	lsr
+	bcc @2
+	dey
+@2:	dex
+	bne @1
+	cpy #8
+	beq @3
+	tya
+	asl
+	ora #16
+	rts
+@3:	lda #16+15
+	rts

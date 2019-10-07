@@ -85,8 +85,7 @@ geos_init_vera:
 	sta veradat; map_base_lo: ignore
 	sta veradat; map_base_hi: ignore
 	sta veradat; tile_base_lo = 0
-	lda #$10
-	sta veradat; tile_base_hi = 0x10
+	sta veradat; tile_base_hi = 0
 
 	lda #$00        ;$F0000: composer registers
 	sta veralo
