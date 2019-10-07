@@ -244,39 +244,40 @@ HLinEnd2:
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 _VerticalLine:
-	sta r8L
-	PushB r4L
-	and #%00000111
-	tax
-	lda BitMaskPow2Rev,x
-	sta r7H
-	lda r4L
-	and #%11111000
-	sta r4L
-	ldy #0
+	pha
+	LoadW r5, $4000
 	ldx r3L
-@1:	stx r7L
-	jsr _GetScanLine
+	beq :+
+:	AddVW 320, r5
+	dex
+	bne :-
+:
+
 	AddW r4, r5
-	AddW r4, r6
-	lda r7L
-	and #%00000111
+
+
+	lda r3H
+	sec
+	sbc r3L
 	tax
-	lda BitMaskPow2Rev,x
-	and r8L
-	bne @2
-	lda r7H
-	eor #$FF
-	and (r6),Y
-	bra @3
-@2:	lda r7H
-	ora (r6),Y
-@3:	sta (r6),Y
-	sta (r5),Y
-	ldx r7L
-	inx
-	cpx r3H
+
+	pla
+
+	cpx #0
 	beq @1
-	bcc @1
-	PopB r4L
-	rts
+
+	ldy #$10
+	sty verahi
+
+:	ldy r5L
+	sty veralo
+	ldy r5H
+	sty veramid
+	sta veradat
+	pha
+	AddVW 320, r5
+	pla
+	dex
+	bne :-
+
+@1:	rts
