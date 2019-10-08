@@ -587,60 +587,37 @@ Font_4:
 	bcs @4 ; start > end -> rts
 
 ; multiple cards
+	jsr r5_to_vera
+
 	lda Z45,x
 	eor r10L   ; underline
 	and r9L    ; mask to keep right part of start card (char)
-	sta @mask1
-	lda r3L    ; mask to keep left part of start card (bg)
-	and (r6),y ; get left pixels from background
-@mask1 = *+1
-	lda #0     ; add new pixels
-	sta (r6),y
-	sta (r5),y
-	jsr star5y
-@1:	tya
-	addv 8
-	tay        ; next card
-	inx
+	jsr store_vera
+@1:	inx
 	cpx r8L
 	beq @2     ; end card
 ; middle cards
 	lda Z45,x
 	eor r10L   ; underline
-	sta (r6),y
-	sta (r5),y
-	jsr star5y
+	jsr store_vera
 	bra @1
 ; end card
 @2:	lda Z45,x
 	eor r10L   ; underline
 	and r9H    ; mask to keep left part of end card (char)
-	sta @mask2
-	lda r4H    ; mask to keep right part of end card (bg)
-	and (r6),y
-@mask2 = *+1
-	lda #0
-	sta (r6),y
-	sta (r5),y
-	jsr star5y
-	rts
+	jmp store_vera
 
-@3:	lda Z45,x
+@3:
+	jsr r5_to_vera
+	lda Z45,x
 	eor r10L   ; underline
 	and r9H    ; mask to keep left part of end card (char)
 	eor #$ff
 	ora r3L    ; mask to keep left part of start card (bg)
 	ora r4H    ; mask to keep right part of end card (bg)
 	eor #$ff
-	sta @mask3
-	lda r3L    ; mask to keep left part of start card (bg)
-	ora r4H    ; mask to keep right part of end card (bg)
-	and (r6),y
-@mask3 = *+1
-	lda #0
-	sta (r6),y
-	sta (r5),y
-	jsr star5y
+	jmp store_vera
+
 @4:	rts
 
 .ifdef bsw128
@@ -993,19 +970,17 @@ FontPutChar80:
 
 .setcpu "65c02"
 .import _DMult, _Ddiv
-star5y:
+
+r5_to_vera:
 	php
 	pha
 	phx
 	phy
-	tax
 	PushW r5
 	PushW r6
 	PushW r7
 	PushW r8
 	PushW r9
-	txa
-	pha
 
 	SubVW $a000, r5
 	tya
@@ -1063,8 +1038,19 @@ star5y:
 	lda #$10
 	sta verahi
 
+	PopW r9
+	PopW r8
+	PopW r7
+	PopW r6
+	PopW r5
+	ply
+	plx
 	pla
+	plp
+	rts
 
+store_vera:
+	phx
 	ldx #8
 :	asl
 	bcc @l1
@@ -1075,14 +1061,5 @@ star5y:
 	inc veramid
 @l2:	dex
 	bne :-
-
-	PopW r9
-	PopW r8
-	PopW r7
-	PopW r6
-	PopW r5
-	ply
 	plx
-	pla
-	plp
 	rts
