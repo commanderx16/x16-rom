@@ -597,7 +597,7 @@ Font_4:
 	lda r3L
 	and (r6),y
 @mask1 = *+1
-	ora #0
+	lda #0
 	sta (r6),y
 	sta (r5),y
 	jsr star5y
@@ -620,7 +620,7 @@ Font_4:
 	lda r4H
 	and (r6),y
 @mask2 = *+1
-	ora #0
+	lda #0
 	sta (r6),y
 	sta (r5),y
 	jsr star5y
@@ -640,7 +640,7 @@ Font_4:
 	ora r4H
 	and (r6),y
 @mask3 = *+1
-	ora #0
+	lda #0
 	sta (r6),y
 	sta (r5),y
 	jsr star5y
@@ -986,16 +986,16 @@ FontPutChar80:
 ; base = addr / 320
 ; off  = addr % 320
 ; y = base << 3 | off & 7
-; x = off >> 3
+; x = off & ~7
 ; addr2 = y * 320 + x
-; addr2 = (base << 3 | off & 7) * 320 + (off >> 3)
-; addr2 = ((addr / 320) << 3 | (addr % 320) & 7) * 320 + ((addr % 320) >> 3)
-; addr2 = ((addr / 320) << 3 | addr & 7) * 320 + ((addr % 320) >> 3)
-; addr2 = ((addr / 320) * 8 + addr & 7) * 320 + ((addr % 320) >> 3)
-; addr2 = (((addr / 40) & ~7) + addr & 7) * 320 + ((addr % 320) >> 3)
-; addr2 = ((addr / 40) & ~7) * 320 + (addr & 7) * 320 + ((addr % 320) >> 3)
+; addr2 = (base << 3 | off & 7) * 320 + (off & ~7)
+; addr2 = ((addr / 320) << 3 | (addr % 320) & 7) * 320 + ((addr % 320) & ~7)
+; addr2 = ((addr / 320) << 3 | addr & 7) * 320 + ((addr % 320) & ~7)
+; addr2 = ((addr / 320) * 8 + addr & 7) * 320 + ((addr % 320) & ~7)
+; addr2 = (((addr / 40) & ~7) + addr & 7) * 320 + ((addr % 320) & ~7)
+; addr2 = ((addr / 40) & ~7) * 320 + (addr & 7) * 320 + ((addr % 320) & ~7)
 
-; addr2 = ((addr / 320) << 3 | addr & 7) * 320 + ((addr % 320) >> 3)
+; addr2 = ((addr / 320) << 3 | addr & 7) * 320 + ((addr % 320) & ~7)
 
 
 .setcpu "65c02"
@@ -1055,14 +1055,8 @@ star5y:
 	; r5 is result
 
 	PopW r8
-;	; r8 >>= 3
-;	lsr r8H
-;	ror r8L
-;	lsr r8H
-;	ror r8L
-;	lsr r8H
-;	ror r8L
 
+	; r8 &= ~7
 	lda r8L
 	and #$f8
 	sta r8L
@@ -1080,12 +1074,13 @@ star5y:
 
 	ldx #8
 :	asl
-	pha
-	lda #0
-	rol
-	sta veradat
-	pla
-	dex
+	bcc @l1
+	stz veradat
+	jmp @l2
+@l1:	inc veralo
+	bne @l2
+	inc veramid
+@l2:	dex
 	bne :-
 
 	PopW r9
