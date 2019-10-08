@@ -582,42 +582,41 @@ clc_rts:
 Font_4:
 	ldy r1L
 	ldx FontTVar1
-.ifndef bsw128
-	lda Z45,x
-.endif
 	cpx r8L
-	beq @3
-	bcs @4
-.ifdef bsw128
+	beq @3 ; start == end -> one card
+	bcs @4 ; start > end -> rts
+
+; multiple cards
 	lda Z45,x
-.endif
-	eor r10L
-	and r9L
+	eor r10L   ; underline
+	and r9L    ; mask to keep right part of start card (char)
 	sta @mask1
-	lda r3L
-	and (r6),y
+	lda r3L    ; mask to keep left part of start card (bg)
+	and (r6),y ; get left pixels from background
 @mask1 = *+1
-	lda #0
+	lda #0     ; add new pixels
 	sta (r6),y
 	sta (r5),y
 	jsr star5y
 @1:	tya
 	addv 8
-	tay
+	tay        ; next card
 	inx
 	cpx r8L
-	beq @2
+	beq @2     ; end card
+; middle cards
 	lda Z45,x
-	eor r10L
+	eor r10L   ; underline
 	sta (r6),y
 	sta (r5),y
 	jsr star5y
 	bra @1
+; end card
 @2:	lda Z45,x
-	eor r10L
-	and r9H
+	eor r10L   ; underline
+	and r9H    ; mask to keep left part of end card (char)
 	sta @mask2
-	lda r4H
+	lda r4H    ; mask to keep right part of end card (bg)
 	and (r6),y
 @mask2 = *+1
 	lda #0
@@ -625,30 +624,24 @@ Font_4:
 	sta (r5),y
 	jsr star5y
 	rts
-@3:
-.ifdef bsw128
-	lda Z45,x
-.endif
-	eor r10L
-	and r9H
+
+@3:	lda Z45,x
+	eor r10L   ; underline
+	and r9H    ; mask to keep left part of end card (char)
 	eor #$ff
-	ora r3L
-	ora r4H
+	ora r3L    ; mask to keep left part of start card (bg)
+	ora r4H    ; mask to keep right part of end card (bg)
 	eor #$ff
 	sta @mask3
-	lda r3L
-	ora r4H
+	lda r3L    ; mask to keep left part of start card (bg)
+	ora r4H    ; mask to keep right part of end card (bg)
 	and (r6),y
 @mask3 = *+1
 	lda #0
 	sta (r6),y
 	sta (r5),y
 	jsr star5y
-@4:
-.ifdef bsw128
-shared_rts:
-.endif
-	rts
+@4:	rts
 
 .ifdef bsw128
 .global LF522
