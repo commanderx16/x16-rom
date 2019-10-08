@@ -600,6 +600,7 @@ Font_4:
 	ora #0
 	sta (r6),y
 	sta (r5),y
+	jsr star5y
 @1:	tya
 	addv 8
 	tay
@@ -610,6 +611,7 @@ Font_4:
 	eor r10L
 	sta (r6),y
 	sta (r5),y
+	jsr star5y
 	bra @1
 @2:	lda Z45,x
 	eor r10L
@@ -621,6 +623,7 @@ Font_4:
 	ora #0
 	sta (r6),y
 	sta (r5),y
+	jsr star5y
 	rts
 @3:
 .ifdef bsw128
@@ -640,6 +643,7 @@ Font_4:
 	ora #0
 	sta (r6),y
 	sta (r5),y
+	jsr star5y
 @4:
 .ifdef bsw128
 shared_rts:
@@ -977,3 +981,120 @@ FontPutChar80:
 @6:	jsr Font_5
 	bra @3
 .endif
+
+
+; base = addr / 320
+; off  = addr % 320
+; y = base << 3 | off & 7
+; x = off >> 3
+; addr2 = y * 320 + x
+; addr2 = (base << 3 | off & 7) * 320 + (off >> 3)
+; addr2 = ((addr / 320) << 3 | (addr % 320) & 7) * 320 + ((addr % 320) >> 3)
+; addr2 = ((addr / 320) << 3 | addr & 7) * 320 + ((addr % 320) >> 3)
+; addr2 = ((addr / 320) * 8 + addr & 7) * 320 + ((addr % 320) >> 3)
+; addr2 = (((addr / 40) & ~7) + addr & 7) * 320 + ((addr % 320) >> 3)
+; addr2 = ((addr / 40) & ~7) * 320 + (addr & 7) * 320 + ((addr % 320) >> 3)
+
+; addr2 = ((addr / 320) << 3 | addr & 7) * 320 + ((addr % 320) >> 3)
+
+
+.setcpu "65c02"
+.import _DMult, _Ddiv
+star5y:
+	php
+	pha
+	phx
+	phy
+	tax
+	PushW r5
+	PushW r6
+	PushW r7
+	PushW r8
+	PushW r9
+	txa
+	pha
+
+	SubVW $a000, r5
+	tya
+	clc
+	adc r5L
+	sta r5L
+	lda r5H
+	adc #0
+	sta r5H
+
+
+	MoveW r5, r6 ; save pointer
+
+	LoadW r7, 320
+	ldx #r5
+	ldy #r7
+	jsr _Ddiv
+	; r5 is quotient
+	; r8 is remainder
+	PushW r8
+
+	; r5 <<= 3
+	asl r5L
+	rol r5H
+	asl r5L
+	rol r5H
+	asl r5L
+	rol r5H
+
+	; r5 |= r6 & 7
+	lda r6L
+	and #7
+	ora r5L
+	sta r5L
+
+	LoadW r9, 320
+	ldx #r5
+	ldy #r9
+	jsr _DMult
+	; r5 is result
+
+	PopW r8
+;	; r8 >>= 3
+;	lsr r8H
+;	ror r8L
+;	lsr r8H
+;	ror r8L
+;	lsr r8H
+;	ror r8L
+
+	lda r8L
+	and #$f8
+	sta r8L
+
+	AddW r8, r5
+
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	lda #$10
+	sta verahi
+
+	pla
+
+	ldx #8
+:	asl
+	pha
+	lda #0
+	rol
+	sta veradat
+	pla
+	dex
+	bne :-
+
+	PopW r9
+	PopW r8
+	PopW r7
+	PopW r6
+	PopW r5
+	ply
+	plx
+	pla
+	plp
+	rts
