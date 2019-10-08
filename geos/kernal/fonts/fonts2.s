@@ -578,7 +578,6 @@ clc_rts:
         rts
 .endif
 
-.segment "RAM"
 Font_4:
 	ldy r1L
 	ldx FontTVar1
@@ -589,152 +588,39 @@ Font_4:
 ; multiple cards
 	jsr r5_to_vera
 
+; first card
 	lda Z45,x
 	eor r10L   ; underline
-	and r9L    ; mask to keep right part of start card (char)
+	ldy r9L    ; mask to keep right part of start card (char)
 	jsr store_vera
 @1:	inx
 	cpx r8L
 	beq @2     ; end card
+
 ; middle cards
 	lda Z45,x
 	eor r10L   ; underline
+	ldy #$ff
 	jsr store_vera
 	bra @1
+
 ; end card
 @2:	lda Z45,x
 	eor r10L   ; underline
-	and r9H    ; mask to keep left part of end card (char)
+	ldy r9H    ; mask to keep left part of end card (char)
 	jmp store_vera
 
-@3:
-	jsr r5_to_vera
+; single card
+@3:	jsr r5_to_vera
+	lda r9L
+	and r9H
+	tay
 	lda Z45,x
 	eor r10L   ; underline
-	and r9H    ; mask to keep left part of end card (char)
-	eor #$ff
-	ora r3L    ; mask to keep left part of start card (bg)
-	ora r4H    ; mask to keep right part of end card (bg)
-	eor #$ff
 	jmp store_vera
 
 @4:	rts
 
-.ifdef bsw128
-.global LF522
-.import VDCGetFromBGFG
-.import LF5AE
-.import LF56A
-.import LF497
-
-; some unknown helper, seems to be alternative version (80) of
-; previous Font_4 for alternative Font_10 (e6e0), but that one
-; seems to be never called tough
-LE4BC:	ldx FontTVar1
-	cpx r8L
-	beq @7
-	bcs shared_rts
-	inx
-	cpx r8L
-	bne @1
-	jmp @8
-@1:	dex
-	jsr LF497
-	ldy #0
-	sta @andval1
-	lda r8L
-	sub FontTVar1
-	bbrf 6, dispBufferOn, @2
-	tay
-	lda (r6),y
-	bra @4
-@2:	add r5L
-	sta r5L
-	bcc @3
-	inc r5H
-@3:	jsr LF522
-	ldy r6H
-	sty r5H
-	ldy r6L
-	sty r5L
-@4:	sta @andval2
-	lda Z45,x
-	eor r10L
-	and r9L
-	sta @orval1
-	lda r3L
-@andval1 = *+1
-	and #0
-@orval1 = *+1
-	ora #0
-	ldy #0
-	jsr LF56A
-@5:	iny
-	inx
-	cpx r8L
-	beq @6
-	lda Z45,x
-	eor r10L
-	jsr LF5AE
-	bra @5
-@6:	lda Z45,x
-	eor r10L
-	and r9H
-	sta @orval2
-	lda r4H
-@andval2 = *+1
-	and #$30
-@orval2 = *+1
-	ora #0
-	jmp LF5AE
-@7:	lda Z45,x
-	eor r10L
-	and r9H
-	eor #$ff
-	ora r3L
-	ora r4H
-	eor #$FF
-	sta @orval3
-	jsr LF497
-	ldy #0
-	sta @andval3
-	lda r3L
-	ora r4H
-@andval3 = *+1
-	and #0
-@orval3 = *+1
-	ora #0
-	jmp LF56A
-@8:	dex
-	jsr LF497
-	ldy #0
-	sta @andval4
-	iny
-	jsr VDCGetFromBGFG
-	sta @andval5
-	lda Z45,x
-	eor r10L
-	and r9L
-	sta @orval4
-	lda r3L
-@andval4 = *+1
-	and #0
-@orval4 = *+1
-	ora #0
-	ldy #$00
-	jsr LF56A
-	iny
-	lda Z46,x
-	eor r10L
-	and r9H
-	sta @orval5
-	lda r4H
-@andval5 = *+1
-	and #0
-@orval5 = *+1
-	ora #0
-	jmp LF5AE
-.endif
 
 .segment "fonts2"
 
@@ -1051,15 +937,22 @@ r5_to_vera:
 
 store_vera:
 	phx
+	sty 0
 	ldx #8
 :	asl
+	pha
+	lda #0
+	rol
+	eor #1
+	asl 0
 	bcc @l1
-	stz veradat
+	sta veradat
 	jmp @l2
 @l1:	inc veralo
 	bne @l2
 	inc veramid
-@l2:	dex
+@l2:	pla
+	dex
 	bne :-
 	plx
 	rts
