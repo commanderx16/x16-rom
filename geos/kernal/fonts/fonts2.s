@@ -3,6 +3,8 @@
 ;
 ; Font drawing
 
+.setcpu "65c02"
+
 .include "const.inc"
 .include "geossym.inc"
 .include "geosmac.inc"
@@ -274,12 +276,6 @@ Font_tabH:
 	.hibytes Font_tab
 
 Font_2:
-	ldx r1H
-.ifdef bsw128
-	jsr _GetScanLine
-.else
-	jsr GetScanLine
-.endif
 	lda FontTVar2
 	ldx FontTVar2+1
 	bmi @2
@@ -292,61 +288,14 @@ Font_2:
 @3:	pha
 	and #%11111000
 	sta r4L
-.ifdef bsw128
-	bbsf 7, graphMode, @LE319
-.endif
-	cpx #0
-	bne @4
-	cmp #$c0
-	bcc @6
-@4:	subv $80
 	pha
-	AddVB $80, r5L
-	sta r6L
-	bcc @5
-	inc r5H
-	inc r6H
-@5:	pla
-@6:	sta r1L
-.ifdef bsw128
-	bra @LE333
-@LE319:	ldy #$00
-	sty r1L
-	stx r4H
-	lsr r4H
-	ror a
-	lsr r4H
-	ror a
-	lsr a
-	clc
-	adc r5L
-	sta r5L
-	sta r6L
-	bcc @LE333
-	inc r5H
-	inc r6H
-.endif
-@LE333:
-.ifdef bsw128
-	lda FontTVar2+1
-	lsr a
-	sta r7L
-	lda FontTVar2
-	ror a
-	lsr r7L
-	ror a
-	lsr r7L
-	ror a
-	sta r7L
-	lda leftMargin+1
-	lsr a
-	sta r3L
-	lda leftMargin
-	ror a
-	lsr r3L
-	ror a
-	lsr a
-.else
+	phx
+	ldx r1H
+	jsr _GetScanLine
+	plx
+	pla
+	jsr r5_to_vera
+
 	MoveB FontTVar2+1, r3L
 	lsr r3L
 	lda FontTVar2
@@ -362,7 +311,7 @@ Font_2:
 	ror
 	lsr
 	lsr
-.endif
+
 	sub r7L
 	bpl @7
 	lda #0
@@ -749,7 +698,6 @@ FontPutChar:
 	bbrf 7, graphMode, @1
 	jmp FontPutChar80
 .endif
-	jsr r5_to_vera
 @1:	clc
 	lda currentMode
 	and #SET_UNDERLINE | SET_ITALIC
@@ -846,13 +794,10 @@ FontPutChar80:
 ; addr2 = ((addr / 320) << 3 | addr & 7) * 320 + ((addr % 320) & ~7)
 
 
-.setcpu "65c02"
 .import _DMult, _Ddiv
 
 r5_to_vera:
-	php
-	pha
-	phx
+	sta r1L
 	PushW r6
 	PushW r7
 	PushW r8
@@ -863,8 +808,8 @@ r5_to_vera:
 	clc
 	adc r5L
 	sta r5L
-	lda r5H
-	adc #0
+	txa
+	adc r5H
 	sta r5H
 
 
@@ -918,9 +863,6 @@ r5_to_vera:
 	PopW r8
 	PopW r7
 	PopW r6
-	plx
-	pla
-	plp
 	rts
 
 store_vera:
