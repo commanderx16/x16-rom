@@ -14,6 +14,7 @@
 .import BitMaskLeadingSet
 .import BitMaskLeadingClear
 .import _GetScanLine
+.import _GetScanLineVera
 
 .global ImprintLine
 .global _HorizontalLine
@@ -61,11 +62,7 @@ _HorizontalLine:
 	pha
 	LoadW r5, bitmap_base
 	ldx r11L
-	beq :+
-:	AddVW 320, r5
-	dex
-	bne :-
-:
+	jsr _GetScanLineVera
 
 	AddW r3, r5
 
@@ -78,23 +75,30 @@ _HorizontalLine:
 
 	MoveW r4, r6
 	SubW r3, r6
-
+	inc r6L
+	bne :+
+	inc r6H
+:
 	pla
 
-	ldx r6L
 	ldy r6H
-	cpx #0
-	bne :+
-	cpy #0
-	beq @1
-
-:	sta veradat
-
-	dex
-	bne :-
+	beq @2
+	ldy #0
+@1:	sta veradat
 	dey
-	bpl :-
-@1:	rts
+	bne @1
+	inc r1H
+	dec r6H
+	bne @1
+@2:	ldy r6L
+	beq @4
+	dey
+@3:	sta veradat
+	dey
+	cpy #$ff
+	bne @3
+@4:	rts
+
 
 ;---------------------------------------------------------------
 ; InvertLine                                              $C11B
