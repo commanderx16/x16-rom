@@ -291,10 +291,20 @@ Font_2:
 	pha
 	phx
 	ldx r1H
-	jsr _GetScanLine
+	jsr _GetScanLineVera
 	plx
 	pla
-	jsr r5_to_vera
+;	jsr r5_to_vera
+	clc
+	adc r5L
+	sta r5L
+	sta veralo
+	txa
+	adc r5H
+	sta r5H
+	sta veramid
+	lda #$10
+	sta verahi
 
 	MoveB FontTVar2+1, r3L
 	lsr r3L
@@ -796,6 +806,24 @@ FontPutChar80:
 
 .import _DMult, _Ddiv
 
+_GetScanLineVera:
+	stx r5L
+	stz r5H
+	PushW r6
+	PushW r7
+	PushW r8
+	PushW r9
+	LoadW r9, 320
+	ldx #r5
+	ldy #r9
+	jsr _DMult
+	PopW r9
+	PopW r8
+	PopW r7
+	PopW r6
+	rts
+
+.if 0
 r5_to_vera:
 	sta r1L
 	PushW r6
@@ -864,25 +892,24 @@ r5_to_vera:
 	PopW r7
 	PopW r6
 	rts
+.endif
 
 store_vera:
-	phx
-	sty 0
-	ldx #8
+	eor #$ff
+	sta r4L
+	tya
 :	asl
-	pha
+	bcc @l1
+	asl r4L
+	tay
 	lda #0
 	rol
-	eor #1
-	asl 0
-	bcc @l1
 	sta veradat
-	jmp @l2
-@l1:	inc veralo
-	bne @l2
-	inc veramid
-@l2:	pla
-	dex
-	bne :-
-	plx
+	tya
+@l3:	bne :-
 	rts
+@l1:	asl r4L
+	inc veralo
+	bne @l3
+	inc veramid
+@l2:	bra @l3
