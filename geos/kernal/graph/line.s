@@ -3,6 +3,8 @@
 ;
 ; Graphics library: line functions
 
+.setcpu "65c02"
+
 .include "const.inc"
 .include "geossym.inc"
 .include "geosmac.inc"
@@ -64,19 +66,30 @@ _HorizontalLine:
 	jsr _GetScanLineVera
 	AddW r3, r5
 
-	ldy r5L
-	sty veralo
-	lda r5H
-	sta veramid
-	lda #$10
-	sta verahi
-
 	MoveW r4, r6
 	SubW r3, r6
 	IncW r6
 
 	pla
+	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
+	ldy r5L
+	sty veralo
+	ldy r5H
+	sty veramid
+	ldy #$10
+	sty verahi
+	jsr HLine1
+@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
+	ldy r5L
+	sty veralo
+	ldy r5H
+	sty veramid
+	ldy #$10
+	sty verahi
+	jmp HLine1
+@2:	rts
 
+HLine1:
 	ldy r6H
 	beq @2
 	ldy #0
@@ -267,23 +280,30 @@ _VerticalLine:
 	tax
 	pla
 	inx
-	beq @1
+	beq @2
 
-	ldy #$10
+	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
+	phx
+	ldy #0
+	jsr VLine1
+	plx
+@1:	bbrf 6, dispBufferOn, VLine1 ; ST_WR_BACK
+	ldy #1
+	jmp VLine1
+@2:	rts
+
+VLine1:
 	sty verahi
-
-:	ldy r5L
+	ldy r5L
 	sty veralo
 	ldy r5H
 	sty veramid
-	sta veradat
-	pha
-	AddVW 320, r5
-	pla
+	tay
+:	sty veradat
+	AddVW 320, veralo
 	dex
 	bne :-
-
-@1:	rts
+	rts
 
 convcol:
 	cmp #$00
