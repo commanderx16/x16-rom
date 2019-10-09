@@ -280,6 +280,25 @@ _VerticalLine:
 @1:	rts
 
 convcol:
+	cmp #$00
+	bne :+
+	lda #1
+	rts
+:	cmp #$ff
+	bne :+
+	lda #0
+	rts
+:	cmp #$55
+	bne :+
+	lda #6;16+7
+	rts
+:	cmp #$aa
+	bne :+
+	lda #14;16+9
+:	rts
+
+.if 0
+; this converts a pattern into a shade of gray
 	ldx #8
 	ldy #8
 @1:	lsr
@@ -295,3 +314,4 @@ convcol:
 	rts
 @3:	lda #16+15
 	rts
+.endif
