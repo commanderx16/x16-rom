@@ -579,14 +579,13 @@ clc_rts:
 .endif
 
 Font_4:
-	ldy r1L
+	jsr r5_to_vera
 	ldx FontTVar1
 	cpx r8L
 	beq @3 ; start == end -> one card
 	bcs @4 ; start > end -> rts
 
 ; multiple cards
-	jsr r5_to_vera
 
 ; first card
 	lda Z45,x
@@ -611,8 +610,7 @@ Font_4:
 	jmp store_vera
 
 ; single card
-@3:	jsr r5_to_vera
-	lda r9L
+@3:	lda r9L
 	and r9H
 	tay
 	lda Z45,x
@@ -861,7 +859,6 @@ r5_to_vera:
 	php
 	pha
 	phx
-	phy
 	PushW r5
 	PushW r6
 	PushW r7
@@ -869,7 +866,7 @@ r5_to_vera:
 	PushW r9
 
 	SubVW $a000, r5
-	tya
+	lda r1L
 	clc
 	adc r5L
 	sta r5L
@@ -929,7 +926,6 @@ r5_to_vera:
 	PopW r7
 	PopW r6
 	PopW r5
-	ply
 	plx
 	pla
 	plp
