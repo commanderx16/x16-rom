@@ -246,7 +246,7 @@ Font_1:
 	ldx #0
 	lda currentMode
 	and #SET_REVERSE
-	beq @5
+	bne @5
 	dex
 @5:	stx r10L
 	clc
@@ -546,33 +546,24 @@ Font_4:
 ; multiple cards
 
 ; first card
-	lda Z45,x
-	eor r10L   ; underline
-	ldy r9L    ; mask to keep right part of start card (char)
+	lda r9L    ; mask to keep right part of start card (char)
 	jsr store_vera
 @1:	inx
 	cpx r8L
 	beq @2     ; end card
 
 ; middle cards
-	lda Z45,x
-	eor r10L   ; underline
-	ldy #$ff
+	lda #$ff
 	jsr store_vera
 	bra @1
 
 ; end card
-@2:	lda Z45,x
-	eor r10L   ; underline
-	ldy r9H    ; mask to keep left part of end card (char)
+@2:	lda r9H    ; mask to keep left part of end card (char)
 	jmp store_vera
 
 ; single card
 @3:	lda r9L
 	and r9H
-	tay
-	lda Z45,x
-	eor r10L   ; underline
 	jmp store_vera
 
 @4:	rts
@@ -804,7 +795,7 @@ FontPutChar80:
 ; addr2 = ((addr / 320) << 3 | addr & 7) * 320 + ((addr % 320) & ~7)
 
 
-.import _DMult, _Ddiv
+.import _DMult
 
 _GetScanLineVera:
 	stx r5L
@@ -823,79 +814,10 @@ _GetScanLineVera:
 	PopW r6
 	rts
 
-.if 0
-r5_to_vera:
-	sta r1L
-	PushW r6
-	PushW r7
-	PushW r8
-	PushW r9
-
-	SubVW $a000, r5
-	lda r1L
-	clc
-	adc r5L
-	sta r5L
-	txa
-	adc r5H
-	sta r5H
-
-
-	MoveW r5, r6 ; save pointer
-
-	LoadW r7, 320
-	ldx #r5
-	ldy #r7
-	jsr _Ddiv
-	; r5 is quotient
-	; r8 is remainder
-	PushW r8
-
-	; r5 <<= 3
-	asl r5L
-	rol r5H
-	asl r5L
-	rol r5H
-	asl r5L
-	rol r5H
-
-	; r5 |= r6 & 7
-	lda r6L
-	and #7
-	ora r5L
-	sta r5L
-
-	LoadW r9, 320
-	ldx #r5
-	ldy #r9
-	jsr _DMult
-	; r5 is result
-
-	PopW r8
-
-	; r8 &= ~7
-	lda r8L
-	and #$f8
-	sta r8L
-
-	AddW r8, r5
-
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
-	lda #$10
-	sta verahi
-
-	PopW r9
-	PopW r8
-	PopW r7
-	PopW r6
-	rts
-.endif
-
 store_vera:
-	eor #$ff
+	tay
+	lda Z45,x
+	eor r10L   ; underline
 	sta r4L
 	tya
 :	asl

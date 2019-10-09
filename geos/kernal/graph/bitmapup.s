@@ -92,6 +92,7 @@ BitmapUpHelp:
 	ldy r9L
 	sta (r5),y
 	sta (r6),y
+	jsr r5_to_vera
 	tya
 	addv 8
 	bcc @3
@@ -255,3 +256,99 @@ IndirectR14:
 	jmp (r14)
 .endif
 
+.setcpu "65c02"
+
+.if 1
+.import _DMult, _Ddiv
+r5_to_vera:
+	sta 0
+	phx
+	phy
+
+	PushW r5
+	PushW r6
+	PushW r7
+	PushW r8
+	PushW r9
+
+	SubVW $a000, r5
+	tya
+	clc
+	adc r5L
+	sta r5L
+	txa
+	adc r5H
+	sta r5H
+
+
+	MoveW r5, r6 ; save pointer
+
+	LoadW r7, 320
+	ldx #r5
+	ldy #r7
+	jsr _Ddiv
+	; r5 is quotient
+	; r8 is remainder
+	PushW r8
+
+	; r5 <<= 3
+	asl r5L
+	rol r5H
+	asl r5L
+	rol r5H
+	asl r5L
+	rol r5H
+
+	; r5 |= r6 & 7
+	lda r6L
+	and #7
+	ora r5L
+	sta r5L
+
+	LoadW r9, 320
+	ldx #r5
+	ldy #r9
+	jsr _DMult
+	; r5 is result
+
+	PopW r8
+
+	; r8 &= ~7
+	lda r8L
+	and #$f8
+	sta r8L
+
+	AddW r8, r5
+
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	lda #$10
+	sta verahi
+
+	lda 0
+	eor #$ff
+	jsr store_vera
+
+	PopW r9
+	PopW r8
+	PopW r7
+	PopW r6
+	PopW r5
+	ply
+	plx
+	rts
+.endif
+
+store_vera:
+	ldx #8
+:	asl
+	tay
+	lda #0
+	rol
+	sta veradat
+	tya
+	dex
+	bne :-
+	rts
