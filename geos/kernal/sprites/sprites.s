@@ -63,9 +63,12 @@ _EnablSprite:
 ; Destroyed: a, x, y, r6
 ;---------------------------------------------------------------
 _PosSprite:
+	PushB veractl
 	PushB veralo
 	PushB veramid
 	PushB verahi
+	lda #0
+	sta veractl
 	lda #$02
 	sta veralo
 	lda #$50
@@ -85,4 +88,5 @@ _PosSprite:
 	PopB verahi
 	PopB veramid
 	PopB veralo
+	PopB veractl
 	rts

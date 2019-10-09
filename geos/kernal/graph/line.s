@@ -51,19 +51,17 @@ PrepareXCoord:
 ; HorizontalLine                                          $C118
 ;
 ; Pass:      a    pattern byte
-;            r11L y position in scanlines (0-199)
 ;            r3   x in pixel of left end (0-319)
 ;            r4   x in pixel of right end (0-319)
+;            r11L y position in scanlines (0-199)
 ; Return:    r11L unchanged
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _HorizontalLine:
 	jsr convcol
 	pha
-	LoadW r5, bitmap_base
 	ldx r11L
 	jsr _GetScanLineVera
-
 	AddW r3, r5
 
 	ldy r5L
@@ -108,44 +106,52 @@ _HorizontalLine:
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
 _InvertLine:
-	PushW r3
-	PushW r4
-	jsr PrepareXCoord
-	ldy r3L
-	lda r3H
-	beq @1
-	inc r5H
-	inc r6H
-@1:
-	CmpW r3, r4
+	ldx r11L
+	jsr _GetScanLineVera
+	AddW r3, r5
+
+	lda #1
+	sta veractl
+	ldy r5L
+	sty veralo
+	lda r5H
+	sta veramid
+	lda #$10
+	sta verahi
+	lda #0
+	sta veractl
+	ldy r5L
+	sty veralo
+	lda r5H
+	sta veramid
+	lda #$10
+	sta verahi
+
+	MoveW r4, r6
+	SubW r3, r6
+	IncW r6
+
+	ldy r6H
+	beq @2
+	ldy #0
+@1:	lda veradat
+	eor #1
+	sta veradat2
+	dey
+	bne @1
+	inc r1H
+	dec r6H
+	bne @1
+@2:	ldy r6L
 	beq @4
-	SubW r3, r4
-	lsr r4H
-	ror r4L
-	lsr r4L
-	lsr r4L
-	lda r8L
-	eor (r5),Y
-@2:	eor #$FF
-	sta (r6),Y
-	sta (r5),Y
-	tya
-	addv 8
-	tay
-	bcc @3
-	inc r5H
-	inc r6H
-@3:	dec r4L
-	beq @5
-	lda (r5),Y
-	bra @2
-@4:	lda r8L
-	ora r8H
-	bra @6
-@5:	lda r8H
-@6:	eor #$FF
-	eor (r5),Y
-	jmp HLinEnd1
+	dey
+@3:	lda veradat
+	eor #1
+	sta veradat2
+	dey
+	cpy #$ff
+	bne @3
+@4:	rts
 
 
 ImprintLine:
