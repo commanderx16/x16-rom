@@ -19,6 +19,7 @@
 .import BitMaskLeadingSet
 .import GetChWdth1
 .import _GetScanLine
+.import _GetScanLineVera
 .import FntIndirectJMP
 .import b0, b1, b2, b3, b4, b5, b6, b7
 .import c0, c1, c2, c3, c4, c5, c6, c7
@@ -294,7 +295,6 @@ Font_2:
 	jsr _GetScanLineVera
 	plx
 	pla
-;	jsr r5_to_vera
 	clc
 	adc r5L
 	sta r5L
@@ -794,25 +794,6 @@ FontPutChar80:
 
 ; addr2 = ((addr / 320) << 3 | addr & 7) * 320 + ((addr % 320) & ~7)
 
-
-.import _DMult
-
-_GetScanLineVera:
-	stx r5L
-	stz r5H
-	PushW r6
-	PushW r7
-	PushW r8
-	PushW r9
-	LoadW r9, 320
-	ldx #r5
-	ldy #r9
-	jsr _DMult
-	PopW r9
-	PopW r8
-	PopW r7
-	PopW r6
-	rts
 
 store_vera:
 	tay
