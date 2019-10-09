@@ -96,7 +96,6 @@ HLine1:
 @1:	sta veradat
 	dey
 	bne @1
-	inc r1H
 	dec r6H
 	bne @1
 @2:	ldy r6L
@@ -123,26 +122,35 @@ _InvertLine:
 	jsr _GetScanLineVera
 	AddW r3, r5
 
-	lda #1
-	sta veractl
-	ldy r5L
-	sty veralo
-	lda r5H
-	sta veramid
-	lda #$10
-	sta verahi
-	lda #0
-	sta veractl
-	ldy r5L
-	sty veralo
-	lda r5H
-	sta veramid
-	lda #$10
-	sta verahi
-
 	MoveW r4, r6
 	SubW r3, r6
 	IncW r6
+
+	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
+	ldy #$10
+	PushW r6
+	jsr ILine1
+	PopW r6
+@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
+	ldy #$11
+	jmp ILine1
+@2:	rts
+
+ILine1:
+	lda #1
+	sta veractl
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	sty verahi
+	lda #0
+	sta veractl
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	sty verahi
 
 	ldy r6H
 	beq @2
@@ -152,7 +160,6 @@ _InvertLine:
 	sta veradat2
 	dey
 	bne @1
-	inc r1H
 	dec r6H
 	bne @1
 @2:	ldy r6L
