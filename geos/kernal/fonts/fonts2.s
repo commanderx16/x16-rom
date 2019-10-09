@@ -579,7 +579,6 @@ clc_rts:
 .endif
 
 Font_4:
-	jsr r5_to_vera
 	ldx FontTVar1
 	cpx r8L
 	beq @3 ; start == end -> one card
@@ -740,9 +739,6 @@ Font_9:
 ; central character printing, called from conio.s
 ; character - 32 in A
 FontPutChar:
-.if (!.defined(wheels_size_and_speed)) && (!.defined(bsw128))
-	nop
-.endif
 	tay
 	PushB r1H
 	tya
@@ -753,6 +749,7 @@ FontPutChar:
 	bbrf 7, graphMode, @1
 	jmp FontPutChar80
 .endif
+	jsr r5_to_vera
 @1:	clc
 	lda currentMode
 	and #SET_UNDERLINE | SET_ITALIC
@@ -774,19 +771,16 @@ FontPutChar:
 	bcc @6
 	bne @7
 @6:	jsr Font_4
-@7:	inc r5L
-	inc r6L
-	lda r5L
-	and #%00000111
-	bne @8
-	inc r5H
-	inc r6H
-	AddVB $38, r5L
-	sta r6L
-	bcc @8
-	inc r5H
-	inc r6H
-@8:	inc r1H
+@7:	lda r5L
+	clc
+	adc #<320
+	sta r5L
+	sta veralo
+	lda r5H
+	adc #>320
+	sta r5H
+	sta veramid
+	inc r1H
 	dec r10H
 	bne @1
 @9:	PopB r1H
@@ -859,7 +853,6 @@ r5_to_vera:
 	php
 	pha
 	phx
-	PushW r5
 	PushW r6
 	PushW r7
 	PushW r8
@@ -925,7 +918,6 @@ r5_to_vera:
 	PopW r8
 	PopW r7
 	PopW r6
-	PopW r5
 	plx
 	pla
 	plp
