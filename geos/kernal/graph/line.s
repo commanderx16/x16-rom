@@ -75,10 +75,8 @@ _HorizontalLine:
 
 	MoveW r4, r6
 	SubW r3, r6
-	inc r6L
-	bne :+
-	inc r6H
-:
+	IncW r6
+
 	pla
 
 	ldy r6H
@@ -253,25 +251,16 @@ HLinEnd2:
 _VerticalLine:
 	jsr convcol
 	pha
-	LoadW r5, bitmap_base
 	ldx r3L
-	beq :+
-:	AddVW 320, r5
-	dex
-	bne :-
-:
-
+	jsr _GetScanLineVera
 	AddW r4, r5
-
 
 	lda r3H
 	sec
 	sbc r3L
 	tax
-
 	pla
-
-	cpx #0
+	inx
 	beq @1
 
 	ldy #$10
