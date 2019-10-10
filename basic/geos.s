@@ -13,38 +13,39 @@ geos	jsr jsrfar
 	.byte BANK_GEOS
 
 ;***************
-cscreen	lda #$0e ; light gray
-	sta color
-	jsr jsrfar
-	.word swpp1 ; switch to 40 columns
-	.byte BANK_KERNAL
+cscreen	sei
 
-	sei
+	lda #$80
+	sta dispBufferOn ; draw to foreground
+	lda #0
+	jsr jsrfar
+	.word SetPattern ; white
+	.byte BANK_GEOS
+
+	lda #0
+	sta r3L
+	sta r3H
+	sta r2L
+	lda #<319
+	sta r4L
+	lda #>319
+	sta r4H
+	lda #199
+	sta r2H
+	jsr jsrfar
+	.word Rectangle
+	.byte BANK_GEOS
 
 	jsr jsrfar
 	.word geos_init_vera
 	.byte BANK_GEOS
+	cli
 
-	lda #$80
-	sta dispBufferOn ; draw to foreground
-	lda #1
+	lda #$0e ; light gray
+	sta color
 	jsr jsrfar
-	.word SetPattern ; black
-	.byte BANK_GEOS
-
-	ldx #32
-	ldy #0
-	sty 2
-	lda #$a0
-	sta 3
-	tya
-:	sta (2),y
-	iny
-	bne :-
-	inc 3
-	dex
-	bne :-
-
+	.word swpp1 ; switch to 40 columns
+	.byte BANK_KERNAL
 	rts
 
 linfc	jmp fcerr
