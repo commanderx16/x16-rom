@@ -332,11 +332,11 @@ _DrawPoint:
 	sty veramid
 
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
-	stz verahi
-	sta veradat
-@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
 	ldy #1
 	sty verahi
+	sta veradat
+@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
+	stz verahi
 	sta veradat
 @2:	rts
 ; recover
@@ -354,8 +354,8 @@ _DrawPoint:
 	sta veralo
 	lda r5H
 	sta veramid
-	lda veradat2
-	sta veradat
+	lda veradat
+	sta veradat2
 	rts
 
 ;---------------------------------------------------------------
@@ -375,7 +375,7 @@ _TestPoint:
 	sta veralo
 	lda r5H
 	sta veramid
-	lda #0
+	lda #1
 	sta verahi
 	lda veradat
 	beq @1

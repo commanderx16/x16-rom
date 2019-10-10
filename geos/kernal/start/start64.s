@@ -71,6 +71,8 @@
 
 .global geos_init_vera
 
+tile_base = $10000
+
 geos_init_vera:
 	lda #$00 ; layer0
 	sta veralo
@@ -84,9 +86,10 @@ geos_init_vera:
 	sta veradat; tile_w=320px
 	sta veradat; map_base_lo: ignore
 	sta veradat; map_base_hi: ignore
-	sta veradat; tile_base_lo = 0
-	lda #$10
-	sta veradat; tile_base_hi = 0x10
+	lda #<(tile_base >> 2)
+	sta veradat; tile_base_lo
+	lda #>(tile_base >> 2)
+	sta veradat; tile_base_hi
 
 	lda #$00        ;$F0000: composer registers
 	sta veralo

@@ -5,7 +5,7 @@
 .import swpp1, jsrfar, color
 
 ; from GEOS
-.import _ResetHandle, geos_init_vera, convert_vic_to_vera2
+.import _ResetHandle, geos_init_vera
 
 ;***************
 geos	jsr jsrfar
@@ -45,10 +45,6 @@ cscreen	lda #$0e ; light gray
 	dex
 	bne :-
 
-	jsr jsrfar
-	.word convert_vic_to_vera2
-	.byte BANK_GEOS
-	cli
 	rts
 
 linfc	jmp fcerr
@@ -96,9 +92,6 @@ line	jsr frmadr
 	sei
 	jsr jsrfar
 	.word DrawLine
-	.byte BANK_GEOS
-	jsr jsrfar
-	.word convert_vic_to_vera2
 	.byte BANK_GEOS
 	cli
 	rts

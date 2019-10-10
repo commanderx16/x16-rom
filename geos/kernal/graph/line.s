@@ -45,7 +45,7 @@ _HorizontalLine:
 	sty veralo
 	ldy r5H
 	sty veramid
-	ldy #$10
+	ldy #$11
 	sty verahi
 	ldx r6H
 	phx
@@ -57,7 +57,7 @@ _HorizontalLine:
 	sty veralo
 	ldy r5H
 	sty veramid
-	ldy #$11
+	ldy #$10
 	sty verahi
 	jmp HLine1
 @2:	rts
@@ -93,12 +93,12 @@ HLine1:
 _InvertLine:
 	jsr GetLineStart
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
-	ldy #$10
+	ldy #$11
 	PushW r6
 	jsr ILine1
 	PopW r6
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
-	ldy #$11
+	ldy #$10
 	jmp ILine1
 @2:	rts
 
@@ -142,8 +142,8 @@ ILine1:
 
 ImprintLine:
 	jsr GetLineStart
-	ldx #$10
-	ldy #$11
+	ldx #$11
+	ldy #$10
 	jmp RLine1
 
 ;---------------------------------------------------------------
@@ -158,8 +158,8 @@ ImprintLine:
 ;---------------------------------------------------------------
 _RecoverLine:
 	jsr GetLineStart
-	ldx #$11
-	ldy #$10
+	ldx #$10
+	ldy #$11
 RLine1:
 	lda #1
 	sta veractl
@@ -222,12 +222,12 @@ _VerticalLine:
 
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
 	phx
-	ldy #0
+	ldy #1
 	jsr VLine1
 	plx
 	tya
 @1:	bbrf 6, dispBufferOn, VLine1 ; ST_WR_BACK
-	ldy #1
+	ldy #0
 	jmp VLine1
 @2:	rts
 

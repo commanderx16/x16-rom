@@ -298,7 +298,7 @@ Font_2:
 	adc r5H
 	sta r5H
 	sta veramid
-	lda #$10
+	lda #$11
 	sta verahi
 
 	MoveB FontTVar2+1, r3L
