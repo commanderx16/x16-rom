@@ -11,6 +11,7 @@
 .include "c64.inc"
 
 .import _GetScanLine
+.import _GetScanLineVera
 .ifdef bsw128
 .import _TempHideMouse
 ; XXX wrong bank
@@ -64,40 +65,36 @@ _BitmapUp:
 
 BitmapUpHelp:
 	ldx r1H
-	jsr _GetScanLine
+	jsr _GetScanLineVera
 	MoveB r2L, r3H
-.ifdef bsw128
-	bpl @Y
-	bbsf 7, graphMode, @X
-	and #$7F
-	sta r3H
-	bne @Y
-@X:	asl r3H
-@Y:	bbsf 7, graphMode, @4
 	lda r1L
-	and #$7F
-	cmp #$20
-.else
-	CmpBI r1L, $20
-.endif
-	bcc @1
-	inc r5H
-	inc r6H
-@1:	asl
 	asl
 	asl
+	asl
+	php
+	clc
+	adc r5L
+	sta r5L
+	sta veralo
+	lda r5H
+	adc #0
+	plp
+	adc #0
+	sta r5H
+	sta veramid
+	lda #$10
+	sta verahi
+@2:	jsr BitmapDecode
+	eor #$ff
+	ldx #8
+:	asl
 	tay
-@2:	sty r9L
-	jsr BitmapDecode
-	ldy r9L
-	sta (r5),y
-	sta (r6),y
+	lda #0
+	rol
+	sta veradat
 	tya
-	addv 8
-	bcc @3
-	inc r5H
-	inc r6H
-@3:	tay
+	dex
+	bne :-
 	dec r3H
 	bne @2
 	rts

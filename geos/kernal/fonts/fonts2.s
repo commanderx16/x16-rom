@@ -3,6 +3,8 @@
 ;
 ; Font drawing
 
+.setcpu "65c02"
+
 .include "const.inc"
 .include "geossym.inc"
 .include "geosmac.inc"
@@ -16,7 +18,7 @@
 .import BitMaskLeadingClear
 .import BitMaskLeadingSet
 .import GetChWdth1
-.import _GetScanLine
+.import _GetScanLineVera
 .import FntIndirectJMP
 .import b0, b1, b2, b3, b4, b5, b6, b7
 .import c0, c1, c2, c3, c4, c5, c6, c7
@@ -244,7 +246,7 @@ Font_1:
 	ldx #0
 	lda currentMode
 	and #SET_REVERSE
-	beq @5
+	bne @5
 	dex
 @5:	stx r10L
 	clc
@@ -275,11 +277,7 @@ Font_tabH:
 
 Font_2:
 	ldx r1H
-.ifdef bsw128
-	jsr _GetScanLine
-.else
-	jsr GetScanLine
-.endif
+	jsr _GetScanLineVera
 	lda FontTVar2
 	ldx FontTVar2+1
 	bmi @2
@@ -292,61 +290,17 @@ Font_2:
 @3:	pha
 	and #%11111000
 	sta r4L
-.ifdef bsw128
-	bbsf 7, graphMode, @LE319
-.endif
-	cpx #0
-	bne @4
-	cmp #$c0
-	bcc @6
-@4:	subv $80
-	pha
-	AddVB $80, r5L
-	sta r6L
-	bcc @5
-	inc r5H
-	inc r6H
-@5:	pla
-@6:	sta r1L
-.ifdef bsw128
-	bra @LE333
-@LE319:	ldy #$00
-	sty r1L
-	stx r4H
-	lsr r4H
-	ror a
-	lsr r4H
-	ror a
-	lsr a
 	clc
 	adc r5L
 	sta r5L
-	sta r6L
-	bcc @LE333
-	inc r5H
-	inc r6H
-.endif
-@LE333:
-.ifdef bsw128
-	lda FontTVar2+1
-	lsr a
-	sta r7L
-	lda FontTVar2
-	ror a
-	lsr r7L
-	ror a
-	lsr r7L
-	ror a
-	sta r7L
-	lda leftMargin+1
-	lsr a
-	sta r3L
-	lda leftMargin
-	ror a
-	lsr r3L
-	ror a
-	lsr a
-.else
+	sta veralo
+	txa
+	adc r5H
+	sta r5H
+	sta veramid
+	lda #$10
+	sta verahi
+
 	MoveB FontTVar2+1, r3L
 	lsr r3L
 	lda FontTVar2
@@ -362,7 +316,7 @@ Font_2:
 	ror
 	lsr
 	lsr
-.endif
+
 	sub r7L
 	bpl @7
 	lda #0
@@ -578,189 +532,37 @@ clc_rts:
         rts
 .endif
 
-.segment "RAM"
 Font_4:
-	ldy r1L
 	ldx FontTVar1
-.ifndef bsw128
-	lda Z45,x
-.endif
 	cpx r8L
-	beq @3
-	bcs @4
-.ifdef bsw128
-	lda Z45,x
-.endif
-	eor r10L
-	and r9L
-	sta @mask1
-	lda r3L
-	and (r6),y
-@mask1 = *+1
-	ora #0
-	sta (r6),y
-	sta (r5),y
-@1:	tya
-	addv 8
-	tay
-	inx
+	beq @3 ; start == end -> one card
+	bcs @4 ; start > end -> rts
+
+; multiple cards
+
+; first card
+	lda r9L    ; mask for first card
+	jsr store_vera
+@1:	inx
 	cpx r8L
-	beq @2
-	lda Z45,x
-	eor r10L
-	sta (r6),y
-	sta (r5),y
+	beq @2     ; end card
+
+; middle cards
+	lda #$ff
+	jsr store_vera
 	bra @1
-@2:	lda Z45,x
-	eor r10L
-	and r9H
-	sta @mask2
-	lda r4H
-	and (r6),y
-@mask2 = *+1
-	ora #0
-	sta (r6),y
-	sta (r5),y
-	rts
-@3:
-.ifdef bsw128
-	lda Z45,x
-.endif
-	eor r10L
-	and r9H
-	eor #$ff
-	ora r3L
-	ora r4H
-	eor #$ff
-	sta @mask3
-	lda r3L
-	ora r4H
-	and (r6),y
-@mask3 = *+1
-	ora #0
-	sta (r6),y
-	sta (r5),y
-@4:
-.ifdef bsw128
-shared_rts:
-.endif
-	rts
 
-.ifdef bsw128
-.global LF522
-.import VDCGetFromBGFG
-.import LF5AE
-.import LF56A
-.import LF497
+; end card
+@2:	lda r9H    ; mask for last card
+	jmp store_vera
 
-; some unknown helper, seems to be alternative version (80) of
-; previous Font_4 for alternative Font_10 (e6e0), but that one
-; seems to be never called tough
-LE4BC:	ldx FontTVar1
-	cpx r8L
-	beq @7
-	bcs shared_rts
-	inx
-	cpx r8L
-	bne @1
-	jmp @8
-@1:	dex
-	jsr LF497
-	ldy #0
-	sta @andval1
-	lda r8L
-	sub FontTVar1
-	bbrf 6, dispBufferOn, @2
-	tay
-	lda (r6),y
-	bra @4
-@2:	add r5L
-	sta r5L
-	bcc @3
-	inc r5H
-@3:	jsr LF522
-	ldy r6H
-	sty r5H
-	ldy r6L
-	sty r5L
-@4:	sta @andval2
-	lda Z45,x
-	eor r10L
-	and r9L
-	sta @orval1
-	lda r3L
-@andval1 = *+1
-	and #0
-@orval1 = *+1
-	ora #0
-	ldy #0
-	jsr LF56A
-@5:	iny
-	inx
-	cpx r8L
-	beq @6
-	lda Z45,x
-	eor r10L
-	jsr LF5AE
-	bra @5
-@6:	lda Z45,x
-	eor r10L
+; single card
+@3:	lda r9L
 	and r9H
-	sta @orval2
-	lda r4H
-@andval2 = *+1
-	and #$30
-@orval2 = *+1
-	ora #0
-	jmp LF5AE
-@7:	lda Z45,x
-	eor r10L
-	and r9H
-	eor #$ff
-	ora r3L
-	ora r4H
-	eor #$FF
-	sta @orval3
-	jsr LF497
-	ldy #0
-	sta @andval3
-	lda r3L
-	ora r4H
-@andval3 = *+1
-	and #0
-@orval3 = *+1
-	ora #0
-	jmp LF56A
-@8:	dex
-	jsr LF497
-	ldy #0
-	sta @andval4
-	iny
-	jsr VDCGetFromBGFG
-	sta @andval5
-	lda Z45,x
-	eor r10L
-	and r9L
-	sta @orval4
-	lda r3L
-@andval4 = *+1
-	and #0
-@orval4 = *+1
-	ora #0
-	ldy #$00
-	jsr LF56A
-	iny
-	lda Z46,x
-	eor r10L
-	and r9H
-	sta @orval5
-	lda r4H
-@andval5 = *+1
-	and #0
-@orval5 = *+1
-	ora #0
-	jmp LF5AE
-.endif
+	jmp store_vera
+
+@4:	rts
+
 
 .segment "fonts2"
 
@@ -882,9 +684,6 @@ Font_9:
 ; central character printing, called from conio.s
 ; character - 32 in A
 FontPutChar:
-.if (!.defined(wheels_size_and_speed)) && (!.defined(bsw128))
-	nop
-.endif
 	tay
 	PushB r1H
 	tya
@@ -916,19 +715,16 @@ FontPutChar:
 	bcc @6
 	bne @7
 @6:	jsr Font_4
-@7:	inc r5L
-	inc r6L
-	lda r5L
-	and #%00000111
-	bne @8
-	inc r5H
-	inc r6H
-	AddVB $38, r5L
-	sta r6L
-	bcc @8
-	inc r5H
-	inc r6H
-@8:	inc r1H
+@7:	lda r5L
+	clc
+	adc #<SC_PIX_WIDTH
+	sta r5L
+	sta veralo
+	lda r5H
+	adc #>SC_PIX_WIDTH
+	sta r5H
+	sta veramid
+	inc r1H
 	dec r10H
 	bne @1
 @9:	PopB r1H
@@ -977,3 +773,25 @@ FontPutChar80:
 @6:	jsr Font_5
 	bra @3
 .endif
+
+store_vera:
+	tay
+	lda Z45,x
+	eor r10L   ; underline
+	sta r4L
+	tya
+:	asl
+	bcc @l1
+	asl r4L
+	tay
+	lda #0
+	rol
+	sta veradat
+	tya
+@l3:	bne :-
+	rts
+@l1:	asl r4L
+	inc veralo
+	bne @l3
+	inc veramid
+@l2:	bra @l3

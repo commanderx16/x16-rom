@@ -68,14 +68,21 @@ _IRQHandler:
 	pha
 	tya
 	pha
+
+	; switch VERA
+	PushB veractl
+	PushB veralo
+	PushB veramid
+	PushB verahi
+	lda #0
+	sta veractl
+
 	lda #1
 	sta veraisr
 .ifdef use2MHz
 	LoadB clkreg, 0
 .endif
 .endif
-	jsr convert_vic_to_vera
-
 	PushW CallRLo
 	PushW returnAddress
 	ldx #0
@@ -148,6 +155,12 @@ _IRQHandler:
 	tax
 	rts
 .else
+	; switch VERA back
+	PopB verahi
+	PopB veramid
+	PopB veralo
+	PopB veractl
+
 	pla
 	tay
 	pla
@@ -178,68 +191,6 @@ IRQ2Handler:
 	pla
 	rti
 .endif
-
-
-; convert VIC-II bitmap to VERA bitmap
-convert_vic_to_vera:
-	lda $9efe
-	clc
-	adc #1
-	and #3
-	sta $9efe
-	beq :+
-	rts
-:	;inc $a000 + 7999
-
-	PushW r0
-	PushW r1
-	PushW r2
-
-	LoadW r0, $a000
-	ldy #0
-	sty veralo
-	sty veramid
-	lda #$10
-	sta verahi
-
-	LoadB r2L, 25
-
-l4:	LoadB r1H, 8
-
-l3:	PushW r0
-	LoadB r1L, 40
-
-l2:	lda (r0),y
-	eor #$ff
-	ldx #8
-l1:	asl
-	pha
-	bcc :+
-	lda #1
-	.byte $2c
-:	lda #0
-	sta veradat
-	pla
-	dex
-	bne l1
-
-	AddVW 8, r0
-	dec r1L
-	bne l2
-
-	PopW r0
-	IncW r0
-	dec r1H
-	bne l3
-
-	AddVW 320-8, r0
-	dec r2L
-	bne l4
-
-	PopW r2
-	PopW r1
-	PopW r0
-	rts
 
 hstart  =0
 hstop   =640

@@ -138,6 +138,8 @@ px5:	lda tvera_composer,x
 	cpx #tvera_composer_end-tvera_composer
 	bne px5
 
+sprite_addr = $10000 + 320 * 200 ; after background screen
+
 	; init sprites
 	lda #$00
 	sta veralo
@@ -152,15 +154,16 @@ px5:	lda tvera_composer,x
 	sta veralo
 	lda #$50
 	sta veramid
-	lda #0
+	lda #<(sprite_addr >> 5)
 	sta veradat
-	lda #1 << 7 | 8 ; 8 bpp, address=$10000
+	lda #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
 	sta veradat
 
-	lda #0
+	lda #<sprite_addr
 	sta veralo
+	lda #>sprite_addr
 	sta veramid
-	lda #$11
+	lda #$10 | (sprite_addr >> 16)
 	sta verahi
 	ldx #8
 xx2:	txa

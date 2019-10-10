@@ -11,8 +11,30 @@
 .include "c64.inc"
 
 .global _GetScanLine
+.global _GetScanLineVera
 
 .segment "graph2n"
+
+.import _DMult
+
+.setcpu "65c02"
+
+_GetScanLineVera:
+	stx r5L
+	stz r5H
+	PushW r6
+	PushW r7
+	PushW r8
+	PushW r9
+	LoadW r9, 320
+	ldx #r5
+	ldy #r9
+	jsr _DMult
+	PopW r9
+	PopW r8
+	PopW r7
+	PopW r6
+	rts
 
 ;---------------------------------------------------------------
 ; GetScanLine                                             $C13C

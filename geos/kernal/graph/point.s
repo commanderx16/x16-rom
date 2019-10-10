@@ -3,6 +3,8 @@
 ;
 ; Graphics library: TestPoint, DrawPoint, DrawLine syscalls
 
+.setcpu "65c02"
+
 .include "const.inc"
 .include "geossym.inc"
 .include "geosmac.inc"
@@ -12,6 +14,7 @@
 
 .import BitMaskPow2Rev
 .import _GetScanLine
+.import _GetScanLineVera
 .ifdef bsw128
 .import _Dabs
 .import _TempHideMouse
@@ -49,6 +52,7 @@
 ; Return:    line is drawn or recover
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
+; XXX TODO X16
 _DrawLine:
 	php
 .ifdef bsw128
@@ -312,72 +316,47 @@ _DrawLine:
 ;---------------------------------------------------------------
 _DrawPoint:
 	php
-.ifdef bsw128
-	jsr _TempHideMouse
-	ldx #r3
-	jsr _NormalizeX
-.endif
 	ldx r11L
-	jsr _GetScanLine
-.ifdef bsw128
-	bbsf 7, graphMode, DrwPoi80
-.endif
-	lda r3L
-	and #%11111000
-	tay
-	lda r3H
-	beq @1
-	inc r5H
-	inc r6H
-@1:	lda r3L
-	and #%00000111
-	tax
-	lda BitMaskPow2Rev,x
-	plp
-	bmi @4
-	bcc @2
-	ora (r6),y
-	bra @3
-@2:	eor #$ff
-	and (r6),y
-@3:	sta (r6),y
-	sta (r5),y
-	rts
-@4:	pha
-	eor #$ff
-	and (r5),y
-	sta (r5),y
-	pla
-	and (r6),y
-	ora (r5),y
-	sta (r5),y
-	rts
-
-.ifdef bsw128
-DrwPoi80:
-	jsr GetLeftXAddress
-	lda BitMaskPow2Rev,x
+	jsr _GetScanLineVera
+	AddW r3, r5
 	plp
 	bmi @3
-	bcc @1
-	jsr LF4A7
-	bra @2
-@1:	eor #$FF
-	jsr LF4B7
-@2:	jsr StaBackbuffer80
-	jmp StaFrontbuffer80
-@3:	pha
-	eor #$FF
-	jsr LF558
-	sta DrwPointTemp
-	pla
-	jsr LF4B7
-	ora DrwPointTemp
-	jmp StaFrontbuffer80
+; draw
+	lda #0
+	asl
+	eor #1
 
-DrwPointTemp:
-	.byte 0
-.endif
+	ldy r5L
+	sty veralo
+	ldy r5H
+	sty veramid
+
+	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
+	stz verahi
+	sta veradat
+@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
+	ldy #1
+	sty verahi
+	sta veradat
+@2:	rts
+; recover
+@3:	lda #1
+	sta veractl
+	sta verahi
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	lda #0
+	sta veractl
+	sta verahi
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	lda veradat2
+	sta veradat
+	rts
 
 ;---------------------------------------------------------------
 ; TestPoint                                               $C13F
@@ -389,50 +368,18 @@ DrwPointTemp:
 ; Destroyed: a, x, y, r5, r6
 ;---------------------------------------------------------------
 _TestPoint:
-.ifdef bsw128
-	jsr _TempHideMouse
-	ldx #r3
-	jsr _NormalizeX
-.endif
 	ldx r11L
-	jsr _GetScanLine
-.ifdef bsw128
-	bbsf 7, graphMode, TestPoi80
-.endif
-	lda r3L
-	and #%11111000
-	tay
-	lda r3H
+	jsr _GetScanLineVera
+	AddW r3, r5
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	lda #0
+	sta verahi
+	lda veradat
 	beq @1
-	inc r6H
-@1:	lda r3L
-	and #%00000111
-	tax
-	lda BitMaskPow2Rev,x
-	and (r6),y
-	beq @2
-	sec
+	clc
 	rts
-@2:	clc
+@1:	sec
 	rts
-
-.ifdef bsw128
-.global CmpWR3R4
-TestPoi80:
-	jsr GetLeftXAddress
-	lda BitMaskPow2Rev,x
-	jsr LF4B7
-	beq LF29F
-	sec
-	rts
-LF29F:	clc
-	rts
-
-CmpWR3R4:
-	lda r3H
-	cmp r4H
-	bne LF2AB
-	lda r3L
-	cmp r4L
-LF2AB:	rts
-.endif
