@@ -200,8 +200,8 @@ panic	lda #3          ;reset default i/o
 	sta dfltn
 
 mapbas	=0
-isobas	=$1e800
-tilbas	=$1f000         ;top of VRAM
+isobas	=$0e800
+tilbas	=$0f000         ;top of bank 0 of VRAM
 
 ;init video
 ;
