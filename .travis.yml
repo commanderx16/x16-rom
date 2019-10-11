@@ -1,0 +1,22 @@
+dist: bionic
+sudo: required
+language: c
+
+matrix:
+  include:
+    - name: Linux
+      os: linux
+      addons:
+        apt:
+          packages:
+            - cc65
+      compiler: gcc
+      script: make clean all
+    - name: macOS
+      os: osx
+      osx_image: xcode11
+      addons:
+        homebrew:
+          packages:
+            - cc65
+      script: make clean all
