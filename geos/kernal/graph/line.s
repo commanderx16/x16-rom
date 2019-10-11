@@ -25,7 +25,6 @@
 .global _VerticalLine
 .global _VerticalLineCol
 .global GetColor
-.global GetColor2
 
 .segment "graph2a"
 
@@ -275,11 +274,10 @@ GetLineStart:
 ; in compat mode, this converts 8 bit patterns into shades of gray
 Convert8BitPattern:
 	bit compatMode
-	bmi @0 ; compat mode
-	lda curPattern ; get color instead
+	bmi @0
+	lda col1
 	rts
-@0:
-	ldx #8
+@0:	ldx #8
 	ldy #8
 @1:	lsr
 	bcc @2
@@ -294,24 +292,3 @@ Convert8BitPattern:
 	rts
 @3:	lda #16+15
 	rts
-
-; in compat mode, this converts patterns (0-33) into colors that look nice
-GetColor:
-	lda curPattern
-GetColor2:
-	bit compatMode
-	bpl @1
-; compat mode
-	cmp #2 ; 50% shading
-	bne @3
-	lda #14 ; light blue
-	rts
-@3:	cmp #9 ; horizontal stripes
-	bne @2
-	lda #6 ; dark blue
-	rts
-@2:	cmp #2
-	bcs @1
-	eor #1 ; swap black and white
-@1:	rts
-

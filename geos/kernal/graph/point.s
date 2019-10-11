@@ -189,13 +189,13 @@ _DrawPoint:
 ;---------------------------------------------------------------
 ; API extension
 ; ~~~~~~~~~~~~~
-; if the user called SetColor:
-;   C=0 "clear" will set the point to white, as documented
-;   C=1 "set"   will set the point to curPattern (documented: black)
-; if the user called SetPattern, this has the old bevahior
+; in color mode:
+;   C=0 "clear" will set the point to white
+;   C=1 "set"   will set the point to primary color
+; in compat mode, this has the original bevahior (white and black)
 ;---------------------------------------------------------------
 	bcc @0
-	lda curPattern
+	lda col1
 	bit compatMode
 	bpl @0b
 	lda #0 ; black

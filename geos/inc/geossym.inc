@@ -88,6 +88,8 @@ a9H             =       $7f
 ;
 
 curPattern              =       $22
+col1                    =       $22 ; same as curPattern
+col2                    =       $23 ; same as curPattern+1
 string                  =       $24
 baselineOffset          =       $26
 curSetWidth             =       $27

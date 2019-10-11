@@ -18,7 +18,6 @@
 .import _VerticalLineCol
 .import ImprintLine
 .import GetColor
-.import GetColor2
 
 .global _Rectangle
 .global _InvertRectangle
@@ -40,7 +39,7 @@
 ;---------------------------------------------------------------
 _Rectangle:
 	MoveB r2L, r11L
-@1:	jsr GetColor
+@1:	lda col1
 	jsr _HorizontalLineCol
 	lda r11L
 	inc r11L
