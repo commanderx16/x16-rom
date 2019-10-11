@@ -28,8 +28,6 @@
 ;---------------------------------------------------------------
 _SetPattern:
 	sta curPattern
-	lda #0
-	sta curPattern+1
 	lda #$80
 	sta compatMode
 	rts

@@ -246,7 +246,7 @@ Font_1:
 	ldx #0
 	lda currentMode
 	and #SET_REVERSE
-	bne @5
+	beq @5
 	dex
 @5:	stx r10L
 	clc
@@ -542,24 +542,24 @@ Font_4:
 
 ; first card
 	lda r9L    ; mask for first card
-	jsr store_vera
+	jsr Draw8Pixels
 @1:	inx
 	cpx r8L
 	beq @2     ; end card
 
 ; middle cards
 	lda #$ff
-	jsr store_vera
+	jsr Draw8Pixels
 	bra @1
 
 ; end card
 @2:	lda r9H    ; mask for last card
-	jmp store_vera
+	jmp Draw8Pixels
 
 ; single card
 @3:	lda r9L
 	and r9H
-	jmp store_vera
+	jmp Draw8Pixels
 
 @4:	rts
 
@@ -774,76 +774,70 @@ FontPutChar80:
 	bra @3
 .endif
 
-store_vera:
-	tay
-	bit r10L   ; underline
-	bmi @l0
+Draw8Pixels:
+	ldy Z45,x
+	sty r4L    ; pixel pattern
 
 	bit compatMode
-	bmi @lx
+	bmi Draw8PixelsCompat
 
-	PushB curPattern+1
-	lda #12 ; mid gray - TODO: this should be configurable
-	sta curPattern+1
-	jsr @l0
-	PopB curPattern+1
-	rts
+; color mode
+	bit r10L   ; inverted/underlined?
+	bmi Draw8PixelsInv
 
-
-@lx:	PushW curPattern
-	PushB compatMode
-	lda #0
-	sta compatMode
-	lda #0
-	sta curPattern
-	lda #12 ; mid gray
-	sta curPattern+1
-	jsr @l0
-	PopB compatMode
-	PopW curPattern
-	rts
-
-@l0:
-	lda Z45,x
-	eor #$ff
-	sta r4L
-	tya
-
-	bit compatMode
-	bmi @l4
-; new
-@l4a:	asl
-	bcc @l1a
+; regular (color mode), translucent
+	ldy curPattern   ; fg: primary color
+@4:	asl
+	bcc @1
 	asl r4L
-	bcs @l5a
-	ldy curPattern
-	bra @l6a
-@l5a:	ldy curPattern+1
-	cpy #$ff
-	beq @l0a
-@l6a:	sty veradat
-@l3a:	tay
-	bne @l4a
+	bcc @0
+	sty veradat
+@3:	cmp #0
+	bne @4
 	rts
-@l1a:	asl r4L
-@l0a:	inc veralo
-	bne @l3a
+@1:	asl r4L
+@0:	inc veralo
+	bne @3
 	inc veramid
-@l2a:	bra @l3a
+@2:	bra @3
 
-; compat
-@l4:	asl
-	tay
-	bcc @l1
+; inverted/underlined (color mode)
+Draw8PixelsInv:
+	phx
+	ldx curPattern   ; fg: primary color
+	ldy curPattern+1 ; bg: secondary color
+; opaque drawing with fg color (x) and bg color (y)
+Draw8PixelsOpaque:
+@4:	asl
+	bcc @1
 	asl r4L
-	lda #0
-	rol
-	sta veradat
-@l3:	tya
-	bne @l4
+	bcc @5
+	stx veradat
+	bra @3
+@5:	sty veradat
+@3:	cmp #0
+	bne @4
+	plx
 	rts
-@l1:	asl r4L
+@1:	asl r4L
 	inc veralo
-	bne @l3
+	bne @3
 	inc veramid
-@l2:	bra @l3
+@2:	bra @3
+
+Draw8PixelsCompat:
+	bit r10L   ; inverted/underlined?
+	bmi Draw8PixelsCompatInv
+
+; regular (compat mode)
+	phx
+	ldx #0  ; fg: black
+	ldy #1  ; bg: white
+	bra Draw8PixelsOpaque
+
+; inverted/underlined (compat mode)
+Draw8PixelsCompatInv:
+	phx
+	ldx #0  ; fg: black
+	ldy #15 ; bg: light gray
+	bra Draw8PixelsOpaque

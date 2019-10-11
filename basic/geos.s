@@ -121,10 +121,8 @@ char	jsr get_point
 
 	jsr chkcom
 	jsr getbyt
-	phx
-	jsr chkcom
-	jsr getbyt
-	pla
+	txa
+	ldx #15 ; light gray as secondary color
 	jsr set_col
 
 	jsr chkcom
