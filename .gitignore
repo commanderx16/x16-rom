@@ -1,3 +1,4 @@
 *.o
 *.bin
 rom.txt
+*.tmp.s
