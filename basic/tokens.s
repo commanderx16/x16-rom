@@ -95,6 +95,7 @@ stmdsp2	; statements
 	.word line-1
 	.word frame-1
 	.word rect-1
+	.word char-1
 	; functions
 	.word vpeek
 ;**************************************

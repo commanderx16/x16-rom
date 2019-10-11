@@ -1,4 +1,6 @@
+.include "../geos/inc/geosmac.inc"
 .include "../geos/inc/geossym.inc"
+.include "../geos/inc/const.inc"
 .include "../geos/inc/jumptab.inc"
 
 .setcpu "65c02"
@@ -15,11 +17,17 @@ geos	jsr jsrfar
 	.byte BANK_GEOS
 
 ;***************
-cscreen	sei
+cscreen
+	; TODO go through GEOS init
+	LoadW dispBufferOn, ST_WR_FORE
+	LoadB windowTop, 0
+	LoadB windowBottom, SC_PIX_HEIGHT-1
+	LoadW leftMargin, 0
+	LoadW rightMargin, SC_PIX_WIDTH-1
+	LoadB pressFlag, 0
 
-	lda #$80
-	sta dispBufferOn ; draw to foreground
-	lda #0
+	sei
+	lda #1
 	jsr jsrfar
 	.word _SetColor ; white
 	.byte BANK_GEOS
@@ -104,6 +112,46 @@ rect	jsr get_points_col
 	.byte BANK_GEOS
 	cli
 	rts
+
+;***************
+char	jsr get_point
+	sta r1H
+	MoveW r3, r11
+
+	jsr chkcom
+	jsr frmevl
+	jsr chkstr
+
+	ldy #0
+	lda (facmo),y
+	sta r14L ; length
+	iny
+	lda (facmo),y
+	sta r15L ; pointer lo
+	iny
+	lda (facmo),y
+	sta r15H ; pointer hi
+
+	sei
+	jsr jsrfar
+	.word UseSystemFont
+	.byte BANK_GEOS
+	cli
+
+	ldy #0
+:	lda (r15),y
+	phy
+	sei
+	jsr jsrfar
+	.word PutChar
+	.byte BANK_GEOS
+	cli
+	ply
+	iny
+	cpy r14L
+	bne :-
+
+	jmp frefac
 
 linfc	jmp fcerr
 
