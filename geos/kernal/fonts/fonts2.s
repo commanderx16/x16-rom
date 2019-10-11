@@ -776,8 +776,36 @@ FontPutChar80:
 
 store_vera:
 	tay
+	bit r10L   ; underline
+	bmi @l0
+
+	bit compatMode
+	bmi @lx
+
+	PushB curPattern+1
+	lda #12 ; mid gray - TODO: this should be configurable
+	sta curPattern+1
+	jsr @l0
+	PopB curPattern+1
+	rts
+
+
+@lx:	PushW curPattern
+	PushB compatMode
+	lda #0
+	sta compatMode
+	lda #0
+	sta curPattern
+	lda #12 ; mid gray
+	sta curPattern+1
+	jsr @l0
+	PopB compatMode
+	PopW curPattern
+	rts
+
+@l0:
 	lda Z45,x
-	eor r10L   ; underline
+	eor #$ff
 	sta r4L
 	tya
 
