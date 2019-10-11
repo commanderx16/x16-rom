@@ -186,9 +186,10 @@ _DrawPoint:
 	plp
 	bmi @3
 ; draw
-	lda #0
-	rol
-	eor #1
+;	lda #0
+;	rol
+;	eor #1
+	lda 0
 
 	ldy r5L
 	sty veralo

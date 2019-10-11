@@ -88,6 +88,14 @@ line	jsr frmadr
 	lda poker+1
 	sbc #>200
 	bcs linfc
+	ldy #0
+	lda (txtptr),y
+	beq @1
+	jsr chkcom
+	jsr getbyt
+	.byte $2c
+@1:	ldx #0
+	stx 0
 	lda #0
 	sec
 	sei
@@ -97,6 +105,7 @@ line	jsr frmadr
 	cli
 	rts
 
+@2	jmp snerr
 
 .if 0
 .import _Rectangle
