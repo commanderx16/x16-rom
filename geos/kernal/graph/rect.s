@@ -15,8 +15,10 @@
 .import _InvertLine
 .import _RecoverLine
 .import _VerticalLine
+.import _VerticalLineCol
 .import ImprintLine
 .import GetColor
+.import GetColor2
 
 .global _Rectangle
 .global _InvertRectangle
@@ -121,21 +123,22 @@ _ImprintRectangle:
 ; Destroyed: a, x, y, r5 - r9, r11
 ;---------------------------------------------------------------
 _FrameRectangle:
+	jsr GetColor2 ; convert pattern into color
 	sta r9H
 	ldy r2L
 	sty r11L
-	jsr _HorizontalLine
+	jsr _HorizontalLineCol
 	MoveB r2H, r11L
 	lda r9H
-	jsr _HorizontalLine
+	jsr _HorizontalLineCol
 	PushW r3
 	PushW r4
 	MoveW r3, r4
 	MoveW r2, r3
 	lda r9H
-	jsr _VerticalLine
+	jsr _VerticalLineCol
 	PopW r4
 	lda r9H
-	jsr _VerticalLine
+	jsr _VerticalLineCol
 	PopW r3
 	rts

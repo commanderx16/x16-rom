@@ -93,6 +93,7 @@ stmdsp2	; statements
 	.word cscreen-1
 	.word pset-1
 	.word line-1
+	.word frame-1
 	.word rect-1
 	; functions
 	.word vpeek

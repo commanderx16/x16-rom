@@ -54,7 +54,7 @@ cscreen	sei
 pset:	jsr get_point
 	sta r11L
 	jsr get_col
-	lda #0
+	jsr set_col
 	sec
 	sei
 	jsr jsrfar
@@ -77,33 +77,28 @@ line	jsr get_points_col
 	rts
 
 ;***************
+frame	jsr get_points
+	stx r2L
+	sty r2H
+	jsr normalize_rect
+	jsr get_col
+	pha
+	jsr set_col ; needed to hint non-compat mode
+	pla
+	sei
+	; color in a
+	jsr jsrfar
+	.word FrameRectangle
+	.byte BANK_GEOS
+	cli
+	rts
+
+;***************
 rect	jsr get_points_col
 	stx r2L
 	sty r2H
-
-; make sure y2 >= y1
-	lda r2H
-	cmp r2L
-	bcs @1
-	ldx r2L
-	stx r2H
-	sta r2L
-; make sure x2 >= x1
-@1:	lda r4L
-	sec
-	sbc r3L
-	lda r4H
-	sbc r3H
-	bcs @2
-	lda r3L
-	ldx r4L
-	stx r3L
-	sta r4L
-	lda r3H
-	ldx r4H
-	stx r3H
-	sta r4H
-@2:	sei
+	jsr normalize_rect
+	sei
 	jsr jsrfar
 	.word Rectangle
 	.byte BANK_GEOS
@@ -136,6 +131,9 @@ get_col:
 	txa
 	.byte $2c
 @1:	lda #0
+	rts
+
+set_col:
 	sei
 	jsr jsrfar
 	.word _SetColor
@@ -143,7 +141,7 @@ get_col:
 	cli
 	rts
 
-get_points_col:
+get_points:
 	jsr get_point
 	pha
 	sec
@@ -170,10 +168,43 @@ get_points_col:
 	lda poker+1
 	sbc #>200
 	bcs linfc
+	ply
+	plx
+	rts
+
+get_points_col:
+	jsr get_points
+	phx
+	phy
 	jsr get_col
+	jsr set_col
 	ply
 	plx
 	rts
 
 @2	jmp snerr
 
+normalize_rect:
+; make sure y2 >= y1
+	lda r2H
+	cmp r2L
+	bcs @1
+	ldx r2L
+	stx r2H
+	sta r2L
+; make sure x2 >= x1
+@1:	lda r4L
+	sec
+	sbc r3L
+	lda r4H
+	sbc r3H
+	bcs @2
+	lda r3L
+	ldx r4L
+	stx r3L
+	sta r4L
+	lda r3H
+	ldx r4H
+	stx r3H
+	sta r4H
+@2:	rts

@@ -23,7 +23,9 @@
 .global _InvertLine
 .global _RecoverLine
 .global _VerticalLine
+.global _VerticalLineCol
 .global GetColor
+.global GetColor2
 
 .segment "graph2a"
 
@@ -219,6 +221,7 @@ RLine1:
 ;---------------------------------------------------------------
 _VerticalLine:
 	jsr Convert8BitPattern
+_VerticalLineCol:
 	pha
 	ldx r3L
 	jsr _GetScanLineVera
@@ -238,7 +241,7 @@ _VerticalLine:
 	jsr VLine1
 	plx
 	tya
-@1:	bbrf 6, dispBufferOn, VLine1 ; ST_WR_BACK
+@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
 	ldy #0
 	jmp VLine1
 @2:	rts
@@ -295,6 +298,7 @@ Convert8BitPattern:
 ; in compat mode, this converts patterns (0-33) into colors that look nice
 GetColor:
 	lda curPattern
+GetColor2:
 	bit curPattern+1
 	bpl @1
 ; compat mode
