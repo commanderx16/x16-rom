@@ -91,6 +91,7 @@ stmdsp2	; statements
 	.word vpoke-1
 	.word vload-1
 	.word cscreen-1
+	.word pset-1
 	.word line-1
 	.word rect-1
 	; functions

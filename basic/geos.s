@@ -51,7 +51,20 @@ cscreen	sei
 	rts
 
 ;***************
-line	jsr get_args
+pset:	jsr get_point
+	sta r11L
+	jsr get_col
+	lda #0
+	sec
+	sei
+	jsr jsrfar
+	.word DrawPoint
+	.byte BANK_GEOS
+	cli
+	rts
+
+;***************
+line	jsr get_points_col
 	stx r11L
 	sty r11H
 	lda #0
@@ -64,7 +77,7 @@ line	jsr get_args
 	rts
 
 ;***************
-rect	jsr get_args
+rect	jsr get_points_col
 	stx r2L
 	sty r2H
 
@@ -99,7 +112,7 @@ rect	jsr get_args
 
 linfc	jmp fcerr
 
-get_args:
+get_point:
 	jsr frmadr
 	lda poker
 	sta r3L
@@ -112,6 +125,26 @@ get_args:
 	jsr chkcom
 	jsr frmadr
 	lda poker
+	rts
+
+get_col:
+	ldy #0
+	lda (txtptr),y
+	beq @1
+	jsr chkcom
+	jsr getbyt
+	txa
+	.byte $2c
+@1:	lda #0
+	sei
+	jsr jsrfar
+	.word _SetColor
+	.byte BANK_GEOS
+	cli
+	rts
+
+get_points_col:
+	jsr get_point
 	pha
 	sec
 	sbc #<200
@@ -137,19 +170,7 @@ get_args:
 	lda poker+1
 	sbc #>200
 	bcs linfc
-	ldy #0
-	lda (txtptr),y
-	beq @1
-	jsr chkcom
-	jsr getbyt
-	txa
-	.byte $2c
-@1:	lda #0
-	sei
-	jsr jsrfar
-	.word _SetColor
-	.byte BANK_GEOS
-	cli
+	jsr get_col
 	ply
 	plx
 	rts
