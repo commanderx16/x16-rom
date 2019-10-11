@@ -212,7 +212,7 @@ RLine1:
 ;---------------------------------------------------------------
 ; VerticalLine                                            $C121
 ;
-; Pass:      a pattern
+; Pass:      a pattern byte
 ;            r3L top of line (0-199)
 ;            r3H bottom of line (0-199)
 ;            r4  x position of line (0-319)

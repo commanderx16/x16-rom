@@ -114,7 +114,7 @@ _ImprintRectangle:
 ;---------------------------------------------------------------
 ; FrameRectangle                                          $C127
 ;
-; Pass:      a   GEOS pattern
+; Pass:      a   pattern byte
 ;            r2L top (0-199)
 ;            r2H bottom (0-199)
 ;            r3  left (0-319)
@@ -123,22 +123,21 @@ _ImprintRectangle:
 ; Destroyed: a, x, y, r5 - r9, r11
 ;---------------------------------------------------------------
 _FrameRectangle:
-	jsr GetColor2 ; convert pattern into color
 	sta r9H
 	ldy r2L
 	sty r11L
-	jsr _HorizontalLineCol
+	jsr _HorizontalLine
 	MoveB r2H, r11L
 	lda r9H
-	jsr _HorizontalLineCol
+	jsr _HorizontalLine
 	PushW r3
 	PushW r4
 	MoveW r3, r4
 	MoveW r2, r3
 	lda r9H
-	jsr _VerticalLineCol
+	jsr _VerticalLine
 	PopW r4
 	lda r9H
-	jsr _VerticalLineCol
+	jsr _VerticalLine
 	PopW r3
 	rts
