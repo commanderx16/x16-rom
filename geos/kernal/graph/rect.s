@@ -36,21 +36,7 @@
 ;---------------------------------------------------------------
 _Rectangle:
 	MoveB r2L, r11L
-@1:	lda r11L
-	and #$07
-	tay
-.ifdef bsw128
-	PushB rcr
-	and #$F0
-	ora #$0A
-	sta rcr
-.endif
-	lda (curPattern),Y
-.ifdef bsw128
-	tax
-	PopB rcr
-	txa
-.endif
+@1:	lda curPattern
 	jsr _HorizontalLine
 	lda r11L
 	inc r11L

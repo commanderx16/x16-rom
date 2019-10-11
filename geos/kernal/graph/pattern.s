@@ -19,22 +19,13 @@
 ;---------------------------------------------------------------
 ; SetPattern                                              $C139
 ;
-; Pass:      a pattern nbr (0-33)
+; Pass:      a color (0-255)
 ; Return:    currentPattern - updated
 ; Destroyed: a
 ;---------------------------------------------------------------
 _SetPattern:
-	asl
-	asl
-	asl
-.ifdef wheels
-	.assert <PatternTab = 0, error, "PatternTab must be page-aligned!"
-.else
-	adc #<PatternTab
-.endif
 	sta curPattern
 	lda #0
-	adc #>PatternTab
 	sta curPattern+1
 	rts
 

@@ -93,9 +93,13 @@ line	jsr frmadr
 	beq @1
 	jsr chkcom
 	jsr getbyt
+	txa
 	.byte $2c
-@1:	ldx #0
-	stx 0
+@1:	lda #0
+	jsr jsrfar
+	.word SetPattern
+	.byte BANK_GEOS
+
 	lda #0
 	sec
 	sei

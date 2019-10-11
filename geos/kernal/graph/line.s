@@ -244,45 +244,20 @@ VLine1:
 	bne :-
 	rts
 
+; this maps some colors so DeskTop looks nicer
 convcol:
-; this converts 00/ff into black and white
-; and 55/aa into shades of blue
-	cmp #$00
-	bne :+
-	lda #1
-	rts
-:	cmp #$ff
-	bne :+
+	cmp #$ff
+	bne @2
 	lda #0
 	rts
-:	cmp #$55
-	bne :+
-	lda #6 ; blue
+@2:	cmp #2
+	bne @3
+	lda #6
 	rts
-:	cmp #$aa
-	bne :+
-	lda #14 ; light blue
-:	rts
-
-.if 0
-; this converts a pattern into a shade of gray
-	ldx #8
-	ldy #8
-@1:	lsr
-	bcc @2
-	dey
-@2:	dex
-	bne @1
-	cpy #8
-	beq @3
-	tya
-	asl
-	ora #16
-	rts
-@3:	lda #16+15
-	rts
-.endif
-
+@3:	cmp #2
+	bcs @1
+	eor #1
+@1:	rts
 
 GetLineStart:
 	ldx r11L

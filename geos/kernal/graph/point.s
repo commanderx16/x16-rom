@@ -186,10 +186,15 @@ _DrawPoint:
 	plp
 	bmi @3
 ; draw
-;	lda #0
-;	rol
-;	eor #1
-	lda 0
+
+; API change:
+; C=0 "clear" will set the point to white, as expected
+; C=0 "set"   will set the point to curPattern (as opposed to black)
+;
+	bcs @0
+	lda #1
+	.byte $2c
+@0:	lda curPattern
 
 	ldy r5L
 	sty veralo
