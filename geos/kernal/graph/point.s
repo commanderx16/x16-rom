@@ -45,7 +45,6 @@
 ; Return:    line is drawn or recover
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
-; XXX TODO X16
 _DrawLine:
 	php
 	LoadB r7H, 0
@@ -187,16 +186,22 @@ _DrawPoint:
 	bmi @3
 ; draw
 
-; API change:
-; C=0 "clear" will set the point to white, as expected
-; C=0 "set"   will set the point to curPattern (as opposed to black)
-;
-	bcs @0
-	lda #1
+;---------------------------------------------------------------
+; API extension
+; ~~~~~~~~~~~~~
+; if the user called SetColor:
+;   C=0 "clear" will set the point to white, as documented
+;   C=1 "set"   will set the point to curPattern (documented: black)
+; if the user called SetPattern, this has the old bevahior
+;---------------------------------------------------------------
+	bcc @0
+	lda curPattern
+	bit curPattern+1
+	bpl @0b
+	lda #0 ; black
 	.byte $2c
-@0:	lda curPattern
-
-	ldy r5L
+@0:	lda #1 ; white
+@0b:	ldy r5L
 	sty veralo
 	ldy r5H
 	sty veramid

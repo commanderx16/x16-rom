@@ -11,10 +11,12 @@
 .include "c64.inc"
 
 .import _HorizontalLine
+.import _HorizontalLineCol
 .import _InvertLine
 .import _RecoverLine
 .import _VerticalLine
 .import ImprintLine
+.import GetColor
 
 .global _Rectangle
 .global _InvertRectangle
@@ -36,8 +38,8 @@
 ;---------------------------------------------------------------
 _Rectangle:
 	MoveB r2L, r11L
-@1:	lda curPattern
-	jsr _HorizontalLine
+@1:	jsr GetColor
+	jsr _HorizontalLineCol
 	lda r11L
 	inc r11L
 	cmp r2H

@@ -19,11 +19,22 @@
 
 .global ImprintLine
 .global _HorizontalLine
+.global _HorizontalLineCol
 .global _InvertLine
 .global _RecoverLine
 .global _VerticalLine
+.global GetColor
 
 .segment "graph2a"
+
+;---------------------------------------------------------------
+; API extension
+; ~~~~~~~~~~~~~
+; If the user called SetColor, the color will be used, instead of
+; the pattern passed in A.
+; If the user called SetPattern, the bit pattern in A will be
+; converted into a grayscale value.
+;---------------------------------------------------------------
 
 ;---------------------------------------------------------------
 ; HorizontalLine                                          $C118
@@ -36,7 +47,8 @@
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _HorizontalLine:
-	jsr convcol
+	jsr Convert8BitPattern
+_HorizontalLineCol: ; called by Rectangle
 	pha
 	jsr GetLineStart
 	pla
@@ -206,7 +218,7 @@ RLine1:
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 _VerticalLine:
-	jsr convcol
+	jsr Convert8BitPattern
 	pha
 	ldx r3L
 	jsr _GetScanLineVera
@@ -244,21 +256,6 @@ VLine1:
 	bne :-
 	rts
 
-; this maps some colors so DeskTop looks nicer
-convcol:
-	cmp #$ff
-	bne @2
-	lda #0
-	rts
-@2:	cmp #2
-	bne @3
-	lda #6
-	rts
-@3:	cmp #2
-	bcs @1
-	eor #1
-@1:	rts
-
 GetLineStart:
 	ldx r11L
 	jsr _GetScanLineVera
@@ -267,3 +264,50 @@ GetLineStart:
 	SubW r3, r6
 	IncW r6
 	rts
+
+;---------------------------------------------------------------
+; Color compatibility logic
+;---------------------------------------------------------------
+
+; in compat mode, this converts 8 bit patterns into shades of gray
+Convert8BitPattern:
+	bit curPattern+1
+	bmi @0 ; compat mode
+	lda curPattern ; get color instead
+	rts
+@0:
+	ldx #8
+	ldy #8
+@1:	lsr
+	bcc @2
+	dey
+@2:	dex
+	bne @1
+	cpy #8
+	beq @3
+	tya
+	asl
+	ora #16
+	rts
+@3:	lda #16+15
+	rts
+
+; in compat mode, this converts patterns (0-33) into colors that look nice
+GetColor:
+	lda curPattern
+	bit curPattern+1
+	bpl @1
+; compat mode
+	cmp #2 ; 50% shading
+	bne @3
+	lda #14 ; light blue
+	rts
+@3:	cmp #9 ; horizontal stripes
+	bne @2
+	lda #6 ; dark blue
+	rts
+@2:	cmp #2
+	bcs @1
+	eor #1 ; swap black and white
+@1:	rts
+

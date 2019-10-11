@@ -13,6 +13,7 @@
 .import PatternTab
 
 .global _SetPattern
+.global _SetColor
 
 .segment "graph2l2"
 
@@ -24,6 +25,12 @@
 ; Destroyed: a
 ;---------------------------------------------------------------
 _SetPattern:
+	sta curPattern
+	lda #$80
+	sta curPattern+1
+	rts
+
+_SetColor:
 	sta curPattern
 	lda #0
 	sta curPattern+1

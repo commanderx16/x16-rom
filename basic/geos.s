@@ -5,7 +5,7 @@
 .import swpp1, jsrfar, color
 
 ; from GEOS
-.import _ResetHandle, geos_init_vera
+.import _ResetHandle, geos_init_vera, _SetColor
 
 ;***************
 geos	jsr jsrfar
@@ -19,7 +19,7 @@ cscreen	sei
 	sta dispBufferOn ; draw to foreground
 	lda #0
 	jsr jsrfar
-	.word SetPattern ; white
+	.word _SetColor ; white
 	.byte BANK_GEOS
 
 	lda #0
@@ -97,7 +97,7 @@ line	jsr frmadr
 	.byte $2c
 @1:	lda #0
 	jsr jsrfar
-	.word SetPattern
+	.word _SetColor
 	.byte BANK_GEOS
 
 	lda #0
