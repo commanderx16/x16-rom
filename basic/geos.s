@@ -6,7 +6,8 @@
 .setcpu "65c02"
 
 ; from KERNAL
-.import swpp1, jsrfar, color
+; XXX TODO these should go through the jump table
+.import swpp25, jsrfar, color
 
 ; from GEOS
 .import _ResetHandle, geos_init_vera, _SetColor
@@ -54,7 +55,7 @@ cscreen
 	lda #$0e ; light gray
 	sta color
 	jsr jsrfar
-	.word swpp1 ; switch to 40 columns
+	.word swpp25 ; switch to 40x25
 	.byte BANK_KERNAL
 	rts
 
@@ -143,6 +144,13 @@ char	jsr get_point
 	sei
 	jsr jsrfar
 	.word UseSystemFont
+	.byte BANK_GEOS
+	cli
+
+	sei
+	lda #27 ; PLAINTEXT
+	jsr jsrfar
+	.word PutChar
 	.byte BANK_GEOS
 	cli
 

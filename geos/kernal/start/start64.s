@@ -154,11 +154,11 @@ xx1:	dex
 hstart  =0
 hstop   =640
 vstart  =0
-vstop   =480
+vstop   =400
 tvera_composer:
 	.byte 7 << 5 | 1  ;256c bitmap, VGA
 	.byte 64, 64      ;hscale, vscale
-	.byte 14          ;border color
+	.byte 0           ;border color
 	.byte <hstart
 	.byte <hstop
 	.byte <vstart

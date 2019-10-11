@@ -132,16 +132,18 @@ primm
 	pla
 	rts             ;return
 
-.global swpp1 ; for BASIC
+.global swpp25 ; for BASIC
 swapper	lda llen
 	cmp #80
-	beq swpp1
-	ldx #80
+	beq swpp30
+swpp60	ldx #80
 	ldy #60
 	lda #128 ; scale = 1.0
 	bne swpp2 ; always
-swpp1	ldx #40
-	ldy #30
+swpp25	ldy #25
+	.byte $2c
+swpp30	ldy #30
+	ldx #40
 	lda #64 ; scale = 2.0
 swpp2	pha
 	lda #$01
@@ -153,6 +155,16 @@ swpp2	pha
 	pla
 	sta veradat ; reg $F0001: hscale
 	sta veradat ; reg $F0002: vscale
+	cpy #25
+	bne swpp1
+	lda #<400
+	.byte $2c
+swpp1	lda #<480
+	pha
+	lda #7 ; vstop_lo
+	sta veralo
+	pla
+	sta veradat
 	jmp scnsiz
 
 ;/////////////////////   K E R N A L   R A M   C O D E  \\\\\\\\\\\\\\\\\\\\\\\
