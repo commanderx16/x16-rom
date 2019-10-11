@@ -92,6 +92,7 @@ stmdsp2	; statements
 	.word vload-1
 	.word cscreen-1
 	.word line-1
+	.word rect-1
 	; functions
 	.word vpeek
 ;**************************************

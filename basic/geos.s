@@ -1,6 +1,8 @@
 .include "../geos/inc/geossym.inc"
 .include "../geos/inc/jumptab.inc"
 
+.setcpu "65c02"
+
 ; from KERNAL
 .import swpp1, jsrfar, color
 
@@ -48,10 +50,57 @@ cscreen	sei
 	.byte BANK_KERNAL
 	rts
 
-linfc	jmp fcerr
+;***************
+line	jsr get_args
+	stx r11L
+	sty r11H
+	lda #0
+	sec
+	sei
+	jsr jsrfar
+	.word DrawLine
+	.byte BANK_GEOS
+	cli
+	rts
 
 ;***************
-line	jsr frmadr
+rect	jsr get_args
+	stx r2L
+	sty r2H
+
+; make sure y2 >= y1
+	lda r2H
+	cmp r2L
+	bcs @1
+	ldx r2L
+	stx r2H
+	sta r2L
+; make sure x2 >= x1
+@1:	lda r4L
+	sec
+	sbc r3L
+	lda r4H
+	sbc r3H
+	bcs @2
+	lda r3L
+	ldx r4L
+	stx r3L
+	sta r4L
+	lda r3H
+	ldx r4H
+	stx r3H
+	sta r4H
+@2:	sei
+	jsr jsrfar
+	.word Rectangle
+	.byte BANK_GEOS
+	cli
+	rts
+
+linfc	jmp fcerr
+
+get_args:
+	jsr frmadr
 	lda poker
 	sta r3L
 	sec
@@ -63,7 +112,7 @@ line	jsr frmadr
 	jsr chkcom
 	jsr frmadr
 	lda poker
-	sta r11L
+	pha
 	sec
 	sbc #<200
 	lda poker+1
@@ -82,7 +131,7 @@ line	jsr frmadr
 	jsr chkcom
 	jsr frmadr
 	lda poker
-	sta r11H
+	pha
 	sec
 	sbc #<200
 	lda poker+1
@@ -96,36 +145,14 @@ line	jsr frmadr
 	txa
 	.byte $2c
 @1:	lda #0
+	sei
 	jsr jsrfar
 	.word _SetColor
 	.byte BANK_GEOS
-
-	lda #0
-	sec
-	sei
-	jsr jsrfar
-	.word DrawLine
-	.byte BANK_GEOS
 	cli
+	ply
+	plx
 	rts
 
 @2	jmp snerr
-
-.if 0
-.import _Rectangle
-	lda #0
-	sta r3L
-	sta r3H
-	sta r2L
-	lda #100
-	sta r4L
-	lda #0
-	sta r4H
-	lda #100
-	sta r2H
-	jsr jsrfar
-	.word _Rectangle
-	.byte BANK_GEOS
-.endif
-
 
