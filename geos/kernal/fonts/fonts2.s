@@ -780,15 +780,39 @@ store_vera:
 	eor r10L   ; underline
 	sta r4L
 	tya
-:	asl
+
+	bit compatMode
+	bmi @l4
+; new
+@l4a:	asl
+	bcc @l1a
+	asl r4L
+	bcs @l5a
+	ldy curPattern
+	bra @l6a
+@l5a:	ldy curPattern+1
+	cpy #$ff
+	beq @l0a
+@l6a:	sty veradat
+@l3a:	tay
+	bne @l4a
+	rts
+@l1a:	asl r4L
+@l0a:	inc veralo
+	bne @l3a
+	inc veramid
+@l2a:	bra @l3a
+
+; compat
+@l4:	asl
+	tay
 	bcc @l1
 	asl r4L
-	tay
 	lda #0
 	rol
 	sta veradat
-	tya
-@l3:	bne :-
+@l3:	tya
+	bne @l4
 	rts
 @l1:	asl r4L
 	inc veralo

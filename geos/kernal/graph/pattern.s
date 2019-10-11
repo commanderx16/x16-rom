@@ -10,6 +10,8 @@
 .include "kernal.inc"
 .include "c64.inc"
 
+.setcpu "65c02"
+
 .import PatternTab
 
 .global _SetPattern
@@ -26,13 +28,15 @@
 ;---------------------------------------------------------------
 _SetPattern:
 	sta curPattern
-	lda #$80
+	lda #0
 	sta curPattern+1
+	lda #$80
+	sta compatMode
 	rts
 
 _SetColor:
 	sta curPattern
-	lda #0
-	sta curPattern+1
+	stx curPattern+1
+	stz compatMode
 	rts
 

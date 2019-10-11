@@ -274,7 +274,7 @@ GetLineStart:
 
 ; in compat mode, this converts 8 bit patterns into shades of gray
 Convert8BitPattern:
-	bit curPattern+1
+	bit compatMode
 	bmi @0 ; compat mode
 	lda curPattern ; get color instead
 	rts
@@ -299,7 +299,7 @@ Convert8BitPattern:
 GetColor:
 	lda curPattern
 GetColor2:
-	bit curPattern+1
+	bit compatMode
 	bpl @1
 ; compat mode
 	cmp #2 ; 50% shading

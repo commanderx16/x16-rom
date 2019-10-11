@@ -196,7 +196,7 @@ _DrawPoint:
 ;---------------------------------------------------------------
 	bcc @0
 	lda curPattern
-	bit curPattern+1
+	bit compatMode
 	bpl @0b
 	lda #0 ; black
 	.byte $2c

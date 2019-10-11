@@ -119,6 +119,14 @@ char	jsr get_point
 	MoveW r3, r11
 
 	jsr chkcom
+	jsr getbyt
+	phx
+	jsr chkcom
+	jsr getbyt
+	pla
+	jsr set_col
+
+	jsr chkcom
 	jsr frmevl
 	jsr chkstr
 
