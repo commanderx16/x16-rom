@@ -142,7 +142,7 @@ Release Notes
 * BASIC
 	* additional LOAD syntax to load to a specific address `LOAD [filename[,device[,bank,address]]]`
 	* LOAD into banked RAM will auto-wrap into successive banks
-	* LOAD allows trailing gargabe; great to just type "LOAD" into a directory line [John-Paul Gignac]
+	* LOAD allows trailing garbage; great to just type "LOAD" into a directory line [John-Paul Gignac]
 	* new BASIC statement: VLOAD to load into video RAM: `VLOAD [filename[,device[,bank,address]]]` [John-Paul Gignac]
 	* complete jump table bridge
 * KERNAL: memory size detection
