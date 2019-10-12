@@ -109,7 +109,6 @@ mouseXPos               =       $3a
 mouseYPos               =       $3c
 returnAddress           =       $3d
 graphMode               =       $3f ; C128 only
-compatMode              =       $3f ; X16 only
 TURBO_DD00              =       $8e     ; from 1541 turbo
 TURBO_DD00_CPY          =       $8f     ; from 1541 turbo
 STATUS                  =       $90

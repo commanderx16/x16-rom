@@ -3,17 +3,6 @@
 
 .include "config.inc"
 
-;addresses defined so-so
-.ifdef bsw128
-Z45             =       $46
-Z46             =       $47
-Z47             =       $48
-.else
-Z45             =       $45
-Z46             =       $46
-Z47             =       $47
-.endif
-
 z8b             =       $8b
 z8c             =       $8c
 z8d             =       $8d
@@ -21,7 +10,7 @@ z8e             =       $8e
 z8f             =       $8f
 
 ; GEOS Kernal internal zpage vectors (not for use by apps)
-.ifdef bsw128
+compatMode      =       $3f ; (on C128, this is graphMode)
 IconDescVec     =       $40
 IconDescVecH    =       $41
 CallRLo         =       $42
@@ -29,15 +18,9 @@ CallRHi         =       $43
 DBoxDesc        =       $44
 DBoxDescL       =       $44
 DBoxDescH       =       $45
-.else
-IconDescVec     =       $3f
-IconDescVecH    =       $40
-CallRLo         =       $41
-CallRHi         =       $42
-DBoxDesc        =       $43
-DBoxDescL       =       $43
-DBoxDescH       =       $44
-.endif
+Z45             =       $46
+Z46             =       $47
+Z47             =       $48
 
 ; Wheels internal vars
 
