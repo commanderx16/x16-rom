@@ -19,11 +19,23 @@
 
 .global ImprintLine
 .global _HorizontalLine
+.global _HorizontalLineCol
 .global _InvertLine
 .global _RecoverLine
 .global _VerticalLine
+.global _VerticalLineCol
+.global GetColor
 
 .segment "graph2a"
+
+;---------------------------------------------------------------
+; API extension
+; ~~~~~~~~~~~~~
+; If the user called SetColor, the color will be used, instead of
+; the pattern passed in A.
+; If the user called SetPattern, the bit pattern in A will be
+; converted into a grayscale value.
+;---------------------------------------------------------------
 
 ;---------------------------------------------------------------
 ; HorizontalLine                                          $C118
@@ -36,7 +48,8 @@
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _HorizontalLine:
-	jsr convcol
+	jsr Convert8BitPattern
+_HorizontalLineCol: ; called by Rectangle
 	pha
 	jsr GetLineStart
 	pla
@@ -45,7 +58,7 @@ _HorizontalLine:
 	sty veralo
 	ldy r5H
 	sty veramid
-	ldy #$10
+	ldy #$11
 	sty verahi
 	ldx r6H
 	phx
@@ -57,7 +70,7 @@ _HorizontalLine:
 	sty veralo
 	ldy r5H
 	sty veramid
-	ldy #$11
+	ldy #$10
 	sty verahi
 	jmp HLine1
 @2:	rts
@@ -93,12 +106,12 @@ HLine1:
 _InvertLine:
 	jsr GetLineStart
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
-	ldy #$10
+	ldy #$11
 	PushW r6
 	jsr ILine1
 	PopW r6
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
-	ldy #$11
+	ldy #$10
 	jmp ILine1
 @2:	rts
 
@@ -142,8 +155,8 @@ ILine1:
 
 ImprintLine:
 	jsr GetLineStart
-	ldx #$10
-	ldy #$11
+	ldx #$11
+	ldy #$10
 	jmp RLine1
 
 ;---------------------------------------------------------------
@@ -158,8 +171,8 @@ ImprintLine:
 ;---------------------------------------------------------------
 _RecoverLine:
 	jsr GetLineStart
-	ldx #$11
-	ldy #$10
+	ldx #$10
+	ldy #$11
 RLine1:
 	lda #1
 	sta veractl
@@ -198,7 +211,7 @@ RLine1:
 ;---------------------------------------------------------------
 ; VerticalLine                                            $C121
 ;
-; Pass:      a pattern
+; Pass:      a pattern byte
 ;            r3L top of line (0-199)
 ;            r3H bottom of line (0-199)
 ;            r4  x position of line (0-319)
@@ -206,7 +219,8 @@ RLine1:
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 _VerticalLine:
-	jsr convcol
+	jsr Convert8BitPattern
+_VerticalLineCol:
 	pha
 	ldx r3L
 	jsr _GetScanLineVera
@@ -222,12 +236,12 @@ _VerticalLine:
 
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
 	phx
-	ldy #0
+	ldy #1
 	jsr VLine1
 	plx
 	tya
-@1:	bbrf 6, dispBufferOn, VLine1 ; ST_WR_BACK
-	ldy #1
+@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
+	ldy #0
 	jmp VLine1
 @2:	rts
 
@@ -244,29 +258,26 @@ VLine1:
 	bne :-
 	rts
 
-convcol:
-; this converts 00/ff into black and white
-; and 55/aa into shades of blue
-	cmp #$00
-	bne :+
-	lda #1
+GetLineStart:
+	ldx r11L
+	jsr _GetScanLineVera
+	AddW r3, r5
+	MoveW r4, r6
+	SubW r3, r6
+	IncW r6
 	rts
-:	cmp #$ff
-	bne :+
-	lda #0
-	rts
-:	cmp #$55
-	bne :+
-	lda #6 ; blue
-	rts
-:	cmp #$aa
-	bne :+
-	lda #14 ; light blue
-:	rts
 
-.if 0
-; this converts a pattern into a shade of gray
-	ldx #8
+;---------------------------------------------------------------
+; Color compatibility logic
+;---------------------------------------------------------------
+
+; in compat mode, this converts 8 bit patterns into shades of gray
+Convert8BitPattern:
+	bit compatMode
+	bmi @0
+	lda col1
+	rts
+@0:	ldx #8
 	ldy #8
 @1:	lsr
 	bcc @2
@@ -280,15 +291,4 @@ convcol:
 	ora #16
 	rts
 @3:	lda #16+15
-	rts
-.endif
-
-
-GetLineStart:
-	ldx r11L
-	jsr _GetScanLineVera
-	AddW r3, r5
-	MoveW r4, r6
-	SubW r3, r6
-	IncW r6
 	rts

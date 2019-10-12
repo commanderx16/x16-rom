@@ -15,14 +15,7 @@
 .import BitMaskPow2Rev
 .import _GetScanLine
 .import _GetScanLineVera
-.ifdef bsw128
 .import _Dabs
-.import _TempHideMouse
-.import _DShiftLeft
-.import _HorizontalLine
-.else
-.import Dabs
-.endif
 
 .import LF4B7
 .import LF558
@@ -52,24 +45,8 @@
 ; Return:    line is drawn or recover
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
-; XXX TODO X16
 _DrawLine:
 	php
-.ifdef bsw128
-	bmi @Y
-	lda r11L
-	cmp r11H
-	bne @Y
-	lda #$FF
-	plp
-	bcs @X
-	lda #0
-@X:	jmp _HorizontalLine
-@Y:	ldx #r3
-	jsr _NormalizeX
-	ldx #r4
-	jsr _NormalizeX
-.endif
 	LoadB r7H, 0
 	lda r11H
 	sub r11L
@@ -85,124 +62,11 @@ _DrawLine:
 	sbc r3H
 	sta r12H
 	ldx #r12
-.ifdef bsw128
 	jsr _Dabs
-.else
-	jsr Dabs
-.endif
 	CmpW r12, r7
 	bcs @2
-.ifdef bsw128 ; TODO dedup
-	jmp @LF140
-.else
 	jmp @9
-.endif
 @2:
-.ifdef bsw128
-	lda r7H
-	sta r9H
-	lda r7L
-	sta r9L
-	ldy #1
-	ldx #r9
-	jsr _DShiftLeft
-	lda r9L
-	sub r12L
-	sta r8L
-	lda r9H
-	sbc r12H
-	sta r8H
-	lda r7L
-	sub r12L
-	sta r10L
-	lda r7H
-	sbc r12H
-	sta r10H
-	ldy #1
-	ldx #r10
-	jsr _DShiftLeft
-	LoadB r13L, $ff
-	jsr CmpWR3R4
-	bcc @LF0F9
-	CmpB r11L, r11H
-	bcc @LF0DE
-	LoadB r13L, 1
-@LF0DE:	PushW r3
-	MoveW r4, r3
-	MoveB r11H, r11L
-	PopW r4
-	bra @LF103
-@LF0F9:	ldy r11H
-	cpy r11L
-	bcc @LF103
-	LoadB r13L, 1
-@LF103:	plp
-	php
-	jsr _DrawPoint
-	jsr CmpWR3R4
-	bcs @LF13E
-	inc r3L
-	bne @LF113
-	inc r3H
-@LF113:	bbrf 7, r8H, @LF127
-	AddW r9, r8
-	bra @LF103
-@LF127:	AddB_ r13L, r11L
-	AddW r10, r8
-	bra @LF103
-@LF13E:	plp
-	rts
-@LF140:	MoveW r12, r9
-	ldy #1
-	ldx #r9
-	jsr _DShiftLeft
-	lda r9L
-	sub r7L
-	sta r8L
-	lda r9H
-	sbc r7H
-	sta r8H
-	lda r12L
-	sub r7L
-	sta r10L
-	lda r12H
-	sbc r7H
-	sta r10H
-	ldy #$01
-	ldx #r10
-	jsr _DShiftLeft
-	lda #$FF
-	sta r13H
-	lda #$FF
-	sta r13L
-	CmpB r11L, r11H
-	bcc @LF1A0
-	jsr CmpWR3R4
-	bcc @LF18B
-	LoadW r13, 1
-@LF18B:	MoveW r4, r3
-	PushB r11L
-	MoveB r11H, r11L
-	PopB r11H
-	bra @LF1AD
-@LF1A0:	jsr CmpWR3R4
-	bcs @LF1AD
-	LoadW r13, 1
-@LF1AD:	plp
-	php
-	jsr _DrawPoint
-	CmpB r11L, r11H
-	bcs @LF1EB
-	inc r11L
-	bbrf 7, r8H, @LF1CE
-	AddW r9, r8
-	bra @LF1AD
-@LF1CE:	AddW r13, r3
-	AddW r10, r8
-	bra @LF1AD
-@LF1EB:	plp
-	rts
-.else
 	lda r7L
 	asl
 	sta r9L
@@ -305,7 +169,6 @@ _DrawLine:
 	bra @C
 @E:	plp
 	rts
-.endif
 
 ;---------------------------------------------------------------
 ; DrawPoint                                               $C133
@@ -322,21 +185,33 @@ _DrawPoint:
 	plp
 	bmi @3
 ; draw
-	lda #0
-	asl
-	eor #1
 
-	ldy r5L
+;---------------------------------------------------------------
+; API extension
+; ~~~~~~~~~~~~~
+; in color mode:
+;   C=0 "clear" will set the point to white
+;   C=1 "set"   will set the point to primary color
+; in compat mode, this has the original bevahior (white and black)
+;---------------------------------------------------------------
+	bcc @0
+	lda col1
+	bit compatMode
+	bpl @0b
+	lda #0 ; black
+	.byte $2c
+@0:	lda #1 ; white
+@0b:	ldy r5L
 	sty veralo
 	ldy r5H
 	sty veramid
 
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
-	stz verahi
-	sta veradat
-@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
 	ldy #1
 	sty verahi
+	sta veradat
+@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
+	stz verahi
 	sta veradat
 @2:	rts
 ; recover
@@ -354,8 +229,8 @@ _DrawPoint:
 	sta veralo
 	lda r5H
 	sta veramid
-	lda veradat2
-	sta veradat
+	lda veradat
+	sta veradat2
 	rts
 
 ;---------------------------------------------------------------
@@ -375,7 +250,7 @@ _TestPoint:
 	sta veralo
 	lda r5H
 	sta veramid
-	lda #0
+	lda #1
 	sta verahi
 	lda veradat
 	beq @1

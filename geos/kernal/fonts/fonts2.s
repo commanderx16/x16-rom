@@ -246,7 +246,7 @@ Font_1:
 	ldx #0
 	lda currentMode
 	and #SET_REVERSE
-	bne @5
+	beq @5
 	dex
 @5:	stx r10L
 	clc
@@ -298,7 +298,7 @@ Font_2:
 	adc r5H
 	sta r5H
 	sta veramid
-	lda #$10
+	lda #$11
 	sta verahi
 
 	MoveB FontTVar2+1, r3L
@@ -542,24 +542,24 @@ Font_4:
 
 ; first card
 	lda r9L    ; mask for first card
-	jsr store_vera
+	jsr Draw8Pixels
 @1:	inx
 	cpx r8L
 	beq @2     ; end card
 
 ; middle cards
 	lda #$ff
-	jsr store_vera
+	jsr Draw8Pixels
 	bra @1
 
 ; end card
 @2:	lda r9H    ; mask for last card
-	jmp store_vera
+	jmp Draw8Pixels
 
 ; single card
 @3:	lda r9L
 	and r9H
-	jmp store_vera
+	jmp Draw8Pixels
 
 @4:	rts
 
@@ -774,24 +774,70 @@ FontPutChar80:
 	bra @3
 .endif
 
-store_vera:
-	tay
-	lda Z45,x
-	eor r10L   ; underline
-	sta r4L
-	tya
-:	asl
-	bcc @l1
+Draw8Pixels:
+	ldy Z45,x
+	sty r4L    ; pixel pattern
+
+	bit compatMode
+	bmi Draw8PixelsCompat
+
+; color mode
+	bit r10L   ; inverted/underlined?
+	bmi Draw8PixelsInv
+
+; regular (color mode), translucent
+	ldy col1 ; fg: primary color
+@4:	asl
+	bcc @1
 	asl r4L
-	tay
-	lda #0
-	rol
-	sta veradat
-	tya
-@l3:	bne :-
+	bcc @0
+	sty veradat
+@3:	cmp #0
+	bne @4
 	rts
-@l1:	asl r4L
-	inc veralo
-	bne @l3
+@1:	asl r4L
+@0:	inc veralo
+	bne @3
 	inc veramid
-@l2:	bra @l3
+@2:	bra @3
+
+; inverted/underlined (color mode)
+Draw8PixelsInv:
+	phx
+	ldx col1 ; fg: primary color
+	ldy col2 ; bg: secondary color
+; opaque drawing with fg color (x) and bg color (y)
+Draw8PixelsOpaque:
+@4:	asl
+	bcc @1
+	asl r4L
+	bcc @5
+	stx veradat
+	bra @3
+@5:	sty veradat
+@3:	cmp #0
+	bne @4
+	plx
+	rts
+@1:	asl r4L
+	inc veralo
+	bne @3
+	inc veramid
+@2:	bra @3
+
+Draw8PixelsCompat:
+	bit r10L   ; inverted/underlined?
+	bmi Draw8PixelsCompatInv
+
+; regular (compat mode)
+	phx
+	ldx #0  ; fg: black
+	ldy #1  ; bg: white
+	bra Draw8PixelsOpaque
+
+; inverted/underlined (compat mode)
+Draw8PixelsCompatInv:
+	phx
+	ldx #0  ; fg: black
+	ldy #15 ; bg: light gray
+	bra Draw8PixelsOpaque

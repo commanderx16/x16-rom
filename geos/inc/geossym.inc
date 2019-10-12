@@ -88,6 +88,8 @@ a9H             =       $7f
 ;
 
 curPattern              =       $22
+col1                    =       $22 ; same as curPattern
+col2                    =       $23 ; same as curPattern+1
 string                  =       $24
 baselineOffset          =       $26
 curSetWidth             =       $27
@@ -106,7 +108,8 @@ pressFlag               =       $39
 mouseXPos               =       $3a
 mouseYPos               =       $3c
 returnAddress           =       $3d
-graphMode               =       $3f
+graphMode               =       $3f ; C128 only
+compatMode              =       $3f ; X16 only
 TURBO_DD00              =       $8e     ; from 1541 turbo
 TURBO_DD00_CPY          =       $8f     ; from 1541 turbo
 STATUS                  =       $90

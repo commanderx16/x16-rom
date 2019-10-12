@@ -82,7 +82,7 @@ BitmapUpHelp:
 	adc #0
 	sta r5H
 	sta veramid
-	lda #$10
+	lda #$11
 	sta verahi
 @2:	jsr BitmapDecode
 	eor #$ff

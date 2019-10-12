@@ -11,10 +11,13 @@
 .include "c64.inc"
 
 .import _HorizontalLine
+.import _HorizontalLineCol
 .import _InvertLine
 .import _RecoverLine
 .import _VerticalLine
+.import _VerticalLineCol
 .import ImprintLine
+.import GetColor
 
 .global _Rectangle
 .global _InvertRectangle
@@ -36,22 +39,8 @@
 ;---------------------------------------------------------------
 _Rectangle:
 	MoveB r2L, r11L
-@1:	lda r11L
-	and #$07
-	tay
-.ifdef bsw128
-	PushB rcr
-	and #$F0
-	ora #$0A
-	sta rcr
-.endif
-	lda (curPattern),Y
-.ifdef bsw128
-	tax
-	PopB rcr
-	txa
-.endif
-	jsr _HorizontalLine
+@1:	lda col1
+	jsr _HorizontalLineCol
 	lda r11L
 	inc r11L
 	cmp r2H
@@ -124,7 +113,7 @@ _ImprintRectangle:
 ;---------------------------------------------------------------
 ; FrameRectangle                                          $C127
 ;
-; Pass:      a   GEOS pattern
+; Pass:      a   pattern byte
 ;            r2L top (0-199)
 ;            r2H bottom (0-199)
 ;            r3  left (0-319)
