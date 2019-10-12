@@ -137,7 +137,19 @@ FAT32 and SD card drivers: Copyright (c) 2018 Thomas Woinke, Marko Lauke, [www.s
 Release Notes
 -------------
 
-### Release 31
+### Release 33
+
+* BASIC
+	* additional LOAD syntax to load to a specific address `LOAD [filename[,device[,bank,address]]]`
+	* LOAD into banked RAM will auto-wrap into successive banks
+	* LOAD allows trailing gargabe; great to just type "LOAD" into a directory line [John-Paul Gignac]
+	* new BASIC statement: VLOAD to load into video RAM: `VLOAD [filename[,device[,bank,address]]]` [John-Paul Gignac]
+	* complete jump table bridge
+* KERNAL: memory size detection
+* KERNAL: faster IRQ entry
+* GEOS: converted graphics library to VERA 320x200@256c
+
+### Release 32
 
 * correct ROM banking:
 	* BASIC and KERNAL now live on separate 16 KB banks ($C000-$FFFF)
