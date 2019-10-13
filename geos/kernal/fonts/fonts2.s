@@ -55,6 +55,38 @@ PrvCharWidth = $880D
 .global FontPutChar
 .global _GetRealSize
 
+;
+; For italics (actually slanted) characters, the original GEOS
+; code moves one pixel to the right after every two scanlines:
+;
+;     X
+;    X
+;    X
+;   X
+;   X
+;  X
+;  X
+; X
+; X
+;
+; With this defined, it will move one pixel to the right every
+; *four* scanlines:
+;
+;   X
+;  X
+;  X
+;  X
+;  X
+; X
+; X
+; X
+; X
+;
+; This looks way better and matches the slant of Helvetica
+; Italics vs. Helvetica Regular (1/4.6) better.
+;
+less_slanted = 1
+
 .segment "fonts2"
 
 ;---------------------------------------------------------------
@@ -227,6 +259,9 @@ Font_1:
 	tax
 @4:	txa
 	lsr
+.ifdef less_slanted
+	lsr
+.endif
 	sta r3L
 	add r11L
 	sta FontTVar2
@@ -504,6 +539,10 @@ Font_3:
 	lda r10H
 	lsr
 	bcs @5
+.ifdef less_slanted
+	lsr
+	bcs @5
+.endif
 	ldx FontTVar2
 	bne @3
 	dec FontTVar2+1
