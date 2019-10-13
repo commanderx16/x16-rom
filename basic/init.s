@@ -31,7 +31,7 @@ chdgot	lda 60000
 	sec
 	sbc #$d0
 chdrts	rts
-	.byt 128,79,199,82,88
+inrndx	.byt 128,79,199,82,88
 
 initcz	lda #76
 	sta jmper
@@ -40,19 +40,16 @@ initcz	lda #76
 	ldy #>fcerr
 	sta usrpok+1
 	sty usrpok+2
-	lda #<givayf
-	ldy #>givayf
-	sta adray2
-	sty adray2+1
-	lda #<flpint
-	ldy #>flpint
-	sta adray1
-	sty adray1+1
-	ldx #initcz-initat-1
+	ldx #inrndx-initat-1
 movchg	lda initat,x
 	sta chrget,x
 	dex
 	bpl movchg
+	ldx #initcz-inrndx-1
+movch2	lda inrndx,x
+	sta rndx,x
+	dex
+	bpl movch2
 	lda #strsiz
 	sta four6
 	lda #0

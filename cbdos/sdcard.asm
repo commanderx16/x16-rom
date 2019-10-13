@@ -26,9 +26,7 @@
 	debug_enabled=1
 .endif
 
-;.include "common.inc"
-.include "zeropage.inc"
-;.include "errno.inc"
+.importzp write_blkptr, read_blkptr
 .include "sdcard.inc"
 .include "spi.inc"
 .include "vera.inc"

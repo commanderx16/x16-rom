@@ -308,7 +308,7 @@ is_unshifted:
 
 not_numpad:
 	ldx #0
-	lda shflag2
+	lda shflag
 	cmp #MODIFIER_ALT | MODIFIER_CTRL
 	bne find_bit
 	ldx #3 * 2
@@ -363,7 +363,7 @@ is_enter:
 	.byte $2c
 is_stop:
 	ldx #$03 * 2 ; stop (-> run)
-	lda shflag2
+	lda shflag
 	lsr ; shift -> C
 	txa
 	ror
@@ -518,11 +518,11 @@ receive_down_scancode_no_modifiers:
 	plp
 	bcc key_down
 	eor #$ff
-	and shflag2
+	and shflag
 	.byte $2c
 key_down:
-	ora shflag2
-	sta shflag2
+	ora shflag
+	sta shflag
 key_up:	lda #0 ; no key to return
 	rts
 no_mod:	plp

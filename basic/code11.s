@@ -75,8 +75,9 @@ lopfn	lda varnam
 	lda varnam+1
 	iny
 	cmp (lowtr),y
-	beq finptr
-	dey
+	bne nfinptr
+	jmp finptr
+nfinptr	dey
 notit	clc
 	lda lowtr
 	adc #6+addprc
