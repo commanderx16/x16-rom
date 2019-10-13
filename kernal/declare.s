@@ -1,91 +1,35 @@
-	.segment "ZPKERNAL" : zeropage
-status	.res 1           ;i/o operation status byte
-; crfac .res 2 ;correction factor (unused)
-stkey	.res 1           ;stop key flag
-savbank	.res 1           ;old bank when switching (was: tape)
-verck	.res 1           ;load or verify flag
-c3p0	.res 1           ;ieee buffered char flag
-bsour	.res 1           ;char buffer for ieee
-rambks	.res 1           ;number of ram banks (0 means 256)
-xsav	.res 1           ;temp for basin
-ldtnd	.res 1           ;index to logical file
-dfltn	.res 1           ;default input device #
-dflto	.res 1           ;default output device #
-imparm	.res 2           ;PRIMM utility string pointer (was: tape)
-msgflg	.res 1           ;os message flag
-t1	.res 1           ;temporary 1
-j0tmp	.res 1           ;keyboard joystick temp (was:tape)
-time	.res 3           ;24 hour clock in 1/60th seconds
-r2d2	.res 1           ;serial bus usage
-; ptch .res 1  (unused)
-bsour1	;temp used by serial routine
-	.res 1           ;also used by CBDOS
-count	.res 1           ;temp used by serial routine
-	.res 1           ;unused (tape)
-	.res 5           ;unused (rs-232)
-sal	.res 1
-sah	.res 1
-eal	.res 1
-eah	.res 1
-kbdbyte	.res 1           ;PS/2: bit input (was: tape)
-prefix	.res 1           ;PS/2: prefix code (e0/e1) (was: tape)
-brkflg	.res 1           ;PS/2: was key-up event (was: tape)
-shflag2	.res 1           ;PS/2: modifier state (was: tape)
-	.res 3           ;unused (rs-232)
-fnlen	.res 1           ;length current file n str
-la	.res 1           ;current file logical addr
-sa	.res 1           ;current file 2nd addr
-fa	.res 1           ;current file primary addr
-fnadr	.res 2           ;addr current file name str
-	.res 1           ;unused (rs-232)
-ckbtab	.res 2           ;used for keyboard lookup
-	.res 1           ;unused (tape)
-tmp0
-stal	.res 1
-stah	.res 1
-memuss	;cassette load temps (2 bytes)
-tmp2	.res 2
-;
-;variables for screen editor
-;
-isomod	.res 1           ;ISO mode
-ndx	.res 1           ;index to keyboard q
-rvs	.res 1           ;rvs field on flag
-indx	.res 1
-lsxp	.res 1           ;x pos at start
-lstp	.res 1
-sfdx	.res 1           ;shift mode on print
-blnsw	.res 1           ;cursor blink enab
-blnct	.res 1           ;count to toggle cur
-gdbln	.res 1           ;char before cursor
-blnon	.res 1           ;on/off blink flag
-crsw	.res 1           ;input vs get flag
-pnt	.res 2           ;pointer to row
-; point .res 1   (unused)
-pntr	.res 1           ;pointer to column
-qtsw	.res 1           ;quote switch
-lnmx	.res 1           ;40/80 max positon
-tblx	.res 1
-data	.res 1
-insrt	.res 1           ;insert mode flag
-llen	.res 1           ;x resolution
-nlines	.res 1           ;y resolution
-llenm1	.res 1           ;x resolution - 1
-nlinesp1 .res 1          ;y resolution + 1
-nlinesm1 .res 1          ;y resolution - 1
-nlinesm2 .res 1          ;y resolution - 2
-	.res 16          ;used by CBDOS
-joy1	.res 3           ;joystick 1 status
-joy2	.res 3           ;joystick 2 status
-keytab	.res 2           ;keyscan table indirect
-	.res 4           ;unused (rs-232)
-frekzp	.res 4           ;free kernal zero page 9/24/80
-baszpt	.res 1           ;location ($00ff) used by basic
+; for monitor
+.globalzp txtptr, fnadr, pnt
+.global status, fnlen, la, sa, fa, isomod, ndx, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
+.global buf, keyd, rptflg
 
-	.segment "STACK"
+; for basic
+.global color
+
+.segment "ZPKERNAL" : zeropage
+;                      C64 location
+;                         VVV
+sal	.res 1           ;$AC
+sah	.res 1           ;$AD
+eal	.res 1           ;$AE
+eah	.res 1           ;$AF
+fnadr	.res 2           ;$BB addr current file name str
+memuss	=tmp2            ;$C3 load temps (2 bytes)
+tmp2	.res 2           ;$C3
+pnt	.res 2           ;$D1 pointer to row
+;
+; X16 additions
+;
+imparm	.res 2           ;PRIMM utility string pointer
+ckbtab	.res 2           ;used for keyboard lookup
+
+.segment "STACK"
+
 bad	.res 1
-	.segment "KVAR"
-buf	.res 89          ;basic/monitor buffer
+
+.segment "KVAR"
+
+buf	.res 2*40+1      ;basic/monitor buffer
 
 ; tables for open files
 ;
@@ -102,30 +46,79 @@ timout	.res 1           ;ieee timeout flag
 
 ; screen editor storage
 ;
-color	.res 1           ;activ color nybble
 gdcol	.res 1           ;original color before cursor
 hibase	.res 1           ;base location of screen (top)
 xmax	.res 1
-ps2byte	.res 1           ;byte storage for ps/2 communication
-ps2par	.res 1           ;parity for ps/2 communication
 delay	.res 1
 shflag	.res 1           ;shift flag byte
-lstshf	.res 1           ;last shift pattern
-	.res 2           ;unused (keyboard)
 mode	.res 1           ;0-pet mode, 1-cattacanna
 autodn	.res 1           ;auto scroll down flag(=0 on,<>0 off)
-
-	.res 12          ;unused (rs-232)
-	.res 1           ;unused (tape)
-joy0	.res 1           ;keyboard joystick temp
-;
-; temp space for vic-40 variables ****
-;
-	.res 1           ;rs-232 enables (replaces ier)
-curkbd	.res 1           ;current keyboard layout index
-	.res 2           ;unused (tape)
 lintmp	.res 1           ;temporary for line index
-palnts	.res 1           ;pal vs ntsc flag 0=ntsc 1=pal
+color	.res 1           ;activ color nybble
+
+;.segment "KVAR2"
+;                      C64 location
+;                         VVV
+status	.res 1           ;$90 i/o operation status byte
+stkey	.res 1           ;$91 stop key flag
+verck	.res 1           ;$93 load or verify flag
+c3p0	.res 1           ;$94 ieee buffered char flag
+bsour	.res 1           ;$95 char buffer for ieee
+xsav	.res 1           ;$97 temp for basin
+ldtnd	.res 1           ;$98 index to logical file
+dfltn	.res 1           ;$99 default input device #
+dflto	.res 1           ;$9A default output device #
+msgflg	.res 1           ;$9D os message flag
+t1	.res 1           ;$9E temporary 1
+time	.res 3           ;$A0 24 hour clock in 1/60th seconds
+r2d2	.res 1           ;$A3 serial bus usage
+bsour1	.res 1           ;$A4 temp used by serial routine
+count	.res 1           ;$A5 temp used by serial routine
+fnlen	.res 1           ;$B7 length current file n str
+la	.res 1           ;$B8 current file logical addr
+sa	.res 1           ;$B9 current file 2nd addr
+fa	.res 1           ;$BA current file primary addr
+stal	.res 1           ;$C1
+stah	.res 1           ;$C2
+;
+;variables for screen editor
+;
+ndx	.res 1           ;$C6 index to keyboard q
+rvs	.res 1           ;$C7 rvs field on flag
+indx	.res 1           ;$C8
+lsxp	.res 1           ;$C9 x pos at start
+lstp	.res 1           ;$CA
+blnsw	.res 1           ;$CC cursor blink enab
+blnct	.res 1           ;$CD count to toggle cur
+gdbln	.res 1           ;$CE char before cursor
+blnon	.res 1           ;$CF on/off blink flag
+crsw	.res 1           ;$D0 input vs get flag
+pntr	.res 1           ;$D3 pointer to column
+qtsw	.res 1           ;$D4 quote switch
+lnmx	.res 1           ;$D5 40/80 max positon
+tblx	.res 1           ;$D6
+data	.res 1           ;$D7
+insrt	.res 1           ;$D8 insert mode flag
+llen	.res 1           ;$D9 x resolution
+nlines	.res 1           ;$DA y resolution
+;
+; X16 additions
+;
+rambks	.res 1           ;number of ram banks (0 means 256)
+isomod	.res 1           ;ISO mode
+curkbd	.res 1           ;current keyboard layout index
+kbdbyte	.res 1           ;PS/2: bit input
+prefix	.res 1           ;PS/2: prefix code (e0/e1)
+brkflg	.res 1           ;PS/2: was key-up event
+llenm1	.res 1           ;x resolution - 1
+nlinesp1 .res 1          ;y resolution + 1
+nlinesm1 .res 1          ;y resolution - 1
+nlinesm2 .res 1          ;y resolution - 2
+j0tmp	.res 1           ;keyboard joystick temp
+joy0	.res 1           ;keyboard joystick temp
+joy1	.res 3           ;joystick 1 status
+joy2	.res 3           ;joystick 2 status
+
 
 	.segment "KVECTORS";rem kernal/os indirects(20)
 cinv	.res 2           ;irq ram vector

@@ -172,6 +172,7 @@ all: $(PREFIXED_GEOS_OBJS)
 
 	$(AS) $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
 
+	$(AS) $(ARGS_DOS) -o cbdos/zeropage.o cbdos/zeropage.s
 	$(AS) $(ARGS_DOS) -o cbdos/fat32.o cbdos/fat32.asm
 	$(AS) $(ARGS_DOS) -o cbdos/util.o cbdos/util.asm
 	$(AS) $(ARGS_DOS) -o cbdos/matcher.o cbdos/matcher.asm
@@ -187,7 +188,7 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(AS) -o charset/petscii.o charset/petscii.tmp.s
 	$(AS) -o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
 
-	$(LD) -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/petscii.o charset/iso-8859-15.o kernsup/kernsup.o kernsup/irqsup.o $(PREFIXED_GEOS_OBJS) -Ln rom.txt
+	$(LD) -C rom.cfg -o rom.bin basic/basic.o kernal/kernal.o monitor/monitor.o cbdos/zeropage.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o keymap/keymap.o charset/petscii.o charset/iso-8859-15.o kernsup/kernsup.o kernsup/irqsup.o $(PREFIXED_GEOS_OBJS) -Ln rom.txt
 
 clean:
 	rm -f kernsup/*.o
