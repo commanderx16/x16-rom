@@ -199,66 +199,17 @@ panic	lda #3          ;reset default i/o
 	lda #0
 	sta dfltn
 
-mapbas	=0
-isobas	=$1e800
-tilbas	=$1f000         ;top of VRAM
-
 ;init video
 ;
 initv
 	lda #0
 	sta veractl     ;set ADDR1 active
 
-	; ISO character set
-	lda #<isobas        ;VRAM for ISO charset
+	jsr cpypet1
+
+	lda #$00        ;$F3000: layer 1 registers
 	sta veralo
-	lda #>isobas
-	sta veramid
-	lda #$10 | (tilbas >> 16)
-	sta verahi
-
-	lda #0
-	sta pntr
-	lda #0
-	sta pnt
-	lda #$c8
-	sta pnt+1       ;character data at ROM 0800
-	ldx #8
-	jsr copyv
-
-	; PETSCII character set
-	lda #<tilbas        ;VRAM for PETSCII charset
-	sta veralo
-	lda #>tilbas
-	sta veramid
-	lda #$10 | (tilbas >> 16)
-	sta verahi
-
-	lda #0
-	sta pntr
-	lda #0
-	sta pnt
-	lda #$c0
-	sta pnt+1       ;character data at ROM 0000
-	ldx #4
-	jsr copyv
-	dec pntr
-	lda #$c0
-	sta pnt+1       ;character data at ROM 0000
-	ldx #4
-	jsr copyv
-	inc pntr
-	ldx #4
-	jsr copyv
-	dec pntr
-	lda #$c4
-	sta pnt+1       ;character data at ROM 0400
-	ldx #4
-	jsr copyv
-
-	lda #$00        ;$F2000: layer 1 registers
-	sta veralo
-	lda #$20
+	lda #$30
 	sta veramid
 	lda #$1f
 	sta verahi
@@ -281,14 +232,59 @@ px5	lda tvera_composer,x
 	bne px5
 	rts
 
-copyv
-	ldy #0
-px3	lda (pnt),y
-	eor pntr
+inicpy	lda #<tilbas
+	sta veralo
+	lda #>tilbas
+	sta veramid
+	lda #$10 | (tilbas >> 16)
+	sta verahi
+	rts
+
+; PETSCII character set
+cpypet1	jsr inicpy
+	lda #0
+	sta data
+	sta tmp2
+	lda #$c0
+	sta tmp2+1       ;character data at ROM 0000
+	ldx #4
+	jsr copyv
+	dec data
+	lda #$c0
+	sta tmp2+1       ;character data at ROM 0000
+	ldx #4
+	jmp copyv
+
+cpypet2	jsr inicpy
+	lda #0
+	sta data
+	sta tmp2
+	lda #$c4
+	sta tmp2+1       ;character data at ROM 0400
+	ldx #4
+	jsr copyv
+	dec data
+	lda #$c4
+	sta tmp2+1       ;character data at ROM 0400
+	ldx #4
+	jmp copyv
+
+; ISO character set
+cpyiso	jsr inicpy
+	lda #0
+	sta data
+	sta tmp2
+	lda #$c8
+	sta tmp2+1       ;character data at ROM 0800
+	ldx #8
+;
+copyv	ldy #0
+px3	lda (tmp2),y
+	eor data
 	sta veradat
 	iny
 	bne px3
-	inc pnt+1
+	inc tmp2+1
 	dex
 	bne px3
 	rts
@@ -302,6 +298,9 @@ tvera_layer1
 	.word tilbas >> 2 ;tile_bas
 	.word 0, 0        ;hscroll, vscroll
 tvera_layer1_end
+
+mapbas	=0
+tilbas	=$0f800         ;top of bank 0 of VRAM
 
 .ifdef NTSC
 ; ***** NTSC (with overscan)
