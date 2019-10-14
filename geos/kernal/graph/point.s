@@ -204,32 +204,24 @@ _DrawPoint:
 	sty veralo
 	ldy r5H
 	sty veramid
-
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
 	ldy #1
 	sty verahi
 	sta veradat
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
-	stz verahi
-	sta veradat
+	jsr setup_bgptr
+	sta (bgptr)
 @2:	rts
 ; recover
-@3:	lda #1
-	sta veractl
-	sta verahi
-	lda r5L
+@3:	lda r5L
 	sta veralo
 	lda r5H
 	sta veramid
-	lda #0
-	sta veractl
+	lda #1
 	sta verahi
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
-	lda veradat
-	sta veradat2
+	jsr setup_bgptr
+	lda (bgptr)
+	sta veradat
 	rts
 
 ;---------------------------------------------------------------
@@ -256,4 +248,33 @@ _TestPoint:
 	clc
 	rts
 @1:	sec
+	rts
+
+.global setup_bgptr, inc_bgptr
+setup_bgptr:
+	pha
+	lda r5L
+	sta bgptr
+	lda r5H
+	and #$1f
+	ora #$c0
+	sta bgptr+1
+	lda r5H
+	lsr
+	lsr
+	lsr
+	lsr
+	lsr
+	sta d1pra ; RAM bank
+	pla
+	rts
+
+inc_bgptr:
+	lda bgptr+1
+	inc
+	cmp #$e0
+	bne :+
+	inc d1pra ; RAM bank
+	lda #$c0
+:	sta bgptr+1
 	rts

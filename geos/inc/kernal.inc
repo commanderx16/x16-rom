@@ -11,16 +11,18 @@ z8f             =       $8f
 
 ; GEOS Kernal internal zpage vectors (not for use by apps)
 compatMode      =       $3f ; (on C128, this is graphMode)
-IconDescVec     =       $40
-IconDescVecH    =       $41
-CallRLo         =       $42
-CallRHi         =       $43
-DBoxDesc        =       $44
-DBoxDescL       =       $44
-DBoxDescH       =       $45
-Z45             =       $46
-Z46             =       $47
-Z47             =       $48
+bgptr           =       $40
+imparm          =       $42
+IconDescVec     =       $44
+IconDescVecH    =       $45
+CallRLo         =       $46
+CallRHi         =       $47
+DBoxDesc        =       $48
+DBoxDescL       =       $48
+DBoxDescH       =       $49
+Z45             =       $4A
+Z46             =       $4B
+Z47             =       $4C
 
 ; Wheels internal vars
 
@@ -198,3 +200,7 @@ COLOR_MATRIX_80_2	= $4080
 TRACK_CACHE		= $ac00
 DISK_SWAPBASE		= $d000
 SWAP_PAGE 	        = $fc00 ; memory swap page
+
+via1	=$9f60                  ;VIA 6522 #1
+d1prb	=via1+0
+d1pra	=via1+1
