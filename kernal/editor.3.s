@@ -1,16 +1,17 @@
 lower
 	cmp #$0e        ;does he want lower case?
 	bne upper       ;branch if not
-	jsr lowup
-	ora #8 >> 2
-	bne ulset
+	lda isomod
+	bne outhre
+	jsr cpypet2
+	jmp loop2
 
 upper
 	cmp #$8e        ;does he want upper case
 	bne lock        ;branch if not
-	jsr lowup
-	and #$ff-(8 >> 2)
-ulset	sta veradat
+	lda isomod
+	bne outhre
+	jsr cpypet1
 outhre	jmp loop2
 
 lock
@@ -31,35 +32,22 @@ lexit	sta mode
 isoon
 	cmp #$0f        ;switch to ISO mode?
 	bne isooff      ;branch if not
-	jsr lowup
-	ldx #isobas >> 10
+	jsr cpyiso
 	lda #$ff
 	bne isosto      ;always
 
 isooff
 	cmp #$8f        ;switch to PETSCII mode?
 	bne outhre      ;branch if not
-	jsr lowup
-	ldx #tilbas >> 10
+	jsr cpypet1
 	lda #0
 isosto	cmp isomod
 	beq outhre
-	stx veradat
 	sta isomod
 	lda curkbd
 	jsr setkbd      ;reload keymap
 	jsr clsr        ;clear screen
 	jmp loop2
-
-; access VERA register TILE_BASE_HI
-lowup	lda #$05        ;$F2005: layer 1, TILE_BASE_HI
-	sta veralo
-	lda #$20
-	sta veramid
-	lda #$0F
-	sta verahi
-	lda veradat
-	rts
 
 ;
 runtb	.byt "LOAD",$d,"RUN",$d
