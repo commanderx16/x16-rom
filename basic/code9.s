@@ -231,11 +231,11 @@ eval4	cmp #fntk
 	jmp isfun
 parchk	jsr chkopn
 	jsr frmevl
-chkcls	lda #41
+chkcls	lda #')'
 	.byt $2c
-chkopn	lda #40
+chkopn	lda #'('
 	.byt $2c
-chkcom	lda #44
+chkcom	lda #','
 synchr	ldy #0
 	cmp (txtptr),y
 	bne snerr

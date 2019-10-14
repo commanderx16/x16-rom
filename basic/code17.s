@@ -1,3 +1,5 @@
+.setcpu "65c02"
+
 getbyt	jsr frmnum
 conint	jsr posint
 	ldx facmo
@@ -51,28 +53,44 @@ getadr	lda facsgn
 	sty poker
 	sta poker+1
 	rts
+
+.import fetvec, fetch
 peek	lda poker+1
 	pha
 	lda poker
 	pha
+
 	jsr getadr
-	ldy #0
+
+	jsr chrgot
+	ldx #BANK_KERNAL
+	cmp #','	; check if it's PEEK(bank, addr)
+	bne :+
+
+	ldx poker
+	phx
+	jsr chrget
+	jsr frmadr
+	plx
+
+:	ldy #0
 	lda poker+1
 	cmp #$c0
 	bcs peek1
 	lda (poker),y   ;RAM
 	jmp peek2
 peek1	lda #poker
-.import fetvec, fetch
 	sta fetvec
-	ldx #BANK_KERNAL
 	jsr fetch       ;ROM
-peek2	tay
+peek2	sta poker
+	jsr chkcls
+	ldy poker
 dosgfl	pla
 	sta poker
 	pla
 	sta poker+1
 	jmp sngflt
+
 poke	jsr getnum
 	txa
 	ldy #0

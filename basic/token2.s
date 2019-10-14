@@ -43,6 +43,7 @@ onefun	=$b4
 	.byt "TA",$ce
 	.byt "AT",$ce
 	.byt "PEE",$cb
+fnpeek	=$c2
 	.byt "LE",$ce
 	.byt "STR",$a4
 	.byt "VA",$cc

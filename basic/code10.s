@@ -1,3 +1,5 @@
+.setcpu "65c02"
+
 ;test pointer to variable to see
 ;if constant is contained in basic.
 ;array variables have zeroes placed
@@ -127,10 +129,16 @@ nesct3
 	tay
 	txa
 	pha
-	jmp fingo
-oknorm	jsr parchk
-	pla
-	tay
+	bra fingo
+;
+; add a special case for PEEK to allow PEEK(addr) and PEEK(bank, addr)
+;
+oknorm	jsr chkopn
+	jsr frmevl
+	ply
+	cpy #fnpeek*2 & $FF
+	beq fingo
+	jsr chkcls
 fingo	lda fundsp-onefun-onefun+256,y
 	sta jmper+1
 	lda fundsp-onefun-onefun+257,y
