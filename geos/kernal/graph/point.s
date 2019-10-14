@@ -14,7 +14,6 @@
 
 .import BitMaskPow2Rev
 .import _GetScanLine
-.import _GetScanLineVera
 .import _Dabs
 
 .import LF4B7
@@ -180,7 +179,7 @@ _DrawLine:
 _DrawPoint:
 	php
 	ldx r11L
-	jsr _GetScanLineVera
+	jsr _GetScanLine
 	AddW r3, r5
 	plp
 	bmi @3
@@ -244,7 +243,7 @@ _DrawPoint:
 ;---------------------------------------------------------------
 _TestPoint:
 	ldx r11L
-	jsr _GetScanLineVera
+	jsr _GetScanLine
 	AddW r3, r5
 	lda r5L
 	sta veralo

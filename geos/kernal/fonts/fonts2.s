@@ -18,7 +18,7 @@
 .import BitMaskLeadingClear
 .import BitMaskLeadingSet
 .import GetChWdth1
-.import _GetScanLineVera
+.import _GetScanLine
 .import FntIndirectJMP
 .import b0, b1, b2, b3, b4, b5, b6, b7
 .import c0, c1, c2, c3, c4, c5, c6, c7
@@ -312,7 +312,7 @@ Font_tabH:
 
 Font_2:
 	ldx r1H
-	jsr _GetScanLineVera
+	jsr _GetScanLine
 	lda FontTVar2
 	ldx FontTVar2+1
 	bmi @2

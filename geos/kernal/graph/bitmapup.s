@@ -11,7 +11,6 @@
 .include "c64.inc"
 
 .import _GetScanLine
-.import _GetScanLineVera
 .ifdef bsw128
 .import _TempHideMouse
 ; XXX wrong bank
@@ -65,7 +64,7 @@ _BitmapUp:
 
 BitmapUpHelp:
 	ldx r1H
-	jsr _GetScanLineVera
+	jsr _GetScanLine
 	MoveB r2L, r3H
 	lda r1L
 	asl

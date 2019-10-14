@@ -15,7 +15,7 @@
 .import BitMaskPow2Rev
 .import BitMaskLeadingSet
 .import BitMaskLeadingClear
-.import _GetScanLineVera
+.import _GetScanLine
 
 .global ImprintLine
 .global _HorizontalLine
@@ -223,7 +223,7 @@ _VerticalLine:
 _VerticalLineCol:
 	pha
 	ldx r3L
-	jsr _GetScanLineVera
+	jsr _GetScanLine
 	AddW r4, r5
 
 	lda r3H
@@ -260,7 +260,7 @@ VLine1:
 
 GetLineStart:
 	ldx r11L
-	jsr _GetScanLineVera
+	jsr _GetScanLine
 	AddW r3, r5
 	MoveW r4, r6
 	SubW r3, r6
