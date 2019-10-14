@@ -17,7 +17,7 @@
 .import BitMaskLeadingClear
 .import _GetScanLine
 
-.global setup_bgptr, inc_bgptr
+.import inc_bgpage
 
 .global ImprintLine
 .global _HorizontalLine
@@ -64,11 +64,11 @@ _HorizontalLineCol: ; called by Rectangle
 	sty verahi
 	jsr HLineFG
 @1:	bbrf 6, dispBufferOn, HLine_rts ; ST_WR_BACK
-	jsr setup_bgptr
 	jmp HLineBG
 
+; foreground version
 HLineFG:
-	ldx r6H
+	ldx r7H
 	beq @2
 
 ; full blocks, 8 bytes at a time
@@ -79,7 +79,7 @@ HLineFG:
 
 ; partial block, 8 bytes at a time
 @2:	pha
-	lda r6L
+	lda r7L
 	lsr
 	lsr
 	lsr
@@ -90,7 +90,7 @@ HLineFG:
 
 ; remaining 0 to 7 bytes
 	pha
-@6:	lda r6L
+@6:	lda r7L
 	and #7
 	beq @5
 	tay
@@ -116,24 +116,31 @@ fill_y:	sta veradat
 HLine_rts:
 	rts
 
+; background version
 HLineBG:
-	ldx r6H
+	ldx r7H
 	beq @2
 
-; full blocks, 8 bytes at a time
+; full blocks, 4 bytes at a time
 	ldy #0
-@1:	sta (bgptr),y
+@1:	sta (r6),y
+	iny
+	sta (r6),y
+	iny
+	sta (r6),y
+	iny
+	sta (r6),y
 	iny
 	bne @1
-	jsr inc_bgptr
+	jsr inc_bgpage
 	dex
 	bne @1
 
 ; partial block
-@2:	ldy r6L
+@2:	ldy r7L
 	beq @4
 	dey
-@3:	sta (bgptr),y
+@3:	sta (r6),y
 	dey
 	cpy #$ff
 	bne @3
@@ -152,14 +159,14 @@ _InvertLine:
 	jsr GetLineStart
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
 	ldy #$11
-	PushW r6
+	PushW r7
 	jsr ILineFG
-	PopW r6
+	PopW r7
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
-	jsr setup_bgptr
 	jmp ILineBG
 @2:	rts
 
+; foreground version
 ILineFG:
 	lda #1
 	sta veractl
@@ -176,17 +183,17 @@ ILineFG:
 	sta veramid
 	sty verahi
 
-	ldy r6H
+	ldy r7H
 	beq @2
 
 ; full blocks, 8 bytes at a time
 	ldy #$20
 @1:	jsr invert_y
-	dec r6H
+	dec r7H
 	bne @1
 
 ; partial block, 8 bytes at a time
-@2:	lda r6L
+@2:	lda r7L
 	lsr
 	lsr
 	lsr
@@ -195,7 +202,7 @@ ILineFG:
 	jsr invert_y
 
 ; remaining 0 to 7 bytes
-@6:	lda r6L
+@6:	lda r7L
 	and #7
 	beq @4
 	tay
@@ -235,27 +242,28 @@ invert_y:
 	bne invert_y
 	rts
 
+; background version
 ILineBG:
-	ldy r6H
+	ldy r7H
 	beq @2
 
 	ldy #0
-@1:	lda (bgptr),y
+@1:	lda (r6),y
 	eor #1
-	sta (bgptr),y
+	sta (r6),y
 	iny
 	bne @1
-	jsr inc_bgptr
-	dec r6H
+	jsr inc_bgpage
+	dec r7H
 	bne @1
 
 ; partial block
-@2:	ldy r6L
+@2:	ldy r7L
 	beq @4
 	dey
-@3:	lda (bgptr),y
+@3:	lda (r6),y
 	eor #1
-	sta (bgptr),y
+	sta (r6),y
 	dey
 	cpy #$ff
 	bne @3
@@ -279,47 +287,46 @@ _RecoverLine:
 	sta veramid
 	lda #$11
 	sta verahi
-	jsr setup_bgptr
 
-	ldy r6H
+	ldy r7H
 	beq @2
 
 ; full blocks, 8 bytes at a time
 	ldy #0
-@1:	lda (bgptr),y
+@1:	lda (r6),y
 	sta veradat
 	iny
-	lda (bgptr),y
+	lda (r6),y
 	sta veradat
 	iny
-	lda (bgptr),y
+	lda (r6),y
 	sta veradat
 	iny
-	lda (bgptr),y
+	lda (r6),y
 	sta veradat
 	iny
-	lda (bgptr),y
+	lda (r6),y
 	sta veradat
 	iny
-	lda (bgptr),y
+	lda (r6),y
 	sta veradat
 	iny
-	lda (bgptr),y
+	lda (r6),y
 	sta veradat
 	iny
-	lda (bgptr),y
+	lda (r6),y
 	sta veradat
 	iny
 	bne @1
-	jsr inc_bgptr
-	dec r6H
+	jsr inc_bgpage
+	dec r7H
 	bne @1
 
 ; partial block
-@2:	ldy r6L
+@2:	ldy r7L
 	beq @4
 	dey
-@3:	lda (bgptr),y
+@3:	lda (r6),y
 	sta veradat
 	dey
 	cpy #$ff
@@ -334,48 +341,47 @@ ImprintLine:
 	sta veramid
 	lda #$11
 	sta verahi
-	jsr setup_bgptr
 
-	ldy r6H
+	ldy r7H
 	beq @2
 
 ; full blocks, 8 bytes at a time
 	ldy #0
 @1:	lda veradat
-	sta (bgptr),y
+	sta (r6),y
 	iny
 	lda veradat
-	sta (bgptr),y
+	sta (r6),y
 	iny
 	lda veradat
-	sta (bgptr),y
+	sta (r6),y
 	iny
 	lda veradat
-	sta (bgptr),y
+	sta (r6),y
 	iny
 	lda veradat
-	sta (bgptr),y
+	sta (r6),y
 	iny
 	lda veradat
-	sta (bgptr),y
+	sta (r6),y
 	iny
 	lda veradat
-	sta (bgptr),y
+	sta (r6),y
 	iny
 	lda veradat
-	sta (bgptr),y
+	sta (r6),y
 	iny
 	bne @1
-	jsr inc_bgptr
-	dec r6H
+	jsr inc_bgpage
+	dec r7H
 	bne @1
 
 ; partial block
-@2:	ldy r6L
+@2:	ldy r7L
 	beq @4
 	dey
 @3:	lda veradat
-	sta (bgptr),y
+	sta (r6),y
 	dey
 	cpy #$ff
 	bne @3
@@ -398,6 +404,7 @@ _VerticalLineCol:
 	ldx r3L
 	jsr _GetScanLine
 	AddW r4, r5
+	AddW r4, r6
 
 	lda r3H
 	sec
@@ -409,38 +416,37 @@ _VerticalLineCol:
 
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
 	phx
-	ldy #1
 	jsr VLineFG
 	plx
 	tya
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
-	ldy #0
 	jmp VLineBG
 @2:	rts
 
 VLineFG:
-	sty verahi
 	ldy r5L
 	sty veralo
 	ldy r5H
 	sty veramid
-	tay
-:	sty veradat
-	AddVW 320, veralo
+	ldy #$71    ; increment in steps of $40
+	sty verahi
+:	sta veradat
+	inc veramid ; increment hi -> add $140 = 320
 	dex
 	bne :-
 	rts
 
 VLineBG:
-	jsr setup_bgptr
-:	sta (bgptr)
-	lda bgptr
+	ldy #0
+:	sta (r6),y
+	tya
 	clc
-	adc #<320
-	sta bgptr
-	bcc :+
-	jsr inc_bgptr
-:	dex
+	adc #$40 ; <320
+	tay
+	bne :+
+	jsr inc_bgpage
+:	jsr inc_bgpage
+	dex
 	bne :-
 	rts
 
@@ -448,9 +454,11 @@ GetLineStart:
 	ldx r11L
 	jsr _GetScanLine
 	AddW r3, r5
-	MoveW r4, r6
-	SubW r3, r6
-	IncW r6
+	AddW r3, r6
+
+	MoveW r4, r7
+	SubW r3, r7
+	IncW r7
 	rts
 
 ;---------------------------------------------------------------

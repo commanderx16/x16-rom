@@ -181,6 +181,7 @@ _DrawPoint:
 	ldx r11L
 	jsr _GetScanLine
 	AddW r3, r5
+	AddW r3, r6
 	plp
 	bmi @3
 ; draw
@@ -209,8 +210,7 @@ _DrawPoint:
 	sty verahi
 	sta veradat
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
-	jsr setup_bgptr
-	sta (bgptr)
+	sta (r6)
 @2:	rts
 ; recover
 @3:	lda r5L
@@ -219,8 +219,7 @@ _DrawPoint:
 	sta veramid
 	lda #1
 	sta verahi
-	jsr setup_bgptr
-	lda (bgptr)
+	lda (r6)
 	sta veradat
 	rts
 
@@ -250,31 +249,15 @@ _TestPoint:
 @1:	sec
 	rts
 
-.global setup_bgptr, inc_bgptr
-setup_bgptr:
-	pha
-	lda r5L
-	sta bgptr
-	lda r5H
-	and #$1f
-	ora #$c0
-	sta bgptr+1
-	lda r5H
-	lsr
-	lsr
-	lsr
-	lsr
-	lsr
-	sta d1pra ; RAM bank
-	pla
-	rts
+.global inc_bgpage
 
-inc_bgptr:
-	lda bgptr+1
-	inc
+inc_bgpage:
+	inc r6H
+	lda r6H
 	cmp #$e0
-	bne :+
-	inc d1pra ; RAM bank
+	beq @1
+	rts
+@1:	inc d1pra ; RAM bank
 	lda #$c0
-:	sta bgptr+1
+	sta r6H
 	rts

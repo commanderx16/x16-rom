@@ -45,11 +45,21 @@ _GetScanLine:
 	asl
 	rol r5H
 	sta r5L
+	sta r6L
 	txa
 	clc
 	adc r5H
 	sta r5H
-	MoveW r5, r6
+	and #$1f
+	ora #$c0
+	sta r6H
+	lda r5H
+	lsr
+	lsr
+	lsr
+	lsr
+	lsr
+	sta d1pra ; RAM bank
 	rts
 
 .segment "graph2o"
