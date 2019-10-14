@@ -60,39 +60,63 @@ _HorizontalLineCol: ; called by Rectangle
 	sty veramid
 	ldy #$11
 	sty verahi
-	ldx r6H
-	phx
 	jsr HLine1
-	plx
-	stx r6H
-@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
+@1:	bbrf 6, dispBufferOn, HLine_rts ; ST_WR_BACK
 	ldy r5L
 	sty veralo
 	ldy r5H
 	sty veramid
 	ldy #$10
 	sty verahi
-	jmp HLine1
-@2:	rts
-
+;
 HLine1:
-	ldy r6H
+	ldx r6H
 	beq @2
-	ldy #0
-@1:	sta veradat
-	dey
+
+; full blocks, 8 bytes at a time
+	ldy #$20
+@1:	jsr fill_y
+	dex
 	bne @1
-	dec r6H
-	bne @1
-@2:	ldy r6L
-	beq @4
-	dey
+
+; partial block, 8 bytes at a time
+@2:	pha
+	lda r6L
+	lsr
+	lsr
+	lsr
+	beq @6
+	tay
+	pla
+	jsr fill_y
+
+; remaining 0 to 7 bytes
+	pha
+@6:	lda r6L
+	and #7
+	beq @5
+	tay
+	pla
 @3:	sta veradat
 	dey
-	cpy #$ff
 	bne @3
 @4:	rts
 
+@5:	pla
+	rts
+
+fill_y:	sta veradat
+	sta veradat
+	sta veradat
+	sta veradat
+	sta veradat
+	sta veradat
+	sta veradat
+	sta veradat
+	dey
+	bne fill_y
+HLine_rts:
+	rts
 
 ;---------------------------------------------------------------
 ; InvertLine                                              $C11B
@@ -133,31 +157,61 @@ ILine1:
 
 	ldy r6H
 	beq @2
-	ldy #0
-@1:	lda veradat
-	eor #1
-	sta veradat2
-	dey
-	bne @1
+
+	ldy #$20
+@1:	jsr invert_y
 	dec r6H
 	bne @1
-@2:	ldy r6L
+
+; partial block, 8 bytes at a time
+@2:	lda r6L
+	lsr
+	lsr
+	lsr
+	beq @6
+	tay
+	jsr invert_y
+
+; remaining 0 to 7 bytes
+@6:	lda r6L
+	and #7
 	beq @4
-	dey
+	tay
 @3:	lda veradat
 	eor #1
 	sta veradat2
 	dey
-	cpy #$ff
 	bne @3
 @4:	rts
 
-
-ImprintLine:
-	jsr GetLineStart
-	ldx #$11
-	ldy #$10
-	jmp RLine1
+invert_y:
+	lda veradat
+	eor #1
+	sta veradat2
+	lda veradat
+	eor #1
+	sta veradat2
+	lda veradat
+	eor #1
+	sta veradat2
+	lda veradat
+	eor #1
+	sta veradat2
+	lda veradat
+	eor #1
+	sta veradat2
+	lda veradat
+	eor #1
+	sta veradat2
+	lda veradat
+	eor #1
+	sta veradat2
+	lda veradat
+	eor #1
+	sta veradat2
+	dey
+	bne invert_y
+	rts
 
 ;---------------------------------------------------------------
 ; RecoverLine                                             $C11E
@@ -191,22 +245,58 @@ RLine1:
 
 	ldy r6H
 	beq @2
-	ldy #0
-@1:	lda veradat
-	sta veradat2
-	dey
-	bne @1
+
+	ldy #$20
+@1:	jsr copy_y
 	dec r6H
 	bne @1
-@2:	ldy r6L
+
+; partial block, 8 bytes at a time
+@2:	lda r6L
+	lsr
+	lsr
+	lsr
+	beq @6
+	tay
+	jsr copy_y
+
+; remaining 0 to 7 bytes
+@6:	lda r6L
+	and #7
 	beq @4
-	dey
+	tay
 @3:	lda veradat
 	sta veradat2
 	dey
-	cpy #$ff
 	bne @3
 @4:	rts
+
+copy_y:
+	lda veradat
+	sta veradat2
+	lda veradat
+	sta veradat2
+	lda veradat
+	sta veradat2
+	lda veradat
+	sta veradat2
+	lda veradat
+	sta veradat2
+	lda veradat
+	sta veradat2
+	lda veradat
+	sta veradat2
+	lda veradat
+	sta veradat2
+	dey
+	bne copy_y
+	rts
+
+ImprintLine:
+	jsr GetLineStart
+	ldx #$11
+	ldy #$10
+	jmp RLine1
 
 ;---------------------------------------------------------------
 ; VerticalLine                                            $C121
