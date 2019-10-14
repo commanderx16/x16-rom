@@ -248,16 +248,3 @@ _TestPoint:
 	rts
 @1:	sec
 	rts
-
-.global inc_bgpage
-
-inc_bgpage:
-	inc r6H
-	lda r6H
-	cmp #$e0
-	beq @1
-	rts
-@1:	inc d1pra ; RAM bank
-	lda #$c0
-	sta r6H
-	rts

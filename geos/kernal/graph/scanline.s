@@ -51,7 +51,7 @@ _GetScanLine:
 	adc r5H
 	sta r5H
 	and #$1f
-	ora #$c0
+	ora #$a0
 	sta r6H
 	lda r5H
 	lsr
@@ -60,6 +60,22 @@ _GetScanLine:
 	lsr
 	lsr
 	sta d1pra ; RAM bank
+	rts
+
+.global inc_bgpage
+
+inc_bgpage:
+	pha
+	inc r6H
+	lda r6H
+	cmp #$c0
+	beq @1
+	pla
+	rts
+@1:	inc d1pra ; RAM bank
+	lda #$a0
+	sta r6H
+	pla
 	rts
 
 .segment "graph2o"
