@@ -872,7 +872,11 @@ Draw8PixelsInv:
 	ldy col2 ; bg: secondary color
 ; opaque drawing with fg color (x) and bg color (y)
 Draw8PixelsOpaque:
-	nop
+	pha
+	lda verahi
+	and #$0f
+	sta verahi
+	pla
 .ifdef vera640
 tmp640=$7f
 @4:	asl
@@ -895,10 +899,12 @@ tmp640=$7f
 	pla
 @x:	cmp #0
 	bne @4b
-	plx
+@end:	plx
 	rts
 
 @1x:	asl r4L
+	bra @x
+
 @4b:	asl
 	bcc @1b
 	asl r4L
