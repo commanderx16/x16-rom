@@ -67,7 +67,9 @@ BitmapUpHelp:
 	jsr _GetScanLine
 	MoveB r2L, r3H
 	lda r1L
+.ifndef vera640
 	asl
+.endif
 	asl
 	asl
 	php
@@ -85,6 +87,26 @@ BitmapUpHelp:
 	sta verahi
 @2:	jsr BitmapDecode
 	eor #$ff
+.ifdef vera640
+	ldx #4
+:	asl
+	tay
+	lda #0
+	rol
+	asl
+	asl
+	asl
+	pha
+	tya
+	asl
+	tay
+	pla
+	rol
+	sta veradat
+	tya
+	dex
+	bne :-
+.else
 	ldx #8
 :	asl
 	tay
@@ -94,6 +116,7 @@ BitmapUpHelp:
 	tya
 	dex
 	bne :-
+.endif
 	dec r3H
 	bne @2
 	rts
