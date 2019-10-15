@@ -3,9 +3,10 @@
 ;
 ; Graphics library: line functions
 
-odd_start=0
-odd_end=1
-tmp640=2
+odd_left=$7f
+odd_right=$7e
+tmp640=$7d
+tmp640b=$7c
 
 .setcpu "65c02"
 
@@ -129,7 +130,7 @@ HLineFG640:
 	tax
 	PushW r7
 ; first pixel if odd
-	bit odd_start
+	bit odd_left
 	bpl :+
 	lda verahi
 	and #$0f ; disable auto-increment
@@ -151,7 +152,7 @@ HLineFG640:
 	ror r7L
 	lda #0
 	ror
-	sta odd_end
+	sta odd_right
 
 ; put color into lo and hi nybble
 	txa
@@ -181,7 +182,7 @@ HLineFG640:
 @4:	PopW r7
 
 ; last pixel if odd
-	bit odd_end
+	bit odd_right
 	bpl :+
 	asl
 	asl
@@ -496,7 +497,11 @@ _VerticalLineCol:
 
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
 	phx
+.ifdef vera640
+	jsr VLineFG640
+.else
 	jsr VLineFG
+.endif
 	plx
 	tya
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
@@ -514,6 +519,33 @@ VLineFG:
 	inc veramid ; increment hi -> add $140 = 320
 	dex
 	bne :-
+	rts
+
+VLineFG640:
+	and #$0f
+	sta tmp640
+	lda #$f0
+	sta tmp640b
+
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	lda #$00
+	sta verahi
+@2:	lda veradat
+	and tmp640b
+	ora tmp640
+	lda #$23
+	sta veradat
+	lda veralo
+	clc
+	adc #<320
+	sta veralo
+	bcc @1
+	inc veramid
+@1:	dex
+	bne @2
 	rts
 
 VLineBG:
@@ -538,9 +570,9 @@ GetLineStart:
 	lsr r7L
 	ror r7L
 
-	lda #0 
+	lda #0
 	ror
-	sta odd_start
+	sta odd_left
 
 	AddW r7, r5
 	AddW r7, r6
