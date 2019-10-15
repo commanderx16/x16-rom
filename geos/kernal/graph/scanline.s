@@ -45,16 +45,63 @@ _GetScanLine:
 	asl
 	rol r5H
 	sta r5L
-	sta r6L
 	txa
 	clc
 	adc r5H
 	sta r5H
+
+	cpx #25
+	bcc @1
+	inx
+	cpx #51
+	bcc @1
+	inx
+	cpx #76
+	bcc @1
+	inx
+	cpx #102
+	bcc @1
+	inx
+	cpx #128
+	bcc @1
+	inx
+	cpx #153
+	bcc @1
+	inx
+	cpx #179
+	bcc @1
+	inx
+	cpx #204
+	bcc @1
+	inx
+@1:
+	stz r6H
+	txa
+	asl
+	rol r6H
+	asl
+	rol r6H
+	asl
+	rol r6H
+	asl
+	rol r6H
+	asl
+	rol r6H
+	asl
+	rol r6H
+	sta r6L
+	txa
+	clc
+	adc r6H
+	sta r6H
+
+	lda r6H
+	pha
 	and #$1f
 	ora #$a0
 	sta r6H
-	lda r5H
-	lsr
+	pla
+	ror ; carry from addition above for > 64 KB
 	lsr
 	lsr
 	lsr
