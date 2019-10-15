@@ -240,3 +240,20 @@ disk_done
 	lda #LOGADD
 	sec
 	jmp close
+
+;***************
+fnBank
+	lda membank
+	sta poker
+	jsr chrget
+	jsr chkopn ; open paren
+	jsr chrgot
+	cmp #')'
+	beq :+
+	
+	jsr getbyt ; byte: bank
+	stx membank
+
+:	jsr chkcls ; closing paren
+	ldy poker
+	jmp sngflt

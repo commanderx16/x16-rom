@@ -12,6 +12,9 @@ strsiz	=3
 .segment "ZPBASIC" : zeropage
 
 .segment "BVARS"
+
+membank	.res 1           ;memory bank used by BANK(),PEEK(),POKE(),SYS()
+
 ;                      C64 location
 ;                         VVV
 charac	.res 1           ;$07 a delimiting character
@@ -230,4 +233,3 @@ sxreg	.res 1           ;$030D .x reg
 syreg	.res 1           ;$030E .y reg
 spreg	.res 1           ;$030F .p reg
 usrpok	.res 3           ;$0310 user function dispatch
-

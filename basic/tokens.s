@@ -1,7 +1,11 @@
+	.include "macros.inc"
+
 	.segment "BASIC"
 	jmp init         ;hard reset
 	jmp panic        ;soft reset
+
 	.byt "CBMBASIC"
+
 stmdsp	.word end-1
 	.word for-1
 	.word next-1
@@ -98,49 +102,50 @@ stmdsp2	; statements
 	.word char-1
 	; functions
 	.word vpeek
+	.word fnBank
 ;**************************************
 
-reslst	.byt "EN",$c4
+reslst	tokString "END"
 endtk	=$80
-	.byt "FO",$d2
+	tokString "FOR"
 fortk	=$81
-	.byt "NEX",$d4
-	.byt "DAT",$c1
+	tokString "NEXT"
+	tokString "DATA"
 datatk	=$83
-	.byt "INPUT",$a3
-	.byt "INPU",$d4
-	.byt "DI",$cd
-	.byt "REA",$c4
-	.byt "LE",$d4
-	.byt "GOT",$cf
+	tokString "INPUT#"
+	tokString "INPUT"
+	tokString "DIM"
+	tokString "READ"
+	tokString "LET"
+	tokString "GOTO"
 gototk	=$89
-	.byt "RU",$ce
-	.byt "I",$c6
-	.byt "RESTOR",$c5
-	.byt "GOSU",$c2
+	tokString "RUN"
+	tokString "IF"
+	tokString "RESTORE"
+	tokString "GOSUB"
 gosutk	=$8d
-	.byt "RETUR",$ce
-	.byt "RE",$cd
+	tokString "RETURN"
+	tokString "REM"
 remtk	=$8f
-	.byt "STO",$d0
-	.byt "O",$ce
-	.byt "WAI",$d4
-	.byt "LOA",$c4
-	.byt "SAV",$c5
-	.byt "VERIF",$d9
-	.byt "DE",$c6
-	.byt "POK",$c5
-	.byt "PRINT",$a3
-	.byt "PRIN",$d4
+	tokString "STOP"
+	tokString "ON"
+	tokString "WAIT"
+	tokString "LOAD"
+	tokString "SAVE"
+	tokString "VERIFY"
+	tokString "DEF"
+	tokString "POKE"
+	tokString "PRINT#"
+	tokString "PRINT"
 printk	=$99
-	.byt "CON",$d4
-	.byt "LIS",$d4
-	.byt "CL",$d2
-	.byt "CM",$c4
-	.byt "SY",$d3
-	.byt "OPE",$ce
-	.byt "CLOS",$c5
-	.byt "GE",$d4
-	.byt "NE",$d7
+	tokString "CONT"
+	tokString "LIST"
+	tokString "CLR"
+	tokString "CMD"
+	tokString "SYS"
+	tokString "OPEN"
+	tokString "CLOSE"
+	tokString "GET"
+	tokString "NEW"
 scratk	=$a2
 

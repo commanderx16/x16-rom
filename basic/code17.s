@@ -54,48 +54,43 @@ getadr	lda facsgn
 	sta poker+1
 	rts
 
+;
 .import fetvec, fetch
-peek	lda poker+1
+peek
+	lda poker+1
 	pha
 	lda poker
 	pha
-
 	jsr getadr
-
-	jsr chrgot
-	ldx #BANK_KERNAL
-	cmp #','	; check if it's PEEK(bank, addr)
-	bne :+
-
-	ldx poker
-	phx
-	jsr chrget
-	jsr frmadr
-	plx
-
-:	ldy #0
+	ldy #0
 	lda poker+1
-	cmp #$c0
+	cmp #$A0	;main:$00-9F bankRAM:$A0-$BF bankROM:$C0-$FF
 	bcs peek1
-	lda (poker),y   ;RAM
-	jmp peek2
+	lda (poker),y   ;MAIN RAM
+	bra peek2
+
 peek1	lda #poker
 	sta fetvec
-	jsr fetch       ;ROM
-peek2	sta poker
-	jsr chkcls
-	ldy poker
+	ldx membank
+	jsr fetch       ;BANKED RAM & ROM
+
+peek2	tay
 dosgfl	pla
 	sta poker
 	pla
 	sta poker+1
 	jmp sngflt
 
-poke	jsr getnum
+;
+.import stavec, stash
+poke
+	jsr getnum
 	txa
-	ldy #0
-	sta (poker),y
-	rts
+	ldx #poker
+	stx stavec
+	ldx membank
+	jmp stash
+
 fnwait	jsr getnum
 	stx andmsk
 	ldx #0

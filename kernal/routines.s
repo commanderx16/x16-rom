@@ -1,5 +1,5 @@
 .export jsrfar, banked_irq
-.export fetvec, fetch
+.export fetvec, fetch, stavec, stash
 
 	.segment "ROUTINES"
 

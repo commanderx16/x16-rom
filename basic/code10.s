@@ -116,29 +116,19 @@ nesct3
 	jsr frmevl
 	jsr chkcom
 	jsr chkstr
-	pla
-	tax
+	plx
 	lda facmo+1
 	pha
 	lda facmo
 	pha
-	txa
-	pha
+	phx
 	jsr getbyt
-	pla
-	tay
-	txa
-	pha
-	bra fingo
-;
-; add a special case for PEEK to allow PEEK(addr) and PEEK(bank, addr)
-;
-oknorm	jsr chkopn
-	jsr frmevl
 	ply
-	cpy #fnpeek*2 & $FF
-	beq fingo
-	jsr chkcls
+	phx
+	bra fingo
+
+oknorm	jsr parchk
+	ply
 fingo	lda fundsp-onefun-onefun+256,y
 	sta jmper+1
 	lda fundsp-onefun-onefun+257,y
