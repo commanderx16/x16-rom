@@ -3,11 +3,6 @@
 ;
 ; Graphics library: line functions
 
-odd_left=$7f
-odd_right=$7e
-tmp640=$7d
-tmp640b=$7c
-
 .setcpu "65c02"
 
 .include "const.inc"
@@ -567,7 +562,7 @@ GetLineStart:
 	jsr _GetScanLine
 .ifdef vera640
 	MoveW r3, r7
-	lsr r7L
+	lsr r7H
 	ror r7L
 
 	lda #0

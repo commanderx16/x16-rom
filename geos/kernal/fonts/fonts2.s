@@ -332,6 +332,11 @@ Font_2:
 	tax
 	lda r4L
 	ror
+	pha
+	lda #0
+	ror
+	sta odd_left
+	pla
 .endif
 	clc
 	adc r5L
@@ -872,13 +877,14 @@ Draw8PixelsInv:
 	ldy col2 ; bg: secondary color
 ; opaque drawing with fg color (x) and bg color (y)
 Draw8PixelsOpaque:
+.ifdef vera640
 	pha
 	lda verahi
-	and #$0f
+	and #$0f ; disable auto-increment
 	sta verahi
 	pla
-.ifdef vera640
-tmp640=$7f
+	bit odd_left
+	bmi @4b
 @4:	asl
 	bcc @1x
 	asl r4L
