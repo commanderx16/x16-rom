@@ -80,10 +80,18 @@ geos_init_vera:
 	sta veramid
 	lda #$1F
 	sta verahi
+.ifdef vera640
+	lda #6 << 5 | 1; 16c bitmap
+	sta veradat
+	lda #1 << 4
+	sta veradat; tile_w=640px
+	lda #0
+.else
 	lda #7 << 5 | 1; 256c bitmap
 	sta veradat
 	lda #0
 	sta veradat; tile_w=320px
+.endif
 	sta veradat; map_base_lo: ignore
 	sta veradat; map_base_hi: ignore
 	lda #<(tile_base >> 2)
@@ -157,7 +165,11 @@ vstart  =0
 vstop   =400
 tvera_composer:
 	.byte 7 << 5 | 1  ;256c bitmap, VGA
+.ifdef vera640
+	.byte 128, 128      ;hscale, vscale
+.else
 	.byte 64, 64      ;hscale, vscale
+.endif
 	.byte 0           ;border color
 	.byte <hstart
 	.byte <hstop

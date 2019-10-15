@@ -3,6 +3,8 @@
 
 .include "config.inc"
 
+vera640 = 1
+
 z8b             =       $8b
 z8c             =       $8c
 z8d             =       $8d
