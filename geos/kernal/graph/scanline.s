@@ -50,6 +50,12 @@ _GetScanLine:
 	adc r5H
 	sta r5H
 
+; For BG storage, we have to work with 8 KB banks.
+; Lines are 320 bytes, and 8 KB is not divisible by 320,
+; so the base address of certain lines would be so close
+; to the top of a bank that lda (r6),y shoots over the
+; end. Therefore, we need to add memory gaps at certain
+; lines to jump over the bank boundaries.
 	cpx #25
 	bcc @1
 	inx
@@ -101,7 +107,8 @@ _GetScanLine:
 	ora #$a0
 	sta r6H
 	pla
-	ror ; carry from addition above for > 64 KB
+	ror ; insert the carry from addition above, since the BG
+	    ; data exceeds 64 KB because of the added gaps
 	lsr
 	lsr
 	lsr
