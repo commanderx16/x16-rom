@@ -325,6 +325,19 @@ Font_2:
 @3:	pha
 	and #%11111000
 	sta r4L
+
+.ifdef vera640
+	txa
+	lsr
+	tax
+	lda r4L
+	ror
+	pha
+	lda #0
+	ror
+	sta odd_left
+	pla
+.endif
 	clc
 	adc r5L
 	sta r5L
@@ -840,30 +853,6 @@ Draw8Pixels:
 	inc veramid
 @2:	bra @3
 
-; inverted/underlined (color mode)
-Draw8PixelsInv:
-	phx
-	ldx col1 ; fg: primary color
-	ldy col2 ; bg: secondary color
-; opaque drawing with fg color (x) and bg color (y)
-Draw8PixelsOpaque:
-@4:	asl
-	bcc @1
-	asl r4L
-	bcc @5
-	stx veradat
-	bra @3
-@5:	sty veradat
-@3:	cmp #0
-	bne @4
-	plx
-	rts
-@1:	asl r4L
-	inc veralo
-	bne @3
-	inc veramid
-@2:	bra @3
-
 Draw8PixelsCompat:
 	bit r10L   ; inverted/underlined?
 	bmi Draw8PixelsCompatInv
@@ -880,3 +869,90 @@ Draw8PixelsCompatInv:
 	ldx #0  ; fg: black
 	ldy #15 ; bg: light gray
 	bra Draw8PixelsOpaque
+
+; inverted/underlined (color mode)
+Draw8PixelsInv:
+	phx
+	ldx col1 ; fg: primary color
+	ldy col2 ; bg: secondary color
+; opaque drawing with fg color (x) and bg color (y)
+Draw8PixelsOpaque:
+.ifdef vera640
+	pha
+	lda verahi
+	and #$0f ; disable auto-increment
+	sta verahi
+	pla
+	bit odd_left
+	bmi @4b
+@4:	asl
+	bcc @1x
+	asl r4L
+	pha
+	bcc @5
+	txa
+	bra @3
+@5:	tya
+@3:	asl
+	asl
+	asl
+	asl
+	sta tmp640
+	lda veradat
+	and #$0f
+	ora tmp640
+	sta veradat
+	pla
+@x:	cmp #0
+	bne @4b
+@end:	plx
+	rts
+
+@1x:	asl r4L
+	bra @x
+
+@4b:	asl
+	bcc @1b
+	asl r4L
+	pha
+	bcc @5b
+	txa
+	bra @3b
+@5b:	tya
+@3b:	and #$0f
+	sta tmp640
+	lda veradat
+	and #$f0
+	ora tmp640
+	sta veradat
+	pla
+@1c:	inc veralo
+	bne :+
+	inc veramid
+:	cmp #0
+	bne @4
+	plx
+	rts
+
+; skip
+@1b:	asl r4L
+	bra @1c
+
+.else
+@4:	asl
+	bcc @1
+	asl r4L
+	bcc @5
+	stx veradat
+	bra @3
+@5:	sty veradat
+@3:	cmp #0
+	bne @4
+	plx
+	rts
+@1:	asl r4L
+	inc veralo
+	bne @3
+	inc veramid
+@2:	bra @3
+.endif

@@ -62,7 +62,11 @@ _HorizontalLineCol: ; called by Rectangle
 	sty veramid
 	ldy #$11
 	sty verahi
+.ifdef vera640
+	jsr HLineFG640
+.else
 	jsr HLineFG
+.endif
 @1:	bbrf 6, dispBufferOn, HLine_rts ; ST_WR_BACK
 	jmp HLineBG
 
@@ -115,6 +119,78 @@ fill_y:	sta veradat
 	bne fill_y
 HLine_rts:
 	rts
+
+; foreground version, 640@16c
+HLineFG640:
+	tax
+	PushW r7
+; first pixel if odd
+	bit odd_left
+	bpl :+
+	lda verahi
+	and #$0f ; disable auto-increment
+	sta verahi
+	txa
+	and #$0f
+	sta tmp640
+	lda veradat
+	and #$f0
+	ora tmp640
+	sta veradat
+	lda verahi
+	ora #$10 ; enable auto-increment
+	sta verahi
+:
+
+; bytes = pixels / 2
+	lsr r7H
+	ror r7L
+	lda #0
+	ror
+	sta odd_right
+
+; put color into lo and hi nybble
+	txa
+	and #$0f
+	sta tmp640
+	asl
+	asl
+	asl
+	asl
+	ora tmp640
+
+	ldx r7H
+	beq @2
+
+; full blocks, 8 bytes at a time
+	ldy #$20
+@1:	jsr fill_y
+	dex
+	bne @1
+
+; partial block
+@2:	ldy r7L
+	beq @4
+@3:	sta veradat
+	dey
+	bne @3
+@4:	PopW r7
+
+; last pixel if odd
+	bit odd_right
+	bpl :+
+	asl
+	asl
+	asl
+	asl
+	sta tmp640
+	lda veradat
+	and #$0f
+	ora tmp640
+	sta veradat
+
+:	rts
+
 
 ; background version
 HLineBG:
@@ -414,7 +490,11 @@ _VerticalLineCol:
 
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
 	phx
+.ifdef vera640
+	jsr VLineFG640
+.else
 	jsr VLineFG
+.endif
 	plx
 	tya
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
@@ -434,6 +514,33 @@ VLineFG:
 	bne :-
 	rts
 
+VLineFG640:
+	and #$0f
+	sta tmp640
+	lda #$f0
+	sta tmp640b
+
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	lda #$00
+	sta verahi
+@2:	lda veradat
+	and tmp640b
+	ora tmp640
+	lda #$23
+	sta veradat
+	lda veralo
+	clc
+	adc #<320
+	sta veralo
+	bcc @1
+	inc veramid
+@1:	dex
+	bne @2
+	rts
+
 VLineBG:
 	ldy #0
 :	sta (r6),y
@@ -451,8 +558,21 @@ VLineBG:
 GetLineStart:
 	ldx r11L
 	jsr _GetScanLine
+.ifdef vera640
+	MoveW r3, r7
+	lsr r7H
+	ror r7L
+
+	lda #0
+	ror
+	sta odd_left
+
+	AddW r7, r5
+	AddW r7, r6
+.else
 	AddW r3, r5
 	AddW r3, r6
+.endif
 
 	MoveW r4, r7
 	SubW r3, r7

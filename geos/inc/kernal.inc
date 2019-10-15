@@ -3,6 +3,14 @@
 
 .include "config.inc"
 
+vera640 = 1
+;
+odd_left=$7f
+odd_right=$7e
+tmp640=$7d
+tmp640b=$7c
+
+
 z8b             =       $8b
 z8c             =       $8c
 z8d             =       $8d
