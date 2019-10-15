@@ -46,7 +46,29 @@ setmsg	=$ff90
 
 plot	=$fff0
 
-csys	jsr frmadr      ;get int. addr
+csave	jsr plsv        ;parse parms
+	bcs nsnerr6
+	jmp snerr6      ;disallow bank/address parms
+nsnerr6	ldx vartab      ;end save addr
+	ldy vartab+1
+	lda #<txttab    ;indirect with start address
+	jsr $ffd8       ;save it
+	bcs erexit
+	rts
+
+;
+.import far_jumper, fjmpaddr, fjmpbank
+csys
+	.byt $ff
+	jsr frmadr      ;get int. addr
+
+	lda poker
+	sta fjmpaddr
+	lda poker+1
+	sta fjmpaddr+1
+	lda membank
+	sta fjmpbank
+
 	lda #>csysrz    ;push return address
 	pha
 	lda #<csysrz
@@ -57,7 +79,9 @@ csys	jsr frmadr      ;get int. addr
 	ldx sxreg
 	ldy syreg
 	plp             ;load 6502 status reg
-	jmp (linnum)    ;go do it
+;	jmp (linnum)    ;go do it
+	jmp far_jumper
+
 csysrz	=*-1            ;return to here
 	php             ;save status reg
 	sta sareg       ;save 6502 regs
@@ -67,15 +91,6 @@ csysrz	=*-1            ;return to here
 	sta spreg
 	rts             ;return to system
 
-csave	jsr plsv        ;parse parms
-	bcs nsnerr6
-	jmp snerr6      ;disallow bank/address parms
-nsnerr6	ldx vartab      ;end save addr
-	ldy vartab+1
-	lda #<txttab    ;indirect with start address
-	jsr $ffd8       ;save it
-	bcs erexit
-	rts
 
 cverf	lda #1          ;verify flag
 	.byt $2c        ;skip two bytes

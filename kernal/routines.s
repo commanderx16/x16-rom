@@ -1,5 +1,6 @@
 .export jsrfar, banked_irq
 .export fetvec, fetch, stavec, stash
+.export far_jumper, fjmpaddr, fjmpbank
 
 	.segment "ROUTINES"
 
@@ -356,10 +357,17 @@ banked_irq
 	pla
 	rti
 
+far_jumper:
+	jsr jsrfar
+fjmpaddr	
+	.word 0
+fjmpbank	
+	.byte 0
+	rts
 
 	; this should not live in the vector area, but it's ok for now
 restore_basic:
-	jsr jsrfar
-	.word $c000 + 3
-	.byte BANK_BASIC
+;	jsr jsrfar
+;	.word $c000 + 3
+;	.byte BANK_BASIC
 	;not reached
