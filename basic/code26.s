@@ -59,7 +59,6 @@ nsnerr6	ldx vartab      ;end save addr
 ;
 .import far_jumper, fjmpaddr, fjmpbank
 csys
-	.byt $ff
 	jsr frmadr      ;get int. addr
 
 	lda #>csysrz    ;push return address
