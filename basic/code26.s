@@ -62,25 +62,35 @@ csys
 	.byt $ff
 	jsr frmadr      ;get int. addr
 
-	lda poker
-	sta fjmpaddr
-	lda poker+1
-	sta fjmpaddr+1
-	lda membank
-	sta fjmpbank
-
 	lda #>csysrz    ;push return address
 	pha
 	lda #<csysrz
 	pha
 	lda spreg       ;status reg
 	pha
+
+	lda poker+1
+	cmp #$A0
+	bcc shortjump
+
+	sta fjmpaddr+1
+	lda poker
+	sta fjmpaddr
+	lda membank
+	sta fjmpbank
+
 	lda sareg       ;load 6502 regs
 	ldx sxreg
 	ldy syreg
 	plp             ;load 6502 status reg
-;	jmp (linnum)    ;go do it
 	jmp far_jumper
+
+shortjump
+	lda sareg       ;load 6502 regs
+	ldx sxreg
+	ldy syreg
+	plp             ;load 6502 status reg
+	jmp (linnum)    ;go do it
 
 csysrz	=*-1            ;return to here
 	php             ;save status reg

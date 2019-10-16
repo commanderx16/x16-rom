@@ -47,12 +47,11 @@ vectse
 
 ; ramtas - memory size check and set
 ;
-ramtas	lda #0          ;zero low memory
-	tay
-ramtz0	sta $0000,y     ;zero page
-	sta $0200,y     ;user buffers and vars
-	sta $0300,y     ;system space and user space
-	iny
+ramtas	ldx #0          ;zero low memory
+ramtz0	stz $0000,x     ;zero page
+	stz $0200,x     ;user buffers and vars
+	stz $0300,x     ;system space and user space
+	inx
 	bne ramtz0
 ;
 ; set top of memory
@@ -69,13 +68,48 @@ ramtz0	sta $0000,y     ;zero page
 ; copy banking code into RAM
 ;
 .import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
-.assert __KERNRAM_SIZE__ < $0100, error, "KERNRAM size overflows one page"
-	ldx #<__KERNRAM_SIZE__
-ramtz1	lda __KERNRAM_LOAD__-1,x
-	sta __KERNRAM_RUN__-1,x
-	dex
-	bne ramtz1
+; .assert __KERNRAM_SIZE__ < $0100, error, "KERNRAM size overflows one page"
+; 	ldx #<__KERNRAM_SIZE__
+; ramtz1	lda __KERNRAM_LOAD__-1,x
+; 	sta __KERNRAM_RUN__-1,x
+; 	dex
+; 	bne ramtz1
 
+	lda #<__KERNRAM_LOAD__
+	sta $00
+	lda #>__KERNRAM_LOAD__
+	sta $01
+	lda #<__KERNRAM_RUN__
+	sta $02
+	lda #>__KERNRAM_RUN__
+	sta $03
+	lda #<(__KERNRAM_SIZE__+1)
+	sta $04
+	lda #>(__KERNRAM_SIZE__+1)
+	sta $05
+move:
+	lda ($00)
+	sta ($02)
+
+	inc $00
+	bne :+
+	inc $01
+:
+	inc $02
+	bne :+
+	inc $03
+:
+	dec $04
+	bne move
+	dec $04
+	dec $05
+	bpl move
+
+; cleanup
+	ldx #5
+:	stz $00,x
+	dex
+	bpl :-
 ;
 ; detect number of RAM banks
 ;
@@ -114,7 +148,7 @@ ioinit
 	lda #$ff
 	sta d1ddra
 	sta d1ddrb
-	lda #0
+	ina
 	sta d1pra ; RAM bank
 ;
 ;jsr clkhi ;clkhi to release serial devices  ^

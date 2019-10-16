@@ -367,7 +367,7 @@ fjmpbank
 
 	; this should not live in the vector area, but it's ok for now
 restore_basic:
-;	jsr jsrfar
-;	.word $c000 + 3
-;	.byte BANK_BASIC
+	jsr jsrfar
+	.word $c000 + 3
+	.byte BANK_BASIC
 	;not reached
