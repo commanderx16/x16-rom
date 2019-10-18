@@ -378,7 +378,7 @@ add_to_buf:
 	ldx #$7f
 	.byte $2c
 add1:	ldx #$ff
-	stx $91
+	stx stkey
 	ldx ndx ; length of keyboard buffer
 	cpx #10
 	bcs add2 ; full, ignore
