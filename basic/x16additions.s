@@ -8,6 +8,9 @@ veractl =verareg+5
 veraien =verareg+6
 veraisr =verareg+7
 
+; XXX from KERNAL
+.import status, fnlen, la, sa, fa
+
 cint   = $ff81
 ioinit = $ff84
 ramtas = $ff87
@@ -47,11 +50,6 @@ udtim  = $ffea
 screen = $ffed
 ;plot   = $fff0
 iobase = $fff3
-st = $90
-fnlen = $b7
-la = $b8
-sa = $b9
-fa = $ba
 
 ;***************
 monitor	jmp $fff6
@@ -148,7 +146,7 @@ listen_cmd:
 	jsr listen
 	lda #$6f
 	jsr second
-	lda st
+	lda status
 	bmi :+
 	rts
 device_not_present:
@@ -205,17 +203,17 @@ disk_dir
 
 @d20
 @d25	jsr basin
-	lda st
+	lda status
 	bne disk_done   ;...branch if error
 	dey
 	bne @d25        ;...loop until done
 
 	jsr basin       ;get # blocks low
-	ldy st
+	ldy status
 	bne disk_done   ;...branch if error
 	tax
 	jsr basin       ;get # blocks high
-	ldy st
+	ldy status
 	bne disk_done   ;...branch if error
 	jsr linprt      ;print # blocks
 
@@ -224,7 +222,7 @@ disk_dir
 
 @d30	jsr basin       ;read & print filename & filetype
 	beq @d40        ;...branch if eol
-	ldx st
+	ldx status
 	bne disk_done   ;...branch if error
 	jsr bsout
 	bcc @d30        ;...loop always
