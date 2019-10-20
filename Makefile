@@ -130,6 +130,7 @@ GEOS_SOURCES= \
 	geos/kernal/graph/bitmapclip.s \
 	geos/kernal/graph/bitmapup.s \
 	geos/kernal/graph/line.s \
+	geos/kernal/graph/line640.s \
 	geos/kernal/graph/point.s \
 	geos/kernal/graph/rect.s \
 	geos/kernal/graph/scanline.s \

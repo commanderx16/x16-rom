@@ -17,6 +17,10 @@
 .import BitMaskLeadingClear
 .import _GetScanLine
 
+.ifdef vera640
+.import VLineFG640, ILineFG640, HLineFG640
+.endif
+
 .import inc_bgpage
 
 .global ImprintLine
@@ -27,6 +31,8 @@
 .global _VerticalLine
 .global _VerticalLineCol
 .global GetColor
+
+.global fill_y
 
 .segment "graph2a"
 
@@ -119,78 +125,6 @@ fill_y:	sta veradat
 	bne fill_y
 HLine_rts:
 	rts
-
-; foreground version, 640@16c
-HLineFG640:
-	tax
-	PushW r7
-; first pixel if odd
-	bit odd_left
-	bpl :+
-	lda verahi
-	and #$0f ; disable auto-increment
-	sta verahi
-	txa
-	and #$0f
-	sta tmp640
-	lda veradat
-	and #$f0
-	ora tmp640
-	sta veradat
-	lda verahi
-	ora #$10 ; enable auto-increment
-	sta verahi
-:
-
-; bytes = pixels / 2
-	lsr r7H
-	ror r7L
-	lda #0
-	ror
-	sta odd_right
-
-; put color into lo and hi nybble
-	txa
-	and #$0f
-	sta tmp640
-	asl
-	asl
-	asl
-	asl
-	ora tmp640
-
-	ldx r7H
-	beq @2
-
-; full blocks, 8 bytes at a time
-	ldy #$20
-@1:	jsr fill_y
-	dex
-	bne @1
-
-; partial block
-@2:	ldy r7L
-	beq @4
-@3:	sta veradat
-	dey
-	bne @3
-@4:	PopW r7
-
-; last pixel if odd
-	bit odd_right
-	bpl :+
-	asl
-	asl
-	asl
-	asl
-	sta tmp640
-	lda veradat
-	and #$0f
-	ora tmp640
-	sta veradat
-
-:	rts
-
 
 ; background version
 HLineBG:
@@ -318,95 +252,6 @@ invert_y:
 	sta veradat2
 	dey
 	bne invert_y
-	rts
-
-; foreground version, 640@16c
-ILineFG640:
-	lda #1
-	sta veractl
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
-	sty verahi
-	lda #0
-	sta veractl
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
-	sty verahi
-
-	PushW r7
-; first pixel if odd
-	bit odd_left
-	bpl :+
-	lda veradat
-	eor #1
-	sta veradat2
-:
-
-; bytes = pixels / 2
-	lsr r7H
-	ror r7L
-	lda #0
-	ror
-	sta odd_right
-
-	ldx r7H
-	beq @2
-
-; full blocks, 8 bytes at a time
-	ldy #$20
-@1:	jsr invert_y_640
-	dex
-	bne @1
-
-; partial block
-@2:	ldy r7L
-	beq @4
-@3:	lda veradat
-	eor #$11
-	sta veradat2
-	dey
-	bne @3
-@4:	PopW r7
-
-; last pixel if odd
-	bit odd_right
-	bpl :+
-	lda veradat
-	eor #$10
-	sta veradat2
-:	rts
-
-invert_y_640:
-	lda veradat
-	eor #$11
-	sta veradat2
-	lda veradat
-	eor #$11
-	sta veradat2
-	lda veradat
-	eor #$11
-	sta veradat2
-	lda veradat
-	eor #$11
-	sta veradat2
-	lda veradat
-	eor #$11
-	sta veradat2
-	lda veradat
-	eor #$11
-	sta veradat2
-	lda veradat
-	eor #$11
-	sta veradat2
-	lda veradat
-	eor #$11
-	sta veradat2
-	dey
-	bne invert_y_640
 	rts
 
 ; background version
@@ -570,8 +415,21 @@ _VerticalLineCol:
 	pha
 	ldx r3L
 	jsr _GetScanLine
+.ifdef vera640
+	MoveW r4, r7
+	lsr r7H
+	ror r7L
+
+	lda #0
+	ror
+	sta odd_left
+
+	AddW r7, r5
+	AddW r7, r6
+.else
 	AddW r4, r5
 	AddW r4, r6
+.endif
 
 	lda r3H
 	sec
@@ -605,33 +463,6 @@ VLineFG:
 	inc veramid ; increment hi -> add $140 = 320
 	dex
 	bne :-
-	rts
-
-VLineFG640:
-	and #$0f
-	sta tmp640
-	lda #$f0
-	sta tmp640b
-
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
-	lda #$00
-	sta verahi
-@2:	lda veradat
-	and tmp640b
-	ora tmp640
-	lda #$23
-	sta veradat
-	lda veralo
-	clc
-	adc #<320
-	sta veralo
-	bcc @1
-	inc veramid
-@1:	dex
-	bne @2
 	rts
 
 VLineBG:
@@ -697,3 +528,4 @@ Convert8BitPattern:
 	rts
 @3:	lda #16+15
 	rts
+
