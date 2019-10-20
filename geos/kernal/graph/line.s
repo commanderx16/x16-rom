@@ -235,7 +235,11 @@ _InvertLine:
 	jsr GetLineStart
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
 	ldy #$11
+.ifdef vera640
+	jsr ILineFG640
+.else
 	jsr ILineFG
+.endif
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
 	jmp ILineBG
 @2:	rts
@@ -314,6 +318,95 @@ invert_y:
 	sta veradat2
 	dey
 	bne invert_y
+	rts
+
+; foreground version, 640@16c
+ILineFG640:
+	lda #1
+	sta veractl
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	sty verahi
+	lda #0
+	sta veractl
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	sty verahi
+
+	PushW r7
+; first pixel if odd
+	bit odd_left
+	bpl :+
+	lda veradat
+	eor #1
+	sta veradat2
+:
+
+; bytes = pixels / 2
+	lsr r7H
+	ror r7L
+	lda #0
+	ror
+	sta odd_right
+
+	ldx r7H
+	beq @2
+
+; full blocks, 8 bytes at a time
+	ldy #$20
+@1:	jsr invert_y_640
+	dex
+	bne @1
+
+; partial block
+@2:	ldy r7L
+	beq @4
+@3:	lda veradat
+	eor #$11
+	sta veradat2
+	dey
+	bne @3
+@4:	PopW r7
+
+; last pixel if odd
+	bit odd_right
+	bpl :+
+	lda veradat
+	eor #$10
+	sta veradat2
+:	rts
+
+invert_y_640:
+	lda veradat
+	eor #$11
+	sta veradat2
+	lda veradat
+	eor #$11
+	sta veradat2
+	lda veradat
+	eor #$11
+	sta veradat2
+	lda veradat
+	eor #$11
+	sta veradat2
+	lda veradat
+	eor #$11
+	sta veradat2
+	lda veradat
+	eor #$11
+	sta veradat2
+	lda veradat
+	eor #$11
+	sta veradat2
+	lda veradat
+	eor #$11
+	sta veradat2
+	dey
+	bne invert_y_640
 	rts
 
 ; background version
