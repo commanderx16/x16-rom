@@ -13,6 +13,7 @@
 .include "c64.inc"
 
 .import GetLineStart, inc_bgpage, fill_y
+.import _Ddec
 
 .global VLineFG640, ILineFG640, HLineFG640
 
@@ -36,10 +37,15 @@ HLineFG640:
 	lda veradat
 	and #$f0
 	ora tmp640
-	sta veradat
+	tay
 	lda verahi
 	ora #$10 ; enable auto-increment
 	sta verahi
+	sty veradat
+	phx
+	ldx #r7
+	jsr _Ddec
+	plx
 :
 
 ; bytes = pixels / 2
@@ -74,11 +80,16 @@ HLineFG640:
 @3:	sta veradat
 	dey
 	bne @3
-@4:	PopW r7
+@4:
 
 ; last pixel if odd
 	bit odd_right
 	bpl :+
+	tax
+	lda verahi
+	and #$0f ; disable auto-increment
+	sta verahi
+	txa
 	asl
 	asl
 	asl
@@ -89,7 +100,8 @@ HLineFG640:
 	ora tmp640
 	sta veradat
 
-:	rts
+:	PopW r7
+	rts
 
 
 .if 0
