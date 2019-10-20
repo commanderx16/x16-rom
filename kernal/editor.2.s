@@ -380,7 +380,7 @@ add_to_buf:
 add1:	ldx #$ff
 	stx stkey
 	ldx ndx ; length of keyboard buffer
-	cpx #10
+	cpx xmax
 	bcs add2 ; full, ignore
 	sta keyd,x ; store
 	inc ndx
