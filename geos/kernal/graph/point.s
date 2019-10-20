@@ -181,6 +181,7 @@ _DrawPoint:
 	ldx r11L
 	jsr _GetScanLine
 	AddW r3, r5
+	AddW r3, r6
 	plp
 	bmi @3
 ; draw
@@ -204,32 +205,22 @@ _DrawPoint:
 	sty veralo
 	ldy r5H
 	sty veramid
-
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
 	ldy #1
 	sty verahi
 	sta veradat
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
-	stz verahi
-	sta veradat
+	sta (r6)
 @2:	rts
 ; recover
-@3:	lda #1
-	sta veractl
-	sta verahi
-	lda r5L
+@3:	lda r5L
 	sta veralo
 	lda r5H
 	sta veramid
-	lda #0
-	sta veractl
+	lda #1
 	sta verahi
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
-	lda veradat
-	sta veradat2
+	lda (r6)
+	sta veradat
 	rts
 
 ;---------------------------------------------------------------

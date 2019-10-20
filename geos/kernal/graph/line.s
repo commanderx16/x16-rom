@@ -17,6 +17,8 @@
 .import BitMaskLeadingClear
 .import _GetScanLine
 
+.import inc_bgpage
+
 .global ImprintLine
 .global _HorizontalLine
 .global _HorizontalLineCol
@@ -60,17 +62,13 @@ _HorizontalLineCol: ; called by Rectangle
 	sty veramid
 	ldy #$11
 	sty verahi
-	jsr HLine1
+	jsr HLineFG
 @1:	bbrf 6, dispBufferOn, HLine_rts ; ST_WR_BACK
-	ldy r5L
-	sty veralo
-	ldy r5H
-	sty veramid
-	ldy #$10
-	sty verahi
-;
-HLine1:
-	ldx r6H
+	jmp HLineBG
+
+; foreground version
+HLineFG:
+	ldx r7H
 	beq @2
 
 ; full blocks, 8 bytes at a time
@@ -81,7 +79,7 @@ HLine1:
 
 ; partial block, 8 bytes at a time
 @2:	pha
-	lda r6L
+	lda r7L
 	lsr
 	lsr
 	lsr
@@ -92,7 +90,7 @@ HLine1:
 
 ; remaining 0 to 7 bytes
 	pha
-@6:	lda r6L
+@6:	lda r7L
 	and #7
 	beq @5
 	tay
@@ -118,6 +116,36 @@ fill_y:	sta veradat
 HLine_rts:
 	rts
 
+; background version
+HLineBG:
+	ldx r7H
+	beq @2
+
+; full blocks, 4 bytes at a time
+	ldy #0
+@1:	sta (r6),y
+	iny
+	sta (r6),y
+	iny
+	sta (r6),y
+	iny
+	sta (r6),y
+	iny
+	bne @1
+	jsr inc_bgpage
+	dex
+	bne @1
+
+; partial block
+@2:	ldy r7L
+	beq @4
+	dey
+@3:	sta (r6),y
+	dey
+	cpy #$ff
+	bne @3
+@4:	rts
+
 ;---------------------------------------------------------------
 ; InvertLine                                              $C11B
 ;
@@ -131,15 +159,13 @@ _InvertLine:
 	jsr GetLineStart
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
 	ldy #$11
-	PushW r6
-	jsr ILine1
-	PopW r6
+	jsr ILineFG
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
-	ldy #$10
-	jmp ILine1
+	jmp ILineBG
 @2:	rts
 
-ILine1:
+; foreground version
+ILineFG:
 	lda #1
 	sta veractl
 	lda r5L
@@ -155,16 +181,17 @@ ILine1:
 	sta veramid
 	sty verahi
 
-	ldy r6H
+	ldx r7H
 	beq @2
 
+; full blocks, 8 bytes at a time
 	ldy #$20
 @1:	jsr invert_y
-	dec r6H
+	dex
 	bne @1
 
 ; partial block, 8 bytes at a time
-@2:	lda r6L
+@2:	lda r7L
 	lsr
 	lsr
 	lsr
@@ -173,7 +200,7 @@ ILine1:
 	jsr invert_y
 
 ; remaining 0 to 7 bytes
-@6:	lda r6L
+@6:	lda r7L
 	and #7
 	beq @4
 	tay
@@ -213,6 +240,33 @@ invert_y:
 	bne invert_y
 	rts
 
+; background version
+ILineBG:
+	ldx r7H
+	beq @2
+
+	ldy #0
+@1:	lda (r6),y
+	eor #1
+	sta (r6),y
+	iny
+	bne @1
+	jsr inc_bgpage
+	dex
+	bne @1
+
+; partial block
+@2:	ldy r7L
+	beq @4
+	dey
+@3:	lda (r6),y
+	eor #1
+	sta (r6),y
+	dey
+	cpy #$ff
+	bne @3
+@4:	rts
+
 ;---------------------------------------------------------------
 ; RecoverLine                                             $C11E
 ;
@@ -225,78 +279,111 @@ invert_y:
 ;---------------------------------------------------------------
 _RecoverLine:
 	jsr GetLineStart
-	ldx #$10
-	ldy #$11
-RLine1:
-	lda #1
-	sta veractl
 	lda r5L
 	sta veralo
 	lda r5H
 	sta veramid
-	sty verahi
-	lda #0
-	sta veractl
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
-	stx verahi
+	lda #$11
+	sta verahi
 
-	ldy r6H
+	ldx r7H
 	beq @2
 
-	ldy #$20
-@1:	jsr copy_y
-	dec r6H
+; full blocks, 8 bytes at a time
+	ldy #0
+@1:	lda (r6),y
+	sta veradat
+	iny
+	lda (r6),y
+	sta veradat
+	iny
+	lda (r6),y
+	sta veradat
+	iny
+	lda (r6),y
+	sta veradat
+	iny
+	lda (r6),y
+	sta veradat
+	iny
+	lda (r6),y
+	sta veradat
+	iny
+	lda (r6),y
+	sta veradat
+	iny
+	lda (r6),y
+	sta veradat
+	iny
+	bne @1
+	jsr inc_bgpage
+	dex
 	bne @1
 
-; partial block, 8 bytes at a time
-@2:	lda r6L
-	lsr
-	lsr
-	lsr
-	beq @6
-	tay
-	jsr copy_y
-
-; remaining 0 to 7 bytes
-@6:	lda r6L
-	and #7
+; partial block
+@2:	ldy r7L
 	beq @4
-	tay
-@3:	lda veradat
-	sta veradat2
 	dey
+@3:	lda (r6),y
+	sta veradat
+	dey
+	cpy #$ff
 	bne @3
 @4:	rts
 
-copy_y:
-	lda veradat
-	sta veradat2
-	lda veradat
-	sta veradat2
-	lda veradat
-	sta veradat2
-	lda veradat
-	sta veradat2
-	lda veradat
-	sta veradat2
-	lda veradat
-	sta veradat2
-	lda veradat
-	sta veradat2
-	lda veradat
-	sta veradat2
-	dey
-	bne copy_y
-	rts
-
 ImprintLine:
 	jsr GetLineStart
-	ldx #$11
-	ldy #$10
-	jmp RLine1
+	lda r5L
+	sta veralo
+	lda r5H
+	sta veramid
+	lda #$11
+	sta verahi
+
+	ldx r7H
+	beq @2
+
+; full blocks, 8 bytes at a time
+	ldy #0
+@1:	lda veradat
+	sta (r6),y
+	iny
+	lda veradat
+	sta (r6),y
+	iny
+	lda veradat
+	sta (r6),y
+	iny
+	lda veradat
+	sta (r6),y
+	iny
+	lda veradat
+	sta (r6),y
+	iny
+	lda veradat
+	sta (r6),y
+	iny
+	lda veradat
+	sta (r6),y
+	iny
+	lda veradat
+	sta (r6),y
+	iny
+	bne @1
+	jsr inc_bgpage
+	dex
+	bne @1
+
+; partial block
+@2:	ldy r7L
+	beq @4
+	dey
+@3:	lda veradat
+	sta (r6),y
+	dey
+	cpy #$ff
+	bne @3
+@4:	rts
 
 ;---------------------------------------------------------------
 ; VerticalLine                                            $C121
@@ -315,6 +402,7 @@ _VerticalLineCol:
 	ldx r3L
 	jsr _GetScanLine
 	AddW r4, r5
+	AddW r4, r6
 
 	lda r3H
 	sec
@@ -326,24 +414,36 @@ _VerticalLineCol:
 
 	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
 	phx
-	ldy #1
-	jsr VLine1
+	jsr VLineFG
 	plx
 	tya
 @1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
-	ldy #0
-	jmp VLine1
+	jmp VLineBG
 @2:	rts
 
-VLine1:
-	sty verahi
+VLineFG:
 	ldy r5L
 	sty veralo
 	ldy r5H
 	sty veramid
+	ldy #$71    ; increment in steps of $40
+	sty verahi
+:	sta veradat
+	inc veramid ; increment hi -> add $140 = 320
+	dex
+	bne :-
+	rts
+
+VLineBG:
+	ldy #0
+:	sta (r6),y
+	tya
+	clc
+	adc #$40 ; <320
 	tay
-:	sty veradat
-	AddVW 320, veralo
+	bne :+
+	jsr inc_bgpage
+:	jsr inc_bgpage
 	dex
 	bne :-
 	rts
@@ -352,9 +452,11 @@ GetLineStart:
 	ldx r11L
 	jsr _GetScanLine
 	AddW r3, r5
-	MoveW r4, r6
-	SubW r3, r6
-	IncW r6
+	AddW r3, r6
+
+	MoveW r4, r7
+	SubW r3, r7
+	IncW r7
 	rts
 
 ;---------------------------------------------------------------
