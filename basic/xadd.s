@@ -45,7 +45,7 @@ xfaddt
 
          sec
          sbc facexp
-         beq @manadd3   ; Jump if no shifting needed. The A register is already zero.
+         beq @expeq     ; Jump if no shifting needed. The A register is already zero.
          bcc @shfarg1   ; Jump if ARG needs shifting (has smaller exponent).
 
                         ; Here, FAC is the smallest operand, and ARG is the largest.
@@ -98,11 +98,17 @@ xfaddt
 @shffac4 lda facov      ; The A-register contains the shifted rounding bits of FAC.
          bra @manadd2
 
-@manadd3 ldx facov
+
+; 2c. No shifting needed.
+
+                        ; When both operands have the same exponent,
+                        ; work like ARG is the smallest operand.
+@expeq   ldx facov
          stx oldov
-                        ; The A-register contains the shifted rounding bits of FAC.
-                        ; oldov contains rounding bits of ARG (i.e. zero).
+                        ; oldov now contains rounding bits of FAC.
+                        ; The A-register contains the rounding bits of ARG (i.e. zero).
          bra @manadd1
+
 
 ; 2b. Shift ARG
 
@@ -110,17 +116,16 @@ xfaddt
          bra @manadd1
 
 @shfarg1 ldx facov
-         stx oldov
+         stx oldov      ; oldov now contains rounding bits of FAC.
 
-         stz facov      ; Use facov for rounding bits of ARG.
+         ldx #$00       ; Use X-register for rounding bits of ARG.
 
                         ; -A contains number of bits to rotate right.
                         ; Carry is always clear here.
          adc #$08
          bpl @shfarg6   ; Jump if less than 8 shifts.
 
-@shfarg3 ldy arglo      ; Shift right one byte
-         sty facov
+@shfarg3 ldx arglo      ; Shift right one byte
          ldy argmo      ; mo -> lo
          sty argmo+1
          ldy argmoh     ; moh -> mo
@@ -136,9 +141,8 @@ xfaddt
 @shfarg6 sbc #$08
          beq @shfarg2   ; Jump if no more shifting.
 
-                        ; Carry is always clear here.
          tay
-         lda facov
+         txa            ; Rounding bits.
 @shfarg5 lsr argho
          ror argmoh
          ror argmo
@@ -253,7 +257,10 @@ xfaddt
 
 ; 5. Shift mantissa left until normalized.
 
-@normal  lda #0         ; Number of bits rotated.
+@normal  bit facho
+         bmi @ret
+
+         lda #0         ; Number of bits rotated.
          clc
 @norm3   ldx facho
          bne @norm1
@@ -274,7 +281,7 @@ xfaddt
 ; Underflow. Result becomes zero.
 @zerofc  stz facexp
          stz facsgn
-         rts
+@ret     rts
 
 @norm2   ina
          asl facov
