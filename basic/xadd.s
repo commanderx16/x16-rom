@@ -13,6 +13,7 @@
 xerrts   rts
 xfc      jmp movfa      ; Copy from ARG to FAC.
 
+
 ;--------------------------------------------------------------
 ; Entry point for xfaddt
 ; On entry the two values are stored in FAC and ARG.
@@ -29,17 +30,16 @@ xfaddt
          lda argexp
          beq xerrts     ; Jump if ARG is zero.
 
+
 ; 2. If one operand has a larger exponent than the other,
 ;    then shift the mantissa of the lesser value right.
 
          ldx facov
          stx oldov      ; Rounding bits of largest operand.
 
-         ldx #argexp    ; Assume ARG is the largest operand.
-
          sec
          sbc facexp
-         beq @fadd4     ; Jump if no shifting needed.
+         beq @fadd6     ; Jump if no shifting needed.
          bcc @fadda     ; Jump if ARG needs shifting (has smaller exponent).
 
          ldy argexp
@@ -52,11 +52,11 @@ xfaddt
 
          stz oldov      ; ARG has no rounding bits.
 
-         ldx #fac       ; Indicate FAC needs shifting.
+         ldx #fac       ; Indicate FAC is the smallest operand.
 
 ; 2a. Shift FAC
 
-@shffac1 clc
+         clc
          bra @shffac4
 
 @shffac3 ldy faclo      ; Shift right one byte.
@@ -97,7 +97,7 @@ xfaddt
          bra @shfarg4
 
 @shfarg2 lda facov
-         bra @fadd4
+         bra @fadd6
 
 @shfarg3 ldy arglo      ; Shift right one byte
          sty facov
@@ -126,14 +126,17 @@ xfaddt
          iny
          bne @shfarg5
 
+@fadd6   ldx #argexp    ; Indicate ARG is the smallest operand.
+
+
 ; 3. Add or subtract the mantissas, depending on the signs.
 
 @fadd4   bit arisgn
          bmi @fadd5     ; Jump if operands have different sign.
 
 ; 3a. Add the mantissas.
-                        ; X contains address of smallest operand.
                         ; A contains rounding bits of smallest operand.
+                        ; oldov contains rounding bits of largest operand.
          clc
          adc oldov
          sta facov
@@ -163,39 +166,16 @@ xfaddt
          ror facov
 @rndrts  rts
 
-
 ; Overflow. Indicate error.
 @overr   ldx #errov
          jmp error
 
 
-; Underflow. Result becomes zero.
-@zerofc  stz facexp
-         stz facsgn
-         rts
-
-@norm2   adc #1
-         asl facov
-         rol faclo
-         rol facmo
-         rol facmoh
-         rol facho
-@norm1   bpl @norm2     ; We must shift left one bit
-
-; Adjust exponent by amount of shifting.
-         sec
-         sbc facexp
-         bcs @zerofc
-         eor #$ff
-         adc #1
-         sta facexp
-         rts
-
-@fadd5
-
 ; 3b. Subtract the mantissas.
+@fadd5
                         ; X contains address of smallest operand.
                         ; A contains rounding bits of smallest operand.
+                        ; oldov contains rounding bits of largest operand.
          ldy #facexp
          cpx #argexp
          beq @subit
@@ -235,6 +215,7 @@ xfaddt
          lda faclo
          eor #$ff
          sta faclo
+
          lda facov
          eor #$ff
          ina
@@ -250,7 +231,7 @@ xfaddt
 
 ; 5. Shift mantissa left until normalized.
 
-@normal  lda #0
+@normal  lda #0         ; Number of bits rotated.
          clc
 @norm3   ldx facho
          bne @norm1
@@ -267,5 +248,27 @@ xfaddt
          adc #$08
          cmp #$20
          bne @norm3
-         jmp @zerofc    ; Underflow
+
+; Underflow. Result becomes zero.
+@zerofc  stz facexp
+         stz facsgn
+         rts
+
+@norm2   ina
+         asl facov
+         rol faclo
+         rol facmo
+         rol facmoh
+         rol facho
+@norm1   bpl @norm2     ; We must shift left one bit
+
+; Adjust exponent by amount of shifting.
+         sec
+         sbc facexp
+         bcs @zerofc
+
+         eor #$ff
+         ina
+         sta facexp
+         rts
 
