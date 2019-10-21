@@ -105,7 +105,8 @@ fsubt	lda facsgn
 fadd5	jsr shiftr
 	bcc fadd4
 fadd	jsr conupk
-faddt	bne *+5
+faddt	jmp xfaddt
+   bne *+5
 	jmp movfa
 	ldx facov
 	stx oldov
