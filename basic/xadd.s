@@ -10,6 +10,15 @@
 ; 4. In case of add, optionally increment exponent if overflow.
 ; 5. In case of subtract, Shift mantissa left until normalized.
 
+; Rounding.
+; 
+; The FAC has a 5-byte mantissa, where the 5th byte (stored in facov)
+; contains rounding bits that are removed after the final calculation.
+; In this routine, the rounding byte for the largest operand is stored
+; in oldov, while the rounding byte for the smallest operand is stored
+; in the A-regiser.
+
+
 xerrts   rts
 xfc      jmp movfa      ; Copy from ARG to FAC.
 
@@ -34,21 +43,19 @@ xfaddt
 ; 2. If one operand has a larger exponent than the other,
 ;    then shift the mantissa of the lesser value right.
 
-         ldx facov
-         stx oldov      ; Rounding bits of largest operand.
-
          sec
          sbc facexp
-         beq @fadd6     ; Jump if no shifting needed.
-         bcc @fadda     ; Jump if ARG needs shifting (has smaller exponent).
+         beq @manadd3   ; Jump if no shifting needed. The A register is already zero.
+         bcc @shfarg1   ; Jump if ARG needs shifting (has smaller exponent).
 
+                        ; Here, FAC is the smallest operand, and ARG is the largest.
+                        ; FAC will need to be shifted right,
+
+                        ; Copy exponent and sign from ARG.
          ldy argexp
          sty facexp
          ldy argsgn
          sty facsgn
-
-         eor #$ff
-         ina
 
          stz oldov      ; ARG has no rounding bits.
 
@@ -56,10 +63,13 @@ xfaddt
 
 ; 2a. Shift FAC
 
-         clc
-         bra @shffac4
+                        ; A contains number of bits to rotate right.
+         sec
+         sbc #$08
+         bmi @shffac2
 
-@shffac3 ldy faclo      ; Shift right one byte.
+                        ; A >= 8, therefore shift right one byte.
+@shffac1 ldy faclo      ; lo -> ov
          sty facov
          ldy facmo      ; mo -> lo
          sty facmo+1
@@ -68,36 +78,46 @@ xfaddt
          ldy facho      ; ho -> moh
          sty facho+1
          stz facho      ; 0 -> ho
+         sbc #$08       ; Carry is always set here.
+         bpl @shffac1   ; Jump if more bytes to shift.
 
-@shffac4 adc #$08
-         bmi @shffac3
-         beq @shffac3
-         sbc #$08
+@shffac2 adc #$08       ; Carry is always clear here.
+         beq @shffac4   ; Jump if no more shifting.
+
          tay
-         beq @shffac2   ; Jump if no more shifting.
-
-                        ; Carry is always clear here.
          lda facov
-@shffac5 lsr facho      ; ho
+@shffac3 lsr facho      ; ho
          ror facmoh     ; moh
          ror facmo      ; mo
          ror faclo      ; lo
          ror a          ; ov
-         iny
-         bne @shffac5
-         bra @fadd4     ; No more shifting.
+         dey
+         bne @shffac3
+         bra @manadd2   ; No more shifting.
 
-@shffac2 lda facov
-         bra @fadd4
+@shffac4 lda facov      ; The A-register contains the shifted rounding bits of FAC.
+         bra @manadd2
+
+@manadd3 ldx facov
+         stx oldov
+                        ; The A-register contains the shifted rounding bits of FAC.
+                        ; oldov contains rounding bits of ARG (i.e. zero).
+         bra @manadd1
 
 ; 2b. Shift ARG
 
-@fadda   stz facov
-                        ; Carry is always clear here.
-         bra @shfarg4
+@shfarg2 lda facov      ; The A-register contains the shifted rounding bits of ARG.
+         bra @manadd1
 
-@shfarg2 lda facov
-         bra @fadd6
+@shfarg1 ldx facov
+         stx oldov
+
+         stz facov      ; Use facov for rounding bits of ARG.
+
+                        ; -A contains number of bits to rotate right.
+                        ; Carry is always clear here.
+         adc #$08
+         bpl @shfarg6   ; Jump if less than 8 shifts.
 
 @shfarg3 ldy arglo      ; Shift right one byte
          sty facov
@@ -112,11 +132,12 @@ xfaddt
 @shfarg4 adc #$08
          bmi @shfarg3
          beq @shfarg3
-         sbc #$08
-         tay
+
+@shfarg6 sbc #$08
          beq @shfarg2   ; Jump if no more shifting.
 
                         ; Carry is always clear here.
+         tay
          lda facov
 @shfarg5 lsr argho
          ror argmoh
@@ -126,13 +147,13 @@ xfaddt
          iny
          bne @shfarg5
 
-@fadd6   ldx #argexp    ; Indicate ARG is the smallest operand.
+@manadd1 ldx #argexp    ; Indicate ARG is the smallest operand.
 
 
 ; 3. Add or subtract the mantissas, depending on the signs.
 
-@fadd4   bit arisgn
-         bmi @fadd5     ; Jump if operands have different sign.
+@manadd2 bit arisgn
+         bmi @mansub1   ; Jump if operands have different sign.
 
 ; 3a. Add the mantissas.
                         ; A contains rounding bits of smallest operand.
@@ -155,7 +176,7 @@ xfaddt
 
 ; 4. Optionally increment exponent if overflow in mantissa
 
-@squeez  bcc @rndrts
+         bcc @rndrts
          inc facexp
          beq @overr
                         ; Carry bit is set here.
@@ -166,22 +187,23 @@ xfaddt
          ror facov
 @rndrts  rts
 
+
 ; Overflow. Indicate error.
 @overr   ldx #errov
          jmp error
 
 
 ; 3b. Subtract the mantissas.
-@fadd5
+@mansub1
                         ; X contains address of smallest operand.
                         ; A contains rounding bits of smallest operand.
                         ; oldov contains rounding bits of largest operand.
          ldy #facexp
          cpx #argexp
-         beq @subit
+         beq @mansub2
          ldy #argexp
 
-@subit   sec            ; Negate the rounding bits before adding.
+@mansub2 sec            ; Negate the rounding bits before adding.
          eor #$ff
          adc oldov
          sta facov
