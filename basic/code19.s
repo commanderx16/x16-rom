@@ -122,18 +122,7 @@ zeremv	pla
 	pla
 	jmp zerofc
 goover	jmp overr
-mul10	jsr movaf
-	tax
-	beq mul10r
-	clc
-	adc #2
-	bcs goover
-finml6	ldx #0
-	stx arisgn
-	jsr faddc
-	inc facexp
-	beq goover
-mul10r	rts
+mul10	jmp xmul10
 tenc	.byt $84,$20,0,0,0
 div10	jsr movaf
 	lda #<tenc
