@@ -27,7 +27,8 @@ log1	lda facexp
 	lda #<log2
 	ldy #>log2
 fmult	jsr conupk
-fmultt	bne *+5
+fmultt   jmp xfmultt
+   bne *+5
 	jmp multrt
 	jsr muldiv
 	lda #0
