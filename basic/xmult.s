@@ -33,6 +33,10 @@ xfmultt
          ldx #errov     ; Overllow
          jmp error
 
+@zeremv  stz facexp     ; Result is zero.
+         stz facsgn
+@multrt  rts
+
 @tryoff  bpl @zeremv    ; Jump if underflow.
 @adjust  adc #$80       ; Carry is always clear here.
          beq @zeremv    ; Jump if underflow.
@@ -50,34 +54,66 @@ xfmultt
          stz reslo
 
          lda facov
-         jsr @mltply
-         lda faclo
-         jsr @mltply
-         lda facmo
-         jsr @mltply
-         lda facmoh
-         jsr @mltply
-         lda facho
-         jsr @mltpl1
+         beq @2         ; If multiplying by zero, just shift result.
 
-         lda resho
-         sta facho
+; 3a. Multiply a single byte
+
+
+@11      lsr a
+         ora #$80
+
+@12      tay
+         bcc @13
+         clc
          lda resmoh
-         sta facmoh
+         adc argmoh
+         sta resmoh
+         lda resho
+         adc argho
+         sta resho
+
+@13      ror resho
+         ror resmoh
+         tya
+         lsr a
+         bne @12
+
+@2       lda faclo
+         bne @21        ; If multiplying by zero, just shift result.
+
+         ldy resmoh     ; moh -> mo
+         sty resmoh+1
+         ldy resho      ; ho -> moh
+         sty resho+1
+         stz resho      ; 0 -> ho
+         jmp @3
+
+@21      lsr a
+         ora #$80
+
+@22      tay
+         bcc @23
+         clc
          lda resmo
-         sta facmo
-         lda reslo
-         sta faclo
-         jmp xnormal    ; In basic/xadd.s
+         adc argmo
+         sta resmo
+         lda resmoh
+         adc argmoh
+         sta resmoh
+         lda resho
+         adc argho
+         sta resho
 
-@zeremv  stz facexp     ; Result is zero.
-         stz facsgn
-@multrt  rts
+@23      ror resho
+         ror resmoh
+         ror resmo
+         tya
+         lsr a
+         bne @22
 
+@3       lda facmo
+         bne @31        ; If multiplying by zero, just shift result.
 
-                        ; Byte is zero.
-@shffac1 ldy reslo      ; lo -> ov
-         sty facov
          ldy resmo      ; mo -> lo
          sty resmo+1
          ldy resmoh     ; moh -> mo
@@ -85,17 +121,13 @@ xfmultt
          ldy resho      ; ho -> moh
          sty resho+1
          stz resho      ; 0 -> ho
-         rts
+         jmp @4
 
-; 3a. Multiply a single byte
-
-@mltply  beq @shffac1   ; If multiplying by zero, just shift result.
-
-@mltpl1  lsr a
+@31      lsr a
          ora #$80
 
-@mltpl2  tay
-         bcc @mltpl3
+@32      tay
+         bcc @33
          clc
          lda reslo
          adc arglo
@@ -110,15 +142,107 @@ xfmultt
          adc argho
          sta resho
 
-@mltpl3  ror resho
+@33      ror resho
+         ror resmoh
+         ror resmo
+         ror reslo
+         tya
+         lsr a
+         bne @32
+
+@4       lda facmoh
+         bne @41        ; If multiplying by zero, just shift result.
+
+         ldy reslo      ; lo -> ov
+         sty facov
+         ldy resmo      ; mo -> lo
+         sty resmo+1
+         ldy resmoh     ; moh -> mo
+         sty resmoh+1
+         ldy resho      ; ho -> moh
+         sty resho+1
+         stz resho      ; 0 -> ho
+         jmp @5
+
+@41      lsr a
+         ora #$80
+
+@42      tay
+         bcc @43
+         clc
+         lda reslo
+         adc arglo
+         sta reslo
+         lda resmo
+         adc argmo
+         sta resmo
+         lda resmoh
+         adc argmoh
+         sta resmoh
+         lda resho
+         adc argho
+         sta resho
+
+@43      ror resho
          ror resmoh
          ror resmo
          ror reslo
          ror facov
          tya
          lsr a
-         bne @mltpl2
-         rts
+         bne @42
+
+@5       lda facho
+         bne @51        ; If multiplying by zero, just shift result.
+
+         ldy reslo      ; lo -> ov
+         sty facov
+         ldy resmo      ; mo -> lo
+         sty resmo+1
+         ldy resmoh     ; moh -> mo
+         sty resmoh+1
+         ldy resho      ; ho -> moh
+         sty resho+1
+         stz resho      ; 0 -> ho
+         jmp @fin
+
+@51      lsr a
+         ora #$80
+
+@52      tay
+         bcc @53
+         clc
+         lda reslo
+         adc arglo
+         sta reslo
+         lda resmo
+         adc argmo
+         sta resmo
+         lda resmoh
+         adc argmoh
+         sta resmoh
+         lda resho
+         adc argho
+         sta resho
+
+@53      ror resho
+         ror resmoh
+         ror resmo
+         ror reslo
+         ror facov
+         tya
+         lsr a
+         bne @52
+
+@fin     lda resho
+         sta facho
+         lda resmoh
+         sta facmoh
+         lda resmo
+         sta facmo
+         lda reslo
+         sta faclo
+         jmp xnormal    ; In basic/xadd.s
 
 
 ; Multiply Accumulator by 10.
