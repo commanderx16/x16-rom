@@ -223,7 +223,7 @@ xfaddt
          lda 1,y
          sbc 1,x
          sta facho
-         bcs @normal
+         bcs xnormal
 
                         ; Negate FAC
          lda facsgn
@@ -246,19 +246,19 @@ xfaddt
          eor #$ff
          ina
          sta facov
-         bne @normal
+         bne xnormal
          inc faclo
-         bne @normal
+         bne xnormal
          inc facmo
-         bne @normal
+         bne xnormal
          inc facmoh
-         bne @normal
+         bne xnormal
          inc facho
 
 ; 5. Shift mantissa left until normalized.
 
-@normal  bit facho
-         bmi @ret
+xnormal  bit facho
+         bmi @ret       ; Jump if number is already normalized.
 
          lda #0         ; Number of bits rotated.
          clc
@@ -277,11 +277,7 @@ xfaddt
          adc #$08
          cmp #$20
          bne @norm3
-
-; Underflow. Result becomes zero.
-@zerofc  stz facexp
-         stz facsgn
-@ret     rts
+         jmp xzerofc
 
 @norm2   ina
          asl facov
@@ -294,10 +290,15 @@ xfaddt
 ; Adjust exponent by amount of shifting.
          sec
          sbc facexp
-         bcs @zerofc
+         bcs xzerofc
 
          eor #$ff
          ina
          sta facexp
+@ret     rts
+
+; Underflow. Result becomes zero.
+xzerofc  stz facexp
+         stz facsgn
          rts
 
