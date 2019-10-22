@@ -15,8 +15,34 @@
 ; Additionally, the Z-flag is the value of the FAC exponent.
 ; On exit the sum is stored in FAC.
 
-xfmultt  beq @multrt    ; Jump if FAC is zero.
-         jsr @muldiv
+xfmultt  
+
+; 1. If either operand is zero, then finish immediately.
+
+         beq @multrt    ; Jump if FAC is zero.
+         lda argexp
+         beq @zeremv    ; Jump if ARG is zero.
+
+; 2. Calculate new exponent and test for overflow/underflow.
+
+         clc
+         adc facexp
+         bcc @tryoff
+         clc
+         bpl @adjust
+         ldx #errov     ; Overllow
+         jmp error
+
+@tryoff  bpl @zeremv    ; Jump if underflow.
+@adjust  adc #$80       ; Carry is always clear here.
+         beq @zeremv    ; Jump if underflow.
+         sta facexp
+
+                        ; Copy over sign of result.
+         lda arisgn
+         sta facsgn
+
+; 3. Calculate mantissa
 
          stz resho
          stz resmoh
@@ -42,36 +68,14 @@ xfmultt  beq @multrt    ; Jump if FAC is zero.
          sta facmo
          lda reslo
          sta faclo
-         jmp xnormal
+         jmp xnormal    ; In basic/xadd.s
 
-@muldiv  lda argexp
-         beq @zeremv    ; Jump if ARG is zero.
-         clc
-         adc facexp
-         bcc @tryoff
-         bmi @goover    ; Jump if overflow.
-         clc
-         .byt $2c
-@tryoff  bpl @zeremv    ; Jump if underflow.
-         adc #$80       ; Carry is always clear here.
-         beq @zeremv    ; Jump if underflow.
-         sta facexp
-         lda arisgn
-         sta facsgn
+@zeremv  stz facexp     ; Result is zero.
+         stz facsgn
 @multrt  rts
 
-@zeremv  pla            ; Pop of return address.
-         pla
-         stz facexp     ; Result is zero.
-         stz facsgn
-         rts
 
-@goover  ldx #errov
-         jmp error
-
-
-@mltply  bne @mltpl1
-
+                        ; Byte is zero.
 @shffac1 ldy reslo      ; lo -> ov
          sty facov
          ldy resmo      ; mo -> lo
@@ -83,6 +87,9 @@ xfmultt  beq @multrt    ; Jump if FAC is zero.
          stz resho      ; 0 -> ho
          rts
 
+; 3a. Multiply a single byte
+
+@mltply  beq @shffac1   ; If multiplying by zero, just shift result.
 
 @mltpl1  lsr a
          ora #$80
