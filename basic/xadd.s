@@ -18,6 +18,11 @@
 ; in oldov, while the rounding byte for the smallest operand is stored
 ; in the A-regiser.
 
+; Example floating point numbers:
+; 10  :  84, 20, 00, 00, 00
+;  1  :  81, 00, 00, 00, 00
+;  0.5:  80, 00, 00, 00, 00
+; -1  :  81, 80, 00, 00, 00
 
 xerrts   rts
 xfc      jmp movfa      ; Copy from ARG to FAC.
