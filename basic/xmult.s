@@ -7,6 +7,31 @@
 ; The FAC has a 5-byte mantissa, where the 5th byte (stored in facov)
 ; contains rounding bits that are removed after the final calculation.
 
+; A4 = fachop
+; A3 = facho
+; A2 = facmoh
+; A1 = facmo
+; A0 = faclo
+; AV = facov
+
+; B3 = argho
+; B2 = argmoh
+; B1 = argmo
+; B0 = arglo
+
+; C3 = resho
+; C2 = resmoh
+; C1 = resmo
+; C0 = reslo
+; CV = resov
+
+; This routine calculates C3:C2:C1:C0:CV = A3:A2:A1:A0:AV * B3:B2:B1:B0:0
+; C3 = A3*B3
+; C2 = A2*B3 + A3*B2
+; C1 = A1*B3 + A2*B2 + A3*B1
+; C0 = A0*B3 + A1*B2 + A2*B1 + A3*B0
+; CV = AV*B3 + A0*B2 + A1*B1 + A2*B0
+
 
 ;--------------------------------------------------------------
 ; Entry point for xfmultt
@@ -30,7 +55,7 @@ xfmultt
          bcc @tryoff
          clc
          bpl @adjust
-         ldx #errov     ; Overllow
+         ldx #errov     ; Overflow
          jmp error
 
 @zeremv  stz facexp     ; Result is zero.
@@ -48,200 +73,127 @@ xfmultt
 
 ; 3. Calculate mantissa
 
+         stz reshop
          stz resho
          stz resmoh
          stz resmo
          stz reslo
+         stz resov
+         stz fachop
 
-         lda facov
-         beq @2         ; If multiplying by zero, just shift result.
+; We simultaneously calculate the four terms:
+;    00:00:00:A3:A2 * B0
+;  + 00:00:A3:A2:A1 * B1
+;  + 00:A3:A2:A1:A0 * B2
+;  + A3:A2:A1:A0:AV * B3
 
-; 3a. Multiply a single byte
-
-
-@11      lsr a
-         ora #$80
-
-@12      tay
-         bcc @13
+; First calculate 00:00:00:A3:A2 * B0
+@b0      lsr arglo      ; B0
+         bcc @b1
+         lda resov
          clc
-         lda resmoh
-         adc argmoh
-         sta resmoh
-         lda resho
-         adc argho
-         sta resho
-
-@13      ror resho
-         ror resmoh
-         tya
-         lsr a
-         bne @12
-
-@2       lda faclo
-         bne @21        ; If multiplying by zero, just shift result.
-
-         ldy resmoh     ; moh -> mo
-         sty resmoh+1
-         ldy resho      ; ho -> moh
-         sty resho+1
-         stz resho      ; 0 -> ho
-         jmp @3
-
-@21      lsr a
-         ora #$80
-
-@22      tay
-         bcc @23
-         clc
-         lda resmo
-         adc argmo
-         sta resmo
-         lda resmoh
-         adc argmoh
-         sta resmoh
-         lda resho
-         adc argho
-         sta resho
-
-@23      ror resho
-         ror resmoh
-         ror resmo
-         tya
-         lsr a
-         bne @22
-
-@3       lda facmo
-         bne @31        ; If multiplying by zero, just shift result.
-
-         ldy resmo      ; mo -> lo
-         sty resmo+1
-         ldy resmoh     ; moh -> mo
-         sty resmoh+1
-         ldy resho      ; ho -> moh
-         sty resho+1
-         stz resho      ; 0 -> ho
-         jmp @4
-
-@31      lsr a
-         ora #$80
-
-@32      tay
-         bcc @33
-         clc
+         adc facmoh     ; A2
+         sta resov
          lda reslo
-         adc arglo
+         adc facho      ; A3
          sta reslo
          lda resmo
-         adc argmo
+         adc fachop     ; A4
          sta resmo
-         lda resmoh
-         adc argmoh
-         sta resmoh
-         lda resho
-         adc argho
-         sta resho
+         bcc @b1
+         inc resmoh
+         bne @b1
+         inc resho
+         bne @b1
+         inc reshop
 
-@33      ror resho
-         ror resmoh
-         ror resmo
-         ror reslo
-         tya
-         lsr a
-         bne @32
-
-@4       lda facmoh
-         bne @41        ; If multiplying by zero, just shift result.
-
-         ldy reslo      ; lo -> ov
-         sty facov
-         ldy resmo      ; mo -> lo
-         sty resmo+1
-         ldy resmoh     ; moh -> mo
-         sty resmoh+1
-         ldy resho      ; ho -> moh
-         sty resho+1
-         stz resho      ; 0 -> ho
-         jmp @5
-
-@41      lsr a
-         ora #$80
-
-@42      tay
-         bcc @43
+; Next calculate 00:00:A3:A2:A1 * B1
+@b1      lsr argmo      ; B1
+         bcc @b2
+         lda resov
          clc
+         adc facmo      ; A1
+         sta resov
          lda reslo
-         adc arglo
+         adc facmoh     ; A2
          sta reslo
          lda resmo
-         adc argmo
+         adc facho      ; A3
          sta resmo
          lda resmoh
-         adc argmoh
+         adc fachop     ; A4
          sta resmoh
-         lda resho
-         adc argho
-         sta resho
+         bcc @b2
+         inc resho
+         bne @b2
+         inc reshop
 
-@43      ror resho
-         ror resmoh
-         ror resmo
-         ror reslo
-         ror facov
-         tya
-         lsr a
-         bne @42
-
-@5       lda facho
-         bne @51        ; If multiplying by zero, just shift result.
-
-         ldy reslo      ; lo -> ov
-         sty facov
-         ldy resmo      ; mo -> lo
-         sty resmo+1
-         ldy resmoh     ; moh -> mo
-         sty resmoh+1
-         ldy resho      ; ho -> moh
-         sty resho+1
-         stz resho      ; 0 -> ho
-         jmp @fin
-
-@51      lsr a
-         ora #$80
-
-@52      tay
-         bcc @53
+; Then calculate 00:A3:A2:A1:A0 * B2
+@b2      lsr argmoh     ; B2
+         bcc @b3
+         lda resov
          clc
+         adc faclo      ; A0
+         sta resov
          lda reslo
-         adc arglo
+         adc facmo      ; A1
          sta reslo
          lda resmo
-         adc argmo
+         adc facmoh     ; A2
          sta resmo
          lda resmoh
-         adc argmoh
+         adc facho      ; A3
          sta resmoh
          lda resho
-         adc argho
+         adc fachop     ; A4
          sta resho
+         bcc @b3
+         inc reshop
 
-@53      ror resho
-         ror resmoh
-         ror resmo
-         ror reslo
-         ror facov
-         tya
-         lsr a
-         bne @52
+; Finally calculate A3:A2:A1:A0:AV * B3
+@b3      lsr argho      ; B3
+         bcc @rota
+         lda resov
+         clc
+         adc facov      ; AV
+         sta resov
+         lda reslo
+         adc faclo      ; A0
+         sta reslo
+         lda resmo
+         adc facmo      ; A1
+         sta resmo
+         lda resmoh
+         adc facmoh     ; A2
+         sta resmoh
+         lda resho
+         adc facho      ; A3
+         sta resho
+         lda reshop
+         adc fachop     ; A4
+         sta reshop
 
-@fin     lda resho
+; Shift left FAC
+@rota    asl facov
+         rol faclo
+         rol facmo
+         rol facmoh
+         rol facho
+         rol fachop
+         bmi @fin
+         jmp @b0
+
+@fin     lda reshop
          sta facho
-         lda resmoh
+         lda resho
          sta facmoh
-         lda resmo
+         lda resmoh
          sta facmo
-         lda reslo
+         lda resmo
          sta faclo
+         lda reslo
+         sta facov
+
          jmp xnormal    ; In basic/xadd.s
 
 

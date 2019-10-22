@@ -149,6 +149,9 @@ four6	.res 1           ;$53 variable constant used by garb collect
 jmper	.res 3           ;$54
 size	=jmper+1         ;$55
 oldov	=jmper+2         ;$56 the old overflow
+fachop   .res 1           ;Used in xmult.s
+reshop   .res 1           ;Used in xmult.s
+resov    .res 1           ;Used in xmult.s
 
 .segment "ZPBASIC"
 tempf1	.res 1           ;$57 5 bytes temp fac
