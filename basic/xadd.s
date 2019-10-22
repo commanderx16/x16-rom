@@ -35,7 +35,6 @@ xfaddt
 ; 1. If either operand is zero, then finish immediately.
 
          beq xfc        ; Jump if FAC is zero.
-
          lda argexp
          beq xerrts     ; Jump if ARG is zero.
 
