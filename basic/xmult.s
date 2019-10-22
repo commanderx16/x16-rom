@@ -120,3 +120,57 @@ xfmultt
          bne @mltpl2
          rts
 
+
+; Multiply Accumulator by 10.
+
+xmul10
+
+; 1. ARG = FAC
+         jsr movaf      ; ARG = FAC; Leaves exponent in A register.
+
+; 2. FAC *= 4
+         tax            ; Exponent
+         beq @xmul101   ; Return if zero.
+         clc
+         adc #2
+         bcs @xmul102   ; Jump if overflow
+         sta facexp     ; Store new exponent.
+
+; 3. FAC += ARG
+         stz arisgn
+         jsr xfaddt     ; The Z flag is clear here.
+
+; 4. FAC *= 2
+         inc facexp
+         beq @xmul102   ; Jump if overflow
+@xmul101 rts
+
+@xmul102 ldx #errov     ; Overllow
+         jmp error
+
+
+; Multiply Accumulator by 6.
+
+xmul6
+
+; 1. ARG = FAC
+         jsr movaf      ; ARG = FAC
+
+; 2. FAC *= 2
+         tax            ; Exponent
+         beq @xmul61    ; Return if zero.
+         inc facexp
+         beq @xmul62    ; Jump if overflow
+
+; 3. FAC += ARG
+         stz arisgn
+         jsr xfaddt     ; The Z flag is clear here.
+
+; 4. FAC *= 2
+         inc facexp
+         beq @xmul62    ; Overflow
+@xmul61  rts
+
+@xmul62  ldx #errov     ; Overllow
+         jmp error
+
