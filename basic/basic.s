@@ -35,6 +35,6 @@
 .include "init.s"
 .include "x16additions.s"
 .include "geos.s"
-.include "xadd.s"    ; Place at the end, because it enables the 65C02 instruction set.
-.include "xmult.s"   ; Place at the end, because it enables the 65C02 instruction set.
+.include "fadd.s"    ; Place at the end, because it enables the 65C02 instruction set.
+.include "fmult.s"   ; Place at the end, because it enables the 65C02 instruction set.
 
