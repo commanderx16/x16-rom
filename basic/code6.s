@@ -4,7 +4,7 @@ timelp	sty fbufpt
 	inc fbufpt
 	ldy fbufpt
 	jsr timnum
-   jsr xmul6
+   jsr mul6
 noml6	ldy fbufpt
 	iny
 	cpy #6

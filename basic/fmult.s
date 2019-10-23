@@ -205,19 +205,19 @@ fmultt
          jmp fnormal    ; In basic/xadd.s
 
 
-; Multiply Accumulator by 10.
+; Multiply FAC by 10.
 
-xmul10
+mul10
 
 ; 1. ARG = FAC
          jsr movaf      ; ARG = FAC; Leaves exponent in A register.
 
 ; 2. FAC *= 4
          tax            ; Exponent
-         beq @xmul101   ; Return if zero.
+         beq @mul101    ; Return if zero.
          clc
          adc #2
-         bcs @xmul102   ; Jump if overflow
+         bcs @mul102    ; Jump if overflow
          sta facexp     ; Store new exponent.
 
 ; 3. FAC += ARG
@@ -226,25 +226,25 @@ xmul10
 
 ; 4. FAC *= 2
          inc facexp
-         beq @xmul102   ; Jump if overflow
-@xmul101 rts
+         beq @mul102    ; Jump if overflow
+@mul101  rts
 
-@xmul102 ldx #errov     ; Overllow
+@mul102  ldx #errov     ; Overllow
          jmp error
 
 
-; Multiply Accumulator by 6.
+; Multiply FAC by 6.
 
-xmul6
+mul6
 
 ; 1. ARG = FAC
          jsr movaf      ; ARG = FAC
 
 ; 2. FAC *= 2
          tax            ; Exponent
-         beq @xmul61    ; Return if zero.
+         beq @mul61     ; Return if zero.
          inc facexp
-         beq @xmul62    ; Jump if overflow
+         beq @mul62     ; Jump if overflow
 
 ; 3. FAC += ARG
          stz arisgn
@@ -252,9 +252,9 @@ xmul6
 
 ; 4. FAC *= 2
          inc facexp
-         beq @xmul62    ; Overflow
-@xmul61  rts
+         beq @mul62     ; Overflow
+@mul61   rts
 
-@xmul62  ldx #errov     ; Overllow
+@mul62   ldx #errov     ; Overllow
          jmp error
 
