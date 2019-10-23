@@ -11,7 +11,7 @@
 ; 5. In case of subtract, Shift mantissa left until normalized.
 
 ; Rounding.
-; 
+;
 ; The FAC has a 5-byte mantissa, where the 5th byte (stored in facov)
 ; contains rounding bits that are removed after the final calculation.
 ; In this routine, the rounding byte for the largest operand is stored
@@ -45,7 +45,7 @@ fadd     jsr conupk
 ; Additionally, the Z-flag is the value of the FAC exponent.
 ; On exit the sum is stored in FAC.
 
-faddt   
+faddt
 
 ; 1. If either operand is zero, then finish immediately.
 
