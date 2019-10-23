@@ -291,7 +291,7 @@ fnormal  bit facho
          adc #$08
          cmp #$20
          bne @norm3
-         jmp xzerofc
+         jmp @zerofac
 
 @norm2   ina
          asl facov
@@ -304,7 +304,7 @@ fnormal  bit facho
 ; Adjust exponent by amount of shifting.
          sec
          sbc facexp
-         bcs xzerofc
+         bcs @zerofac
 
          eor #$ff
          ina
@@ -312,7 +312,7 @@ fnormal  bit facho
 @ret     rts
 
 ; Underflow. Result becomes zero.
-xzerofc  stz facexp
+@zerofac stz facexp
          stz facsgn
          rts
 
