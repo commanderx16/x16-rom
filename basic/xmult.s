@@ -34,13 +34,21 @@
 
 
 ;--------------------------------------------------------------
-; Entry point for xfmultt
+; Entry point for fmult
+; On entry one value is stored in FAC and the other in memory pointed
+; to by (A,Y).
+; On exit the sum is stored in FAC.
+
+fmult    jsr conupk
+
+;--------------------------------------------------------------
+; Entry point for fmultt
 ; On entry the two values are stored in FAC and ARG.
 ; The variable arisgn contains the XOR of the two sign bits.
 ; Additionally, the Z-flag is the value of the FAC exponent.
 ; On exit the sum is stored in FAC.
 
-xfmultt  
+fmultt  
 
 ; 1. If either operand is zero, then finish immediately.
 
@@ -194,7 +202,7 @@ xfmultt
          lda reslo
          sta facov
 
-         jmp xnormal    ; In basic/xadd.s
+         jmp fnormal    ; In basic/xadd.s
 
 
 ; Multiply Accumulator by 10.
@@ -214,7 +222,7 @@ xmul10
 
 ; 3. FAC += ARG
          stz arisgn
-         jsr xfaddt     ; The Z flag is clear here.
+         jsr faddt      ; The Z flag is clear here.
 
 ; 4. FAC *= 2
          inc facexp
@@ -240,7 +248,7 @@ xmul6
 
 ; 3. FAC += ARG
          stz arisgn
-         jsr xfaddt     ; The Z flag is clear here.
+         jsr faddt      ; The Z flag is clear here.
 
 ; 4. FAC *= 2
          inc facexp

@@ -24,24 +24,34 @@
 ;  0.5:  80, 00, 00, 00, 00
 ; -1  :  81, 80, 00, 00, 00
 
-xerrts   rts
-xfc      jmp movfa      ; Copy from ARG to FAC.
+
+faddret1 rts
+
+faddret2 jmp movfa      ; Copy from ARG to FAC.
 
 
 ;--------------------------------------------------------------
-; Entry point for xfaddt
+; Entry point for fadd
+; On entry one value is stored in FAC and the other in memory pointed
+; to by (A,Y).
+; On exit the sum is stored in FAC.
+
+fadd     jsr conupk
+
+;--------------------------------------------------------------
+; Entry point for faddt
 ; On entry the two values are stored in FAC and ARG.
 ; The variable arisgn contains the XOR of the two sign bits.
 ; Additionally, the Z-flag is the value of the FAC exponent.
 ; On exit the sum is stored in FAC.
 
-xfaddt   
+faddt   
 
 ; 1. If either operand is zero, then finish immediately.
 
-         beq xfc        ; Jump if FAC is zero.
+         beq faddret2   ; Jump if FAC is zero.
          lda argexp
-         beq xerrts     ; Jump if ARG is zero.
+         beq faddret1   ; Jump if ARG is zero.
 
 
 ; 2. If one operand has a larger exponent than the other,
@@ -227,7 +237,7 @@ xfaddt
          lda 1,y
          sbc 1,x
          sta facho
-         bcs xnormal
+         bcs fnormal
 
                         ; Negate FAC
          lda facsgn
@@ -250,18 +260,18 @@ xfaddt
          eor #$ff
          ina
          sta facov
-         bne xnormal
+         bne fnormal
          inc faclo
-         bne xnormal
+         bne fnormal
          inc facmo
-         bne xnormal
+         bne fnormal
          inc facmoh
-         bne xnormal
+         bne fnormal
          inc facho
 
 ; 5. Shift mantissa left until normalized.
 
-xnormal  bit facho
+fnormal  bit facho
          bmi @ret       ; Jump if number is already normalized.
 
          lda #0         ; Number of bits rotated.
