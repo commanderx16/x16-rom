@@ -74,7 +74,7 @@ resho	.res 1           ;$26 result of multiplier and divider
 resmoh	.res 1           ;$27
 resmo	.res 1           ;$28
 reslo	.res 1           ;$29
-	.res 1           ;$2A fifth byte for res
+resov	.res 1           ;$2A fifth byte for res
 addend	=resmo           ;$28 temporary used by "umult"
 
 ; --- pointers into dynamic data structures ---;
@@ -151,7 +151,6 @@ size	=jmper+1         ;$55
 oldov	=jmper+2         ;$56 the old overflow
 fachop   =oldov           ;Reused temporarily in fmult.s
 reshop   =arisgn          ;Reused temporarily in fmult.s
-resov    =argexp          ;Reused temporarily in fmult.s
 
 .segment "ZPBASIC"
 tempf1	.res 1           ;$57 5 bytes temp fac
