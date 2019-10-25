@@ -1,0 +1,69 @@
+The Memotech MTX uses a stack processor for floating point calculations,
+with the following calltable:
+
+000000FC           calltable
+000000FC 84 3D      80 DW   evalab
+000000FE 8F 12      81 DW   accstack      POP FAC
+00000100 D1 12      82 DW   retacc        FAC := MEM
+00000102 91 23      83 DW   squa1
+00000104 9E 12      84 DW   op1stack      POP ARG
+00000106 86 12      85 DW   stackacc      PUSH FAC
+00000108 83 11      86 DW   exchange      EXCHANGE FAC and ARG
+0000010A A5 23      87 DW   log2x         FAC := log2(FAC)
+0000010C 0B 10      88 DW   mulply        FAC := ARG * FAC
+0000010E F2 23      89 DW   exp2x         FAC := exp2(FAC)
+00000110 9E 10      8A DW   divide        FAC := ARG / FAC
+00000112 86 0E      8B DW   add           FAC := ARG + FAC
+00000114 2B 11      8C DW   frac
+00000116 BC 23      8D DW   lognx
+00000118 B9 12      8E DW   movdeop1      ARG := (DE)
+0000011A 00 20      8F DW   set1acc       FAC := 1
+0000011C 83 0E      90 DW   subtract      FAC := ARG - FAC
+0000011E C1 13      91 DW   poly2         FAC := FAC * f(FAC^2), where f(x) is defined by HL.
+00000120 F3 13      92 DW   alop1
+00000122 FA 0F      93 DW   remainder     FAC := ARG % FAC
+00000124 0B 12      94 DW   piop1         ARG := pi
+00000126 5D 11      95 DW   compao
+00000128 98 12      96 DW   stackop1      PUSH ARG
+0000012A 82 13      97 DW   sine          FAC := sin(FAC)
+0000012C 7D 13      98 DW   cosine        FAC := cos(FAC)
+0000012E 08 10      99 DW   square        FAC := FAC^2
+00000130 D2 13      9A DW   polynom       FAC := f(FAC), where f(x) is defined by HL.
+00000132 BF 12      9B DW   saveacc       MEM := FAC
+00000134 A7 12      9C DW   movede        FAC := (DE)
+00000136 C8 11      9D DW   largen
+00000138 C5 11      9E DW   large1
+0000013A 74 12      9F DW   destack       POP (DE)
+0000013C 17 13      A0 DW   stac          FAC := A (CPU register)
+0000013E B9 14      A1 DW   synproc
+00000140 EA 0F      A2 DW   compacc       FAC := -FAC
+00000142 3D 0E      A3 DW   div10
+00000144 16 23      A4 DW   repdec
+00000146 E9 2F      A5 DW   getspace
+00000148 F3 2F      A6 DW   getchar
+0000014A CD 2F      A7 DW   putstack
+0000014C 90 2F      A8 DW   newscreen
+0000014E 29 14      A9 DW   editor
+00000150 48 14      AA DW   edend
+00000152 7E 29      AB DW   morehex
+00000154 AB 0C      AC DW   printx
+00000156 19 1A      AD DW   findnspc
+00000158 79 06      AE DW   bstphl
+0000015A 71 06      AF DW   pgchk
+0000015C AC 06      B0 DW   lcbsbt
+0000015E 47 06      B1 DW   pgslc1
+00000160 50 23      B2 DW   getde1
+00000162 DD 1B      B3 DW   movhl
+00000164 0C 1A      B4 DW   test1
+00000166 E5 19      B5 DW   getlne
+00000168 45 3C      B6 DW   ae
+0000016A 96 3B      B7 DW   digit
+0000016C FE 2C      B8 DW   endlin
+0000016E E9 3F      B9 DW   find1s
+00000170 7A 2A      BA DW   tinsert
+00000172 7E 3E      BB DW   evalse
+00000174 8D 2A      BC DW   test2b
+00000176 87 3B      BD DW   alpha
+00000178 91 3C      BE DW   se
+0000017A 1F 16      BF DW   sincos
+
