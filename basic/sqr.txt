@@ -1,4 +1,6 @@
-Fast floating point approximation to sqrt(FAC)
+Fast floating point approximation to sqrt(FAC).
+
+Source: https://en.wikipedia.org/wiki/Fast_inverse_square_root
 
 x   |  FAC_x  | sqrt(FAC_x) | sqrt(x) | error | FAC_sqrt(x)
 ----+---------+-------------+---------+-------+-------------
