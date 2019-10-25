@@ -262,19 +262,23 @@ SetMouse:
 
 tmpFire = $9eff
 
+ext_mouseBtn  = $0780
+ext_mouseXPos = $0781
+ext_mouseYPos = $0783
+
 UpdateMouse:
-	lda $9fa1
+	lda ext_mouseXPos+1
 	lsr
 	sta mouseXPos + 1
-	lda $9fa0
+	lda ext_mouseXPos
 	ror
 	sta mouseXPos
-	lda $9fa3
+	lda ext_mouseYPos+1
 	lsr
-	lda $9fa2
+	lda ext_mouseYPos
 	ror
 	sta mouseYPos
-	lda $9fa4
+	lda ext_mouseBtn
 	and #1
 	eor #1
 	cmp tmpFire
