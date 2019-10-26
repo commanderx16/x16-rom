@@ -41,10 +41,6 @@ timend
 cksma0	.byt $00        ;$a000 8k room check sum adj
 patchs	.res 30          ; patch area
 ;
-sqr	jsr movaf
-	lda #<fhalf
-	ldy #>fhalf
-	jsr movfm
 fpwrt	beq exp
 	lda argexp
 	bne fpwrt1
