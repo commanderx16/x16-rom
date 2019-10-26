@@ -267,6 +267,12 @@ ext_mouseXPos = $0781
 ext_mouseYPos = $0783
 
 UpdateMouse:
+.import scnmse, gjsrfar
+.include "../banks.inc"
+	jsr gjsrfar
+	.word scnmse
+	.byte BANK_KERNAL
+
 	lda ext_mouseXPos+1
 	lsr
 	sta mouseXPos + 1

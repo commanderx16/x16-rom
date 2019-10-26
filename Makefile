@@ -12,6 +12,7 @@ ARGS_KERNAL=-g
 ARGS_BASIC=-g
 #ARGS_MONITOR=-g
 #ARGS_DOS=-g
+ARGS_GEOS=-g
 
 
 ASFLAGS      = -I geos/inc -I geos -g
@@ -160,7 +161,7 @@ PREFIXED_GEOS_OBJS = $(addprefix $(GEOS_BUILD_DIR)/, $(GEOS_OBJS))
 
 $(GEOS_BUILD_DIR)/%.o: %.s
 	@mkdir -p `dirname $@`
-	$(AS) -D bsw=1 -D drv1541=1 $(ASFLAGS) $< -o $@
+	$(AS) $(ARGS_GEOS) -D bsw=1 -D drv1541=1 $(ASFLAGS) $< -o $@
 
 all: $(PREFIXED_GEOS_OBJS)
 	$(AS) -o kernsup/kernsup.o kernsup/kernsup.s

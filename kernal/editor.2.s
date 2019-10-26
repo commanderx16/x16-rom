@@ -582,6 +582,7 @@ mouseLeft = $07c0
 mouseRight = $07c2
 mouseTop = $07c4
 mouseBottom = $07c6
+.global scnmse
 scnmse:
 	lda #0
 	sta mouseLeft

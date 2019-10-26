@@ -10,13 +10,29 @@
 .include "kernal.inc"
 .include "c64.inc"
 
-.global _GetScanLine
+.global _GetScanLine, _GetScanLineCompat
 
 .segment "graph2n"
 
 .import _DMult
 
 .setcpu "65c02"
+
+; This is a fake version of the KERNAL call GetScanLine
+; referenced by the jump table. On C64 GEOS, callers of
+; the function could safely assume the VIC-II bitmap
+; layout and that the bitmap is actually stored in CPU
+; memory on the current bank. Neither of this is the
+; case on a system with a VERA. deskTop 2.0 for example
+; would trash CPU memory if this returned real offsets
+; into video RAM. Therefore, to all users in compatMode,
+; we return a fake address that cannot cause any harm.
+_GetScanLineCompat:
+	bit compatMode
+	bpl _GetScanLine
+	LoadW r5, $ff00
+	LoadW r6, $ff00
+	rts
 
 ;---------------------------------------------------------------
 ; GetScanLine                                             $C13C
