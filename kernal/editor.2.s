@@ -695,8 +695,79 @@ scnms2:
 	stx mouseYPos+1
 @5a:
 
+; sprite
+	lda #$02
+	sta veralo
+	lda #$50
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda mouseXPos
+	sta veradat
+	lda mouseXPos+1
+	sta veradat
+	lda mouseYPos
+	sta veradat
+	lda mouseYPos+1
+	sta veradat
+	lda #3 << 2 ; z-depth
+	sta veradat
+
+; init sprites
+sprite_addr = $10000 + 320 * 200 ; after background screen
+	lda #$00
+	sta veralo
+	lda #$40
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda #1
+	sta veradat ; enable sprites
+
+	lda #$00
+	sta veralo
+	lda #$50
+	sta veramid
+	lda #<(sprite_addr >> 5)
+	sta veradat
+	lda #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
+	sta veradat
+	lda #$07
+	sta veralo
+	lda #1 << 6 | 1 << 4
+	sta veradat
+
+	lda #<sprite_addr
+	sta veralo
+	lda #>sprite_addr
+	sta veramid
+	lda #$10 | (sprite_addr >> 16)
+	sta verahi
+	ldx #0
+:	lda mouse_sprite_data,x
+	sta veradat
+	inx
+	bne :-
 
 	rts
+
+mouse_sprite_data:
+.byte 1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+.byte 1,16,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+.byte 1,16,16,1,0,0,0,0,0,0,0,0,0,0,0,0
+.byte 1,16,16,16,1,0,0,0,0,0,0,0,0,0,0,0
+.byte 1,16,16,16,16,1,0,0,0,0,0,0,0,0,0,0
+.byte 1,16,16,16,16,16,1,0,0,0,0,0,0,0,0,0
+.byte 1,16,16,16,16,16,16,1,0,0,0,0,0,0,0,0
+.byte 1,16,16,16,16,16,16,16,1,0,0,0,0,0,0,0
+.byte 1,16,16,16,16,16,16,16,16,1,0,0,0,0,0,0
+.byte 1,16,16,16,16,16,1,1,1,1,1,0,0,0,0,0
+.byte 1,16,16,1,16,16,1,0,0,0,0,0,0,0,0,0
+.byte 1,16,1,0,1,16,16,1,0,0,0,0,0,0,0,0
+.byte 1,1,0,0,1,16,16,1,0,0,0,0,0,0,0,0
+.byte 1,0,0,0,0,1,16,16,1,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,1,16,16,1,0,0,0,0,0,0,0
+.byte 0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0
 
 tab_extended:
 	;         end      lf hom
