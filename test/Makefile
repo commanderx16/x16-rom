@@ -1,4 +1,4 @@
-all: math.diff.txt perf.diff.txt add.diff.txt mult.diff.txt
+all: math.diff.txt perf.diff.txt add.diff.txt mult.diff.txt sqr.diff.txt
 
 math.diff.txt: math.orig.txt math.txt
 	-diff math.orig.txt math.txt > math.diff.txt
@@ -11,6 +11,9 @@ add.diff.txt: add.orig.txt add.txt
 
 mult.diff.txt: mult.orig.txt mult.txt
 	-diff mult.orig.txt mult.txt > mult.diff.txt
+
+sqr.diff.txt: sqr.orig.txt sqr.txt
+	-diff sqr.orig.txt sqr.txt > sqr.diff.txt
 
 
 math.txt: ../rom.bin math.bas
@@ -25,6 +28,9 @@ add.txt: ../rom.bin add.bas
 mult.txt: ../rom.bin mult.bas
 	x16emu-orig -rom ../rom.bin -bas mult.bas -echo | tee mult.txt
 
+sqr.txt: ../rom.bin sqr.bas
+	x16emu-orig -rom ../rom.bin -bas sqr.bas -echo | tee sqr.txt
+
 
 math.orig.txt: ~/bin/rom-orig.bin math.bas
 	x16emu-orig -rom ~/bin/rom-orig.bin -bas math.bas -echo | tee math.orig.txt
@@ -38,10 +44,15 @@ add.orig.txt: ~/bin/rom-orig.bin add.bas
 mult.orig.txt: ~/bin/rom-orig.bin mult.bas
 	x16emu-orig -rom ~/bin/rom-orig.bin -bas mult.bas  -echo | tee mult.orig.txt
 
+sqr.orig.txt: ~/bin/rom-orig.bin sqr.bas
+	x16emu-orig -rom ~/bin/rom-orig.bin -bas sqr.bas  -echo | tee sqr.orig.txt
+
+
 clean:
 	-rm math.orig.txt math.txt
 	-rm perf.orig.txt perf.txt
 	-rm add.orig.txt add.txt
 	-rm mult.orig.txt mult.txt
-	-rm math.diff.txt perf.diff.txt add.diff.txt mult.diff.txt
+	-rm sqr.orig.txt sqr.txt
+	-rm math.diff.txt perf.diff.txt add.diff.txt mult.diff.txt sqr.diff.txt
 	-rm dump*.bin
