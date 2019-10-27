@@ -199,7 +199,8 @@ dspp2	ldy pntr
 	stx veradat     ;color to screen
 	rts
 
-key	jsr $ffea       ;update jiffy clock
+key	jsr scnmse      ;scan mouse (do this first to avoid sprite tearing)
+	jsr $ffea       ;update jiffy clock
 	lda blnsw       ;blinking crsr ?
 	bne key4        ;no
 	dec blnct       ;time to blink ?
@@ -234,7 +235,6 @@ key3	eor #$80        ;blink it
 ;
 key4
 	jsr scnkey      ;scan keyboard
-	jsr scnmse      ;scan mouse
 ;
 kprend
 .if 0 ; VIA#2 timer IRQ for 60 Hz
@@ -795,33 +795,71 @@ mous2:	lda mspar
 	lda #$10 | (sprite_addr >> 16)
 	sta verahi
 	ldx #0
-:	lda mouse_sprite_data,x
+@1:	lda #8
+	sta 0
+	lda mouse_sprite_mask,x
+	ldy mouse_sprite_col,x
+@2:	asl
+	bcs @3
+	stz veradat
+	pha
+	tya
+	asl
+	tay
+	pla
+	bra @4
+@3:	pha
+	tya
+	asl
+	tay
+	bcc @5
+	lda #1  ; white
+	.byte $2c
+@5:	lda #16 ; black
 	sta veradat
+	pla
+@4:	dec 0
+	bne @2
 	inx
-	bne :-
+	cpx #32
+	bne @1
 	rts
 
-WHT = 1
-BLK = 16
-XXX = 0
-
-mouse_sprite_data:
-.byte WHT,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,BLK,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,BLK,BLK,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,BLK,BLK,BLK,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,BLK,BLK,BLK,BLK,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,BLK,BLK,BLK,BLK,BLK,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,BLK,BLK,BLK,BLK,BLK,WHT,WHT,WHT,WHT,WHT,XXX,XXX,XXX,XXX,XXX
-.byte WHT,BLK,BLK,WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,BLK,WHT,XXX,WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,WHT,XXX,XXX,WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte WHT,XXX,XXX,XXX,XXX,WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte XXX,XXX,XXX,XXX,XXX,WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX
-.byte XXX,XXX,XXX,XXX,XXX,XXX,WHT,WHT,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+; This is the Susan Kare mouse pointer
+mouse_sprite_col:
+.byte %11000000,%00000000
+.byte %10100000,%00000000
+.byte %10010000,%00000000
+.byte %10001000,%00000000
+.byte %10000100,%00000000
+.byte %10000010,%00000000
+.byte %10000001,%00000000
+.byte %10000000,%10000000
+.byte %10000000,%01000000
+.byte %10000011,%11100000
+.byte %10010010,%00000000
+.byte %10101001,%00000000
+.byte %11001001,%00000000
+.byte %10000100,%10000000
+.byte %00000100,%10000000
+.byte %00000011,%10000000
+mouse_sprite_mask:
+.byte %11000000,%00000000
+.byte %11100000,%00000000
+.byte %11110000,%00000000
+.byte %11111000,%00000000
+.byte %11111100,%00000000
+.byte %11111110,%00000000
+.byte %11111111,%00000000
+.byte %11111111,%10000000
+.byte %11111111,%11000000
+.byte %11111111,%11100000
+.byte %11111110,%00000000
+.byte %11101111,%00000000
+.byte %11001111,%00000000
+.byte %10000111,%10000000
+.byte %00000111,%10000000
+.byte %00000011,%10000000
 
 tab_extended:
 	;         end      lf hom
