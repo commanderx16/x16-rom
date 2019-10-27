@@ -577,6 +577,7 @@ md_sh:	lda #MODIFIER_SHIFT
 mouseBtn  = $0780
 mouseXPos = $0781
 mouseYPos = $0783
+mspar     = $0785
 
 mouseLeft = $07c0
 mouseRight = $07c2
@@ -702,19 +703,66 @@ scnms2:
 	sta veramid
 	lda #$1F
 	sta verahi
+	lda mspar
+	and #$7f
+	cmp #2 ; scale
+	beq :+
 	lda mouseXPos
+	ldx mouseXPos+1
 	sta veradat
-	lda mouseXPos+1
-	sta veradat
+	stx veradat
 	lda mouseYPos
+	ldx mouseYPos+1
+	bra @s1
+:	lda mouseXPos+1
+	lsr
+	tax
+	lda mouseXPos
+	ror
 	sta veradat
+	stx veradat
 	lda mouseYPos+1
-	sta veradat
-	lda #3 << 2 ; z-depth
-	sta veradat
+	lsr
+	tax
+	lda mouseYPos
+	ror
+@s1:	sta veradat
+	stx veradat
 
-; init sprites
+	rts
+
 sprite_addr = $10000 + 320 * 200 ; after background screen
+
+; A: $00 hide mouse
+;    n   show mouse, set mouse cursor #n
+;    $FF show mouse, don't configure mouse cursor
+; X: $00 no-op
+;    $01 set scale to 1
+;    $02 set scale to 2
+mouse:
+	cpx #0
+	beq mous1
+;  set scale
+	stx mspar
+mous1:	cmp #0
+	bne mous2
+; hide mouse, disable sprite #0
+	lda mspar
+	and #$7f
+	sta mspar
+	lda #$06
+	sta veralo
+	lda #$50
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda #0
+	sta veradat
+	rts
+; show mouse
+mous2:	lda mspar
+	ora #$80
+	sta mspar
 	lda #$00
 	sta veralo
 	lda #$40
@@ -732,11 +780,14 @@ sprite_addr = $10000 + 320 * 200 ; after background screen
 	sta veradat
 	lda #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
 	sta veradat
-	lda #$07
+	lda #$06
 	sta veralo
-	lda #1 << 6 | 1 << 4
+	lda #3 << 2 ; z-depth: in front of everything
+	sta veradat
+	lda #1 << 6 | 1 << 4 ;  16x16 px
 	sta veradat
 
+	; we ignore the cursor #, always set std pointer
 	lda #<sprite_addr
 	sta veralo
 	lda #>sprite_addr
@@ -748,26 +799,29 @@ sprite_addr = $10000 + 320 * 200 ; after background screen
 	sta veradat
 	inx
 	bne :-
-
 	rts
 
+WHT = 1
+BLK = 16
+XXX = 0
+
 mouse_sprite_data:
-.byte 1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-.byte 1,16,1,0,0,0,0,0,0,0,0,0,0,0,0,0
-.byte 1,16,16,1,0,0,0,0,0,0,0,0,0,0,0,0
-.byte 1,16,16,16,1,0,0,0,0,0,0,0,0,0,0,0
-.byte 1,16,16,16,16,1,0,0,0,0,0,0,0,0,0,0
-.byte 1,16,16,16,16,16,1,0,0,0,0,0,0,0,0,0
-.byte 1,16,16,16,16,16,16,1,0,0,0,0,0,0,0,0
-.byte 1,16,16,16,16,16,16,16,1,0,0,0,0,0,0,0
-.byte 1,16,16,16,16,16,16,16,16,1,0,0,0,0,0,0
-.byte 1,16,16,16,16,16,1,1,1,1,1,0,0,0,0,0
-.byte 1,16,16,1,16,16,1,0,0,0,0,0,0,0,0,0
-.byte 1,16,1,0,1,16,16,1,0,0,0,0,0,0,0,0
-.byte 1,1,0,0,1,16,16,1,0,0,0,0,0,0,0,0
-.byte 1,0,0,0,0,1,16,16,1,0,0,0,0,0,0,0
-.byte 0,0,0,0,0,1,16,16,1,0,0,0,0,0,0,0
-.byte 0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0
+.byte WHT,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,BLK,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,BLK,BLK,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,BLK,BLK,BLK,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,BLK,BLK,BLK,BLK,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,BLK,BLK,BLK,BLK,BLK,BLK,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,BLK,BLK,BLK,BLK,BLK,WHT,WHT,WHT,WHT,WHT,XXX,XXX,XXX,XXX,XXX
+.byte WHT,BLK,BLK,WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,BLK,WHT,XXX,WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,WHT,XXX,XXX,WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte WHT,XXX,XXX,XXX,XXX,WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte XXX,XXX,XXX,XXX,XXX,WHT,BLK,BLK,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX
+.byte XXX,XXX,XXX,XXX,XXX,XXX,WHT,WHT,WHT,XXX,XXX,XXX,XXX,XXX,XXX,XXX
 
 tab_extended:
 	;         end      lf hom

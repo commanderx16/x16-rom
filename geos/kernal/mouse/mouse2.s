@@ -103,7 +103,7 @@ ProcessMouse:
 	jsr DrawSprite
 @X:	MoveW mouseXPos, r4
 	MoveB mouseYPos, r5L
-	jsr PosSprite
+;	jsr PosSprite
 .ifndef bsw128
 	jsr EnablSprite
 .endif

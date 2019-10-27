@@ -11,6 +11,8 @@
 	jmp restore_basic
 ; $FF06: GETJOY
 	jmp query_joysticks
+; $FF09: MOUSE
+	jmp mouse
 
 	.segment "JMPTB128"
 ; C128 KERNAL API
