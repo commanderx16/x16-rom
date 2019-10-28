@@ -101,6 +101,7 @@ stmdsp2	; statements
 	.word vpeek
 	.word mx
 	.word my
+	.word mb
 ;**************************************
 
 reslst	.byt "EN",$c4

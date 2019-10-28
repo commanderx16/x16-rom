@@ -262,9 +262,7 @@ SetMouse:
 
 tmpFire = $9eff
 
-.import mousex, mousey
-
-ext_mouseBtn  = $0780
+.import mousex, mousey, mousebt
 
 UpdateMouse:
 .import scnmse, gjsrfar
@@ -284,7 +282,7 @@ UpdateMouse:
 	lda mousey
 	ror
 	sta mouseYPos
-	lda ext_mouseBtn
+	lda mousebt
 	and #1
 	eor #1
 	cmp tmpFire

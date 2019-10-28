@@ -597,32 +597,23 @@ md_sh:	lda #MODIFIER_SHIFT
 	rts
 
 
-.global mousex, mousey
-
-mouseBtn  = $0780
-mousex = $0781
-mousey = $0783
-mspar     = $0785
-
-mouseLeft = $07c0
-mouseRight = $07c2
-mouseTop = $07c4
-mouseBottom = $07c6
+.global mousex, mousey, mousebt
 .global scnmse
+
 scnmse:
 	lda #0
-	sta mouseLeft
-	sta mouseLeft+1
-	sta mouseTop
-	sta mouseTop+1
+	sta mousel
+	sta mousel+1
+	sta mouset
+	sta mouset+1
 	lda #<640
-	sta mouseRight
+	sta mouser
 	lda #>640
-	sta mouseRight+1
+	sta mouser+1
 	lda #<480
-	sta mouseBottom
+	sta mouseb
 	lda #>480
-	sta mouseBottom+1
+	sta mouseb+1
 
 	ldx #0
 	jsr receive_byte
@@ -646,7 +637,7 @@ scnms2:
 	bne scnms1
 	txa
 .endif
-	sta mouseBtn
+	sta mousebt
 
 	ldx #0
 	jsr receive_byte
@@ -654,7 +645,7 @@ scnms2:
 	adc mousex
 	sta mousex
 
-	lda mouseBtn
+	lda mousebt
 	and #$10
 	beq :+
 	lda #$ff
@@ -667,16 +658,20 @@ scnms2:
 	adc mousey
 	sta mousey
 
-	lda mouseBtn
+	lda mousebt
 	and #$20
 	beq :+
 	lda #$ff
 :	adc mousey+1
 	sta mousey+1
 
+	lda mousebt
+	and #7
+	sta mousebt
+
 ; check bounds (from GEOS)
-	ldy mouseLeft
-	ldx mouseLeft+1
+	ldy mousel
+	ldx mousel+1
 	lda mousex+1
 	bmi @2
 	cpx mousex+1
@@ -688,8 +683,8 @@ scnms2:
 	stx mousex+1
 @3:
 
-	ldy mouseRight
-	ldx mouseRight+1
+	ldy mouser
+	ldx mouser+1
 	cpx mousex+1
 	bne @4
 	cpy mousex
@@ -698,8 +693,8 @@ scnms2:
 	stx mousex+1
 @5:
 
-	ldy mouseTop
-	ldx mouseTop+1
+	ldy mouset
+	ldx mouset+1
 	lda mousey+1
 	bmi @2a
 	cpx mousey+1
@@ -711,8 +706,8 @@ scnms2:
 	stx mousey+1
 @3a:
 
-	ldy mouseBottom
-	ldx mouseBottom+1
+	ldy mouseb
+	ldx mouseb+1
 	cpx mousey+1
 	bne @4a
 	cpy mousey
@@ -722,7 +717,7 @@ scnms2:
 @5a:
 
 ; sprite
-	lda mspar
+	lda msepar
 	bpl @s2 ; don't update sprite pos
 	ldx #$02
 	stx veralo
@@ -769,13 +764,13 @@ mouse:
 	cpx #0
 	beq mous1
 ;  set scale
-	stx mspar
+	stx msepar
 mous1:	cmp #0
 	bne mous2
 ; hide mouse, disable sprite #0
-	lda mspar
+	lda msepar
 	and #$7f
-	sta mspar
+	sta msepar
 	lda #$06
 	sta veralo
 	lda #$50
@@ -825,9 +820,9 @@ mous2:	cmp #$ff
 	cpx #32
 	bne @1
 
-mous3:	lda mspar
+mous3:	lda msepar
 	ora #$80 ; flag: mouse on
-	sta mspar
+	sta msepar
 	lda #$00
 	sta veralo
 	lda #$40

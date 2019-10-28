@@ -245,7 +245,7 @@ mouse:
 	ldx #0 ; keep scale
 	jmp $ff09
 
-.import mousex, mousey
+.import mousex, mousey, mousebt
 
 mx:
 	jsr chrget
@@ -258,3 +258,8 @@ my:
 	ldy mousey
 	lda mousey+1
 	jmp givayf
+
+mb:
+	jsr chrget
+	ldy mousebt
+	jmp sngflt
