@@ -99,8 +99,8 @@ stmdsp2	; statements
 	.word mouse-1
 	; functions
 	.word vpeek
-	.word mousex
-	.word mousey
+	.word mx
+	.word my
 ;**************************************
 
 reslst	.byt "EN",$c4

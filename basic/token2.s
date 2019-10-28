@@ -71,10 +71,10 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "CHA", 'R' + $80
 	.byt "MOUS", 'E' + $80
 	.byt "VPEE", 'K' + $80
-	.byt "MOUSE", 'X' + $80
-	.byt "MOUSE", 'Y' + $80
+	.byt "M", 'X' + $80
+	.byt "M", 'Y' + $80
 	.byt 0
-num_esc_statements = 14
+num_esc_statements = 13
 num_esc_functions = 3
 ;**************************************
 

@@ -262,9 +262,9 @@ SetMouse:
 
 tmpFire = $9eff
 
+.import mousex, mousey
+
 ext_mouseBtn  = $0780
-ext_mouseXPos = $0781
-ext_mouseYPos = $0783
 
 UpdateMouse:
 .import scnmse, gjsrfar
@@ -273,15 +273,15 @@ UpdateMouse:
 	.word scnmse
 	.byte BANK_KERNAL
 
-	lda ext_mouseXPos+1
+	lda mousex+1
 	lsr
 	sta mouseXPos + 1
-	lda ext_mouseXPos
+	lda mousex
 	ror
 	sta mouseXPos
-	lda ext_mouseYPos+1
+	lda mousey+1
 	lsr
-	lda ext_mouseYPos
+	lda mousey
 	ror
 	sta mouseYPos
 	lda ext_mouseBtn

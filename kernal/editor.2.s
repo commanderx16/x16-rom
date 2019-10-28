@@ -199,7 +199,20 @@ dspp2	ldy pntr
 	stx veradat     ;color to screen
 	rts
 
-key	jsr scnmse      ;scan mouse (do this first to avoid sprite tearing)
+key
+; save VERA state
+	lda veractl
+	pha
+	lda veralo
+	pha
+	lda veramid
+	pha
+	lda verahi
+	pha
+	lda #0
+	sta veractl
+
+	jsr scnmse      ;scan mouse (do this first to avoid sprite tearing)
 	jsr $ffea       ;update jiffy clock
 	lda blnsw       ;blinking crsr ?
 	bne key4        ;no
@@ -237,6 +250,16 @@ key4
 	jsr scnkey      ;scan keyboard
 ;
 kprend
+; restore VERA state
+	pla
+	sta verahi
+	pla
+	sta veramid
+	pla
+	sta veralo
+	pla
+	sta veractl
+
 .if 0 ; VIA#2 timer IRQ for 60 Hz
 	lda d1t1l       ;clear interupt flags
 .else
@@ -574,9 +597,11 @@ md_sh:	lda #MODIFIER_SHIFT
 	rts
 
 
+.global mousex, mousey
+
 mouseBtn  = $0780
-mouseXPos = $0781
-mouseYPos = $0783
+mousex = $0781
+mousey = $0783
 mspar     = $0785
 
 mouseLeft = $07c0
@@ -626,74 +651,74 @@ scnms2:
 	ldx #0
 	jsr receive_byte
 	clc
-	adc mouseXPos
-	sta mouseXPos
+	adc mousex
+	sta mousex
 
 	lda mouseBtn
 	and #$10
 	beq :+
 	lda #$ff
-:	adc mouseXPos+1
-	sta mouseXPos+1
+:	adc mousex+1
+	sta mousex+1
 
 	ldx #0
 	jsr receive_byte
 	clc
-	adc mouseYPos
-	sta mouseYPos
+	adc mousey
+	sta mousey
 
 	lda mouseBtn
 	and #$20
 	beq :+
 	lda #$ff
-:	adc mouseYPos+1
-	sta mouseYPos+1
+:	adc mousey+1
+	sta mousey+1
 
 ; check bounds (from GEOS)
 	ldy mouseLeft
 	ldx mouseLeft+1
-	lda mouseXPos+1
+	lda mousex+1
 	bmi @2
-	cpx mouseXPos+1
+	cpx mousex+1
 	bne @1
-	cpy mouseXPos
+	cpy mousex
 @1:	bcc @3
 	beq @3
-@2:	sty mouseXPos
-	stx mouseXPos+1
+@2:	sty mousex
+	stx mousex+1
 @3:
 
 	ldy mouseRight
 	ldx mouseRight+1
-	cpx mouseXPos+1
+	cpx mousex+1
 	bne @4
-	cpy mouseXPos
+	cpy mousex
 @4:	bcs @5
-	sty mouseXPos
-	stx mouseXPos+1
+	sty mousex
+	stx mousex+1
 @5:
 
 	ldy mouseTop
 	ldx mouseTop+1
-	lda mouseYPos+1
+	lda mousey+1
 	bmi @2a
-	cpx mouseYPos+1
+	cpx mousey+1
 	bne @1a
-	cpy mouseYPos
+	cpy mousey
 @1a:	bcc @3a
 	beq @3a
-@2a:	sty mouseYPos
-	stx mouseYPos+1
+@2a:	sty mousey
+	stx mousey+1
 @3a:
 
 	ldy mouseBottom
 	ldx mouseBottom+1
-	cpx mouseYPos+1
+	cpx mousey+1
 	bne @4a
-	cpy mouseYPos
+	cpy mousey
 @4a:	bcs @5a
-	sty mouseYPos
-	stx mouseYPos+1
+	sty mousey
+	stx mousey+1
 @5a:
 
 ; sprite
@@ -708,24 +733,24 @@ scnms2:
 	and #$7f
 	cmp #2 ; scale
 	beq :+
-	lda mouseXPos
-	ldx mouseXPos+1
+	lda mousex
+	ldx mousex+1
 	sta veradat
 	stx veradat
-	lda mouseYPos
-	ldx mouseYPos+1
+	lda mousey
+	ldx mousey+1
 	bra @s1
-:	lda mouseXPos+1
+:	lda mousex+1
 	lsr
 	tax
-	lda mouseXPos
+	lda mousex
 	ror
 	sta veradat
 	stx veradat
-	lda mouseYPos+1
+	lda mousey+1
 	lsr
 	tax
-	lda mouseYPos
+	lda mousey
 	ror
 @s1:	sta veradat
 	stx veradat

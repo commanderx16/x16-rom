@@ -245,8 +245,16 @@ mouse:
 	ldx #0 ; keep scale
 	jmp $ff09
 
-mousex:
-	rts
+.import mousex, mousey
 
-mousey:
-	rts
+mx:
+	jsr chrget
+	ldy mousex
+	lda mousex+1
+	jmp givayf
+
+my:
+	jsr chrget
+	ldy mousey
+	lda mousey+1
+	jmp givayf
