@@ -697,13 +697,14 @@ scnms2:
 @5a:
 
 ; sprite
-	lda #$02
-	sta veralo
-	lda #$50
-	sta veramid
-	lda #$1F
-	sta verahi
 	lda mspar
+	bpl @s2 ; don't update sprite pos
+	ldx #$02
+	stx veralo
+	ldx #$50
+	stx veramid
+	ldx #$1F
+	stx verahi
 	and #$7f
 	cmp #2 ; scale
 	beq :+
@@ -729,7 +730,7 @@ scnms2:
 @s1:	sta veradat
 	stx veradat
 
-	rts
+@s2:	rts
 
 sprite_addr = $10000 + 320 * 200 ; after background screen
 
@@ -760,33 +761,8 @@ mous1:	cmp #0
 	sta veradat
 	rts
 ; show mouse
-mous2:	lda mspar
-	ora #$80
-	sta mspar
-	lda #$00
-	sta veralo
-	lda #$40
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #1
-	sta veradat ; enable sprites
-
-	lda #$00
-	sta veralo
-	lda #$50
-	sta veramid
-	lda #<(sprite_addr >> 5)
-	sta veradat
-	lda #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
-	sta veradat
-	lda #$06
-	sta veralo
-	lda #3 << 2 ; z-depth: in front of everything
-	sta veradat
-	lda #1 << 6 | 1 << 4 ;  16x16 px
-	sta veradat
-
+mous2:	cmp #$ff
+	beq mous3
 	; we ignore the cursor #, always set std pointer
 	lda #<sprite_addr
 	sta veralo
@@ -823,6 +799,33 @@ mous2:	lda mspar
 	inx
 	cpx #32
 	bne @1
+
+mous3:	lda mspar
+	ora #$80 ; flag: mouse on
+	sta mspar
+	lda #$00
+	sta veralo
+	lda #$40
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda #1
+	sta veradat ; enable sprites
+
+	lda #$00
+	sta veralo
+	lda #$50
+	sta veramid
+	lda #<(sprite_addr >> 5)
+	sta veradat
+	lda #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
+	sta veradat
+	lda #$06
+	sta veralo
+	lda #3 << 2 ; z-depth: in front of everything
+	sta veradat
+	lda #1 << 6 | 1 << 4 ;  16x16 px
+	sta veradat
 	rts
 
 ; This is the Susan Kare mouse pointer

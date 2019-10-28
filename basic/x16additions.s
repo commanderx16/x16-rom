@@ -238,3 +238,15 @@ disk_done
 	lda #LOGADD
 	sec
 	jmp close
+
+mouse:
+	jsr getbyt
+	txa
+	ldx #0 ; keep scale
+	jmp $ff09
+
+mousex:
+	rts
+
+mousey:
+	rts

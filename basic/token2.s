@@ -69,10 +69,13 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "FRAM", 'E' + $80
 	.byt "REC", 'T' + $80
 	.byt "CHA", 'R' + $80
+	.byt "MOUS", 'E' + $80
 	.byt "VPEE", 'K' + $80
+	.byt "MOUSE", 'X' + $80
+	.byt "MOUSE", 'Y' + $80
 	.byt 0
-num_esc_statements = 12
-num_esc_functions = 1
+num_esc_statements = 14
+num_esc_functions = 3
 ;**************************************
 
 err01	.byt "TOO MANY FILE",$d3
