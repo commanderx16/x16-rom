@@ -5,6 +5,10 @@
 
 ; for basic
 .global color
+; for basic and GEOS
+.global mousex, mousey, mousebt
+; for GEOS
+.global scnmse
 
 .segment "ZPKERNAL" : zeropage
 ;                      C64 location
