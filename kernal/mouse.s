@@ -1,6 +1,6 @@
-sprite_addr = $10000 + 320 * 200 ; after background screen
+sprite_addr = 60 * 256 ; after text screen
 
-scnmse:
+initmse:
 	lda #0
 	sta mousel
 	sta mousel+1
@@ -14,7 +14,9 @@ scnmse:
 	sta mouseb
 	lda #>480
 	sta mouseb+1
+	rts
 
+scnmse:
 	ldx #0
 	jsr receive_byte
 	bcs scnms1 ; parity error
@@ -69,8 +71,8 @@ scnms2:
 	and #7
 	sta mousebt
 
-; check bounds (from GEOS)
-	ldy mousel
+; check bounds
+@xxxxx:	ldy mousel
 	ldx mousel+1
 	lda mousex+1
 	bmi @2
@@ -82,7 +84,6 @@ scnms2:
 @2:	sty mousex
 	stx mousex+1
 @3:
-
 	ldy mouser
 	ldx mouser+1
 	cpx mousex+1
@@ -92,7 +93,6 @@ scnms2:
 	sty mousex
 	stx mousex+1
 @5:
-
 	ldy mouset
 	ldx mouset+1
 	lda mousey+1
@@ -105,7 +105,6 @@ scnms2:
 @2a:	sty mousey
 	stx mousey+1
 @3a:
-
 	ldy mouseb
 	ldx mouseb+1
 	cpx mousey+1
@@ -116,7 +115,7 @@ scnms2:
 	stx mousey+1
 @5a:
 
-; sprite
+; update sprite
 	lda msepar
 	bpl @s2 ; don't update sprite pos
 	ldx #$02
@@ -152,6 +151,7 @@ scnms2:
 
 @s2:	rts
 
+; "MOUSE" KERNAL call
 ; A: $00 hide mouse
 ;    n   show mouse, set mouse cursor #n
 ;    $FF show mouse, don't configure mouse cursor
@@ -247,7 +247,7 @@ mous3:	lda msepar
 	rts
 
 ; This is the Susan Kare mouse pointer
-mouse_sprite_col:
+mouse_sprite_col: ; 0: black, 1: white
 .byte %11000000,%00000000
 .byte %10100000,%00000000
 .byte %10010000,%00000000
@@ -264,7 +264,7 @@ mouse_sprite_col:
 .byte %10000100,%10000000
 .byte %00000100,%10000000
 .byte %00000011,%10000000
-mouse_sprite_mask:
+mouse_sprite_mask: ; 0: transparent, 1: opaque
 .byte %11000000,%00000000
 .byte %11100000,%00000000
 .byte %11110000,%00000000

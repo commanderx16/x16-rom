@@ -120,6 +120,7 @@ ioinit
 ;jsr clkhi ;clkhi to release serial devices  ^
 ;
 iokeys
+	jsr initmse     ;init mouse
 .if 0 ; VIA#2 timer IRQ for 60 Hz
 	lda #<sixty     ;keyboard scan irq's
 	sta d1t1l
