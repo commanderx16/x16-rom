@@ -32,6 +32,7 @@ symbol:
 	bridge3 monitor         ; $FF00: MONITOR
 	bridge3 restore_basic   ; $FF03
 	bridge3 query_joysticks ; $FF06: GETJOY
+	bridge3 mouse           ; $FF09: MOUSE
 
 .segment "KERNSUPV2"
 

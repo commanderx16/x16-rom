@@ -12,6 +12,7 @@
 .include "editor.1.s"
 .include "editor.2.s"
 .include "editor.3.s"
+.include "mouse.s"
 .include "serial4.0.s"
 .include "rs232.s"
 .include "messages.s"

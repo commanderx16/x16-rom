@@ -97,6 +97,9 @@ setkb1	phx
 ;initialize i/o
 ;
 cint	jsr iokeys
+
+	jsr mseinit     ;init mouse
+
 ;
 ; establish screen memory
 ;

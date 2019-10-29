@@ -96,8 +96,12 @@ stmdsp2	; statements
 	.word frame-1
 	.word rect-1
 	.word char-1
+	.word mouse-1
 	; functions
 	.word vpeek
+	.word mx
+	.word my
+	.word mb
 ;**************************************
 
 reslst	.byt "EN",$c4

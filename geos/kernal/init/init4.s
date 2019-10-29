@@ -26,7 +26,7 @@ InitRamTab:
 	.byte 0                       ; currentMode
 	.byte ST_WR_FORE | ST_WR_BACK ; dispBufferOn
 	.byte 0                       ; mouseOn
-	.word mousePicData            ; msePicPtr
+	.word mousePicData            ; msePicPtr (X16: unused)
 	.byte 0                       ; windowTop
 	.byte SC_PIX_HEIGHT-1         ; windowBottom
 	.word 0                       ; leftMargin

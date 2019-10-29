@@ -10,6 +10,7 @@ veraisr =verareg+7
 
 ; XXX from KERNAL
 .import status, fnlen, la, sa, fa
+.import mousex, mousey, mousebt
 
 cint   = $ff81
 ioinit = $ff84
@@ -238,3 +239,26 @@ disk_done
 	lda #LOGADD
 	sec
 	jmp close
+
+mouse:
+	jsr getbyt
+	txa
+	ldx #0 ; keep scale
+	jmp $ff09
+
+mx:
+	jsr chrget
+	ldy mousex
+	lda mousex+1
+	jmp givayf
+
+my:
+	jsr chrget
+	ldy mousey
+	lda mousey+1
+	jmp givayf
+
+mb:
+	jsr chrget
+	ldy mousebt
+	jmp sngflt

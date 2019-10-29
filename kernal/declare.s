@@ -5,6 +5,10 @@
 
 ; for basic
 .global color
+; for basic and GEOS
+.global mousex, mousey, mousebt
+; for GEOS
+.global mseinit, mouse, msescn, msespr
 
 .segment "ZPKERNAL" : zeropage
 ;                      C64 location
@@ -138,7 +142,17 @@ usrcmd	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
 
+; more KERNAL vars
 ldtb1	.res 61          ;flags+endspace
+
+msepar	.res 1           ;mouse: $80=sprite on; 1/2: scale
+mousel	.res 2           ;mouse: min x coordinate
+mouser	.res 2           ;mouse: max x coordinate
+mouset	.res 2           ;mouse: min y coordinate
+mouseb	.res 2           ;mouse: max y coordinate
+mousex	.res 2           ;mouse: x coordinate
+mousey	.res 2           ;mouse: y coordinate
+mousebt	.res 1           ;mouse: buttons (1: left, 2: right, 4: third)
 
 kbdnam  =$0500           ;6 character keyboard layout name
 kbdtab  =$0506           ;5 pointers to shift/alt/ctrl/altgr/unshifted tables

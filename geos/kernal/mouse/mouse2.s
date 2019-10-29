@@ -11,6 +11,7 @@
 .include "kernal.inc"
 .include "c64.inc"
 .include "inputdrv.inc"
+.include "../banks.inc"
 
 .import _DoPreviousMenu
 .import menuOptNumber
@@ -30,6 +31,10 @@
 .ifndef bsw128
 .import EnablSprite
 .endif
+
+.import gjsrfar
+; from KERNAL
+.import mseinit, msescn, mouse, mousex, mousey, mousebt
 
 .global _MouseOff
 .global _StartMouseMode
@@ -78,36 +83,10 @@ _MouseUp:
 	rts
 
 ProcessMouse:
-.ifdef wheels_bad_ideas
-	; While the mouse pointer is not showing,
-	; Wheels doesn't call the mouse driver.
-	; For a joystick, this means that the 
-	; pointer can't be moved while it's
-	; invisible, and for a 1351 mouse, it means
-	; the input registers may overflow in the
-	; worst case, causing the pointer to jump.
-	;
-	; This is probably not a good idea.
-	bbrf MOUSEON_BIT, mouseOn, @1
 	jsr UpdateMouse
-.else
-	jsr UpdateMouse
-	bbrf MOUSEON_BIT, mouseOn, @1
-.endif
 	jsr CheckMsePos
 	LoadB r3L, 0
-.ifdef bsw128
-	bbsf 7, graphMode, @X
-.endif
-	MoveW msePicPtr, r4
-	jsr DrawSprite
-@X:	MoveW mouseXPos, r4
-	MoveB mouseYPos, r5L
-	jsr PosSprite
-.ifndef bsw128
-	jsr EnablSprite
-.endif
-@1:	rts
+	rts
 
 CheckMsePos:
 	ldy mouseLeft
@@ -256,6 +235,16 @@ DoMouseFault:
 
 .export MouseInit
 MouseInit:
+	jsr gjsrfar
+	.word mseinit
+	.byte BANK_KERNAL
+	lda #1 ; default pointer
+	ldx #2 ; scale
+	jsr gjsrfar
+	.word mouse
+	.byte BANK_KERNAL
+	rts
+
 SlowMouse:
 SetMouse:
 	rts ;XXX X16 TODO
@@ -263,18 +252,26 @@ SetMouse:
 tmpFire = $9eff
 
 UpdateMouse:
-	lda $9fa1
+;XXX: X16: deskTop overwrites $033c+, so we need to do this.
+;     This should be removed once deskTop is patched
+;     or no longer relevant.
+	jsr MouseInit
+;XXX
+	jsr gjsrfar
+	.word msescn
+	.byte BANK_KERNAL
+	lda mousex+1
 	lsr
 	sta mouseXPos + 1
-	lda $9fa0
+	lda mousex
 	ror
 	sta mouseXPos
-	lda $9fa3
+	lda mousey+1
 	lsr
-	lda $9fa2
+	lda mousey
 	ror
 	sta mouseYPos
-	lda $9fa4
+	lda mousebt
 	and #1
 	eor #1
 	cmp tmpFire
