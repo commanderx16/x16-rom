@@ -8,7 +8,7 @@
 ; for basic and GEOS
 .global mousex, mousey, mousebt
 ; for GEOS
-.global scnmse
+.global mseinit, mouse, msescn, msespr
 
 .segment "ZPKERNAL" : zeropage
 ;                      C64 location

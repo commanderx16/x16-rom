@@ -212,7 +212,7 @@ key
 	lda #0
 	sta veractl
 
-	jsr scnmse      ;scan mouse (do this first to avoid sprite tearing)
+	jsr msescn      ;scan mouse (do this first to avoid sprite tearing)
 	jsr $ffea       ;update jiffy clock
 	lda blnsw       ;blinking crsr ?
 	bne key4        ;no

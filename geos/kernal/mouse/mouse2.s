@@ -254,21 +254,32 @@ DoMouseFault:
 @3:	rts
 
 
+.import mseinit, mouse, mousex, mousey, mousebt
+.import msescn, gjsrfar
+.include "../banks.inc"
+
 .export MouseInit
 MouseInit:
+	jsr gjsrfar
+	.word mseinit
+	.byte BANK_KERNAL
+	lda #1 ; default pointer
+	ldx #2 ; scale
+	jsr gjsrfar
+	.word mouse
+	.byte BANK_KERNAL
+	rts
+
 SlowMouse:
 SetMouse:
 	rts ;XXX X16 TODO
 
 tmpFire = $9eff
 
-.import mousex, mousey, mousebt
-
 UpdateMouse:
-.import scnmse, gjsrfar
-.include "../banks.inc"
+	jsr MouseInit
 	jsr gjsrfar
-	.word scnmse
+	.word msescn
 	.byte BANK_KERNAL
 
 	lda mousex+1
