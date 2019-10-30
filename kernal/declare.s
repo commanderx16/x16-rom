@@ -4,7 +4,7 @@
 .global buf, keyd, rptflg
 
 ; for basic
-.global color
+.global color, scrmod
 ; for basic and GEOS
 .global mousex, mousey, mousebt
 ; for GEOS
@@ -153,6 +153,8 @@ mouseb	.res 2           ;mouse: max y coordinate
 mousex	.res 2           ;mouse: x coordinate
 mousey	.res 2           ;mouse: y coordinate
 mousebt	.res 1           ;mouse: buttons (1: left, 2: right, 4: third)
+
+cscrmd	.res 1           ;current screen mode (argument to scrmod)
 
 kbdnam  =$0500           ;6 character keyboard layout name
 kbdtab  =$0506           ;5 pointers to shift/alt/ctrl/altgr/unshifted tables

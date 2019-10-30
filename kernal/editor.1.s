@@ -105,9 +105,8 @@ cint	jsr iokeys
 ;
 	jsr panic       ;set up vic
 
-	ldx #80
-	ldy #60
-	jsr scnsiz      ;set screen size to default
+	lda #2
+	jsr scrmod      ;set screen mode to default
 ;
 	lda #0          ;make sure we're in pet mode
 	sta mode

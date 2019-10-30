@@ -30,6 +30,8 @@
 .import FirstInit
 .import i_FillRam
 
+.import _Rectangle, _SetColor
+
 .import MouseInit
 
 ; used by header.s
@@ -48,28 +50,24 @@
 
 .segment "start"
 
-; The original version of GEOS 2.0 has purgeable init code
-; at $5000 that is run once. It does some initialization
-; and handles application auto-start.
-;
-; The cbmfiles version of GEOS does some init inside
-; "BOOTGEOS" right after copying the components to their
-; respective locations, then jumps to $500D, which contains
-; a different version of the code, and skipping the first
-; five instructions.
-;
-; This version is based on the cbmfiles version.
-; "OrigResetHandle" below is the original cbmfiles code at
-; $5000, and the code here at _ResetHandle is some additional
-; initialization derived from the code in BOOTGEOS to make
-; everything work.
-;
-; TODO: * REU detection seems to be currently missing.
-;       * It would be best to put the original GEOS 2.0 code
-;         here.
-;
+; for KERNAL
+.global geos_init_graphics
 
-.global geos_init_vera
+geos_init_graphics:
+	lda #1 ; white
+	jsr _SetColor
+
+	lda #0
+	sta r3L
+	sta r3H
+	sta r2L
+	lda #<319
+	sta r4L
+	lda #>319
+	sta r4H
+	lda #199
+	sta r2H
+	jsr _Rectangle
 
 tile_base = $10000
 

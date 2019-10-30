@@ -7,10 +7,10 @@
 
 ; from KERNAL
 ; XXX TODO these should go through the jump table
-.import swpp25, jsrfar, color
+.import scrmod, jsrfar
 
 ; from GEOS
-.import _ResetHandle, geos_init_vera, _SetColor
+.import _ResetHandle, _SetColor
 
 ;***************
 geos	jsr jsrfar
@@ -19,45 +19,15 @@ geos	jsr jsrfar
 
 ;***************
 cscreen
-	; TODO go through GEOS init
-	LoadW dispBufferOn, ST_WR_FORE
-	LoadB windowTop, 0
-	LoadB windowBottom, SC_PIX_HEIGHT-1
-	LoadW leftMargin, 0
-	LoadW rightMargin, SC_PIX_WIDTH-1
-	LoadB pressFlag, 0
-
-	sei
-	lda #1
+	jsr getbyt
+	txa
+	sec
 	jsr jsrfar
-	.word _SetColor ; white
-	.byte BANK_GEOS
-
-	lda #0
-	sta r3L
-	sta r3H
-	sta r2L
-	lda #<319
-	sta r4L
-	lda #>319
-	sta r4H
-	lda #199
-	sta r2H
-	jsr jsrfar
-	.word Rectangle
-	.byte BANK_GEOS
-
-	jsr jsrfar
-	.word geos_init_vera
-	.byte BANK_GEOS
-	cli
-
-	lda #$0e ; light gray
-	sta color
-	jsr jsrfar
-	.word swpp25 ; switch to 40x25
+	.word scrmod ; switch to 320x240@256c + 40x30 text
 	.byte BANK_KERNAL
-	rts
+	bcc :+
+	jmp fcerr
+:	rts
 
 ;***************
 pset:	jsr get_point

@@ -55,7 +55,7 @@ runtb	.byt "LOAD",$d,"RUN",$d
 fkeytb	.byt $8D, "LIST:", 13, 0
 	.byt $8D, "M", 'O' + $80, ":", 13, 0
 	.byt $8D, "RUN:", 13, 0
-	.byt $93, "S", 'Y' + $80, "65375:", 13, 0
+	.byt $93, "S", 'C' + $80, "255:", 13, 0
 	.byt "LOAD", 13, 0
 	.byt "SAVE", '"', 0
 	.byt $8D, $93, "DOS",'"', "$",13, 0
