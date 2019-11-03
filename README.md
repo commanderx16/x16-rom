@@ -106,12 +106,12 @@ ROM Map
 
 |Bank|Name   |Description                                            |
 |----|-------|-------------------------------------------------------|
-|0   |BASIC  |BASIC interpreter                                      |
-|1-3 |–      |*[Currently unused]*                                   |
-|4   |GEOS   |GEOS KERNAL                                            |
-|5   |CBDOS  |The computer-based CBM-DOS for FAT32 SD cards          |
-|6   |KEYMAP |Keyboard layout tables                                 |
-|7   |KERNAL |character sets (uploaded into VRAM), MONITOR, KERNAL   |
+|0   |KERNAL |character sets (uploaded into VRAM), MONITOR, KERNAL   |
+|1   |KEYBD  |Keyboard layout tables                                 |
+|2   |CBDOS  |The computer-based CBM-DOS for FAT32 SD cards          |
+|3   |GEOS   |GEOS KERNAL                                            |
+|4   |BASIC  |BASIC interpreter                                      |
+|5-7 |–      |*[Currently unused]*                                   |
 
 
 RAM Map
@@ -136,6 +136,34 @@ FAT32 and SD card drivers: Copyright (c) 2018 Thomas Woinke, Marko Lauke, [www.s
 
 Release Notes
 -------------
+
+### Release 34
+
+* new layout for zero page and KERNAL/BASIC variables:
+	* $00-$7F available to the user
+	* ($02-$52 are used if using BASIC graphics commands)
+	* $80-$A3 used by KERNAL and DOS
+	* $A4-$A8 reserved for KERNAL/DOS/BASIC
+	* $A9-$FF used by BASIC
+* new BASIC statements:
+	* SCREEN <mode> (0: 40x30, 2: 80x60, 128: graphics)
+	* PSET <x>, <y>, <color>
+	* LINE <x1>, <y1>, <x2>, <y2>, <color>
+	* FRAME <x1>, <y1>, <x2>, <y2>, <color>
+	* RECT <x1>, <y1>, <x2>, <y2>, <color>
+	* CHAR <x>, <y>, <color>, <string>
+	* MOUSE <n> (0: off, 1: on)
+* new BASIC functions:
+	* MX (mouse X coordinate)
+	* MY (mouse Y coordinate)
+	* MB (mouse button; 1: left, 2: right, 4: third)
+* new KERNAL calls:
+	* MOUSE: configure mouse
+	* SCRMOD: set screen mode
+* new PS/2 mouse driver
+* charsets are uploaded to VERA on demand
+* GEOS font rendering uses less slant for faux italics characters
+* misc GEOS KERNAL improvements and optimizations
 
 ### Release 33
 
