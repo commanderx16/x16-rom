@@ -113,13 +113,15 @@ ld45	jsr acptr       ;get byte off ieee
 	sta veradat     ;write into vram
 	bne ld60        ;branch always
 ;
-ld47	cmp (eal),y     ;verify it
+ld47	ldy #0
+	cmp (eal),y     ;verify it
 	beq ld60        ;o.k....
 	lda #16         ;no good...verify error (sperr)
 	jsr udst        ;update status
 	.byt $2c        ;skip next store
 ;
-ld50	sta (eal),y
+ld50	ldy #0
+	sta (eal),y
 ld60	inc eal         ;increment store addr
 	bne ld64
 	inc eah
