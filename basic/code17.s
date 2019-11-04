@@ -38,9 +38,11 @@ st2txt	ldx strng2
 	stx txtptr
 	sty txtptr+1
 valrts	rts
+
 getnum	jsr frmadr
 combyt	jsr chkcom
 	jmp getbyt
+
 frmadr	jsr frmnum
 getadr	lda facsgn
 	bmi gofuc

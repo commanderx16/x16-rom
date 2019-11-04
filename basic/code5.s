@@ -79,7 +79,9 @@ onglp1	jsr clnget
 	beq onglop
 	pla
 ongrts	rts
+
 clnget	jsr chrget
+
 linget	ldx #0
 	stx linnum
 	stx linnum+1
@@ -109,6 +111,7 @@ morlin	bcs ongrts
 	inc linnum+1
 nxtlgc	jsr chrget
 	jmp morlin
+
 let	jsr ptrget
 	sta forpnt
 	sty forpnt+1
