@@ -66,16 +66,16 @@ temppt	.res 1           ;$16 pointer at first free temp descriptor
 lastpt	.res 2           ;$17 pointer to last-used string temporary
 .segment "ZPBASIC"
 tempst	.res 9           ;$19 storage for numtmp temp descriptors
-index1	.res 2           ;$22 indexes
-index	=index1          ;$22
+index1	.res 2           ;$22 [FP] indexes
+index	=index1          ;$22 [FP]
 index2	.res 2           ;$24 [FP]
 
-resho	.res 1           ;$26 result of multiplier and divider
-resmoh	.res 1           ;$27
-resmo	.res 1           ;$28
-reslo	.res 1           ;$29
-	.res 1           ;$2A fifth byte for res
-addend	=resmo           ;$28 temporary used by "umult"
+resho	.res 1           ;$26 [FP] result of multiplier and divider
+resmoh	.res 1           ;$27 [FP]
+resmo	.res 1           ;$28 [FP]
+reslo	.res 1           ;$29 [FP]
+	.res 1           ;$2A [FP] fifth byte for res
+addend	=resmo           ;$28 temporary used by "umult" (2 bytes)
 
 ; --- pointers into dynamic data structures ---;
 txttab	.res 2           ;$2B pointer to beginning of text.
@@ -164,13 +164,13 @@ dptflg	=tempf2+3        ;$5F base ten exponent
 expsgn	=tempf2+4        ;$60 sign of base ten exponent
 
 ; --- the floating accumulator ---:
-fac                      ;$61
-facexp	.res 1           ;$61
-facho	.res 1           ;$62 most significant byte of mantissa
-facmoh	.res 1           ;$63 one more
-facmo	.res 1           ;$64 middle order of mantissa
-faclo	.res 1           ;$65 least sig byte of mantissa
-facsgn	.res 1           ;$66 sign of fac (0 or -1) when unpacked
+fac                      ;$61 [FP]
+facexp	.res 1           ;$61 [FP]
+facho	.res 1           ;$62 [FP] most significant byte of mantissa
+facmoh	.res 1           ;$63 [FP] one more
+facmo	.res 1           ;$64 [FP] middle order of mantissa
+faclo	.res 1           ;$65 [FP] least sig byte of mantissa
+facsgn	.res 1           ;$66 [FP] sign of fac (0 or -1) when unpacked
 dsctmp	=fac             ;$61 this is where temp descs are built
 indice	=facmo           ;$64 indice is set up here by "qint"
 
@@ -182,14 +182,14 @@ bits	.res 1           ;$68 something for "shiftr" to use
 
 ; --- the floating argument (unpacked) ---:
 .segment "ZPBASIC"
-argexp	.res 1           ;$69
-argho	.res 1           ;$6A
-argmoh	.res 1           ;$6B
-argmo	.res 1           ;$6C
-arglo	.res 1           ;$6D
-argsgn	.res 1           ;$6E
-arisgn	.res 1           ;$6F a sign reflecting the result
-facov	.res 1           ;$70 overflow byte of the fac
+argexp	.res 1           ;$69 [FP]
+argho	.res 1           ;$6A [FP]
+argmoh	.res 1           ;$6B [FP]
+argmo	.res 1           ;$6C [FP]
+arglo	.res 1           ;$6D [FP]
+argsgn	.res 1           ;$6E [FP]
+arisgn	.res 1           ;$6F [FP] a sign reflecting the result
+facov	.res 1           ;$70 [FP] overflow byte of the fac
 strng1	=arisgn          ;$6F
 
 polypt	.res 2           ;$71 [FP] pointer into polynomial coefficients.

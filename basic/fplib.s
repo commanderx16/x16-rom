@@ -37,6 +37,7 @@ rdbas	=$fff3
 .importzp resmoh ; code19.s, code20.s
 .importzp resmo  ; code19.s; code20.s; BASIC: synonym of 'addend'
 .importzp reslo  ; code19.s; code20.s; BASIC: synonym of 'addend'+1
+.importzp argexp ; ...; BASIC: used
 .importzp argho  ; code18.s; code18.s; BASIC: used
 .importzp argmoh ; code18.s; code18.s; BASIC: used
 .importzp argmo  ; code18.s; code18.s; BASIC: used
@@ -50,7 +51,6 @@ rdbas	=$fff3
 .importzp facmo  ; ...; BASIC: used
 .importzp faclo  ; ...; BASIC: used
 .importzp facsgn ; ...; BASIC: used
-.importzp argexp ; ...; BASIC: used
 .importzp facov  ; ...; BASIC: used
 
 ; constant
