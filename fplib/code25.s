@@ -129,3 +129,8 @@ ayint	lda facexp
 qintgo	jmp qint
 
 n32768	.byt 144,128,0,0,0
+
+givayf2	sta facho
+	sty facho+1
+	ldx #144
+	jmp floats

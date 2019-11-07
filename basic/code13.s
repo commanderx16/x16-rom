@@ -118,10 +118,7 @@ nofref	jsr garba2
 	sbc strend+1
 givayf	ldx #0
 	stx valtyp
-	sta facho
-	sty facho+1
-	ldx #144
-	jmp floats
+	jmp givayf2
 pos	sec
 	jsr plot        ;get tab pos in .y
 sngflt	lda #0

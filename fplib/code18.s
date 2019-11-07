@@ -1,5 +1,4 @@
-zerrts = faddh - 1
-;zerrts	rts
+zerrts	rts
 faddh	lda #<fhalf
 	ldy #>fhalf
 	jmp fadd
