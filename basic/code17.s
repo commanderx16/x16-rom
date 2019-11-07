@@ -97,7 +97,13 @@ inprt	lda #<intxt
 	jsr strout
 	lda curlin+1
 	ldx curlin
-	jmp linprt
+linprt	sta facho
+	stx facho+1
+	ldx #$90
+	sec
+	jsr floatc
+	jsr foutc
+	jmp strout
 
 ;**************************************
 finh	bcc fin	; skip test for 0-9

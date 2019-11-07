@@ -11,14 +11,10 @@ rdbas	=$fff3
 .import rndx     ; used by code25.s; BASIC: init.s
 
 ; CODE
-.import strout   ; PRINT THE STRING POINTED TO BY [Y,A] WHICH ENDS WITH A ZERO.
-                 ; used by code22.s
 .import error    ; "... ERROR"
                  ; used by code18.s, code19.s
 .import fcerr    ; "ILLEGAL QUANTITY"
                  ; used by code19.s
-.import frmevl   ; FORMULA EVALUATOR
-                 ; used by code21.s; X16 addition for $/% support
 
 ; STRTMP
 .importzp fbuffr ; used by code22.s, code23.s
@@ -62,7 +58,7 @@ rdbas	=$fff3
 .importzp errov  ; code18.s
 .importzp addprc
 
-.global zerofc, foutc, movmf, floats, fcomp, movfa, float, floatb, foutim, foutbl, fdcend, overr, fin, fcompn, fadd, finh, fout, qint, finml6, movaf, mul10, zero, movvf, round, sign, movfm, fone, linprt, negop, fpwrt, fdivt, fmultt, fsubt, faddt, atn, tan, sin, cos, exp, log, rnd, sqr, abs, int, sgn, div10, finlog
+.global zerofc, foutc, movmf, floats, fcomp, movfa, float, floatb, foutim, foutbl, fdcend, overr, fin, fcompn, fadd, finh, fout, qint, finml6, movaf, mul10, zero, movvf, round, sign, movfm, fone, negop, fpwrt, fdivt, fmultt, fsubt, faddt, atn, tan, sin, cos, exp, log, rnd, sqr, abs, int, sgn, div10, finlog, floatc
 
 .segment "BASIC"
 

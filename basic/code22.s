@@ -1,13 +1,6 @@
 n0999	.byt $9b,$3e,$bc,$1f,$fd
 n9999	.byt $9e,$6e,$6b,$27,$fd
 nmil	.byt $9e,$6e,$6b,$28,$00
-linprt	sta facho
-	stx facho+1
-	ldx #$90
-	sec
-	jsr floatc
-	jsr foutc
-	jmp strout
 fout	ldy #1
 foutc	lda #' '
 	bit facsgn
