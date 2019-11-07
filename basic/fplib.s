@@ -2,22 +2,14 @@
 
 rdbas	=$fff3
 
-; BVARS
-.import tansgn   ; used by trig.s; BASIC: synonym of 'domask'
-.import bits     ; used by code18.s, code21.s; BASIC: init.s
-.import integr   ; used by code21.s, code23.s, code25.s;
-                 ; BASIC: code10.s; synonym of 'charac'
-.import oldov    ; used by code18.s; code25.s
-.import rndx     ; used by code25.s; BASIC: init.s
-
 ; CODE
 .import error    ; "... ERROR"
                  ; used by code18.s, code19.s
 .import fcerr    ; "ILLEGAL QUANTITY"
                  ; used by code19.s
 
-; STRTMP
-.importzp fbuffr ; used by code22.s, code23.s
+fbuffr	=$100    ; buffer for "fout".
+                 ; on page 1 so that string is not copied
 
 ; constant
 .importzp errdvo ; code19.s
@@ -70,10 +62,19 @@ facov	.res 1           ;$70 [FP] overflow byte of the fac
 polypt	.res 2           ;$71 [FP] pointer into polynomial coefficients.
 fbufpt	=polypt          ;$71 [FP] pointer into fbuffr used by fout
 
+.segment "BVARS"
+
+integr	.res 1           ;$07 [FP] a one-byte integer from "qint"
+tansgn	.res 1           ;$12 [FP] used in determining sign of tangent
+oldov	.res 1           ;$56 [FP] the old overflow
+bits	.res 1           ;$68 [FP] something for "shiftr" to use
+rndx	.res 5           ;$8B [FP]
 
 .global zerofc, foutc, movmf, floats, fcomp, movfa, float, floatb, foutim, foutbl, fdcend, overr, fin, fcompn, fadd, finh, fout, qint, finml6, movaf, mul10, zero, movvf, round, sign, movfm, fone, negop, fpwrt, fdivt, fmultt, fsubt, faddt, atn, tan, sin, cos, exp, log, rnd, sqr, abs, int, sgn, div10, finlog, floatc
 
-.global degree, polypt, fbufpt, tempf3, fdecpt, tenexp, deccnt, index2, forpnt, tempf1, tempf2, index, index1, resho, resmoh, resmo, reslo, argexp, argho, argmoh, argmo, arglo, argsgn, arisgn, fac, facexp, facho, facmoh, facmo, faclo, facsgn, facov
+.global degree, polypt, fbufpt, tempf3, fdecpt, tenexp, deccnt, index2, tempf1, tempf2, index, index1, resho, resmoh, resmo, reslo, argexp, argho, argmoh, argmo, arglo, argsgn, arisgn, fac, facexp, facho, facmoh, facmo, faclo, facsgn, facov
+
+.global bits, rndx, tansgn, integr
 
 .segment "BASIC"
 

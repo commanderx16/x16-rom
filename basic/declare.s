@@ -14,8 +14,7 @@ strsiz	=3
 .segment "BVARS"
 ;                      C64 location
 ;                         VVV
-charac	.res 1           ;$07 a delimiting character
-integr	=charac          ;$07 a one-byte integer from "qint"
+charac	=integr          ;$07 a delimiting character
 endchr	.res 1           ;$08 the other delimiting character
 trmpos	.res 1           ;$09 position of terminal carriage
 verck	.res 1           ;$0A CBM: single-use tmp for LOAD
@@ -44,7 +43,6 @@ subflg	.res 1           ;$10 flag whether sub'd variable allowed.
 inpflg	.res 1           ;$11 flags whether we are doing "input"
                          ;    or "read".
 
-tansgn	.res 1           ;$12 used in determining sign of tangent
 domask	=tansgn          ;$12 mask in use by relation operations
 
 channl	.res 1           ;$13 holds channel number
@@ -137,7 +135,6 @@ four6	.res 1           ;$53 variable constant used by garb collect
 ; --- ET CETERA ---:
 jmper	.res 3           ;$54
 size	=jmper+1         ;$55
-oldov	=jmper+2         ;$56 the old overflow
 
 .segment "ZPBASIC"
 highds	=tempf1+1        ;$58 desination of highest element in blt
@@ -155,9 +152,6 @@ indice	=facmo           ;$64 indice is set up here by "qint"
 
 sgnflg	=degree          ;$67 sign of fac is preserved bere by "fin".
 
-.segment "BVARS"
-bits	.res 1           ;$68 something for "shiftr" to use
-
 ; --- the floating argument (unpacked) ---:
 .segment "ZPBASIC"
 strng1	=arisgn          ;$6F
@@ -172,14 +166,9 @@ chrgot	.res 1           ;$79
 txtptr	.res 6           ;$7A
 qnum	.res 11          ;$80
 
-.segment "BVARS"
-rndx	.res 5           ;$8B
-
 .segment "STRTMP" : zeropage
 
 lofbuf	.res 1           ;$FF the low fac buffer. copyable
-fbuffr	.res 1           ;$100 buffer for "fout".
-                         ;     on page 1 so that string is not copied
 
 .segment "BVECTORS" ;basic indirects
 
