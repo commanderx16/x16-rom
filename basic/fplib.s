@@ -29,43 +29,38 @@ rdbas	=$fff3
 .importzp tempf3 ; code23.s, trig.s; BASIC: synonym of 'defpnt'
 .importzp fdecpt ; code22.s; BASIC: synonym of 'varpnt'
 .importzp fbufpt ; code22.s; BASIC: synonym of 'bufptr', 'strng2', ...
-.importzp txtptr ; code21.s; BASIC: owned
-.importzp dptflg ; code21.s; BASIC: synonym of 'lowtr'
-.importzp expsgn ; code21.s; BASIC: synonym of 'lowtr'
 .importzp tenexp ; code21.s, code22.s
-.importzp plustk
-.importzp minutk
-.importzp chrget
-.importzp sgnflg
-.importzp deccnt
-.importzp index2
-.importzp forpnt
-.importzp tempf1
-.importzp tempf2
-.importzp errdvo
-.importzp index
-.importzp index1
-.importzp reslo
-.importzp resmo
-.importzp resmoh
-.importzp resho
-.importzp errov
-.importzp argho
-.importzp argmoh
-.importzp argmo
-.importzp arglo
-.importzp facho
-.importzp facmoh
-.importzp facmo
-.importzp faclo
+.importzp deccnt ; code22.s; BASIC: used
+.importzp index2 ; code22.s; BASIC: used
+.importzp forpnt ; code20.s; BASIC: used
+.importzp tempf1 ; code20.s, code25.s, trig.s
+.importzp tempf2 ; code20.s, code25.s
+.importzp index  ; code19.s, code20.s; BASIC: used
+.importzp index1 ; code19.s, code20.s, code25.s, code26.s; BASIC: used
+.importzp resho  ; code18.s, code19.s, code20.s
+.importzp resmoh ; code19.s, code20.s
+.importzp resmo  ; code19.s; code20.s; BASIC: synonym of 'addend'
+.importzp reslo  ; code19.s; code20.s; BASIC: synonym of 'addend'+1
+.importzp argho  ; code18.s; code18.s; BASIC: used
+.importzp argmoh ; code18.s; code18.s; BASIC: used
+.importzp argmo  ; code18.s; code18.s; BASIC: used
+.importzp arglo  ; code18.s; code18.s; BASIC: used
+.importzp argsgn ; code18.s; code18.s, ...; BASIC: used
+.importzp arisgn ; code18.s; code18.s, ...; BASIC: used; synonym of 'strng1'
+.importzp fac    ; ...; BASIC: used
+.importzp facexp ; ...; BASIC: used
+.importzp facho  ; ...; BASIC: used
+.importzp facmoh ; ...; BASIC: used
+.importzp facmo  ; ...; BASIC: used
+.importzp faclo  ; ...; BASIC: used
+.importzp facsgn ; ...; BASIC: used
+.importzp argexp ; ...; BASIC: used
+.importzp facov  ; ...; BASIC: used
+
+; constant
+.importzp errdvo ; code19.s
+.importzp errov  ; code18.s
 .importzp addprc
-.importzp fac
-.importzp argexp
-.importzp facov
-.importzp facexp
-.importzp arisgn
-.importzp argsgn
-.importzp facsgn
 
 .global zerofc, foutc, movmf, floats, fcomp, movfa, float, floatb, foutim, foutbl, fdcend, overr, fin, fcompn, fadd, finh, fout, qint, finml6, movaf, mul10, zero, movvf, round, sign, movfm, fone, linprt, negop, fpwrt, fdivt, fmultt, fsubt, faddt, atn, tan, sin, cos, exp, log, rnd, sqr, abs, int, sgn, div10, finlog
 
