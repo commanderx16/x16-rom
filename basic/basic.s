@@ -2,6 +2,10 @@
 
 .include "../banks.inc"
 
+.import zerofc, foutc, movmf, floats, fcomp, movfa, float, floatb, foutim, foutbl, fdcend, overr, fcompn, fadd, fout, qint, finml6, movaf, mul10, zero, movvf, round, sign, movfm, fone, linprt, negop, fpwrt, fdivt, fmultt, fsubt, faddt, atn, tan, sin, cos, exp, log, rnd, sqr, abs, int, sgn, div10, finlog
+
+.global tansgn, rndx, degree, polypt, tempf3, fdecpt, fbufpt, fbuffr, strout, txtptr, dptflg, tenexp, expsgn, plustk, minutk, chrget, sgnflg, deccnt, frmevl, integr, index2, forpnt, tempf1, tempf2, errdvo, index, index1, reslo, resmo, resmoh, fcerr, bits, resho, error, errov, argho, argmoh, argmo, arglo, facho, facmoh, facmo, faclo, addprc, fac, zerrts, argexp, oldov, facov, facexp, arisgn, argsgn, facsgn
+
 .include "declare.s"
 .include "tokens.s"
 .include "token2.s"
@@ -22,16 +26,7 @@
 .include "code15.s"
 .include "code16.s"
 .include "code17.s"
-.include "code18.s"
-.include "code19.s"
-.include "code20.s"
-.include "code21.s"
-.include "code22.s"
-.include "code23.s"
-.include "code24.s"
-.include "code25.s"
 .include "code26.s"
-.include "trig.s"
 .include "init.s"
 .include "x16additions.s"
 .include "geos.s"

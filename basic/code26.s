@@ -40,8 +40,6 @@ cgetl	jsr $ffe4
 	bcs erexit
 	rts
 
-rdbas	=$fff3
-
 setmsg	=$ff90
 
 plot	=$fff0

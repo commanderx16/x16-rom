@@ -157,14 +157,12 @@ arypnt	=highds          ;$58 a pointer used in array building
 hightr	.res 2           ;$5A source of highest element to move
 
 tempf2	.res 1           ;$5C 5 bytes temp fac
-lowds	.res 2           ;$5D location of last byte transferred into
-deccnt	=lowds           ;$5D number of places before decimal point
+deccnt	.res 1           ;$5D number of places before decimal point
+tenexp	.res 1           ;$5E has a dpt been input?
 lowtr	.res 2           ;$5F last thing to move in blt
 grbtop	=lowtr           ;$5F a pointer used in garbage collection
 dptflg	=lowtr           ;$5F base ten exponent
 expsgn	=lowtr+1         ;$60 sign of base ten exponent
-
-tenexp	=lowds+1         ;$5E has a dpt been input?
 
 ; --- the floating accumulator ---:
 fac                      ;$61
