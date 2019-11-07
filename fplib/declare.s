@@ -10,8 +10,11 @@ fbuffr	=$100    ; buffer for "fout".
 ; * constants
 .importzp errdvo
 .importzp errov
+; FPLIB should not jump to the BASIC error handler.
+; Instead, FP functions should return an error code,
+; and BASIC jumps to the error handler.
 
-.segment "ZPBASIC" : zeropage ; FPLIB
+.segment "ZPFPLIB" : zeropage
 
 ;                      C64 location
 ;                         VVV
@@ -57,7 +60,7 @@ facov	.res 1           ;$70 overflow byte of the fac
 polypt	.res 2           ;$71 pointer into polynomial coefficients.
 fbufpt	=polypt          ;$71 pointer into fbuffr used by fout
 
-.segment "BVARS"
+.segment "FPVARS"
 
 integr	.res 1           ;$07 a one-byte integer from "qint"
 tansgn	.res 1           ;$12 used in determining sign of tangent

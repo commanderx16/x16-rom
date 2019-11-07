@@ -3,11 +3,9 @@
 .include "../banks.inc"
 .include "../fplib/fplib.inc"
 
-; constants for FPLIB
-.global errdvo, errov
-
-; code for FPLIB
-.global error, fcerr
+; XXX exports for FPLIB
+.global error, fcerr; code
+.global errdvo, errov; constants
 
 .include "declare.s"
 .include "tokens.s"
