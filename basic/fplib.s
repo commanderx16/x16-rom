@@ -21,14 +21,14 @@ rdbas	=$fff3
 
 ; ZPBASIC
 .importzp degree ; code25.s; synonym of 'sgnflg': code21.s
-.importzp polypt ; code25.s
+.importzp polypt ; code25.s; BASIC: synonym of 'bufptr', 'strng2', ...
+.importzp fbufpt ; code22.s; BASIC: used, synonym of 'bufptr', 'strng2', ...
 .importzp tempf3 ; code23.s, trig.s; BASIC: synonym of 'defpnt'
 .importzp fdecpt ; code22.s; BASIC: synonym of 'varpnt'
-.importzp fbufpt ; code22.s; BASIC: synonym of 'bufptr', 'strng2', ...
 .importzp tenexp ; code21.s, code22.s
 .importzp deccnt ; code22.s; BASIC: used
 .importzp index2 ; code22.s; BASIC: used
-.importzp forpnt ; code20.s; BASIC: used
+.importzp forpnt ; code20.s; BASIC: *owned*
 .importzp tempf1 ; code20.s, code25.s, trig.s
 .importzp tempf2 ; code20.s, code25.s
 .importzp index  ; code19.s, code20.s; BASIC: used

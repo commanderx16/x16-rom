@@ -68,7 +68,7 @@ lastpt	.res 2           ;$17 pointer to last-used string temporary
 tempst	.res 9           ;$19 storage for numtmp temp descriptors
 index1	.res 2           ;$22 indexes
 index	=index1          ;$22
-index2	.res 2           ;$24
+index2	.res 2           ;$24 [FP]
 
 resho	.res 1           ;$26 result of multiplier and divider
 resmoh	.res 1           ;$27
@@ -121,8 +121,8 @@ inpptr	.res 2           ;$43 this remembers where input is coming from
 .segment "BVARS"
 varnam	.res 2           ;$45 variable's name is stored here
 .segment "ZPBASIC"
-varpnt	.res 2           ;$47 pointer to variable in memory
-fdecpt	=varpnt          ;$47 pointer into power of tens of "fout"
+fdecpt	.res 2           ;$47 [FP] pointer into power of tens of "fout"
+varpnt	=fdecpt          ;$47 pointer to variable in memory
 
 forpnt	.res 2           ;$49 a variable's pointer for "for" loops
                          ;    and "let" statements
@@ -136,11 +136,10 @@ vartxt	=opptr           ;$4B pointer into list of variables
 opmask	.res 1           ;$4D mask created by current operator
 
 .segment "ZPBASIC"
-defpnt	.res 2           ;$4E pointer used in function definition
-grbpnt	=defpnt          ;$4E another used in garbage collection
-tempf3	=defpnt          ;$4E a third fac temporary (5 bytes)
-dscpnt	.res 2           ;$50 pointer to a string descriptor
-	.res 1           ;$52 fifth byte of tempf3
+tempf3	.res 5           ;$4E [FP] a third fac temporary
+defpnt	=tempf3          ;$4E pointer used in function definition (2 bytes)
+grbpnt	=tempf3          ;$4E another used in garbage collection (2 bytes)
+dscpnt	=tempf3+2        ;$50 pointer to a string descriptor
 
 .segment "BVARS"
 four6	.res 1           ;$53 variable constant used by garb collect
@@ -151,18 +150,18 @@ size	=jmper+1         ;$55
 oldov	=jmper+2         ;$56 the old overflow
 
 .segment "ZPBASIC"
-tempf1	.res 1           ;$57 5 bytes temp fac
-highds	.res 2           ;$58 desination of highest element in blt
-arypnt	=highds          ;$58 a pointer used in array building
-hightr	.res 2           ;$5A source of highest element to move
+tempf1	.res 5           ;$57 [FP] 5 bytes temp fac
+highds	=tempf1+1        ;$58 desination of highest element in blt
+arypnt	=tempf1+1        ;$58 a pointer used in array building
+hightr	=tempf1+3        ;$5A source of highest element to move (2 bytes)
 
-tempf2	.res 1           ;$5C 5 bytes temp fac
-deccnt	.res 1           ;$5D number of places before decimal point
-tenexp	.res 1           ;$5E has a dpt been input?
-lowtr	.res 2           ;$5F last thing to move in blt
-grbtop	=lowtr           ;$5F a pointer used in garbage collection
-dptflg	=lowtr           ;$5F base ten exponent
-expsgn	=lowtr+1         ;$60 sign of base ten exponent
+tempf2	.res 5           ;$5C [FP] 5 bytes temp fac
+deccnt	=tempf2+1        ;$5D [FP] number of places before decimal point
+tenexp	=tempf2+2        ;$5E [FP] has a dpt been input?
+lowtr	=tempf2+3        ;$5F last thing to move in blt
+grbtop	=tempf2+3        ;$5F a pointer used in garbage collection
+dptflg	=tempf2+3        ;$5F base ten exponent
+expsgn	=tempf2+4        ;$60 sign of base ten exponent
 
 ; --- the floating accumulator ---:
 fac                      ;$61
@@ -172,10 +171,11 @@ facmoh	.res 1           ;$63 one more
 facmo	.res 1           ;$64 middle order of mantissa
 faclo	.res 1           ;$65 least sig byte of mantissa
 facsgn	.res 1           ;$66 sign of fac (0 or -1) when unpacked
-sgnflg	.res 1           ;$67 sign of fac is preserved bere by "fin".
 dsctmp	=fac             ;$61 this is where temp descs are built
 indice	=facmo           ;$64 indice is set up here by "qint"
-degree	=sgnflg          ;$67 a count used by polynomials
+
+degree	.res 1           ;$67 [FP] a count used by polynomials
+sgnflg	=degree          ;$67 sign of fac is preserved bere by "fin".
 
 .segment "BVARS"
 bits	.res 1           ;$68 something for "shiftr" to use
@@ -192,11 +192,11 @@ arisgn	.res 1           ;$6F a sign reflecting the result
 facov	.res 1           ;$70 overflow byte of the fac
 strng1	=arisgn          ;$6F
 
-fbufpt	.res 2           ;$71 pointer into fbuffr used by fout
-bufptr	=fbufpt          ;$71 pointer to buf used by "crunch".
-strng2	=fbufpt          ;$71 pointer to string or desc.
-polypt	=fbufpt          ;$71 pointer into polynomial coefficients.
-curtol	=fbufpt          ;$71 absolute linear index is formed here.
+polypt	.res 2           ;$71 [FP] pointer into polynomial coefficients.
+fbufpt	=polypt          ;$71 [FP] pointer into fbuffr used by fout
+bufptr	=polypt          ;$71 pointer to buf used by "crunch".
+strng2	=polypt          ;$71 pointer to string or desc.
+curtol	=polypt          ;$71 absolute linear index is formed here.
 
 ; CHRGET
 chrget	.res 6           ;$73
