@@ -4,8 +4,8 @@
 .include "../fplib/fplib.inc"
 
 ; XXX exports for FPLIB
-.global error, fcerr; code
-.global errdvo, errov; constants
+.global error, fcerr  ; code
+.global errdvo, errov ; constants
 
 .include "declare.s"
 .include "tokens.s"

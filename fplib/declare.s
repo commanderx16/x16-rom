@@ -3,16 +3,12 @@ addprc	=1
 fbuffr	=$100    ; buffer for "fout".
                  ; on page 1 so that string is not copied
 
-; XXX dependencies on BASIC:
-; * CODE
-.import error    ; "... ERROR"
-.import fcerr    ; "ILLEGAL QUANTITY"
-; * constants
-.importzp errdvo
-.importzp errov
-; FPLIB should not jump to the BASIC error handler.
-; Instead, FP functions should return an error code,
-; and BASIC jumps to the error handler.
+; XXX Dependencies on BASIC:
+; XXX FPLIB should not jump to the BASIC error handler.
+; XXX Instead, FP functions should return an error code,
+; XXX and BASIC jumps to the error handler.
+.import error, fcerr    ; code
+.importzp errdvo, errov ; constants
 
 .segment "ZPFPLIB" : zeropage
 
@@ -38,6 +34,7 @@ tempf2	.res 5           ;$5C 5 bytes temp fac
 deccnt	=tempf2+1        ;$5D number of places before decimal point
 tenexp	=tempf2+2        ;$5E has a dpt been input?
 
+; --- the floating accumulator ---:
 fac                      ;$61
 facexp	.res 1           ;$61
 facho	.res 1           ;$62 most significant byte of mantissa
@@ -48,6 +45,7 @@ facsgn	.res 1           ;$66 sign of fac (0 or -1) when unpacked
 
 degree	.res 1           ;$67 a count used by polynomials
 
+; --- the floating argument (unpacked) ---:
 argexp	.res 1           ;$69
 argho	.res 1           ;$6A
 argmoh	.res 1           ;$6B
