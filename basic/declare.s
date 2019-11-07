@@ -1,4 +1,3 @@
-addprc	=1
 romloc	=$c000          ;x16 basic rom
 buflen	=89             ;vic buffer
 bufpag	=2

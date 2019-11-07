@@ -33,8 +33,6 @@ mov2f	ldx #tempf2
 mov1f	ldx #tempf1
 	ldy #0
 	beq movmf
-movvf	ldx forpnt
-	ldy forpnt+1
 movmf	jsr round
 	stx index1
 	sty index1+1

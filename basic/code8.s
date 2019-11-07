@@ -108,7 +108,7 @@ havfor	txs
 	ldy #1
 	jsr movfm
 	tsx
-	lda addprc+264,x
+	lda <addprc+264,x ; '<' required by ca65; also below
 	sta facsgn
 	lda forpnt
 	ldy forpnt+1
@@ -118,15 +118,15 @@ havfor	txs
 	jsr fcompn
 	tsx
 	sec
-	sbc addprc+264,x
+	sbc <addprc+264,x
 	beq loopdn
-	lda 269+addprc+addprc,x
+	lda 269+<addprc+<addprc,x
 	sta curlin
-	lda 270+addprc+addprc,x
+	lda 270+<addprc+<addprc,x
 	sta curlin+1
-	lda 272+addprc+addprc,x
+	lda 272+<addprc+<addprc,x
 	sta txtptr
-	lda 271+addprc+addprc,x
+	lda 271+<addprc+<addprc,x
 	sta txtptr+1
 newsgo	jmp newstt
 loopdn	txa

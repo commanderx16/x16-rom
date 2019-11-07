@@ -105,6 +105,10 @@ linprt	sta facho
 	jsr foutc
 	jmp strout
 
+movvf	ldx forpnt
+	ldy forpnt+1
+	jmp movmf
+
 ;**************************************
 finh	bcc fin	; skip test for 0-9
 	cmp #'$'
