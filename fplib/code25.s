@@ -72,7 +72,7 @@ poly4	sta polypt
 rmulc	.byt $98,$35,$44,$7a,$00
 raddc	.byt $68,$28,$b1,$46,$00
 rnd	jsr sign
-	bmi rnd1
+rnd_0	bmi rnd1
 	bne qsetnr
 	jsr rdbas
 	stx index1
@@ -118,3 +118,14 @@ strnex	lda #0
 	ldy #>rndx
 gmovmf	jmp movmf
 
+ayint	lda facexp
+	cmp #144
+	bcc qintgo
+	lda #<n32768
+	ldy #>n32768
+	jsr fcomp
+	beq qintgo
+	jmp fcerr
+qintgo	jmp qint
+
+n32768	.byt 144,128,0,0,0
