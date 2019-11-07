@@ -4,7 +4,24 @@
 
 .import zerofc, foutc, movmf, floats, fcomp, movfa, float, floatb, foutim, foutbl, fdcend, overr, fcompn, fadd, fout, qint, finml6, movaf, mul10, zero, movvf, round, sign, movfm, fone, negop, fpwrt, fdivt, fmultt, fsubt, faddt, atn, tan, sin, cos, exp, log, rnd, sqr, abs, int, sgn, div10, finlog, floatc
 
-.global tansgn, rndx, degree, polypt, tempf3, fdecpt, fbufpt, fbuffr, strout, tenexp, deccnt, frmevl, integr, index2, forpnt, tempf1, tempf2, errdvo, index, index1, reslo, resmo, resmoh, fcerr, bits, resho, error, errov, argho, argmoh, argmo, arglo, facho, facmoh, facmo, faclo, addprc, fac, zerrts, argexp, oldov, facov, facexp, arisgn, argsgn, facsgn
+.importzp tenexp, facov, deccnt, argsgn, arglo, argmo, argmoh, argho, argexp, facmoh, fbufpt, faclo, facexp, facho, facsgn, index2, index1, lindex, olpolypt, olarisgn, oldegree, olfacmo, olfac, oltempf2, oltempf1, oltempf3, olfdecpt, lresmo, index, polypt, arisgn, degree, facmo, fac, tempf2, tempf1, tempf3, fdecpt, resmo
+
+.global errdvo, errov, addprc
+
+.global forpnt
+
+.global tansgn   ; used by trig.s; BASIC: synonym of 'domask'
+.global bits     ; used by code18.s, code21.s; BASIC: init.s
+.global integr   ; used by code21.s, code23.s, code25.s;
+                 ; BASIC: code10.s; synonym of 'charac'
+.global oldov    ; used by code18.s; code25.s
+.global rndx     ; used by code25.s; BASIC: init.s
+.global error    ; "... ERROR"
+                 ; used by code18.s, code19.s
+.global fcerr    ; "ILLEGAL QUANTITY"
+                 ; used by code19.s
+.global fbuffr ; used by code22.s, code23.s
+
 
 .include "declare.s"
 .include "tokens.s"

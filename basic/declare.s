@@ -66,15 +66,7 @@ temppt	.res 1           ;$16 pointer at first free temp descriptor
 lastpt	.res 2           ;$17 pointer to last-used string temporary
 .segment "ZPBASIC"
 tempst	.res 9           ;$19 storage for numtmp temp descriptors
-index1	.res 2           ;$22 [FP] indexes
-index	=index1          ;$22 [FP]
-index2	.res 2           ;$24 [FP]
 
-resho	.res 1           ;$26 [FP] result of multiplier and divider
-resmoh	.res 1           ;$27 [FP]
-resmo	.res 1           ;$28 [FP]
-reslo	.res 1           ;$29 [FP]
-	.res 1           ;$2A [FP] fifth byte for res
 addend	=resmo           ;$28 temporary used by "umult" (2 bytes)
 
 ; --- pointers into dynamic data structures ---;
@@ -121,7 +113,6 @@ inpptr	.res 2           ;$43 this remembers where input is coming from
 .segment "BVARS"
 varnam	.res 2           ;$45 variable's name is stored here
 .segment "ZPBASIC"
-fdecpt	.res 2           ;$47 [FP] pointer into power of tens of "fout"
 varpnt	=fdecpt          ;$47 pointer to variable in memory
 
 forpnt	.res 2           ;$49 a variable's pointer for "for" loops
@@ -136,7 +127,6 @@ vartxt	=opptr           ;$4B pointer into list of variables
 opmask	.res 1           ;$4D mask created by current operator
 
 .segment "ZPBASIC"
-tempf3	.res 5           ;$4E [FP] a third fac temporary
 defpnt	=tempf3          ;$4E pointer used in function definition (2 bytes)
 grbpnt	=tempf3          ;$4E another used in garbage collection (2 bytes)
 dscpnt	=tempf3+2        ;$50 pointer to a string descriptor
@@ -150,31 +140,19 @@ size	=jmper+1         ;$55
 oldov	=jmper+2         ;$56 the old overflow
 
 .segment "ZPBASIC"
-tempf1	.res 5           ;$57 [FP] 5 bytes temp fac
 highds	=tempf1+1        ;$58 desination of highest element in blt
 arypnt	=tempf1+1        ;$58 a pointer used in array building
 hightr	=tempf1+3        ;$5A source of highest element to move (2 bytes)
 
-tempf2	.res 5           ;$5C [FP] 5 bytes temp fac
-deccnt	=tempf2+1        ;$5D [FP] number of places before decimal point
-tenexp	=tempf2+2        ;$5E [FP] has a dpt been input?
 lowtr	=tempf2+3        ;$5F last thing to move in blt
 grbtop	=tempf2+3        ;$5F a pointer used in garbage collection
 dptflg	=tempf2+3        ;$5F base ten exponent
 expsgn	=tempf2+4        ;$60 sign of base ten exponent
 
 ; --- the floating accumulator ---:
-fac                      ;$61 [FP]
-facexp	.res 1           ;$61 [FP]
-facho	.res 1           ;$62 [FP] most significant byte of mantissa
-facmoh	.res 1           ;$63 [FP] one more
-facmo	.res 1           ;$64 [FP] middle order of mantissa
-faclo	.res 1           ;$65 [FP] least sig byte of mantissa
-facsgn	.res 1           ;$66 [FP] sign of fac (0 or -1) when unpacked
 dsctmp	=fac             ;$61 this is where temp descs are built
 indice	=facmo           ;$64 indice is set up here by "qint"
 
-degree	.res 1           ;$67 [FP] a count used by polynomials
 sgnflg	=degree          ;$67 sign of fac is preserved bere by "fin".
 
 .segment "BVARS"
@@ -182,18 +160,8 @@ bits	.res 1           ;$68 something for "shiftr" to use
 
 ; --- the floating argument (unpacked) ---:
 .segment "ZPBASIC"
-argexp	.res 1           ;$69 [FP]
-argho	.res 1           ;$6A [FP]
-argmoh	.res 1           ;$6B [FP]
-argmo	.res 1           ;$6C [FP]
-arglo	.res 1           ;$6D [FP]
-argsgn	.res 1           ;$6E [FP]
-arisgn	.res 1           ;$6F [FP] a sign reflecting the result
-facov	.res 1           ;$70 [FP] overflow byte of the fac
 strng1	=arisgn          ;$6F
 
-polypt	.res 2           ;$71 [FP] pointer into polynomial coefficients.
-fbufpt	=polypt          ;$71 [FP] pointer into fbuffr used by fout
 bufptr	=polypt          ;$71 pointer to buf used by "crunch".
 strng2	=polypt          ;$71 pointer to string or desc.
 curtol	=polypt          ;$71 absolute linear index is formed here.

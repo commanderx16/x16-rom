@@ -19,46 +19,61 @@ rdbas	=$fff3
 ; STRTMP
 .importzp fbuffr ; used by code22.s, code23.s
 
-; ZPBASIC
-.importzp degree ; code25.s; synonym of 'sgnflg': code21.s
-.importzp polypt ; code25.s; BASIC: synonym of 'bufptr', 'strng2', ...
-.importzp fbufpt ; code22.s; BASIC: used, synonym of 'bufptr', 'strng2', ...
-.importzp tempf3 ; code23.s, trig.s; BASIC: synonym of 'defpnt'
-.importzp fdecpt ; code22.s; BASIC: synonym of 'varpnt'
-.importzp tenexp ; code21.s, code22.s
-.importzp deccnt ; code22.s; BASIC: used
-.importzp index2 ; code22.s; BASIC: used
-.importzp forpnt ; code20.s; BASIC: *owned*
-.importzp tempf1 ; code20.s, code25.s, trig.s
-.importzp tempf2 ; code20.s, code25.s
-.importzp index  ; code19.s, code20.s; BASIC: used
-.importzp index1 ; code19.s, code20.s, code25.s, code26.s; BASIC: used
-.importzp resho  ; code18.s, code19.s, code20.s
-.importzp resmoh ; code19.s, code20.s
-.importzp resmo  ; code19.s; code20.s; BASIC: synonym of 'addend'
-.importzp reslo  ; code19.s; code20.s; BASIC: synonym of 'addend'+1
-.importzp argexp ; ...; BASIC: used
-.importzp argho  ; code18.s; code18.s; BASIC: used
-.importzp argmoh ; code18.s; code18.s; BASIC: used
-.importzp argmo  ; code18.s; code18.s; BASIC: used
-.importzp arglo  ; code18.s; code18.s; BASIC: used
-.importzp argsgn ; code18.s; code18.s, ...; BASIC: used
-.importzp arisgn ; code18.s; code18.s, ...; BASIC: used; synonym of 'strng1'
-.importzp fac    ; ...; BASIC: used
-.importzp facexp ; ...; BASIC: used
-.importzp facho  ; ...; BASIC: used
-.importzp facmoh ; ...; BASIC: used
-.importzp facmo  ; ...; BASIC: used
-.importzp faclo  ; ...; BASIC: used
-.importzp facsgn ; ...; BASIC: used
-.importzp facov  ; ...; BASIC: used
-
 ; constant
 .importzp errdvo ; code19.s
 .importzp errov  ; code18.s
 .importzp addprc
 
+.importzp forpnt ; ZPBASIC
+
+.segment "ZPBASIC" : zeropage ; FPLIB
+
+index1	.res 2           ;$22 [FP] indexes
+index	=index1          ;$22 [FP]
+index2	.res 2           ;$24 [FP]
+
+resho	.res 1           ;$26 [FP] result of multiplier and divider
+resmoh	.res 1           ;$27 [FP]
+resmo	.res 1           ;$28 [FP]
+reslo	.res 1           ;$29 [FP]
+	.res 1           ;$2A [FP] fifth byte for res
+
+fdecpt	.res 2           ;$47 [FP] pointer into power of tens of "fout"
+
+tempf3	.res 5           ;$4E [FP] a third fac temporary
+
+tempf1	.res 5           ;$57 [FP] 5 bytes temp fac
+
+tempf2	.res 5           ;$5C [FP] 5 bytes temp fac
+deccnt	=tempf2+1        ;$5D [FP] number of places before decimal point
+tenexp	=tempf2+2        ;$5E [FP] has a dpt been input?
+
+fac                      ;$61 [FP]
+facexp	.res 1           ;$61 [FP]
+facho	.res 1           ;$62 [FP] most significant byte of mantissa
+facmoh	.res 1           ;$63 [FP] one more
+facmo	.res 1           ;$64 [FP] middle order of mantissa
+faclo	.res 1           ;$65 [FP] least sig byte of mantissa
+facsgn	.res 1           ;$66 [FP] sign of fac (0 or -1) when unpacked
+
+degree	.res 1           ;$67 [FP] a count used by polynomials
+
+argexp	.res 1           ;$69 [FP]
+argho	.res 1           ;$6A [FP]
+argmoh	.res 1           ;$6B [FP]
+argmo	.res 1           ;$6C [FP]
+arglo	.res 1           ;$6D [FP]
+argsgn	.res 1           ;$6E [FP]
+arisgn	.res 1           ;$6F [FP] a sign reflecting the result
+facov	.res 1           ;$70 [FP] overflow byte of the fac
+
+polypt	.res 2           ;$71 [FP] pointer into polynomial coefficients.
+fbufpt	=polypt          ;$71 [FP] pointer into fbuffr used by fout
+
+
 .global zerofc, foutc, movmf, floats, fcomp, movfa, float, floatb, foutim, foutbl, fdcend, overr, fin, fcompn, fadd, finh, fout, qint, finml6, movaf, mul10, zero, movvf, round, sign, movfm, fone, negop, fpwrt, fdivt, fmultt, fsubt, faddt, atn, tan, sin, cos, exp, log, rnd, sqr, abs, int, sgn, div10, finlog, floatc
+
+.global degree, polypt, fbufpt, tempf3, fdecpt, tenexp, deccnt, index2, forpnt, tempf1, tempf2, index, index1, resho, resmoh, resmo, reslo, argexp, argho, argmoh, argmo, arglo, argsgn, arisgn, fac, facexp, facho, facmoh, facmo, faclo, facsgn, facov
 
 .segment "BASIC"
 
