@@ -15,15 +15,7 @@
 	rts
 	nop
 .endif
-.if 0
-	; TODO: This is BASIC code, not FP code and
-	;       stores the result into poker/poker+1
-	jmp getadr      ;convert FP -> address
-.else
-	sec
-	rts
-	nop
-.endif
+	jmp getadr2     ;convert FP -> address
 	jmp floatc      ;convert address -> FP
 
 ; Movement

@@ -125,7 +125,7 @@ ayint	lda facexp
 	ldy #>n32768
 	jsr fcomp
 	beq qintgo
-	jmp fcerr
+gofuc	jmp fcerr
 qintgo	jmp qint
 
 n32768	.byt 144,128,0,0,0
@@ -134,3 +134,13 @@ givayf2	sta facho
 	sty facho+1
 	ldx #144
 	jmp floats
+
+getadr2	lda facsgn
+	bmi gofuc
+	lda facexp
+	cmp #145
+	bcs gofuc
+	jsr qint
+	lda facmo
+	ldy facmo+1
+	rts

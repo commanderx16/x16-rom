@@ -40,14 +40,7 @@ getnum	jsr frmadr
 combyt	jsr chkcom
 	jmp getbyt
 frmadr	jsr frmnum
-getadr	lda facsgn
-	bmi gofuc
-	lda facexp
-	cmp #145
-	bcs gofuc
-	jsr qint
-	lda facmo
-	ldy facmo+1
+getadr	jsr getadr2
 	sty poker
 	sta poker+1
 	rts
