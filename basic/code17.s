@@ -4,6 +4,7 @@ conint	jsr posint
 	bne gofuc
 	ldx faclo
 	jmp chrgot
+
 val	jsr len1
 	bne *+5
 	jmp zerofc
@@ -36,6 +37,7 @@ st2txt	ldx strng2
 	stx txtptr
 	sty txtptr+1
 valrts	rts
+
 getnum	jsr frmadr
 combyt	jsr chkcom
 	jmp getbyt
