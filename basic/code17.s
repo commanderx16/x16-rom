@@ -187,7 +187,8 @@ finedg	lda tenexp
 	lda #$64
 	bit expsgn
 	bmi mlexmi
-	jmp overr
+overr	ldx #errov
+	jmp error
 mlex10	asl a
 	asl a
 	clc
