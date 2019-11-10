@@ -1,6 +1,11 @@
 .feature labels_without_colons, pc_assignment
 
 .include "../banks.inc"
+.include "../fplib/fplib.inc"
+
+; XXX exports for FPLIB
+.global error, fcerr  ; code
+.global errdvo, errov ; constants
 
 .include "declare.s"
 .include "tokens.s"
@@ -22,16 +27,7 @@
 .include "code15.s"
 .include "code16.s"
 .include "code17.s"
-.include "code18.s"
-.include "code19.s"
-.include "code20.s"
-.include "code21.s"
-.include "code22.s"
-.include "code23.s"
-.include "code24.s"
-.include "code25.s"
 .include "code26.s"
-.include "trig.s"
 .include "init.s"
 .include "x16additions.s"
 .include "geos.s"

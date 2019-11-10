@@ -40,14 +40,7 @@ getnum	jsr frmadr
 combyt	jsr chkcom
 	jmp getbyt
 frmadr	jsr frmnum
-getadr	lda facsgn
-	bmi gofuc
-	lda facexp
-	cmp #145
-	bcs gofuc
-	jsr qint
-	lda facmo
-	ldy facmo+1
+getadr	jsr getadr2
 	sty poker
 	sta poker+1
 	rts
@@ -90,80 +83,125 @@ waiter	lda (poker),y
 	eor eormsk
 	and andmsk
 	beq waiter
-zerrts	rts
-faddh	lda #<fhalf
-	ldy #>fhalf
-	jmp fadd
-fsub	jsr conupk
-fsubt	lda facsgn
-	eor #$ff
-	sta facsgn
-	eor argsgn
-	sta arisgn
-	lda facexp
-	jmp faddt
-fadd5	jsr shiftr
-	bcc fadd4
-fadd	jsr conupk
-faddt	bne *+5
-	jmp movfa
-	ldx facov
-	stx oldov
-	ldx #argexp
-	lda argexp
-faddc	tay
-	beq zerrts
+	rts
+
+;**************************
+; routines moved from the
+; floating point library
+;**************************
+
+inprt	lda #<intxt
+	ldy #>intxt
+	jsr strout
+	lda curlin+1
+	ldx curlin
+linprt	sta facho
+	stx facho+1
+	ldx #$90
 	sec
-	sbc facexp
-	beq fadd4
-	bcc fadda
-	sty facexp
-	ldy argsgn
-	sty facsgn
-	eor #$ff
-	adc #0
-	ldy #0
-	sty oldov
-	ldx #fac
-	bne fadd1
-fadda	ldy #0
-	sty facov
-fadd1	cmp #$f9
-	bmi fadd5
-	tay
-	lda facov
-	lsr 1,x
-	jsr rolshf
-fadd4	bit arisgn
-	bpl fadd2
-	ldy #facexp
-	cpx #argexp
-	beq subit
-	ldy #argexp
-subit	sec
-	eor #$ff
-	adc oldov
-	sta facov
-	lda 3+addprc,y
-	sbc 3+addprc,x
-	sta faclo
-	lda addprc+2,y
-	sbc 2+addprc,x
-	sta facmo
-	lda 2,y
-	sbc 2,x
-	sta facmoh
-	lda 1,y
-	sbc 1,x
-	sta facho
-fadflt	bcs normal
-	jsr negfac
-normal	ldy #0
-	tya
+	jsr floatc
+	jsr foutc
+	jmp strout
+
+movvf	ldx forpnt
+	ldy forpnt+1
+	jmp movmf
+
+;**************************************
+finh	bcc fin	; skip test for 0-9
+	cmp #'$'
+	beq finh2
+	cmp #'%'
+	bne fin
+finh2	jmp frmevl
+;**************************************
+fin	ldy #$00
+	ldx #$09+addprc
+finzlp	sty deccnt,x
+	dex
+	bpl finzlp
+	bcc findgq
+	cmp #'-'
+	bne qplus
+	stx sgnflg
+	beq finc
+qplus	cmp #'+'
+	bne fin1
+finc	jsr chrget
+findgq	bcc findig
+fin1	cmp #'.'
+	beq findp
+	cmp #'E'
+	bne fine
+	jsr chrget
+	bcc fnedg1
+	cmp #minutk
+	beq finec1
+	cmp #'-'
+	beq finec1
+	cmp #plustk
+	beq finec
+	cmp #'+'
+	beq finec
+	bne finec2
+finec1	ror expsgn
+finec	jsr chrget
+fnedg1	bcc finedg
+finec2	bit expsgn
+	bpl fine
+	lda #0
+	sec
+	sbc tenexp
+	jmp fine1
+findp	ror dptflg
+	bit dptflg
+	bvc finc
+fine	lda tenexp
+fine1	sec
+	sbc deccnt
+	sta tenexp
+	beq finqng
+	bpl finmul
+findiv	jsr div10
+	inc tenexp
+	bne findiv
+	beq finqng
+finmul	jsr mul10
+	dec tenexp
+	bne finmul
+finqng	lda sgnflg
+	bmi negxqs
+	rts
+negxqs	jmp negop
+findig	pha
+	bit dptflg
+	bpl findg1
+	inc deccnt
+findg1	jsr mul10
+	pla
+	sec
+	sbc #'0'
+	jsr finlog
+	jmp finc
+
+finedg	lda tenexp
+	cmp #$0a
+	bcc mlex10
+	lda #$64
+	bit expsgn
+	bmi mlexmi
+overr	ldx #errov
+	jmp error
+mlex10	asl a
+	asl a
 	clc
-norm3	ldx facho
-	bne norm1
-	ldx facho+1
-	stx facho
-	ldx facmoh+1
+	adc tenexp
+	asl a
+	clc
+	ldy #0
+	adc (txtptr),y
+	sec
+	sbc #'0'
+mlexmi	sta tenexp
+	jmp finec
 

@@ -1,4 +1,3 @@
-n32768	.byt 144,128,0,0,0
 flpint	jsr ayint
 	lda facmo
 	ldy  faclo
@@ -7,16 +6,10 @@ intidx	jsr chrget
 	jsr frmevl
 posint	jsr chknum
 	lda facsgn
-	bmi nonono
-ayint	lda facexp
-	cmp #144
-	bcc qintgo
-	lda #<n32768
-	ldy #>n32768
-	jsr fcomp
-nonono	beq qintgo
+	bpl :+
 	jmp fcerr
-qintgo	jmp qint
+:	jmp ayint
+
 isary	lda dimflg
 	ora intflg
 	pha

@@ -72,8 +72,13 @@ poly4	sta polypt
 rmulc	.byt $98,$35,$44,$7a,$00
 raddc	.byt $68,$28,$b1,$46,$00
 rnd	jsr sign
-	bmi rnd1
+rnd_0	bmi rnd1
 	bne qsetnr
+; XXX Initializing the RNG seed should be moved
+; XXX out of FPLIB to remove the dependency on
+; XXX KERNAL. In fact, generating a seed should
+; XXX be done by KERNAL, combining all sources
+; XXX on entropy.
 	jsr rdbas
 	stx index1
 	sty index1+1
@@ -118,3 +123,56 @@ strnex	lda #0
 	ldy #>rndx
 gmovmf	jmp movmf
 
+;**************************
+; routines moved from BASIC
+;**************************
+
+ayint	lda facexp
+	cmp #144
+	bcc qintgo
+	lda #<n32768
+	ldy #>n32768
+	jsr fcomp
+	beq qintgo
+gofuc	jmp fcerr
+qintgo	jmp qint
+
+n32768	.byt 144,128,0,0,0
+
+givayf2	sta facho
+	sty facho+1
+	ldx #144
+	jmp floats
+
+getadr2	lda facsgn
+	bmi gofuc
+	lda facexp
+	cmp #145
+	bcs gofuc
+	jsr qint
+	lda facmo
+	ldy facmo+1
+	rts
+
+;**************************
+; generalized versions of
+; what BASIC calls
+;**************************
+
+fmultt2 jsr prepare
+	jmp fmultt      ;go multiply
+
+fdivt2	jsr prepare
+	jmp fdivt       ;go divide
+
+fpwrt2	jsr prepare
+	jmp fpwrt       ;go power
+
+prepare	lda argsgn
+	eor facsgn
+	sta arisgn      ;resultant sign
+	ldx facexp      ;set signs
+	rts
+
+rnd2	ora #0          ;set flags
+	jmp rnd_0

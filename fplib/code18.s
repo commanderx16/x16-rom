@@ -1,3 +1,79 @@
+zerrts	rts
+faddh	lda #<fhalf
+	ldy #>fhalf
+	jmp fadd
+fsub	jsr conupk
+fsubt	lda facsgn
+	eor #$ff
+	sta facsgn
+	eor argsgn
+	sta arisgn
+	lda facexp
+	jmp faddt
+fadd5	jsr shiftr
+	bcc fadd4
+fadd	jsr conupk
+faddt	bne *+5
+	jmp movfa
+	ldx facov
+	stx oldov
+	ldx #argexp
+	lda argexp
+faddc	tay
+	beq zerrts
+	sec
+	sbc facexp
+	beq fadd4
+	bcc fadda
+	sty facexp
+	ldy argsgn
+	sty facsgn
+	eor #$ff
+	adc #0
+	ldy #0
+	sty oldov
+	ldx #fac
+	bne fadd1
+fadda	ldy #0
+	sty facov
+fadd1	cmp #$f9
+	bmi fadd5
+	tay
+	lda facov
+	lsr 1,x
+	jsr rolshf
+fadd4	bit arisgn
+	bpl fadd2
+	ldy #facexp
+	cpx #argexp
+	beq subit
+	ldy #argexp
+subit	sec
+	eor #$ff
+	adc oldov
+	sta facov
+	lda 3+addprc,y
+	sbc 3+addprc,x
+	sta faclo
+	lda addprc+2,y
+	sbc 2+addprc,x
+	sta facmo
+	lda 2,y
+	sbc 2,x
+	sta facmoh
+	lda 1,y
+	sbc 1,x
+	sta facho
+fadflt	bcs normal
+	jsr negfac
+normal	ldy #0
+	tya
+	clc
+norm3	ldx facho
+	bne norm1
+	ldx facho+1
+	stx facho
+	ldx facmoh+1
 	stx facmoh
 	ldx facmo+1
 	stx facmo

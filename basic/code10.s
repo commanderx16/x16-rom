@@ -39,7 +39,7 @@ isvret	sta facmo
 	sty fbufpt
 	ldy #6
 	sty deccnt
-	ldy #fdcend-foutbl
+	ldy #<(fdcend-foutbl) ; "<" necessary to make ca65 happy
 	jsr foutim
 	jmp timstr
 gooo	bit intflg
