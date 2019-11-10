@@ -150,15 +150,20 @@ getadr2	lda facsgn
 	ldy facmo+1
 	rts
 
-fmultt2	lda argsgn
-	eor facsgn
-	sta arisgn      ;resultant sign
-	ldx facexp      ;set signs on thing to multiply
+fmultt2 jsr prepare
 	jmp fmultt      ;go multiply
 
-fdivt2
-	lda argsgn
+fdivt2	jsr prepare
+	jmp fdivt       ;go divide
+
+fpwrt2	jsr prepare
+	jmp fpwrt       ;go power
+
+prepare	lda argsgn
 	eor facsgn
 	sta arisgn      ;resultant sign
-	ldx facexp      ;set signs on thing to divide
-	jmp fdivt      ;go divide
+	ldx facexp      ;set signs
+	rts
+
+rnd2	ora #0
+	jmp rnd_0

@@ -59,7 +59,11 @@
 
 	; FAC += ARG
 	; [FIXED VERSION of "faddt"]
-	jmp faddt2  ; $B86A
+	jmp faddt2
+
+	; FAC += ARG
+	; [do not use, used by BASIC]
+	jmp faddt   ; $B86A
 
 	; FAC = 0
 	jmp zerofc ; $B8F7
@@ -78,7 +82,11 @@
 
 	; FAC *= ARG
 	; [FIXED VERSION of "fmultt"]
-	jmp fmultt2 ; $BA2B
+	jmp fmultt2
+
+	; FAC *= ARG
+	; [do not use, used by BASIC]
+	jmp fmultt  ; $BA2B
 
 	; FAC += .A * ARG
 	jmp mltply ; $BA59 [-mapping-]
@@ -102,7 +110,11 @@
 
 	; FAC /= ARG
 	; [FIXED VERSION of "fdivt"]
-	jmp fdivt2 ; $BB12
+	jmp fdivt2
+
+	; FAC /= ARG
+	; [do not use, used by BASIC]
+	jmp fdivt  ; $BB12
 
 	; FAC = mem(.Y:.A) (5 bytes)
 	jmp movfm  ; $BBA2
@@ -159,8 +171,8 @@
 
 	; XXX fin ($BCF3) is missing because of
 	; XXX the dependency on CHRGET.
-	; XXX We should add it after removing the
-	; XXX the depencency.
+	; XXX We should add it (or a variant of "val")
+	; XXX after removing the depencency.
 	brk
 	brk
 	brk
@@ -183,6 +195,11 @@
 	jmp sqr    ; $BF71
 
 	; FAC = ARG^FAC
+	; [FIXED VERSION of "fpwrt"]
+	jmp fpwrt2
+
+	; FAC = ARG^FAC
+	; [do not use, used by BASIC]
 	jmp fpwrt  ; $BF7B
 
 	; FAC = -FAC -1
@@ -196,6 +213,10 @@
 
 	; Polynomial Evaluation 2 (EXP)
 	jmp poly   ; $E059 [-mapping-]
+
+	; FAC = rnd(A)
+	; [convenience version of the routine below]
+	jmp rnd2
 
 	; FAC = rnd(FAC)
 	jmp rnd    ; $E097
