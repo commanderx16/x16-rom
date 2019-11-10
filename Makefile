@@ -195,7 +195,7 @@ all: $(PREFIXED_GEOS_OBJS)
 
 clean:
 	rm -f kernsup/*.o
-	rm -f basic/basic.o kernal/kernal.o rom.bin
+	rm -f basic/basic.o fplib/fplib.o kernal/kernal.o rom.bin
 	rm -f monitor/monitor.o monitor/monitor_support.o
 	rm -f cbdos/*.o
 	rm -f keymap/keymap.o
