@@ -74,6 +74,11 @@ raddc	.byt $68,$28,$b1,$46,$00
 rnd	jsr sign
 rnd_0	bmi rnd1
 	bne qsetnr
+; XXX Initializing the RNG seed should be moved
+; XXX out of FPLIB to remove the dependency on
+; XXX KERNAL. In fact, generating a seed should
+; XXX be done by KERNAL, combining all sources
+; XXX on entropy.
 	jsr rdbas
 	stx index1
 	sty index1+1
@@ -144,3 +149,16 @@ getadr2	lda facsgn
 	lda facmo
 	ldy facmo+1
 	rts
+
+fmultt2	lda argsgn
+	eor facsgn
+	sta arisgn      ;resultant sign
+	ldx facexp      ;set signs on thing to multiply
+	jmp fmultt      ;go multiply
+
+fdivt2
+	lda argsgn
+	eor facsgn
+	sta arisgn      ;resultant sign
+	ldx facexp      ;set signs on thing to divide
+	jmp fdivt      ;go divide

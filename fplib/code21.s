@@ -49,7 +49,7 @@ finlog	pha
 	jsr movaf
 	pla
 	jsr float
-	lda argsgn
+faddt2	lda argsgn
 	eor facsgn
 	sta arisgn
 	ldx facexp
