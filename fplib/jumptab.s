@@ -69,7 +69,7 @@
 	jmp zerofc ; $B8F7
 
 	; Normalize FAC
-	jmp normal; $B8D7 [-mapping-]
+	jmp normal ; $B8D7 [-mapping-]
 
 	; FAC = -FAC
 	jmp negfac ; $B947 [-mapping-]
@@ -202,7 +202,7 @@
 	; [do not use, used by BASIC]
 	jmp fpwrt  ; $BF7B
 
-	; FAC = -FAC -1
+	; FAC = -FAC - 1
 	jmp negop  ; $BFB4
 
 	; FAC = e^FAC
@@ -236,4 +236,3 @@
 	; FAC = atn(FAC)
 	; [destroys ARG]
 	jmp atn    ; $E30E
-

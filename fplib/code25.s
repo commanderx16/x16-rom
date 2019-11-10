@@ -165,5 +165,5 @@ prepare	lda argsgn
 	ldx facexp      ;set signs
 	rts
 
-rnd2	ora #0
+rnd2	ora #0          ;set flags
 	jmp rnd_0
