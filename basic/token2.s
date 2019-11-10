@@ -167,9 +167,9 @@ errtab	.word err01
 okmsg	.byt $d,"OK",$d,$0
 err	.byt $20," ERROR",0 ;add a space for vic-40 screen
 intxt	.byt " IN ",0
-reddy	.byt $d,$a,"READY.",$d,$a,0
+reddy	.byt $d,"READY.",$d,0
 erbrk	=30
-brktxt	.byt $d,$a
+brktxt	.byt $d
 err30	.byt "BREAK",0,$a0 ;shifted space
 
 forsiz	=$12
