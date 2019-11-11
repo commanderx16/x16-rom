@@ -174,7 +174,7 @@ _ResetHandle:
 	sta interleave
 
 	lda #1
-	sta NUMDRV
+	sta numDrives
 	ldy $BA
 	sty curDrive
 	lda #DRV_TYPE ; see config.inc
@@ -203,9 +203,9 @@ OrigResetHandle:
 @1:	MoveB bootSec2, r1H
 	MoveB bootTr2, r1L
 	bne @3
-	lda NUMDRV
+	lda numDrives
 	bne @2
-	inc NUMDRV
+	inc numDrives
 @2:	LoadW EnterDeskTop+1, _EnterDeskTop
 .ifdef useRamExp
 	jsr LoadDeskTop
