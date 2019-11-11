@@ -184,8 +184,7 @@ DoMenu1_1:
 @3:	sec
 @4:	bbrf MOUSEON_BIT, mouseOn, @5
 .ifdef wheels_size_and_speed
-	lda #1 << ICONSON_BIT | 1 << MENUON_BIT
-	.byte $2c ; skip the "LDA #" part of "smbf"
+	smbf ICONSON_BIT, mouseOn
 .else
 	smbf ICONSON_BIT, mouseOn
 .endif

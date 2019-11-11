@@ -24,9 +24,13 @@
 
 .include "common.inc"
 IMPORTED_FROM_MAIN=1
+
+.feature labels_without_colons
+
 .include "fat32.inc"
 .include "fcntl.inc"
 .include "65c02.inc"
+
 
 NUM_BUFS = 4
 TOTAL_NUM_BUFS = NUM_BUFS + 3
@@ -420,11 +424,11 @@ cbdos_acptr:
 
 ; EOF
 	lda #$40
-	.byte $2c
-@acptr_nofd:
+	bra :+
+@acptr_nofd
 ; no fd
 	lda #$02 ; timeout/file not found
-	sta status
+:	sta status
 	lda #0
 	ldy save_y
 	ldx save_x
@@ -609,16 +613,16 @@ finished_with_buffer:
 ;****************************************
 set_status_ok:
 	lda #$00
-	.byte $2c
-set_status_writeprot:
+	bra :+
+set_status_writeprot
 	lda #$26
-	.byte $2c
-set_status_synerr:
+	bra :+
+set_status_synerr
 	lda #$31
-	.byte $2c
-set_status_73:
+	bra :+
+set_status_73
 	lda #$73
-	pha
+:	pha
 	pha
 	lsr
 	lsr
@@ -934,16 +938,16 @@ read_dir:
 	sbc #>10
 	bcs gt_10
 	ldx #3
-	.byte $2c
-gt_10:
+	bra :+
+gt_10
 	ldx #2
-	.byte $2c
-gt_100:
+	bra :+
+gt_100
 	ldx #1
-	.byte $2c
-gt_1000:
+	bra :+
+gt_1000
 	ldx #0
-	lda #' '
+:	lda #' '
 :	jsr storedir
 	dex
 	bne :-

@@ -243,11 +243,11 @@ key5
 	cmp #$9f
 	bne key2
 	lda gdbln
-	.byte $2c
+	bra :+
 key2	lda #$9f
-	.byte $2c
+	bra :+
 key3	eor #$80        ;blink it
-	jsr dspp2       ;display it
+:	jsr dspp2       ;display it
 ;
 key4
 	jsr scnkey      ;scan keyboard
@@ -384,13 +384,13 @@ drv_end:
 ; or $80 if shift is down
 is_home:
 	ldx #$13 * 2; home (-> clr)
-	.byte $2c
-is_enter:
+	bra :+
+is_enter
 	ldx #$0d * 2 ; return (-> shift+return)
-	.byte $2c
-is_stop:
+	bra :+
+is_stop
 	ldx #$03 * 2 ; stop (-> run)
-	lda shflag
+:	lda shflag
 	lsr ; shift -> C
 	txa
 	ror
@@ -403,9 +403,9 @@ add_to_buf:
 	cmp #3 ; stop
 	bne add1
 	ldx #$7f
-	.byte $2c
-add1:	ldx #$ff
-	stx stkey
+	bra :+
+add1	ldx #$ff
+:	stx stkey
 	ldx ndx ; length of keyboard buffer
 	cpx #10 ;maximum type ahead buffer size
 	bcs add2 ; full, ignore
@@ -550,10 +550,10 @@ receive_down_scancode_no_modifiers:
 	bcc key_down
 	eor #$ff
 	and shflag
-	.byte $2c
-key_down:
+	bra :+
+key_down
 	ora shflag
-	sta shflag
+:	sta shflag
 key_up:	lda #0 ; no key to return
 	rts
 no_mod:	plp
@@ -570,9 +570,9 @@ check_mod:
 	cpx #$e0 ; right alt
 	bne :+
 	lda #MODIFIER_ALT | MODIFIER_CTRL
-	.byte $2c
+	bra :++
 :	lda #MODIFIER_ALT
-	sec
+:	sec
 	rts
 nmd_alt:
 	cmp #$14 ; left ctrl (0014) or right ctrl (E014)
@@ -590,13 +590,13 @@ ckmod2:	cmp #$1F ; left win (001F)
 	cmp #$27 ; right win (0027)
 	bne ckmod1
 md_win:	lda #MODIFIER_WIN
-	.byte $2c
-md_alt:	lda #MODIFIER_ALT
-	.byte $2c
-md_ctl:	lda #MODIFIER_CTRL
-	.byte $2c
-md_sh:	lda #MODIFIER_SHIFT
-	sec
+	bra :+
+md_alt	lda #MODIFIER_ALT
+	bra :+
+md_ctl	lda #MODIFIER_CTRL
+	bra :+
+md_sh	lda #MODIFIER_SHIFT
+: sec
 	rts
 
 tab_extended:

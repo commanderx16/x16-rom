@@ -126,7 +126,7 @@ _DoFrame_RecTo:
 _DoPenXYDelta:
 	ldx #1
 .ifdef wheels_size
-	.byte $2c
+	bra DPXD0
 .else
 	bne DPXD0
 .endif

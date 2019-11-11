@@ -37,6 +37,8 @@
 ; * "OD" switches all memory dumps/input to the drive's memory.
 ; * "B" command to introspect cartridge ROM
 
+.feature labels_without_colons
+
 .include "kernal.i"
 
 .ifdef CART_FC3
@@ -269,9 +271,9 @@ brk_entry2:
         lda     entry_type
         cmp     #'C'
         bne     :+
-        .byte   $2C ; XXX bne + skip = beq + 2
+        bra     :++
 :       lda     #'B'
-        ldx     #'*'
+:       ldx     #'*'
         jsr     print_a_x
         clc
         lda     reg_pc_lo
@@ -355,9 +357,10 @@ LABEB:  ldy     #0
 
 syntax_error:
         lda     #'?'
-        .byte   $2C
-print_cr_then_input_loop:
+        bra :+
+print_cr_then_input_loop
         lda     #CR
+:
         jsr     BSOUT
 
 input_loop:
@@ -1516,8 +1519,9 @@ cmd_b:  jsr     basin_cmp_cr
         bcs     syn_err3
         and     #$03 ; XXX no effect
         ora     #$40 ; make $40 - $43
-        .byte   $2C
-LB326:  lda     #$70 ; by default, hide cartridge
+        bra     :+
+LB326  lda     #$70 ; by default, hide cartridge
+:
         sta     cartridge_bank
         jmp     print_cr_then_input_loop
 .endif
@@ -1560,9 +1564,10 @@ video_loop:
         cmp     #' '
         beq     video_loop
         jsr     hex_digit_to_nybble
-        .byte   $2C
-default_video_bank:
+        bra		:+
+default_video_bank
 	lda     #0
+:
 	jmp     store_bank
 
 not_video:
@@ -1572,15 +1577,16 @@ not_video:
 .elseif .defined(MACHINE_X16)
         jsr     get_hex_byte2
 .endif
-        .byte   $2C
-LB33F:  lda     #DEFAULT_BANK
+        bra :+
+LB33F  lda     #DEFAULT_BANK
+:
 .ifdef MACHINE_C64
         cmp     #$38
         bcs     syn_err3
         cmp     #$30
         bcc     syn_err3
 .endif
-        .byte   $2C
+        bra store_bank
 LB34A:  lda     #$80 ; drive
 store_bank:
         sta     bank
@@ -1777,11 +1783,12 @@ LB48E:  jsr     print_space
 
 print_up:
         ldx     #CSR_UP
-        .byte   $2C
+        bra     :+
 print_cr_dot:
         ldx     #'.'
+:        
         lda     #CR
-        .byte   $2C
+        bra     print_a_x
 print_dot_x:
         lda     #'.'
 print_a_x:
@@ -1792,18 +1799,19 @@ print_a_x:
 print_up_dot:
         jsr     print_up
         lda     #'.'
-        .byte   $2C
+        bra     :+
 ; XXX unused?
         lda     #CSR_RIGHT
-        .byte   $2C
-print_hash:
+        bra     :+
+print_hash
         lda     #'#'
-        .byte   $2C
-print_space:
+        bra     :+
+print_space
         lda     #' '
-        .byte   $2C
-print_cr:
+        bra     :+
+print_cr
         lda     #CR
+:
         jmp     BSOUT
 
 basin_skip_spaces_if_more:
@@ -1914,9 +1922,10 @@ syn_err5:
 
 print_dollar_hex_16:
         lda     #'$'
-        .byte   $2C
-print_space_hex_16:
+        bra     :+
+print_space_hex_16
         lda     #' '
+:
         jsr     BSOUT
 print_hex_16:
         lda     zp1 + 1
@@ -2119,21 +2128,22 @@ check_end:
 
 fill_kbd_buffer_comma:
         lda     #','
-        .byte   $2C
-fill_kbd_buffer_semicolon:
+        bra     :+
+fill_kbd_buffer_semicolon
         lda     #':'
-        .byte   $2C
-fill_kbd_buffer_a:
+        bra     :+
+fill_kbd_buffer_a
         lda     #'A'
-        .byte   $2C
-fill_kbd_buffer_leftbracket:
+        bra     :+
+fill_kbd_buffer_leftbracket
         lda     #'['
-        .byte   $2C
-fill_kbd_buffer_rightbracket:
+        bra     :+
+fill_kbd_buffer_rightbracket
         lda     #']'
-        .byte   $2C
-fill_kbd_buffer_singlequote:
+        bra     :+
+fill_kbd_buffer_singlequote
         lda     #$27 ; "'"
+:
         sta     KEYD
         lda     zp1 + 1
         jsr     byte_to_hex_ascii
@@ -3513,8 +3523,9 @@ LBC58:  lda     #$2F
         sta     zp2 + 1
         sec
         ldy     zp1
-        .byte   $2C
-LBC60:  sta     zp1 + 1
+        bra     :+
+LBC60  sta     zp1 + 1
+:
         sty     zp1
         inc     zp2 + 1
         tya

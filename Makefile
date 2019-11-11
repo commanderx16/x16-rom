@@ -8,9 +8,9 @@ endif
 AS           = ca65
 LD           = ld65
 
-ARGS_KERNAL=-g
-ARGS_BASIC=-g
-#ARGS_MONITOR=-g
+ARGS_KERNAL=-g --cpu 65SC02 
+ARGS_BASIC=-g --cpu 65SC02 
+ARGS_MONITOR=-g --cpu 65SC02 
 #ARGS_DOS=-g
 ARGS_GEOS=-g
 

@@ -117,7 +117,7 @@ ld47	cmp (eal),y     ;verify it
 	beq ld60        ;o.k....
 	lda #16         ;no good...verify error (sperr)
 	jsr udst        ;update status
-	.byt $2c        ;skip next store
+	bra ld60
 ;
 ld50	sta (eal),y
 ld60	inc eal         ;increment store addr

@@ -115,9 +115,9 @@ cint	jsr iokeys
 	cmp #'6'
 	bne nemu
 	lda $9fbd       ;emulator keyboard layout
-	.byte $2c
+	bra :+
 nemu	lda #0          ;US layout
-	jsr setkbd
+:	jsr setkbd
 	lda #blue << 4 | white
 	sta color       ;init text color
 	lda #$c

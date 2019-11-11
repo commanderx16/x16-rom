@@ -127,9 +127,9 @@ errdir	ldx curlin+1
 	inx
 	bne dimrts
 	ldx #errid
-	.byt $2c
+	bra :+
 errguf	ldx #erruf
-	jmp error
+:	jmp error
 def	jsr getfnm
 	jsr errdir
 	jsr chkopn

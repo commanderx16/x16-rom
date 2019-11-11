@@ -44,7 +44,7 @@
 _BitOtherClip:
 	ldx #$ff
 .ifdef wheels_size
-	.byte $2c
+	bra BitmClp1
 .else
 	jmp BitmClp1
 .endif

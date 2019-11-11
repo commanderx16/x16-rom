@@ -76,7 +76,7 @@ nmary1	iny
 	adc lowtr+1
 	bcc lopfda
 bserr	ldx #errbs
-	.byt $2c
+	bra errgo3
 fcerr	ldx #errfc
 errgo3	jmp error
 gotary	ldx #errdd

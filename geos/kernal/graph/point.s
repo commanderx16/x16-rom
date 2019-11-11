@@ -199,7 +199,7 @@ _DrawPoint:
 	bit compatMode
 	bpl @0b
 	lda #0 ; black
-	.byte $2c
+	bra @0b
 @0:	lda #1 ; white
 @0b:	ldy r5L
 	sty veralo

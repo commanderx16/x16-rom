@@ -73,10 +73,10 @@ nsnerr6	ldx vartab      ;end save addr
 	rts
 
 cverf	lda #1          ;verify flag
-	.byt $2c        ;skip two bytes
+	bra :+
 
 cload	lda #0          ;load flag
-	pha
+:	pha
 	jsr plsv        ;parse parameters
 	bcs cld9
 	ldx andmsk

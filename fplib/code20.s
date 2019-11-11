@@ -29,9 +29,9 @@ movfm	sta index1
 	sty facov
 	rts   
 mov2f	ldx #tempf2
-	.byt $2c
+	bra :+
 mov1f	ldx #tempf1
-	ldy #0
+:	ldy #0
 	beq movmf
 movmf	jsr round
 	stx index1

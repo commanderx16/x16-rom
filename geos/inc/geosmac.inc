@@ -186,10 +186,13 @@
 
 .ifpc02
 .else
+.ifpsc02
+.else
 .macro bra addr
 	clv
 	bvc addr
 .endmacro
+.endif
 .endif
 
 .macro smb bitN, dest

@@ -161,9 +161,9 @@ get_col:
 	jsr chkcom
 	jsr getbyt
 	txa
-	.byte $2c
+	bra @2
 @1:	lda #0
-	rts
+@2:	rts
 
 set_col:
 	sei

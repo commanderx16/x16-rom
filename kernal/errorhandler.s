@@ -27,24 +27,24 @@ stop2	rts
 ;************************************
 ;
 error1	lda #1          ;too many files
-	.byt $2c
+	bra :+
 error2	lda #2          ;file open
-	.byt $2c
+	bra :+
 error3	lda #3          ;file not open
-	.byt $2c
+	bra :+
 error4	lda #4          ;file not found
-	.byt $2c
+	bra :+
 error5	lda #5          ;device not present
-	.byt $2c
+	bra :+
 error6	lda #6          ;not input file
-	.byt $2c
+	bra :+
 error7	lda #7          ;not output file
-	.byt $2c
+	bra :+
 error8	lda #8          ;missing file name
-	.byt $2c
+	bra :+
 error9	lda #9          ;bad device #
 ;
-	pha             ;error number on stack
+:	pha             ;error number on stack
 	jsr clrch       ;restore i/o channels
 ;
 	ldy #ms1-ms1
