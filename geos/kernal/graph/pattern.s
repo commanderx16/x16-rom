@@ -38,7 +38,7 @@ GetColor:
 	eor #1 ; swap black and white
 	bra @c
 @a:	lda #14 ; light blue
-	.byte $2c
+	bra @c
 @b:	lda #6 ; dark blue
 @c:	sta col1
 	lda #$80

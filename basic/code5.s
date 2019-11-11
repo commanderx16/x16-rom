@@ -11,9 +11,9 @@ return	bne gorts
 	cmp #gosutk
 	beq retu1
 	ldx #errrg
-	.byt $2c
+	bra js21
 userr	ldx #errus
-	jmp error
+js21:	jmp error
 snerr2	jmp snerr
 retu1	pla
 	pla
@@ -33,9 +33,9 @@ addon	tya
 	inc txtptr+1
 remrts	rts
 datan	ldx #':'
-	.byt $2c
+	bra js20
 remn	ldx #0
-	stx charac
+js20:	stx charac
 	ldy #0
 	sty endchr
 exchqt	lda endchr

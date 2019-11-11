@@ -417,11 +417,11 @@ cbdos_acptr:
 
 ; EOF
 	lda #$40
-	.byte $2c
+	bra @js60
 @acptr_nofd:
 ; no fd
 	lda #$02 ; timeout/file not found
-	sta $90
+@js60:	sta $90
 	lda #0
 	ldy save_y
 	ldx save_x
@@ -606,16 +606,16 @@ finished_with_buffer:
 ;****************************************
 set_status_ok:
 	lda #$00
-	.byte $2c
+	bra js61
 set_status_writeprot:
 	lda #$26
-	.byte $2c
+	bra js61
 set_status_synerr:
 	lda #$31
-	.byte $2c
+	bra js61
 set_status_73:
 	lda #$73
-	pha
+js61:	pha
 	pha
 	lsr
 	lsr
@@ -931,16 +931,16 @@ read_dir:
 	sbc #>10
 	bcs gt_10
 	ldx #3
-	.byte $2c
+	bra js62
 gt_10:
 	ldx #2
-	.byte $2c
+	bra js62
 gt_100:
 	ldx #1
-	.byte $2c
+	bra js62
 gt_1000:
 	ldx #0
-	lda #' '
+js62:	lda #' '
 :	jsr storedir
 	dex
 	bne :-

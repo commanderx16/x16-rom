@@ -232,9 +232,9 @@ eval4	cmp #fntk
 parchk	jsr chkopn
 	jsr frmevl
 chkcls	lda #41
-	.byt $2c
+	bra synchr
 chkopn	lda #40
-	.byt $2c
+	bra synchr
 chkcom	lda #44
 synchr	ldy #0
 	cmp (txtptr),y

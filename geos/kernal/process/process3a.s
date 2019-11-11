@@ -69,19 +69,21 @@ RProc0:
 .ifdef wheels_size
 _FreezeProcess:
 	lda #$20
-	.byte $2c
+	bra _js200
 _BlockProcess:
 	lda #$40
-	.byte $2c
+	bra _js200
 _EnableProcess:
 	lda #$80
+_js200:
 	ora TimersCMDs,x
 	bne LCBBD
 _UnblockProcess:
 	lda #$BF
-	.byte $2c
+	bra _js201
 _UnfreezeProcess:
 	lda #$DF
+_js201:
 	and TimersCMDs,x
 LCBBD:  sta TimersCMDs,x
 	rts

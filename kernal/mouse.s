@@ -75,9 +75,9 @@ mous2:	cmp #$ff
 	tay
 	bcc @5
 	lda #1  ; white
-	.byte $2c
+	bra @6
 @5:	lda #16 ; black
-	sta veradat
+@6:	sta veradat
 	pla
 @4:	dec 0
 	bne @2

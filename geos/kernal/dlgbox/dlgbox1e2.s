@@ -99,27 +99,28 @@ DBIcDISK:
 	jsr RstrKernal
 .endif
 	lda #DISK
-	.byte $2c
+	bra js100
 DBIcOK:
 	lda #OK
-	.byte $2c
+	bra js100
 DBIcCANCEL:
 	lda #CANCEL
-	.byte $2c
+	bra js100
 DBIcYES:
 	lda #YES
-	.byte $2c
+	bra js100
 DBIcNO:
 	lda #NO
-	.byte $2c
+	bra js100
 DBIcOPEN:
 	lda #OPEN
-	.byte $2c
+	bra js100
 DBStringFaultVec2:
 	lda #DBSYSOPV
-	.byte $2c
+	bra js100
 DBKeyVector2:
 	lda #DBGETSTRING
+js100
 .else
 DBIcOK:
 	lda #OK

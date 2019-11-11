@@ -12,7 +12,7 @@ talk
 	rts
 .endif
 	ora #$40        ;make a talk adr
-	.byt $2c        ;skip two bytes
+	bra list1       
 
 ;command serial bus device to listen
 ;
@@ -120,7 +120,7 @@ isr04	lda d1icr
 ;
 nodev	;device not present error
 	lda #$80
-	.byt $2c
+	bra csberr
 frmerr	;framing error
 	lda #$03
 csberr	jsr udst        ;commodore serial buss error entry
@@ -208,7 +208,7 @@ untlk
 	ora #$08
 	sta sdata
 	lda #$5f        ;untalk command
-	.byt $2c        ;skip two bytes
+	bra js10
 
 ;send unlisten command on serial bus
 ;
@@ -220,7 +220,7 @@ unlsn
 	rts
 .endif
 	lda #$3f        ;unlisten command
-	jsr list1       ;send it
+js10	jsr list1       ;send it
 ;
 ; release all lines
 dlabye	jsr scatn       ;always release atn

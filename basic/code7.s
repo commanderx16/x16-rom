@@ -18,9 +18,9 @@ outspc
 	lda channl
 	beq crtskp
 	lda #' '
-	.byt $2c
+	bra outdo
 crtskp	lda #29
-	.byt $2c
+	bra outdo
 outqst	lda #'?'
 outdo	jsr outch
 outrts	and #255
@@ -107,7 +107,7 @@ read	ldx datptr
 	ldy datptr+1
 	.byt $a9
 	tya
-	.byt $2c
+	bra inpco1
 inpcon	lda #0
 inpco1	sta inpflg
 	stx inpptr
