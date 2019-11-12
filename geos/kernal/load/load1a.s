@@ -74,7 +74,7 @@ _EnterDeskTop:
 	bpl EDT1
 	tya
 EDT1:	jsr EDT3
-	ldy NUMDRV
+	ldy numDrives
 .ifdef bsw128
 	dey
 	beq EDT2

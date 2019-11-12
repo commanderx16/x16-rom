@@ -76,9 +76,5 @@ InitRamTab:
 	.byte   1
 	.byte   OPEN
 .endif
-	.word obj0Pointer
-	.byte 8
-	.byte $28, $29, $2a, $2b
-	.byte $2c, $2d, $2e, $2f
 
 	.word 0
