@@ -169,3 +169,14 @@ ppach0	rts
 ;rsr 8/10/80 update panic :rem could use in error routine
 ;rsr 2/08/82 modify for vic-40 release
 ;rsr 4/15/82 add advertising sign-on
+
+.setcpu "65c02"
+via1	=$9f60                  ;VIA 6522 #1
+d1prb	=via1+0
+d1pra	=via1+1
+.import jsrfar3
+.import jmpfr
+.importzp imparm
+.export bjsrfar
+bjsrfar:
+.include "../jsrfar.inc"

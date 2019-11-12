@@ -7,13 +7,13 @@
 
 ; from KERNAL
 ; XXX TODO these should go through the jump table
-.import scrmod, jsrfar
+.import scrmod
 
 ; from GEOS
 .import _ResetHandle, _SetColor
 
 ;***************
-geos	jsr jsrfar
+geos	jsr bjsrfar
 	.word _ResetHandle
 	.byte BANK_GEOS
 
@@ -22,7 +22,7 @@ cscreen
 	jsr getbyt
 	txa
 	sec
-	jsr jsrfar
+	jsr bjsrfar
 	.word scrmod ; switch to 320x240@256c + 40x30 text
 	.byte BANK_KERNAL
 	bcc :+
@@ -36,7 +36,7 @@ pset:	jsr get_point
 	jsr set_col
 	sec
 	sei
-	jsr jsrfar
+	jsr bjsrfar
 	.word DrawPoint
 	.byte BANK_GEOS
 	cli
@@ -49,7 +49,7 @@ line	jsr get_points_col
 	lda #0
 	sec
 	sei
-	jsr jsrfar
+	jsr bjsrfar
 	.word DrawLine
 	.byte BANK_GEOS
 	cli
@@ -66,7 +66,7 @@ frame	jsr get_points
 	pla
 	sei
 	; color in a
-	jsr jsrfar
+	jsr bjsrfar
 	.word FrameRectangle
 	.byte BANK_GEOS
 	cli
@@ -78,7 +78,7 @@ rect	jsr get_points_col
 	sty r2H
 	jsr normalize_rect
 	sei
-	jsr jsrfar
+	jsr bjsrfar
 	.word Rectangle
 	.byte BANK_GEOS
 	cli
@@ -110,14 +110,14 @@ char	jsr get_point
 	sta r15H ; pointer hi
 
 	sei
-	jsr jsrfar
+	jsr bjsrfar
 	.word UseSystemFont
 	.byte BANK_GEOS
 	cli
 
 	sei
 	lda #27 ; PLAINTEXT
-	jsr jsrfar
+	jsr bjsrfar
 	.word PutChar
 	.byte BANK_GEOS
 	cli
@@ -126,7 +126,7 @@ char	jsr get_point
 :	lda (r15),y
 	phy
 	sei
-	jsr jsrfar
+	jsr bjsrfar
 	.word PutChar
 	.byte BANK_GEOS
 	cli
@@ -167,7 +167,7 @@ get_col:
 
 set_col:
 	sei
-	jsr jsrfar
+	jsr bjsrfar
 	.word _SetColor
 	.byte BANK_GEOS
 	cli
