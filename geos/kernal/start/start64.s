@@ -267,6 +267,8 @@ stop:	.word _NMIHandler
 
 .setcpu "65c02"
 .global gjsrfar
+.import jsrfar
+;gjsrfar = jsrfar
 gjsrfar:
 	pha             ;reserve 1 byte on the stack
 	php             ;save registers & status

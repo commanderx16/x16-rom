@@ -1,6 +1,6 @@
 .include "../banks.inc"
 
-.import jsrfar, banked_irq
+.import bjsrfar, banked_irq
 
 .macro bridge_internal segment, symbol
 	.local address
@@ -8,7 +8,7 @@
 address = *
 	.segment "KERNSUP"
 symbol:
-	jsr jsrfar
+	jsr bjsrfar
 	.word address
 	.byte BANK_KERNAL
 	rts
@@ -49,7 +49,7 @@ symbol:
 	.byte 0,0,0             ; $FF65: PFKEY – program a function key
 	.byte 0,0,0             ; $FF68: SETBNK – set bank for I/O operations
 	.byte 0,0,0             ; $FF6B: GETCFG – lookup MMU data for given bank
-	jmp jsrfar              ; $FF6E: JSRFAR – gosub in another bank
+	jmp bjsrfar             ; $FF6E: JSRFAR – gosub in another bank
 	.byte 0,0,0             ; $FF71: JMPFAR – goto another bank
 	bridge2 indfet          ; $FF74: FETCH – LDA (fetvec),Y from any bank
 	bridge2 stash           ; $FF77: STASH – STA (stavec),Y to any bank

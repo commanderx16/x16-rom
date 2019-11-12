@@ -247,7 +247,191 @@ grphoff	lda #$00        ; layer0
 
 .segment "KERNRAM"
 
-;  FETCH  ram code      ( LDA (fetch_vector),Y  from any bank )
+.global bjsrfar
+bjsrfar:
+	pha             ;reserve 1 byte on the stack
+	php             ;save registers & status
+	pha
+	phx
+	phy
+
+        tsx
+	lda $106,x      ;return address lo
+	sta imparm
+	clc
+	adc #3
+	sta $106,x      ;and write back with 3 added
+	lda $107,x      ;return address hi
+	sta imparm+1
+	adc #0
+	sta $107,x
+
+	ldy #1
+	lda (imparm),y  ;target address lo
+	sta bjmpfr+1
+	iny
+	lda (imparm),y  ;target address hi
+	sta bjmpfr+2
+	cmp #$c0
+	bcs @1          ;target is in ROM
+; target is in RAM
+	lda d1pra
+	sta $0105,x     ;save original bank into reserved byte
+	iny
+	lda (imparm),y  ;target address bank
+	sta d1pra       ;set RAM bank
+	ply             ;restore registers
+	plx
+	pla
+	plp
+	jsr bjmpfr
+	php
+	pha
+	phx
+	tsx
+	lda $0104,x
+	sta d1pra       ;restore RAM bank
+	jmp @2
+
+@1:	lda d1prb
+	sta $0105,x     ;save original bank into reserved byte
+	iny
+	lda (imparm),y  ;target address bank
+	and #$07
+	sta d1prb       ;set ROM bank
+	ply             ;restore registers
+	plx
+	pla
+	plp
+	jsr bjmpfr
+	php
+	pha
+	phx
+	tsx
+	lda $0104,x
+	sta d1prb       ;restore ROM bank
+	lda $0103,x     ;overwrite reserved byte...
+	sta $0104,x     ;...with copy of .p
+@2:	plx
+	pla
+	plp
+	plp
+	rts
+
+bjmpfr:	jmp $ffff
+
+.segment "ROUTINES"
+
+; LONG CALL  utility
+;
+; jsr jsrfar
+; .word address
+; .byte bank
+
+jsrfar	pha             ;reserve 1 byte on the stack
+	php             ;save registers & status
+	pha
+	phx
+	phy
+
+        tsx
+	lda $106,x      ;return address lo
+	sta imparm
+	clc
+	adc #3
+	sta $106,x      ;and write back with 3 added
+	lda $107,x      ;return address hi
+	sta imparm+1
+	adc #0
+	sta $107,x
+
+	ldy #1
+	lda (imparm),y  ;target address lo
+	sta jmpfr+1
+	iny
+	lda (imparm),y  ;target address hi
+	sta jmpfr+2
+	cmp #$c0
+	bcc jsrfar1     ;target is in RAM
+; target is in ROM
+	jmp jsrfar3
+	.segment "KERNRAM"
+jsrfar3	lda d1prb
+	sta $0105,x     ;save original bank into reserved byte
+	iny
+	lda (imparm),y  ;target address bank
+	and #$07
+	sta d1prb       ;set ROM bank
+	ply             ;restore registers
+	plx
+	pla
+	plp
+	jsr jmpfr
+	php
+	pha
+	phx
+	tsx
+	lda $0104,x
+	sta d1prb       ;restore ROM bank
+	lda $0103,x     ;overwrite reserved byte...
+	sta $0104,x     ;...with copy of .p
+	jmp jsrfar2
+
+jmpfr	jmp $ffff
+
+;.assert * <= $0400, error, "jmpfar must fit below $0400"
+
+
+.segment "ROUTINES"
+; target is in RAM
+jsrfar1	lda d1pra
+	sta $0105,x     ;save original bank into reserved byte
+	iny
+	lda (imparm),y  ;target address bank
+	sta d1pra       ;set RAM bank
+	ply             ;restore registers
+	plx
+	pla
+	plp
+	jsr jmpfr
+	php
+	pha
+	phx
+	tsx
+	lda $0104,x
+	sta d1pra       ;restore RAM bank
+jsrfar2	plx
+	pla
+	plp
+	plp
+	rts
+
+.segment "KERNRAM"
+
+banked_irq
+	pha
+	phx
+	lda d1prb       ;save ROM bank
+	pha
+	lda #BANK_KERNAL
+	sta d1prb
+	lda #>@l1       ;put RTI-style
+	pha             ;return-address
+	lda #<@l1       ;onto the
+	pha             ;stack
+	tsx
+	lda $0106,x     ;fetch status
+	pha             ;put it on the stack at the right location
+	jmp ($fffe)     ;execute other bank's IRQ handler
+@l1	pla
+	sta d1prb       ;restore ROM bank
+	plx
+	pla
+	rti
+
+.segment "ROUTINES"
+
+;  FETCH                ( LDA (fetch_vector),Y  from any bank )
 ;
 ;  enter with 'fetvec' pointing to indirect adr & .y= index
 ;             .x= memory configuration
@@ -261,41 +445,38 @@ fetch	lda d1pra       ;save current config (RAM)
 	pha
 	txa
 	sta d1pra       ;set RAM bank
+	plx             ;original ROM bank
 	and #$07
-	sta d1prb       ;set ROM bank
+	jsr fetch2
+	plx
+	stx d1pra       ;restore RAM bank
+	ora #0          ;set flags
+	rts
+.segment "KERNRAM" ; *** RAM code ***
+fetch2	sta d1prb       ;set new ROM bank
 fetvec	=*+1
 	lda ($ff),y     ;get the byte ($ff here is a dummy address, 'FETVEC')
-	tax
-	pla
-	sta d1prb       ;restore previous memory configuration
-	pla
-	sta d1pra
-	txa
+	stx d1prb       ;restore ROM bank
 	rts
 
-
+.segment "ROUTINES"
 
 ;  STASH  ram code      ( STA (stash_vector),Y  to any bank )
 ;
 ;  enter with 'stavec' pointing to indirect adr & .y= index
 ;             .a= data byte to store
-;             .x= memory configuration
+;             .x= memory configuration (RAM bank)
 ;
 ;  exits with .x & status altered
 
 stash	sta stash1
 	lda d1pra       ;save current config (RAM)
 	pha
-	txa
-	sta d1pra       ;set RAM bank
-	and #$07
-	ldx d1prb       ;save current config (ROM)
-	sta d1prb       ;set ROM bank
+	stx d1pra       ;set RAM bank
 stash1	=*+1
 	lda #$ff
 stavec	=*+1
 	sta ($ff),y     ;put the byte ($ff here is a dummy address, 'STAVEC')
-	stx d1prb       ;restore previous memory configuration
 	pla
 	sta d1pra
 	rts
@@ -332,105 +513,6 @@ cmpvec	=*+1
 	pha
 	plp
 	rts
-
-; LONG CALL  utility
-;
-; jsr jsrfar
-; .word address
-; .byte bank
-
-jsrfar	pha             ;reserve 1 byte on the stack
-	php             ;save registers & status
-	pha
-	phx
-	phy
-
-        tsx
-	lda $106,x      ;return address lo
-	sta imparm
-	clc
-	adc #3
-	sta $106,x      ;and write back with 3 added
-	lda $107,x      ;return address hi
-	sta imparm+1
-	adc #0
-	sta $107,x
-
-	ldy #1
-	lda (imparm),y  ;target address lo
-	sta jmpfr+1
-	iny
-	lda (imparm),y  ;target address hi
-	sta jmpfr+2
-	cmp #$c0
-	bcs @1          ;target is in ROM
-; target is in RAM
-	lda d1pra
-	sta $0105,x     ;save original bank into reserved byte
-	iny
-	lda (imparm),y  ;target address bank
-	sta d1pra       ;set RAM bank
-	ply             ;restore registers
-	plx
-	pla
-	plp
-	jsr jmpfr
-	php
-	pha
-	phx
-	tsx
-	lda $0104,x
-	sta d1pra       ;restore RAM bank
-	jmp @2
-
-@1	lda d1prb
-	sta $0105,x     ;save original bank into reserved byte
-	iny
-	lda (imparm),y  ;target address bank
-	and #$07
-	sta d1prb       ;set ROM bank
-	ply             ;restore registers
-	plx
-	pla
-	plp
-	jsr jmpfr
-	php
-	pha
-	phx
-	tsx
-	lda $0104,x
-	sta d1prb       ;restore ROM bank
-	lda $0103,x     ;overwrite reserved byte...
-	sta $0104,x     ;...with copy of .p
-@2	plx
-	pla
-	plp
-	plp
-	rts
-
-jmpfr	jmp $ffff
-
-
-banked_irq
-	pha
-	phx
-	lda d1prb
-	pha
-	lda #BANK_KERNAL
-	sta d1prb
-	lda #>@l1
-	pha
-	lda #<@l1
-	pha
-	tsx
-	lda $0106,x
-	pha
-	jmp ($fffe)
-@l1	pla
-	sta d1prb
-	plx
-	pla
-	rti
 
 
 	; this should not live in the vector area, but it's ok for now
