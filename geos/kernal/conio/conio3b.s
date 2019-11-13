@@ -13,6 +13,7 @@
 .global _LoadCharSet
 
 .import BSWFont
+.import PrvCharWidth
 
 .if .defined(trap2) && (!.defined(trap2_alternate_location))
 .import GetSerialNumber2

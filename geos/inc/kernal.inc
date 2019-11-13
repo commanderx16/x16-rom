@@ -18,8 +18,6 @@ Z46             =       $49
 Z47             =       $4A
 
 ; X16 additions
-PrvCharWidth    =       $67 ; 1 byte: used by the font renderer;
-;                                     moved from OS_VARS for BASIC compatibility
 cpyTmp0         =       $68 ; 2 bytes for Copy(F)String/Cmp(F)String
 cpyTmp1         =       $6a ; 2 bytes for Copy(F)String/Cmp(F)String
 ; $6c-$7f used for a0-a9

@@ -9,7 +9,6 @@
 .global menuOptNumber
 .global menuTop
 .global menuBottom
-
 .global menuLeft
 .global menuRight
 .global menuStackL
@@ -42,7 +41,6 @@
 .global KbdNextKey
 .global KbdDBncTab
 .global KbdDMltTab
-
 .global clkBoxTemp
 .global clkBoxTemp2
 .global alarmWarnFlag
@@ -68,6 +66,7 @@
 .global verifyFlag
 .global TempCurDrive
 .global scr_mobx
+.global PrvCharWidth
 
 .segment "vars"
 
@@ -123,10 +122,11 @@ A885E:		.byte 0
 A885F:		.byte 0
 		.byte 0
 
-
 RecordDirTS:	.word 0
 RecordDirOffs:	.word 0
 RecordTableTS:	.word 0
 verifyFlag:	.byte 0
 TempCurDrive:	.byte 0
 scr_mobx:	.word 0
+
+PrvCharWidth:	.byte 0
