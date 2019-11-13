@@ -40,7 +40,8 @@
 	jmp jsrfar3
 
 ; target is in RAM
-jsrfar1	lda d1pra
+jsrfar1:
+	lda d1pra
 	sta $0105,x     ;save original bank into reserved byte
 	iny
 	lda (imparm),y  ;target address bank
@@ -56,7 +57,8 @@ jsrfar1	lda d1pra
 	tsx
 	lda $0104,x
 	sta d1pra       ;restore RAM bank
-jsrfar2	plx
+jsrfar2:
+	plx
 	pla
 	plp
 	plp
