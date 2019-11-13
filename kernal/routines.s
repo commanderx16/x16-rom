@@ -271,6 +271,8 @@ jmpfr	jmp $ffff
 
 .assert * <= $0400, error, "jmpfar must fit below $0400"
 
+.segment "KERNRAM2"
+
 banked_irq
 	pha
 	phx
@@ -315,7 +317,7 @@ fetch	lda d1pra       ;save current config (RAM)
 	stx d1pra       ;restore RAM bank
 	ora #0          ;set flags
 	rts
-.segment "KERNRAM" ; *** RAM code ***
+.segment "KERNRAM2" ; *** RAM code ***
 fetch2	sta d1prb       ;set new ROM bank
 fetvec	=*+1
 	lda ($ff),y     ;get the byte ($ff here is a dummy address, 'FETVEC')

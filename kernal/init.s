@@ -76,6 +76,14 @@ ramtz1	lda __KERNRAM_LOAD__-1,x
 	dex
 	bne ramtz1
 
+.import __KERNRAM2_LOAD__, __KERNRAM2_RUN__, __KERNRAM2_SIZE__
+.assert __KERNRAM2_SIZE__ < $0100, error, "KERNRAM2 size overflows one page"
+	ldx #<__KERNRAM2_SIZE__
+ramtz2	lda __KERNRAM2_LOAD__-1,x
+	sta __KERNRAM2_RUN__-1,x
+	dex
+	bne ramtz2
+
 ;
 ; detect number of RAM banks
 ;
@@ -155,8 +163,7 @@ udst	ora status
 	sta status
 	rts
 
-settmo	sta timout
-	rts
+settmo	rts
 
 memtop	bcc settop
 ;

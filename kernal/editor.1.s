@@ -124,7 +124,6 @@ nemu	lda #0          ;US layout
 	jsr setkbd
 	lda #10
 	sta xmax        ;maximum type ahead buffer size
-	sta delay
 	lda #blue << 4 | white
 	sta color       ;init text color
 	lda #$c
