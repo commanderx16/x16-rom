@@ -69,7 +69,6 @@ ramtz0	sta $0000,y     ;zero page
 ; copy banking code into RAM
 ;
 .import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
-.assert __KERNRAM_SIZE__ < $0100, error, "KERNRAM size overflows one page"
 	ldx #<__KERNRAM_SIZE__
 ramtz1	lda __KERNRAM_LOAD__-1,x
 	sta __KERNRAM_RUN__-1,x
@@ -77,7 +76,6 @@ ramtz1	lda __KERNRAM_LOAD__-1,x
 	bne ramtz1
 
 .import __KERNRAM2_LOAD__, __KERNRAM2_RUN__, __KERNRAM2_SIZE__
-.assert __KERNRAM2_SIZE__ < $0100, error, "KERNRAM2 size overflows one page"
 	ldx #<__KERNRAM2_SIZE__
 ramtz2	lda __KERNRAM2_LOAD__-1,x
 	sta __KERNRAM2_RUN__-1,x

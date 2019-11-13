@@ -26,7 +26,9 @@
 .global _CopyFString
 .global _CopyString
 
-.segment "RAM"
+.setcpu "65c02"
+
+.segment "memory2"
 
 ;---------------------------------------------------------------
 ; CopyString                                              $C265
@@ -47,14 +49,21 @@ _CopyString:
 ; Destroyed: a, x, y
 ;---------------------------------------------------------------
 _CopyFString:
-	stx @source
-	sty @dest
+	pha
+	lda 0,x
+	sta cpyTmp0
+	lda 1,x
+	sta cpyTmp0+1
+	tya
 	tax
+	lda 0,x
+	sta cpyTmp1
+	lda 1,x
+	sta cpyTmp1+1
+	plx
 	ldy #0
-@source = *+1
-@0:	lda (0),Y
-@dest = *+1
-	sta (0),Y
+@0:	lda (cpyTmp0),Y
+	sta (cpyTmp1),Y
 	bne @1
 	beqx @2
 @1:	iny
@@ -63,8 +72,6 @@ _CopyFString:
 	dex
 	bne @0
 @2:	rts
-
-.segment "memory2"
 
 ;---------------------------------------------------------------
 ; i_MoveData                                              $C1B7
@@ -227,8 +234,6 @@ _MoveData:
 	bra @A
 .endif
 
-.segment "RAM"
-
 ;---------------------------------------------------------------
 ; CmpString                                               $C26B
 ;
@@ -253,14 +258,21 @@ _CmpString:
 ; Destroyed: a, x, y
 ;---------------------------------------------------------------
 _CmpFString:
-	stx @source
-	sty @dest
+	pha
+	lda 0,x
+	sta cpyTmp0
+	lda 1,x
+	sta cpyTmp0+1
+	tya
 	tax
+	lda 0,x
+	sta cpyTmp1
+	lda 1,x
+	sta cpyTmp1+1
+	plx
 	ldy #0
-@source = *+1
-@1:	lda (0),Y
-@dest = *+1
-	cmp (0),Y
+@1:	lda (cpyTmp0),Y
+	cmp (cpyTmp1),Y
 	bne @3
 	cmp #0
 	bne @2
@@ -270,10 +282,6 @@ _CmpFString:
 	beqx @1
 	dex
 	bne @1
-.ifdef wheels
 	txa
-.else
-	lda #0
-.endif
 @3:	rts
 

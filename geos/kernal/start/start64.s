@@ -129,14 +129,6 @@ _ResetHandle:
 	.byte 0
 .endif
 
-.import __RAM_SIZE__, __RAM_LOAD__, __RAM_RUN__
-.import _i_MoveData
-
-	jsr _i_MoveData
-	.word __RAM_LOAD__
-	.word __RAM_RUN__
-	.word __RAM_SIZE__
-
 .import __drvcbdos_SIZE__, __drvcbdos_LOAD__, __drvcbdos_RUN__
 .import _i_MoveData
 
