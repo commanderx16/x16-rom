@@ -128,7 +128,7 @@ initv1	lda bvtrs,x
 chke0	.byt $00
 
 fremes
-	.byt $93
+	.byt $8f, $93
 	.byt $9c, $df, $12, $20, $20, $df, $92, $20, $20, $20, $12, $a9, $20, $20, $92, $a9, 13
 	.byt $9a, $20, $df, $12, $20, $20, $df, $92, $20, $12, $a9, $20, $20, $92, $a9
 	.byt 5, "  **** COMMANDER X16 BASIC V2 ****", 13
