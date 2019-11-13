@@ -129,10 +129,6 @@ mouseYPos      = $3c
 returnAddress  = $3d
 graphMode      = $3f ; C128 only
 
-; for Copy(F)String/Cmp(F)String
-cpyTmp0        = $68
-cpyTmp1        = $6a
-
 curDevice      = $ba ; XXX X16 incorrect
 ;
 irqvec         = $0314

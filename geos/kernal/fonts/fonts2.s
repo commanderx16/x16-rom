@@ -33,13 +33,6 @@
 .import FontGt1
 
 .ifdef bsw128
-; XXX back bank, yet var lives on front bank!
-PrvCharWidth = $880D
-.else
-.import PrvCharWidth
-.endif
-
-.ifdef bsw128
 .import _TempHideMouse
 .else
 .import GetScanLine

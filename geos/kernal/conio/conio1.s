@@ -14,7 +14,6 @@
 .import FontPutChar
 .import DoESC_RULER
 .import _GraphicsString
-.import PrvCharWidth
 
 .import Ddec
 .import CallRoutine

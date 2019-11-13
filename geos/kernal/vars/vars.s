@@ -43,11 +43,7 @@
 .global KbdDBncTab
 .global KbdDMltTab
 
-.global PrvCharWidth
 .global clkBoxTemp
-.ifdef bsw128
-.global L881A
-.endif
 .global clkBoxTemp2
 .global alarmWarnFlag
 .global tempIRQAcc
@@ -106,31 +102,9 @@ KbdQueTail:     .byte 0
 KbdQueFlag:     .byte 0
 KbdQueue:       .res 16, 0
 KbdNextKey:     .byte 0
-.ifdef wheels ; used for something else; original contents moved
-.global TmpFilename
-TmpFilename:    .res 28, 0
-.else
-.ifdef bsw128
-		.res 3, 0
-.endif
-.endif
-
-.ifdef bsw128
-		.res 3, 0
-.endif
-PrvCharWidth:	.byte 0
-.ifdef bsw128
-		.res 11, 0
-.endif
 clkBoxTemp:	.byte 0
-.ifdef bsw128
-L881A:		.byte 0
-.endif
 clkBoxTemp2:	.byte 0
 alarmWarnFlag:	.byte 0
-.ifdef bsw128
-		.byte 0
-.endif
 tempIRQAcc:     .byte 0
 defIconTab:	.res 68, 0
 
@@ -145,9 +119,6 @@ DBGFNameTable:	.word 0
 DBGFTableIndex:	.byte 0
 DBGFileSelected: .byte 0
 A885D:		.byte 0
-.ifdef bsw128
-L8871:		.byte 0
-.endif
 A885E:		.byte 0
 A885F:		.byte 0
 		.byte 0
@@ -159,11 +130,3 @@ RecordTableTS:	.word 0
 verifyFlag:	.byte 0
 TempCurDrive:	.byte 0
 scr_mobx:	.word 0
-
-
-.ifdef wheels ; moved
-		.res 5, 0
-KbdDBncTab:     .res 8, 0
-		.res 3, 0
-KbdDMltTab:     .res 20, 0
-.endif
