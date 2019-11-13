@@ -195,6 +195,10 @@ OrigResetHandle:
 .if .defined(useRamCart64) || .defined(useRamCart128)
 	jsr DetectRamCart
 .endif
+
+	LoadB bootTr, DIR_TRACK
+	LoadB bootSec, 1
+
 	jsr GetDirHead
 	MoveB bootSec, r1H
 	MoveB bootTr, r1L
@@ -240,18 +244,6 @@ OrigResetHandle:
 	LoadB r0L, 0
 	jsr LdApplic
 
-.segment "RAM"
-
-bootTr:
-	.byte DIR_TRACK
-bootSec:
-	.byte 1
-bootTr2:
-	.byte 0
-bootSec2:
-	.byte 0
-bootOffs:
-	.byte 0
 
 .segment "entry"
 entry:

@@ -32,11 +32,6 @@
 .import FontGt2
 .import FontGt1
 
-.if (!.defined(bsw128)) & (!.defined(wheels))
-.import FontTVar1
-.import FontTVar2
-.endif
-
 .ifdef bsw128
 ; XXX back bank, yet var lives on front bank!
 PrvCharWidth = $880D
