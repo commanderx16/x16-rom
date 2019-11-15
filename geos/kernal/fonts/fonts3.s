@@ -43,50 +43,50 @@ c0:	jmp FntShJump
 .ifdef bsw128
 f7:
 	lsr a
-	ror Z46
+	ror Z45+1
 f6:
 	lsr a
-	ror Z46
+	ror Z45+1
 f5:
 	lsr a
-	ror Z46
+	ror Z45+1
 f4:
 	lsr a
-	ror Z46
+	ror Z45+1
 f3:
 	lsr a
-	ror Z46
+	ror Z45+1
 f2:
 	lsr a
-	ror Z46
+	ror Z45+1
 f1:
 	lsr a
-	ror Z46
+	ror Z45+1
 f0:
 	jmp FntShJump
 .endif
 
 e7:	lsr
-	ror Z46
-	ror Z47
+	ror Z45+1
+	ror Z45+2
 e6:	lsr
-	ror Z46
-	ror Z47
+	ror Z45+1
+	ror Z45+2
 e5:	lsr
-	ror Z46
-	ror Z47
+	ror Z45+1
+	ror Z45+2
 e4:	lsr
-	ror Z46
-	ror Z47
+	ror Z45+1
+	ror Z45+2
 e3:	lsr
-	ror Z46
-	ror Z47
+	ror Z45+1
+	ror Z45+2
 e2:	lsr
-	ror Z46
-	ror Z47
+	ror Z45+1
+	ror Z45+2
 e1:	lsr
-	ror Z46
-	ror Z47
+	ror Z45+1
+	ror Z45+2
 e0:	jmp FntShJump
 
 b7:	asl
@@ -100,50 +100,50 @@ b1:	asl
 
 .ifdef bsw128
 g7:
-	asl Z46
+	asl Z45+1
 	rol a
 g6:
-	asl Z46
+	asl Z45+1
 	rol a
 g5:
-	asl Z46
+	asl Z45+1
 	rol a
 g4:
-	asl Z46
+	asl Z45+1
 	rol a
 g3:
-	asl Z46
+	asl Z45+1
 	rol a
 g2:
-	asl Z46
+	asl Z45+1
 	rol a
 g1:
-	asl Z46
+	asl Z45+1
 	rol a
 g0:
 	jmp FntShJump
 .endif
 
-d7:	asl Z47
-	rol Z46
+d7:	asl Z45+2
+	rol Z45+1
 	rol
-d6:	asl Z47
-	rol Z46
+d6:	asl Z45+2
+	rol Z45+1
 	rol
-d5:	asl Z47
-	rol Z46
+d5:	asl Z45+2
+	rol Z45+1
 	rol
-d4:	asl Z47
-	rol Z46
+d4:	asl Z45+2
+	rol Z45+1
 	rol
-d3:	asl Z47
-	rol Z46
+d3:	asl Z45+2
+	rol Z45+1
 	rol
-d2:	asl Z47
-	rol Z46
+d2:	asl Z45+2
+	rol Z45+1
 	rol
-d1:	asl Z47
-	rol Z46
+d1:	asl Z45+2
+	rol Z45+1
 	rol
 	jmp FntShJump
 
