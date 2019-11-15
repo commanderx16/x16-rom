@@ -118,6 +118,8 @@ mous3:	lda msepar
 	rts
 
 msescn:
+	bit msepar ; do nothing if mouse is off
+	bpl scnms1
 	ldx #0
 	jsr receive_byte
 	bcs scnms1 ; parity error

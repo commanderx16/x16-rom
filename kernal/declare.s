@@ -86,7 +86,7 @@ time	.res 3           ;$A0 24 hour clock in 1/60th seconds
 
 ; Mouse
 ;
-msepar	.res 1           ;    X16: mouse: $80=sprite on; 1/2: scale
+msepar	.res 1           ;    X16: mouse: $80=on; 1/2: scale
 mousel	.res 2           ;    X16: mouse: min x coordinate
 mouser	.res 2           ;    X16: mouse: max x coordinate
 mouset	.res 2           ;    X16: mouse: min y coordinate
