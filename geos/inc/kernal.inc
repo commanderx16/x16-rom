@@ -47,11 +47,3 @@ E87FD           =       OS_VARS + $07fd
 E87FE           =       OS_VARS + $07fe
 E87FF           =       OS_VARS + $07ff
 E8800           =       OS_VARS + $0800
-
-FontTVar1       =       OS_VARS + $0877 ; 1 byte
-FontTVar2       =       OS_VARS + $0878 ; 2 bytes
-bootTr          =       OS_VARS + $087A ; 1 byte
-bootSec         =       OS_VARS + $087B ; 1 byte
-bootTr2         =       OS_VARS + $087C ; 1 byte
-bootSec2        =       OS_VARS + $087D ; 1 byte
-bootOffs        =       OS_VARS + $087E ; 1 byte

@@ -30,6 +30,12 @@
 .import FirstInit
 .import i_FillRam
 
+.import bootTr2
+.import bootSec2
+.import bootOffs
+.import bootSec
+.import bootTr
+
 .import _Rectangle, _SetColor
 
 .import MouseInit

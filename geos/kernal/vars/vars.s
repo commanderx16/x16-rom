@@ -67,6 +67,13 @@
 .global TempCurDrive
 .global scr_mobx
 .global PrvCharWidth
+.global FontTVar1
+.global FontTVar2
+.global bootTr
+.global bootSec
+.global bootTr2
+.global bootSec2
+.global bootOffs
 
 .segment "vars"
 
@@ -130,3 +137,11 @@ TempCurDrive:	.byte 0
 scr_mobx:	.word 0
 
 PrvCharWidth:	.byte 0
+
+FontTVar1:	.byte 0
+FontTVar2:	.word 0
+bootTr:		.byte 0
+bootSec:	.byte 0
+bootTr2:	.byte 0
+bootSec2:	.byte 0
+bootOffs:	.byte 0

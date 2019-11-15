@@ -14,8 +14,6 @@
 .global FontGt2
 .global FontGt3
 .global FontGt4
-.global FontTVar1
-.global FontTVar2
 
 .segment "fonts4b"
 
