@@ -55,9 +55,11 @@ mous2:	cmp #$ff
 	sta veramid
 	lda #$10 | (sprite_addr >> 16)
 	sta verahi
+	lda msepar ; save this, we'll re-use as temp counter
+	pha
 	ldx #0
 @1:	lda #8
-	sta 0
+	sta msepar
 	lda mouse_sprite_mask,x
 	ldy mouse_sprite_col,x
 @2:	asl
@@ -79,11 +81,13 @@ mous2:	cmp #$ff
 @5:	lda #16 ; black
 	sta veradat
 	pla
-@4:	dec 0
+@4:	dec msepar
 	bne @2
 	inx
 	cpx #32
 	bne @1
+	pla
+	sta msepar
 
 mous3:	lda msepar
 	ora #$80 ; flag: mouse on
