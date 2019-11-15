@@ -15,7 +15,7 @@
 .global FontGt3
 .global FontGt4
 
-.import E87FC
+.import FontTVar3
 
 .segment "fonts4b"
 
@@ -23,7 +23,7 @@ FontGt1:
 	sty Z45+1
 	sty Z45+2
 	lda (r2),y
-	and E87FC
+	and FontTVar3
 	and r7H
 	jmp (r12)
 
@@ -31,7 +31,7 @@ FontGt2:
 	sty Z45+2
 	sty Z45+3
 	lda (r2),y
-	and E87FC
+	and FontTVar3
 	sta Z45
 	iny
 	lda (r2),y
@@ -45,7 +45,7 @@ FontGt3:
 	sty Z45+3
 	sty Z45+4
 	lda (r2),y
-	and E87FC
+	and FontTVar3
 	sta Z45
 	iny
 	lda (r2),y
@@ -63,7 +63,7 @@ FontGt3:
 
 FontGt4:
 	lda (r2),y
-	and E87FC
+	and FontTVar3
 	sta Z45
 FontGt4_1:
 	iny

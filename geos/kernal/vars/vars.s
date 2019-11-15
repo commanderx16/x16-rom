@@ -74,11 +74,9 @@
 .global bootTr2
 .global bootSec2
 .global bootOffs
-.global E87FC
-.global E87FD
-.global E87FE
-.global E87FF
-.global E8800
+.global FontTVar3
+.global FontTVar4
+.global FontTVar5
 
 .segment "vars"
 
@@ -151,8 +149,6 @@ bootTr2:	.byte 0
 bootSec2:	.byte 0
 bootOffs:	.byte 0
 
-E87FC:		.byte 0
-E87FD:		.byte 0
-E87FE:		.byte 0
-E87FF:		.byte 0
-E8800:		.res 7, 0 ; XXX unclear how many bytes
+FontTVar3:	.byte 0
+FontTVar4:	.byte 0
+FontTVar5:	.res 9, 0 ; XXX unclear how many bytes

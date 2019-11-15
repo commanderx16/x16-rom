@@ -12,7 +12,7 @@
 
 .import Font_9
 .import FntShJump
-.import E87FD
+.import FontTVar4
 
 .global FontSH5
 .global base
@@ -152,7 +152,7 @@ d1:	asl Z47
 FontSH5:
 	sta Z45
 	lda r7L
-	sub E87FD
+	sub FontTVar4
 	beq @2
 	bcc @3
 	tay
@@ -164,7 +164,7 @@ FontSH5:
 	lda Z45
 	jmp FntShJump
 @3:
-	lda E87FD
+	lda FontTVar4
 	sub r7L
 	tay
 @4:
