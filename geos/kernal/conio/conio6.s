@@ -51,7 +51,7 @@ CalcDecimal:
 	bbsf 6, r2L, @5
 @4:	ora #%00110000
 	ldx r3L
-	sta Z45,x
+	sta fontTemp1,x
 	ldx currentMode
 	jsr _GetRealSize
 	tya
@@ -113,7 +113,7 @@ _PutDecimal:
 .endif
 @1:	ldx r3L
 	stx r0L
-@2:	lda Z45-1,x
+@2:	lda fontTemp1-1,x
 	pha
 	dex
 	bne @2

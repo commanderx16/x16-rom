@@ -20,7 +20,7 @@
 .segment "fonts4"
 
 FntShJump:
-	sta Z45
+	sta fontTemp1
 .ifdef bsw128
 	bbsf BOLD_BIT, currentMode, @X
 	rts
@@ -33,10 +33,10 @@ FntShJump:
 	ldy #$ff
 @5:
 	iny
-	ldx Z45,y
+	ldx fontTemp1,y
 	pla
 	ora FontTab,x
-	sta Z45,y
+	sta fontTemp1,y
 	txa
 	lsr
 	lda #0

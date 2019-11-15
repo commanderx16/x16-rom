@@ -66,19 +66,11 @@
 .global verifyFlag
 .global TempCurDrive
 .global scr_mobx
-.global PrvCharWidth
-.global FontTVar1
-.global FontTVar2
 .global bootTr
 .global bootSec
 .global bootTr2
 .global bootSec2
 .global bootOffs
-.global E87FC
-.global E87FD
-.global E87FE
-.global E87FF
-.global E8800
 
 .segment "vars"
 
@@ -141,18 +133,8 @@ verifyFlag:	.byte 0
 TempCurDrive:	.byte 0
 scr_mobx:	.word 0
 
-PrvCharWidth:	.byte 0
-
-FontTVar1:	.byte 0
-FontTVar2:	.word 0
 bootTr:		.byte 0
 bootSec:	.byte 0
 bootTr2:	.byte 0
 bootSec2:	.byte 0
 bootOffs:	.byte 0
-
-E87FC:		.byte 0
-E87FD:		.byte 0
-E87FE:		.byte 0
-E87FF:		.byte 0
-E8800:		.res 7, 0 ; XXX unclear how many bytes

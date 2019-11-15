@@ -32,15 +32,6 @@
 .import FontGt2
 .import FontGt1
 
-.import FontTVar1
-.import FontTVar2
-.import E8800
-.import E87FF
-.import E87FC
-.import E87FD
-.import E87FE
-.import PrvCharWidth
-
 .ifdef bsw128
 .import _TempHideMouse
 .else
@@ -150,7 +141,7 @@ _GetRealSize2:
 Font_1:
 	ldy r1H
 	iny
-	sty E87FE
+	sty fontTemp2
 	sta r5L
 
 .ifdef bsw128
@@ -168,7 +159,7 @@ Font_1:
 	lda (curIndexTable),y
 	sta r2L
 	and #%00000111
-	sta E87FD
+	sta FontTVar4
 	lda r2L
 	and #%11111000
 	sta r3L
@@ -204,10 +195,10 @@ Font_1:
 	lda r2H
 	adc cardDataPntr+1
 	sta r2H
-	ldy E87FD
+	ldy FontTVar4
 	lda BitMaskLeadingSet,y
 	eor #$ff
-	sta E87FC
+	sta FontTVar3
 	ldy r6H
 	dey
 	tya
@@ -405,7 +396,7 @@ Font_2:
 	asl
 	sta r12L
 	lda r7L
-	sub E87FD
+	sub FontTVar4
 	addv 8
 	add r12L
 	tax
@@ -516,10 +507,10 @@ Font_3:
 	lda currentMode
 	bpl @2
 	ldy r1H
-	cpy E87FE
+	cpy fontTemp2
 	beq @1
 	dey
-	cpy E87FE
+	cpy fontTemp2
 	bne @2
 @1:	lda r10L
 	eor #$ff
@@ -605,7 +596,7 @@ Font_4:
 Font_5:
 	ldx r8L
 	lda #0
-@1:	sta E87FF,x
+@1:	sta fontTemp2+1,x
 	dex
 	bpl @1
 	lda r8H
@@ -613,8 +604,8 @@ Font_5:
 	bne @5
 @2:	jsr Font_8
 @3:	ldx r8L
-@4:	lda E87FF,x
-	sta Z45,x
+@4:	lda fontTemp2+1,x
+	sta fontTemp1,x
 	dex
 	bpl @4
 	inc r8H
@@ -647,13 +638,13 @@ Font_7:
 	ldy #$ff
 @1:	iny
 	ldx #7
-@2:	lda Z45,y
+@2:	lda fontTemp1,y
 	and BitMaskPow2,x
 	beq @3
 	lda BitMaskPow2,x
 	eor #$ff
-	and E87FF,y
-	sta E87FF,y
+	and fontTemp2+1,y
+	sta fontTemp2+1,y
 @3:	dex
 	bpl @2
 	cpy r8L
@@ -665,40 +656,40 @@ Font_8:
 	ldy #$ff
 @1:	iny
 	ldx #7
-@2:	lda Z45,y
+@2:	lda fontTemp1,y
 	and BitMaskPow2,x
 	beq @7
-	lda E87FF,y
+	lda fontTemp2+1,y
 	ora BitMaskPow2,x
-	sta E87FF,y
+	sta fontTemp2+1,y
 	inx
 	cpx #8
 	bne @3
-	lda E87FE,y
+	lda fontTemp2,y
 	ora #1
-	sta E87FE,y
+	sta fontTemp2,y
 .ifdef bsw128 ; XXX less efficient
 	bra @4
 .else
 	bne @4
 .endif
-@3:	lda E87FF,y
+@3:	lda fontTemp2+1,y
 	ora BitMaskPow2,x
-	sta E87FF,y
+	sta fontTemp2+1,y
 @4:	dex
 	dex
 	bpl @5
-	lda E8800,y
+	lda fontTemp2+2,y
 	ora #$80
-	sta E8800,y
+	sta fontTemp2+2,y
 .ifdef bsw128
 	bra @6 ; XXX less efficient
 .else
 	bne @6
 .endif
-@5:	lda E87FF,y
+@5:	lda fontTemp2+1,y
 	ora BitMaskPow2,x
-	sta E87FF,y
+	sta fontTemp2+1,y
 @6:	inx
 @7:	dex
 	bpl @2
@@ -707,14 +698,14 @@ Font_8:
 	rts
 
 Font_9:
-	lsr Z45
-	ror Z45+1
-	ror Z45+2
-	ror Z45+3
-	ror Z45+4
-	ror Z45+5
-	ror Z45+6
-	ror Z45+7
+	lsr fontTemp1
+	ror fontTemp1+1
+	ror fontTemp1+2
+	ror fontTemp1+3
+	ror fontTemp1+4
+	ror fontTemp1+5
+	ror fontTemp1+6
+	ror fontTemp1+7
 	rts
 
 ; central character printing, called from conio.s
@@ -811,7 +802,7 @@ FontPutChar80:
 .endif
 
 Draw8Pixels:
-	ldy Z45,x
+	ldy fontTemp1,x
 	sty r4L    ; pixel pattern
 
 	bit compatMode
