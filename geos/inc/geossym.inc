@@ -54,12 +54,31 @@ r15             =       $20
 r15L            =       $20
 r15H            =       $21
 ;
+
+.if 0
 a0              =       $fb
 a0L             =       $fb
 a0H             =       $fc
 a1              =       $fd
 a1L             =       $fd
 a1H             =       $fe
+.else
+; On GEOS64, a0/a1 are at $FB-$FE, which is documented
+; as available on the C64.
+; On the X16, these locations are occupied by BASIC.
+; So legacy GEOS64 binaries, which will continue to use
+; these locations, will overwrite BASIC's state, which
+; is okay, because legacy apps don't need to coexist
+; with BASIC.
+; New applications will use the new addresses, which
+; are otherwise unused on the X16.
+a0              =       $6c
+a0L             =       $6c
+a0H             =       $6d
+a1              =       $6e
+a1L             =       $6e
+a1H             =       $6f
+.endif
 a2              =       $70
 a2L             =       $70
 a2H             =       $71
@@ -109,10 +128,8 @@ mouseXPos      = $3a
 mouseYPos      = $3c
 returnAddress  = $3d
 graphMode      = $3f ; C128 only
-TURBO_DD00     = $8e     ; from 1541 turbo
-TURBO_DD00_CPY = $8f     ; from 1541 turbo
-STATUS         = $90
-curDevice      = $ba
+
+curDevice      = $ba ; XXX X16 incorrect
 ;
 irqvec         = $0314
 bkvec          = $0316

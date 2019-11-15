@@ -17,28 +17,27 @@ Z45             =       $48
 Z46             =       $49
 Z47             =       $4A
 
+; X16 additions
+cpyTmp0         =       $68 ; 2 bytes for Copy(F)String/Cmp(F)String
+cpyTmp1         =       $6a ; 2 bytes for Copy(F)String/Cmp(F)String
+; $6c-$7f used for a0-a9
+
 ; GEOS Kernal internal vars (not for use by apps)
 
-savedmoby2      =       $88bb ; ---
-scr80polar      =       $88bc ; ---
-scr80colors     =       $88bd ; ---
-vdcClrMode      =       $88be ; --- (used with 128 only)
-driveData       =       $88bf ; drv
-ramExpSize      =       $88c3 ; reu
-sysRAMFlg       =       $88c4 ; drv, filesys, memory, tobasic
-firstBoot       =       $88c5 ; filesys
-curType         =       $88c6 ; drv, filesys, boot
-ramBase         =       $88c7 ; ---
-inputDevName    =       $88cb ; ---
-memBase         =       $88cf ; ---
-DrCCurDkNm      =       $88dc ; files
-DrDCurDkNm      =       $88ee ; files
+savedmoby2      =       OS_VARS + $08bb ; ---
+scr80polar      =       OS_VARS + $08bc ; ---
+scr80colors     =       OS_VARS + $08bd ; ---
+vdcClrMode      =       OS_VARS + $08be ; --- (used with 128 only)
+driveData       =       OS_VARS + $08bf ; drv
+ramExpSize      =       OS_VARS + $08c3 ; reu
+sysRAMFlg       =       OS_VARS + $08c4 ; drv, filesys, memory, tobasic
+firstBoot       =       OS_VARS + $08c5 ; filesys
+curType         =       OS_VARS + $08c6 ; drv, filesys, boot
+ramBase         =       OS_VARS + $08c7 ; ---
+inputDevName    =       OS_VARS + $08cb ; ---
+memBase         =       OS_VARS + $08cf ; ---
+DrCCurDkNm      =       OS_VARS + $08dc ; files
+DrDCurDkNm      =       OS_VARS + $08ee ; files
 
-dir2Head        =       $8900 ; drv
+dir2Head        =       OS_VARS + $0900 ; drv
 ;
-
-E87FC           =       $87fc
-E87FD           =       $87fd
-E87FE           =       $87fe
-E87FF           =       $87ff
-E8800           =       $8800

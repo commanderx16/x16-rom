@@ -9,7 +9,6 @@
 .global menuOptNumber
 .global menuTop
 .global menuBottom
-
 .global menuLeft
 .global menuRight
 .global menuStackL
@@ -42,12 +41,7 @@
 .global KbdNextKey
 .global KbdDBncTab
 .global KbdDMltTab
-
-.global PrvCharWidth
 .global clkBoxTemp
-.ifdef bsw128
-.global L881A
-.endif
 .global clkBoxTemp2
 .global alarmWarnFlag
 .global tempIRQAcc
@@ -72,6 +66,19 @@
 .global verifyFlag
 .global TempCurDrive
 .global scr_mobx
+.global PrvCharWidth
+.global FontTVar1
+.global FontTVar2
+.global bootTr
+.global bootSec
+.global bootTr2
+.global bootSec2
+.global bootOffs
+.global E87FC
+.global E87FD
+.global E87FE
+.global E87FF
+.global E8800
 
 .segment "vars"
 
@@ -106,31 +113,9 @@ KbdQueTail:     .byte 0
 KbdQueFlag:     .byte 0
 KbdQueue:       .res 16, 0
 KbdNextKey:     .byte 0
-.ifdef wheels ; used for something else; original contents moved
-.global TmpFilename
-TmpFilename:    .res 28, 0
-.else
-.ifdef bsw128
-		.res 3, 0
-.endif
-.endif
-
-.ifdef bsw128
-		.res 3, 0
-.endif
-PrvCharWidth:	.byte 0
-.ifdef bsw128
-		.res 11, 0
-.endif
 clkBoxTemp:	.byte 0
-.ifdef bsw128
-L881A:		.byte 0
-.endif
 clkBoxTemp2:	.byte 0
 alarmWarnFlag:	.byte 0
-.ifdef bsw128
-		.byte 0
-.endif
 tempIRQAcc:     .byte 0
 defIconTab:	.res 68, 0
 
@@ -145,13 +130,9 @@ DBGFNameTable:	.word 0
 DBGFTableIndex:	.byte 0
 DBGFileSelected: .byte 0
 A885D:		.byte 0
-.ifdef bsw128
-L8871:		.byte 0
-.endif
 A885E:		.byte 0
 A885F:		.byte 0
 		.byte 0
-
 
 RecordDirTS:	.word 0
 RecordDirOffs:	.word 0
@@ -160,10 +141,18 @@ verifyFlag:	.byte 0
 TempCurDrive:	.byte 0
 scr_mobx:	.word 0
 
+PrvCharWidth:	.byte 0
 
-.ifdef wheels ; moved
-		.res 5, 0
-KbdDBncTab:     .res 8, 0
-		.res 3, 0
-KbdDMltTab:     .res 20, 0
-.endif
+FontTVar1:	.byte 0
+FontTVar2:	.word 0
+bootTr:		.byte 0
+bootSec:	.byte 0
+bootTr2:	.byte 0
+bootSec2:	.byte 0
+bootOffs:	.byte 0
+
+E87FC:		.byte 0
+E87FD:		.byte 0
+E87FE:		.byte 0
+E87FF:		.byte 0
+E8800:		.res 7, 0 ; XXX unclear how many bytes

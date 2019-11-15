@@ -23,12 +23,7 @@
 .import BSWFont80
 .endif
 
-.ifdef bsw128
-; XXX back bank, yet var lives on front bank!
-PrvCharWidth = $880D
-.else
 .import PrvCharWidth
-.endif
 
 .global GetChWdth1
 .global _UseSystemFont

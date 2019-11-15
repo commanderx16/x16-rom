@@ -14,8 +14,8 @@
 .global FontGt2
 .global FontGt3
 .global FontGt4
-.global FontTVar1
-.global FontTVar2
+
+.import E87FC
 
 .segment "fonts4b"
 
@@ -84,28 +84,4 @@ FontGt4_2:
 	jmp (r12)
 .else
 	beq FontGt2_1
-.endif
-
-.segment "RAM"
-
-.ifndef bsw128
-
-.ifndef wheels
-FontTVar1:
-.endif
-	.byte 0
-.ifndef wheels
-FontTVar2:
-.endif
-.ifdef cbmfiles
-	; This should be initialized to 0, and will
-	; be changed at runtime.
-	; The cbmfiles version was created by dumping
-	; KERNAL from memory after it had been running,
-	; so it has a random value here.
-	.word $34
-.else
-	.word 0
-.endif
-
 .endif

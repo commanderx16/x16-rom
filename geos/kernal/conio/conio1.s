@@ -76,7 +76,10 @@ _PutChar:
 	adc #0
 	sta r11H
 @5:	pla
-	ldx StringFaultVec+1
+	bit compatMode
+	bmi @6
+	rts
+@6:	ldx StringFaultVec+1
 	lda StringFaultVec
 	jmp CallRoutine
 

@@ -27,67 +27,95 @@ pnt	.res 2           ;$D1 pointer to row
 imparm	.res 2           ;PRIMM utility string pointer
 ckbtab	.res 2           ;used for keyboard lookup
 
-.segment "STACK"
-
-bad	.res 1
-
 .segment "KVAR"
 
-buf	.res 2*40+1      ;basic/monitor buffer
-
-; tables for open files
-;
-lat	.res 10          ;logical file numbers
-fat	.res 10          ;primary device numbers
-sat	.res 10          ;secondary addresses
-
-; system storage
-;
-keyd	.res 10          ;irq keyboard buffer
-memstr	.res 2           ;start of memory
-memsiz	.res 2           ;top of memory
-timout	.res 1           ;ieee timeout flag
-
-; screen editor storage
-;
-gdcol	.res 1           ;original color before cursor
-hibase	.res 1           ;base location of screen (top)
-xmax	.res 1
-delay	.res 1
-shflag	.res 1           ;shift flag byte
-mode	.res 1           ;0-pet mode, 1-cattacanna
-autodn	.res 1           ;auto scroll down flag(=0 on,<>0 off)
-lintmp	.res 1           ;temporary for line index
-color	.res 1           ;activ color nybble
-
-;.segment "KVAR2"
 ;                      C64 location
 ;                         VVV
-status	.res 1           ;$90 i/o operation status byte
+buf	.res 2*40+1      ;    basic/monitor buffer
+.assert buf = $0200, error, "buf has to be at $0200"
+
+; Screen Mode
+;
+cscrmd	.res 1           ;    X16: current screen mode (argument to scrmod)
+
+; Keyboard
+;
+keyd	.res 10          ;    irq keyboard buffer
+xmax	.res 1
+ndx	.res 1           ;$C6 index to keyboard q
+shflag	.res 1           ;    shift flag byte
+mode	.res 1           ;    0-pet mode, 1-cattacanna
+isomod	.res 1           ;    X16: ISO mode
+curkbd	.res 1           ;    X16: current keyboard layout index
+kbdbyte	.res 1           ;    X16: PS/2: bit input
+prefix	.res 1           ;    X16: PS/2: prefix code (e0/e1)
+brkflg	.res 1           ;    X16: PS/2: was key-up event
 stkey	.res 1           ;$91 stop key flag
+kbdnam  .res 6           ;    keyboard layout name
+kbdtab  .res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
+
+; Memory
+memstr	.res 2           ;    start of memory
+memsiz	.res 2           ;    top of memory
+rambks	.res 1           ;    X16: number of ram banks (0 means 256)
+
+; Channel I/O
+;
+lat	.res 10          ;    logical file numbers
+fat	.res 10          ;    primary device numbers
+sat	.res 10          ;    secondary addresses
+status	.res 1           ;$90 i/o operation status byte
 verck	.res 1           ;$93 load or verify flag
-c3p0	.res 1           ;$94 ieee buffered char flag
-bsour	.res 1           ;$95 char buffer for ieee
 xsav	.res 1           ;$97 temp for basin
 ldtnd	.res 1           ;$98 index to logical file
 dfltn	.res 1           ;$99 default input device #
 dflto	.res 1           ;$9A default output device #
 msgflg	.res 1           ;$9D os message flag
 t1	.res 1           ;$9E temporary 1
-time	.res 3           ;$A0 24 hour clock in 1/60th seconds
-r2d2	.res 1           ;$A3 serial bus usage
-bsour1	.res 1           ;$A4 temp used by serial routine
-count	.res 1           ;$A5 temp used by serial routine
 fnlen	.res 1           ;$B7 length current file n str
 la	.res 1           ;$B8 current file logical addr
 sa	.res 1           ;$B9 current file 2nd addr
 fa	.res 1           ;$BA current file primary addr
 stal	.res 1           ;$C1
 stah	.res 1           ;$C2
+
+; Time
 ;
-;variables for screen editor
+time	.res 3           ;$A0 24 hour clock in 1/60th seconds
+
+; Mouse
 ;
-ndx	.res 1           ;$C6 index to keyboard q
+msepar	.res 1           ;    X16: mouse: $80=sprite on; 1/2: scale
+mousel	.res 2           ;    X16: mouse: min x coordinate
+mouser	.res 2           ;    X16: mouse: max x coordinate
+mouset	.res 2           ;    X16: mouse: min y coordinate
+mouseb	.res 2           ;    X16: mouse: max y coordinate
+mousex	.res 2           ;    X16: mouse: x coordinate
+mousey	.res 2           ;    X16: mouse: y coordinate
+mousebt	.res 1           ;    X16: mouse: buttons (1: left, 2: right, 4: third)
+
+; Joystick
+;
+j0tmp	.res 1           ;    X16: keyboard joystick temp
+joy0	.res 1           ;    X16: keyboard joystick temp
+joy1	.res 3           ;    X16: joystick 1 status
+joy2	.res 3           ;    X16: joystick 2 status
+
+; Serial
+;
+c3p0	.res 1           ;$94 ieee buffered char flag
+bsour	.res 1           ;$95 char buffer for ieee
+r2d2	.res 1           ;$A3 serial bus usage
+bsour1	.res 1           ;$A4 temp used by serial routine
+count	.res 1           ;$A5 temp used by serial routine
+
+; Screen
+;
+gdcol	.res 1           ;    original color before cursor
+hibase	.res 1           ;    base location of screen (top)
+autodn	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
+lintmp	.res 1           ;    temporary for line index
+color	.res 1           ;    activ color nybble
 rvs	.res 1           ;$C7 rvs field on flag
 indx	.res 1           ;$C8
 lsxp	.res 1           ;$C9 x pos at start
@@ -105,23 +133,10 @@ data	.res 1           ;$D7
 insrt	.res 1           ;$D8 insert mode flag
 llen	.res 1           ;$D9 x resolution
 nlines	.res 1           ;$DA y resolution
-;
-; X16 additions
-;
-rambks	.res 1           ;number of ram banks (0 means 256)
-isomod	.res 1           ;ISO mode
-curkbd	.res 1           ;current keyboard layout index
-kbdbyte	.res 1           ;PS/2: bit input
-prefix	.res 1           ;PS/2: prefix code (e0/e1)
-brkflg	.res 1           ;PS/2: was key-up event
-llenm1	.res 1           ;x resolution - 1
-nlinesp1 .res 1          ;y resolution + 1
-nlinesm1 .res 1          ;y resolution - 1
-nlinesm2 .res 1          ;y resolution - 2
-j0tmp	.res 1           ;keyboard joystick temp
-joy0	.res 1           ;keyboard joystick temp
-joy1	.res 3           ;joystick 1 status
-joy2	.res 3           ;joystick 2 status
+llenm1	.res 1           ;    X16: x resolution - 1
+nlinesp1 .res 1          ;    X16: y resolution + 1
+nlinesm1 .res 1          ;    X16: y resolution - 1
+nlinesm2 .res 1          ;    X16: y resolution - 2
 
 
 	.segment "KVECTORS";rem kernal/os indirects(20)
@@ -142,22 +157,15 @@ usrcmd	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
 
-; more KERNAL vars
-ldtb1	.res 61          ;flags+endspace
-
-msepar	.res 1           ;mouse: $80=sprite on; 1/2: scale
-mousel	.res 2           ;mouse: min x coordinate
-mouser	.res 2           ;mouse: max x coordinate
-mouset	.res 2           ;mouse: min y coordinate
-mouseb	.res 2           ;mouse: max y coordinate
-mousex	.res 2           ;mouse: x coordinate
-mousey	.res 2           ;mouse: y coordinate
-mousebt	.res 1           ;mouse: buttons (1: left, 2: right, 4: third)
-
-cscrmd	.res 1           ;current screen mode (argument to scrmod)
-
-kbdnam  =$0500           ;6 character keyboard layout name
-kbdtab  =$0506           ;5 pointers to shift/alt/ctrl/altgr/unshifted tables
+.segment "KVAR2" ; more KERNAL vars
+ldtb1	.res 61 +1       ;flags+endspace
+	;       ^^ XXX at label 'lps2', the code counts up to
+	;              numlines+1, THEN writes the end marker,
+	;              which seems like one too many. This was
+	;              worked around for now by adding one more
+	;              byte here, but we should have a look at
+	;              whether there's an off-by-one error over
+	;              at 'lps2'!
 
 vicscn	=$0000
 
@@ -173,7 +181,12 @@ veraisr =verareg+7
 
 ; i/o devices
 ;
-mmtop   =$9f00
+; The end of RAM is $9F00, but we're currently
+; storing GEOS drawing variables at $9D00-$9EFF,
+; so we're reducing the memory available for
+; BASIC. This may (and should) change in the
+; future.
+mmtop   =$9d00
 
 via1	=$9f60                  ;VIA 6522 #1
 d1prb	=via1+0

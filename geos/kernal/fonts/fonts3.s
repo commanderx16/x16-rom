@@ -12,6 +12,7 @@
 
 .import Font_9
 .import FntShJump
+.import E87FD
 
 .global FontSH5
 .global base

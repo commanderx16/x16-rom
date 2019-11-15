@@ -32,17 +32,14 @@
 .import FontGt2
 .import FontGt1
 
-.if (!.defined(bsw128)) & (!.defined(wheels))
 .import FontTVar1
 .import FontTVar2
-.endif
-
-.ifdef bsw128
-; XXX back bank, yet var lives on front bank!
-PrvCharWidth = $880D
-.else
+.import E8800
+.import E87FF
+.import E87FC
+.import E87FD
+.import E87FE
 .import PrvCharWidth
-.endif
 
 .ifdef bsw128
 .import _TempHideMouse
