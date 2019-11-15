@@ -36,7 +36,6 @@
 .import FontTVar2
 .import FontTVar3
 .import FontTVar4
-.import FontTVar5
 .import PrvCharWidth
 
 .ifdef bsw128
@@ -148,7 +147,7 @@ _GetRealSize2:
 Font_1:
 	ldy r1H
 	iny
-	sty FontTVar5
+	sty fontTemp2
 	sta r5L
 
 .ifdef bsw128
@@ -514,10 +513,10 @@ Font_3:
 	lda currentMode
 	bpl @2
 	ldy r1H
-	cpy FontTVar5
+	cpy fontTemp2
 	beq @1
 	dey
-	cpy FontTVar5
+	cpy fontTemp2
 	bne @2
 @1:	lda r10L
 	eor #$ff
@@ -603,7 +602,7 @@ Font_4:
 Font_5:
 	ldx r8L
 	lda #0
-@1:	sta FontTVar5+1,x
+@1:	sta fontTemp2+1,x
 	dex
 	bpl @1
 	lda r8H
@@ -611,8 +610,8 @@ Font_5:
 	bne @5
 @2:	jsr Font_8
 @3:	ldx r8L
-@4:	lda FontTVar5+1,x
-	sta Z45,x
+@4:	lda fontTemp2+1,x
+	sta fontTemp1,x
 	dex
 	bpl @4
 	inc r8H
@@ -645,13 +644,13 @@ Font_7:
 	ldy #$ff
 @1:	iny
 	ldx #7
-@2:	lda Z45,y
+@2:	lda fontTemp1,y
 	and BitMaskPow2,x
 	beq @3
 	lda BitMaskPow2,x
 	eor #$ff
-	and FontTVar5+1,y
-	sta FontTVar5+1,y
+	and fontTemp2+1,y
+	sta fontTemp2+1,y
 @3:	dex
 	bpl @2
 	cpy r8L
@@ -663,40 +662,40 @@ Font_8:
 	ldy #$ff
 @1:	iny
 	ldx #7
-@2:	lda Z45,y
+@2:	lda fontTemp1,y
 	and BitMaskPow2,x
 	beq @7
-	lda FontTVar5+1,y
+	lda fontTemp2+1,y
 	ora BitMaskPow2,x
-	sta FontTVar5+1,y
+	sta fontTemp2+1,y
 	inx
 	cpx #8
 	bne @3
-	lda FontTVar5,y
+	lda fontTemp2,y
 	ora #1
-	sta FontTVar5,y
+	sta fontTemp2,y
 .ifdef bsw128 ; XXX less efficient
 	bra @4
 .else
 	bne @4
 .endif
-@3:	lda FontTVar5+1,y
+@3:	lda fontTemp2+1,y
 	ora BitMaskPow2,x
-	sta FontTVar5+1,y
+	sta fontTemp2+1,y
 @4:	dex
 	dex
 	bpl @5
-	lda FontTVar5+2,y
+	lda fontTemp2+2,y
 	ora #$80
-	sta FontTVar5+2,y
+	sta fontTemp2+2,y
 .ifdef bsw128
 	bra @6 ; XXX less efficient
 .else
 	bne @6
 .endif
-@5:	lda FontTVar5+1,y
+@5:	lda fontTemp2+1,y
 	ora BitMaskPow2,x
-	sta FontTVar5+1,y
+	sta fontTemp2+1,y
 @6:	inx
 @7:	dex
 	bpl @2
@@ -705,14 +704,14 @@ Font_8:
 	rts
 
 Font_9:
-	lsr Z45
-	ror Z45+1
-	ror Z45+2
-	ror Z45+3
-	ror Z45+4
-	ror Z45+5
-	ror Z45+6
-	ror Z45+7
+	lsr fontTemp1
+	ror fontTemp1+1
+	ror fontTemp1+2
+	ror fontTemp1+3
+	ror fontTemp1+4
+	ror fontTemp1+5
+	ror fontTemp1+6
+	ror fontTemp1+7
 	rts
 
 ; central character printing, called from conio.s
@@ -809,7 +808,7 @@ FontPutChar80:
 .endif
 
 Draw8Pixels:
-	ldy Z45,x
+	ldy fontTemp1,x
 	sty r4L    ; pixel pattern
 
 	bit compatMode

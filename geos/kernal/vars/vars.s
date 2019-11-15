@@ -76,7 +76,7 @@
 .global bootOffs
 .global FontTVar3
 .global FontTVar4
-.global FontTVar5
+.global fontTemp2
 
 .segment "vars"
 
@@ -151,4 +151,3 @@ bootOffs:	.byte 0
 
 FontTVar3:	.byte 0
 FontTVar4:	.byte 0
-FontTVar5:	.res 9, 0 ; XXX unclear how many bytes

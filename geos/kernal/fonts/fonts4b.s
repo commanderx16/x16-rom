@@ -20,42 +20,42 @@
 .segment "fonts4b"
 
 FontGt1:
-	sty Z45+1
-	sty Z45+2
+	sty fontTemp1+1
+	sty fontTemp1+2
 	lda (r2),y
 	and FontTVar3
 	and r7H
 	jmp (r12)
 
 FontGt2:
-	sty Z45+2
-	sty Z45+3
+	sty fontTemp1+2
+	sty fontTemp1+3
 	lda (r2),y
 	and FontTVar3
-	sta Z45
+	sta fontTemp1
 	iny
 	lda (r2),y
 	and r7H
-	sta Z45+1
+	sta fontTemp1+1
 FontGt2_1:
-	lda Z45
+	lda fontTemp1
 	jmp (r12)
 
 FontGt3:
-	sty Z45+3
-	sty Z45+4
+	sty fontTemp1+3
+	sty fontTemp1+4
 	lda (r2),y
 	and FontTVar3
-	sta Z45
+	sta fontTemp1
 	iny
 	lda (r2),y
-	sta Z45+1
+	sta fontTemp1+1
 	iny
 	lda (r2),y
 	and r7H
-	sta Z45+2
+	sta fontTemp1+2
 .ifdef bsw128 ; dup for speed?
-	lda Z45
+	lda fontTemp1
 	jmp (r12)
 .else
 	bra FontGt2_1
@@ -64,23 +64,23 @@ FontGt3:
 FontGt4:
 	lda (r2),y
 	and FontTVar3
-	sta Z45
+	sta fontTemp1
 FontGt4_1:
 	iny
 	cpy r3H
 	beq FontGt4_2
 	lda (r2),y
-	sta Z45,y
+	sta fontTemp1,y
 	bra FontGt4_1
 FontGt4_2:
 	lda (r2),y
 	and r7H
-	sta Z45,y
+	sta fontTemp1,y
 	lda #0
-	sta Z45+1,y
-	sta Z45+2,y
+	sta fontTemp1+1,y
+	sta fontTemp1+2,y
 .ifdef bsw128 ; dup for speed?
-	lda Z45
+	lda fontTemp1
 	jmp (r12)
 .else
 	beq FontGt2_1

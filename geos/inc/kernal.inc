@@ -17,10 +17,9 @@ DBoxDescH       =       $47
 ; the following bytes are used in multiple contexts:
 ; * temp for decimal output, max 5 bytes [conio6]
 ; * temp for processed font characters, max 8 bytes [fonts3]
-
-Z45             =       $48
-;Z46             =       $49
-;Z47             =       $4A
+; * ...
+fontTemp1       =       $48 ; 8 bytes
+fontTemp2       =       $50 ; 9 bytes (XXX unclear whether this is correct)
 
 ; X16 additions
 cpyTmp0         =       $68 ; 2 bytes for Copy(F)String/Cmp(F)String

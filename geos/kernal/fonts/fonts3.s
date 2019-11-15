@@ -43,50 +43,50 @@ c0:	jmp FntShJump
 .ifdef bsw128
 f7:
 	lsr a
-	ror Z45+1
+	ror fontTemp1+1
 f6:
 	lsr a
-	ror Z45+1
+	ror fontTemp1+1
 f5:
 	lsr a
-	ror Z45+1
+	ror fontTemp1+1
 f4:
 	lsr a
-	ror Z45+1
+	ror fontTemp1+1
 f3:
 	lsr a
-	ror Z45+1
+	ror fontTemp1+1
 f2:
 	lsr a
-	ror Z45+1
+	ror fontTemp1+1
 f1:
 	lsr a
-	ror Z45+1
+	ror fontTemp1+1
 f0:
 	jmp FntShJump
 .endif
 
 e7:	lsr
-	ror Z45+1
-	ror Z45+2
+	ror fontTemp1+1
+	ror fontTemp1+2
 e6:	lsr
-	ror Z45+1
-	ror Z45+2
+	ror fontTemp1+1
+	ror fontTemp1+2
 e5:	lsr
-	ror Z45+1
-	ror Z45+2
+	ror fontTemp1+1
+	ror fontTemp1+2
 e4:	lsr
-	ror Z45+1
-	ror Z45+2
+	ror fontTemp1+1
+	ror fontTemp1+2
 e3:	lsr
-	ror Z45+1
-	ror Z45+2
+	ror fontTemp1+1
+	ror fontTemp1+2
 e2:	lsr
-	ror Z45+1
-	ror Z45+2
+	ror fontTemp1+1
+	ror fontTemp1+2
 e1:	lsr
-	ror Z45+1
-	ror Z45+2
+	ror fontTemp1+1
+	ror fontTemp1+2
 e0:	jmp FntShJump
 
 b7:	asl
@@ -100,57 +100,57 @@ b1:	asl
 
 .ifdef bsw128
 g7:
-	asl Z45+1
+	asl fontTemp1+1
 	rol a
 g6:
-	asl Z45+1
+	asl fontTemp1+1
 	rol a
 g5:
-	asl Z45+1
+	asl fontTemp1+1
 	rol a
 g4:
-	asl Z45+1
+	asl fontTemp1+1
 	rol a
 g3:
-	asl Z45+1
+	asl fontTemp1+1
 	rol a
 g2:
-	asl Z45+1
+	asl fontTemp1+1
 	rol a
 g1:
-	asl Z45+1
+	asl fontTemp1+1
 	rol a
 g0:
 	jmp FntShJump
 .endif
 
-d7:	asl Z45+2
-	rol Z45+1
+d7:	asl fontTemp1+2
+	rol fontTemp1+1
 	rol
-d6:	asl Z45+2
-	rol Z45+1
+d6:	asl fontTemp1+2
+	rol fontTemp1+1
 	rol
-d5:	asl Z45+2
-	rol Z45+1
+d5:	asl fontTemp1+2
+	rol fontTemp1+1
 	rol
-d4:	asl Z45+2
-	rol Z45+1
+d4:	asl fontTemp1+2
+	rol fontTemp1+1
 	rol
-d3:	asl Z45+2
-	rol Z45+1
+d3:	asl fontTemp1+2
+	rol fontTemp1+1
 	rol
-d2:	asl Z45+2
-	rol Z45+1
+d2:	asl fontTemp1+2
+	rol fontTemp1+1
 	rol
-d1:	asl Z45+2
-	rol Z45+1
+d1:	asl fontTemp1+2
+	rol fontTemp1+1
 	rol
 	jmp FntShJump
 
 .assert * - base < 256, error, "Font shift code must be < 256 bytes"
 
 FontSH5:
-	sta Z45
+	sta fontTemp1
 	lda r7L
 	sub FontTVar4
 	beq @2
@@ -161,24 +161,24 @@ FontSH5:
 	dey
 	bne @1
 @2:
-	lda Z45
+	lda fontTemp1
 	jmp FntShJump
 @3:
 	lda FontTVar4
 	sub r7L
 	tay
 @4:
-	asl Z45+7
-	rol Z45+6
-	rol Z45+5
-	rol Z45+4
-	rol Z45+3
-	rol Z45+2
-	rol Z45+1
-	rol Z45
+	asl fontTemp1+7
+	rol fontTemp1+6
+	rol fontTemp1+5
+	rol fontTemp1+4
+	rol fontTemp1+3
+	rol fontTemp1+2
+	rol fontTemp1+1
+	rol fontTemp1
 	dey
 	bne @4
-	lda Z45
+	lda fontTemp1
 .ifdef bsw128
 	jmp FntShJump
 noop:	rts
