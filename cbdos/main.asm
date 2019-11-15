@@ -19,6 +19,9 @@
 .export fd_area, sd_blktarget, block_data, block_fat
 
 .importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
+
+.import status
+
 .include "common.inc"
 IMPORTED_FROM_MAIN=1
 .include "fat32.inc"
@@ -421,7 +424,7 @@ cbdos_acptr:
 @acptr_nofd:
 ; no fd
 	lda #$02 ; timeout/file not found
-	sta $90
+	sta status
 	lda #0
 	ldy save_y
 	ldx save_x
@@ -446,7 +449,7 @@ cbdos_acptr:
  	cmp #MAGIC_FD_STATUS
 	bne @acptr9
 	lda #$40 ; EOF
-	sta $90
+	sta status
 	jsr set_status_ok
 	lda buffer_len + 2 * BUFNO_STATUS
 	sta cur_buffer_len

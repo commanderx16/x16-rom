@@ -1,11 +1,12 @@
 ; for monitor
 .globalzp txtptr, fnadr, pnt
-.global status, fnlen, la, sa, fa, isomod, ndx, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
+.global fnlen, la, sa, fa, isomod, ndx, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
 .global buf, keyd, rptflg
-
-; for basic
+; for monitor and CBDOS
+.global status
+; for BASIC
 .global color, scrmod
-; for basic and GEOS
+; for BASIC and GEOS
 .global mousex, mousey, mousebt
 ; for GEOS
 .global mseinit, mouse, msescn, msespr
