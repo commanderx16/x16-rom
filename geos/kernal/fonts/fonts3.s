@@ -12,7 +12,6 @@
 
 .import Font_9
 .import FntShJump
-.import FontTVar4
 
 .global FontSH5
 .global base

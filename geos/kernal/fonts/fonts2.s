@@ -32,12 +32,6 @@
 .import FontGt2
 .import FontGt1
 
-.import FontTVar1
-.import FontTVar2
-.import FontTVar3
-.import FontTVar4
-.import PrvCharWidth
-
 .ifdef bsw128
 .import _TempHideMouse
 .else

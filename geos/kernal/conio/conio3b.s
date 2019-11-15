@@ -23,8 +23,6 @@
 .import BSWFont80
 .endif
 
-.import PrvCharWidth
-
 .global GetChWdth1
 .global _UseSystemFont
 .global _GetCharWidth

@@ -14,12 +14,20 @@ DBoxDesc        =       $46
 DBoxDescL       =       $46
 DBoxDescH       =       $47
 
-; the following bytes are used in multiple contexts:
+; fontTemp1 is used in multiple contexts:
 ; * temp for decimal output, max 5 bytes [conio6]
 ; * temp for processed font characters, max 8 bytes [fonts3]
 ; * ...
 fontTemp1       =       $48 ; 8 bytes
-fontTemp2       =       $50 ; 9 bytes (XXX unclear whether this is correct)
+
+; XXX It is unclear how many bytes exactly are used here
+fontTemp2       =       $50 ; 9 bytes
+
+PrvCharWidth    =       $59 ; 1 byte
+FontTVar1       =       $5a ; 1 byte
+FontTVar2       =       $5b ; 2 bytes
+FontTVar3       =       $5d ; 1 byte
+FontTVar4       =       $5e ; 1 byte
 
 ; X16 additions
 cpyTmp0         =       $68 ; 2 bytes for Copy(F)String/Cmp(F)String

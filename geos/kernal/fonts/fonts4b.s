@@ -15,8 +15,6 @@
 .global FontGt3
 .global FontGt4
 
-.import FontTVar3
-
 .segment "fonts4b"
 
 FontGt1:

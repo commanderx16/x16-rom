@@ -66,17 +66,11 @@
 .global verifyFlag
 .global TempCurDrive
 .global scr_mobx
-.global PrvCharWidth
-.global FontTVar1
-.global FontTVar2
 .global bootTr
 .global bootSec
 .global bootTr2
 .global bootSec2
 .global bootOffs
-.global FontTVar3
-.global FontTVar4
-.global fontTemp2
 
 .segment "vars"
 
@@ -139,15 +133,8 @@ verifyFlag:	.byte 0
 TempCurDrive:	.byte 0
 scr_mobx:	.word 0
 
-PrvCharWidth:	.byte 0
-
-FontTVar1:	.byte 0
-FontTVar2:	.word 0
 bootTr:		.byte 0
 bootSec:	.byte 0
 bootTr2:	.byte 0
 bootSec2:	.byte 0
 bootOffs:	.byte 0
-
-FontTVar3:	.byte 0
-FontTVar4:	.byte 0

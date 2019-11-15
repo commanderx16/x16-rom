@@ -181,12 +181,7 @@ veraisr =verareg+7
 
 ; i/o devices
 ;
-; The end of RAM is $9F00, but we're currently
-; storing GEOS drawing variables at $9D00-$9EFF,
-; so we're reducing the memory available for
-; BASIC. This may (and should) change in the
-; future.
-mmtop   =$9d00
+mmtop   =$9f00
 
 via1	=$9f60                  ;VIA 6522 #1
 d1prb	=via1+0
