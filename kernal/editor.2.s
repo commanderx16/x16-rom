@@ -203,14 +203,14 @@ key
 ; save VERA state
 	lda veractl
 	pha
+	lda #0
+	sta veractl
 	lda veralo
 	pha
 	lda veramid
 	pha
 	lda verahi
 	pha
-	lda #0
-	sta veractl
 
 	jsr msescn      ;scan mouse (do this first to avoid sprite tearing)
 	jsr $ffea       ;update jiffy clock
