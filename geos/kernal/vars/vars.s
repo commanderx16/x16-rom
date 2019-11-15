@@ -74,6 +74,11 @@
 .global bootTr2
 .global bootSec2
 .global bootOffs
+.global E87FC
+.global E87FD
+.global E87FE
+.global E87FF
+.global E8800
 
 .segment "vars"
 
@@ -145,3 +150,9 @@ bootSec:	.byte 0
 bootTr2:	.byte 0
 bootSec2:	.byte 0
 bootOffs:	.byte 0
+
+E87FC:		.byte 0
+E87FD:		.byte 0
+E87FE:		.byte 0
+E87FF:		.byte 0
+E8800:		.res 7, 0 ; XXX unclear how many bytes

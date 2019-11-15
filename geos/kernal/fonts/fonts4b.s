@@ -15,6 +15,8 @@
 .global FontGt3
 .global FontGt4
 
+.import E87FC
+
 .segment "fonts4b"
 
 FontGt1:

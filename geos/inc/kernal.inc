@@ -41,9 +41,3 @@ DrDCurDkNm      =       OS_VARS + $08ee ; files
 
 dir2Head        =       OS_VARS + $0900 ; drv
 ;
-
-E87FC           =       OS_VARS + $07fc
-E87FD           =       OS_VARS + $07fd
-E87FE           =       OS_VARS + $07fe
-E87FF           =       OS_VARS + $07ff
-E8800           =       OS_VARS + $0800

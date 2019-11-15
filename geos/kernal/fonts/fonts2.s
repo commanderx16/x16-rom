@@ -35,6 +35,11 @@
 
 .import FontTVar1
 .import FontTVar2
+.import E8800
+.import E87FF
+.import E87FC
+.import E87FD
+.import E87FE
 
 .ifdef bsw128
 .import _TempHideMouse

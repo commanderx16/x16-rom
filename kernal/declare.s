@@ -186,7 +186,7 @@ veraisr =verareg+7
 ; so we're reducing the memory available for
 ; BASIC. This may (and should) change in the
 ; future.
-mmtop   =$9d00
+mmtop   =$8000
 
 via1	=$9f60                  ;VIA 6522 #1
 d1prb	=via1+0
