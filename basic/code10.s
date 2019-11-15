@@ -2,20 +2,13 @@
 ;if constant is contained in basic.
 ;array variables have zeroes placed
 ;in ram. undefined simple variables
-;have pointer t zero in basic.
+;have pointer to zero in basic.
 ;
 tstrom	sec
 	lda facmo
 	sbc #<romloc
 	lda faclo
 	sbc #>romloc
-	bcc tstr10
-;
-	lda #<initat
-	sbc facmo
-	lda #>initat
-	sbc faclo
-;
 tstr10	rts
 
 isvar	jsr ptrget
