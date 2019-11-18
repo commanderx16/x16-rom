@@ -76,10 +76,10 @@ nsnerr6	ldx vartab      ;end save addr
 	rts
 
 cverf	lda #1          ;verify flag
-	bra js35
+	bra :+
 
 cload	lda #0          ;load flag
-js35:	pha
+:	pha
 	jsr plsv        ;parse parameters
 	bcs cld9
 	ldx andmsk

@@ -119,9 +119,9 @@ cint	jsr iokeys
 	cmp #'6'
 	bne nemu
 	lda $9fbd       ;emulator keyboard layout
-	bra js11
+	bra :+
 nemu	lda #0          ;US layout
-js11	jsr setkbd
+:	jsr setkbd
 	lda #10
 	sta xmax        ;maximum type ahead buffer size
 	sta delay

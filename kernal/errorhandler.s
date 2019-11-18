@@ -27,24 +27,24 @@ stop2	rts
 ;************************************
 ;
 error1	lda #1          ;too many files
-	bra js12
+	bra :+
 error2	lda #2          ;file open
-	bra js12
+	bra :+
 error3	lda #3          ;file not open
-	bra js12
+	bra :+
 error4	lda #4          ;file not found
-	bra js12
+	bra :+
 error5	lda #5          ;device not present
-	bra js12
+	bra :+
 error6	lda #6          ;not input file
-	bra js12
+	bra :+
 error7	lda #7          ;not output file
-	bra js12
+	bra :+
 error8	lda #8          ;missing file name
-	bra js12
+	bra :+
 error9	lda #9          ;bad device #
 ;
-js12:	pha             ;error number on stack
+:	pha             ;error number on stack
 	jsr clrch       ;restore i/o channels
 ;
 	ldy #ms1-ms1

@@ -208,7 +208,7 @@ untlk
 	ora #$08
 	sta sdata
 	lda #$5f        ;untalk command
-	bra js10
+	bra :+
 
 ;send unlisten command on serial bus
 ;
@@ -220,7 +220,7 @@ unlsn
 	rts
 .endif
 	lda #$3f        ;unlisten command
-js10	jsr list1       ;send it
+:	jsr list1       ;send it
 ;
 ; release all lines
 dlabye	jsr scatn       ;always release atn

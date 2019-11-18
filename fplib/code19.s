@@ -105,9 +105,9 @@ mldexp	beq zeremv
 	bcc tryoff
 	bmi goover
 	clc
-	bra js50
+	bra :+
 tryoff	bpl zeremv
-js50	adc #$80
+:	adc #$80
 	sta facexp
 	bne *+5
 	jmp zeroml

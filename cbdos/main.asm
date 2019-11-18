@@ -21,9 +21,13 @@
 .importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
 .include "common.inc"
 IMPORTED_FROM_MAIN=1
+
+.feature labels_without_colons
+
 .include "fat32.inc"
 .include "fcntl.inc"
 .include "65c02.inc"
+
 
 NUM_BUFS = 4
 TOTAL_NUM_BUFS = NUM_BUFS + 3
@@ -417,11 +421,11 @@ cbdos_acptr:
 
 ; EOF
 	lda #$40
-	bra @js60
-@acptr_nofd:
+	bra :+
+@acptr_nofd
 ; no fd
 	lda #$02 ; timeout/file not found
-@js60:	sta $90
+:	sta $90
 	lda #0
 	ldy save_y
 	ldx save_x
@@ -606,16 +610,16 @@ finished_with_buffer:
 ;****************************************
 set_status_ok:
 	lda #$00
-	bra js61
-set_status_writeprot:
+	bra :+
+set_status_writeprot
 	lda #$26
-	bra js61
-set_status_synerr:
+	bra :+
+set_status_synerr
 	lda #$31
-	bra js61
-set_status_73:
+	bra :+
+set_status_73
 	lda #$73
-js61:	pha
+:	pha
 	pha
 	lsr
 	lsr
@@ -931,16 +935,16 @@ read_dir:
 	sbc #>10
 	bcs gt_10
 	ldx #3
-	bra js62
-gt_10:
+	bra :+
+gt_10
 	ldx #2
-	bra js62
-gt_100:
+	bra :+
+gt_100
 	ldx #1
-	bra js62
-gt_1000:
+	bra :+
+gt_1000
 	ldx #0
-js62:	lda #' '
+:	lda #' '
 :	jsr storedir
 	dex
 	bne :-

@@ -138,9 +138,9 @@ fingo	lda fundsp-onefun-onefun+256,y
 	jsr jmper
 	jmp chknum
 orop	ldy #255
-	bra js30
+	bra :+
 andop	ldy #0
-js30:	sty count
+:	sty count
 	jsr ayint
 	lda facmo
 	eor count

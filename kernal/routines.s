@@ -58,10 +58,10 @@ close_all
 	bne @10		;...branch if not current output device
 	lda #3
 	sta dflto	;restore screen output
-	bra js6
+	bra :+
 
 @10	cmp dfltn
-js6:	bne @20		;...branch if not current input device
+:	bne @20		;...branch if not current input device
 	lda #0
 	sta dfltn	;restore keyboard input
 
@@ -203,9 +203,9 @@ swppp4	lda #$01
 	cpy #25
 	bne swpp1
 	lda #<400
-	bra js7
+	bra :+
 swpp1	lda #<480
-js7:	pha
+:	pha
 	lda #7 ; vstop_lo
 	sta veralo
 	pla

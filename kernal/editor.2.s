@@ -240,11 +240,11 @@ key5
 	cmp #$9f
 	bne key2
 	lda gdbln
-	bra js2
+	bra :+
 key2	lda #$9f
-	bra js2
+	bra :+
 key3	eor #$80        ;blink it
-js2:	jsr dspp2       ;display it
+:	jsr dspp2       ;display it
 ;
 key4
 	jsr scnkey      ;scan keyboard
@@ -381,13 +381,13 @@ drv_end:
 ; or $80 if shift is down
 is_home:
 	ldx #$13 * 2; home (-> clr)
-	bra js3
-is_enter:
+	bra :+
+is_enter
 	ldx #$0d * 2 ; return (-> shift+return)
-	bra js3
-is_stop:
+	bra :+
+is_stop
 	ldx #$03 * 2 ; stop (-> run)
-js3:	lda shflag
+:	lda shflag
 	lsr ; shift -> C
 	txa
 	ror
@@ -400,9 +400,9 @@ add_to_buf:
 	cmp #3 ; stop
 	bne add1
 	ldx #$7f
-	bra js4
-add1:	ldx #$ff
-js4:	stx stkey
+	bra :+
+add1	ldx #$ff
+:	stx stkey
 	ldx ndx ; length of keyboard buffer
 	cpx xmax
 	bcs add2 ; full, ignore
@@ -547,10 +547,10 @@ receive_down_scancode_no_modifiers:
 	bcc key_down
 	eor #$ff
 	and shflag
-	bra js5
-key_down:
+	bra :+
+key_down
 	ora shflag
-js5: sta shflag
+:	sta shflag
 key_up:	lda #0 ; no key to return
 	rts
 no_mod:	plp
@@ -587,13 +587,13 @@ ckmod2:	cmp #$1F ; left win (001F)
 	cmp #$27 ; right win (0027)
 	bne ckmod1
 md_win:	lda #MODIFIER_WIN
-	bra js1
-md_alt:	lda #MODIFIER_ALT
-	bra js1
-md_ctl:	lda #MODIFIER_CTRL
-	bra js1
-md_sh:	lda #MODIFIER_SHIFT
-js1: sec
+	bra :+
+md_alt	lda #MODIFIER_ALT
+	bra :+
+md_ctl	lda #MODIFIER_CTRL
+	bra :+
+md_sh	lda #MODIFIER_SHIFT
+: sec
 	rts
 
 tab_extended:

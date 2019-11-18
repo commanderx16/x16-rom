@@ -37,6 +37,8 @@
 ; * "OD" switches all memory dumps/input to the drive's memory.
 ; * "B" command to introspect cartridge ROM
 
+.feature labels_without_colons
+
 .include "kernal.i"
 
 .ifdef CART_FC3
@@ -355,10 +357,10 @@ LABEB:  ldy     #0
 
 syntax_error:
         lda     #'?'
-        bra js300
-print_cr_then_input_loop:
+        bra :+
+print_cr_then_input_loop
         lda     #CR
-js300:
+:
         jsr     BSOUT
 
 input_loop:
@@ -1517,9 +1519,9 @@ cmd_b:  jsr     basin_cmp_cr
         bcs     syn_err3
         and     #$03 ; XXX no effect
         ora     #$40 ; make $40 - $43
-        bra     js302
-LB326:  lda     #$70 ; by default, hide cartridge
-js302:
+        bra     :+
+LB326  lda     #$70 ; by default, hide cartridge
+:
         sta     cartridge_bank
         jmp     print_cr_then_input_loop
 .endif
@@ -1562,10 +1564,10 @@ video_loop:
         cmp     #' '
         beq     video_loop
         jsr     hex_digit_to_nybble
-        bra js303
-default_video_bank:
+        bra		:+
+default_video_bank
 	lda     #0
-js303:
+:
 	jmp     store_bank
 
 not_video:
@@ -1575,9 +1577,9 @@ not_video:
 .elseif .defined(MACHINE_X16)
         jsr     get_hex_byte2
 .endif
-        bra js304
-LB33F:  lda     #DEFAULT_BANK
-js304:
+        bra :+
+LB33F  lda     #DEFAULT_BANK
+:
 .ifdef MACHINE_C64
         cmp     #$38
         bcs     syn_err3
@@ -1781,10 +1783,10 @@ LB48E:  jsr     print_space
 
 print_up:
         ldx     #CSR_UP
-        bra     js305
+        bra     :+
 print_cr_dot:
         ldx     #'.'
-js305:        
+:        
         lda     #CR
         bra     print_a_x
 print_dot_x:
@@ -1797,19 +1799,19 @@ print_a_x:
 print_up_dot:
         jsr     print_up
         lda     #'.'
-        bra     js306
+        bra     :+
 ; XXX unused?
         lda     #CSR_RIGHT
-        bra     js306
-print_hash:
+        bra     :+
+print_hash
         lda     #'#'
-        bra     js306
-print_space:
+        bra     :+
+print_space
         lda     #' '
-        bra     js306
-print_cr:
+        bra     :+
+print_cr
         lda     #CR
-js306:
+:
         jmp     BSOUT
 
 basin_skip_spaces_if_more:
@@ -1920,10 +1922,10 @@ syn_err5:
 
 print_dollar_hex_16:
         lda     #'$'
-        bra     js307
-print_space_hex_16:
+        bra     :+
+print_space_hex_16
         lda     #' '
-js307:
+:
         jsr     BSOUT
 print_hex_16:
         lda     zp1 + 1
@@ -2126,22 +2128,22 @@ check_end:
 
 fill_kbd_buffer_comma:
         lda     #','
-        bra     js308
-fill_kbd_buffer_semicolon:
+        bra     :+
+fill_kbd_buffer_semicolon
         lda     #':'
-        bra     js308
-fill_kbd_buffer_a:
+        bra     :+
+fill_kbd_buffer_a
         lda     #'A'
-        bra     js308
-fill_kbd_buffer_leftbracket:
+        bra     :+
+fill_kbd_buffer_leftbracket
         lda     #'['
-        bra     js308
-fill_kbd_buffer_rightbracket:
+        bra     :+
+fill_kbd_buffer_rightbracket
         lda     #']'
-        bra     js308
-fill_kbd_buffer_singlequote:
+        bra     :+
+fill_kbd_buffer_singlequote
         lda     #$27 ; "'"
-js308:
+:
         sta     KEYD
         lda     zp1 + 1
         jsr     byte_to_hex_ascii
@@ -3521,9 +3523,9 @@ LBC58:  lda     #$2F
         sta     zp2 + 1
         sec
         ldy     zp1
-        bra     js309
-LBC60:  sta     zp1 + 1
-js309:
+        bra     :+
+LBC60  sta     zp1 + 1
+:
         sty     zp1
         inc     zp2 + 1
         tya

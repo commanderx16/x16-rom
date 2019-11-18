@@ -127,9 +127,9 @@ errdir	ldx curlin+1
 	inx
 	bne dimrts
 	ldx #errid
-	bra js32
+	bra :+
 errguf	ldx #erruf
-js32:	jmp error
+:	jmp error
 def	jsr getfnm
 	jsr errdir
 	jsr chkopn
