@@ -27,7 +27,7 @@ _InterruptMain:
 .ifndef bsw128
 	jsr ProcessMouse
 .endif
-	jsr __ProcessTimers
-	jsr __ProcessDelays
+	jsr __ProcessTimers ; process
+	jsr __ProcessDelays ; process
 	jsr ProcessCursor
 	jmp __GetRandom

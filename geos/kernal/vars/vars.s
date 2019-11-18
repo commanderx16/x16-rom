@@ -84,6 +84,8 @@ menuStackH:     .res 4, 0
 menuOptionTab:  .res 4, 0
 menuLimitTabL:  .res 15, 0
 menuLimitTabH:  .res 15, 0
+
+; Process
 TimersTab:      .res 40, 0
 TimersCMDs:     .res 20, 0
 TimersRtns:     .res 40, 0
@@ -94,6 +96,7 @@ DelayValL:      .res 20, 0
 DelayValH:      .res 20, 0
 DelayRtnsL:     .res 20, 0
 DelayRtnsH:     .res 20, 0
+
 stringLen:      .byte 0
 stringMaxLen:   .byte 0
 tmpKeyVector:   .word 0

@@ -45,8 +45,8 @@ _MainLoop:
 @1:
 .endif
 	jsr _DoCheckButtons
-	jsr _ExecuteProcesses
-	jsr _DoCheckDelays
+	jsr _ExecuteProcesses ; process
+	jsr _DoCheckDelays    ; process
 	jsr _DoUpdateTime
 	lda appMain+0
 	ldx appMain+1

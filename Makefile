@@ -101,12 +101,7 @@ GEOS_SOURCES= \
 	geos/kernal/mouse/mouseptr.s \
 	geos/kernal/panic/panic.s \
 	geos/kernal/patterns/patterns.s \
-	geos/kernal/process/process1.s \
-	geos/kernal/process/process2.s \
-	geos/kernal/process/process3a.s \
-	geos/kernal/process/process3aa.s \
-	geos/kernal/process/process3b.s \
-	geos/kernal/process/process3c.s \
+	geos/kernal/process/process.s \
 	geos/kernal/reu/reu.s \
 	geos/kernal/serial/serial1.s \
 	geos/kernal/serial/serial2.s \
