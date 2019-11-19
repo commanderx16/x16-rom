@@ -104,7 +104,9 @@ scd10	dex
 	bmi scd10
 scr40
 	jsr clrln
-	ldx nlinesm2
+	ldx nlines
+	dex
+	dex
 scrd21
 	cpx lintmp      ;done?
 	bcc scrd22      ;branch if so
@@ -151,7 +153,8 @@ scrlin
 	lda #0
 	sta veractl
 
-	ldy llenm1
+	ldy llen
+	dey
 scd20	lda veradat2    ;character
 	sta veradat
 	lda veradat2    ;color

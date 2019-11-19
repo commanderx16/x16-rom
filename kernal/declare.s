@@ -134,10 +134,8 @@ data	.res 1           ;$D7
 insrt	.res 1           ;$D8 insert mode flag
 llen	.res 1           ;$D9 x resolution
 nlines	.res 1           ;$DA y resolution
-llenm1	.res 1           ;    X16: x resolution - 1
 nlinesp1 .res 1          ;    X16: y resolution + 1
 nlinesm1 .res 1          ;    X16: y resolution - 1
-nlinesm2 .res 1          ;    X16: y resolution - 2
 
 
 	.segment "KVECTORS";rem kernal/os indirects(20)

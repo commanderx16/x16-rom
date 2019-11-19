@@ -45,16 +45,12 @@ plot10	ldx tblx
 ;set screen size
 ;
 scnsiz	stx llen
-	dex
-	stx llenm1
 	sty nlines
 	iny
 	sty nlinesp1
 	dey
 	dey
 	sty nlinesm1
-	dey
-	sty nlinesm2
 	jmp clsr ; clear screen
 
 ;
@@ -170,7 +166,8 @@ fndstr	ldy ldtb1,x     ;find begining of line
 ;
 stok	jsr setpnt      ;set up pnt indirect 901227-03**********
 ;
-	lda llenm1
+	lda llen
+	dec
 	inx
 fndend	ldy ldtb1,x
 	bmi stdone
@@ -828,7 +825,8 @@ back	dec tblx
 ; check for increment tblx
 ;
 chkdwn	ldx #nwrap
-	lda llenm1
+	lda llen
+	dec
 dwnchk	cmp pntr
 	beq dnline
 	clc
