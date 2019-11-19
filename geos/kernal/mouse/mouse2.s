@@ -252,11 +252,6 @@ SetMouse:
 tmpFire = mouseAccel ; reuse of unused location
 
 UpdateMouse:
-;XXX: X16: deskTop overwrites $033c+, so we need to do this.
-;     This should be removed once deskTop is patched
-;     or no longer relevant.
-	jsr MouseInit
-;XXX
 	jsr gjsrfar
 	.word msescn
 	.byte BANK_KERNAL
