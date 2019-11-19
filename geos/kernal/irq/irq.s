@@ -9,9 +9,6 @@
 .include "config.inc"
 .include "kernal.inc"
 .include "c64.inc"
-.ifdef bsw128
-.include "inputdrv.inc"
-.endif
 
 ; keyboard.s
 .import _DoKeyboardScan
@@ -24,13 +21,7 @@
 .import CallRoutine
 .import GetRandom
 
-.ifdef bsw128
-.import CallAddr
-.import RestoreConfig
-.import CallAddr2
-.import ProcessMouse
-.import _DoKeyboardScan
-.endif
+.import _InterruptMain
 
 ; used by boot.s
 .global _IRQHandler
@@ -49,12 +40,7 @@ _IRQHandler:
 	and #%00010000
 	beq @1
 	jmp (BRKVector)
-@1:	PushB bank0SaveRcr
-	PushB bank0SaveA
-	PushB bank0SavePS
-	PushW CallAddr2
-	PushB CallAddr
-	PushB RestoreConfig
+@1:
 .else
 	cld
 	sta tempIRQAcc
@@ -68,6 +54,7 @@ _IRQHandler:
 	pha
 	tya
 	pha
+.endif
 
 	; switch VERA
 	PushB veractl
@@ -79,10 +66,7 @@ _IRQHandler:
 
 	lda #1
 	sta veraisr
-.ifdef use2MHz
-	LoadB clkreg, 0
-.endif
-.endif
+
 	PushW CallRLo
 	PushW returnAddress
 	ldx #0
@@ -91,50 +75,30 @@ _IRQHandler:
 	inx
 	cpx #32
 	bne @2
-	START_IO
+
 	lda dblClickCount
 	beq @3
 	dec dblClickCount
-@3:
-.ifdef bsw128
-	jsr ProcessMouse
-.endif
-	ldy KbdQueFlag
+
+@3:	ldy KbdQueFlag
 	beq @4
 	iny
 	beq @4
 	dec KbdQueFlag
-@4:
-.ifdef bsw128
-	jsr _DoKeyboardScan
-	jsr SetMouse
-.else
-	jsr _DoKeyboardScan
-.endif
+@4:	jsr _DoKeyboardScan
+
 	lda alarmWarnFlag
 	beq @5
 	dec alarmWarnFlag
-@5:
-.ifdef wheels_screensaver
-.import ProcessMouse
-	lda saverStatus
-	lsr
-	bcc @Y ; screensaver not running
-	jsr ProcessMouse
-	jsr GetRandom
-	bra @X
-.endif
-@Y:	lda intTopVector
+
+@5:	lda intTopVector
 	ldx intTopVector+1
 	jsr CallRoutine
+	jsr _InterruptMain
 	lda intBotVector
 	ldx intBotVector+1
 	jsr CallRoutine
-@X:	END_IO
-.ifdef use2MHz
-	LoadW $fffe, IRQ2Handler
-	LoadB rasreg, $fc
-.endif
+
 	ldx #31
 @6:	pla
 	sta r0,x
@@ -142,25 +106,20 @@ _IRQHandler:
 	bpl @6
 	PopW returnAddress
 	PopW CallRLo
-.ifdef bsw128
-	PopB RestoreConfig
-	PopB CallAddr
-	PopW CallAddr2
-	PopB bank0SavePS
-	PopB bank0SaveA
-	PopB bank0SaveRcr
-	pla
-	tay
-	pla
-	tax
-	rts
-.else
+
 	; switch VERA back
 	PopB verahi
 	PopB veramid
 	PopB veralo
 	PopB veractl
 
+.ifdef bsw128
+	pla
+	tay
+	pla
+	tax
+	rts
+.else
 	pla
 	tay
 	pla
@@ -169,40 +128,3 @@ _IRQHandler:
 _NMIHandler:
 	rti
 .endif
-
-.ifdef use2MHz
-IRQ2Handler:
-	pha
-	txa
-	pha
-	START_IO_X
-	lda rasreg
-	and #%11110000
-	beq @1
-	cmp #$f0
-	bne @2
-@1:	LoadB clkreg, 1
-@2:	LoadB rasreg, $2c
-	LoadW $fffe, _IRQHandler
-	inc grirq
-	END_IO_X
-	pla
-	tax
-	pla
-	rti
-.endif
-
-hstart  =0
-hstop   =640
-vstart  =0
-vstop   =480
-tvera_composer:
-	.byte 7 << 5 | 1  ;256c bitmap, VGA
-	.byte 64, 64      ;hscale, vscale
-	.byte 14          ;border color
-	.byte <hstart
-	.byte <hstop
-	.byte <vstart
-	.byte <vstop
-	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
-tvera_composer_end:

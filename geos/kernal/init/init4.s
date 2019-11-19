@@ -12,7 +12,6 @@
 
 .import NumTimers
 .import _Panic
-.import _InterruptMain
 .import clkBoxTemp
 .import _RecoverRectangle
 
@@ -36,7 +35,7 @@ InitRamTab:
 	.word appMain
 	.byte 28
 	.word 0                       ; appMain
-	.word _InterruptMain          ; intTopVector
+	.word 0                       ; intTopVector
 	.word 0                       ; intBotVector
 	.word 0                       ; mouseVector
 	.word 0                       ; keyVector

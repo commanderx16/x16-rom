@@ -77,8 +77,7 @@ GEOS_SOURCES= \
 	geos/kernal/load/load2.s \
 	geos/kernal/load/load3.s \
 	geos/kernal/load/load4b.s \
-	geos/kernal/mainloop/mainloop1.s \
-	geos/kernal/mainloop/mainloop3.s \
+	geos/kernal/mainloop/mainloop.s \
 	geos/kernal/math/shl.s \
 	geos/kernal/math/shr.s \
 	geos/kernal/math/muldiv.s \
@@ -129,7 +128,6 @@ GEOS_SOURCES= \
 	geos/kernal/graph/point.s \
 	geos/kernal/graph/rect.s \
 	geos/kernal/graph/scanline.s \
-	geos/kernal/mainloop/mainloop2.s \
 	geos/kernal/ramexp/ramexp1.s \
 	geos/kernal/ramexp/ramexp2.s \
 	geos/kernal/rename.s \

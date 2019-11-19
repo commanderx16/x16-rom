@@ -108,9 +108,6 @@ config_inc = 1
 	; replace BASIC reboot code with trivial version (+200 bytes)
 	removeToBASIC = 1
 
-	; for 2MHz-on-border on C128 in 64 mode
-	use2MHz = 1
-
 	; only VLIR and SEQ supported
 	;onlyVLIR = 1
 
