@@ -845,6 +845,18 @@ dnline	ldx tblx
 dwnbye	rts
 
 chkcol
+        cmp #$02    ; check ctrl-b for invert.
+        bne ntinv
+        lda color    ; get current text color.
+        asl a        ; swap msn/lsn.
+        adc #$80
+        rol a
+        asl a
+        adc #$80
+        rol a
+        sta color    ; stash back.
+        rts
+ntinv
 	ldx #15         ;there's 15 colors
 chk1a	cmp coltab,x
 	beq chk1b
