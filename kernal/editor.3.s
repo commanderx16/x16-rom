@@ -1,16 +1,16 @@
 lower
 	cmp #$0e        ;does he want lower case?
 	bne upper       ;branch if not
-	lda isomod
-	bne outhre
+	bit mode
+	bvs outhre      ;ISO
 	jsr cpypet2
 	jmp loop2
 
 upper
 	cmp #$8e        ;does he want upper case
 	bne lock        ;branch if not
-	lda isomod
-	bne outhre
+	bit mode
+	bvs outhre      ;ISO
 	jsr cpypet1
 outhre	jmp loop2
 
@@ -33,17 +33,17 @@ isoon
 	cmp #$0f        ;switch to ISO mode?
 	bne isooff      ;branch if not
 	jsr cpyiso
-	lda #$ff
-	bne isosto      ;always
+	lda mode
+	ora #$40
+	bra isosto
 
 isooff
 	cmp #$8f        ;switch to PETSCII mode?
 	bne outhre      ;branch if not
 	jsr cpypet1
-	lda #0
-isosto	cmp isomod
-	beq outhre
-	sta isomod
+	lda mode
+	and #$ff-$40
+isosto	sta mode
 	lda curkbd
 	jsr setkbd      ;reload keymap
 	jsr clsr        ;clear screen

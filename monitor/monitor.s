@@ -1967,8 +1967,8 @@ dump_ascii_characters:
         ldy     #0
 LB594:  jsr     load_byte
 .ifdef MACHINE_X16
-        bit     ISOMOD
-	bpl     :+
+        bit     MODE
+	bvc     :+
 	inc     QTSW
 	inc     QTSW
 	inc     INSRT
@@ -2013,8 +2013,8 @@ LB5C8:  sty     tmp9
         plp
         bmi     :+
 .ifdef MACHINE_X16
-        bit     ISOMOD
-        bmi     @l1
+        bit     MODE
+        bvs     @l1
 .endif
         cmp     #$60
         bcs     :+

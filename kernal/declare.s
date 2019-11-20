@@ -1,6 +1,6 @@
 ; for monitor
 .globalzp txtptr, fnadr, pnt
-.global fnlen, la, sa, fa, isomod, ndx, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
+.global fnlen, la, sa, fa, mode, ndx, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
 .global buf, keyd, rptflg
 ; for monitor and CBDOS
 .global status
@@ -42,16 +42,14 @@ cscrmd	.res 1           ;    X16: current screen mode (argument to scrmod)
 ; Keyboard
 ;
 keyd	.res 10          ;    irq keyboard buffer
-xmax	.res 1
 ndx	.res 1           ;$C6 index to keyboard q
 shflag	.res 1           ;    shift flag byte
-mode	.res 1           ;    0-pet mode, 1-cattacanna
-isomod	.res 1           ;    X16: ISO mode
-curkbd	.res 1           ;    X16: current keyboard layout index
+mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
 kbdbyte	.res 1           ;    X16: PS/2: bit input
 prefix	.res 1           ;    X16: PS/2: prefix code (e0/e1)
 brkflg	.res 1           ;    X16: PS/2: was key-up event
 stkey	.res 1           ;$91 stop key flag
+curkbd	.res 1           ;    X16: current keyboard layout index
 kbdnam  .res 6           ;    keyboard layout name
 kbdtab  .res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
 

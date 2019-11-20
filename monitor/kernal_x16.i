@@ -6,7 +6,7 @@
 .import nlines, nlinesm1
 
 .importzp txtptr, fnadr, pnt
-.import status, fnlen, la, sa, fa, isomod, ndx, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
+.import status, fnlen, la, sa, fa, mode, ndx, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
 .import buf, keyd, rptflg
 
 .include "../banks.inc"
@@ -35,7 +35,7 @@ LA              := la     ; logical file number
 SA              := sa     ; secondary address
 FA              := fa     ; device number
 FNADR           := fnadr  ; file name
-ISOMOD          := isomod ; ISO mode: $ff
+MODE            := mode   ; bit6=1: ISO mode
 NDX             := ndx    ; number of characters in keyboard buffer
 RVS             := rvs    ; print reverse characters flag
 BLNSW           := blnsw  ; cursor blink enable

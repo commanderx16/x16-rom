@@ -57,8 +57,8 @@ scnsiz	stx llen
 ; set keyboard layout .a
 ;
 setkbd	tay
-	lda isomod
-	bne setkb0
+	bit mode
+	bvs setkb0      ;ISO
 	lda #<kbdmeta
 	ldx #>kbdmeta
 	bne setkb3
@@ -118,8 +118,6 @@ cint	jsr iokeys
 	.byte $2c
 nemu	lda #0          ;US layout
 	jsr setkbd
-	lda #10
-	sta xmax        ;maximum type ahead buffer size
 	lda #blue << 4 | white
 	sta color       ;init text color
 	lda #$c
@@ -447,8 +445,8 @@ lop5	ldy pntr
 	jsr ldapnty
 notone
 	sta data
-	bit isomod
-	bmi lop53
+	bit mode
+	bvs lop53       ;ISO
 lop51	and #$3f
 	asl data
 	bit data
@@ -480,8 +478,8 @@ clp1	sta data
 	pla
 	tay
 	lda data
-	bit isomod
-	bmi clp7
+	bit mode
+	bvs clp7        ;ISO
 	cmp #$de        ;is it <pi> ?
 	bne clp7
 	lda #$ff
@@ -497,8 +495,8 @@ qtswc	cmp #$22
 qtswl	rts
 
 nxt33
-	bit isomod
-	bmi nc3
+	bit mode
+	bvs nc3         ;ISO
 	ora #$40
 nxt3	ldx rvs
 	beq nvs
@@ -601,8 +599,8 @@ prt	pha
 	jmp nxt1
 njt1	cmp #' '
 	bcc ntcn
-	bit isomod
-	bmi njt9
+	bit mode
+	bvs njt9        ;ISO
 	cmp #$60        ;lower case?
 	bcc njt8        ;no...
 	and #$df        ;yes...make screen lower
@@ -612,8 +610,8 @@ njt9	jsr qtswc
 	jmp nxt3
 ntcn	ldx insrt
 	beq cnc3x
-	bit isomod
-	bpl cnc3y
+	bit mode
+	bvc cnc3y       ;not ISO
 	jmp nvs
 cnc3y	jmp nc3
 cnc3x	cmp #$14
@@ -643,14 +641,14 @@ bk2	lda #' '
 	bpl jpl3
 ntcn1	ldx qtsw
 	beq nc3w
-	bit isomod
-	bpl cnc3
+	bit mode
+	bvc cnc3        ;not ISO
 	jmp nvs
 cnc3	jmp nc3
 nc3w	cmp #$12
 	bne nc1
-	bit isomod
-	bmi nc1
+	bit mode
+	bvs nc1         ;ISO
 	sta rvs
 nc1	cmp #$13
 	bne nc2
@@ -696,8 +694,8 @@ colr1	jsr chkcol      ;check for a color
 nxtx
 keepit
 	and #$7f
-	bit isomod
-	bmi nxtx1
+	bit mode
+	bvs nxtx1       ;ISO
 	cmp #$7f
 	bne nxtx1
 	lda #$5e
@@ -747,8 +745,8 @@ insext	jmp loop2
 up9	ldx insrt
 	beq up2
 up6
-	bit isomod
-	bmi up1
+	bit mode
+	bvs up1         ;ISO
 	ora #$40
 up1	jmp nc3
 up2	cmp #$11

@@ -238,8 +238,8 @@ repdo	sta blnct
 	lda gdbln       ;with original character
 ;
 key5
-	bit isomod
-	bpl key3
+	bit mode
+	bvc key3        ;not ISO
 	cmp #$9f
 	bne key2
 	lda gdbln
@@ -407,7 +407,7 @@ add_to_buf:
 add1:	ldx #$ff
 	stx stkey
 	ldx ndx ; length of keyboard buffer
-	cpx xmax
+	cpx #10 ;maximum type ahead buffer size
 	bcs add2 ; full, ignore
 	sta keyd,x ; store
 	inc ndx
