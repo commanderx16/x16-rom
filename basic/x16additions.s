@@ -11,7 +11,6 @@ veraisr =verareg+7
 ; XXX from KERNAL
 .import status, fnlen, la, sa, fa
 .import mousex, mousey, mousebt
-.import color
 
 rddat  = $ff0f
 
@@ -59,29 +58,31 @@ iobase = $fff3
 monitor	jmp $fff6
 
 ;***************
-ccolor	lda color
-	and #$f0
-	sta color
-	jsr getbyt ; fg
-	txa
-	ora color
-	sta color
+color	jsr getcol ; fg
+	lda coltab,x
+	jsr bsout
 	jsr chrgot
 	bne :+
 	rts
 :	jsr chkcom
-	lda color
-	and #15
-	sta color
-	jsr getbyt ; fg
-	txa
-	asl
-	asl
-	asl
-	asl
-	ora color
-	sta color
-	rts
+	jsr getcol ; bg
+	lda #2 ; swap fg/bg
+	jsr bsout
+	lda coltab,x
+	jsr bsout
+	lda #2 ; swap fg/bg
+	jmp bsout
+
+
+getcol	jsr getbyt
+	cpx #16
+	bcc :+
+	jmp fcerr
+:	rts
+
+coltab	;this is an unavoidable duplicate from KERNAL
+	.byt $90,$05,$1c,$9f,$9c,$1e,$1f,$9e
+	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
 ;***************
 vpeek	jsr chrget

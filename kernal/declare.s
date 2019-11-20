@@ -5,7 +5,7 @@
 ; for monitor and CBDOS
 .global status
 ; for BASIC
-.global color, scrmod
+.global scrmod
 ; for BASIC and GEOS
 .global mousex, mousey, mousebt
 ; for GEOS
