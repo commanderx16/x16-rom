@@ -11,6 +11,7 @@ veraisr =verareg+7
 ; XXX from KERNAL
 .import status, fnlen, la, sa, fa
 .import mousex, mousey, mousebt
+.import color
 
 rddat  = $ff0f
 
@@ -56,6 +57,31 @@ iobase = $fff3
 
 ;***************
 monitor	jmp $fff6
+
+;***************
+ccolor	lda color
+	and #$f0
+	sta color
+	jsr getbyt ; fg
+	txa
+	ora color
+	sta color
+	jsr chrgot
+	bne :+
+	rts
+:	jsr chkcom
+	lda color
+	and #15
+	sta color
+	jsr getbyt ; fg
+	txa
+	asl
+	asl
+	asl
+	asl
+	ora color
+	sta color
+	rts
 
 ;***************
 vpeek	jsr chrget
