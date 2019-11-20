@@ -12,6 +12,8 @@ veraisr =verareg+7
 .import status, fnlen, la, sa, fa
 .import mousex, mousey, mousebt
 
+rddat  = $ff0f
+
 cint   = $ff81
 ioinit = $ff84
 ramtas = $ff87
@@ -42,8 +44,8 @@ basin  = $ffcf
 bsout  = $ffd2
 load   = $ffd5
 save   = $ffd8
-;settim = $ffdb
-;rdtim  = $ffde
+settim = $ffdb
+rdtim  = $ffde
 ;stop   = $ffe1
 getin  = $ffe4
 clall  = $ffe7

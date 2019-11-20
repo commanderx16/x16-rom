@@ -33,6 +33,8 @@ symbol:
 	bridge3 restore_basic   ; $FF03
 	bridge3 query_joysticks ; $FF06: GETJOY
 	bridge3 mouse           ; $FF09: MOUSE
+	bridge3 setdat          ; $FF0C: SETDAT
+	bridge3 rddat           ; $FF0F: RDDAT
 
 .segment "KERNSUPV2"
 

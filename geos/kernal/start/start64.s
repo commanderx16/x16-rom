@@ -16,9 +16,6 @@
 .import _DoFirstInitIO
 .import _EnterDeskTop
 
-; header.s
-.import dateCopy
-
 ; irq.s
 .import _IRQHandler
 .import _NMIHandler
@@ -29,6 +26,7 @@
 .import GetDirHead
 .import FirstInit
 .import i_FillRam
+.import _DoUpdateTime
 
 .import bootTr2
 .import bootSec2
@@ -158,12 +156,7 @@ _ResetHandle:
 	lda #1
 	sta veraien
 
-	; set date
-	ldy #2
-@6:	lda dateCopy,y
-	sta year,y
-	dey
-	bpl @6
+	jsr _DoUpdateTime
 
 	;
 	jsr FirstInit

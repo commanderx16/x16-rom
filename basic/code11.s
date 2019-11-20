@@ -102,9 +102,9 @@ notevl	lda varnam
 	ldy varnam+1
 	cmp #'T'
 	bne qstavr
-	cpy #$c9
+	cpy #'I'+$80
 	beq ldzr
-	cpy #$49
+	cpy #'I'
 	bne qstavr
 gobadv	jmp snerr
 qstavr

@@ -13,6 +13,10 @@
 	jmp query_joysticks
 ; $FF09: MOUSE
 	jmp mouse
+; $FF0C: SETDAT
+	jmp setdat      ;set date
+; $FF0F: RDDAT
+	jmp rddat       ;read date
 
 	.segment "JMPTB128"
 ; C128 KERNAL API
@@ -58,6 +62,7 @@
 ; $FF62: DLCHR – init 80-col character RAM
 	; UNSUPPORTED
 	; VDC8563-specific
+	; XXX use this call to  upload the charset
 	.byte 0,0,0
 ; $FF65: PFKEY – program a function key
 	; TODO

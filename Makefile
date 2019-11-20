@@ -12,7 +12,7 @@ ARGS_KERNAL=-g
 ARGS_BASIC=-g
 #ARGS_MONITOR=-g
 #ARGS_DOS=-g
-#ARGS_GEOS=-g
+ARGS_GEOS=-g
 
 
 ASFLAGS      = -I geos/inc -I geos -g

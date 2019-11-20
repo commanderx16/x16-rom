@@ -10,11 +10,5 @@
 .include "kernal.inc"
 .include "c64.inc"
 
-; start.s
-
-.global dateCopy
-
 .segment "header"
 
-dateCopy:
-	.byte 19,09,27

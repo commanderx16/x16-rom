@@ -24,7 +24,7 @@ isvret	sta facmo
 	bcc tstr10      ;don't test st(i),ti(i)
 	cpx #'T'
 	bne tstr10
-	cpy #$c9
+	cpy #'I'+$80
 	bne tstr10
 	jsr gettim
 	sty tenexp

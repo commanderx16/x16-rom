@@ -139,6 +139,7 @@ iokeys
 	lda #1
 	sta veraien
 .endif
+	jsr initdate
 	jmp clklo       ;release the clock line***901227-03***
 ;
 ; sixty hertz value

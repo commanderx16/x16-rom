@@ -23,9 +23,6 @@ inchr	jsr $ffcf
 
 ccall	=$ffe7
 
-settim	=$ffdb
-rdtim	=$ffde
-
 coout	jsr ppach       ; go out to save .a for print# patch
 	bcs erexit
 	rts
