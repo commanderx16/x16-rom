@@ -56,17 +56,17 @@ ud30	sec
 	ldy datem
 	lda daystab-1,y
 
-; leap year logic (correct for 2000-2255)
+; leap year logic (correct for 1900-2155)
 	cpy #2
-	bne @2
+	bne @2          ;not February
 	tay
 	lda datey
 	and #3
 	bne @1          ;not divisible by 4: no leap year
-	cmp #100
-	beq @1          ;2100: not a leap year
+	lda datey
+	beq @1          ;1900: not a leap year
 	cmp #200
-	beq @1          ;2200: not a leap year
+	beq @1          ;2100: not a leap year
 	iny
 @1:	tya
 @2:

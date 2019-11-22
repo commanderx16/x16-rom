@@ -80,7 +80,7 @@ stah	.res 1           ;$C2
 
 ; Time
 ;
-date	.res 3           ;    year, month, day
+date	.res 3           ;    year-1900, month, day
 time	.res 3           ;$A0 24 hour clock in 1/60th seconds
 
 ; Mouse
