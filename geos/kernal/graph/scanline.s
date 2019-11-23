@@ -38,7 +38,6 @@ _GetScanLineCompat:
 ; GetScanLine                                             $C13C
 ;
 ; Function:  Returns the address of the beginning of a scanline
-
 ; Pass:      x   scanline nbr
 ; Return:    r5  add of 1st byte of foreground scr
 ;            r6  add of 1st byte of background scr

@@ -6,13 +6,13 @@
 ; GEOS Kernal internal zpage vectors (not for use by apps)
 compatMode      =       $3f ; (on C128, this is graphMode)
 imparm          =       $40 ; 2 bytes
-IconDescVec     =       $42
-IconDescVecH    =       $43
-CallRLo         =       $44
-CallRHi         =       $45
-DBoxDesc        =       $46
-DBoxDescL       =       $46
-DBoxDescH       =       $47
+IconDescVec     =       $42 ; [icon]
+IconDescVecH    =       $43 ; [icon]
+CallRLo         =       $44 ; [CallRoutine]
+CallRHi         =       $45 ; [CallRoutine]
+DBoxDesc        =       $46 ; [dlgbox]
+DBoxDescL       =       $46 ; [dlgbox]
+DBoxDescH       =       $47 ; [dlgbox]
 
 ; fontTemp1 is used in multiple contexts:
 ; * temp for decimal output, max 5 bytes [conio6]
