@@ -1,4 +1,4 @@
-.feature labels_without_colons, pc_assignment
+.feature labels_without_colons
 .setcpu "65c02"
 
 ; for monitor
@@ -7,13 +7,14 @@
 .export stavec
 
 .include "../banks.inc"
+.include "../io.inc"
 
 .include "declare.s"
 .include "editor.1.s"
 .include "editor.3.s"
-.include "ps2.s"
-.include "ps2kbd.s"
-.include "ps2mouse.s"
+;.include "ps2.s"
+;.include "ps2kbd.s"
+;.include "ps2mouse.s"
 .include "serial4.0.s"
 .include "rs232.s"
 .include "messages.s"

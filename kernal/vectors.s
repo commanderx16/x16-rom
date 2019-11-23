@@ -1,5 +1,7 @@
 .global monitor
 
+.import mouse_config
+
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***
 ; for now, these are private API, they have not been
@@ -12,7 +14,7 @@
 ; $FF06: GETJOY
 	jmp query_joysticks
 ; $FF09: MOUSE
-	jmp mouse
+	jmp mouse_config
 ; $FF0C: SETDAT
 	jmp setdat      ;set date
 ; $FF0F: RDDAT
@@ -127,7 +129,7 @@
 	jmp tksa        ;send sa after talk
 	jmp memtop      ;set/read top of memory
 	jmp membot      ;set/read bottom of memory
-	jmp scnkey      ;scan keyboard
+	jmp kbd_scan    ;scan keyboard
 	jmp settmo      ;set timeout in ieee
 	jmp acptr       ;handshake ieee byte in
 	jmp ciout       ;handshake ieee byte out

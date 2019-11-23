@@ -34,7 +34,7 @@
 
 .import gjsrfar
 ; from KERNAL
-.import mseinit, msescn, mouse, mousex, mousey, mousebt
+.import mouse_init, mouse_config, mouse_scan, mousex, mousey, mousebt
 
 .global _MouseOff
 .global _StartMouseMode
@@ -236,12 +236,12 @@ DoMouseFault:
 .export MouseInit
 MouseInit:
 	jsr gjsrfar
-	.word mseinit
+	.word mouse_scan
 	.byte BANK_KERNAL
 	lda #1 ; default pointer
 	ldx #2 ; scale
 	jsr gjsrfar
-	.word mouse
+	.word mouse_config
 	.byte BANK_KERNAL
 	rts
 
@@ -253,7 +253,7 @@ tmpFire = mouseAccel ; reuse of unused location
 
 UpdateMouse:
 	jsr gjsrfar
-	.word msescn
+	.word mouse_scan
 	.byte BANK_KERNAL
 	lda mousex+1
 	lsr

@@ -1,9 +1,20 @@
 ; PS/2 Keyboard
 ;
-port_ddr  =d2ddrb
-port_data   =d2prb
-bit_data=1              ; 6522 IO port data bit mask  (PA0)
-bit_clk =2              ; 6522 IO port clock bit mask (PA1)
+
+.feature labels_without_colons
+
+.include "../banks.inc"
+
+; code
+.import ps2_receive_byte; [ps2]
+; data
+.import scancode_to_joystick; [joystick]
+.import brkflg, prefix, stkey, kbdtab, shflag, ndx, keyd, kbdnam, curkbd, mode; [declare]
+.importzp ckbtab; [declare]
+.import fetch, fetvec; [routines]
+.import kbdmeta, ikbdmeta ; [keymap]
+
+.export kbd_config, kbd_scan
 
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
@@ -16,7 +27,8 @@ MODIFIER_CAPS  = 16; C128: Caps
 ;
 ; set keyboard layout .a
 ;
-setkbd	tay
+kbd_config:
+	tay
 	bit mode
 	bvs setkb0      ;ISO
 	lda #<kbdmeta
@@ -55,7 +67,7 @@ cycle_layout:
 	ldx curkbd
 	inx
 	txa
-	jsr setkbd
+	jsr kbd_config
 ; put name into keyboard buffer
 	ldy #$8d ; shift + cr
 	sty keyd
@@ -73,7 +85,8 @@ cycle_layout:
 	stx ndx
 	rts
 
-scnkey	jsr receive_down_scancode_no_modifiers
+kbd_scan:
+	jsr receive_down_scancode_no_modifiers
 	beq drv_end
 
 	tay

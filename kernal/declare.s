@@ -8,8 +8,6 @@
 .global scrmod
 ; for BASIC and GEOS
 .global mousex, mousey, mousebt
-; for GEOS
-.global mseinit, mouse, msescn, msespr
 
 .segment "ZPKERNAL" : zeropage
 ;                      C64 location
@@ -27,6 +25,8 @@ pnt	.res 2           ;$D1 pointer to row
 ;
 imparm	.res 2           ;PRIMM utility string pointer
 ckbtab	.res 2           ;used for keyboard lookup
+.export ckbtab; [ps2kbd]
+
 
 .segment "KVAR"
 
@@ -41,6 +41,7 @@ cscrmd	.res 1           ;    X16: current screen mode (argument to scrmod)
 
 ; Keyboard
 ;
+.export keyd, ndx, shflag, mode, kbdbyte, prefix, brkflg, stkey, curkbd, kbdnam, kbdtab
 keyd	.res 10          ;    irq keyboard buffer
 ndx	.res 1           ;$C6 index to keyboard q
 shflag	.res 1           ;    shift flag byte
@@ -85,6 +86,7 @@ time	.res 3           ;$A0 24 hour clock in 1/60th seconds
 
 ; Mouse
 ;
+.export msepar, mousel, mouser, mouset, mouseb, mousex, mousey, mousebt
 msepar	.res 1           ;    X16: mouse: $80=on; 1/2: scale
 mousel	.res 2           ;    X16: mouse: min x coordinate
 mouser	.res 2           ;    X16: mouse: max x coordinate
@@ -167,55 +169,9 @@ ldtb1	.res 61 +1       ;flags+endspace
 
 vicscn	=$0000
 
-verareg =$9f20
-veralo  =verareg+0
-veramid =verareg+1
-verahi  =verareg+2
-veradat =verareg+3
-veradat2=verareg+4
-veractl =verareg+5
-veraien =verareg+6
-veraisr =verareg+7
-
 ; i/o devices
 ;
 mmtop   =$9f00
-
-via1	=$9f60                  ;VIA 6522 #1
-d1prb	=via1+0
-d1pra	=via1+1
-d1ddrb	=via1+2
-d1ddra	=via1+3
-d1t1l	=via1+4
-d1t1h	=via1+5
-d1t1ll	=via1+6
-d1t1lh	=via1+7
-d1t2l	=via1+8
-d1t2h	=via1+9
-d1sr	=via1+10
-d1acr	=via1+11
-d1pcr	=via1+12
-d1ifr	=via1+13
-d1ier	=via1+14
-d1ora	=via1+15
-
-via2	=$9f70                  ;VIA 6522 #2
-d2prb	=via2+0
-d2pra	=via2+1
-d2ddrb	=via2+2
-d2ddra	=via2+3
-d2t1l	=via2+4
-d2t1h	=via2+5
-d2t1ll	=via2+6
-d2t1lh	=via2+7
-d2t2l	=via2+8
-d2t2h	=via2+9
-d2sr	=via2+10
-d2acr	=via2+11
-d2pcr	=via2+12
-d2ifr	=via2+13
-d2ier	=via2+14
-d2ora	=via2+15
 
 ; XXX TODO:
 ; XXX The following symbols are CIA 6526-based and required for
@@ -242,6 +198,7 @@ white	=$01            ;white char color
 blue	=$06            ;blue screen color
 cr	=$d             ;carriage return
 
+.export mhz
 mhz     =8              ;for the scroll delay loop
 
 ;rsr 8/3/80 add & change z-page

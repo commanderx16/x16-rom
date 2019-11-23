@@ -1,6 +1,33 @@
 ; Generic PS/2 Port
 
+.include "../io.inc"
+
+; data
+.import kbdbyte ; [declare]
+.importzp mhz ; [declare]
+
+.export ps2_init, ps2_receive_byte
+
+port_ddr  =d2ddrb
+port_data =d2prb
+bit_data=1              ; 6522 IO port data bit mask  (PA0/PB0)
+bit_clk =2              ; 6522 IO port clock bit mask (PA1/PB1)
+
 .segment "PS2"
+
+; inhibit PS/2 communication on both ports
+ps2_init:
+	ldx #1 ; PA: keyboard
+	jsr ps2dis
+	dex    ; PB: mouse
+ps2dis:	lda port_ddr,x
+	ora #bit_clk+bit_data
+	sta port_ddr,x ; set CLK and DATA as output
+	lda port_data,x
+	and #$ff - bit_clk ; CLK=0
+	ora #bit_data ; DATA=1
+	sta port_data,x
+	rts
 
 ;****************************************
 ; RECEIVE BYTE
@@ -15,7 +42,6 @@
 ; "AT-Keyboard" by İlker Fıçıcılar
 ;****************************************
 ps2_receive_byte:
-; test for badline-safe time window
 ; set input, bus idle
 	lda port_ddr,x ; set CLK and DATA as input
 	and #$ff-bit_clk-bit_data
@@ -68,16 +94,3 @@ lc08c:	jsr ps2dis
 	clc
 	lda #0 ; Z=1
 	rts
-
-kbdis:	ldx #1 ; PA: keybaord
-	jsr ps2dis
-	dex    ; PB: mouse
-ps2dis:	lda port_ddr,x
-	ora #bit_clk+bit_data
-	sta port_ddr,x ; set CLK and DATA as output
-	lda port_data,x
-	and #$ff - bit_clk ; CLK=0
-	ora #bit_data ; DATA=1
-	sta port_data,x
-	rts
-

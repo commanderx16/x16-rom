@@ -1,4 +1,5 @@
-.import kbdmeta, ikbdmeta
+.import kbd_config, kbd_scan ; [ps2kbd]
+.import mouse_init, mouse_scan ; [ps2mouse]
 
 	.segment "EDITOR"
 maxchr=80
@@ -44,7 +45,7 @@ scnsiz	stx llen
 ;
 cint	jsr iokeys
 
-	jsr mseinit     ;init mouse
+	jsr mouse_init  ;init mouse
 
 ;
 ; establish screen memory
@@ -67,7 +68,7 @@ cint	jsr iokeys
 	lda $9fbd       ;emulator keyboard layout
 	bra :+
 nemu	lda #0          ;US layout
-:	jsr setkbd
+:	jsr kbd_config
 	lda #blue << 4 | white
 	sta color       ;init text color
 	lda #$c
@@ -1095,7 +1096,7 @@ key
 	lda verahi
 	pha
 
-	jsr msescn      ;scan mouse (do this first to avoid sprite tearing)
+	jsr mouse_scan  ;scan mouse (do this first to avoid sprite tearing)
 	jsr $ffea       ;update jiffy clock
 	lda blnsw       ;blinking crsr ?
 	bne key4        ;no
@@ -1130,7 +1131,7 @@ key3	eor #$80        ;blink it
 :	jsr dspp2       ;display it
 ;
 key4
-	jsr scnkey      ;scan keyboard
+	jsr kbd_scan    ;scan keyboard
 ;
 kprend
 ; restore VERA state

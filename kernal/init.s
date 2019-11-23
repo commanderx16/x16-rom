@@ -1,3 +1,5 @@
+.import ps2_init ; [ps2]
+
 	.segment "INIT"
 ; start - system reset
 ;
@@ -113,7 +115,7 @@ ramtz2	lda __KERNRAM2_LOAD__-1,x
 ;
 ioinit
 	; XXX TODO: VIC-20: $FDF9
-	jsr kbdis       ;inhibit ps/2 communcation
+	jsr ps2_init    ;inhibit ps/2 communcation
 ;
 ; set up banking
 ;

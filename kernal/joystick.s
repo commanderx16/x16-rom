@@ -2,6 +2,8 @@
 ; NES & SNES Controller Driver for 6502
 ;----------------------------------------------------------------------
 
+.export scancode_to_joystick
+
 nes_data = d2pra
 nes_ddr  = d2ddra
 
