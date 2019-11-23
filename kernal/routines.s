@@ -249,17 +249,24 @@ jsrfar:
 ;/////////////////////   K E R N A L   R A M   C O D E  \\\\\\\\\\\\\\\\\\\\\\\
 
 .segment "KERNRAM"
-.export jsrfar3, jmpfr, jmpbk, jsrbnk, imparm
+.export jsrfar3, jmpfr, imparm
 jsrfar3	sta d1prb       ;set ROM bank
 	pla
 	plp
 	jsr jmpfr
 	php
 	pha
-jsrbnk	lda #$ff
+	phx
+	tsx
+	lda $0104,x
 	sta d1prb       ;restore ROM bank
-jmpbk	jmp $ffff
-
+	lda $0103,x     ;overwrite reserved byte...
+	sta $0104,x     ;...with copy of .p
+	plx
+	pla
+	plp
+	plp
+	rts
 jmpfr	jmp $ffff
 
 .assert * <= $0400, error, "jmpfar must fit below $0400"

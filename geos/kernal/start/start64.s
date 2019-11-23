@@ -249,7 +249,7 @@ stop:	.word _NMIHandler
 ; GEOS's entry into jsrfar
 .setcpu "65c02"
 .import jsrfar3
-.import jmpfr, jmpbk, jsrbnk
+.import jmpfr
 .export gjsrfar
 gjsrfar:
 .include "../jsrfar.inc"
