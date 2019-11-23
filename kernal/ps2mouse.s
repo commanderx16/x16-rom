@@ -1,6 +1,8 @@
-; PS/2 mouse
-
+; PS/2 Mouse
+;
 sprite_addr = 60 * 256 ; after text screen
+
+.segment "PS2MOUSE"
 
 mseinit:
 	lda #0
@@ -121,7 +123,7 @@ msescn:
 	bit msepar ; do nothing if mouse is off
 	bpl scnms1
 	ldx #0
-	jsr receive_byte
+	jsr ps2_receive_byte
 	bcs scnms1 ; parity error
 	bne scnms2 ; no data
 scnms1:	rts
@@ -145,7 +147,7 @@ scnms2:
 	sta mousebt
 
 	ldx #0
-	jsr receive_byte
+	jsr ps2_receive_byte
 	clc
 	adc mousex
 	sta mousex
@@ -158,7 +160,7 @@ scnms2:
 	sta mousex+1
 
 	ldx #0
-	jsr receive_byte
+	jsr ps2_receive_byte
 	clc
 	adc mousey
 	sta mousey
