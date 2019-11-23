@@ -12,9 +12,6 @@
 .include "declare.s"
 .include "editor.1.s"
 .include "editor.3.s"
-;.include "ps2.s"
-;.include "ps2kbd.s"
-;.include "ps2mouse.s"
 .include "serial4.0.s"
 .include "rs232.s"
 .include "messages.s"
@@ -32,7 +29,6 @@
 .include "init.s"
 .include "nmi.s"
 .include "irqfile.s"
-.include "joystick.s"
 .include "routines.s"
 .include "vectors.s"
 

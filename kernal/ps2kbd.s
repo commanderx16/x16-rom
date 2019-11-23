@@ -8,7 +8,7 @@
 ; code
 .import ps2_receive_byte; [ps2]
 ; data
-.import scancode_to_joystick; [joystick]
+.import joystick_from_ps2; [joystick]
 .import brkflg, prefix, stkey, kbdtab, shflag, ndx, keyd, kbdnam, curkbd, mode; [declare]
 .importzp ckbtab; [declare]
 .import fetch, fetvec; [routines]
@@ -239,7 +239,7 @@ rcvsc5:	pha
 receive_down_scancode_no_modifiers:
 	jsr receive_scancode
 	beq no_key
-	jsr scancode_to_joystick
+	jsr joystick_from_ps2
 	php
 	jsr check_mod
 	bcc no_mod

@@ -1,6 +1,7 @@
 .global monitor
 
-.import mouse_config
+.import mouse_config; [mouse]
+.import joystick_scan; [joystick]
 
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***
@@ -12,7 +13,7 @@
 ; $FF03
 	jmp restore_basic
 ; $FF06: GETJOY
-	jmp query_joysticks
+	jmp joystick_scan
 ; $FF09: MOUSE
 	jmp mouse_config
 ; $FF0C: SETDAT

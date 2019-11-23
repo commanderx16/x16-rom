@@ -2,7 +2,12 @@
 ; NES & SNES Controller Driver for 6502
 ;----------------------------------------------------------------------
 
-.export scancode_to_joystick
+.include "../io.inc"
+
+; data
+.import j0tmp, joy0, joy1, joy2
+
+.export joystick_scan, joystick_from_ps2
 
 nes_data = d2pra
 nes_ddr  = d2ddra
@@ -12,8 +17,10 @@ bit_data1 = $10 ; PB4 (user port pin H): DATA  (controller #1)
 bit_jclk  = $20 ; PB5 (user port pin J): CLK   (both controllers)
 bit_data2 = $40 ; PB6 (user port pin K): DATA  (controller #2)
 
+.segment "JOYSTICK"
+
 ;----------------------------------------------------------------------
-; query_joys:
+; joystick_scan:
 ;
 ; byte 0:      | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 ;         NES  | A | B |SEL|STA|UP |DN |LT |RT |
@@ -32,7 +39,7 @@ bit_data2 = $40 ; PB6 (user port pin K): DATA  (controller #2)
 ;   0001: keyboard (NES-like)
 ;   1111: SNES
 ; * Note that bits 6 and 7 in byte 0 map to different buttons on NES and SNES.
-query_joysticks:
+joystick_scan:
 	lda #$ff-bit_data1-bit_data2
 	sta nes_ddr
 	lda #$00
@@ -76,7 +83,12 @@ l1:	lda nes_data
 	stx joy1 + 2 ; present
 :	rts
 
-scancode_to_joystick:
+;----------------------------------------------------------------------
+; joystick_from_ps2:
+;
+;  convert PS/2 scancode into NES joystick state
+;
+joystick_from_ps2:
 NES_A      = (1 << 7)
 NES_B      = (1 << 6)
 NES_SELECT = (1 << 5)
@@ -128,7 +140,7 @@ NES_RIGHT  = (1 << 0)
 	bcc @l5    ; down
 	sta j0tmp
 	lda joy0   ; init joy0 the first time a key was pressed
-	bne :+     ; this way, query_joysticks can know
+	bne :+     ; this way, joystick_scan can know
 	lda #$ff   ; whether a keyboard is attached
 :	ora j0tmp
 	bra @l4
