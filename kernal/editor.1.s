@@ -1,4 +1,4 @@
-.import kbd_config, kbd_scan ; [ps2kbd]
+.import kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop ; [ps2kbd]
 .import mouse_init, mouse_scan ; [ps2mouse]
 
 	.segment "EDITOR"
@@ -286,27 +286,13 @@ tvera_composer_end
 .endif
 
 ;
-;remove character from queue
-;
-lp2	ldy keyd
-	ldx #0
-lp1	lda keyd+1,x
-	sta keyd,x
-	inx
-	cpx ndx
-	bne lp1
-	dec ndx
-	tya
-	cli
-	clc             ;good return
-	rts
-;
 loop4	jsr prt
 loop3
-	lda ndx
+	jsr kbd_get
 	sta blnsw
 	sta autodn      ;turn on auto scroll down
 	beq loop3
+	pha
 	sei
 	lda blnon
 	beq lp21
@@ -315,17 +301,20 @@ loop3
 	ldy #0
 	sty blnon
 	jsr dspp
-lp21	jsr lp2
+lp21	cli
+	pla
 	cmp #$83        ;run key?
 	bne lp22
-	ldx #9
-	sei
-	stx ndx
-lp23	lda runtb-1,x
-	sta keyd-1,x
-	dex
-	bne lp23
-	beq loop3
+; put SHIFT+STOP text into keyboard buffer
+	jsr kbd_clear
+	ldx #0
+:	lda runtb,x
+	jsr kbd_put
+	inx
+	cpx #runtb_end-runtb
+	bne :-
+	bra loop3
+
 lp22	pha
 	sec
 	sbc #$85         ;f1 key?
@@ -345,14 +334,14 @@ lp25	lda fkeytb,x     ;search for replacement
 lp26	inx
 	dey
 	bne lp25
-lp27	lda fkeytb,x
-	sta keyd,y
+lp27	jsr kbd_clear
+lp24	lda fkeytb,x
+	jsr kbd_put
+	tay              ;set flags
 	beq lp28
 	inx
-	iny
-	bne lp27
-lp28	sty ndx
-	pla
+	bne lp24
+lp28	pla
 loop3a	jmp loop3
 ;
 lp29	pla
@@ -929,7 +918,7 @@ scrl3	sta ldtb1,x
 ;
 	inc tblx
 	inc lintmp
-	lda shflag
+	jsr kbd_get_modifiers
 	and #4
 	beq mlp42
 ;
@@ -943,7 +932,7 @@ mlp4	nop             ;delay
 	sec
 	sbc #1
 	bne mlp4
-	sty ndx         ;clear key queue buffer
+	jsr kbd_clear   ;clear key queue buffer
 ;
 mlp42	ldx tblx
 ;

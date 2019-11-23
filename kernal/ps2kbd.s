@@ -14,7 +14,7 @@
 .import fetch, fetvec; [routines]
 .import kbdmeta, ikbdmeta ; [keymap]
 
-.export kbd_config, kbd_scan
+.export kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop
 
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
@@ -26,9 +26,13 @@ MODIFIER_CAPS  = 16; C128: Caps
 
 ;
 ; set keyboard layout .a
+;  $ff: reload current layout (PETSCII vs. ISO might have changed)
 ;
 kbd_config:
-	tay
+	cmp #$ff
+	bne :+
+	lda curkbd
+:	tay
 	bit mode
 	bvs setkb0      ;ISO
 	lda #<kbdmeta
@@ -176,13 +180,11 @@ is_stop
 ; ADD CHAR TO KBD BUFFER
 ;****************************************
 add_to_buf:
+	stz stkey
 	cmp #3 ; stop
-	bne add1
-	ldx #$7f
-	bra :+
-add1	ldx #$ff
-:	stx stkey
-	ldx ndx ; length of keyboard buffer
+	bne :+
+	dec stkey
+:	ldx ndx ; length of keyboard buffer
 	cpx #10 ;maximum type ahead buffer size
 	bcs add2 ; full, ignore
 	sta keyd,x ; store
@@ -303,3 +305,43 @@ tab_extended:
 	.byte $94,$14,$11,$00,$1d,$91,$00,$00 ; @$70
 	;             pgd         pgu brk
 	.byte $00,$00,$00,$00,$00,$00,$03,$00 ; @$78
+
+kbd_clear:
+	stz ndx
+	rts
+
+kbd_get:
+	lda ndx         ;queue index
+	beq lp0         ;nobody there...exit
+	sei
+;
+;remove character from queue
+;
+kbd_remove:
+	ldy keyd
+	ldx #0
+lp1	lda keyd+1,x
+	sta keyd,x
+	inx
+	cpx ndx
+	bne lp1
+	dec ndx
+	tya
+	cli
+lp0	clc             ;good return
+	rts
+
+kbd_put:
+	phx
+	jsr add_to_buf
+	plx
+	rts
+
+kbd_get_modifiers:
+	lda shflag
+	rts
+
+kbd_get_stop:
+	lda stkey	;
+	eor #$ff        ;set z if stkey is true
+	rts

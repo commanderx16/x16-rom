@@ -49,7 +49,7 @@ mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
 kbdbyte	.res 1           ;    X16: PS/2: bit input
 prefix	.res 1           ;    X16: PS/2: prefix code (e0/e1)
 brkflg	.res 1           ;    X16: PS/2: was key-up event
-stkey	.res 1           ;$91 stop key flag
+stkey	.res 1           ;$91 stop key flag: $ff = stop down
 curkbd	.res 1           ;    X16: current keyboard layout index
 kbdnam  .res 6           ;    keyboard layout name
 kbdtab  .res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables

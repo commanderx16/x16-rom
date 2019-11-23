@@ -44,13 +44,14 @@ isooff
 	lda mode
 	and #$ff-$40
 isosto	sta mode
-	lda curkbd
+	lda #$ff
 	jsr kbd_config  ;reload keymap
 	jsr clsr        ;clear screen
 	jmp loop2
 
 ;
 runtb	.byt "LOAD",$d,"RUN",$d
+runtb_end:
 ;
 fkeytb	.byt $8D, "LIST:", 13, 0
 	.byt $8D, "M", 'O' + $80, ":", 13, 0

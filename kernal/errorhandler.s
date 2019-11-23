@@ -7,12 +7,11 @@
 ;* also returns key downs from last    *
 ;* keyboard row in .a.                 *
 ;***************************************
-nstop	lda stkey       ;value of last row
-	cmp #$7f        ;check stop key position
+nstop	jsr kbd_get_stop;check stop key
 	bne stop2       ;not down
 	php
 	jsr clrch       ;clear channels
-	sta ndx         ;flush queue
+	jsr kbd_clear   ;flush queue
 	plp
 stop2	rts
 
