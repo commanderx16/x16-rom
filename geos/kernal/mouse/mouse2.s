@@ -34,7 +34,7 @@
 
 .import gjsrfar
 ; from KERNAL
-.import mouse_init, mouse_config, mouse_scan, mousex, mousey, mousebt
+.import mouse_init, mouse_config, mouse_scan, mouse_get_x, mouse_get_y
 
 .global _MouseOff
 .global _StartMouseMode
@@ -235,9 +235,6 @@ DoMouseFault:
 
 .export MouseInit
 MouseInit:
-	jsr gjsrfar
-	.word mouse_scan
-	.byte BANK_KERNAL
 	lda #1 ; default pointer
 	ldx #2 ; scale
 	jsr gjsrfar
@@ -255,18 +252,24 @@ UpdateMouse:
 	jsr gjsrfar
 	.word mouse_scan
 	.byte BANK_KERNAL
-	lda mousex+1
+
+	jsr gjsrfar
+	.word mouse_get_x
+	.byte BANK_KERNAL
 	lsr
 	sta mouseXPos + 1
-	lda mousex
+	tya
 	ror
 	sta mouseXPos
-	lda mousey+1
+
+	jsr gjsrfar
+	.word mouse_get_y
+	.byte BANK_KERNAL
 	lsr
-	lda mousey
+	tya
 	ror
 	sta mouseYPos
-	lda mousebt
+	txa ; button
 	and #1
 	eor #1
 	cmp tmpFire

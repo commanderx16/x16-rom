@@ -26,83 +26,66 @@ MODIFIER_CAPS  = 16; C128: Caps
 
 .segment "PS2KBD"
 
-.macro SET_RAM_BANK_0
-	pha
-	lda d1pra
-	sta save_ram_bank
-	stz d1pra
-	pla
-.endmacro
-
-.macro RESTORE_RAM_BANK
-	php
-	pha
-	lda save_ram_bank
-	sta d1pra
-	pla
-	plp
-.endmacro
-
 ;
 ; API
 ;
 kbd_config:
-	SET_RAM_BANK_0
+	KVARS_START
 	jsr _kbd_config
-	RESTORE_RAM_BANK
+	KVARS_END
 	rts
 
 kbd_scan:
-	SET_RAM_BANK_0
+	KVARS_START
 	jsr _kbd_scan
-	RESTORE_RAM_BANK
+	KVARS_END
 	rts
 
 kbd_clear:
-	SET_RAM_BANK_0
+	KVARS_START
 	jsr _kbd_clear
-	RESTORE_RAM_BANK
+	KVARS_END
 	rts
 
 kbd_put:
-	SET_RAM_BANK_0
+	KVARS_START
 	phx
 	jsr add_to_buf
 	plx
-	RESTORE_RAM_BANK
+	KVARS_END
 	rts
 
 kbd_get:
-	SET_RAM_BANK_0
+	KVARS_START
 	jsr _kbd_get
-	RESTORE_RAM_BANK
+	KVARS_END
 	rts
 
 kbd_peek:
-	SET_RAM_BANK_0
+	KVARS_START
 	lda ndx
 	beq :+
 	lda keyd
-:	RESTORE_RAM_BANK
+:	KVARS_END
 	rts
 
 kbd_remove:
-	SET_RAM_BANK_0
+	KVARS_START
 	jsr _kbd_remove
-	RESTORE_RAM_BANK
+	KVARS_END
 	rts
 
 kbd_get_modifiers:
-	SET_RAM_BANK_0
+	KVARS_START
 	lda shflag
-	RESTORE_RAM_BANK
+	KVARS_END
 	rts
 
 kbd_get_stop:
-	SET_RAM_BANK_0
+	KVARS_START
 	lda stkey	;
 	eor #$ff        ;set z if stkey is true
-	RESTORE_RAM_BANK
+	KVARS_END
 	rts
 
 ;

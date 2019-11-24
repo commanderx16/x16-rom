@@ -128,6 +128,7 @@ _GetScanLine:
 	lsr
 	lsr
 	lsr
+	inc       ; start at bank 1
 	sta d1pra ; RAM bank
 	rts
 

@@ -73,18 +73,6 @@ stah	.res 1           ;$C2
 date	.res 3           ;    year-1900, month, day
 time	.res 3           ;$A0 24 hour clock in 1/60th seconds
 
-; Mouse
-;
-.export msepar, mousel, mouser, mouset, mouseb, mousex, mousey, mousebt
-msepar	.res 1           ;    X16: mouse: $80=on; 1/2: scale
-mousel	.res 2           ;    X16: mouse: min x coordinate
-mouser	.res 2           ;    X16: mouse: max x coordinate
-mouset	.res 2           ;    X16: mouse: min y coordinate
-mouseb	.res 2           ;    X16: mouse: max y coordinate
-mousex	.res 2           ;    X16: mouse: x coordinate
-mousey	.res 2           ;    X16: mouse: y coordinate
-mousebt	.res 1           ;    X16: mouse: buttons (1: left, 2: right, 4: third)
-
 ; Joystick
 ;
 .export j0tmp, joy0, joy1, joy2
@@ -161,6 +149,8 @@ ldtb1	.res 61 +1       ;flags+endspace
 
 .segment "KVARSB0"
 
+KVARSB0_START:
+
 ; Keyboard
 ;
 .export keyd, ndx, shflag, kbdbyte, prefix, brkflg, stkey, curkbd, kbdnam, kbdtab
@@ -175,6 +165,19 @@ curkbd	.res 1           ;    X16: current keyboard layout index
 kbdnam  .res 6           ;    keyboard layout name
 kbdtab  .res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
 
+; Mouse
+;
+.export msepar, mousel, mouser, mouset, mouseb, mousex, mousey, mousebt
+msepar	.res 1           ;    X16: mouse: $80=on; 1/2: scale
+mousel	.res 2           ;    X16: mouse: min x coordinate
+mouser	.res 2           ;    X16: mouse: max x coordinate
+mouset	.res 2           ;    X16: mouse: min y coordinate
+mouseb	.res 2           ;    X16: mouse: max y coordinate
+mousex	.res 2           ;    X16: mouse: x coordinate
+mousey	.res 2           ;    X16: mouse: y coordinate
+mousebt	.res 1           ;    X16: mouse: buttons (1: left, 2: right, 4: third)
+
+KVARSB0_END:
 
 vicscn	=$0000
 

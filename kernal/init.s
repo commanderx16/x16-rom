@@ -56,6 +56,12 @@ ramtz0	sta $0000,y     ;zero page
 	sta $0300,y     ;system space and user space
 	iny
 	bne ramtz0
+
+	ldy #KVARSB0_END - KVARSB0_START + 1
+:	sta KVARSB0_START-1,y
+	dey
+	bne :-
+
 ;
 ; set top of memory
 ;

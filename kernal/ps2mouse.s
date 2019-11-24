@@ -2,18 +2,53 @@
 ;
 sprite_addr = 60 * 256 ; after text screen
 
+.include "../banks.inc"
 .include "../io.inc"
 
 ; code
 .import ps2_receive_byte; [ps2]
 ; data
 .import mousex, mousey, mousebt, msepar, mousel, mouser, mouset, mouseb; [declare]
+.import save_ram_bank; [declare]
 
-.export mouse_init, mouse_config, mouse_scan
+.export mouse_init, mouse_config, mouse_scan, mouse_get_x, mouse_get_y
 
 .segment "PS2MOUSE"
 
 mouse_init:
+	KVARS_START
+	jsr _mouse_init
+	KVARS_END
+	rts
+
+mouse_config:
+	KVARS_START
+	jsr _mouse_config
+	KVARS_END
+	rts
+
+mouse_scan:
+	KVARS_START
+	jsr _mouse_scan
+	KVARS_END
+	rts
+
+mouse_get_x:
+	KVARS_START
+	lda mousex+1
+	ldy mousex
+	KVARS_END
+	rts
+
+mouse_get_y:
+	KVARS_START
+	lda mousey+1
+	ldy mousey
+	ldx mousebt
+	KVARS_END
+	rts
+
+_mouse_init:
 	lda #0
 	sta mousel
 	sta mousel+1
@@ -36,7 +71,7 @@ mouse_init:
 ; X: $00 no-op
 ;    $01 set scale to 1
 ;    $02 set scale to 2
-mouse_config:
+_mouse_config:
 	cpx #0
 	beq mous1
 ;  set scale
@@ -128,7 +163,7 @@ mous3:	lda msepar
 	sta veradat
 	rts
 
-mouse_scan:
+_mouse_scan:
 	bit msepar ; do nothing if mouse is off
 	bpl scnms1
 	ldx #0
