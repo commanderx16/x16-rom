@@ -13,6 +13,8 @@ veraisr =verareg+7
 .import mousex, mousey, mousebt
 
 rddat  = $ff0f
+mouse_get_x = $ff12
+mouse_get_y = $ff15
 
 cint   = $ff81
 ioinit = $ff84
@@ -277,19 +279,24 @@ mouse:
 
 mx:
 	jsr chrget
-	ldy mousex
-	lda mousex+1
+	jsr mouse_get_x
+	tya
+	phx
+	ply
 	jmp givayf
 
 my:
 	jsr chrget
-	ldy mousey
-	lda mousey+1
+	jsr mouse_get_y
+	tya
+	phx
+	ply
 	jmp givayf
 
 mb:
 	jsr chrget
-	ldy mousebt
+	jsr mouse_get_y
+	tay
 	jmp sngflt
 
 ; BASIC's entry into jsrfar

@@ -35,16 +35,16 @@ mouse_scan:
 
 mouse_get_x:
 	KVARS_START
-	lda mousex+1
-	ldy mousex
+	ldx mousex
+	ldy mousex+1
 	KVARS_END
 	rts
 
 mouse_get_y:
 	KVARS_START
-	lda mousey+1
-	ldy mousey
-	ldx mousebt
+	ldx mousey
+	ldy mousey+1
+	lda mousebt
 	KVARS_END
 	rts
 

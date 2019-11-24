@@ -35,6 +35,8 @@ symbol:
 	bridge3 mouse           ; $FF09: MOUSE
 	bridge3 setdat          ; $FF0C: SETDAT
 	bridge3 rddat           ; $FF0F: RDDAT
+	bridge3 mouse_get_x     ; $FF12: RDDAT
+	bridge3 mouse_get_y     ; $FF15: RDDAT
 
 .segment "KERNSUPV2"
 

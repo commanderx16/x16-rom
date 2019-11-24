@@ -1,6 +1,6 @@
 .global monitor
 
-.import mouse_config; [mouse]
+.import mouse_config, mouse_get_x, mouse_get_y; [mouse]
 .import joystick_scan; [joystick]
 
 	.segment "JMPTBL2"
@@ -20,6 +20,11 @@
 	jmp setdat      ;set date
 ; $FF0F: RDDAT
 	jmp rddat       ;read date
+; $FF12: mouse_get_x
+	jmp mouse_get_x
+; $FF15: mouse_get_y
+	jmp mouse_get_y
+
 
 	.segment "JMPTB128"
 ; C128 KERNAL API

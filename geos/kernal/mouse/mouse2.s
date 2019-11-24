@@ -256,20 +256,23 @@ UpdateMouse:
 	jsr gjsrfar
 	.word mouse_get_x
 	.byte BANK_KERNAL
+	tya
 	lsr
 	sta mouseXPos + 1
-	tya
+	txa
 	ror
 	sta mouseXPos
 
 	jsr gjsrfar
 	.word mouse_get_y
 	.byte BANK_KERNAL
-	lsr
+	pha
 	tya
+	lsr
+	txa
 	ror
 	sta mouseYPos
-	txa ; button
+	pla ; button
 	and #1
 	eor #1
 	cmp tmpFire
