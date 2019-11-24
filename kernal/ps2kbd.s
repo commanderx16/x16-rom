@@ -4,17 +4,19 @@
 .feature labels_without_colons
 
 .include "../banks.inc"
+.include "../io.inc"
 
 ; code
 .import ps2_receive_byte; [ps2]
-; data
 .import joystick_from_ps2; [joystick]
+; data
+.import save_ram_bank; [declare]
 .import brkflg, prefix, stkey, kbdtab, shflag, ndx, keyd, kbdnam, curkbd, mode; [declare]
 .importzp ckbtab; [declare]
 .import fetch, fetvec; [routines]
 .import kbdmeta, ikbdmeta ; [keymap]
 
-.export kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop
+.export kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_peek, kbd_remove, kbd_get_modifiers, kbd_get_stop
 
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
@@ -24,11 +26,90 @@ MODIFIER_CAPS  = 16; C128: Caps
 
 .segment "PS2KBD"
 
+.macro SET_RAM_BANK_0
+	pha
+	lda d1pra
+	sta save_ram_bank
+	stz d1pra
+	pla
+.endmacro
+
+.macro RESTORE_RAM_BANK
+	php
+	pha
+	lda save_ram_bank
+	sta d1pra
+	pla
+	plp
+.endmacro
+
+;
+; API
+;
+kbd_config:
+	SET_RAM_BANK_0
+	jsr _kbd_config
+	RESTORE_RAM_BANK
+	rts
+
+kbd_scan:
+	SET_RAM_BANK_0
+	jsr _kbd_scan
+	RESTORE_RAM_BANK
+	rts
+
+kbd_clear:
+	SET_RAM_BANK_0
+	jsr _kbd_clear
+	RESTORE_RAM_BANK
+	rts
+
+kbd_put:
+	SET_RAM_BANK_0
+	phx
+	jsr add_to_buf
+	plx
+	RESTORE_RAM_BANK
+	rts
+
+kbd_get:
+	SET_RAM_BANK_0
+	jsr _kbd_get
+	RESTORE_RAM_BANK
+	rts
+
+kbd_peek:
+	SET_RAM_BANK_0
+	lda ndx
+	beq :+
+	lda keyd
+:	RESTORE_RAM_BANK
+	rts
+
+kbd_remove:
+	SET_RAM_BANK_0
+	jsr _kbd_remove
+	RESTORE_RAM_BANK
+	rts
+
+kbd_get_modifiers:
+	SET_RAM_BANK_0
+	lda shflag
+	RESTORE_RAM_BANK
+	rts
+
+kbd_get_stop:
+	SET_RAM_BANK_0
+	lda stkey	;
+	eor #$ff        ;set z if stkey is true
+	RESTORE_RAM_BANK
+	rts
+
 ;
 ; set keyboard layout .a
 ;  $ff: reload current layout (PETSCII vs. ISO might have changed)
 ;
-kbd_config:
+_kbd_config:
 	cmp #$ff
 	bne :+
 	lda curkbd
@@ -71,7 +152,7 @@ cycle_layout:
 	ldx curkbd
 	inx
 	txa
-	jsr kbd_config
+	jsr _kbd_config
 ; put name into keyboard buffer
 	ldy #$8d ; shift + cr
 	sty keyd
@@ -89,7 +170,7 @@ cycle_layout:
 	stx ndx
 	rts
 
-kbd_scan:
+_kbd_scan:
 	jsr receive_down_scancode_no_modifiers
 	beq drv_end
 
@@ -306,18 +387,18 @@ tab_extended:
 	;             pgd         pgu brk
 	.byte $00,$00,$00,$00,$00,$00,$03,$00 ; @$78
 
-kbd_clear:
+_kbd_clear:
 	stz ndx
 	rts
 
-kbd_get:
+_kbd_get:
 	lda ndx         ;queue index
 	beq lp0         ;nobody there...exit
 	sei
 ;
 ;remove character from queue
 ;
-kbd_remove:
+_kbd_remove:
 	ldy keyd
 	ldx #0
 lp1	lda keyd+1,x
@@ -329,19 +410,4 @@ lp1	lda keyd+1,x
 	tya
 	cli
 lp0	clc             ;good return
-	rts
-
-kbd_put:
-	phx
-	jsr add_to_buf
-	plx
-	rts
-
-kbd_get_modifiers:
-	lda shflag
-	rts
-
-kbd_get_stop:
-	lda stkey	;
-	eor #$ff        ;set z if stkey is true
 	rts

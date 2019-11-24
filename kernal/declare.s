@@ -1,7 +1,7 @@
 ; for monitor
 .globalzp txtptr, fnadr, pnt
-.global fnlen, la, sa, fa, mode, ndx, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
-.global buf, keyd, rptflg
+.global fnlen, la, sa, fa, mode, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
+.global buf
 ; for monitor and CBDOS
 .global status
 ; for BASIC
@@ -35,24 +35,13 @@ ckbtab	.res 2           ;used for keyboard lookup
 buf	.res 2*40+1      ;    basic/monitor buffer
 .assert buf = $0200, error, "buf has to be at $0200"
 
+.export save_ram_bank
+save_ram_bank
+	.res 1
+
 ; Screen Mode
 ;
 cscrmd	.res 1           ;    X16: current screen mode (argument to scrmod)
-
-; Keyboard
-;
-.export keyd, ndx, shflag, mode, kbdbyte, prefix, brkflg, stkey, curkbd, kbdnam, kbdtab
-keyd	.res 10          ;    irq keyboard buffer
-ndx	.res 1           ;$C6 index to keyboard q
-shflag	.res 1           ;    shift flag byte
-mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
-kbdbyte	.res 1           ;    X16: PS/2: bit input
-prefix	.res 1           ;    X16: PS/2: prefix code (e0/e1)
-brkflg	.res 1           ;    X16: PS/2: was key-up event
-stkey	.res 1           ;$91 stop key flag: $ff = stop down
-curkbd	.res 1           ;    X16: current keyboard layout index
-kbdnam  .res 6           ;    keyboard layout name
-kbdtab  .res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
 
 ; Memory
 memstr	.res 2           ;    start of memory
@@ -114,6 +103,8 @@ count	.res 1           ;$A5 temp used by serial routine
 
 ; Screen
 ;
+.export mode; [ps2kbd]
+mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
 gdcol	.res 1           ;    original color before cursor
 hibase	.res 1           ;    base location of screen (top)
 autodn	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
@@ -167,6 +158,23 @@ ldtb1	.res 61 +1       ;flags+endspace
 	;              byte here, but we should have a look at
 	;              whether there's an off-by-one error over
 	;              at 'lps2'!
+
+.segment "KVARSB0"
+
+; Keyboard
+;
+.export keyd, ndx, shflag, kbdbyte, prefix, brkflg, stkey, curkbd, kbdnam, kbdtab
+keyd	.res 10          ;    irq keyboard buffer
+ndx	.res 1           ;$C6 index to keyboard q
+shflag	.res 1           ;    shift flag byte
+kbdbyte	.res 1           ;    X16: PS/2: bit input
+prefix	.res 1           ;    X16: PS/2: prefix code (e0/e1)
+brkflg	.res 1           ;    X16: PS/2: was key-up event
+stkey	.res 1           ;$91 stop key flag: $ff = stop down
+curkbd	.res 1           ;    X16: current keyboard layout index
+kbdnam  .res 6           ;    keyboard layout name
+kbdtab  .res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
+
 
 vicscn	=$0000
 

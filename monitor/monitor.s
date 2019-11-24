@@ -408,11 +408,18 @@ fill_kbd_buffer_with_csr_right:
         jsr     print_a_x
         lda     #CSR_RIGHT
         ldx     #0
-:       sta     KEYD,x ; fill kbd buffer with 7 CSR RIGHT characters
+:
+.ifdef MACHINE_X16
+	jsr kbd_put
+.else
+	sta     KEYD,x ; fill kbd buffer with 7 CSR RIGHT characters
+.endif
         inx
         cpx     #7
         bne     :-
+.ifndef MACHINE_X16
         stx     NDX ; 7
+.endif
         jmp     input_loop2
 
 cmd_mid2:
@@ -2144,19 +2151,39 @@ fill_kbd_buffer_rightbracket
 fill_kbd_buffer_singlequote
         lda     #$27 ; "'"
 :
+.ifdef MACHINE_X16
+	jsr kbd_put
+.else
         sta     KEYD
+.endif
         lda     zp1 + 1
         jsr     byte_to_hex_ascii
+.ifdef MACHINE_X16
+	jsr kbd_put
+	tya
+	jsr kbd_put
+.else
         sta     KEYD + 1
         sty     KEYD + 2
+.endif
         lda     zp1
         jsr     byte_to_hex_ascii
+.ifdef MACHINE_X16
+	jsr kbd_put
+	tya
+	jsr kbd_put
+.else
         sta     KEYD + 3
         sty     KEYD + 4
+.endif
         lda     #' '
+.ifdef MACHINE_X16
+	jsr kbd_put
+.else
         sta     KEYD + 5
         lda     #6 ; number of characters
         sta     NDX
+.endif
         rts
 
 ; print 7x cursor right
@@ -2227,7 +2254,11 @@ after_irq:
         bne fk_2 ; always
 :
 .endif
+.ifdef MACHINE_X16
+	jsr kbd_peek
+.else
         lda     NDX
+.endif
         bne     LB700
 LB6FA:  pla ; XXX JMP $EA81
         tay
@@ -2236,21 +2267,43 @@ LB6FA:  pla ; XXX JMP $EA81
         pla
         rti
 
-LB700:  lda     KEYD
+LB700:
+.ifndef MACHINE_X16
+        lda     KEYD
+.endif
 fk_2:   cmp     #KEY_F7
         bne     LB71C
+.ifdef MACHINE_X16
+	jsr kbd_clear
+.endif
         lda     #'@'
+.ifdef MACHINE_X16
+        jsr kbd_put
+.else
         sta     KEYD
+.endif
         lda     #'$'
+.ifdef MACHINE_X16
+	jsr kbd_put
+.else
         sta     KEYD + 1
+.endif
         lda     #CR
+.ifdef MACHINE_X16
+	jsr kbd_put
+	bra     LB6FA
+.else
         sta     KEYD + 2 ; store "@$' + CR into keyboard buffer
         lda     #3
         sta     NDX
         bne     LB6FA ; always
+.endif
 
 LB71C:  cmp     #KEY_F5
         bne     LB733
+.ifdef MACHINE_X16
+	jsr kbd_clear
+.endif
 .ifdef MACHINE_X16
         ldx     nlinesm1
 .else
@@ -2262,9 +2315,16 @@ LB71C:  cmp     #KEY_F5
         ldy     PNTR
         jsr     LE50C ; KERNAL set cursor position
 LB72E:  lda     #CSR_DOWN
+.ifdef MACHINE_X16
+	jsr kbd_put
+.else
         sta     KEYD
+.endif
 LB733:  cmp     #KEY_F3
         bne     LB74A
+.ifdef MACHINE_X16
+	jsr kbd_clear
+.endif
         ldx     #0
         cpx     TBLX
         beq     LB745
@@ -2272,7 +2332,11 @@ LB733:  cmp     #KEY_F3
         ldy     PNTR
         jsr     LE50C ; KERNAL set cursor position
 LB745:  lda     #CSR_UP
+.ifdef MACHINE_X16
+	jsr kbd_put
+.else
         sta     KEYD
+.endif
 LB74A:  cmp     #CSR_DOWN
         beq     LB758
         cmp     #CSR_UP
@@ -2338,7 +2402,11 @@ LB7C7:  lda     #CSR_UP
 LB7CD:  lda     #CR
         ldx     #CSR_HOME
 LB7D1:  ldy     #0
+.ifdef MACHINE_X16
+	jsr kbd_clear
+.else
         sty     NDX
+.endif
         sty     disable_f_keys
         jsr     print_a_x
         jsr     print_7_csr_right
@@ -2406,7 +2474,11 @@ LB845:  ldy     #1 ; column 1
         beq     LB884
         dec     tmp13
         beq     LB889
+.ifdef MACHINE_X16
+	jsr kbd_peek
+.else
         lda     KEYD
+.endif
         cmp     #CSR_DOWN
         bne     LB877
 .ifndef MACHINE_X16 ; one line up = decrement hi byte
@@ -3488,8 +3560,13 @@ cmd_p:
         tax
 LBC11:  jsr     basin_cmp_cr
         bne     syn_err8
-LBC16:  sta     KEYD
-        inc     NDX
+LBC16:
+.ifdef MACHINE_X16
+	jsr kbd_put
+.else
+	sta     KEYD
+	inc     NDX
+.endif
         lda     #4
         cmp     FA
         beq     LBC39 ; printer
@@ -3509,8 +3586,12 @@ LBC39:  lda     LA
         jsr     CLRCH
         lda     #8
         sta     FA
+.ifdef MACHINE_X16
+	jsr kbd_clear
+.else
         lda     #0
         sta     NDX
+.endif
         jmp     input_loop
 
 LBC4C:  stx     zp1

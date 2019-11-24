@@ -6,8 +6,11 @@
 .import nlines, nlinesm1
 
 .importzp txtptr, fnadr, pnt
-.import status, fnlen, la, sa, fa, mode, ndx, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
-.import buf, keyd, rptflg
+.import status, fnlen, la, sa, fa, mode, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
+.import buf, rptflg
+
+.import kbd_clear, kbd_peek, kbd_put, jsrfar
+
 
 .include "../banks.inc"
 
@@ -36,7 +39,6 @@ SA              := sa     ; secondary address
 FA              := fa     ; device number
 FNADR           := fnadr  ; file name
 MODE            := mode   ; bit6=1: ISO mode
-NDX             := ndx    ; number of characters in keyboard buffer
 RVS             := rvs    ; print reverse characters flag
 BLNSW           := blnsw  ; cursor blink enable
 GDBLN           := gdbln  ; character under cursor
@@ -50,4 +52,3 @@ LDTB1           := ldtb1  ; screen line link table
 
 
 BUF             := buf ; system input buffer
-KEYD            := keyd ; keyboard buffer
