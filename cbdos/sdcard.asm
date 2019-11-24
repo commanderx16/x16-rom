@@ -250,7 +250,7 @@ sd_cmd_response_wait:
 @l:			dey
 			beq sd_block_cmd_timeout ; y already 0? then invalid response or timeout
 			jsr spi_r_byte
-			bitimm 80	; bit 7 clear
+			bitimm $80	; bit 7 clear
 			bne @l  ; no, next byte
 			cmp #$00 ; got cmd response, check if $00 to set z flag accordingly
 			rts
