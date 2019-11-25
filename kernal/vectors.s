@@ -2,6 +2,8 @@
 
 .import mouse_config, mouse_get_x, mouse_get_y; [mouse]
 .import joystick_scan; [joystick]
+.import mouse_config; [mouse]
+.import joystick_scan, joystick_get; [joystick]
 
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***
@@ -24,7 +26,8 @@
 	jmp mouse_get_x
 ; $FF15: mouse_get_y
 	jmp mouse_get_y
-
+; $FF18: joystick_get
+	jmp joystick_get
 
 	.segment "JMPTB128"
 ; C128 KERNAL API

@@ -73,14 +73,6 @@ stah	.res 1           ;$C2
 date	.res 3           ;    year-1900, month, day
 time	.res 3           ;$A0 24 hour clock in 1/60th seconds
 
-; Joystick
-;
-.export j0tmp, joy0, joy1, joy2
-j0tmp	.res 1           ;    X16: keyboard joystick temp
-joy0	.res 1           ;    X16: keyboard joystick temp
-joy1	.res 3           ;    X16: joystick 1 status
-joy2	.res 3           ;    X16: joystick 2 status
-
 ; Serial
 ;
 c3p0	.res 1           ;$94 ieee buffered char flag
@@ -176,6 +168,14 @@ mouseb	.res 2           ;    X16: mouse: max y coordinate
 mousex	.res 2           ;    X16: mouse: x coordinate
 mousey	.res 2           ;    X16: mouse: y coordinate
 mousebt	.res 1           ;    X16: mouse: buttons (1: left, 2: right, 4: third)
+
+; Joystick
+;
+.export j0tmp, joy0, joy1, joy2
+j0tmp	.res 1           ;    X16: keyboard joystick temp
+joy0	.res 1           ;    X16: keyboard joystick temp
+joy1	.res 3           ;    X16: joystick 1 status
+joy2	.res 3           ;    X16: joystick 2 status
 
 KVARSB0_END:
 

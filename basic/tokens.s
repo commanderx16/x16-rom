@@ -103,6 +103,7 @@ stmdsp2	; statements
 	.word mx
 	.word my
 	.word mb
+	.word joy
 ;**************************************
 
 reslst	.byt "EN",$c4

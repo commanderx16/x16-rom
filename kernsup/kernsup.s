@@ -37,6 +37,7 @@ symbol:
 	bridge3 rddat           ; $FF0F: RDDAT
 	bridge3 mouse_get_x     ; $FF12: RDDAT
 	bridge3 mouse_get_y     ; $FF15: RDDAT
+	bridge3 joystick_get    ; $FF18: joystick_get
 
 .segment "KERNSUPV2"
 

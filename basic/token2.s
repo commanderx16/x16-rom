@@ -75,9 +75,10 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "M", 'X' + $80
 	.byt "M", 'Y' + $80
 	.byt "M", 'B' + $80
+	.byt "JO", 'Y' + $80
 	.byt 0
 num_esc_statements = 14
-num_esc_functions = 4
+num_esc_functions = 5
 ;**************************************
 
 err01	.byt "TOO MANY FILE",$d3

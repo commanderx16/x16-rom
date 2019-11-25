@@ -12,9 +12,11 @@ veraisr =verareg+7
 .import status, fnlen, la, sa, fa
 .import mousex, mousey, mousebt
 
+joystick_scan = $ff06
 rddat  = $ff0f
 mouse_get_x = $ff12
 mouse_get_y = $ff15
+joystick_get = $ff18
 
 cint   = $ff81
 ioinit = $ff84
@@ -298,6 +300,26 @@ mb:
 	jsr mouse_get_y
 	tay
 	jmp sngflt
+
+joy:
+	jsr joystick_scan
+	jsr chrget
+	jsr chkopn ; open paren
+	jsr getbyt ; byte: joystick number (1 or 2)
+	cpx #1
+	beq :+
+	cpx #2
+	beq :+
+	jmp fcerr
+:	phx
+	jsr chkcls ; closing paren
+	jsr joystick_scan
+	pla
+	dec ; KERNAL uses #0 and #1
+	jsr joystick_get
+	tay
+	jmp sngflt
+
 
 ; BASIC's entry into jsrfar
 .setcpu "65c02"
