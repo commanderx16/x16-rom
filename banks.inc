@@ -4,6 +4,7 @@ BANK_KEYBD  = 1
 BANK_CBDOS  = 2
 BANK_GEOS   = 3
 BANK_BASIC  = 4
+BANK_CHRSET = 5
 
 ; RAM banks
 ; 0:   KVARS

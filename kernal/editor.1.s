@@ -5,6 +5,8 @@
 maxchr=80
 nwrap=2 ;max number of physical lines per logical line
 
+.import banked_cpychr
+
 ;
 ;return address of first 6522
 ;
@@ -152,7 +154,8 @@ initv
 	lda #0
 	sta veractl     ;set ADDR1 active
 
-	jsr cpypet1
+	lda #1
+	jsr cpychr
 
 	lda #$00        ;$F3000: layer 1 registers
 	sta veralo
@@ -179,61 +182,13 @@ px5	lda tvera_composer,x
 	bne px5
 	rts
 
-inicpy	lda #<tilbas
-	sta veralo
-	lda #>tilbas
-	sta veramid
-	lda #$10 | (tilbas >> 16)
-	sta verahi
-	rts
-
-; PETSCII character set
-cpypet1	jsr inicpy
-	lda #0
-	sta data
-	sta tmp2
-	lda #$c0
-	sta tmp2+1       ;character data at ROM 0000
-	ldx #4
-	jsr copyv
-	dec data
-	lda #$c0
-	sta tmp2+1       ;character data at ROM 0000
-	ldx #4
-	jmp copyv
-
-cpypet2	jsr inicpy
-	lda #0
-	sta data
-	sta tmp2
-	lda #$c4
-	sta tmp2+1       ;character data at ROM 0400
-	ldx #4
-	jsr copyv
-	dec data
-	lda #$c4
-	sta tmp2+1       ;character data at ROM 0400
-	ldx #4
-	jmp copyv
-
-; ISO character set
-cpyiso	jsr inicpy
-	lda #0
-	sta data
-	sta tmp2
-	lda #$c8
-	sta tmp2+1       ;character data at ROM 0800
-	ldx #8
-;
-copyv	ldy #0
-px3	lda (tmp2),y
-	eor data
-	sta veradat
-	iny
-	bne px3
-	inc tmp2+1
-	dex
-	bne px3
+cpychr:
+	php
+	sei
+	jsr jsrfar
+	.word banked_cpychr
+	.byte BANK_CHRSET
+	plp
 	rts
 
 ;NTSC=1
@@ -247,7 +202,6 @@ tvera_layer1
 tvera_layer1_end
 
 mapbas	=0
-tilbas	=$0f800         ;top of bank 0 of VRAM
 
 .ifdef NTSC
 ; ***** NTSC (with overscan)

@@ -43,3 +43,5 @@ d2pcr	=via2+12
 d2ifr	=via2+13
 d2ier	=via2+14
 d2ora	=via2+15
+
+tilbas	=$0f800         ;top of bank 0 of VRAM

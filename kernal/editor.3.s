@@ -3,7 +3,8 @@ lower
 	bne upper       ;branch if not
 	bit mode
 	bvs outhre      ;ISO
-	jsr cpypet2
+	lda #2
+	jsr cpychr
 	jmp loop2
 
 upper
@@ -11,7 +12,8 @@ upper
 	bne lock        ;branch if not
 	bit mode
 	bvs outhre      ;ISO
-	jsr cpypet1
+	lda #1
+	jsr cpychr
 outhre	jmp loop2
 
 lock
@@ -32,7 +34,8 @@ lexit	sta mode
 isoon
 	cmp #$0f        ;switch to ISO mode?
 	bne isooff      ;branch if not
-	jsr cpyiso
+	lda #0
+	jsr cpychr
 	lda mode
 	ora #$40
 	bra isosto
@@ -40,7 +43,8 @@ isoon
 isooff
 	cmp #$8f        ;switch to PETSCII mode?
 	bne outhre      ;branch if not
-	jsr cpypet1
+	lda #1
+	jsr cpychr
 	lda mode
 	and #$ff-$40
 isosto	sta mode

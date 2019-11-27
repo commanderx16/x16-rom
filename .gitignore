@@ -2,3 +2,4 @@
 *.bin
 rom.txt
 *.tmp.s
+*.xcworkspace

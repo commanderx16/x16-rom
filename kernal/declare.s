@@ -12,6 +12,7 @@
 .segment "ZPKERNAL" : zeropage
 ;                      C64 location
 ;                         VVV
+.export tmp2; [cpychr]
 sal	.res 1           ;$AC
 sah	.res 1           ;$AD
 eal	.res 1           ;$AE
@@ -84,6 +85,7 @@ count	.res 1           ;$A5 temp used by serial routine
 ; Screen
 ;
 .export mode; [ps2kbd]
+.export data; [cpychr]
 mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
 gdcol	.res 1           ;    original color before cursor
 hibase	.res 1           ;    base location of screen (top)
