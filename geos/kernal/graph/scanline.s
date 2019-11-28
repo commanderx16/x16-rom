@@ -135,9 +135,29 @@ _RecoverRectangle:
 _Rectangle:
 	jmpf k_Rectangle
 
+;---------------------------------------------------------------
+; TestPoint                                               $C13F
+;
+; Pass:      r3   x position of pixel (0-319)
+;            r11L y position of pixel (0-199)
+; Return:    carry set if bit is set
+; Destroyed: a, x, y, r5, r6
+;---------------------------------------------------------------
 _TestPoint:
-	; XXX macro overwrites flags
-	jmpf k_TestPoint
+	php
+	sei
+	jsr gjsrfar
+	.word k_TestPoint
+	.byte BANK_KERNAL
+	plp
+	cmp #0  ; black
+	beq @1
+	cmp #16 ; also black
+	beq @1
+	clc
+	rts
+@1:	sec
+	rts
 
 _SetColor:
 	jmpf k_SetColor

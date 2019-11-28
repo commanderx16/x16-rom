@@ -4,21 +4,10 @@
 
 .export k_GetScanLine
 .export k_StoreVRAM
-.export k_SetVRAMPtrFG, SetVRAMPtrBG
+.export k_SetVRAMPtrFG, k_SetVRAMPtrBG
+.global inc_bgpage
 
 .segment "GRAPH"
-
-;---------------------------------------------------------------
-; StoreVRAM
-;
-; Function:  Stores a color in VRAM and advances the VRAM pointer
-; Pass:      a   color
-;            x   y pos
-; Destroyed: preserves all registers
-;---------------------------------------------------------------
-k_StoreVRAM:
-	sta veradat
-	rts
 
 ;---------------------------------------------------------------
 ; GetScanLine                                             $C13C
@@ -29,23 +18,22 @@ k_StoreVRAM:
 ;            r6  add of 1st byte of background scr
 ; Destroyed: a
 ;---------------------------------------------------------------
+; XXX This is deprecated
 k_GetScanLine:
 	PushW r3
 	LoadW r3, 0
 	jsr k_SetVRAMPtrFG
-	jsr SetVRAMPtrBG
+	jsr k_SetVRAMPtrBG
 	PopW r3
 	rts
 
 ;---------------------------------------------------------------
 ; k_SetVRAMPtrFG
 ;
-; Function:  Returns the VRAM address of a pixel
-; Pass:      r3  x pos
-;            x   y pos
-; Return:    r5  add of 1st byte of foreground scr
-;                (this is also set up in VERA)
-;            r6  add of 1st byte of background scr
+; Function:  Sets up the VRAM address of a pixel
+; Pass:      r3     x pos
+;            x      y pos
+; Return:    <VERA> VRAM address of pixel
 ; Destroyed: a
 ;---------------------------------------------------------------
 k_SetVRAMPtrFG:
@@ -78,7 +66,16 @@ k_SetVRAMPtrFG:
 	AddW r3, veralo
 	rts
 
-SetVRAMPtrBG:
+;---------------------------------------------------------------
+; k_SetVRAMPtrBG
+;
+; Function:  Sets up the BG address of a pixel
+; Pass:      r3         x pos
+;            x          y pos
+; Return:    r6/RAMBANK BG address of pixel
+; Destroyed: a
+;---------------------------------------------------------------
+k_SetVRAMPtrBG:
 ; For BG storage, we have to work with 8 KB banks.
 ; Lines are 320 bytes, and 8 KB is not divisible by 320,
 ; so the base address of certain lines would be so close
@@ -149,8 +146,6 @@ SetVRAMPtrBG:
 	AddW r3, r6
 	rts
 
-.global inc_bgpage
-
 inc_bgpage:
 	pha
 	inc r6H
@@ -164,3 +159,16 @@ inc_bgpage:
 	sta r6H
 	pla
 	rts
+
+;---------------------------------------------------------------
+; StoreVRAM
+;
+; Function:  Stores a color in VRAM and advances the VRAM pointer
+; Pass:      a   color
+;            x   y pos
+; Destroyed: preserves all registers
+;---------------------------------------------------------------
+k_StoreVRAM:
+	sta veradat
+	rts
+

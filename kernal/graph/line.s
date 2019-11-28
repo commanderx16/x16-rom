@@ -14,7 +14,7 @@
 .import k_BitMaskPow2Rev
 .import k_BitMaskLeadingSet
 .import k_BitMaskLeadingClear
-.import k_SetVRAMPtrFG, SetVRAMPtrBG
+.import k_SetVRAMPtrFG, k_SetVRAMPtrBG
 
 .import inc_bgpage
 
@@ -387,7 +387,7 @@ k_VerticalLine:
 
 	PushW r3
 	MoveW r4, r3
-	jsr SetVRAMPtrBG
+	jsr k_SetVRAMPtrBG
 	PopW r3
 
 	plx
@@ -421,7 +421,7 @@ VLineBG:
 GetLineStart:
 	ldx r11L
 	jsr k_SetVRAMPtrFG
-	jsr SetVRAMPtrBG
+	jsr k_SetVRAMPtrBG
 
 	MoveW r4, r7
 	SubW r3, r7

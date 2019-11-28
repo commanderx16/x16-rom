@@ -12,7 +12,7 @@
 .import k_BitMaskPow2Rev
 .import k_Dabs
 
-.import k_SetVRAMPtrFG, SetVRAMPtrBG
+.import k_SetVRAMPtrFG, k_SetVRAMPtrBG
 
 .import k_dispBufferOn
 .import k_col1
@@ -183,7 +183,7 @@ k_DrawPoint:
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	ldx r11L
-	jsr SetVRAMPtrBG
+	jsr k_SetVRAMPtrBG
 	lda k_col1
 	sta (r6)
 @2:	rts
@@ -191,7 +191,7 @@ k_DrawPoint:
 @3:
 	ldx r11L
 	jsr k_SetVRAMPtrFG
-	jsr SetVRAMPtrBG
+	jsr k_SetVRAMPtrBG
 
 	lda (r6)
 	sta veradat
@@ -200,18 +200,23 @@ k_DrawPoint:
 ;---------------------------------------------------------------
 ; TestPoint                                               $C13F
 ;
-; Pass:      a    pattern
-;            r3   x position of pixel (0-319)
+; Pass:      r3   x position of pixel (0-319)
 ;            r11L y position of pixel (0-199)
-; Return:    carry set if bit is set
+; Return:    a    color of pixel
 ; Destroyed: a, x, y, r5, r6
 ;---------------------------------------------------------------
 k_TestPoint:
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	ldx r11L
 	jsr k_SetVRAMPtrFG
 	lda veradat
-	beq @1
-	clc
 	rts
-@1:	sec
+
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+	ldx r11L
+	jsr k_SetVRAMPtrBG
+	lda (r6)
+	rts
+
+@2:	lda #0
 	rts
