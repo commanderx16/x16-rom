@@ -3,8 +3,6 @@
 ;
 ; Font drawing: Bit shifting
 
-.segment "fonts3"
-
 base:
 
 c7:	lsr

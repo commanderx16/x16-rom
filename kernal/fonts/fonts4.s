@@ -3,8 +3,6 @@
 ;
 ; Font drawing
 
-.segment "fonts4"
-
 FntShJump:
 	sta fontTemp1
 .ifdef bsw128

@@ -3,8 +3,6 @@
 ;
 ; Font drawing: lookup table
 
-.segment "fonts1"
-
 FontTab:
 	.byte $00,$01,$03,$03,$06,$07,$07,$07,$0c,$0d,$0f,$0f,$0e,$0f,$0f,$0f
 	.byte $18,$19,$1b,$1b,$1e,$1f,$1f,$1f,$1c,$1d,$1f,$1f,$1e,$1f,$1f,$1f

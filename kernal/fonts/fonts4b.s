@@ -3,8 +3,6 @@
 ;
 ; Font drawing
 
-.segment "fonts4b"
-
 FontGt1:
 	sty fontTemp1+1
 	sty fontTemp1+2

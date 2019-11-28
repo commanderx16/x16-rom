@@ -43,8 +43,6 @@
 ;
 less_slanted = 1
 
-.segment "fonts2"
-
 ;---------------------------------------------------------------
 ; GetRealSize                                             $C1B1
 ;
@@ -557,9 +555,6 @@ Font_4:
 	jmp Draw8Pixels
 
 @4:	rts
-
-
-.segment "fonts2"
 
 Font_5:
 	ldx r8L

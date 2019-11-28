@@ -3,8 +3,6 @@
 ;
 ; Font drawing: indirect jump helper
 
-.segment "fonts4a"
-
 FntIndirectJMP:
 	ldy #0
 	jmp (r13)

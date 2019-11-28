@@ -8,8 +8,6 @@
 .global k_GetCharWidth  ; GEOS API
 .global k_SmallPutChar  ; GEOS API
 
-.segment "conio3b"
-
 k_UseSystemFont:
 .ifdef bsw128
 	bbsf 7, graphMode, @X
