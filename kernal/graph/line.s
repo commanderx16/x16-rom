@@ -18,7 +18,7 @@
 
 .import inc_bgpage
 
-.global k_ImprintLine
+.global ImprintLine
 .global HorizontalLine
 .global k_InvertLine
 .global RecoverLine
@@ -298,7 +298,7 @@ RecoverLine:
 	bne @3
 @4:	rts
 
-k_ImprintLine:
+ImprintLine:
 	jsr GetLineStart
 
 	ldx r7H

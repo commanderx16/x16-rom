@@ -92,6 +92,7 @@ _GetScanLine:
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 _DrawLine:
+	sec ; N=1, C=1 -> recover
 	bmi @3 ; recover
 ; draw
 	lda #0
@@ -191,7 +192,7 @@ _HorizontalLine:
 	PushW r4
 	PushW r11
 	MoveB r11L, r11H
-	lda #0
+	lda #0 ; N=0 -> draw
 	jsrf k_DrawLine
 	PopW r11
 	PopW r4
@@ -217,6 +218,7 @@ _RecoverLine:
 	PushW r11
 	MoveB r11L, r11H
 	lda #$ff
+	sec      ; N=1, C=1 -> recover
 	jsrf k_DrawLine
 	PopW r11
 	PopW r4
@@ -239,7 +241,7 @@ _VerticalLine:
 	PushW r3
 	MoveW r3, r11
 	MoveW r4, r3
-	lda #0
+	lda #0 ; N=0 -> draw
 	jsrf k_DrawLine
 	PopW r3
 	rts

@@ -12,7 +12,7 @@
 .import k_BitMaskPow2Rev
 .import k_Dabs
 .import k_SetVRAMPtrFG, k_SetVRAMPtrBG
-.import HorizontalLine, VerticalLine, RecoverLine
+.import HorizontalLine, VerticalLine, ImprintLine, RecoverLine
 
 .import k_dispBufferOn
 .import k_col1
@@ -26,8 +26,9 @@
 ;---------------------------------------------------------------
 ; DrawLine
 ;
-; Pass:      signFlg  0: draw
-;                     1: recover from BG
+; Pass:      N/C      0x: draw (dispBufferOn)
+;                     10: copy FG to BG (imprint) ** horizontal **
+;                     11: copy BG to FG (recover) **   only!    **
 ;            r3       x pos of 1st point (0-319)
 ;            r11L     y pos of 1st point (0-199)
 ;            r4       x pos of 2nd point (0-319)
@@ -36,15 +37,21 @@
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 k_DrawLine:
-	CmpB r11L, r11H
-	bne @0a
-	bmi @0b ; recover?
+	php
+	CmpB r11L, r11H    ; horizontal?
+	bne @0a            ; no
+	bmi @0b            ; imprint/recover?
+	plp
 	jmp HorizontalLine
-@0b:	jmp RecoverLine
+@0b:	plp
+	bcc @c             ; imprint
+	jmp RecoverLine
+@c:	jmp ImprintLine
 
-@0a:	bmi @0 ; recover? slow path
-	CmpW r3, r4
-	bne @0
+@0a:	plp
+	bmi @0             ; recover? slow path
+	CmpW r3, r4        ; vertical?
+	bne @0             ; no
 	PushW r3
 	MoveW r11, r3
 	jsr VerticalLine
