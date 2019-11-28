@@ -34,118 +34,96 @@ _GetScanLineCompat:
 	LoadW r6, $ff00
 	rts
 
-;---------------------------------------------------------------
-; GetScanLine                                             $C13C
-;
-; Function:  Returns the address of the beginning of a scanline
-; Pass:      x   scanline nbr
-; Return:    r5  add of 1st byte of foreground scr
-;            r6  add of 1st byte of background scr
-; Destroyed: a
-;---------------------------------------------------------------
 _GetScanLine:
-	; r5 = x * 320
-	stz r5H
-	txa
-	asl
-	rol r5H
-	asl
-	rol r5H
-	asl
-	rol r5H
-	asl
-	rol r5H
-	asl
-	rol r5H
-	asl
-	rol r5H
-	sta r5L
-	txa
-	clc
-	adc r5H
-	sta r5H
+	brk
 
-; For BG storage, we have to work with 8 KB banks.
-; Lines are 320 bytes, and 8 KB is not divisible by 320,
-; so the base address of certain lines would be so close
-; to the top of a bank that lda (r6),y shoots over the
-; end. Therefore, we need to add memory gaps at certain
-; lines to jump over the bank boundaries.
-	cpx #25
-	bcc @1
-	inx
-	cpx #51
-	bcc @1
-	inx
-	cpx #76
-	bcc @1
-	inx
-	cpx #102
-	bcc @1
-	inx
-	cpx #128
-	bcc @1
-	inx
-	cpx #153
-	bcc @1
-	inx
-	cpx #179
-	bcc @1
-	inx
-	cpx #204
-	bcc @1
-	inx
-@1:
-	stz r6H
-	txa
-	asl
-	rol r6H
-	asl
-	rol r6H
-	asl
-	rol r6H
-	asl
-	rol r6H
-	asl
-	rol r6H
-	asl
-	rol r6H
-	sta r6L
-	txa
-	clc
-	adc r6H
-	sta r6H
 
-	lda r6H
-	pha
-	and #$1f
-	ora #$a0
-	sta r6H
-	pla
-	ror ; insert the carry from addition above, since the BG
-	    ; data exceeds 64 KB because of the added gaps
-	lsr
-	lsr
-	lsr
-	lsr
-	inc       ; start at bank 1
-	sta d1pra ; RAM bank
+.include "../../banks.inc"
+.import gjsrfar
+.import k_DrawLine, k_DrawPoint, k_FrameRectangle, k_ImprintRectangle, k_InvertRectangle, k_RecoverRectangle, k_Rectangle, k_TestPoint, k_SetColor, k_ImprintLine, k_HorizontalLine, k_InvertLine, k_RecoverLine, k_VerticalLine
+
+.export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _SetColor, ImprintLine, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine
+
+_DrawLine:
+	jsr gjsrfar
+	.word k_DrawLine
+	.byte BANK_KERNAL
 	rts
 
-.global inc_bgpage
-
-inc_bgpage:
-	pha
-	inc r6H
-	lda r6H
-	cmp #$c0
-	beq @1
-	pla
-	rts
-@1:	inc d1pra ; RAM bank
-	lda #$a0
-	sta r6H
-	pla
+_DrawPoint:
+	jsr gjsrfar
+	.word k_DrawPoint
+	.byte BANK_KERNAL
 	rts
 
-.segment "graph2o"
+_FrameRectangle:
+	jsr gjsrfar
+	.word k_FrameRectangle
+	.byte BANK_KERNAL
+	rts
+
+_ImprintRectangle:
+	jsr gjsrfar
+	.word k_FrameRectangle
+	.byte BANK_KERNAL
+	rts
+
+_InvertRectangle:
+	jsr gjsrfar
+	.word k_InvertRectangle
+	.byte BANK_KERNAL
+	rts
+
+_RecoverRectangle:
+	jsr gjsrfar
+	.word k_RecoverRectangle
+	.byte BANK_KERNAL
+	rts
+
+_Rectangle:
+	jsr gjsrfar
+	.word k_Rectangle
+	.byte BANK_KERNAL
+	rts
+
+_TestPoint:
+	jsr gjsrfar
+	.word k_TestPoint
+	.byte BANK_KERNAL
+	rts
+
+_SetColor:
+	jsr gjsrfar
+	.word k_SetColor
+	.byte BANK_KERNAL
+	rts
+
+ImprintLine:
+	jsr gjsrfar
+	.word k_ImprintLine
+	.byte BANK_KERNAL
+	rts
+
+_HorizontalLine:
+	jsr gjsrfar
+	.word k_HorizontalLine
+	.byte BANK_KERNAL
+	rts
+
+_InvertLine:
+	jsr gjsrfar
+	.word k_InvertLine
+	.byte BANK_KERNAL
+	rts
+
+_RecoverLine:
+	jsr gjsrfar
+	.word k_RecoverLine
+	.byte BANK_KERNAL
+	rts
+
+_VerticalLine:
+	jsr gjsrfar
+	.word k_VerticalLine
+	.byte BANK_KERNAL
+	rts

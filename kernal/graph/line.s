@@ -5,30 +5,28 @@
 
 .setcpu "65c02"
 
-.include "const.inc"
-.include "geossym.inc"
-.include "geosmac.inc"
-.include "config.inc"
-.include "kernal.inc"
-.include "c64.inc"
+.include "../../regs.inc"
+.include "../../mac.inc"
+.include "../../io.inc"
 
-.import BitMaskPow2Rev
-.import BitMaskLeadingSet
-.import BitMaskLeadingClear
-.import _GetScanLine
+.import k_col1, k_compatMode, k_dispBufferOn
+
+.import k_BitMaskPow2Rev
+.import k_BitMaskLeadingSet
+.import k_BitMaskLeadingClear
+.import k_GetScanLine
 
 .import inc_bgpage
 
-.global ImprintLine
-.global _HorizontalLine
-.global _HorizontalLineCol
-.global _InvertLine
-.global _RecoverLine
-.global _VerticalLine
-.global _VerticalLineCol
-.global GetColor
+.global k_ImprintLine
+.global k_HorizontalLine
+.global k_HorizontalLineCol
+.global k_InvertLine
+.global k_RecoverLine
+.global k_VerticalLine
+.global k_VerticalLineCol
 
-.segment "graph2a"
+.segment "GRAPH"
 
 ;---------------------------------------------------------------
 ; API extension
@@ -49,13 +47,13 @@
 ; Return:    r11L unchanged
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
-_HorizontalLine:
+k_HorizontalLine:
 	jsr Convert8BitPattern
-_HorizontalLineCol: ; called by Rectangle
+k_HorizontalLineCol: ; called by Rectangle
 	pha
 	jsr GetLineStart
 	pla
-	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	ldy r5L
 	sty veralo
 	ldy r5H
@@ -63,7 +61,7 @@ _HorizontalLineCol: ; called by Rectangle
 	ldy #$11
 	sty verahi
 	jsr HLineFG
-@1:	bbrf 6, dispBufferOn, HLine_rts ; ST_WR_BACK
+@1:	bbrf 6, k_dispBufferOn, HLine_rts ; ST_WR_BACK
 	jmp HLineBG
 
 ; foreground version
@@ -155,12 +153,12 @@ HLineBG:
 ; Return:    r3-r4 unchanged
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
-_InvertLine:
+k_InvertLine:
 	jsr GetLineStart
-	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	ldy #$11
 	jsr ILineFG
-@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	jmp ILineBG
 @2:	rts
 
@@ -277,7 +275,7 @@ ILineBG:
 ;            foreground sceen
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
-_RecoverLine:
+k_RecoverLine:
 	jsr GetLineStart
 	lda r5L
 	sta veralo
@@ -331,7 +329,7 @@ _RecoverLine:
 	bne @3
 @4:	rts
 
-ImprintLine:
+k_ImprintLine:
 	jsr GetLineStart
 	lda r5L
 	sta veralo
@@ -395,12 +393,12 @@ ImprintLine:
 ; Return:    draw the line
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
-_VerticalLine:
+k_VerticalLine:
 	jsr Convert8BitPattern
-_VerticalLineCol:
+k_VerticalLineCol:
 	pha
 	ldx r3L
-	jsr _GetScanLine
+	jsr k_GetScanLine
 	AddW r4, r5
 	AddW r4, r6
 
@@ -412,12 +410,12 @@ _VerticalLineCol:
 	inx
 	beq @2
 
-	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	phx
 	jsr VLineFG
 	plx
 	tya
-@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	jmp VLineBG
 @2:	rts
 
@@ -436,21 +434,21 @@ VLineFG:
 
 VLineBG:
 	ldy #0
-:	sta (r6),y
+@2:	sta (r6),y
 	tya
 	clc
 	adc #$40 ; <320
 	tay
-	bne :+
+	bne @1
 	jsr inc_bgpage
-:	jsr inc_bgpage
+@1:	jsr inc_bgpage
 	dex
-	bne :-
+	bne @2
 	rts
 
 GetLineStart:
 	ldx r11L
-	jsr _GetScanLine
+	jsr k_GetScanLine
 	AddW r3, r5
 	AddW r3, r6
 
@@ -465,9 +463,9 @@ GetLineStart:
 
 ; in compat mode, this converts 8 bit patterns into shades of gray
 Convert8BitPattern:
-	bit compatMode
+	bit k_compatMode
 	bmi @0
-	lda col1
+	lda k_col1
 	rts
 @0:	ldx #8
 	ldy #8

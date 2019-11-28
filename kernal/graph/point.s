@@ -3,32 +3,25 @@
 ;
 ; Graphics library: TestPoint, DrawPoint, DrawLine syscalls
 
+.include "../../regs.inc"
+.include "../../io.inc"
+.include "../../mac.inc"
+
 .setcpu "65c02"
 
-.include "const.inc"
-.include "geossym.inc"
-.include "geosmac.inc"
-.include "config.inc"
-.include "kernal.inc"
-.include "c64.inc"
+.import k_BitMaskPow2Rev
+.import k_GetScanLine
+.import k_Dabs
 
-.import BitMaskPow2Rev
-.import _GetScanLine
-.import _Dabs
+.import k_dispBufferOn
+.import k_compatMode
+.import k_col1
 
-.import LF4B7
-.import LF558
-.import StaFrontbuffer80
-.import StaBackbuffer80
-.import LF4A7
-.import GetLeftXAddress
-.import _NormalizeX
+.global k_TestPoint
+.global k_DrawPoint
+.global k_DrawLine
 
-.global _TestPoint
-.global _DrawPoint
-.global _DrawLine
-
-.segment "graph4"
+.segment "GRAPH"
 
 ;---------------------------------------------------------------
 ; DrawLine                                                $C130
@@ -44,7 +37,7 @@
 ; Return:    line is drawn or recover
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
-_DrawLine:
+k_DrawLine:
 	php
 	LoadB r7H, 0
 	lda r11H
@@ -61,7 +54,7 @@ _DrawLine:
 	sbc r3H
 	sta r12H
 	ldx #r12
-	jsr _Dabs
+	jsr k_Dabs
 	CmpW r12, r7
 	bcs @2
 	jmp @9
@@ -105,7 +98,7 @@ _DrawLine:
 	LoadB r13L, 1
 @5:	plp
 	php
-	jsr _DrawPoint
+	jsr k_DrawPoint
 	CmpW r3, r4
 	bcs @8
 	inc r3L
@@ -156,7 +149,7 @@ _DrawLine:
 	LoadW r13, 1
 @C:	plp
 	php
-	jsr _DrawPoint
+	jsr k_DrawPoint
 	CmpB r11L, r11H
 	bcs @E
 	inc r11L
@@ -176,10 +169,10 @@ _DrawLine:
 ; Return:    point is drawn or recovered
 ; Destroyed: a, x, y, r5 - r6
 ;---------------------------------------------------------------
-_DrawPoint:
+k_DrawPoint:
 	php
 	ldx r11L
-	jsr _GetScanLine
+	jsr k_GetScanLine
 	AddW r3, r5
 	AddW r3, r6
 	plp
@@ -195,8 +188,8 @@ _DrawPoint:
 ; in compat mode, this has the original bevahior (white and black)
 ;---------------------------------------------------------------
 	bcc @0
-	lda col1
-	bit compatMode
+	lda k_col1
+	bit k_compatMode
 	bpl @0b
 	lda #0 ; black
 	bra @0b
@@ -205,11 +198,11 @@ _DrawPoint:
 	sty veralo
 	ldy r5H
 	sty veramid
-	bbrf 7, dispBufferOn, @1 ; ST_WR_FORE
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	ldy #1
 	sty verahi
 	sta veradat
-@1:	bbrf 6, dispBufferOn, @2 ; ST_WR_BACK
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	sta (r6)
 @2:	rts
 ; recover
@@ -232,9 +225,9 @@ _DrawPoint:
 ; Return:    carry set if bit is set
 ; Destroyed: a, x, y, r5, r6
 ;---------------------------------------------------------------
-_TestPoint:
+k_TestPoint:
 	ldx r11L
-	jsr _GetScanLine
+	jsr k_GetScanLine
 	AddW r3, r5
 	lda r5L
 	sta veralo

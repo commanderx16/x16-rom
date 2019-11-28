@@ -10,6 +10,7 @@
 .include "kernal.inc"
 .include "inputdrv.inc"
 .include "c64.inc"
+.include "../../banks.inc"
 
 ; main.s
 .import InitGEOEnv
@@ -54,72 +55,6 @@
 
 .segment "start"
 
-; for KERNAL
-.global geos_init_graphics
-
-geos_init_graphics:
-	lda #1 ; white
-	jsr _SetColor
-
-	lda #0
-	sta r3L
-	sta r3H
-	sta r2L
-	lda #<319
-	sta r4L
-	lda #>319
-	sta r4H
-	lda #199
-	sta r2H
-	jsr _Rectangle
-
-tile_base = $10000
-
-geos_init_vera:
-	lda #$00 ; layer0
-	sta veralo
-	lda #$20
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #7 << 5 | 1; 256c bitmap
-	sta veradat
-	lda #0
-	sta veradat; tile_w=320px
-	sta veradat; map_base_lo: ignore
-	sta veradat; map_base_hi: ignore
-	lda #<(tile_base >> 2)
-	sta veradat; tile_base_lo
-	lda #>(tile_base >> 2)
-	sta veradat; tile_base_hi
-
-	lda #$00        ;$F0000: composer registers
-	sta veralo
-	sta veramid
-	ldx #0
-px5:	lda tvera_composer,x
-	sta veradat
-	inx
-	cpx #tvera_composer_end-tvera_composer
-	bne px5
-
-	rts
-
-hstart  =0
-hstop   =640
-vstart  =0
-vstop   =400
-tvera_composer:
-	.byte 7 << 5 | 1  ;256c bitmap, VGA
-	.byte 64, 64      ;hscale, vscale
-	.byte 0           ;border color
-	.byte <hstart
-	.byte <hstop
-	.byte <vstart
-	.byte <vstop
-	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
-tvera_composer_end:
-
 _ResetHandle:
 	sei
 	cld
@@ -141,7 +76,10 @@ _ResetHandle:
 	.word __drvcbdos_RUN__
 	.word __drvcbdos_SIZE__
 
-	jsr geos_init_vera
+.import geos_init_vera
+	jsr gjsrfar
+	.word geos_init_vera
+	.byte BANK_KERNAL
 
 	lda #$00 ; layer1
 	sta veralo

@@ -3,29 +3,27 @@
 ;
 ; Graphics library: rectangles
 
-.include "const.inc"
-.include "geossym.inc"
-.include "geosmac.inc"
-.include "config.inc"
-.include "kernal.inc"
-.include "c64.inc"
+.include "../../regs.inc"
+.include "../../io.inc"
+.include "../../mac.inc"
 
-.import _HorizontalLine
-.import _HorizontalLineCol
-.import _InvertLine
-.import _RecoverLine
-.import _VerticalLine
-.import _VerticalLineCol
+.import k_col1
+
+.import k_HorizontalLine
+.import k_HorizontalLineCol
+.import k_InvertLine
+.import k_RecoverLine
+.import k_VerticalLine
+.import k_VerticalLineCol
 .import ImprintLine
-.import GetColor
 
-.global _Rectangle
-.global _InvertRectangle
-.global _RecoverRectangle
-.global _ImprintRectangle
-.global _FrameRectangle
+.global k_Rectangle
+.global k_InvertRectangle
+.global k_RecoverRectangle
+.global k_ImprintRectangle
+.global k_FrameRectangle
 
-.segment "graph2c"
+.segment "GRAPH"
 
 ;---------------------------------------------------------------
 ; Rectangle                                               $C124
@@ -37,10 +35,10 @@
 ; Return:    draws the rectangle
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
-_Rectangle:
+k_Rectangle:
 	MoveB r2L, r11L
-@1:	lda col1
-	jsr _HorizontalLineCol
+@1:	lda k_col1
+	jsr k_HorizontalLineCol
 	lda r11L
 	inc r11L
 	cmp r2H
@@ -57,16 +55,14 @@ _Rectangle:
 ; Return:    r2L, r3H unchanged
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
-_InvertRectangle:
+k_InvertRectangle:
 	MoveB r2L, r11L
-@1:	jsr _InvertLine
+@1:	jsr k_InvertLine
 	lda r11L
 	inc r11L
 	cmp r2H
 	bne @1
 	rts
-
-.segment "graph2e"
 
 ;---------------------------------------------------------------
 ; RecoverRectangle                                        $C12D
@@ -78,16 +74,14 @@ _InvertRectangle:
 ; Return:    rectangle recovered from backscreen
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
-_RecoverRectangle:
+k_RecoverRectangle:
 	MoveB r2L, r11L
-@1:	jsr _RecoverLine
+@1:	jsr k_RecoverLine
 	lda r11L
 	inc r11L
 	cmp r2H
 	bne @1
 	rts
-
-.segment "graph2g"
 
 ;---------------------------------------------------------------
 ; ImprintRectangle                                        $C250
@@ -99,7 +93,7 @@ _RecoverRectangle:
 ; Return:    r2L, r3H unchanged
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
-_ImprintRectangle:
+k_ImprintRectangle:
 	MoveB r2L, r11L
 @1:	jsr ImprintLine
 	lda r11L
@@ -107,8 +101,6 @@ _ImprintRectangle:
 	cmp r2H
 	bne @1
 	rts
-
-.segment "graph2i1"
 
 ;---------------------------------------------------------------
 ; FrameRectangle                                          $C127
@@ -121,22 +113,22 @@ _ImprintRectangle:
 ; Return:    r2L, r3H unchanged
 ; Destroyed: a, x, y, r5 - r9, r11
 ;---------------------------------------------------------------
-_FrameRectangle:
+k_FrameRectangle:
 	sta r9H
 	ldy r2L
 	sty r11L
-	jsr _HorizontalLine
+	jsr k_HorizontalLine
 	MoveB r2H, r11L
 	lda r9H
-	jsr _HorizontalLine
+	jsr k_HorizontalLine
 	PushW r3
 	PushW r4
 	MoveW r3, r4
 	MoveW r2, r3
 	lda r9H
-	jsr _VerticalLine
+	jsr k_VerticalLine
 	PopW r4
 	lda r9H
-	jsr _VerticalLine
+	jsr k_VerticalLine
 	PopW r3
 	rts

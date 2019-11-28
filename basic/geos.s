@@ -8,9 +8,10 @@
 ; from KERNAL
 ; XXX TODO these should go through the jump table
 .import scrmod
+.import k_DrawLine, k_Rectangle, k_FrameRectangle, k_DrawPoint
 
 ; from GEOS
-.import _ResetHandle, _SetColor
+.import _ResetHandle, k_SetColor
 
 ;***************
 geos	jsr bjsrfar
@@ -37,8 +38,8 @@ pset:	jsr get_point
 	sec
 	sei
 	jsr bjsrfar
-	.word DrawPoint
-	.byte BANK_GEOS
+	.word k_DrawPoint
+	.byte BANK_KERNAL
 	cli
 	rts
 
@@ -50,8 +51,8 @@ line	jsr get_points_col
 	sec
 	sei
 	jsr bjsrfar
-	.word DrawLine
-	.byte BANK_GEOS
+	.word k_DrawLine
+	.byte BANK_KERNAL
 	cli
 	rts
 
@@ -67,8 +68,8 @@ frame	jsr get_points
 	sei
 	; color in a
 	jsr bjsrfar
-	.word FrameRectangle
-	.byte BANK_GEOS
+	.word k_FrameRectangle
+	.byte BANK_KERNAL
 	cli
 	rts
 
@@ -79,8 +80,8 @@ rect	jsr get_points_col
 	jsr normalize_rect
 	sei
 	jsr bjsrfar
-	.word Rectangle
-	.byte BANK_GEOS
+	.word k_Rectangle
+	.byte BANK_KERNAL
 	cli
 	rts
 
@@ -168,8 +169,8 @@ get_col:
 set_col:
 	sei
 	jsr bjsrfar
-	.word _SetColor
-	.byte BANK_GEOS
+	.word k_SetColor
+	.byte BANK_KERNAL
 	cli
 	rts
 

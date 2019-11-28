@@ -15,7 +15,6 @@
 .import PatternTab
 
 .global _SetPattern
-.global _SetColor
 
 .segment "graph2l2"
 
@@ -43,18 +42,5 @@ GetColor:
 @c:	sta col1
 	lda #$80
 	sta compatMode
-	rts
-
-;---------------------------------------------------------------
-; SetColor
-;
-; Pass:      a primary color (0-255)
-;            x secondary color (0-255)
-; Return:    col1, col2 - updated
-;---------------------------------------------------------------
-_SetColor:
-	sta col1   ; primary color
-	stx col2 ; secondary color
-	stz compatMode
 	rts
 
