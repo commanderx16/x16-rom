@@ -4,6 +4,7 @@
 .import joystick_scan; [joystick]
 .import mouse_config; [mouse]
 .import joystick_scan, joystick_get; [joystick]
+.import clock_init, clock_update, clock_get_timer, clock_set_timer, clock_get_date, clock_set_date; [time]
 
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***
@@ -19,9 +20,9 @@
 ; $FF09: MOUSE
 	jmp mouse_config
 ; $FF0C: SETDAT
-	jmp setdat      ;set date
+	jmp clock_set_date
 ; $FF0F: RDDAT
-	jmp rddat       ;read date
+	jmp clock_get_date
 ; $FF12: mouse_get_x
 	jmp mouse_get_x
 ; $FF15: mouse_get_y
@@ -158,12 +159,12 @@ basin	jmp (ibasin)    ;input from channel
 bsout	jmp (ibsout)    ;output to channel
 	jmp loadsp      ;load from file
 	jmp savesp      ;save to file
-	jmp settim      ;set internal clock
-	jmp rdtim       ;read internal clock
+	jmp clock_set_timer ;set internal clock (SETTIM)
+	jmp clock_get_timer ;read internal clock (RDTIM)
 stop	jmp (istop)     ;scan stop key
 getin	jmp (igetin)    ;get char from q
 clall	jmp (iclall)    ;close all files
-	jmp udtim       ;increment clock
+	jmp clock_update ;increment clock (UDTIM)
 jscrog	jmp scrorg      ;screen org
 jplot	jmp plot        ;read/set x,y coord
 jiobas	jmp iobase      ;return i/o base

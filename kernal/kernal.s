@@ -22,7 +22,6 @@
 .include "open.s"
 .include "load.s"
 .include "save.s"
-.include "time.s"
 .include "errorhandler.s"
 .include "read.s"
 .include "write.s"

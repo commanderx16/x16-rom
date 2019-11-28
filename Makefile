@@ -170,6 +170,7 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/ps2kbd.o kernal/ps2kbd.s
 	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/ps2mouse.o kernal/ps2mouse.s
 	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/joystick.o kernal/joystick.s
+	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/clock.o kernal/clock.s
 
 	$(AS) $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
 
@@ -192,7 +193,7 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(LD) -C rom.cfg -o rom.bin \
 		basic/basic.o \
 		fplib/fplib.o \
-		kernal/kernal.o kernal/cpychr.o kernal/ps2.o kernal/ps2kbd.o kernal/ps2mouse.o kernal/joystick.o \
+		kernal/kernal.o kernal/cpychr.o kernal/ps2.o kernal/ps2kbd.o kernal/ps2mouse.o kernal/joystick.o kernal/clock.o \
 		monitor/monitor.o \
 		cbdos/zeropage.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o \
 		keymap/keymap.o \

@@ -1,49 +1,52 @@
-	.segment "TIME"
-;***********************************
-;*                                 *
-;* time                            *
-;*                                 *
-;*consists of three functions:     *
-;* (1) udtim-- update time. usually*
-;*     called every 60th second.   *
-;* (2) settim-- set time. .y=msd,  *
-;*     .x=next significant,.a=lsd  *
-;* (3) rdtim-- read time. .y=msd,  *
-;*     .x=next significant,.a=lsd  *
-;*                                 *
-;***********************************
-
-;interrupts are coming at 60 Hz from VERA's VBLANK
+; Clock
 ;
+
+.include "../banks.inc"
+.include "../io.inc"
+
+.import time, date; [declare]
+.import save_ram_bank; [declare]
+
+.export clock_init, clock_update, clock_get_timer, clock_set_timer, clock_get_date, clock_set_date
 
 datey	=date + 0; (2000+n)
 datem	=date + 1
 dated	=date + 2
 
-initdate
+.segment "TIME"
+
+clock_init:
+	KVARS_START
 	lda #1
 	sta datem
 	sta dated
 	stx datey
+	KVARS_END
 	rts
 
-udtim	inc time+2      ;increment the time register
-	bne ud30
+; UDTIM: update time. called every 60th second
+;
+;interrupts are coming at 60 Hz from VERA's VBLANK
+;
+clock_update:
+	KVARS_START
+	inc time+2      ;increment the time register
+	bne @a
 	inc time+1
-	bne ud30
+	bne @a
 	inc time
 ;
 ;here we check for roll-over 23:59:59
 ;and reset the clock to zero if true
 ;
-ud30	sec
+@a:	sec
 	lda time+2
 	sbc #$01
 	lda time+1
 	sbc #$1a
 	lda time
 	sbc #$4f
-	bcc ud60
+	bcc @z
 ;
 ;time has rolled--zero register
 ;
@@ -74,7 +77,7 @@ ud30	sec
 	cmp dated
 	beq @3
 	inc dated
-	rts
+	bra @z
 @3:	ldy #1
 	sty dated
 	inc datem
@@ -83,43 +86,57 @@ ud30	sec
 	bne @2
 	sty datem
 	inc datey
-ud60	rts
+@z:	KVARS_END
+	rts
 
 daystab:
 	.byte 31, 28, 31, 30, 31, 30
 	.byte 31, 31, 30, 31, 30, 31
 
-rdtim	php
+; RDTIM: read timer. .y=msd, .x=next significant,.a=lsd
+;
+clock_get_timer:
+	KVARS_START
+	php
 	sei             ;keep time from rolling
 	lda time+2      ;get lsd
 	ldx time+1      ;get next most sig.
 	ldy time        ;get msd
 	plp
+	KVARS_END
 	rts
 
-settim	php
+; SETTIM: set timer. .y=msd, .x=next significant,.a=lsd
+;
+clock_set_timer:
+	KVARS_START
+	php
 	sei             ;keep time from changing
 	sta time+2      ;store lsd
 	stx time+1      ;next most significant
 	sty time        ;store msd
 	plp
+	KVARS_END
 	rts
 
-rddat	php
+clock_get_date:
+	KVARS_START
+	php
 	sei             ;keep date from rolling
 	lda dated
 	ldx datem
 	ldy datey
 	plp
+	KVARS_END
 	rts
 
-setdat	php
+clock_set_date:
+	KVARS_START
+	php
 	sei             ;keep date from changing
 	sta dated
 	stx datem
 	sty datey
 	plp
+	KVARS_END
 	rts
-
-; rsr 8/21/80 remove crfac change stop
-; rsr 3/29/82 add shit key check for commodore 64

@@ -21,19 +21,20 @@
 
 ; jumptab
 .global _InitProcesses
-.global _BlockProcess
-.global _UnfreezeProcess
-.global _UnblockProcess
 .global _RestartProcess
+.global _BlockProcess
+.global _UnblockProcess
 .global _FreezeProcess
+.global _UnfreezeProcess
 .global _EnableProcess
 .global _Sleep
 
 ; used by mainloop
 .global _ExecuteProcesses
+.global _DoCheckDelays
+; used by interrupt
 .global _ProcessTimers
 .global _ProcessDelays
-.global _DoCheckDelays
 
 .segment "process1"
 

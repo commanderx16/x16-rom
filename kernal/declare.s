@@ -69,11 +69,6 @@ fa	.res 1           ;$BA current file primary addr
 stal	.res 1           ;$C1
 stah	.res 1           ;$C2
 
-; Time
-;
-date	.res 3           ;    year-1900, month, day
-time	.res 3           ;$A0 24 hour clock in 1/60th seconds
-
 ; Serial
 ;
 c3p0	.res 1           ;$94 ieee buffered char flag
@@ -178,6 +173,12 @@ j0tmp	.res 1           ;    X16: keyboard joystick temp
 joy0	.res 1           ;    X16: keyboard joystick temp
 joy1	.res 3           ;    X16: joystick 1 status
 joy2	.res 3           ;    X16: joystick 2 status
+
+; Time
+;
+.export date, time; [time]
+date	.res 3           ;    year-1900, month, day
+time	.res 3           ;$A0 24 hour clock in 1/60th seconds
 
 KVARSB0_END:
 

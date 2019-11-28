@@ -7,7 +7,6 @@ nnmi	pha
 ;
 ; check for stop key down
 ;
-	jsr ud60        ;no .y
 	jsr stop        ;no .y
 	bne prend       ;no stop key...
 ;
