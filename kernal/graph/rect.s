@@ -36,8 +36,7 @@
 ;---------------------------------------------------------------
 k_Rectangle:
 	MoveB r2L, r11L
-@1:	lda k_col1
-	jsr k_HorizontalLineCol
+@1:	jsr k_HorizontalLine
 	lda r11L
 	inc r11L
 	cmp r2H

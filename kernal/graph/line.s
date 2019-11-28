@@ -20,7 +20,6 @@
 
 .global k_ImprintLine
 .global k_HorizontalLine
-.global k_HorizontalLineCol
 .global k_InvertLine
 .global k_RecoverLine
 .global k_VerticalLine
@@ -38,7 +37,6 @@
 ;---------------------------------------------------------------
 k_HorizontalLine:
 	lda k_col1
-k_HorizontalLineCol: ; called by Rectangle
 	pha
 	jsr GetLineStart
 	pla

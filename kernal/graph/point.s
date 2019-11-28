@@ -26,9 +26,8 @@
 ;---------------------------------------------------------------
 ; DrawLine                                                $C130
 ;
-; Pass:      signFlg  set to recover from back screen
-;                     reset for drawing
-;            a        color
+; Pass:      signFlg  0: draw
+;                     1: recover from BG
 ;            r3       x pos of 1st point (0-319)
 ;            r11L     y pos of 1st point (0-199)
 ;            r4       x pos of 2nd point (0-319)

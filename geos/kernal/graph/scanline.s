@@ -42,7 +42,7 @@ _GetScanLineCompat:
 
 .import k_dispBufferOn, k_col1, k_col2
 
-.macro jmpf addr
+.macro far_pre
 	php
 	pha
 	lda dispBufferOn
@@ -55,11 +55,23 @@ _GetScanLineCompat:
 	plp
 	php
 	sei
+.endmacro
+
+.macro jmpf addr
+	far_pre
 	jsr gjsrfar
 	.word addr
 	.byte BANK_KERNAL
 	plp
 	rts
+.endmacro
+
+.macro jsrf addr
+	far_pre
+	jsr gjsrfar
+	.word addr
+	.byte BANK_KERNAL
+	plp
 .endmacro
 
 _GetScanLine:
@@ -175,7 +187,16 @@ _SetColor:
 _HorizontalLine:
 	jsr Convert8BitPattern
 	sta col1
-	jmpf k_HorizontalLine
+	PushW r3
+	PushW r4
+	PushW r11
+	MoveB r11L, r11H
+	lda #0
+	jsrf k_DrawLine
+	PopW r11
+	PopW r4
+	PopW r3
+	rts
 
 _InvertLine:
 	jmpf k_InvertLine
@@ -196,7 +217,13 @@ _RecoverLine:
 _VerticalLine:
 	jsr Convert8BitPattern
 	sta col1
-	jmpf k_VerticalLine
+	PushW r3
+	MoveW r3, r11
+	MoveW r4, r3
+	lda #0
+	jsrf k_DrawLine
+	PopW r3
+	rts
 
 _SetVRAMPtrFG:
 	jmpf k_SetVRAMPtrFG
