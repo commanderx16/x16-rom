@@ -1,61 +1,65 @@
 ; Clock
 ;
 
+.include "../regs.inc"
 .include "../banks.inc"
 .include "../io.inc"
 
-.import time, date; [declare]
+.import datey, datem, dated, timeh, timem, times, timej, timer; [declare]
 .import save_ram_bank; [declare]
 
-.export clock_init, clock_update, clock_get_timer, clock_set_timer, clock_get_date, clock_set_date
-
-datey	=date + 0; (2000+n)
-datem	=date + 1
-dated	=date + 2
+.export clock_update, clock_get_timer, clock_set_timer, clock_get_time_date, clock_set_time_date
 
 .segment "TIME"
-
-clock_init:
-	KVARS_START
-	lda #1
-	sta datem
-	sta dated
-	stx datey
-	KVARS_END
-	rts
 
 ; UDTIM: update time. called every 60th second
 ;
 ;interrupts are coming at 60 Hz from VERA's VBLANK
 ;
 clock_update:
+;
+;increment 24 bit timer
+;
 	KVARS_START
-	inc time+2      ;increment the time register
+	inc timer+2     ;increment the timer register
 	bne @a
-	inc time+1
+	inc timer+1
 	bne @a
-	inc time
+	inc timer
+@a:
+
 ;
-;here we check for roll-over 23:59:59
-;and reset the clock to zero if true
+;increment time
 ;
-@a:	sec
-	lda time+2
-	sbc #$01
-	lda time+1
-	sbc #$1a
-	lda time
-	sbc #$4f
-	bcc @z
-;
-;time has rolled--zero register
-;
-	stx time
-	stx time+1
-	stx time+2
+	inc timej       ;jiffies
+	lda timej
+	cmp #60
+	bne @b
+	stz timej
+	inc times       ;seconds
+	lda times
+	cmp #60
+	bne @b
+	stz times
+	inc timem       ;minutes
+	lda timem
+	cmp #60
+	bne @b
+	stz timem
+	inc timeh       ;hours
+	lda timeh
+	cmp #24
+	bne @b
+	stz timeh
+@b:
 ;
 ;increment date
 ;
+	lda dated
+	ora datem
+	ora datey
+	beq @z          ;date not set, ignore
+
 	ldy datem
 	lda daystab-1,y
 
@@ -73,7 +77,6 @@ clock_update:
 	iny
 @1:	tya
 @2:
-
 	cmp dated
 	beq @3
 	inc dated
@@ -98,10 +101,10 @@ daystab:
 clock_get_timer:
 	KVARS_START
 	php
-	sei             ;keep time from rolling
-	lda time+2      ;get lsd
-	ldx time+1      ;get next most sig.
-	ldy time        ;get msd
+	sei             ;keep timer from rolling
+	lda timer+2     ;get lsd
+	ldx timer+1     ;get next most sig.
+	ldy timer       ;get msd
 	plp
 	KVARS_END
 	rts
@@ -111,32 +114,54 @@ clock_get_timer:
 clock_set_timer:
 	KVARS_START
 	php
-	sei             ;keep time from changing
-	sta time+2      ;store lsd
-	stx time+1      ;next most significant
-	sty time        ;store msd
+	sei             ;keep timer from changing
+	sta timer+2     ;store lsd
+	stx timer+1     ;next most significant
+	sty timer       ;store msd
 	plp
 	KVARS_END
 	rts
 
-clock_get_date:
+clock_get_time_date:
 	KVARS_START
 	php
 	sei             ;keep date from rolling
+	lda datey
+	sta r0L
+	lda datem
+	sta r0H
 	lda dated
-	ldx datem
-	ldy datey
+	sta r1L
+	lda timeh
+	sta r1H
+	lda timem
+	sta r2L
+	lda times
+	sta r2H
+	lda timej
+	sta r3L
 	plp
 	KVARS_END
 	rts
 
-clock_set_date:
+clock_set_time_date:
 	KVARS_START
 	php
 	sei             ;keep date from changing
+	lda r0L
+	sta datey
+	lda r0H
+	sta datem
+	lda r1L
 	sta dated
-	stx datem
-	sty datey
+	lda r1H
+	sta timeh
+	lda r2L
+	sta timem
+	lda r2H
+	sta times
+	lda r3L
+	sta timej
 	plp
 	KVARS_END
 	rts

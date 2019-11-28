@@ -4,7 +4,7 @@
 .import joystick_scan; [joystick]
 .import mouse_config; [mouse]
 .import joystick_scan, joystick_get; [joystick]
-.import clock_init, clock_update, clock_get_timer, clock_set_timer, clock_get_date, clock_set_date; [time]
+.import clock_update, clock_get_timer, clock_set_timer, clock_get_time_date, clock_set_time_date; [time]
 
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***
@@ -19,10 +19,10 @@
 	jmp joystick_scan
 ; $FF09: MOUSE
 	jmp mouse_config
-; $FF0C: SETDAT
-	jmp clock_set_date
-; $FF0F: RDDAT
-	jmp clock_get_date
+; $FF0C: clock_set_time_date
+	jmp clock_set_time_date
+; $FF0F: clock_get_time_date
+	jmp clock_get_time_date
 ; $FF12: mouse_get_x
 	jmp mouse_get_x
 ; $FF15: mouse_get_y

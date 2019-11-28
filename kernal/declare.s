@@ -176,9 +176,15 @@ joy2	.res 3           ;    X16: joystick 2 status
 
 ; Time
 ;
-.export date, time; [time]
-date	.res 3           ;    year-1900, month, day
-time	.res 3           ;$A0 24 hour clock in 1/60th seconds
+.export datey, datem, dated, timeh, timem, times, timej, timer; [time]
+datey	.res 1           ;    year-1900
+datem	.res 1           ;    month
+dated	.res 1           ;    day
+timeh	.res 1           ;    hours
+timem	.res 1           ;    minutes
+times	.res 1           ;    seconds
+timej	.res 1           ;    jiffies
+timer	.res 3           ;$A0 24 bit 1/60th second timer
 
 KVARSB0_END:
 
