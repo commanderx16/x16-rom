@@ -244,9 +244,9 @@ grphon	lda #$0e ; light blue
 tile_base = $10000
 
 ; for GEOS
-.global geos_init_vera
+.global initvg
 
-geos_init_vera:
+initvg:
 	lda #$00 ; layer0
 	sta veralo
 	lda #$20

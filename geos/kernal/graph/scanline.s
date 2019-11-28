@@ -34,96 +34,77 @@ _GetScanLineCompat:
 	LoadW r6, $ff00
 	rts
 
-_GetScanLine:
-	brk
-
-
 .include "../../banks.inc"
 .import gjsrfar
-.import k_DrawLine, k_DrawPoint, k_FrameRectangle, k_ImprintRectangle, k_InvertRectangle, k_RecoverRectangle, k_Rectangle, k_TestPoint, k_SetColor, k_ImprintLine, k_HorizontalLine, k_InvertLine, k_RecoverLine, k_VerticalLine
+.import k_GetScanLine, k_DrawLine, k_DrawPoint, k_FrameRectangle, k_ImprintRectangle, k_InvertRectangle, k_RecoverRectangle, k_Rectangle, k_TestPoint, k_SetColor, k_ImprintLine, k_HorizontalLine, k_InvertLine, k_RecoverLine, k_VerticalLine
 
-.export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _SetColor, ImprintLine, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine
+.export _GetScanLine, _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _SetColor, ImprintLine, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine
+
+.import k_dispBufferOn, k_compatMode, k_col1, k_col2
+
+.macro jmpf addr
+	php
+	pha
+	lda dispBufferOn
+	sta k_dispBufferOn
+	lda compatMode
+	sta k_compatMode
+	lda col1
+	sta k_col1
+	lda col2
+	sta k_col2
+	pla
+	plp
+	php
+	sei
+	jsr gjsrfar
+	.word addr
+	.byte BANK_KERNAL
+	plp
+	rts
+.endmacro
+
+_GetScanLine:
+	jmpf k_GetScanLine
 
 _DrawLine:
-	jsr gjsrfar
-	.word k_DrawLine
-	.byte BANK_KERNAL
-	rts
+	jmpf k_DrawLine
 
 _DrawPoint:
-	jsr gjsrfar
-	.word k_DrawPoint
-	.byte BANK_KERNAL
-	rts
+	jmpf k_DrawPoint
 
 _FrameRectangle:
-	jsr gjsrfar
-	.word k_FrameRectangle
-	.byte BANK_KERNAL
-	rts
+	jmpf k_FrameRectangle
 
 _ImprintRectangle:
-	jsr gjsrfar
-	.word k_FrameRectangle
-	.byte BANK_KERNAL
-	rts
+	jmpf k_FrameRectangle
 
 _InvertRectangle:
-	jsr gjsrfar
-	.word k_InvertRectangle
-	.byte BANK_KERNAL
-	rts
+	jmpf k_InvertRectangle
 
 _RecoverRectangle:
-	jsr gjsrfar
-	.word k_RecoverRectangle
-	.byte BANK_KERNAL
-	rts
+	jmpf k_RecoverRectangle
 
 _Rectangle:
-	jsr gjsrfar
-	.word k_Rectangle
-	.byte BANK_KERNAL
-	rts
+	jmpf k_Rectangle
 
 _TestPoint:
-	jsr gjsrfar
-	.word k_TestPoint
-	.byte BANK_KERNAL
-	rts
+	jmpf k_TestPoint
 
 _SetColor:
-	jsr gjsrfar
-	.word k_SetColor
-	.byte BANK_KERNAL
-	rts
+	jmpf k_SetColor
 
 ImprintLine:
-	jsr gjsrfar
-	.word k_ImprintLine
-	.byte BANK_KERNAL
-	rts
+	jmpf k_ImprintLine
 
 _HorizontalLine:
-	jsr gjsrfar
-	.word k_HorizontalLine
-	.byte BANK_KERNAL
-	rts
+	jmpf k_HorizontalLine
 
 _InvertLine:
-	jsr gjsrfar
-	.word k_InvertLine
-	.byte BANK_KERNAL
-	rts
+	jmpf k_InvertLine
 
 _RecoverLine:
-	jsr gjsrfar
-	.word k_RecoverLine
-	.byte BANK_KERNAL
-	rts
+	jmpf k_RecoverLine
 
 _VerticalLine:
-	jsr gjsrfar
-	.word k_VerticalLine
-	.byte BANK_KERNAL
-	rts
+	jmpf k_VerticalLine
