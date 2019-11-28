@@ -210,10 +210,10 @@
 .global UnblockProcess
 .global FreezeProcess
 .global UnfreezeProcess
-.global HorizontalLine
+;.global HorizontalLine
 .global InvertLine
 .global RecoverLine
-.global VerticalLine
+;.global VerticalLine
 .global Rectangle
 .global FrameRectangle
 .global InvertRectangle

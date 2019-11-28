@@ -9,11 +9,10 @@
 
 .import k_col1
 
-.import k_HorizontalLine
-.import k_HorizontalLineCol
+.import HorizontalLine
 .import k_InvertLine
 .import k_RecoverLine
-.import k_VerticalLine
+.import VerticalLine
 .import k_ImprintLine
 
 .global k_Rectangle
@@ -36,7 +35,7 @@
 ;---------------------------------------------------------------
 k_Rectangle:
 	MoveB r2L, r11L
-@1:	jsr k_HorizontalLine
+@1:	jsr HorizontalLine
 	lda r11L
 	inc r11L
 	cmp r2H
@@ -113,15 +112,15 @@ k_ImprintRectangle:
 k_FrameRectangle:
 	ldy r2L
 	sty r11L
-	jsr k_HorizontalLine
+	jsr HorizontalLine
 	MoveB r2H, r11L
-	jsr k_HorizontalLine
+	jsr HorizontalLine
 	PushW r3
 	PushW r4
 	MoveW r3, r4
 	MoveW r2, r3
-	jsr k_VerticalLine
+	jsr VerticalLine
 	PopW r4
-	jsr k_VerticalLine
+	jsr VerticalLine
 	PopW r3
 	rts

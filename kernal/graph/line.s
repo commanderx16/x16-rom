@@ -19,10 +19,10 @@
 .import inc_bgpage
 
 .global k_ImprintLine
-.global k_HorizontalLine
+.global HorizontalLine
 .global k_InvertLine
 .global k_RecoverLine
-.global k_VerticalLine
+.global VerticalLine
 
 .segment "GRAPH"
 
@@ -35,7 +35,7 @@
 ; Return:    r11L unchanged
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
-k_HorizontalLine:
+HorizontalLine:
 	lda k_col1
 	pha
 	jsr GetLineStart
@@ -356,7 +356,7 @@ k_ImprintLine:
 ; Return:    draw the line
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
-k_VerticalLine:
+VerticalLine:
 	lda r3H
 	sec
 	sbc r3L

@@ -11,8 +11,8 @@
 
 .import k_BitMaskPow2Rev
 .import k_Dabs
-
 .import k_SetVRAMPtrFG, k_SetVRAMPtrBG
+.import HorizontalLine, VerticalLine
 
 .import k_dispBufferOn
 .import k_col1
@@ -36,7 +36,20 @@
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 k_DrawLine:
-	php
+	bmi @0 ; recover? slow path
+	CmpB r11L, r11H
+	bne @0a
+	jmp HorizontalLine
+@0a:
+	CmpW r3, r4
+	bne @0
+	PushW r3
+	MoveW r11, r3
+	jsr VerticalLine
+	PopW r3
+	rts
+
+@0:	php
 	LoadB r7H, 0
 	lda r11H
 	sub r11L
