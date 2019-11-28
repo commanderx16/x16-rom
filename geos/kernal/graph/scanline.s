@@ -52,40 +52,18 @@ _GetScanLineCompat:
 
 .import k_dispBufferOn, k_col1, k_col2
 
-.macro far_pre
-	php
-	pha
-	lda dispBufferOn
-	sta k_dispBufferOn
-	lda col1
-	sta k_col1
-	lda col2
-	sta k_col2
-	pla
-	plp
-	php
-	sei
-.endmacro
-
-.macro jmpf addr
-	far_pre
+.macro jsrfar addr
 	jsr gjsrfar
 	.word addr
 	.byte BANK_KERNAL
-	plp
-	rts
-.endmacro
-
-.macro jsrf addr
-	far_pre
-	jsr gjsrfar
-	.word addr
-	.byte BANK_KERNAL
-	plp
 .endmacro
 
 _GetScanLine:
-	jmpf k_GetScanLine
+	php
+	sei
+	jsrfar k_GetScanLine
+	plp
+	rts
 
 ;---------------------------------------------------------------
 ; DrawLine                                                $C130
@@ -102,15 +80,23 @@ _GetScanLine:
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 _DrawLine:
+	php
+	MoveB dispBufferOn, k_dispBufferOn
+	plp
 	bmi @3 ; recover
 ; draw
 	lda #0
 	rol
 	eor #1
-	sta col1
-	jmpf k_DrawLine
+	sta k_col1
+	bra @2 ; N=0 -> draw
 @3:	sec ; N=1, C=1 -> recover
-	jmpf k_DrawLine
+@2:	php
+	sei
+	jsrfar k_DrawLine
+	plp
+	rts
+
 
 ;---------------------------------------------------------------
 ; DrawPoint                                               $C133
@@ -171,8 +157,12 @@ _DrawPoint:
 ;---------------------------------------------------------------
 _FrameRectangle:
 	jsr Convert8BitPattern
-	sta col1
-	jmpf k_FrameRectangle
+	MoveB dispBufferOn, k_dispBufferOn
+	php
+	sei
+	jsrfar k_FrameRectangle
+	plp
+	rts
 
 ;---------------------------------------------------------------
 ; ImprintRectangle                                        $C250
@@ -185,12 +175,31 @@ _FrameRectangle:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _ImprintRectangle:
+	php
+	sei
 	lda #$ff
 	clc
-	jmpf k_Rectangle
+	jsrfar k_Rectangle
+	plp
+	rts
 
+;---------------------------------------------------------------
+; InvertRectangle                                         $C12A
+;
+; Pass:      r2L top in scanlines (0-199)
+;            r2H bottom in scanlines (0-199)
+;            r3  left in pixels (0-319)
+;            r4  right in pixels (0-319)
+; Return:    r2L, r3H unchanged
+; Destroyed: a, x, y, r5 - r8
+;---------------------------------------------------------------
 _InvertRectangle:
-	jmpf k_InvertRectangle
+	MoveB dispBufferOn, k_dispBufferOn
+	php
+	sei
+	jsrfar k_InvertRectangle
+	plp
+	rts
 
 ;---------------------------------------------------------------
 ; RecoverRectangle                                        $C12D
@@ -203,9 +212,13 @@ _InvertRectangle:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _RecoverRectangle:
+	php
+	sei
 	lda #$ff
 	sec
-	jmpf k_Rectangle
+	jsrfar k_Rectangle
+	plp
+	rts
 
 ;---------------------------------------------------------------
 ; Rectangle                                               $C124
@@ -218,8 +231,14 @@ _RecoverRectangle:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _Rectangle:
+	MoveB dispBufferOn, k_dispBufferOn
+	MoveB col1, k_col1
+	php
+	sei
 	lda #0 ; N=0 -> draw
-	jmpf k_Rectangle
+	jsrfar k_Rectangle
+	plp
+	rts
 
 ;---------------------------------------------------------------
 ; TestPoint                                               $C13F
@@ -257,20 +276,37 @@ _TestPoint:
 ;---------------------------------------------------------------
 _HorizontalLine:
 	jsr Convert8BitPattern
-	sta col1
 	PushW r3
 	PushW r4
 	PushW r11
 	MoveB r11L, r11H
+	MoveB dispBufferOn, k_dispBufferOn
+	php
+	sei
 	lda #0 ; N=0 -> draw
-	jsrf k_DrawLine
+	jsrfar k_DrawLine
+	plp
 	PopW r11
 	PopW r4
 	PopW r3
 	rts
 
+;---------------------------------------------------------------
+; InvertLine                                              $C11B
+;
+; Pass:      r3   x pos of left endpoint (0-319)
+;            r4   x pos of right endpoint (0-319)
+;            r11L y pos (0-199)
+; Return:    r3-r4 unchanged
+; Destroyed: a, x, y, r5 - r8
+;---------------------------------------------------------------
 _InvertLine:
-	jmpf k_InvertLine
+	MoveB dispBufferOn, k_dispBufferOn
+	php
+	sei
+	jsrfar k_InvertLine
+	plp
+	rts
 
 ;---------------------------------------------------------------
 ; RecoverLine                                             $C11E
@@ -287,9 +323,14 @@ _RecoverLine:
 	PushW r4
 	PushW r11
 	MoveB r11L, r11H
+
+	php
+	sei
 	lda #$ff
 	sec      ; N=1, C=1 -> recover
-	jsrf k_DrawLine
+	jsrfar k_DrawLine
+	plp
+
 	PopW r11
 	PopW r4
 	PopW r3
@@ -307,26 +348,47 @@ _RecoverLine:
 ;---------------------------------------------------------------
 _VerticalLine:
 	jsr Convert8BitPattern
-	sta col1
 	PushW r3
 	MoveW r3, r11
 	MoveW r4, r3
+
+	MoveB dispBufferOn, k_dispBufferOn
+	php
+	sei
 	lda #0 ; N=0 -> draw
-	jsrf k_DrawLine
+	jsrfar k_DrawLine
+	plp
+
 	PopW r3
 	rts
 
 _SetVRAMPtrFG:
-	jmpf k_SetVRAMPtrFG
+	php
+	sei
+	jsrfar k_SetVRAMPtrFG
+	plp
+	rts
 
 _SetVRAMPtrBG:
-	jmpf k_SetVRAMPtrBG
+	php
+	sei
+	jsrfar k_SetVRAMPtrBG
+	plp
+	rts
 
 _SetPointFG:
-	jmpf k_SetPointFG
+	php
+	sei
+	jsrfar k_SetPointFG
+	plp
+	rts
 
 _SetPointBG:
-	jmpf k_SetPointBG
+	php
+	sei
+	jsrfar k_SetPointBG
+	plp
+	rts
 
 ;---------------------------------------------------------------
 ; Color compatibility logic
@@ -346,6 +408,8 @@ Convert8BitPattern:
 	tya
 	asl
 	ora #16
+	sta k_col1
 	rts
 @3:	lda #16+15
+	sta k_col1
 	rts
