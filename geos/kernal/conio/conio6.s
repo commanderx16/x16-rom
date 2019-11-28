@@ -13,6 +13,8 @@
 .import _PutChar
 .import _GetRealSize
 
+.import decimalTemp
+
 .import NormalizeX
 
 .global _PutDecimal
@@ -51,8 +53,8 @@ CalcDecimal:
 	bbsf 6, r2L, @5
 @4:	ora #%00110000
 	ldx r3L
-	sta fontTemp1,x
-	ldx currentMode
+	sta decimalTemp,x
+	ldx g_currentMode
 	jsr _GetRealSize
 	tya
 	add r3H
@@ -113,7 +115,7 @@ _PutDecimal:
 .endif
 @1:	ldx r3L
 	stx r0L
-@2:	lda fontTemp1-1,x
+@2:	lda decimalTemp-1,x
 	pha
 	dex
 	bne @2

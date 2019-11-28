@@ -128,7 +128,7 @@ DrwDlgSpd1:
 	jsr SetPattern
 	clc
 	jsr CalcDialogCoords
-	MoveW r4, rightMargin
+	MoveW r4, g_rightMargin
 	jsr Rectangle
 .ifndef wheels_size_and_speed ; redundant
 	clc

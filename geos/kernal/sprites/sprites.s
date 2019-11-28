@@ -10,9 +10,6 @@
 .include "kernal.inc"
 .include "c64.inc"
 
-; bitmask.s
-.import BitMaskPow2
-
 .import scr_mobx
 
 .import NormalizeX

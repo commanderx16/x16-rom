@@ -20,16 +20,16 @@
 .segment "init4"
 
 InitRamTab:
-	.word currentMode
+	.word g_currentMode
 	.byte 12
-	.byte 0                       ; currentMode
+	.byte 0                       ; g_currentMode
 	.byte ST_WR_FORE | ST_WR_BACK ; dispBufferOn
 	.byte 0                       ; mouseOn
 	.word mousePicData            ; msePicPtr (X16: unused)
-	.byte 0                       ; windowTop
-	.byte SC_PIX_HEIGHT-1         ; windowBottom
-	.word 0                       ; leftMargin
-	.word SC_PIX_WIDTH-1          ; rightMargin
+	.byte 0                       ; g_windowTop
+	.byte SC_PIX_HEIGHT-1         ; g_windowBottom
+	.word 0                       ; g_leftMargin
+	.word SC_PIX_WIDTH-1          ; g_rightMargin
 	.byte 0                       ; pressFlag
 
 	.word appMain

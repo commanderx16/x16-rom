@@ -105,11 +105,9 @@ DoMenu1_1:
 	jsr CopyMenuCoords
 ; draw white both in color and compat mode, don't switch modes
 	PushW curPattern
-	PushB compatMode
 	lda #0
 	jsr _SetPattern
 	jsr _Rectangle
-	PopB compatMode
 	PopW curPattern
 .ifdef wheels
 	lda r2H
@@ -270,7 +268,7 @@ Menu_1:
 	jsr MenuStoreFont
 	jsr _UseSystemFont
 	LoadB r10H, 0
-	sta currentMode
+	sta g_currentMode
 	sec
 	jsr Menu_4
 @1:	jsr Menu_3
@@ -282,7 +280,7 @@ Menu_1:
 	bbrf 7, menuOptNumber, @2
 	lda r1H
 	sec
-	adc curHeight
+	adc g_curHeight
 	sta r1H
 	MoveW menuLeft, r11
 	sec
@@ -310,23 +308,23 @@ Menu_2:
 	lda (r0),y
 	sta r0H
 	stx r0L
-	PushW leftMargin
-	PushW rightMargin
+	PushW g_leftMargin
+	PushW g_rightMargin
 	PushW StringFaultVec
 .ifdef wheels_size_and_speed
 	lda #$00
-	sta leftMargin+1
-	sta leftMargin
+	sta g_leftMargin+1
+	sta g_leftMargin
 .else
-	LoadW__ leftMargin, 0
+	LoadW__ g_leftMargin, 0
 .endif
 	sec
 	lda menuRight
 	sbc #1
-	sta rightMargin
+	sta g_rightMargin
 	lda menuRight+1
 	sbc #0
-	sta rightMargin+1
+	sta g_rightMargin+1
 	LoadW StringFaultVec, MenuStringFault
 	PushB r1H
 .ifdef wheels
@@ -334,22 +332,22 @@ Menu_2:
 	bmi @1
 	sec
 	lda menuBottom
-	sbc curHeight
+	sbc g_curHeight
 	sbc #1
 	sta r1H
 @1:	clc
-	adc baselineOffset
+	adc g_baselineOffset
 	adc #1
 	sta r1H
 .else
-	AddB_ baselineOffset, r1H
+	AddB_ g_baselineOffset, r1H
 	inc r1H
 .endif
 	jsr _PutString
 	PopB r1H
 	PopW StringFaultVec
-	PopW rightMargin
-	PopW leftMargin
+	PopW g_rightMargin
+	PopW g_leftMargin
 	PopW r10
 	rts
 

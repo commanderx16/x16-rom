@@ -6,6 +6,8 @@
 .import joystick_scan, joystick_get; [joystick]
 .import clock_update, clock_get_timer, clock_set_timer, clock_get_time_date, clock_set_time_date; [time]
 
+.import GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_draw_line, GRAPH_filter_pixels, GRAPH_get_pixel, GRAPH_set_pixel, GRAPH_start_direct
+
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***
 ; for now, these are private API, they have not been
@@ -13,11 +15,11 @@
 
 ; $FF00: MONITOR
 	jmp monitor
-; $FF03
+; $FF03 restore_basic
 	jmp restore_basic
-; $FF06: GETJOY
+; $FF06: joystick_scan
 	jmp joystick_scan
-; $FF09: MOUSE
+; $FF09: mouse_config
 	jmp mouse_config
 ; $FF0C: clock_set_time_date
 	jmp clock_set_time_date
@@ -29,6 +31,42 @@
 	jmp mouse_get_y
 ; $FF18: joystick_get
 	jmp joystick_get
+
+
+; $FF1B: GRAPH_set_window [TODO]
+	jmp GRAPH_set_window
+; $FF1E: GRAPH_set_options [TODO]
+	jmp $ffff;GRAPH_set_options
+; $FF21: GRAPH_set_colors
+	jmp GRAPH_set_colors
+; $FF24: void GRAPH_start_direct(word x, word y);
+	jmp GRAPH_start_direct
+; $FF27: void GRAPH_set_pixel(byte color);
+	jmp GRAPH_set_pixel
+;XX GRAPH_set_pixels [TODO]
+;XX	jmp $ffff;GRAPH_set_pixels
+; $FF2A: byte GRAPH_get_pixel(word x, word y);
+	jmp GRAPH_get_pixel
+;XX GRAPH_get_pixels [TODO]
+;XX	jmp $ffff;GRAPH_get_pixels
+; $FF2D: void GRAPH_filter_pixels(word num, word ptr);
+	jmp GRAPH_filter_pixels
+
+; $FF30: void GRAPH_draw_line(word x1, word y1, word x2, word y2, byte flags);
+	jmp GRAPH_draw_line
+; $FF33: void GRAPH_draw_frame(word x1, word y1, word x2, word y2);
+	jmp GRAPH_draw_frame
+; $FF36: void GRAPH_draw_rect(word x1, word y1, word x2, word y2, byte flags);
+	jmp GRAPH_draw_rect
+; $FF39: GRAPH_move_rect [TODO]
+	jmp $ffff;GRAPH_move_rect
+
+; $FF3C: void GRAPH_set_font(void ptr);
+	jmp GRAPH_set_font
+; $FF3F: (byte baseline, byte width, byte height) GRAPH_get_char_size(byte c, byte mode);
+	jmp GRAPH_get_char_size
+; $FF42: void GRAPH_put_char(inout word x, inout word y, byte c);
+	jmp GRAPH_put_char
 
 	.segment "JMPTB128"
 ; C128 KERNAL API

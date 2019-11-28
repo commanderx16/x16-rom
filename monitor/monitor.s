@@ -1,3 +1,16 @@
+.if 1
+.segment "monitor_a"
+.global monitor
+.segment "monitor_b"
+.segment "asmchars1"
+.segment "asmchars2"
+.segment "mnemos1"
+.segment "mnemos2"
+.segment "monitor_c"
+.segment "monitor_ram_code"
+monitor:
+	brk
+.else
 ; ----------------------------------------------------------------
 ; Monitor
 ; ----------------------------------------------------------------
@@ -3774,3 +3787,4 @@ LBD8D:  lda     #9
         bcs     LBD8C
         lda     #8
         bne     LBD8A ; always
+.endif

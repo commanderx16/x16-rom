@@ -15,7 +15,6 @@
 .import PatternTab
 
 .global _SetPattern
-.global _SetColor
 
 .segment "graph2l2"
 
@@ -23,12 +22,11 @@
 ; SetPattern                                              $C139
 ;
 ; Pass:      a pattern nbr (0-33)
-; Return:    col1 - updated
+; Return:    g_col1 - updated
 ; Destroyed: a
 ;---------------------------------------------------------------
 _SetPattern:
 ; convert patterns (0-33) into colors that look nice
-GetColor:
 	cmp #2 ; 50% shading
 	beq @a
 	cmp #9 ; horizontal stripes
@@ -40,21 +38,6 @@ GetColor:
 @a:	lda #14 ; light blue
 	bra @c
 @b:	lda #6 ; dark blue
-@c:	sta col1
-	lda #$80
-	sta compatMode
-	rts
-
-;---------------------------------------------------------------
-; SetColor
-;
-; Pass:      a primary color (0-255)
-;            x secondary color (0-255)
-; Return:    col1, col2 - updated
-;---------------------------------------------------------------
-_SetColor:
-	sta col1   ; primary color
-	stx col2 ; secondary color
-	stz compatMode
+@c:	sta g_col1
 	rts
 

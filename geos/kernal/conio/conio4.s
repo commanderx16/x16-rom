@@ -10,7 +10,6 @@
 .include "kernal.inc"
 .include "c64.inc"
 
-.import DoBACKSPC
 .import tmpKeyVector
 .import stringLen
 .import stringMaxLen
@@ -18,6 +17,8 @@
 .import _PromptOff
 .import _PromptOn
 .import _InitTextPrompt
+
+.import _GetRealSize, _PutCharK
 
 .import NormalizeX
 
@@ -48,7 +49,7 @@ _GetString:
 	MoveB r2L, stringMaxLen
 	PushB r1H
 	clc
-	lda baselineOffset
+	lda g_baselineOffset
 	adc r1H
 	sta r1H
 	jsr PutString
@@ -63,7 +64,7 @@ _GetString:
 	LoadW StringFaultVec, GSStringFault
 	bbrf 7, stringMargCtrl, @1
 	MoveW r4, StringFaultVec
-@1:	lda curHeight
+@1:	lda g_curHeight
 	jsr _InitTextPrompt
 .ifdef bsw128
 	jmp PromptOn
@@ -121,7 +122,7 @@ GSSkeyVector:
 	LoadB dispBufferOn, (ST_WR_FORE | ST_WRGS_FORE)
 @3:	PushB r1H
 	clc
-	lda baselineOffset
+	lda g_baselineOffset
 	adc r1H
 	sta r1H
 	lda (string),y
@@ -174,7 +175,7 @@ GSHelp1:
 	LoadB dispBufferOn, (ST_WR_FORE | ST_WRGS_FORE)
 @1:	PushB r1H
 	clc
-	lda baselineOffset
+	lda g_baselineOffset
 	adc r1H
 	sta r1H
 	lda (string),y
@@ -189,4 +190,17 @@ GSHelp1:
 	clc
 	rts
 @2:	sec
+	rts
+
+DoBACKSPC:
+	ldx g_currentMode
+	jsr _GetRealSize
+	sty g_PrvCharWidth
+	SubB g_PrvCharWidth, r11L
+	bcs @1
+	dec r11H
+@1:	PushW r11
+	lda #$7f ; = DEL
+	jsr _PutCharK
+	PopW r11
 	rts

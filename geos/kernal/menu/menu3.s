@@ -365,7 +365,7 @@ MenuDoInvert:
 
 MenuStoreFont:
 	ldx #9
-@1:	lda baselineOffset-1,x
+@1:	lda g_baselineOffset-1,x
 	sta saveFontTab-1,x
 	dex
 	bne @1
@@ -374,7 +374,7 @@ MenuStoreFont:
 MenuRestoreFont:
 	ldx #9
 @1:	lda saveFontTab-1,x
-	sta baselineOffset-1,x
+	sta g_baselineOffset-1,x
 	dex
 	bne @1
 	rts

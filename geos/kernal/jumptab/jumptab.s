@@ -168,7 +168,7 @@
 .import _ImprintRectangle
 .import _BitmapUp
 .import _TestPoint
-.import _GetScanLineCompat
+.import _GetScanLine
 .import _DrawPoint
 .import _DrawLine
 .import _RecoverRectangle
@@ -210,16 +210,16 @@
 .global UnblockProcess
 .global FreezeProcess
 .global UnfreezeProcess
-.global HorizontalLine
+;.global HorizontalLine
 .global InvertLine
-.global RecoverLine
-.global VerticalLine
+;.global RecoverLine
+;.global VerticalLine
 .global Rectangle
 .global FrameRectangle
 .global InvertRectangle
-.global RecoverRectangle
+;.global RecoverRectangle
 .global DrawLine
-.global DrawPoint
+;.global DrawPoint
 .global GraphicsString
 .global SetPattern
 .global GetScanLine
@@ -314,7 +314,7 @@
 .global GetDirHead
 .global PutDirHead
 .global NxtBlkAlloc
-.global ImprintRectangle
+;.global ImprintRectangle
 .global i_ImprintRectangle
 .global DoDlgBox
 .global RenameFile
@@ -441,7 +441,7 @@ GraphicsString:
 SetPattern:
 	jmp _SetPattern
 GetScanLine:
-	jmp _GetScanLineCompat
+	jmp _GetScanLine
 TestPoint:
 	jmp _TestPoint
 BitmapUp:

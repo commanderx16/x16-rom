@@ -55,6 +55,7 @@ cint	jsr iokeys
 	jsr panic       ;set up vic
 
 	lda #2
+	sec
 	jsr scrmod      ;set screen mode to default
 ;
 	lda #0          ;make sure we're in pet mode
@@ -473,7 +474,27 @@ bkln1	dex
 
 ;print routine
 ;
-prt	pha
+prt
+.if 0
+	pha
+	lda blnsw
+	beq @1
+	pla
+	.import GRAPH_put_char
+	pha
+	phx
+	phy
+	jsr GRAPH_put_char
+	ply
+	plx
+	pla
+	clc
+	rts
+
+@1:	pla
+.endif
+
+	pha
 	sta data
 	txa
 	pha

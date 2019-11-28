@@ -112,22 +112,11 @@ GEOS_SOURCES= \
 	geos/kernal/start/start64.s \
 	geos/kernal/bitmask/bitmask1.s \
 	geos/kernal/bitmask/bitmask3.s \
-	geos/kernal/bswfont/bswfont.s \
-	geos/kernal/conio/conio3b.s \
 	geos/kernal/conio/conio5.s \
 	geos/kernal/files/files9.s \
-	geos/kernal/fonts/fonts1.s \
-	geos/kernal/fonts/fonts2.s \
-	geos/kernal/fonts/fonts3.s \
-	geos/kernal/fonts/fonts4.s \
-	geos/kernal/fonts/fonts4a.s \
-	geos/kernal/fonts/fonts4b.s \
 	geos/kernal/graph/bitmapclip.s \
 	geos/kernal/graph/bitmapup.s \
-	geos/kernal/graph/line.s \
-	geos/kernal/graph/point.s \
-	geos/kernal/graph/rect.s \
-	geos/kernal/graph/scanline.s \
+	geos/kernal/graph/graph_bridge.s \
 	geos/kernal/ramexp/ramexp1.s \
 	geos/kernal/ramexp/ramexp2.s \
 	geos/kernal/rename.s \
@@ -171,6 +160,8 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/ps2mouse.o kernal/ps2mouse.s
 	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/joystick.o kernal/joystick.s
 	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/clock.o kernal/clock.s
+	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/graph/graph.o kernal/graph/graph.s
+	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/fonts/fonts.o kernal/fonts/fonts.s
 
 	$(AS) $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
 
@@ -193,7 +184,7 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(LD) -C rom.cfg -o rom.bin \
 		basic/basic.o \
 		fplib/fplib.o \
-		kernal/kernal.o kernal/cpychr.o kernal/ps2.o kernal/ps2kbd.o kernal/ps2mouse.o kernal/joystick.o kernal/clock.o \
+		kernal/kernal.o kernal/cpychr.o kernal/ps2.o kernal/ps2kbd.o kernal/ps2mouse.o kernal/joystick.o kernal/clock.o kernal/graph/graph.o kernal/fonts/fonts.o \
 		monitor/monitor.o \
 		cbdos/zeropage.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o \
 		keymap/keymap.o \
@@ -209,4 +200,5 @@ clean:
 	rm -f cbdos/*.o
 	rm -f keymap/keymap.o
 	rm -f charset/petscii.o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
+	rm -f kernal/graph.*.o kernal/fonts/*.o
 	rm -rf build

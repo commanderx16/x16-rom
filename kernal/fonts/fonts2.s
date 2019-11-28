@@ -1,47 +1,11 @@
-; GEOS KERNAL by Berkeley Softworks
-; reverse engineered by Maciej Witkowiak, Michael Steil
+; Commander X16 KERNAL
+; based on GEOS by Berkeley Softworks; reversed by Maciej Witkowiak, Michael Steil
 ;
-; Font drawing
+; Font library: drawing
 
-.setcpu "65c02"
+.import SetVRAMPtrFG, SetVRAMPtrBG
 
-.include "const.inc"
-.include "geossym.inc"
-.include "geosmac.inc"
-.include "config.inc"
-.include "kernal.inc"
-.include "c64.inc"
-
-.import BitMaskPow2
-.import FontSH5
-.import base
-.import BitMaskLeadingClear
-.import BitMaskLeadingSet
-.import GetChWdth1
-.import _GetScanLine
-.import FntIndirectJMP
-.import b0, b1, b2, b3, b4, b5, b6, b7
-.import c0, c1, c2, c3, c4, c5, c6, c7
-.import d0, d1, d2, d3, d4, d5, d6, d7
-.import e0, e1, e2, e3, e4, e5, e6, e7
-.import f0, f1, f2, f3, f4, f5, f6, f7
-.import g0, g1, g2, g3, g4, g5, g6, g7
-.import noop
-.import FontGt4
-.import FontGt3
-.import FontGt2
-.import FontGt1
-
-.ifdef bsw128
-.import _TempHideMouse
-.else
-.import GetScanLine
-.import GetRealSize
-.endif
-
-.global Font_9
-.global FontPutChar
-.global _GetRealSize
+.export GRAPH_get_char_size 
 
 ;
 ; For italics (actually slanted) characters, the original GEOS
@@ -73,26 +37,34 @@
 ; This looks way better and matches the slant of Helvetica
 ; Italics vs. Helvetica Regular (1/4.6) better.
 ;
-less_slanted = 1
-
-.segment "fonts2"
+less_slanted = 1	
 
 ;---------------------------------------------------------------
-; GetRealSize                                             $C1B1
+; GRAPH_get_char_size
 ;
 ; Function:  Returns the size of a character in the current
 ;            mode (bold, italic...) and current Font.
 ;
 ; Pass:      a   ASCII character
 ;            x   currentMode
-; Return:    y   character width
-;            x   character height
-;            a   baseline offset
+; Return:    a   baseline offset
+;            x   character width
+;            y   character height
 ; Destroyed: nothing
 ;---------------------------------------------------------------
-.ifndef wheels ; moved
-_GetRealSize:
-	subv 32
+GRAPH_get_char_size:
+	jsr get_char_size
+	phx
+	phy ; XXX rewrite code below instead
+	plx
+	ply
+	rts
+	
+get_char_size:
+	subv $20
+	bcs _GetRealSize2
+	lda #0
+	rts
 _GetRealSize2:
 	jsr GetChWdth1
 	tay
@@ -136,7 +108,6 @@ _GetRealSize2:
 @2:	lda baselineOffset
 	rts
 .endif ; bsw128
-.endif
 
 Font_1:
 	ldy r1H
@@ -149,7 +120,7 @@ Font_1:
 .else
 	ldx #0
 	addv 32
-	jsr GetRealSize
+	jsr get_char_size
 	tya
 .endif
 	pha
@@ -230,7 +201,7 @@ Font_1:
 	jsr _GetRealSize2
 .else
 	addv 32
-	jsr GetRealSize
+	jsr get_char_size
 .endif
 	sta r5H
 	SubB r5H, r1H
@@ -298,9 +269,32 @@ Font_tabL:
 Font_tabH:
 	.hibytes Font_tab
 
+GetChWdth1:
+	cmp #$5f ; code $7F = DEL
+	beq @2
+	asl
+	tay
+	iny
+	iny
+	lda (curIndexTable),y
+	dey
+	dey
+	sec
+	sbc (curIndexTable),y
+	rts
+@2:	lda PrvCharWidth
+	rts
+
 Font_2:
-	ldx r1H
-	jsr _GetScanLine
+	PushW r0
+	PushW r1
+	LoadW r0, 0
+	MoveB r1H, r1L
+	jsr SetVRAMPtrFG
+	jsr SetVRAMPtrBG
+	PopW r1
+	PopW r0
+
 	lda FontTVar2
 	ldx FontTVar2+1
 	bmi @2
@@ -314,12 +308,12 @@ Font_2:
 	and #%11111000
 	sta r4L
 	clc
-	adc r5L
-	sta r5L
+	adc ptr_fg
+	sta ptr_fg
 	sta veralo
 	txa
-	adc r5H
-	sta r5H
+	adc ptr_fg+1
+	sta ptr_fg+1
 	sta veramid
 	lda #$11
 	sta verahi
@@ -472,36 +466,6 @@ Font_tab2:
 	.byte <(e6-base)
 	.byte <(e7-base)
 
-.ifdef wheels
-	.res 9, 0 ; XXX
-.endif
-
-.ifdef wheels ; xxx moved, but unchanged
-_GetRealSize:
-	subv 32
-	jsr GetChWdth1
-	tay
-	txa
-	ldx curHeight
-	pha
-	and #$40
-	beq @1
-	iny
-@1:	pla
-	and #8
-	beq @2
-	inx
-	inx
-	iny
-	iny
-	lda baselineOffset
-	addv 2
-	rts
-@2:	lda baselineOffset
-	rts
-
-.endif
-
 ; called if currentMode & (SET_UNDERLINE | SET_ITALIC)
 Font_3:
 	lda currentMode
@@ -589,9 +553,6 @@ Font_4:
 	jmp Draw8Pixels
 
 @4:	rts
-
-
-.segment "fonts2"
 
 Font_5:
 	ldx r8L
@@ -708,6 +669,7 @@ Font_9:
 	ror fontTemp1+7
 	rts
 
+
 ; central character printing, called from conio.s
 ; character - 32 in A
 FontPutChar:
@@ -716,11 +678,6 @@ FontPutChar:
 	tya
 	jsr Font_1 ; put pointer in r13
 	bcs @9 ; return
-.ifdef bsw128
-	jsr _TempHideMouse
-	bbrf 7, graphMode, @1
-	jmp FontPutChar80
-.endif
 @1:	clc
 	lda currentMode
 	and #SET_UNDERLINE | SET_ITALIC
@@ -742,14 +699,14 @@ FontPutChar:
 	bcc @6
 	bne @7
 @6:	jsr Font_4
-@7:	lda r5L
+@7:	lda ptr_fg
 	clc
 	adc #<SC_PIX_WIDTH
-	sta r5L
+	sta ptr_fg
 	sta veralo
-	lda r5H
+	lda ptr_fg+1
 	adc #>SC_PIX_WIDTH
-	sta r5H
+	sta ptr_fg+1
 	sta veramid
 	inc r1H
 	dec r10H
@@ -757,62 +714,21 @@ FontPutChar:
 @9:	PopB r1H
 	rts
 
-.ifdef bsw128
-; FontPutChar for 80 column mode
-LE6E0:	lda r5L
-	add #SCREENPIXELWIDTH/8
-	sta r5L
-	sta r6L
-	bcc @1
-	inc r5H
-	inc r6H
-@1:	inc r1H
-	CmpBI r1H, 100
-	bne FontPutChar80
-	bbrf 6, dispBufferOn, FontPutChar80
-	AddVB $21, r6H
-	bbsf 7, dispBufferOn, FontPutChar80
-	sta r5H
-FontPutChar80:
-	clc
-	lda currentMode
-	and #SET_UNDERLINE | SET_ITALIC
-	beq @1
-	jsr Font_3
-@1:	php
-	bcs @2
-	jsr FntIndirectJMP
-@2:	bbsf 7, r8H, @6
-	AddW curSetWidth, r2
-@3:	plp
-	bcs @5
-	lda r1H
-	cmp windowTop
-	bcc @5
-	cmp windowBottom
-	bcc @4
-	bne @5
-@4:	jsr LE4BC
-@5:	dec r10H
-	bne LE6E0
-	PopB r1H
-	rts
-@6:	jsr Font_5
-	bra @3
-.endif
-
 Draw8Pixels:
 	ldy fontTemp1,x
 	sty r4L    ; pixel pattern
 
-	bit compatMode
-	bmi Draw8PixelsCompat
-
-; color mode
 	bit r10L   ; inverted/underlined?
 	bmi Draw8PixelsInv
 
-; regular (color mode), translucent
+	; check for opaque mode
+	lsr currentMode ; bit #0
+	php
+	rol currentMode
+	plp
+	bcs @5
+
+; transclucent, regular
 	ldy col1 ; fg: primary color
 @4:	asl
 	bcc @1
@@ -828,13 +744,17 @@ Draw8Pixels:
 	inc veramid
 @2:	bra @3
 
-; inverted/underlined (color mode)
+; opaque mode, regular
+@5:	ldy col_bg  ; bg
+	bra Draw8PixelsInv2
+
+; inverted/underlined
 Draw8PixelsInv:
+	ldy col2 ; bg: secondary color
+Draw8PixelsInv2:
 	phx
 	ldx col1 ; fg: primary color
-	ldy col2 ; bg: secondary color
-; opaque drawing with fg color (x) and bg color (y)
-Draw8PixelsOpaque:
+; opaque drawing with fg color .x and bg color .y
 @4:	asl
 	bcc @1
 	asl r4L
@@ -852,19 +772,34 @@ Draw8PixelsOpaque:
 	inc veramid
 @2:	bra @3
 
-Draw8PixelsCompat:
-	bit r10L   ; inverted/underlined?
-	bmi Draw8PixelsCompatInv
+FntIndirectJMP:
+	ldy #0
+	jmp (r13)
 
-; regular (compat mode)
-	phx
-	ldx #0  ; fg: black
-	ldy #1  ; bg: white
-	bra Draw8PixelsOpaque
-
-; inverted/underlined (compat mode)
-Draw8PixelsCompatInv:
-	phx
-	ldx #0  ; fg: black
-	ldy #15 ; bg: light gray
-	bra Draw8PixelsOpaque
+BitMaskPow2:
+	.byte %00000001
+	.byte %00000010
+	.byte %00000100
+	.byte %00001000
+	.byte %00010000
+	.byte %00100000
+	.byte %01000000
+	.byte %10000000
+BitMaskLeadingSet:
+	.byte %00000000
+	.byte %10000000
+	.byte %11000000
+	.byte %11100000
+	.byte %11110000
+	.byte %11111000
+	.byte %11111100
+	.byte %11111110
+BitMaskLeadingClear:
+	.byte %01111111
+	.byte %00111111
+	.byte %00011111
+	.byte %00001111
+	.byte %00000111
+	.byte %00000011
+	.byte %00000001
+	.byte %00000000

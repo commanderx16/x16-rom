@@ -1,21 +1,7 @@
-; GEOS KERNAL by Berkeley Softworks
-; reverse engineered by Maciej Witkowiak, Michael Steil
+; Commander X16 KERNAL
+; based on GEOS by Berkeley Softworks; reversed by Maciej Witkowiak, Michael Steil
 ;
-; Font drawing
-
-.include "const.inc"
-.include "geossym.inc"
-.include "geosmac.inc"
-.include "config.inc"
-.include "kernal.inc"
-.include "c64.inc"
-
-.global FontGt1
-.global FontGt2
-.global FontGt3
-.global FontGt4
-
-.segment "fonts4b"
+; Font library: drawing
 
 FontGt1:
 	sty fontTemp1+1

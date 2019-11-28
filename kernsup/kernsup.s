@@ -39,6 +39,21 @@ symbol:
 	bridge3 mouse_get_y     ; $FF15: RDDAT
 	bridge3 joystick_get    ; $FF18: joystick_get
 
+	bridge3 GRAPH_set_window
+	bridge3 GRAPH_set_options
+	bridge3 GRAPH_set_colors
+	bridge3 GRAPH_start_direct
+	bridge3 GRAPH_set_pixel
+	bridge3 GRAPH_get_pixel
+	bridge3 GRAPH_filter_pixels
+	bridge3 GRAPH_draw_line
+	bridge3 GRAPH_draw_frame
+	bridge3 GRAPH_draw_rect
+	bridge3 GRAPH_move_rect
+	bridge3 GRAPH_set_font
+	bridge3 GRAPH_get_char_size
+	bridge3 GRAPH_put_char
+
 .segment "KERNSUPV2"
 
 	.byte 0,0,0             ; $FF47: SPIN_SPOUT – setup fast serial ports for I/O

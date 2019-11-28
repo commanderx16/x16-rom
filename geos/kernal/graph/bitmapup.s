@@ -10,16 +10,18 @@
 .include "kernal.inc"
 .include "c64.inc"
 
-.import _GetScanLine
 .ifdef bsw128
 .import _TempHideMouse
 ; XXX wrong bank
 CallNoRAMSharing = $9D80
 .endif
+.import _GRAPH_start_direct, _GRAPH_start_direct, _GRAPH_set_pixel
 
 .global BitmapUpHelp
 .global BitmapDecode
 .global _BitmapUp
+
+.setcpu "65c02"
 
 .segment "graph3c"
 
@@ -63,26 +65,25 @@ _BitmapUp:
 	rts
 
 BitmapUpHelp:
-	ldx r1H
-	jsr _GetScanLine
-	MoveB r2L, r3H
+	PushW r0
+	PushW r1
+	; convert cards (r3L) into pixels (r3)
 	lda r1L
 	asl
 	asl
-	asl
-	php
-	clc
-	adc r5L
-	sta r5L
-	sta veralo
-	lda r5H
-	adc #0
-	plp
-	adc #0
-	sta r5H
-	sta veramid
-	lda #$11
-	sta verahi
+	asl ; * 8
+	sta r0L
+	lda #0
+	rol
+	sta r0H
+	MoveB r1H, r1L
+	stz r1H
+	jsr _GRAPH_start_direct
+	PopW r1
+	PopW r0
+
+	MoveB r2L, r3H ; copy width (in cards)
+
 @2:	jsr BitmapDecode
 	eor #$ff
 	ldx #8
@@ -90,7 +91,7 @@ BitmapUpHelp:
 	tay
 	lda #0
 	rol
-	sta veradat
+	jsr _GRAPH_set_pixel
 	tya
 	dex
 	bne :-

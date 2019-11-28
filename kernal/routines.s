@@ -1,13 +1,13 @@
+.include "../regs.inc"
+.include "../mac.inc"
+.include "graph/graph.inc"
+
+.import GRAPH_set_colors
+
+.import graph_init, graph_clear, font_init
+
 .export jsrfar, banked_irq
 .export fetvec, fetch
-
-; from GEOS
-.import geos_init_graphics
-
-.include "../geos/inc/geosmac.inc"
-.include "../geos/inc/geossym.inc"
-.include "../geos/inc/const.inc"
-.include "../geos/inc/jumptab.inc"
 
 	.segment "ROUTINES"
 
@@ -179,11 +179,13 @@ swpp60	ldx #80
 	ldy #60
 	lda #128 ; scale = 1.0
 	clc
-	bne swpp2 ; always
+	bra swpp2
+
 swpp25	jsr grphon
 	ldy #25
 	sec
 	bra swpp3
+
 swpp30	clc
 	ldy #30
 swpp3	ldx #40
@@ -218,20 +220,59 @@ swpp1	lda #<480
 grphon	lda #$0e ; light blue
 	sta color
 
-; TODO go through GEOS init
-	LoadW dispBufferOn, ST_WR_FORE
-	LoadB windowTop, 0
-	LoadB windowBottom, SC_PIX_HEIGHT-1
-	LoadW leftMargin, 0
-	LoadW rightMargin, SC_PIX_WIDTH-1
-	LoadB pressFlag, 0
+	jsr graph_init
+	lda #0  ; primary:    black
+	ldx #10 ; secondary:  gray
+	ldy #1  ; background: white
+	jsr GRAPH_set_colors
+	jsr graph_clear
+	jsr font_init
 
-	sei
-	jsr jsrfar
-	.word geos_init_graphics
-	.byte BANK_GEOS
-	cli
+tile_base = $10000
+
+; for GEOS
+.global initvg
+
+initvg:
+	lda #$00 ; layer0
+	sta veralo
+	lda #$20
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda #7 << 5 | 1; 256c bitmap
+	sta veradat
+	lda #0
+	sta veradat; tile_w=320px
+	sta veradat; map_base_lo: ignore
+	sta veradat; map_base_hi: ignore
+	lda #<(tile_base >> 2)
+	sta veradat; tile_base_lo
+	lda #>(tile_base >> 2)
+	sta veradat; tile_base_hi
+
+	lda #$00        ;$F0000: composer registers
+	sta veralo
+	sta veramid
+	ldx #0
+px5a:	lda tvera_composer_g,x
+	sta veradat
+	inx
+	cpx #tvera_composer_g_end-tvera_composer_g
+	bne px5a
+
 	rts
+
+tvera_composer_g:
+	.byte 7 << 5 | 1  ;256c bitmap, VGA
+	.byte 64, 64      ;hscale, vscale
+	.byte 0           ;border color
+	.byte <hstart
+	.byte <hstop
+	.byte <vstart
+	.byte <vstop
+	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
+tvera_composer_g_end:
 
 grphoff	lda #$00        ; layer0
 	sta veralo
