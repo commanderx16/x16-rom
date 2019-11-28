@@ -1,7 +1,9 @@
+.include "../../mac.inc"
 .include "../../regs.inc"
 .include "../../io.inc"
 
 .export k_GetScanLine
+.export GetScanLineFG, GetScanLineBG
 .export k_SetVRAMPtr, k_StoreVRAM
 
 .segment "GRAPH"
@@ -10,7 +12,7 @@
 ; SetVRAMPtr
 ;
 ; Function:  Returns the VRAM address of a pixel
-; Pass:      r1  x pos
+; Pass:      r3  x pos
 ;            x   y pos
 ; Return:    r5  add of 1st byte of foreground scr
 ;                (this is also set up in VERA)
@@ -20,25 +22,15 @@
 k_SetVRAMPtr:
 	jsr k_GetScanLine
 ; fg
-	lda r1L
-	clc
-	adc r5L
-	sta r5L
+	AddW r3, r5
+	lda r5L
 	sta veralo
-	lda r1H
-	adc r5H
-	sta r5H
+	lda r5H
 	sta veramid
 	lda #$11
 	sta verahi
 ; bg
-	lda r1L
-	clc
-	adc r6L
-	sta r6L
-	lda r1H
-	adc r6H
-	sta r6H
+	AddW r3, r5
 	rts
 
 ;---------------------------------------------------------------
@@ -63,6 +55,10 @@ k_StoreVRAM:
 ; Destroyed: a
 ;---------------------------------------------------------------
 k_GetScanLine:
+	jsr GetScanLineFG
+	jmp GetScanLineBG
+
+GetScanLineFG:
 	; r5 = x * 320
 	stz r5H
 	txa
@@ -79,11 +75,17 @@ k_GetScanLine:
 	asl
 	rol r5H
 	sta r5L
+	sta veralo
 	txa
 	clc
 	adc r5H
 	sta r5H
+	sta veramid
+	lda #$11
+	sta verahi
+	rts
 
+GetScanLineBG:
 ; For BG storage, we have to work with 8 KB banks.
 ; Lines are 320 bytes, and 8 KB is not divisible by 320,
 ; so the base address of certain lines would be so close

@@ -15,6 +15,7 @@
 .import k_BitMaskLeadingSet
 .import k_BitMaskLeadingClear
 .import k_GetScanLine
+.import GetScanLineFG, GetScanLineBG
 
 .import inc_bgpage
 
@@ -24,7 +25,6 @@
 .global k_InvertLine
 .global k_RecoverLine
 .global k_VerticalLine
-.global k_VerticalLineCol
 
 .segment "GRAPH"
 
@@ -44,12 +44,6 @@ k_HorizontalLineCol: ; called by Rectangle
 	jsr GetLineStart
 	pla
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	ldy r5L
-	sty veralo
-	ldy r5H
-	sty veramid
-	ldy #$11
-	sty verahi
 	jsr HLineFG
 @1:	bbrf 6, k_dispBufferOn, HLine_rts ; ST_WR_BACK
 	jmp HLineBG
@@ -154,19 +148,13 @@ k_InvertLine:
 
 ; foreground version
 ILineFG:
-	lda #1
-	sta veractl
-	lda r5L
+	lda veralo
+	ldx veramid
+	inc veractl ; 1
 	sta veralo
-	lda r5H
-	sta veramid
+	stx veramid
 	sty verahi
-	lda #0
-	sta veractl
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
+	stz veractl ; 0
 	sty verahi
 
 	ldx r7H
@@ -267,12 +255,6 @@ ILineBG:
 ;---------------------------------------------------------------
 k_RecoverLine:
 	jsr GetLineStart
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
-	lda #$11
-	sta verahi
 
 	ldx r7H
 	beq @2
@@ -321,12 +303,6 @@ k_RecoverLine:
 
 k_ImprintLine:
 	jsr GetLineStart
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
-	lda #$11
-	sta verahi
 
 	ldx r7H
 	beq @2
@@ -384,36 +360,35 @@ k_ImprintLine:
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 k_VerticalLine:
-	lda k_col1
-k_VerticalLineCol:
-	pha
-	ldx r3L
-	jsr k_GetScanLine
-	AddW r4, r5
-	AddW r4, r6
-
 	lda r3H
 	sec
 	sbc r3L
 	tax
-	pla
 	inx
 	beq @2
 
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	phx
+	ldx r3L
+	jsr GetScanLineFG
+	AddW r4, veralo
+	plx
+	phx
+	lda k_col1
 	jsr VLineFG
 	plx
 	tya
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+	phx
+	ldx r3L
+	jsr GetScanLineBG
+	AddW r4, r6
+	plx
+	lda k_col1
 	jmp VLineBG
 @2:	rts
 
 VLineFG:
-	ldy r5L
-	sty veralo
-	ldy r5H
-	sty veramid
 	ldy #$71    ; increment in steps of $40
 	sty verahi
 :	sta veradat
@@ -439,7 +414,7 @@ VLineBG:
 GetLineStart:
 	ldx r11L
 	jsr k_GetScanLine
-	AddW r3, r5
+	AddW r3, veralo
 	AddW r3, r6
 
 	MoveW r4, r7

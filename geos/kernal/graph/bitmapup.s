@@ -66,18 +66,18 @@ _BitmapUp:
 BitmapUpHelp:
 	ldx r1H ; y coord
 
-	PushW r1
-	; convert cards (r1L) into pixels (r1)
+	PushW r3
+	; convert cards (r3L) into pixels (r3)
 	lda r1L
 	asl
 	asl
 	asl ; * 8
-	sta r1L
+	sta r3L
 	lda #0
 	rol
-	sta r1H
+	sta r3H
 	jsr _SetVRAMPtr
-	PopW r1
+	PopW r3
 
 	MoveB r2L, r3H ; copy width (in cards)
 

@@ -14,7 +14,6 @@
 .import k_InvertLine
 .import k_RecoverLine
 .import k_VerticalLine
-.import k_VerticalLineCol
 .import k_ImprintLine
 
 .global k_Rectangle
