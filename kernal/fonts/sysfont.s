@@ -1,15 +1,9 @@
 ; GEOS KERNAL by Berkeley Softworks
 ; reverse engineered by Maciej Witkowiak, Michael Steil
 ;
-; System font BSW/9
+; System font
 
-.include "config.inc"
-
-.global BSWFont
-
-.segment "bswfont"
-
-BSWFont:
+SystemFont:
 .byte $06,$3e,$00,$09,$08,$00,$cc,$00,$00,$00,$03,$00,$05,$00,$09,$00
 .byte $0f,$00,$15,$00,$1e,$00,$25,$00,$27,$00,$2b,$00,$2f,$00,$35,$00
 .byte $3b,$00,$3d,$00,$41,$00,$43,$00,$49,$00,$4e,$00,$51,$00,$56,$00

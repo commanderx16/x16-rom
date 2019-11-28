@@ -3,42 +3,23 @@
 ;
 ; Console I/O: UseSystemFont, LoadCharSet, GetCharWidth syscalls
 
-.include "const.inc"
-.include "geossym.inc"
-.include "geosmac.inc"
-.include "config.inc"
-.include "kernal.inc"
-.include "c64.inc"
-
-.global _LoadCharSet
-
-.import BSWFont
-
-.if .defined(trap2) && (!.defined(trap2_alternate_location))
-.import GetSerialNumber2
-.import SerialHiCompare
-.endif
-
-.ifdef bsw128
-.import BSWFont80
-.endif
-
-.global GetChWdth1
-.global _UseSystemFont
-.global _GetCharWidth
+.global k_LoadCharSet   ; GEOS API
+.global k_UseSystemFont ; GEOS API
+.global k_GetCharWidth  ; GEOS API
+.global k_SmallPutChar  ; GEOS API
 
 .segment "conio3b"
 
-_UseSystemFont:
+k_UseSystemFont:
 .ifdef bsw128
 	bbsf 7, graphMode, @X
-	LoadW r0, BSWFont
-	bra _LoadCharSet
+	LoadW r0, SystemFont
+	bra k_LoadCharSet
 @X:	LoadW r0, BSWFont80
 .else
-	LoadW r0, BSWFont
+	LoadW r0, SystemFont
 .endif
-_LoadCharSet:
+k_LoadCharSet:
 	ldy #0
 @1:	lda (r0),y
 	sta baselineOffset,y
@@ -58,7 +39,7 @@ _LoadCharSet:
 .endif
 	rts
 
-_GetCharWidth:
+k_GetCharWidth:
 	subv $20
 	bcs GetChWdth1
 	lda #0
@@ -87,4 +68,16 @@ GetChWdth1:
 @2:	lda PrvCharWidth
 	rts
 .endif
+
+;---------------------------------------------------------------
+; SmallPutChar                                            $C202
+;
+; Pass:      same as PutChar, but must be sure that
+;            everything is OK, there is no checking
+; Return:    same as PutChar
+; Destroyed: same as PutChar
+;---------------------------------------------------------------
+k_SmallPutChar:
+	subv $20
+	jmp k_FontPutChar
 

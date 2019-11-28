@@ -3,45 +3,13 @@
 ;
 ; Font drawing
 
-.setcpu "65c02"
+.import k_BitMaskPow2
+.import k_BitMaskLeadingClear
+.import k_BitMaskLeadingSet
+.import k_GetScanLine
 
-.include "const.inc"
-.include "geossym.inc"
-.include "geosmac.inc"
-.include "config.inc"
-.include "kernal.inc"
-.include "c64.inc"
-
-.import BitMaskPow2
-.import FontSH5
-.import base
-.import BitMaskLeadingClear
-.import BitMaskLeadingSet
-.import GetChWdth1
-.import _GetScanLine
-.import FntIndirectJMP
-.import b0, b1, b2, b3, b4, b5, b6, b7
-.import c0, c1, c2, c3, c4, c5, c6, c7
-.import d0, d1, d2, d3, d4, d5, d6, d7
-.import e0, e1, e2, e3, e4, e5, e6, e7
-.import f0, f1, f2, f3, f4, f5, f6, f7
-.import g0, g1, g2, g3, g4, g5, g6, g7
-.import noop
-.import FontGt4
-.import FontGt3
-.import FontGt2
-.import FontGt1
-
-.ifdef bsw128
-.import _TempHideMouse
-.else
-.import GetScanLine
-.import GetRealSize
-.endif
-
-.global Font_9
-.global FontPutChar
-.global _GetRealSize
+.global k_GetRealSize ; GEOS API
+.global k_FontPutChar ; used by GEOS
 
 ;
 ; For italics (actually slanted) characters, the original GEOS
@@ -91,7 +59,7 @@ less_slanted = 1
 ; Destroyed: nothing
 ;---------------------------------------------------------------
 .ifndef wheels ; moved
-_GetRealSize:
+k_GetRealSize:
 	subv 32
 _GetRealSize2:
 	jsr GetChWdth1
@@ -149,7 +117,7 @@ Font_1:
 .else
 	ldx #0
 	addv 32
-	jsr GetRealSize
+	jsr k_GetRealSize
 	tya
 .endif
 	pha
@@ -196,7 +164,7 @@ Font_1:
 	adc cardDataPntr+1
 	sta r2H
 	ldy FontTVar4
-	lda BitMaskLeadingSet,y
+	lda k_BitMaskLeadingSet,y
 	eor #$ff
 	sta FontTVar3
 	ldy r6H
@@ -204,7 +172,7 @@ Font_1:
 	tya
 	and #%00000111
 	tay
-	lda BitMaskLeadingClear,y
+	lda k_BitMaskLeadingClear,y
 	eor #$ff
 	sta r7H
 .ifdef bsw128
@@ -230,7 +198,7 @@ Font_1:
 	jsr _GetRealSize2
 .else
 	addv 32
-	jsr GetRealSize
+	jsr k_GetRealSize
 .endif
 	sta r5H
 	SubB r5H, r1H
@@ -300,7 +268,7 @@ Font_tabH:
 
 Font_2:
 	ldx r1H
-	jsr _GetScanLine
+	jsr k_GetScanLine
 	lda FontTVar2
 	ldx FontTVar2+1
 	bmi @2
@@ -350,7 +318,7 @@ Font_2:
 	pla
 	and #%00000111
 	tay
-	lda BitMaskLeadingSet,y
+	lda k_BitMaskLeadingSet,y
 	sta r3L
 	eor #$ff
 	sta r9L
@@ -366,7 +334,7 @@ Font_2:
 @9:	tya
 	and #%00000111
 	tax
-	lda BitMaskLeadingClear,x
+	lda k_BitMaskLeadingClear,x
 	sta r4H
 	eor #$ff
 	sta r9H
@@ -477,7 +445,7 @@ Font_tab2:
 .endif
 
 .ifdef wheels ; xxx moved, but unchanged
-_GetRealSize:
+k_GetRealSize:
 	subv 32
 	jsr GetChWdth1
 	tay
@@ -639,9 +607,9 @@ Font_7:
 @1:	iny
 	ldx #7
 @2:	lda fontTemp1,y
-	and BitMaskPow2,x
+	and k_BitMaskPow2,x
 	beq @3
-	lda BitMaskPow2,x
+	lda k_BitMaskPow2,x
 	eor #$ff
 	and fontTemp2+1,y
 	sta fontTemp2+1,y
@@ -657,10 +625,10 @@ Font_8:
 @1:	iny
 	ldx #7
 @2:	lda fontTemp1,y
-	and BitMaskPow2,x
+	and k_BitMaskPow2,x
 	beq @7
 	lda fontTemp2+1,y
-	ora BitMaskPow2,x
+	ora k_BitMaskPow2,x
 	sta fontTemp2+1,y
 	inx
 	cpx #8
@@ -674,7 +642,7 @@ Font_8:
 	bne @4
 .endif
 @3:	lda fontTemp2+1,y
-	ora BitMaskPow2,x
+	ora k_BitMaskPow2,x
 	sta fontTemp2+1,y
 @4:	dex
 	dex
@@ -688,7 +656,7 @@ Font_8:
 	bne @6
 .endif
 @5:	lda fontTemp2+1,y
-	ora BitMaskPow2,x
+	ora k_BitMaskPow2,x
 	sta fontTemp2+1,y
 @6:	inx
 @7:	dex
@@ -710,7 +678,7 @@ Font_9:
 
 ; central character printing, called from conio.s
 ; character - 32 in A
-FontPutChar:
+k_FontPutChar:
 	tay
 	PushB r1H
 	tya

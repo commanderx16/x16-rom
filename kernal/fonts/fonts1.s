@@ -3,15 +3,6 @@
 ;
 ; Font drawing: lookup table
 
-.include "const.inc"
-.include "geossym.inc"
-.include "geosmac.inc"
-.include "config.inc"
-.include "kernal.inc"
-.include "c64.inc"
-
-.global FontTab
-
 .segment "fonts1"
 
 FontTab:

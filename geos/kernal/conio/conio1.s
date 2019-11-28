@@ -88,18 +88,6 @@ PutCharTabL:
 PutCharTabH:
 	.hibytes PutCharTab
 
-;---------------------------------------------------------------
-; SmallPutChar                                            $C202
-;
-; Pass:      same as PutChar, but must be sure that
-;            everything is OK, there is no checking
-; Return:    same as PutChar
-; Destroyed: same as PutChar
-;---------------------------------------------------------------
-_SmallPutChar:
-	subv $20
-	jmp FontPutChar
-
 DoTAB:
 .ifndef wheels_size_and_speed ; no-op
 	lda #0 ; XXX was this a constant in the source?

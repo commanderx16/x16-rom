@@ -9,7 +9,6 @@
 
 .setcpu "65c02"
 
-.import k_BitMaskPow2Rev
 .import k_Dabs
 .import k_SetVRAMPtrFG, k_SetVRAMPtrBG
 .import HorizontalLine

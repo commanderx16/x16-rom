@@ -3,18 +3,6 @@
 ;
 ; Font drawing
 
-.include "const.inc"
-.include "geossym.inc"
-.include "geosmac.inc"
-.include "config.inc"
-.include "kernal.inc"
-.include "c64.inc"
-
-.global FontGt1
-.global FontGt2
-.global FontGt3
-.global FontGt4
-
 .segment "fonts4b"
 
 FontGt1:

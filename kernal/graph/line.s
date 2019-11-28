@@ -11,9 +11,6 @@
 
 .import k_col1, k_dispBufferOn
 
-.import k_BitMaskPow2Rev
-.import k_BitMaskLeadingSet
-.import k_BitMaskLeadingClear
 .import k_SetVRAMPtrFG
 .import k_SetVRAMPtrBG
 .import inc_bgpage

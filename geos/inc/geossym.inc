@@ -110,19 +110,23 @@ curPattern     = $22 ; [graph]
 col1           = $22 ; same as curPattern
 col2           = $23 ; same as curPattern+1
 string         = $24 ; [conio]
+
 baselineOffset = $26 ; [fonts; conio; menu]
 curSetWidth    = $27 ; [fonts]
 curHeight      = $29 ; [fonts; conio; menu]
 curIndexTable  = $2a ; [fonts; conio]
 cardDataPntr   = $2c ; [fonts; conio]
 currentMode    = $2e ; [fonts; conio; menu; dlgbox]
+
 dispBufferOn   = $2f ; [graph; fonts; conio; menu; dlgbox]
 mouseOn        = $30 ; [mouse; menu; icon]
 msePicPtr      = $31 ; unused on X16
+
 windowTop      = $33 ; [fonts]
 windowBottom   = $34 ; [fonts]
 leftMargin     = $35 ; [fonts; conio; menu]
 rightMargin    = $37 ; [fonts; conio; menu; dlgbox]
+
 pressFlag      = $39 ; [mouse; keyboard]
 mouseXPos      = $3a ; [mouse; menu, icon; dlgbox]
 mouseYPos      = $3c ; [mouse; menu, icon; dlgbox]
