@@ -217,7 +217,7 @@
 .global Rectangle
 .global FrameRectangle
 .global InvertRectangle
-.global RecoverRectangle
+;.global RecoverRectangle
 .global DrawLine
 ;.global DrawPoint
 .global GraphicsString
@@ -314,7 +314,7 @@
 .global GetDirHead
 .global PutDirHead
 .global NxtBlkAlloc
-.global ImprintRectangle
+;.global ImprintRectangle
 .global i_ImprintRectangle
 .global DoDlgBox
 .global RenameFile

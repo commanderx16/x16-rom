@@ -36,10 +36,19 @@ _GetScanLineCompat:
 
 .include "../../banks.inc"
 .import gjsrfar
-.import k_GetScanLine, k_DrawLine, k_FrameRectangle, k_ImprintRectangle, k_InvertRectangle, k_RecoverRectangle, k_Rectangle, k_TestPoint, k_SetColor, k_HorizontalLine, k_InvertLine, k_RecoverLine, k_VerticalLine, k_SetVRAMPtrFG, k_SetVRAMPtrBG, k_SetPointFG, k_SetPointBG
+.import k_GetScanLine
+.import k_DrawLine
+.import k_FrameRectangle
+.import k_InvertRectangle
+.import k_Rectangle
+.import k_TestPoint
+.import k_InvertLine
+.import k_SetVRAMPtrFG
+.import k_SetVRAMPtrBG
+.import k_SetPointFG
+.import k_SetPointBG
 
-
-.export _GetScanLine, _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _SetColor, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _SetVRAMPtrFG, _SetVRAMPtrBG, _SetPointFG, _SetPointBG
+.export _GetScanLine, _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _SetVRAMPtrFG, _SetVRAMPtrBG, _SetPointFG, _SetPointBG
 
 .import k_dispBufferOn, k_col1, k_col2
 
@@ -165,16 +174,51 @@ _FrameRectangle:
 	sta col1
 	jmpf k_FrameRectangle
 
+;---------------------------------------------------------------
+; ImprintRectangle                                        $C250
+;
+; Pass:      r2L top (0-199)
+;            r2H bottom (0-199)
+;            r3  left (0-319)
+;            r4  right (0-319)
+; Return:    r2L, r3H unchanged
+; Destroyed: a, x, y, r5 - r8, r11
+;---------------------------------------------------------------
 _ImprintRectangle:
-	jmpf k_ImprintRectangle
+	lda #$ff
+	clc
+	jmpf k_Rectangle
 
 _InvertRectangle:
 	jmpf k_InvertRectangle
 
+;---------------------------------------------------------------
+; RecoverRectangle                                        $C12D
+;
+; Pass:      r2L top (0-199)
+;            r2H bottom (0-199)
+;            r3  left (0-319)
+;            r4  right (0-319)
+; Return:    rectangle recovered from backscreen
+; Destroyed: a, x, y, r5 - r8, r11
+;---------------------------------------------------------------
 _RecoverRectangle:
-	jmpf k_RecoverRectangle
+	lda #$ff
+	sec
+	jmpf k_Rectangle
 
+;---------------------------------------------------------------
+; Rectangle                                               $C124
+;
+; Pass:      r2L top (0-199)
+;            r2H bottom (0-199)
+;            r3  left (0-319)
+;            r4  right (0-319)
+; Return:    draws the rectangle
+; Destroyed: a, x, y, r5 - r8, r11
+;---------------------------------------------------------------
 _Rectangle:
+	lda #0 ; N=0 -> draw
 	jmpf k_Rectangle
 
 ;---------------------------------------------------------------
@@ -200,9 +244,6 @@ _TestPoint:
 	rts
 @1:	sec
 	rts
-
-_SetColor:
-	jmpf k_SetColor
 
 ;---------------------------------------------------------------
 ; HorizontalLine                                          $C118

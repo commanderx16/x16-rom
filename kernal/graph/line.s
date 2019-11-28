@@ -14,13 +14,13 @@
 .import k_BitMaskPow2Rev
 .import k_BitMaskLeadingSet
 .import k_BitMaskLeadingClear
-.import k_SetVRAMPtrFG, k_SetVRAMPtrBG
-
+.import k_SetVRAMPtrFG
+.import k_SetVRAMPtrBG
 .import inc_bgpage
 
+.global k_InvertLine
 .global ImprintLine
 .global HorizontalLine
-.global k_InvertLine
 .global RecoverLine
 .global VerticalLine
 

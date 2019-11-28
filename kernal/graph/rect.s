@@ -9,24 +9,27 @@
 
 .import k_col1
 
-.import HorizontalLine
 .import k_InvertLine
+.import HorizontalLine
 .import RecoverLine
 .import VerticalLine
 .import ImprintLine
 
 .global k_Rectangle
 .global k_InvertRectangle
-.global k_RecoverRectangle
-.global k_ImprintRectangle
 .global k_FrameRectangle
+.global RecoverRectangle
+.global ImprintRectangle
 
 .segment "GRAPH"
 
 ;---------------------------------------------------------------
-; Rectangle                                               $C124
+; Rectangle
 ;
-; Pass:      r2L top (0-199)
+; Pass:      N/C      0x: draw (dispBufferOn)
+;                     10: copy FG to BG (imprint)
+;                     11: copy BG to FG (recover)
+;            r2L top (0-199)
 ;            r2H bottom (0-199)
 ;            r3  left (0-319)
 ;            r4  right (0-319)
@@ -34,7 +37,11 @@
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 k_Rectangle:
-	MoveB r2L, r11L
+	bpl @0
+	bcc ImprintRectangle
+	bra RecoverRectangle
+
+@0:	MoveB r2L, r11L
 @1:	jsr HorizontalLine
 	lda r11L
 	inc r11L
@@ -62,7 +69,7 @@ k_InvertRectangle:
 	rts
 
 ;---------------------------------------------------------------
-; RecoverRectangle                                        $C12D
+; RecoverRectangle
 ;
 ; Pass:      r2L top (0-199)
 ;            r2H bottom (0-199)
@@ -71,7 +78,7 @@ k_InvertRectangle:
 ; Return:    rectangle recovered from backscreen
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
-k_RecoverRectangle:
+RecoverRectangle:
 	MoveB r2L, r11L
 @1:	jsr RecoverLine
 	lda r11L
@@ -81,7 +88,7 @@ k_RecoverRectangle:
 	rts
 
 ;---------------------------------------------------------------
-; ImprintRectangle                                        $C250
+; ImprintRectangle
 ;
 ; Pass:      r2L top (0-199)
 ;            r2H bottom (0-199)
@@ -90,7 +97,7 @@ k_RecoverRectangle:
 ; Return:    r2L, r3H unchanged
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
-k_ImprintRectangle:
+ImprintRectangle:
 	MoveB r2L, r11L
 @1:	jsr ImprintLine
 	lda r11L
@@ -100,7 +107,7 @@ k_ImprintRectangle:
 	rts
 
 ;---------------------------------------------------------------
-; FrameRectangle                                          $C127
+; FrameRectangle
 ;
 ; Pass:      r2L top (0-199)
 ;            r2H bottom (0-199)

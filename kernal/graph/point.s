@@ -12,14 +12,17 @@
 .import k_BitMaskPow2Rev
 .import k_Dabs
 .import k_SetVRAMPtrFG, k_SetVRAMPtrBG
-.import HorizontalLine, VerticalLine, ImprintLine, RecoverLine
+.import HorizontalLine
+.import VerticalLine
+.import ImprintLine
+.import RecoverLine
 
 .import k_dispBufferOn
 .import k_col1
 
+.global k_DrawLine
 .global k_TestPoint
 .global DrawPoint
-.global k_DrawLine
 
 .segment "GRAPH"
 

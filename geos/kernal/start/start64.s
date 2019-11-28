@@ -35,7 +35,7 @@
 .import bootSec
 .import bootTr
 
-.import _Rectangle, _SetColor
+.import _Rectangle
 
 .import MouseInit
 
