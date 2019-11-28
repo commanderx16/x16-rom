@@ -16,6 +16,7 @@
 ; XXX wrong bank
 CallNoRAMSharing = $9D80
 .endif
+.import _SetVRAMPtr, _StoreVRAM
 
 .global BitmapUpHelp
 .global BitmapDecode
@@ -63,26 +64,23 @@ _BitmapUp:
 	rts
 
 BitmapUpHelp:
-	ldx r1H
-	jsr _GetScanLine
-	MoveB r2L, r3H
+	ldx r1H ; y coord
+
+	PushW r1
+	; convert cards (r1L) into pixels (r1)
 	lda r1L
 	asl
 	asl
-	asl
-	php
-	clc
-	adc r5L
-	sta r5L
-	sta veralo
-	lda r5H
-	adc #0
-	plp
-	adc #0
-	sta r5H
-	sta veramid
-	lda #$11
-	sta verahi
+	asl ; * 8
+	sta r1L
+	lda #0
+	rol
+	sta r1H
+	jsr _SetVRAMPtr
+	PopW r1
+
+	MoveB r2L, r3H ; copy width (in cards)
+
 @2:	jsr BitmapDecode
 	eor #$ff
 	ldx #8
@@ -90,7 +88,7 @@ BitmapUpHelp:
 	tay
 	lda #0
 	rol
-	sta veradat
+	jsr _StoreVRAM
 	tya
 	dex
 	bne :-

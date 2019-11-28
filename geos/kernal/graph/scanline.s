@@ -36,9 +36,9 @@ _GetScanLineCompat:
 
 .include "../../banks.inc"
 .import gjsrfar
-.import k_GetScanLine, k_DrawLine, k_DrawPoint, k_FrameRectangle, k_ImprintRectangle, k_InvertRectangle, k_RecoverRectangle, k_Rectangle, k_TestPoint, k_SetColor, k_HorizontalLine, k_InvertLine, k_RecoverLine, k_VerticalLine
+.import k_GetScanLine, k_DrawLine, k_DrawPoint, k_FrameRectangle, k_ImprintRectangle, k_InvertRectangle, k_RecoverRectangle, k_Rectangle, k_TestPoint, k_SetColor, k_HorizontalLine, k_InvertLine, k_RecoverLine, k_VerticalLine, k_SetVRAMPtr, k_StoreVRAM
 
-.export _GetScanLine, _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _SetColor, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine
+.export _GetScanLine, _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _SetColor, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _SetVRAMPtr, _StoreVRAM
 
 .import k_dispBufferOn, k_col1, k_col2
 
@@ -177,6 +177,12 @@ _VerticalLine:
 	jsr Convert8BitPattern
 	sta col1
 	jmpf k_VerticalLine
+
+_SetVRAMPtr:
+	jmpf k_SetVRAMPtr
+
+_StoreVRAM:
+	jmpf k_StoreVRAM
 
 ;---------------------------------------------------------------
 ; Color compatibility logic

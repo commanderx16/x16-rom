@@ -2,8 +2,56 @@
 .include "../../io.inc"
 
 .export k_GetScanLine
+.export k_SetVRAMPtr, k_StoreVRAM
 
 .segment "GRAPH"
+
+;---------------------------------------------------------------
+; SetVRAMPtr
+;
+; Function:  Returns the VRAM address of a pixel
+; Pass:      r1  x pos
+;            x   y pos
+; Return:    r5  add of 1st byte of foreground scr
+;                (this is also set up in VERA)
+;            r6  add of 1st byte of background scr
+; Destroyed: a
+;---------------------------------------------------------------
+k_SetVRAMPtr:
+	jsr k_GetScanLine
+; fg
+	lda r1L
+	clc
+	adc r5L
+	sta r5L
+	sta veralo
+	lda r1H
+	adc r5H
+	sta r5H
+	sta veramid
+	lda #$11
+	sta verahi
+; bg
+	lda r1L
+	clc
+	adc r6L
+	sta r6L
+	lda r1H
+	adc r6H
+	sta r6H
+	rts
+
+;---------------------------------------------------------------
+; StoreVRAM
+;
+; Function:  Stores a color in VRAM and advances the VRAM pointer
+; Pass:      a   color
+;            x   y pos
+; Destroyed: preserves all registers
+;---------------------------------------------------------------
+k_StoreVRAM:
+	sta veradat
+	rts
 
 ;---------------------------------------------------------------
 ; GetScanLine                                             $C13C
