@@ -1,5 +1,5 @@
 
-.import k_col1, k_col2, k_compatMode
+.import k_col1, k_col2
 
 .global k_SetColor
 
@@ -15,7 +15,6 @@
 k_SetColor:
 	sta k_col1   ; primary color
 	stx k_col2 ; secondary color
-	stz k_compatMode
 	rts
 
 

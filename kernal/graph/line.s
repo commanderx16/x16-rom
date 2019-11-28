@@ -9,7 +9,7 @@
 .include "../../mac.inc"
 .include "../../io.inc"
 
-.import k_col1, k_compatMode, k_dispBufferOn
+.import k_col1, k_dispBufferOn
 
 .import k_BitMaskPow2Rev
 .import k_BitMaskLeadingSet
@@ -29,26 +29,16 @@
 .segment "GRAPH"
 
 ;---------------------------------------------------------------
-; API extension
-; ~~~~~~~~~~~~~
-; If the user called SetColor, the color will be used, instead of
-; the pattern passed in A.
-; If the user called SetPattern, the bit pattern in A will be
-; converted into a grayscale value.
-;---------------------------------------------------------------
-
-;---------------------------------------------------------------
 ; HorizontalLine                                          $C118
 ;
-; Pass:      a    pattern byte
-;            r3   x in pixel of left end (0-319)
+; Pass:      r3   x in pixel of left end (0-319)
 ;            r4   x in pixel of right end (0-319)
 ;            r11L y position in scanlines (0-199)
 ; Return:    r11L unchanged
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 k_HorizontalLine:
-	jsr Convert8BitPattern
+	lda k_col1
 k_HorizontalLineCol: ; called by Rectangle
 	pha
 	jsr GetLineStart
@@ -394,7 +384,7 @@ k_ImprintLine:
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 k_VerticalLine:
-	jsr Convert8BitPattern
+	lda k_col1
 k_VerticalLineCol:
 	pha
 	ldx r3L
@@ -455,30 +445,4 @@ GetLineStart:
 	MoveW r4, r7
 	SubW r3, r7
 	IncW r7
-	rts
-
-;---------------------------------------------------------------
-; Color compatibility logic
-;---------------------------------------------------------------
-
-; in compat mode, this converts 8 bit patterns into shades of gray
-Convert8BitPattern:
-	bit k_compatMode
-	bmi @0
-	lda k_col1
-	rts
-@0:	ldx #8
-	ldy #8
-@1:	lsr
-	bcc @2
-	dey
-@2:	dex
-	bne @1
-	cpy #8
-	beq @3
-	tya
-	asl
-	ora #16
-	rts
-@3:	lda #16+15
 	rts

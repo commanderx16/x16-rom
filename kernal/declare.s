@@ -109,9 +109,8 @@ nlinesm1 .res 1          ;    X16: y resolution - 1
 
 ; Graph
 ;
-.export k_dispBufferOn, k_compatMode, k_col1, k_col2
+.export k_dispBufferOn, k_col1, k_col2
 k_dispBufferOn	.res 1
-k_compatMode	.res 1
 k_col1		.res 1
 k_col2		.res 1
 

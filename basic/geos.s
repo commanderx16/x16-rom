@@ -35,7 +35,7 @@ pset:	jsr get_point
 	sta r11L
 	jsr get_col
 	jsr set_col
-	sec
+	lda #0 ; set
 	sei
 	jsr bjsrfar
 	.word k_DrawPoint
@@ -47,8 +47,7 @@ pset:	jsr get_point
 line	jsr get_points_col
 	stx r11L
 	sty r11H
-	lda #0
-	sec
+	lda #0 ; set
 	sei
 	jsr bjsrfar
 	.word k_DrawLine
@@ -62,11 +61,8 @@ frame	jsr get_points
 	sty r2H
 	jsr normalize_rect
 	jsr get_col
-	pha
 	jsr set_col ; needed to hint non-compat mode
-	pla
 	sei
-	; color in a
 	jsr bjsrfar
 	.word k_FrameRectangle
 	.byte BANK_KERNAL

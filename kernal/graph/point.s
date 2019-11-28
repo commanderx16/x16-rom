@@ -14,7 +14,6 @@
 .import k_Dabs
 
 .import k_dispBufferOn
-.import k_compatMode
 .import k_col1
 
 .global k_TestPoint
@@ -28,13 +27,12 @@
 ;
 ; Pass:      signFlg  set to recover from back screen
 ;                     reset for drawing
-;            carryFlg set for drawing in forground color
-;                     reset for background color
+;            a        color
 ;            r3       x pos of 1st point (0-319)
 ;            r11L     y pos of 1st point (0-199)
 ;            r4       x pos of 2nd point (0-319)
 ;            r11H     y pos of 2nd point (0-199)
-; Return:    line is drawn or recover
+; Return:    -
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 k_DrawLine:
@@ -96,7 +94,8 @@ k_DrawLine:
 	cpy r11L
 	bcc @5
 	LoadB r13L, 1
-@5:	plp
+@5:	lda k_col1
+	plp
 	php
 	jsr k_DrawPoint
 	CmpW r3, r4
@@ -147,7 +146,8 @@ k_DrawLine:
 @B:	CmpW r3, r4
 	bcs @C
 	LoadW r13, 1
-@C:	plp
+@C:	lda k_col1
+	plp
 	php
 	jsr k_DrawPoint
 	CmpB r11L, r11H
@@ -165,8 +165,10 @@ k_DrawLine:
 ;---------------------------------------------------------------
 ; DrawPoint                                               $C133
 ;
-; Pass:      same as DrawLine with no 2nd point
-; Return:    point is drawn or recovered
+; Pass:      r3       x pos of point (0-319)
+;            r11L     y pos of point (0-199)
+;            signFlg  0: draw col1; 1: recover
+; Return:    -
 ; Destroyed: a, x, y, r5 - r6
 ;---------------------------------------------------------------
 k_DrawPoint:
@@ -177,24 +179,8 @@ k_DrawPoint:
 	AddW r3, r6
 	plp
 	bmi @3
-; draw
-
-;---------------------------------------------------------------
-; API extension
-; ~~~~~~~~~~~~~
-; in color mode:
-;   C=0 "clear" will set the point to white
-;   C=1 "set"   will set the point to primary color
-; in compat mode, this has the original bevahior (white and black)
-;---------------------------------------------------------------
-	bcc @0
 	lda k_col1
-	bit k_compatMode
-	bpl @0b
-	lda #0 ; black
-	bra @0b
-@0:	lda #1 ; white
-@0b:	ldy r5L
+	ldy r5L
 	sty veralo
 	ldy r5H
 	sty veramid

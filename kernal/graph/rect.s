@@ -15,7 +15,7 @@
 .import k_RecoverLine
 .import k_VerticalLine
 .import k_VerticalLineCol
-.import ImprintLine
+.import k_ImprintLine
 
 .global k_Rectangle
 .global k_InvertRectangle
@@ -95,7 +95,7 @@ k_RecoverRectangle:
 ;---------------------------------------------------------------
 k_ImprintRectangle:
 	MoveB r2L, r11L
-@1:	jsr ImprintLine
+@1:	jsr k_ImprintLine
 	lda r11L
 	inc r11L
 	cmp r2H
@@ -105,8 +105,7 @@ k_ImprintRectangle:
 ;---------------------------------------------------------------
 ; FrameRectangle                                          $C127
 ;
-; Pass:      a   pattern byte
-;            r2L top (0-199)
+; Pass:      r2L top (0-199)
 ;            r2H bottom (0-199)
 ;            r3  left (0-319)
 ;            r4  right (0-319)
@@ -114,21 +113,17 @@ k_ImprintRectangle:
 ; Destroyed: a, x, y, r5 - r9, r11
 ;---------------------------------------------------------------
 k_FrameRectangle:
-	sta r9H
 	ldy r2L
 	sty r11L
 	jsr k_HorizontalLine
 	MoveB r2H, r11L
-	lda r9H
 	jsr k_HorizontalLine
 	PushW r3
 	PushW r4
 	MoveW r3, r4
 	MoveW r2, r3
-	lda r9H
 	jsr k_VerticalLine
 	PopW r4
-	lda r9H
 	jsr k_VerticalLine
 	PopW r3
 	rts
