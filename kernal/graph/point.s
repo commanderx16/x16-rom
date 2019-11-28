@@ -10,10 +10,9 @@
 .setcpu "65c02"
 
 .import k_BitMaskPow2Rev
-.import k_GetScanLine
 .import k_Dabs
 
-.import GetScanLineFG, GetScanLineBG
+.import SetVRAMPtrFG, SetVRAMPtrBG
 
 .import k_dispBufferOn
 .import k_col1
@@ -178,31 +177,22 @@ k_DrawPoint:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 
 	ldx r11L
-	jsr GetScanLineFG
-	AddW r3, veralo
+	jsr SetVRAMPtrFG
 	lda k_col1
 	sta veradat
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	ldx r11L
-	jsr GetScanLineBG
-	AddW r3, r6
+	jsr SetVRAMPtrBG
 	lda k_col1
 	sta (r6)
 @2:	rts
 ; recover
 @3:
 	ldx r11L
-	jsr k_GetScanLine
-	AddW r3, r5
-	AddW r3, r6
+	jsr SetVRAMPtrFG
+	jsr SetVRAMPtrBG
 
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
-	lda #1
-	sta verahi
 	lda (r6)
 	sta veradat
 	rts
@@ -218,8 +208,7 @@ k_DrawPoint:
 ;---------------------------------------------------------------
 k_TestPoint:
 	ldx r11L
-	jsr GetScanLineFG
-	AddW r3, veralo
+	jsr SetVRAMPtrFG
 	lda veradat
 	beq @1
 	clc

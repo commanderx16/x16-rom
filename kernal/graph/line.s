@@ -14,8 +14,7 @@
 .import k_BitMaskPow2Rev
 .import k_BitMaskLeadingSet
 .import k_BitMaskLeadingClear
-.import k_GetScanLine
-.import GetScanLineFG, GetScanLineBG
+.import SetVRAMPtrFG, SetVRAMPtrBG
 
 .import inc_bgpage
 
@@ -370,8 +369,12 @@ k_VerticalLine:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	phx
 	ldx r3L
-	jsr GetScanLineFG
-	AddW r4, veralo
+
+	PushW r3
+	MoveW r4, r3
+	jsr SetVRAMPtrFG
+	PopW r3
+
 	plx
 	phx
 	lda k_col1
@@ -381,8 +384,12 @@ k_VerticalLine:
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	phx
 	ldx r3L
-	jsr GetScanLineBG
-	AddW r4, r6
+
+	PushW r3
+	MoveW r4, r3
+	jsr SetVRAMPtrBG
+	PopW r3
+
 	plx
 	lda k_col1
 	jmp VLineBG
@@ -413,9 +420,8 @@ VLineBG:
 
 GetLineStart:
 	ldx r11L
-	jsr k_GetScanLine
-	AddW r3, veralo
-	AddW r3, r6
+	jsr SetVRAMPtrFG
+	jsr SetVRAMPtrBG
 
 	MoveW r4, r7
 	SubW r3, r7

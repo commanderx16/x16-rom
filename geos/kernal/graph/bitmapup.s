@@ -10,7 +10,6 @@
 .include "kernal.inc"
 .include "c64.inc"
 
-.import _GetScanLine
 .ifdef bsw128
 .import _TempHideMouse
 ; XXX wrong bank

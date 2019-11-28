@@ -3,10 +3,20 @@
 .include "../../io.inc"
 
 .export k_GetScanLine
-.export GetScanLineFG, GetScanLineBG
 .export k_SetVRAMPtr, k_StoreVRAM
+.export SetVRAMPtrFG, SetVRAMPtrBG
 
 .segment "GRAPH"
+
+SetVRAMPtrFG:
+	jsr GetScanLineFG
+	AddW r3, veralo
+	rts
+
+SetVRAMPtrBG:
+	jsr GetScanLineBG
+	AddW r3, r6
+	rts
 
 ;---------------------------------------------------------------
 ; SetVRAMPtr
