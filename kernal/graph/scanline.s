@@ -3,45 +3,10 @@
 .include "../../io.inc"
 
 .export k_GetScanLine
-.export k_SetVRAMPtr, k_StoreVRAM
-.export SetVRAMPtrFG, SetVRAMPtrBG
+.export k_StoreVRAM
+.export k_SetVRAMPtrFG, SetVRAMPtrBG
 
 .segment "GRAPH"
-
-SetVRAMPtrFG:
-	jsr GetScanLineFG
-	AddW r3, veralo
-	rts
-
-SetVRAMPtrBG:
-	jsr GetScanLineBG
-	AddW r3, r6
-	rts
-
-;---------------------------------------------------------------
-; SetVRAMPtr
-;
-; Function:  Returns the VRAM address of a pixel
-; Pass:      r3  x pos
-;            x   y pos
-; Return:    r5  add of 1st byte of foreground scr
-;                (this is also set up in VERA)
-;            r6  add of 1st byte of background scr
-; Destroyed: a
-;---------------------------------------------------------------
-k_SetVRAMPtr:
-	jsr k_GetScanLine
-; fg
-	AddW r3, r5
-	lda r5L
-	sta veralo
-	lda r5H
-	sta veramid
-	lda #$11
-	sta verahi
-; bg
-	AddW r3, r5
-	rts
 
 ;---------------------------------------------------------------
 ; StoreVRAM
@@ -65,10 +30,25 @@ k_StoreVRAM:
 ; Destroyed: a
 ;---------------------------------------------------------------
 k_GetScanLine:
-	jsr GetScanLineFG
-	jmp GetScanLineBG
+	PushW r3
+	LoadW r3, 0
+	jsr k_SetVRAMPtrFG
+	jsr SetVRAMPtrBG
+	PopW r3
+	rts
 
-GetScanLineFG:
+;---------------------------------------------------------------
+; k_SetVRAMPtrFG
+;
+; Function:  Returns the VRAM address of a pixel
+; Pass:      r3  x pos
+;            x   y pos
+; Return:    r5  add of 1st byte of foreground scr
+;                (this is also set up in VERA)
+;            r6  add of 1st byte of background scr
+; Destroyed: a
+;---------------------------------------------------------------
+k_SetVRAMPtrFG:
 	; r5 = x * 320
 	stz r5H
 	txa
@@ -93,9 +73,12 @@ GetScanLineFG:
 	sta veramid
 	lda #$11
 	sta verahi
+
+	; add X
+	AddW r3, veralo
 	rts
 
-GetScanLineBG:
+SetVRAMPtrBG:
 ; For BG storage, we have to work with 8 KB banks.
 ; Lines are 320 bytes, and 8 KB is not divisible by 320,
 ; so the base address of certain lines would be so close
@@ -161,6 +144,9 @@ GetScanLineBG:
 	lsr
 	inc       ; start at bank 1
 	sta d1pra ; RAM bank
+
+	; add X
+	AddW r3, r6
 	rts
 
 .global inc_bgpage

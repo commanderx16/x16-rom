@@ -12,7 +12,7 @@
 .import k_BitMaskPow2Rev
 .import k_Dabs
 
-.import SetVRAMPtrFG, SetVRAMPtrBG
+.import k_SetVRAMPtrFG, SetVRAMPtrBG
 
 .import k_dispBufferOn
 .import k_col1
@@ -177,7 +177,7 @@ k_DrawPoint:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 
 	ldx r11L
-	jsr SetVRAMPtrFG
+	jsr k_SetVRAMPtrFG
 	lda k_col1
 	sta veradat
 
@@ -190,7 +190,7 @@ k_DrawPoint:
 ; recover
 @3:
 	ldx r11L
-	jsr SetVRAMPtrFG
+	jsr k_SetVRAMPtrFG
 	jsr SetVRAMPtrBG
 
 	lda (r6)
@@ -208,7 +208,7 @@ k_DrawPoint:
 ;---------------------------------------------------------------
 k_TestPoint:
 	ldx r11L
-	jsr SetVRAMPtrFG
+	jsr k_SetVRAMPtrFG
 	lda veradat
 	beq @1
 	clc
