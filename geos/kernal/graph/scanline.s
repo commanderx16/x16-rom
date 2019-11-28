@@ -112,6 +112,7 @@ _DrawLine:
 ; Destroyed: a, x, y, r5 - r6
 ;---------------------------------------------------------------
 _DrawPoint:
+	sec ; N=1, C=1 -> recover
 	bmi @3 ; recover
 ; draw
 	lda #0

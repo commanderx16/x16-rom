@@ -27,8 +27,8 @@
 ; DrawLine
 ;
 ; Pass:      N/C      0x: draw (dispBufferOn)
-;                     10: copy FG to BG (imprint) ** horizontal **
-;                     11: copy BG to FG (recover) **   only!    **
+;                     10: copy FG to BG (imprint)
+;                     11: copy BG to FG (recover)
 ;            r3       x pos of 1st point (0-319)
 ;            r11L     y pos of 1st point (0-199)
 ;            r4       x pos of 2nd point (0-319)
@@ -49,7 +49,7 @@ k_DrawLine:
 @c:	jmp ImprintLine
 
 @0a:	plp
-	bmi @0             ; recover? slow path
+	bmi @0             ; imprint/recover? slow path
 	CmpW r3, r4        ; vertical?
 	bne @0             ; no
 	PushW r3
@@ -187,9 +187,11 @@ k_DrawLine:
 ;---------------------------------------------------------------
 ; DrawPoint                                               $C133
 ;
-; Pass:      r3       x pos of point (0-319)
+; Pass:      N/C      0x: draw (dispBufferOn)
+;                     10: copy FG to BG (imprint)
+;                     11: copy BG to FG (recover)
+;            r3       x pos of point (0-319)
 ;            r11L     y pos of point (0-199)
-;            signFlg  0: draw col1; 1: recover
 ; Return:    -
 ; Destroyed: a, x, y, r5 - r6
 ;---------------------------------------------------------------
@@ -208,14 +210,20 @@ k_DrawPoint:
 	lda k_col1
 	sta (r6)
 @2:	rts
-; recover
-@3:
+; imprint/recover
+@3:	php
 	ldx r11L
 	jsr k_SetVRAMPtrFG
 	jsr k_SetVRAMPtrBG
-
+	plp
+	bcc @4
+; recover
 	lda (r6)
 	sta veradat
+	rts
+; imprint
+@4:	lda veradat
+	sta (r6)
 	rts
 
 ;---------------------------------------------------------------
