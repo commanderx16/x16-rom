@@ -12,7 +12,7 @@
 .import k_BitMaskPow2Rev
 .import k_Dabs
 .import k_SetVRAMPtrFG, k_SetVRAMPtrBG
-.import HorizontalLine, VerticalLine
+.import HorizontalLine, VerticalLine, RecoverLine
 
 .import k_dispBufferOn
 .import k_col1
@@ -24,7 +24,7 @@
 .segment "GRAPH"
 
 ;---------------------------------------------------------------
-; DrawLine                                                $C130
+; DrawLine
 ;
 ; Pass:      signFlg  0: draw
 ;                     1: recover from BG
@@ -36,11 +36,13 @@
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 k_DrawLine:
-	bmi @0 ; recover? slow path
 	CmpB r11L, r11H
 	bne @0a
+	bmi @0b ; recover?
 	jmp HorizontalLine
-@0a:
+@0b:	jmp RecoverLine
+
+@0a:	bmi @0 ; recover? slow path
 	CmpW r3, r4
 	bne @0
 	PushW r3

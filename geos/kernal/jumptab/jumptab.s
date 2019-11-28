@@ -212,7 +212,7 @@
 .global UnfreezeProcess
 ;.global HorizontalLine
 .global InvertLine
-.global RecoverLine
+;.global RecoverLine
 ;.global VerticalLine
 .global Rectangle
 .global FrameRectangle

@@ -201,8 +201,27 @@ _HorizontalLine:
 _InvertLine:
 	jmpf k_InvertLine
 
+;---------------------------------------------------------------
+; RecoverLine                                             $C11E
+;
+; Pass:      r3   x pos of left endpoint (0-319)
+;            r4   x pos of right endpoint (0-319)
+;            r11L y pos of line (0-199)
+; Return:    copies bits of line from background to
+;            foreground sceen
+; Destroyed: a, x, y, r5 - r8
+;---------------------------------------------------------------
 _RecoverLine:
-	jmpf k_RecoverLine
+	PushW r3
+	PushW r4
+	PushW r11
+	MoveB r11L, r11H
+	lda #$ff
+	jsrf k_DrawLine
+	PopW r11
+	PopW r4
+	PopW r3
+	rts
 
 ;---------------------------------------------------------------
 ; VerticalLine                                            $C121

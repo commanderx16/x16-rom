@@ -11,7 +11,7 @@
 
 .import HorizontalLine
 .import k_InvertLine
-.import k_RecoverLine
+.import RecoverLine
 .import VerticalLine
 .import k_ImprintLine
 
@@ -73,7 +73,7 @@ k_InvertRectangle:
 ;---------------------------------------------------------------
 k_RecoverRectangle:
 	MoveB r2L, r11L
-@1:	jsr k_RecoverLine
+@1:	jsr RecoverLine
 	lda r11L
 	inc r11L
 	cmp r2H

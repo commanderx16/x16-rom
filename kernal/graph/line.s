@@ -21,13 +21,13 @@
 .global k_ImprintLine
 .global HorizontalLine
 .global k_InvertLine
-.global k_RecoverLine
+.global RecoverLine
 .global VerticalLine
 
 .segment "GRAPH"
 
 ;---------------------------------------------------------------
-; HorizontalLine                                          $C118
+; HorizontalLine
 ;
 ; Pass:      r3   x in pixel of left end (0-319)
 ;            r4   x in pixel of right end (0-319)
@@ -241,7 +241,7 @@ ILineBG:
 @4:	rts
 
 ;---------------------------------------------------------------
-; RecoverLine                                             $C11E
+; RecoverLine
 ;
 ; Pass:      r3   x pos of left endpoint (0-319)
 ;            r4   x pos of right endpoint (0-319)
@@ -250,7 +250,7 @@ ILineBG:
 ;            foreground sceen
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
-k_RecoverLine:
+RecoverLine:
 	jsr GetLineStart
 
 	ldx r7H
@@ -347,7 +347,7 @@ k_ImprintLine:
 @4:	rts
 
 ;---------------------------------------------------------------
-; VerticalLine                                            $C121
+; VerticalLine
 ;
 ; Pass:      a pattern byte
 ;            r3L top of line (0-199)
