@@ -3,9 +3,10 @@
 .include "../../io.inc"
 
 .export k_GetScanLine
-.export k_StoreVRAM
 .export k_SetVRAMPtrFG, k_SetVRAMPtrBG
-.global inc_bgpage
+.export k_SetPointFG, k_SetPointBG
+
+.export inc_bgpage
 
 .segment "GRAPH"
 
@@ -146,6 +147,29 @@ k_SetVRAMPtrBG:
 	AddW r3, r6
 	rts
 
+;---------------------------------------------------------------
+; SetPointFG
+;
+; Function:  Stores a color in VRAM and advances the VRAM pointer
+; Pass:      a   color
+; Destroyed: preserves all registers
+;---------------------------------------------------------------
+k_SetPointFG:
+	sta veradat
+	rts
+
+;---------------------------------------------------------------
+; SetPointBG
+;
+; Function:  Stores a color in the BG and advances the VRAM pointer
+; Pass:      a   color
+; Destroyed: preserves all registers
+;---------------------------------------------------------------
+k_SetPointBG:
+	sta (r6)
+	inc r6L
+	beq inc_bgpage
+	rts
 inc_bgpage:
 	pha
 	inc r6H
@@ -159,16 +183,3 @@ inc_bgpage:
 	sta r6H
 	pla
 	rts
-
-;---------------------------------------------------------------
-; StoreVRAM
-;
-; Function:  Stores a color in VRAM and advances the VRAM pointer
-; Pass:      a   color
-;            x   y pos
-; Destroyed: preserves all registers
-;---------------------------------------------------------------
-k_StoreVRAM:
-	sta veradat
-	rts
-

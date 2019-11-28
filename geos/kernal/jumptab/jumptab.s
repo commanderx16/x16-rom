@@ -219,7 +219,7 @@
 .global InvertRectangle
 .global RecoverRectangle
 .global DrawLine
-.global DrawPoint
+;.global DrawPoint
 .global GraphicsString
 .global SetPattern
 .global GetScanLine

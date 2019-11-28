@@ -8,7 +8,8 @@
 ; from KERNAL
 ; XXX TODO these should go through the jump table
 .import scrmod
-.import k_DrawLine, k_Rectangle, k_FrameRectangle, k_DrawPoint
+.import k_DrawLine, k_Rectangle, k_FrameRectangle, k_SetVRAMPtrFG, k_SetPointFG
+
 
 ; from GEOS
 .import _ResetHandle, k_SetColor
@@ -34,11 +35,15 @@ cscreen
 pset:	jsr get_point
 	sta r11L
 	jsr get_col
-	jsr set_col
-	lda #0 ; set
+	pha
 	sei
+	ldx r11L
 	jsr bjsrfar
-	.word k_DrawPoint
+	.word k_SetVRAMPtrFG
+	.byte BANK_KERNAL
+	pla
+	jsr bjsrfar
+	.word k_SetPointFG
 	.byte BANK_KERNAL
 	cli
 	rts

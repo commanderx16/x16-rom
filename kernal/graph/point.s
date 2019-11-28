@@ -18,7 +18,7 @@
 .import k_col1
 
 .global k_TestPoint
-.global k_DrawPoint
+.global DrawPoint
 .global k_DrawLine
 
 .segment "GRAPH"
@@ -119,7 +119,7 @@ k_DrawLine:
 @5:	lda k_col1
 	plp
 	php
-	jsr k_DrawPoint
+	jsr DrawPoint
 	CmpW r3, r4
 	bcs @8
 	inc r3L
@@ -171,7 +171,7 @@ k_DrawLine:
 @C:	lda k_col1
 	plp
 	php
-	jsr k_DrawPoint
+	jsr DrawPoint
 	CmpB r11L, r11H
 	bcs @E
 	inc r11L
@@ -195,7 +195,7 @@ k_DrawLine:
 ; Return:    -
 ; Destroyed: a, x, y, r5 - r6
 ;---------------------------------------------------------------
-k_DrawPoint:
+DrawPoint:
 	bmi @3
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 

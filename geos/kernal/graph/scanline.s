@@ -36,9 +36,10 @@ _GetScanLineCompat:
 
 .include "../../banks.inc"
 .import gjsrfar
-.import k_GetScanLine, k_DrawLine, k_DrawPoint, k_FrameRectangle, k_ImprintRectangle, k_InvertRectangle, k_RecoverRectangle, k_Rectangle, k_TestPoint, k_SetColor, k_HorizontalLine, k_InvertLine, k_RecoverLine, k_VerticalLine, k_SetVRAMPtrFG, k_StoreVRAM
+.import k_GetScanLine, k_DrawLine, k_FrameRectangle, k_ImprintRectangle, k_InvertRectangle, k_RecoverRectangle, k_Rectangle, k_TestPoint, k_SetColor, k_HorizontalLine, k_InvertLine, k_RecoverLine, k_VerticalLine, k_SetVRAMPtrFG, k_SetVRAMPtrBG, k_SetPointFG, k_SetPointBG
 
-.export _GetScanLine, _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _SetColor, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _SetVRAMPtrFG, _StoreVRAM
+
+.export _GetScanLine, _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _SetColor, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _SetVRAMPtrFG, _SetVRAMPtrBG, _SetPointFG, _SetPointBG
 
 .import k_dispBufferOn, k_col1, k_col2
 
@@ -92,34 +93,61 @@ _GetScanLine:
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 _DrawLine:
-	sec ; N=1, C=1 -> recover
 	bmi @3 ; recover
 ; draw
 	lda #0
 	rol
 	eor #1
 	sta col1
-@3:	jmpf k_DrawLine
+	jmpf k_DrawLine
+@3:	sec ; N=1, C=1 -> recover
+	jmpf k_DrawLine
 
 ;---------------------------------------------------------------
 ; DrawPoint                                               $C133
 ;
 ; Pass:      r3       x pos of point (0-319)
 ;            r11L     y pos of point (0-199)
-;            carryFlg color: 0: black; 1: white
+;            carryFlg color: 1: black; 0: white
 ;            signFlg  0: draw color; 1: recover
 ; Return:    -
 ; Destroyed: a, x, y, r5 - r6
 ;---------------------------------------------------------------
 _DrawPoint:
-	sec ; N=1, C=1 -> recover
 	bmi @3 ; recover
 ; draw
 	lda #0
 	rol
 	eor #1
-	sta col1
-@3:	jmpf k_DrawPoint
+	pha
+
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
+; set point
+	ldx r11L
+	jsr _SetVRAMPtrFG
+	pla
+	jsr _SetPointFG
+	pha
+
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+
+	ldx r11L
+	jsr _SetVRAMPtrBG
+	pla
+	jmp _SetPointBG
+
+@2:	pla
+	rts
+
+; recover a point: use DrawLine
+@3:	PushW r4
+	PushB r11H
+	MoveW r3, r4
+	MoveB r11L, r11H
+	jsr _DrawLine
+	PopB r11H
+	PopW r4
+	rts
 
 ;---------------------------------------------------------------
 ; FrameRectangle                                          $C127
@@ -250,8 +278,14 @@ _VerticalLine:
 _SetVRAMPtrFG:
 	jmpf k_SetVRAMPtrFG
 
-_StoreVRAM:
-	jmpf k_StoreVRAM
+_SetVRAMPtrBG:
+	jmpf k_SetVRAMPtrBG
+
+_SetPointFG:
+	jmpf k_SetPointFG
+
+_SetPointBG:
+	jmpf k_SetPointBG
 
 ;---------------------------------------------------------------
 ; Color compatibility logic

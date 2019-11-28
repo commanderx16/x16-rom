@@ -15,7 +15,7 @@
 ; XXX wrong bank
 CallNoRAMSharing = $9D80
 .endif
-.import _SetVRAMPtrFG, _StoreVRAM
+.import _SetVRAMPtrFG, _SetPointFG
 
 .global BitmapUpHelp
 .global BitmapDecode
@@ -87,7 +87,7 @@ BitmapUpHelp:
 	tay
 	lda #0
 	rol
-	jsr _StoreVRAM
+	jsr _SetPointFG
 	tya
 	dex
 	bne :-
