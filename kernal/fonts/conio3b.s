@@ -9,32 +9,43 @@
 .global k_SmallPutChar  ; GEOS API
 
 k_UseSystemFont:
-.ifdef bsw128
-	bbsf 7, graphMode, @X
 	LoadW r0, SystemFont
-	bra k_LoadCharSet
-@X:	LoadW r0, BSWFont80
-.else
-	LoadW r0, SystemFont
-.endif
 k_LoadCharSet:
+.if 0
 	ldy #0
 @1:	lda (r0),y
 	sta baselineOffset,y
 	iny
 	cpy #8
 	bne @1
+.else
+	ldy #0
+	lda (r0),y
+	sta baselineOffset
+	iny
+	lda (r0),y
+	sta curSetWidth
+	iny
+	lda (r0),y
+	sta curSetWidth+1
+	iny
+	lda (r0),y
+	sta curHeight
+	iny
+	lda (r0),y
+	sta curIndexTable
+	iny
+	lda (r0),y
+	sta curIndexTable+1
+	iny
+	lda (r0),y
+	sta cardDataPntr
+	iny
+	lda (r0),y
+	sta cardDataPntr+1
+.endif
 	AddW r0, curIndexTable
 	AddW r0, cardDataPntr
-
-.if .defined(trap2) && (!.defined(trap2_alternate_location))
-	; copy high-byte of serial
-	lda SerialHiCompare
-	bne @2
-	jsr GetSerialNumber2
-	sta SerialHiCompare
-@2:
-.endif
 	rts
 
 k_GetCharWidth:
@@ -44,14 +55,7 @@ k_GetCharWidth:
 	rts
 GetChWdth1:
 	cmp #$5f
-.ifdef bsw128 ; branch taken/not taken optimization
 	beq @2
-.else
-	bne @1
-	lda PrvCharWidth
-	rts
-@1:
-.endif
 	asl
 	tay
 	iny
@@ -62,10 +66,8 @@ GetChWdth1:
 	sec
 	sbc (curIndexTable),y
 	rts
-.ifdef bsw128 ; branch taken/not taken optimization
 @2:	lda PrvCharWidth
 	rts
-.endif
 
 ;---------------------------------------------------------------
 ; SmallPutChar                                            $C202

@@ -43,7 +43,7 @@ _PutChar:
 	sty r13H
 	ldy r11L
 	sty r13L
-	ldx currentMode
+	ldx g_currentMode
 	jsr _GetRealSize
 	dey
 	tya
@@ -53,16 +53,16 @@ _PutChar:
 	inc r13H
 @2:
 .ifdef bsw128
-	ldx #rightMargin
+	ldx #g_rightMargin
 	jsr NormalizeX
 .endif
-	CmpW rightMargin, r13
+	CmpW g_rightMargin, r13
 	bcc @5
 .ifdef bsw128
-	ldx #leftMargin
+	ldx #g_leftMargin
 	jsr NormalizeX
 .endif
-	CmpW leftMargin, r11
+	CmpW g_leftMargin, r11
 	beq @3
 	bcs @4
 @3:	pla
@@ -75,7 +75,7 @@ _PutChar:
 	adc #0
 	sta r11H
 @5:	pla
-	bit compatMode
+	bit g_compatMode
 	bmi @6
 	rts
 @6:	ldx StringFaultVec+1
@@ -102,7 +102,7 @@ DoTAB:
 DoLF:
 	lda r1H
 	sec
-	adc curHeight
+	adc g_curHeight
 	sta r1H
 	rts
 
@@ -112,27 +112,27 @@ DoHOME:
 	rts
 
 DoUPLINE:
-	SubB curHeight, r1H
+	SubB g_curHeight, r1H
 	rts
 
 DoCR:
-	MoveW leftMargin, r11
+	MoveW g_leftMargin, r11
 	jmp DoLF
 
 DoULINEON:
-	smbf UNDERLINE_BIT, currentMode
+	smbf UNDERLINE_BIT, g_currentMode
 	rts
 
 DoULINEOFF:
-	rmbf UNDERLINE_BIT, currentMode
+	rmbf UNDERLINE_BIT, g_currentMode
 	rts
 
 DoREV_ON:
-	smbf REVERSE_BIT, currentMode
+	smbf REVERSE_BIT, g_currentMode
 	rts
 
 DoREV_OFF:
-	rmbf REVERSE_BIT, currentMode
+	rmbf REVERSE_BIT, g_currentMode
 	rts
 
 DoGOTOX:
@@ -167,23 +167,23 @@ DoNEWCARDSET:
 	rts
 
 DoBOLDON:
-	smbf BOLD_BIT, currentMode
+	smbf BOLD_BIT, g_currentMode
 	rts
 
 DoITALICON:
-	smbf ITALIC_BIT, currentMode
+	smbf ITALIC_BIT, g_currentMode
 	rts
 
 DoOUTLINEON:
-	smbf OUTLINE_BIT, currentMode
+	smbf OUTLINE_BIT, g_currentMode
 	rts
 
 DoPLAINTEXT:
-	LoadB currentMode, NULL
+	LoadB g_currentMode, NULL
 	rts
 
 DoBACKSPC:
-	ldx currentMode
+	ldx g_currentMode
 	jsr _GetRealSize
 	sty PrvCharWidth
 DoBACKSPACE:

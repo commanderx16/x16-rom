@@ -41,6 +41,6 @@ GetColor:
 @b:	lda #6 ; dark blue
 @c:	sta col1
 	lda #$80
-	sta compatMode
+	sta g_compatMode
 	rts
 

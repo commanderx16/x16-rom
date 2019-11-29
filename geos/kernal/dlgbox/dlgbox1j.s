@@ -284,9 +284,9 @@ DBGFilesHelp4:
 
 DBGFilesHelp5:
 .ifdef wheels_dlgbox_features
-	PushW rightMargin
-	PushB currentMode
-	LoadB currentMode, $40
+	PushW g_rightMargin
+	PushB g_currentMode
+	LoadB g_currentMode, $40
 	lda #0
 	jsr DBGFilesHelp8
 	clc
@@ -298,9 +298,9 @@ DBGFilesHelp5:
 	jsr Rectangle
 	lda #0
 	lda r4H
-	sta rightMargin+1
+	sta g_rightMargin+1
 	lda r4L
-	sta rightMargin
+	sta g_rightMargin
 	lda #0
 	sta r15L
 	ldx #30
@@ -330,21 +330,21 @@ LF86E:	inc r15L
 	cmp #5
 	bne LF843
 	jsr DBGFilesHelp6
-	PopB currentMode
-	PopW rightMargin
+	PopB g_currentMode
+	PopW g_rightMargin
 	rts
 .else
-	PushW rightMargin
+	PushW g_rightMargin
 	lda #0
 	jsr DBGFilesHelp8
-	MoveW r4, rightMargin
+	MoveW r4, g_rightMargin
 	LoadB r15L, 0
 	jsr SetPattern
 
 	lda DBGFTableIndex
 	ldx #r14
 	jsr DBGFilesHelp4
-	LoadB currentMode, SET_BOLD
+	LoadB g_currentMode, SET_BOLD
 @1:	lda r15L
 	jsr DBGFilesHelp8
 
@@ -360,8 +360,8 @@ LF86E:	inc r15L
 	CmpBI r15L, 5
 	bne @1
 	jsr DBGFilesHelp6
-	LoadB currentMode, NULL
-	PopW rightMargin
+	LoadB g_currentMode, NULL
+	PopW g_rightMargin
 	rts
 .endif
 

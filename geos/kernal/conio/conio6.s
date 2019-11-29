@@ -52,7 +52,7 @@ CalcDecimal:
 @4:	ora #%00110000
 	ldx r3L
 	sta fontTemp1,x
-	ldx currentMode
+	ldx g_currentMode
 	jsr _GetRealSize
 	tya
 	add r3H

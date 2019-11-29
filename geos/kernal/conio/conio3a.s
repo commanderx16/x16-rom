@@ -30,10 +30,41 @@ _PutString:
 ;-------
 
 .macro jsrfar addr
+	php
+	pha
+	MoveW g_curIndexTable, curIndexTable
+	MoveB g_baselineOffset, baselineOffset
+	MoveW g_curSetWidth, curSetWidth
+	MoveB g_curHeight, curHeight
+	MoveW g_cardDataPntr, cardDataPntr
+	MoveB g_currentMode, currentMode
+	MoveB g_windowTop, windowTop
+	MoveB g_windowBottom, windowBottom
+	MoveW g_leftMargin, leftMargin
+	MoveW g_rightMargin, rightMargin
+	pla
+	plp
 	jsr gjsrfar
 	.word addr
 	.byte BANK_KERNAL
+	pha
+	MoveW curIndexTable, g_curIndexTable
+	MoveB baselineOffset, g_baselineOffset
+	MoveW curSetWidth, g_curSetWidth
+	MoveB curHeight, g_curHeight
+	MoveW cardDataPntr, g_cardDataPntr
+	MoveB currentMode, g_currentMode
+	MoveB windowTop, g_windowTop
+	MoveB windowBottom, g_windowBottom
+	MoveW leftMargin, g_leftMargin
+	MoveW rightMargin, g_rightMargin
+	pla
 .endmacro
+
+
+; FONT VARS
+.importzp curIndexTable
+.import baselineOffset, curSetWidth, curHeight, cardDataPntr, currentMode, windowTop, windowBottom, leftMargin, rightMargin
 
 .import gjsrfar
 

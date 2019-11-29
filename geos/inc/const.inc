@@ -333,7 +333,7 @@ SET_OFFLEFT             =       %00100000
 SET_OFFRIGHT            =       %00010000
 SET_OFFMENU             =       %00001000
 
-; values of currentMode
+; values of g_currentMode
 ; bit numbers
 UNDERLINE_BIT           =       7
 BOLD_BIT                =       6

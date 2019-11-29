@@ -25,10 +25,10 @@
 ; memory on the current bank. Neither of this is the
 ; case on a system with a VERA. deskTop 2.0 for example
 ; would trash CPU memory if this returned real offsets
-; into video RAM. Therefore, to all users in compatMode,
+; into video RAM. Therefore, to all users in g_compatMode,
 ; we return a fake address that cannot cause any harm.
 _GetScanLineCompat:
-	bit compatMode
+	bit g_compatMode
 	bpl _GetScanLine
 	LoadW r5, $ff00
 	LoadW r6, $ff00
