@@ -62,8 +62,6 @@ k_Ddec:
 	ora 1,x
 	rts
 
-.segment "bitmask1"
-
 .export k_BitMaskPow2, k_BitMaskLeadingSet, k_BitMaskLeadingClear
 k_BitMaskPow2:
 	.byte %00000001 

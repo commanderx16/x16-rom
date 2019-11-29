@@ -776,7 +776,7 @@ Draw8Pixels:
 	bmi Draw8PixelsInv
 
 ; regular (color mode), translucent
-	ldy col1 ; fg: primary color
+	ldy k_col1 ; fg: primary color
 @4:	asl
 	bcc @1
 	asl r4L
@@ -794,8 +794,8 @@ Draw8Pixels:
 ; inverted/underlined (color mode)
 Draw8PixelsInv:
 	phx
-	ldx col1 ; fg: primary color
-	ldy col2 ; bg: secondary color
+	ldx k_col1 ; fg: primary color
+	ldy k_col2 ; bg: secondary color
 ; opaque drawing with fg color (x) and bg color (y)
 Draw8PixelsOpaque:
 @4:	asl

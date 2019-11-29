@@ -7,10 +7,10 @@
 .include "../../mac.inc"
 .include "fonts.inc"
 
+.import k_col1, k_col2
+
 .if 0
 ; GEOS public
-.import col1 ; 1 byte
-.import col2 ; 1 byte
 .import baselineOffset ; 1 byte
 .import curSetWidth ; 2 bytes
 .import curHeight ; 1 byte
@@ -32,18 +32,18 @@
 .import FontTVar3 ; 1 byte
 .import FontTVar4 ; 1 byte
 .else
-col1           = $22 ; same as curPattern
-col2           = $23 ; same as curPattern+1
-baselineOffset = $26 ; [fonts; conio; menu]
-curSetWidth    = $27 ; [fonts]
-curHeight      = $29 ; [fonts; conio; menu]
-curIndexTable  = $2a ; [fonts; conio]
-cardDataPntr   = $2c ; [fonts; conio]
+baselineOffset = $26 ; [fonts; conio; menu] ;;
+curSetWidth    = $27 ; [fonts]              ;;
+curHeight      = $29 ; [fonts; conio; menu] ;;
+curIndexTable  = $2a ; [fonts; conio]       ;;
+cardDataPntr   = $2c ; [fonts; conio]       ;;
+
 currentMode    = $2e ; [fonts; conio; menu; dlgbox]
 windowTop      = $33 ; [fonts]
 windowBottom   = $34 ; [fonts]
 leftMargin     = $35 ; [fonts; conio; menu]
 rightMargin    = $37 ; [fonts; conio; menu; dlgbox]
+
 compatMode      =       $3f ; (on C128, this is graphMode)
 CallRLo         =       $44 ; [CallRoutine]
 CallRHi         =       $45 ; [CallRoutine]
