@@ -3,11 +3,19 @@
 ;
 ; Console I/O: UseSystemFont, LoadCharSet, GetCharWidth syscalls
 
-.global k_LoadCharSet   ; GEOS API
-.global k_UseSystemFont ; GEOS API
-.global k_GetCharWidth  ; GEOS API
-.global k_SmallPutChar  ; GEOS API
+.export k_LoadCharSet   ; GEOS API
+.export k_UseSystemFont ; GEOS API
+.export k_GetCharWidth  ; GEOS API
+.export k_SmallPutChar  ; GEOS API
 
+.export font_init
+
+font_init:
+	LoadB windowTop, 0
+	LoadB windowBottom, SC_PIX_HEIGHT-1
+	LoadW leftMargin, 0
+	LoadW rightMargin, SC_PIX_WIDTH-1
+; fallthrough
 k_UseSystemFont:
 	LoadW r0, SystemFont
 k_LoadCharSet:

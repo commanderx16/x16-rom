@@ -3,12 +3,10 @@
 ;
 ; Console I/O: PutChar and SmallPutChar syscalls
 
-.import color; [editor]
-
 .global k_PutChar
 
 set_color:
-	sta color
+	sta k_col1
 	rts
 
 k_PutChar:
@@ -145,14 +143,10 @@ control_nop:
 	rts
 
 control_swap_col:
-	lda color    ; get current text color.
-	asl a        ; swap msn/lsn.
-	adc #$80
-	rol a
-	asl a
-	adc #$80
-	rol a
-	sta color    ; stash back.
+	lda k_col1
+	ldx k_col2
+	stx k_col1
+	sta k_col2
 	rts
 
 control_underline:
@@ -191,7 +185,7 @@ control_outline:
 
 control_return:
 	MoveW leftMargin, r11
-; runs into:
+; fallthrough
 control_down:
 	lda r1H
 	sec
@@ -204,10 +198,11 @@ control_reverse:
 	rts
 
 control_home:
-	LoadW_ r11, 0
+	LoadW r11, 0
+	lda curHeight
 	sta r1H
 	rts
-	
+
 control_right:
 	lda #' '
 	jmp k_PutChar

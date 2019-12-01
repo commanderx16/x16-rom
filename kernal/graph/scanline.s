@@ -1,14 +1,25 @@
 .include "../../mac.inc"
 .include "../../regs.inc"
 .include "../../io.inc"
+.include "graph.inc"
+
+.import k_dispBufferOn
 
 .export k_GetScanLine
 .export k_SetVRAMPtrFG, k_SetVRAMPtrBG
 .export k_SetPointFG, k_SetPointBG
 
+.export graph_init
 .export inc_bgpage
 
 .segment "GRAPH"
+
+graph_init:
+	LoadW k_dispBufferOn, ST_WR_FORE
+.if 0 ; XXX
+	LoadB pressFlag, 0
+.endif
+	rts
 
 ;---------------------------------------------------------------
 ; GetScanLine                                             $C13C

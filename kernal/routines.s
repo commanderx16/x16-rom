@@ -4,6 +4,8 @@
 
 .import k_SetColor, k_Rectangle
 
+.import graph_init, font_init
+
 .export jsrfar, banked_irq
 .export fetvec, fetch
 
@@ -216,15 +218,8 @@ swpp1	lda #<480
 grphon	lda #$0e ; light blue
 	sta color
 
-; TODO go through GEOS init
-	LoadW k_dispBufferOn, ST_WR_FORE
-.if 0 ; XXX
-	LoadB windowTop, 0
-	LoadB windowBottom, SC_PIX_HEIGHT-1
-	LoadW leftMargin, 0
-	LoadW rightMargin, SC_PIX_WIDTH-1
-	LoadB pressFlag, 0
-.endif
+	jsr graph_init
+	jsr font_init
 
 	lda #1 ; white
 	jsr k_SetColor

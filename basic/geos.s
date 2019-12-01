@@ -112,9 +112,12 @@ char	jsr get_point
 	lda (facmo),y
 	sta r15H ; pointer hi
 
+	sei
+	lda #$92 ; Ctrl+0: clear attributes
 	jsr bjsrfar
-	.word k_UseSystemFont
+	.word k_PutChar
 	.byte BANK_KERNAL
+	cli
 
 	ldy #0
 :	lda (r15),y
