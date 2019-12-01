@@ -735,7 +735,7 @@ dnline	ldx tblx
 dwnbye	rts
 
 chkcol
-        cmp #$02    ; check ctrl-b for invert.
+        cmp #$01    ; check ctrl-a for invert.
         bne ntinv
         lda color    ; get current text color.
         asl a        ; swap msn/lsn.
