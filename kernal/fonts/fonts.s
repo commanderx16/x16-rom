@@ -28,7 +28,7 @@ rightMargin:	.res 2
 
 ; GEOS private
 ;compatMode:	.res 1
-fontTemp1:	.res 8 ; XXX used by conio6
+fontTemp1:	.res 8
 fontTemp2:	.res 9
 PrvCharWidth:	.res 1 ; XXX used by conio1
 FontTVar1:	.res 1

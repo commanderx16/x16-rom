@@ -71,6 +71,7 @@
 .global bootTr2
 .global bootSec2
 .global bootOffs
+.global decimalTemp
 
 .segment "vars"
 
@@ -141,3 +142,5 @@ bootSec:	.byte 0
 bootTr2:	.byte 0
 bootSec2:	.byte 0
 bootOffs:	.byte 0
+
+decimalTemp:   .res 5
