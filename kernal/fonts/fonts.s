@@ -46,6 +46,7 @@ compatMode      =       $3f ; (on C128, this is graphMode)
 .include "fonts4.s"
 .include "fonts4a.s"
 .include "fonts4b.s"
+.include "conio1.s"
 .include "conio3b.s"
 .include "sysfont.s"
 

@@ -81,6 +81,7 @@ count	.res 1           ;$A5 temp used by serial routine
 ;
 .export mode; [ps2kbd]
 .export data; [cpychr]
+.export color; [font]
 mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
 gdcol	.res 1           ;    original color before cursor
 hibase	.res 1           ;    base location of screen (top)

@@ -9,6 +9,7 @@
 ; XXX TODO these should go through the jump table
 .import scrmod
 .import k_DrawLine, k_Rectangle, k_FrameRectangle, k_SetVRAMPtrFG, k_SetPointFG
+.import k_UseSystemFont, k_PutChar
 
 
 ; from GEOS
@@ -111,27 +112,16 @@ char	jsr get_point
 	lda (facmo),y
 	sta r15H ; pointer hi
 
-	sei
 	jsr bjsrfar
-	.word UseSystemFont
-	.byte BANK_GEOS
-	cli
-
-	sei
-	lda #27 ; PLAINTEXT
-	jsr bjsrfar
-	.word PutChar
-	.byte BANK_GEOS
-	cli
+	.word k_UseSystemFont
+	.byte BANK_KERNAL
 
 	ldy #0
 :	lda (r15),y
 	phy
-	sei
 	jsr bjsrfar
-	.word PutChar
-	.byte BANK_GEOS
-	cli
+	.word k_PutChar
+	.byte BANK_KERNAL
 	ply
 	iny
 	cpy r14L
