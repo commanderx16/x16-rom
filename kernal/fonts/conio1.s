@@ -3,6 +3,8 @@
 ;
 ; Console I/O: PutChar and SmallPutChar syscalls
 
+.import graph_clear
+
 .global k_PutChar
 
 set_color:
@@ -184,6 +186,7 @@ control_outline:
 	rts
 
 control_return:
+	LoadB currentMode, 0 ; clear attributes (like KERNAL)
 	MoveW leftMargin, r11
 ; fallthrough
 control_down:
@@ -197,6 +200,9 @@ control_reverse:
 	smbf REVERSE_BIT, currentMode
 	rts
 
+control_clear:
+	jsr graph_clear
+; fallthrough
 control_home:
 	LoadW r11, 0
 	lda curHeight
@@ -215,5 +221,3 @@ control_attrclr:
 	LoadB currentMode, 0
 	rts
 
-control_clear:
-	brk

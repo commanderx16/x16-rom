@@ -19,14 +19,6 @@ font_init:
 k_UseSystemFont:
 	LoadW r0, SystemFont
 k_LoadCharSet:
-.if 0
-	ldy #0
-@1:	lda (r0),y
-	sta baselineOffset,y
-	iny
-	cpy #8
-	bne @1
-.else
 	ldy #0
 	lda (r0),y
 	sta baselineOffset
@@ -51,7 +43,6 @@ k_LoadCharSet:
 	iny
 	lda (r0),y
 	sta cardDataPntr+1
-.endif
 	AddW r0, curIndexTable
 	AddW r0, cardDataPntr
 	rts
@@ -78,7 +69,7 @@ GetChWdth1:
 	rts
 
 ;---------------------------------------------------------------
-; SmallPutChar                                            $C202
+; SmallPutChar
 ;
 ; Pass:      same as PutChar, but must be sure that
 ;            everything is OK, there is no checking

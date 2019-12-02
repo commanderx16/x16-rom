@@ -100,6 +100,14 @@ _LoadCharSet:
 	plp
 	rts
 
+;---------------------------------------------------------------
+; SmallPutChar                                            $C202
+;
+; Pass:      same as PutChar, but must be sure that
+;            everything is OK, there is no checking
+; Return:    same as PutChar
+; Destroyed: same as PutChar
+;---------------------------------------------------------------
 _SmallPutChar:
 	php
 	sei

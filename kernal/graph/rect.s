@@ -6,6 +6,7 @@
 .include "../../regs.inc"
 .include "../../io.inc"
 .include "../../mac.inc"
+.include "graph.inc"
 
 .import k_col1
 

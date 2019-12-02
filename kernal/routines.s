@@ -4,7 +4,7 @@
 
 .import k_SetColor, k_Rectangle
 
-.import graph_init, font_init
+.import graph_init, graph_clear, font_init
 
 .export jsrfar, banked_irq
 .export fetvec, fetch
@@ -179,11 +179,13 @@ swpp60	ldx #80
 	ldy #60
 	lda #128 ; scale = 1.0
 	clc
-	bne swpp2 ; always
+	bra swpp2
+
 swpp25	jsr grphon
 	ldy #25
 	sec
 	bra swpp3
+
 swpp30	clc
 	ldy #30
 swpp3	ldx #40
@@ -219,22 +221,11 @@ grphon	lda #$0e ; light blue
 	sta color
 
 	jsr graph_init
-	jsr font_init
-
-	lda #1 ; white
+	lda #0 ; black
+	ldx #1; white
 	jsr k_SetColor
-
-	lda #0
-	sta r3L
-	sta r3H
-	sta r2L
-	lda #<319
-	sta r4L
-	lda #>319
-	sta r4H
-	lda #199
-	sta r2H
-	jsr k_Rectangle
+	jsr graph_clear
+	jsr font_init
 
 tile_base = $10000
 

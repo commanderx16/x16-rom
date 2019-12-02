@@ -1,3 +1,5 @@
+.include "../graph/graph.inc"
+
 ; values of currentMode
 ; bit numbers
 UNDERLINE_BIT           =       7
@@ -16,7 +18,3 @@ SET_OUTLINE             =       %00001000
 SET_SUPERSCRIPT         =       %00000100
 SET_SUBSCRIPT           =       %00000010
 SET_PLAINTEXT           =       %00000000
-
-; screen
-SC_PIX_HEIGHT           =       200
-SC_PIX_WIDTH            =       320
