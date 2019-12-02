@@ -29,9 +29,16 @@ k_PutChar:
 	lda PutCharTab80,y
 	ldx PutCharTab80+1,y
 	beq set_color
-	jmp k_CallRoutine
+	jsr k_CallRoutine
+	clc ; C=0: OK
+	rts
 
-@1a:	pha
+; convert code $FF to $80 (GEOS compat. "logo" char)
+@1a:	cmp #$ff
+	bne @1b
+	lda #$80
+
+@1b:	pha
 	ldy r11H
 	sty r13H
 	ldy r11L
@@ -44,15 +51,18 @@ k_PutChar:
 	sta r13L
 	bcc @2
 	inc r13H
-@2:
-	CmpW rightMargin, r13
+@2:	CmpW rightMargin, r13
 	bcc @5
 	CmpW leftMargin, r11
 	beq @3
 	bcs @4
 @3:	pla
 	subv $20
-	jmp k_FontPutChar
+	jsr k_FontPutChar
+	clc ; C=0: OK
+	rts
+
+; string fault
 @4:	lda r13L
 	addv 1
 	sta r11L
@@ -60,13 +70,8 @@ k_PutChar:
 	adc #0
 	sta r11H
 @5:	pla
-.if 1
+	sec ; C=1: string fault!
 	rts
-.else
-	ldx StringFaultVec+1
-	lda StringFaultVec
-	jmp k_CallRoutine
-.endif
 
 k_CallRoutine:
 	sta r13L
@@ -84,7 +89,7 @@ PutCharTab00:
 	.word control_nop       ; $07  | **BELL**
 	.word control_backspace ; $08  | **BACKSPACE**
 	.word control_tab       ; $09  | **TAB**
-	.word control_down      ; $0A  | **LF**
+	.word control_return2   ; $0A  | **LF**
 	.word control_italics   ; $0B  | **ATTRIBUTES: ITALICS**
 	.word control_outline   ; $0C  | **ATTRIBUTES: OUTLINE**
 	.word control_return    ; $0D  | RETURN
@@ -187,6 +192,7 @@ control_outline:
 
 control_return:
 	LoadB currentMode, 0 ; clear attributes (like KERNAL)
+control_return2:
 	MoveW leftMargin, r11
 ; fallthrough
 control_down:

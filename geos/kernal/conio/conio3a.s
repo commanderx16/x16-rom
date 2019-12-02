@@ -68,9 +68,9 @@ _PutString:
 
 .import gjsrfar
 
-.import k_FontPutChar, k_GetCharWidth, k_GetRealSize, k_LoadCharSet, k_SmallPutChar, k_UseSystemFont
+.import k_FontPutChar, k_GetCharWidth, k_GetRealSize, k_LoadCharSet, k_SmallPutChar, k_UseSystemFont, k_PutChar
 
-.export FontPutChar, _GetCharWidth, _GetRealSize, _LoadCharSet, _SmallPutChar, _UseSystemFont
+.export FontPutChar, _GetCharWidth, _GetRealSize, _LoadCharSet, _SmallPutChar, _UseSystemFont, _PutCharK
 
 FontPutChar:
 	php
@@ -122,3 +122,9 @@ _UseSystemFont:
 	plp
 	rts
 
+_PutCharK:
+	php
+	sei
+	jsrfar k_PutChar
+	plp
+	rts
