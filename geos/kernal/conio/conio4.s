@@ -10,7 +10,6 @@
 .include "kernal.inc"
 .include "c64.inc"
 
-.import DoBACKSPC
 .import tmpKeyVector
 .import stringLen
 .import stringMaxLen
@@ -18,6 +17,8 @@
 .import _PromptOff
 .import _PromptOn
 .import _InitTextPrompt
+
+.import _GetRealSize, FontPutChar
 
 .import NormalizeX
 
@@ -189,4 +190,17 @@ GSHelp1:
 	clc
 	rts
 @2:	sec
+	rts
+
+DoBACKSPC:
+	ldx g_currentMode
+	jsr _GetRealSize
+	sty PrvCharWidth
+	SubB PrvCharWidth, r11L
+	bcs @1
+	dec r11H
+@1:	PushW r11
+	lda #$5f ; '-'
+	jsr FontPutChar
+	PopW r11
 	rts

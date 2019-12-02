@@ -10,8 +10,6 @@
 .include "kernal.inc"
 .include "c64.inc"
 
-.import _GetRealSize
-.import FontPutChar
 .import DoESC_RULER
 .import _GraphicsString
 
@@ -26,6 +24,10 @@
 .segment "conio1"
 
 _PutChar:
+	cmp #$49
+	bne @aaaa
+@bbbb:	nop
+@aaaa:
 ; codes $00-$07 are no-op (original GEOS crashed)
 	cmp #8
 	bcs @0
@@ -77,19 +79,23 @@ PutCharTab:
 	.word $0C            ; $1A OUTLINEON
 	.word $92            ; $1B PLAINTEXT
 
+; The KERNAL version puts the cursor font-size pixels
+; down so that printing is actually visible
 DoHOME:
 	LoadW_ r11, 0
 	sta r1H
 	rts
 
+; The KERNAL version has no control code to disable attributes individually.
 DoULINEOFF:
 	rmbf UNDERLINE_BIT, g_currentMode
 	rts
-
 DoREV_OFF:
 	rmbf REVERSE_BIT, g_currentMode
 	rts
 
+; The following features are GEOS-specific:
+; * set cursor to a new X
 DoGOTOX:
 	inc r0L
 	bne @1
@@ -103,7 +109,11 @@ DoGOTOX:
 @2:	lda (r0),y
 	sta r11H
 	rts
-
+; * set cursor to a new X and Y
+DoGOTOXY:
+	jsr DoGOTOX
+; fallthrough
+; * set cursor to a new Y
 DoGOTOY:
 	inc r0L
 	bne @1
@@ -112,15 +122,11 @@ DoGOTOY:
 	lda (r0),y
 	sta r1H
 	rts
-
-DoGOTOXY:
-	jsr DoGOTOX
-	jmp DoGOTOY
-
+; * set new attributes (ignored)
 DoNEWCARDSET:
 	AddVW 3, r0
 	rts
-
+; * inline GraphicsString
 DoESC_GRAPHICS:
 	inc r0L
 	bne @1
@@ -130,23 +136,3 @@ DoESC_GRAPHICS:
 	jsr Ddec
 	ldx #r0
 	jmp Ddec
-
-
-
-
-
-;-----
-DoBACKSPC:
-	ldx g_currentMode
-	jsr _GetRealSize
-	sty PrvCharWidth
-	SubB PrvCharWidth, r11L
-	bcs @1
-	dec r11H
-@1:	PushW r11
-	lda #$5f
-	jsr FontPutChar
-	PopW r11
-	rts
-
-

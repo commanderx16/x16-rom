@@ -31,6 +31,8 @@ _PutString:
 
 .macro jsrfar addr
 	php
+	sei
+	php
 	pha
 	MoveW g_curIndexTable, curIndexTable
 	MoveB g_baselineOffset, baselineOffset
@@ -48,6 +50,9 @@ _PutString:
 	.word addr
 	.byte BANK_KERNAL
 	pha
+	lda #0
+	rol
+	sta tmp1
 	MoveW curIndexTable, g_curIndexTable
 	MoveB baselineOffset, g_baselineOffset
 	MoveW curSetWidth, g_curSetWidth
@@ -58,6 +63,11 @@ _PutString:
 	MoveB windowBottom, g_windowBottom
 	MoveW leftMargin, g_leftMargin
 	MoveW rightMargin, g_rightMargin
+	pla
+	plp
+	pha
+	lda tmp1
+	lsr
 	pla
 .endmacro
 
@@ -73,31 +83,19 @@ _PutString:
 .export FontPutChar, _GetCharWidth, _GetRealSize, _LoadCharSet, _SmallPutChar, _UseSystemFont, _PutCharK
 
 FontPutChar:
-	php
-	sei
 	jsrfar k_FontPutChar
-	plp
 	rts
 
 _GetCharWidth:
-	php
-	sei
 	jsrfar k_GetCharWidth
-	plp
 	rts
 
 _GetRealSize:
-	php
-	sei
 	jsrfar k_GetRealSize
-	plp
 	rts
 
 _LoadCharSet:
-	php
-	sei
 	jsrfar k_LoadCharSet
-	plp
 	rts
 
 ;---------------------------------------------------------------
@@ -109,22 +107,13 @@ _LoadCharSet:
 ; Destroyed: same as PutChar
 ;---------------------------------------------------------------
 _SmallPutChar:
-	php
-	sei
 	jsrfar k_SmallPutChar
-	plp
 	rts
 
 _UseSystemFont:
-	php
-	sei
 	jsrfar k_UseSystemFont
-	plp
 	rts
 
 _PutCharK:
-	php
-	sei
 	jsrfar k_PutChar
-	plp
 	rts
