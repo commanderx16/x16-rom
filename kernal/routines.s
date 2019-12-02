@@ -221,8 +221,9 @@ grphon	lda #$0e ; light blue
 	sta color
 
 	jsr graph_init
-	lda #0 ; black
-	ldx #1; white
+	lda #0  ; primary:    black
+	ldx #10 ; secondary:  gray
+	ldy #1  ; background: white
 	jsr k_SetColor
 	jsr graph_clear
 	jsr font_init

@@ -4,7 +4,7 @@
 .include "graph.inc"
 
 .import k_dispBufferOn
-.import k_col1, k_col2, k_Rectangle
+.import k_col1, k_col2, k_col_bg, k_Rectangle
 
 .export graph_clear
 .export k_GetScanLine
@@ -25,7 +25,7 @@ graph_init:
 
 graph_clear:
 	PushB k_col1
-	MoveB k_col2, k_col1
+	MoveB k_col_bg, k_col1
 	LoadW r3, 0
 	LoadW r4, SC_PIX_WIDTH-1
 	LoadB r2L, 0

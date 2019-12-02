@@ -95,7 +95,6 @@ char	jsr get_point
 	jsr chkcom
 	jsr getbyt
 	txa
-	ldx #15 ; light gray as secondary color
 	jsr set_col
 
 	jsr chkcom
@@ -152,15 +151,17 @@ get_point:
 get_col:
 	ldy #0
 	lda (txtptr),y
-	beq @1
-	jsr chkcom
+	bne @1
+	lda #0
+	rts
+@1:	jsr chkcom
 	jsr getbyt
 	txa
-	bra @2
-@1:	lda #0
-@2:	rts
+	rts
 
 set_col:
+	ldx #15 ; secondary color:  light gray
+	ldy #1  ; background color: white
 	sei
 	jsr bjsrfar
 	.word k_SetColor

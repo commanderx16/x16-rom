@@ -1,5 +1,5 @@
 
-.import k_col1, k_col2
+.import k_col1, k_col2, k_col_bg
 
 .global k_SetColor
 
@@ -14,7 +14,8 @@
 ;---------------------------------------------------------------
 k_SetColor:
 	sta k_col1   ; primary color
-	stx k_col2 ; secondary color
+	stx k_col2   ; secondary color
+	sty k_col_bg ; background color
 	rts
 
 
