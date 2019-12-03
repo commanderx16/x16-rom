@@ -8,7 +8,7 @@
 ; from KERNAL
 ; XXX TODO these should go through the jump table
 .import scrmod
-.import k_DrawLine, k_Rectangle, k_FrameRectangle, k_SetVRAMPtrFG, k_SetPointFG
+.import k_DrawLine, k_Rectangle, k_FrameRectangle, k_SetVRAMPtr, k_SetPoint
 .import k_UseSystemFont, k_PutChar
 
 
@@ -40,11 +40,11 @@ pset:	jsr get_point
 	sei
 	ldx r11L
 	jsr bjsrfar
-	.word k_SetVRAMPtrFG
+	.word k_SetVRAMPtr
 	.byte BANK_KERNAL
 	pla
 	jsr bjsrfar
-	.word k_SetPointFG
+	.word k_SetPoint
 	.byte BANK_KERNAL
 	cli
 	rts

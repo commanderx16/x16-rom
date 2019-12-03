@@ -2,17 +2,14 @@
 .export graph_clear
 
 .export k_GetScanLine
-.export k_SetVRAMPtrFG, k_SetVRAMPtrBG
-.export k_SetPointFG, k_SetPointBG
-.global k_FilterPointsFG
+.export k_SetVRAMPtr
+.export k_SetPoint
+.global k_FilterPoints
 
 .segment "GRAPH"
 
 graph_init:
 	LoadW k_dispBufferOn, ST_WR_FORE
-.if 0 ; XXX
-	LoadB pressFlag, 0
-.endif
 	rts
 
 graph_clear:
@@ -45,6 +42,24 @@ k_GetScanLine:
 	jsr k_SetVRAMPtrBG
 	PopW r3
 	rts
+
+;---------------------------------------------------------------
+; k_SetVRAMPtr
+;
+; Function:  Sets up the VRAM/BG address of a pixel
+; Pass:      r3     x pos
+;            x      y pos
+; Return:    <VERA> VRAM address of pixel
+;            r6/RAMBANK BG address of pixel
+;            (depending on dispBufferOn)
+; Destroyed: a
+;---------------------------------------------------------------
+k_SetVRAMPtr:
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
+	jsr k_SetVRAMPtrFG
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+	jmp k_SetVRAMPtrBG
+@2:	rts
 
 ;---------------------------------------------------------------
 ; k_SetVRAMPtrFG
@@ -166,28 +181,22 @@ k_SetVRAMPtrBG:
 	rts
 
 ;---------------------------------------------------------------
-; SetPointFG
+; SetPoint
 ;
-; Function:  Stores a color in VRAM and advances the VRAM pointer
+; Function:  Stores a color in VRAM/BG and advances the pointer
 ; Pass:      a   color
 ; Destroyed: preserves all registers
 ;---------------------------------------------------------------
-k_SetPointFG:
+k_SetPoint:
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
+; FG version
 	sta veradat
-	rts
-
-;---------------------------------------------------------------
-; SetPointBG
-;
-; Function:  Stores a color in the BG and advances the VRAM pointer
-; Pass:      a   color
-; Destroyed: preserves all registers
-;---------------------------------------------------------------
-k_SetPointBG:
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+; BG version
 	sta (r6)
 	inc r6L
 	beq inc_bgpage
-	rts
+@2:	rts
 inc_bgpage:
 	pha
 	inc r6H
@@ -203,7 +212,7 @@ inc_bgpage:
 	rts
 
 ;---------------------------------------------------------------
-; FilterPointsFG
+; FilterPoints
 ;
 ; Pass:      r7   number of points
 ;            r9   pointer to filter routine:
@@ -211,7 +220,14 @@ inc_bgpage:
 ;                 Return:  a  color
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
-k_FilterPointsFG:
+k_FilterPoints:
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
+	jsr FilterPointsFG
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+	jmp FilterPointsBG
+@2:	rts
+
+FilterPointsFG:
 	PushB r8H
 	LoadB r8H, $4c
 	lda veralo
@@ -284,16 +300,7 @@ filter_y:
 	bne filter_y
 	rts
 
-;---------------------------------------------------------------
-; FilterPointsBG
-;
-; Pass:      r7   number of points
-;            r9   pointer to filter routine:
-;                 Pass:    a  color
-;                 Return:  a  color
-; Destroyed: a, x, y, r5 - r8
-;---------------------------------------------------------------
-k_FilterPointsBG:
+FilterPointsBG:
 	PushB r8H
 	LoadB r8H, $4c
 

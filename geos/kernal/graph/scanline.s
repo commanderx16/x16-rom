@@ -38,13 +38,11 @@ _GetScanLine:
 .import k_FrameRectangle
 .import k_Rectangle
 .import k_GetPoint
-.import k_FilterPointsFG
-.import k_SetVRAMPtrFG
-.import k_SetVRAMPtrBG
-.import k_SetPointFG
-.import k_SetPointBG
+.import k_SetVRAMPtr
+.import k_SetPoint
+.import k_FilterPoints
 
-.export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _SetVRAMPtrFG, _SetVRAMPtrBG, _SetPointFG, _SetPointBG
+.export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _SetVRAMPtr, _SetPoint
 
 .import k_dispBufferOn, k_col1, k_col2
 
@@ -103,25 +101,13 @@ _DrawPoint:
 	lda #0
 	rol
 	eor #1
+
 	pha
-
-	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-; set point
 	ldx r11L
-	jsr _SetVRAMPtrFG
+	jsr _SetVRAMPtr
 	pla
-	jsr _SetPointFG
-	pha
 
-@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-
-	ldx r11L
-	jsr _SetVRAMPtrBG
-	pla
-	jmp _SetPointBG
-
-@2:	pla
-	rts
+	jmp _SetPoint
 
 ; recover a point: use DrawLine
 @3:	PushW r4
@@ -292,7 +278,7 @@ _HorizontalLine:
 ;---------------------------------------------------------------
 _InvertLine:
 	ldx r11L
-	jsr _SetVRAMPtrFG
+	jsr _SetVRAMPtr
 	MoveW r4, r7
 	SubW r3, r7
 	IncW r7
@@ -307,7 +293,7 @@ _InvertLine:
 
 	php
 	sei
-	jsrfar k_FilterPointsFG
+	jsrfar k_FilterPoints
 	plp
 		
 	PopB r12L
@@ -369,31 +355,18 @@ _VerticalLine:
 	PopW r3
 	rts
 
-_SetVRAMPtrFG:
+_SetVRAMPtr:
+	MoveB dispBufferOn, k_dispBufferOn
 	php
 	sei
-	jsrfar k_SetVRAMPtrFG
+	jsrfar k_SetVRAMPtr
 	plp
 	rts
 
-_SetVRAMPtrBG:
+_SetPoint:
 	php
 	sei
-	jsrfar k_SetVRAMPtrBG
-	plp
-	rts
-
-_SetPointFG:
-	php
-	sei
-	jsrfar k_SetPointFG
-	plp
-	rts
-
-_SetPointBG:
-	php
-	sei
-	jsrfar k_SetPointBG
+	jsrfar k_SetPoint
 	plp
 	rts
 
