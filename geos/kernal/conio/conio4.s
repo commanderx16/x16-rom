@@ -195,8 +195,8 @@ GSHelp1:
 DoBACKSPC:
 	ldx g_currentMode
 	jsr _GetRealSize
-	sty PrvCharWidth
-	SubB PrvCharWidth, r11L
+	sty g_PrvCharWidth
+	SubB g_PrvCharWidth, r11L
 	bcs @1
 	dec r11H
 @1:	PushW r11

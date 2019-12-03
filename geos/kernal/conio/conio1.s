@@ -24,10 +24,6 @@
 .segment "conio1"
 
 _PutChar:
-	cmp #$49
-	bne @aaaa
-@bbbb:	nop
-@aaaa:
 ; codes $00-$07 are no-op (original GEOS crashed)
 	cmp #8
 	bcs @0

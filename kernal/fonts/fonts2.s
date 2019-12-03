@@ -436,10 +436,6 @@ Font_tab2:
 	.byte <(e6-base)
 	.byte <(e7-base)
 
-.ifdef wheels
-	.res 9, 0 ; XXX
-.endif
-
 ; called if currentMode & (SET_UNDERLINE | SET_ITALIC)
 Font_3:
 	lda currentMode
@@ -651,11 +647,6 @@ k_FontPutChar:
 	tya
 	jsr Font_1 ; put pointer in r13
 	bcs @9 ; return
-.ifdef bsw128
-	jsr _TempHideMouse
-	bbrf 7, graphMode, @1
-	jmp FontPutChar80
-.endif
 @1:	clc
 	lda currentMode
 	and #SET_UNDERLINE | SET_ITALIC
@@ -692,62 +683,21 @@ k_FontPutChar:
 @9:	PopB r1H
 	rts
 
-.ifdef bsw128
-; FontPutChar for 80 column mode
-LE6E0:	lda r5L
-	add #SCREENPIXELWIDTH/8
-	sta r5L
-	sta r6L
-	bcc @1
-	inc r5H
-	inc r6H
-@1:	inc r1H
-	CmpBI r1H, 100
-	bne FontPutChar80
-	bbrf 6, dispBufferOn, FontPutChar80
-	AddVB $21, r6H
-	bbsf 7, dispBufferOn, FontPutChar80
-	sta r5H
-FontPutChar80:
-	clc
-	lda currentMode
-	and #SET_UNDERLINE | SET_ITALIC
-	beq @1
-	jsr Font_3
-@1:	php
-	bcs @2
-	jsr FntIndirectJMP
-@2:	bbsf 7, r8H, @6
-	AddW curSetWidth, r2
-@3:	plp
-	bcs @5
-	lda r1H
-	cmp windowTop
-	bcc @5
-	cmp windowBottom
-	bcc @4
-	bne @5
-@4:	jsr LE4BC
-@5:	dec r10H
-	bne LE6E0
-	PopB r1H
-	rts
-@6:	jsr Font_5
-	bra @3
-.endif
-
 Draw8Pixels:
 	ldy fontTemp1,x
 	sty r4L    ; pixel pattern
 
-	bit compatMode
-	bmi Draw8PixelsCompat
-
-; color mode
 	bit r10L   ; inverted/underlined?
 	bmi Draw8PixelsInv
 
-; regular (color mode), translucent
+	; check for opaque mode
+	lsr currentMode ; bit #0
+	php
+	rol currentMode
+	plp
+	bcs @5
+
+; transclucent, regular
 	ldy k_col1 ; fg: primary color
 @4:	asl
 	bcc @1
@@ -763,13 +713,17 @@ Draw8Pixels:
 	inc veramid
 @2:	bra @3
 
-; inverted/underlined (color mode)
+; opaque mode, regular
+@5:	ldy k_col_bg  ; bg
+	bra Draw8PixelsInv2
+
+; inverted/underlined
 Draw8PixelsInv:
+	ldy k_col2 ; bg: secondary color
+Draw8PixelsInv2:
 	phx
 	ldx k_col1 ; fg: primary color
-	ldy k_col2 ; bg: secondary color
-; opaque drawing with fg color (x) and bg color (y)
-Draw8PixelsOpaque:
+; opaque drawing with fg color .x and bg color .y
 @4:	asl
 	bcc @1
 	asl r4L
@@ -787,19 +741,3 @@ Draw8PixelsOpaque:
 	inc veramid
 @2:	bra @3
 
-Draw8PixelsCompat:
-	bit r10L   ; inverted/underlined?
-	bmi Draw8PixelsCompatInv
-
-; regular (compat mode)
-	phx
-	ldx #0  ; fg: black
-	ldy #1  ; bg: white
-	bra Draw8PixelsOpaque
-
-; inverted/underlined (compat mode)
-Draw8PixelsCompatInv:
-	phx
-	ldx #0  ; fg: black
-	ldy #15 ; bg: light gray
-	bra Draw8PixelsOpaque

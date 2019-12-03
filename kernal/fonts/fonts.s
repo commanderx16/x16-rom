@@ -5,7 +5,7 @@
 .include "../../mac.inc"
 .include "fonts.inc"
 
-.import k_col1, k_col2
+.import k_col1, k_col2, k_col_bg
 
 .export curIndexTable, baselineOffset, curSetWidth, curHeight, cardDataPntr, currentMode, windowTop, windowBottom, leftMargin, rightMargin
 
@@ -27,16 +27,13 @@ leftMargin:	.res 2
 rightMargin:	.res 2
 
 ; GEOS private
-;compatMode:	.res 1
 fontTemp1:	.res 8
 fontTemp2:	.res 9
-PrvCharWidth:	.res 1 ; XXX used by conio1
+PrvCharWidth:	.res 1
 FontTVar1:	.res 1
 FontTVar2:	.res 2
 FontTVar3:	.res 1
 FontTVar4:	.res 1
-
-compatMode      =       $3f ; (on C128, this is graphMode)
 
 .segment "GRAPH"
 

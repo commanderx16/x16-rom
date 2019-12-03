@@ -29,6 +29,8 @@ _PutString:
 
 ;-------
 
+.import k_col1, k_col2, k_col_bg
+
 .macro get_font_parameters
 	pha
 	MoveW curIndexTable, g_curIndexTable
@@ -56,7 +58,15 @@ _PutString:
 .macro set_drawing_parameters
 	php
 	pha
-	MoveB g_currentMode, currentMode
+	lda g_currentMode
+	ora #1
+	sta currentMode
+	lda #0  ; fg: black
+	sta k_col1
+	lda #15
+	sta k_col2
+	lda #1  ; bg: white
+	sta k_col_bg
 	MoveB g_windowTop, windowTop
 	MoveB g_windowBottom, windowBottom
 	MoveW g_leftMargin, leftMargin
@@ -113,7 +123,6 @@ _GetRealSize:
 _UseSystemFont:
 	php
 	sei
-	set_drawing_parameters
 	jsrfar k_UseSystemFont
 	get_font_parameters
 	plp
@@ -122,7 +131,6 @@ _UseSystemFont:
 _LoadCharSet:
 	php
 	sei
-	set_drawing_parameters
 	jsrfar k_LoadCharSet
 	get_font_parameters
 	plp

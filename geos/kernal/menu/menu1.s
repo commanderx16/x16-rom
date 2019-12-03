@@ -105,11 +105,9 @@ DoMenu1_1:
 	jsr CopyMenuCoords
 ; draw white both in color and compat mode, don't switch modes
 	PushW curPattern
-	PushB g_compatMode
 	lda #0
 	jsr _SetPattern
 	jsr _Rectangle
-	PopB g_compatMode
 	PopW curPattern
 .ifdef wheels
 	lda r2H

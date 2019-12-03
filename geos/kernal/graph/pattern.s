@@ -27,7 +27,6 @@
 ;---------------------------------------------------------------
 _SetPattern:
 ; convert patterns (0-33) into colors that look nice
-GetColor:
 	cmp #2 ; 50% shading
 	beq @a
 	cmp #9 ; horizontal stripes
@@ -40,7 +39,5 @@ GetColor:
 	bra @c
 @b:	lda #6 ; dark blue
 @c:	sta col1
-	lda #$80
-	sta g_compatMode
 	rts
 

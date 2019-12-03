@@ -4,7 +4,7 @@
 .include "config.inc"
 
 ; GEOS Kernal internal zpage vectors (not for use by apps)
-g_compatMode      =       $3f ; (on C128, this is graphMode)
+; unused        =       $3f ; (on C128, this is graphMode)
 imparm          =       $40 ; 2 bytes
 IconDescVec     =       $42 ; [icon]
 IconDescVecH    =       $43 ; [icon]
@@ -14,7 +14,7 @@ DBoxDesc        =       $46 ; [dlgbox]
 DBoxDescL       =       $46 ; [dlgbox]
 DBoxDescH       =       $47 ; [dlgbox]
 
-PrvCharWidth    =       $48 ; 1 byte
+g_PrvCharWidth  =       $48 ; 1 byte
 tmp1            =       $49 ; 1 byte
 
 ; X16 additions
