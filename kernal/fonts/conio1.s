@@ -8,7 +8,7 @@
 .global k_PutChar
 
 set_color:
-	sta k_col1
+	sta col1
 	rts
 
 k_PutChar:
@@ -150,10 +150,10 @@ control_nop:
 	rts
 
 control_swap_col:
-	lda k_col1
-	ldx k_col2
-	stx k_col1
-	sta k_col2
+	lda col1
+	ldx col2
+	stx col1
+	sta col2
 	rts
 
 control_underline:

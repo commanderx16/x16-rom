@@ -107,8 +107,8 @@ a9H             =       $7f
 ;
 
 curPattern     = $22 ; [graph]
-col1           = $22 ; same as curPattern
-col2           = $23 ; same as curPattern+1
+g_col1         = $22 ; same as curPattern
+g_col2         = $23 ; same as curPattern+1
 string         = $24 ; [conio]
 
 g_baselineOffset = $26 ; [fonts; conio; menu]

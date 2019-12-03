@@ -17,7 +17,7 @@
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 HorizontalLine:
-	lda k_col1
+	lda col1
 	pha
 	jsr GetLineStart
 	pla
@@ -241,7 +241,7 @@ VerticalLine:
 
 	plx
 	phx
-	lda k_col1
+	lda col1
 	jsr VLineFG
 	plx
 	tya
@@ -255,7 +255,7 @@ VerticalLine:
 	PopW r3
 
 	plx
-	lda k_col1
+	lda col1
 	jmp VLineBG
 @2:	rts
 

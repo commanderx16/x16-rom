@@ -3,9 +3,9 @@
 ;
 ; Font drawing
 
-.import k_BitMaskPow2
-.import k_BitMaskLeadingClear
-.import k_BitMaskLeadingSet
+.import BitMaskPow2
+.import BitMaskLeadingClear
+.import BitMaskLeadingSet
 
 .import k_SetVRAMPtrFG, k_SetVRAMPtrBG
 
@@ -160,7 +160,7 @@ Font_1:
 	adc cardDataPntr+1
 	sta r2H
 	ldy FontTVar4
-	lda k_BitMaskLeadingSet,y
+	lda BitMaskLeadingSet,y
 	eor #$ff
 	sta FontTVar3
 	ldy r6H
@@ -168,7 +168,7 @@ Font_1:
 	tya
 	and #%00000111
 	tay
-	lda k_BitMaskLeadingClear,y
+	lda BitMaskLeadingClear,y
 	eor #$ff
 	sta r7H
 .ifdef bsw128
@@ -320,7 +320,7 @@ Font_2:
 	pla
 	and #%00000111
 	tay
-	lda k_BitMaskLeadingSet,y
+	lda BitMaskLeadingSet,y
 	sta r3L
 	eor #$ff
 	sta r9L
@@ -336,7 +336,7 @@ Font_2:
 @9:	tya
 	and #%00000111
 	tax
-	lda k_BitMaskLeadingClear,x
+	lda BitMaskLeadingClear,x
 	sta r4H
 	eor #$ff
 	sta r9H
@@ -576,9 +576,9 @@ Font_7:
 @1:	iny
 	ldx #7
 @2:	lda fontTemp1,y
-	and k_BitMaskPow2,x
+	and BitMaskPow2,x
 	beq @3
-	lda k_BitMaskPow2,x
+	lda BitMaskPow2,x
 	eor #$ff
 	and fontTemp2+1,y
 	sta fontTemp2+1,y
@@ -594,10 +594,10 @@ Font_8:
 @1:	iny
 	ldx #7
 @2:	lda fontTemp1,y
-	and k_BitMaskPow2,x
+	and BitMaskPow2,x
 	beq @7
 	lda fontTemp2+1,y
-	ora k_BitMaskPow2,x
+	ora BitMaskPow2,x
 	sta fontTemp2+1,y
 	inx
 	cpx #8
@@ -611,7 +611,7 @@ Font_8:
 	bne @4
 .endif
 @3:	lda fontTemp2+1,y
-	ora k_BitMaskPow2,x
+	ora BitMaskPow2,x
 	sta fontTemp2+1,y
 @4:	dex
 	dex
@@ -625,7 +625,7 @@ Font_8:
 	bne @6
 .endif
 @5:	lda fontTemp2+1,y
-	ora k_BitMaskPow2,x
+	ora BitMaskPow2,x
 	sta fontTemp2+1,y
 @6:	inx
 @7:	dex
@@ -704,7 +704,7 @@ Draw8Pixels:
 	bcs @5
 
 ; transclucent, regular
-	ldy k_col1 ; fg: primary color
+	ldy col1 ; fg: primary color
 @4:	asl
 	bcc @1
 	asl r4L
@@ -720,15 +720,15 @@ Draw8Pixels:
 @2:	bra @3
 
 ; opaque mode, regular
-@5:	ldy k_col_bg  ; bg
+@5:	ldy col_bg  ; bg
 	bra Draw8PixelsInv2
 
 ; inverted/underlined
 Draw8PixelsInv:
-	ldy k_col2 ; bg: secondary color
+	ldy col2 ; bg: secondary color
 Draw8PixelsInv2:
 	phx
-	ldx k_col1 ; fg: primary color
+	ldx col1 ; fg: primary color
 ; opaque drawing with fg color .x and bg color .y
 @4:	asl
 	bcc @1

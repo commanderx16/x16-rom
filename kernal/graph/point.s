@@ -101,7 +101,7 @@ k_DrawLine:
 	cpy r11L
 	bcc @5
 	LoadB r13L, 1
-@5:	lda k_col1
+@5:	lda col1
 	plp
 	php
 	jsr DrawPoint
@@ -153,7 +153,7 @@ k_DrawLine:
 @B:	CmpW r3, r4
 	bcs @C
 	LoadW r13, 1
-@C:	lda k_col1
+@C:	lda col1
 	plp
 	php
 	jsr DrawPoint
@@ -186,13 +186,13 @@ DrawPoint:
 
 	ldx r11L
 	jsr k_SetVRAMPtrFG
-	lda k_col1
+	lda col1
 	sta veradat
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	ldx r11L
 	jsr k_SetVRAMPtrBG
-	lda k_col1
+	lda col1
 	sta (r6)
 @2:	rts
 ; imprint/recover

@@ -44,7 +44,7 @@ _GetScanLine:
 
 .export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _SetVRAMPtr, _SetPoint
 
-.import k_dispBufferOn, k_col1, k_col2
+.import k_dispBufferOn, col1, col2
 
 .macro jsrfar addr
 	jsr gjsrfar
@@ -75,7 +75,7 @@ _DrawLine:
 	lda #0
 	rol
 	eor #1
-	sta k_col1
+	sta col1
 	bra @2 ; N=0 -> draw
 @3:	sec ; N=1, C=1 -> recover
 @2:	php
@@ -208,7 +208,7 @@ _RecoverRectangle:
 ;---------------------------------------------------------------
 _Rectangle:
 	MoveB dispBufferOn, k_dispBufferOn
-	MoveB col1, k_col1
+	MoveB g_col1, col1
 	php
 	sei
 	lda #0 ; N=0 -> draw
@@ -388,8 +388,8 @@ Convert8BitPattern:
 	tya
 	asl
 	ora #16
-	sta k_col1
+	sta col1
 	rts
 @3:	lda #16+15
-	sta k_col1
+	sta col1
 	rts

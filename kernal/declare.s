@@ -109,11 +109,11 @@ nlinesm1 .res 1          ;    X16: y resolution - 1
 
 ; Graph
 ;
-.export k_dispBufferOn, k_col1, k_col2, k_col_bg
+.export k_dispBufferOn, col1, col2, col_bg
 k_dispBufferOn	.res 1
-k_col1		.res 1
-k_col2		.res 1
-k_col_bg	.res 1
+col1		.res 1
+col2		.res 1
+col_bg	.res 1
 
 	.segment "KVECTORS";rem kernal/os indirects(20)
 cinv	.res 2           ;irq ram vector

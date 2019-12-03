@@ -22,7 +22,7 @@
 ; SetPattern                                              $C139
 ;
 ; Pass:      a pattern nbr (0-33)
-; Return:    col1 - updated
+; Return:    g_col1 - updated
 ; Destroyed: a
 ;---------------------------------------------------------------
 _SetPattern:
@@ -38,6 +38,6 @@ _SetPattern:
 @a:	lda #14 ; light blue
 	bra @c
 @b:	lda #6 ; dark blue
-@c:	sta col1
+@c:	sta g_col1
 	rts
 

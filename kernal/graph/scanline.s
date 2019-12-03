@@ -14,15 +14,15 @@ graph_init:
 	rts
 
 graph_clear:
-	PushB k_col1
-	MoveB k_col_bg, k_col1
+	PushB col1
+	MoveB col_bg, col1
 	LoadW r3, 0
 	LoadW r4, SC_PIX_WIDTH-1
 	LoadB r2L, 0
 	LoadB r2H, SC_PIX_HEIGHT-1
 	lda #0
 	jsr k_Rectangle
-	PopB k_col1
+	PopB col1
 	rts
 
 ;---------------------------------------------------------------

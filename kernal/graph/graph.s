@@ -6,7 +6,7 @@
 
 .setcpu "65c02"
 
-.import k_col1, k_col2, k_col_bg, k_dispBufferOn; [declare]
+.import col1, col2, col_bg, k_dispBufferOn; [declare]
 
 .segment "GRAPH"
 

@@ -29,7 +29,7 @@ _PutString:
 
 ;-------
 
-.import k_col1, k_col2, k_col_bg
+.import col1, col2, col_bg
 
 .macro get_font_parameters
 	pha
@@ -62,11 +62,11 @@ _PutString:
 	ora #1
 	sta currentMode
 	lda #0  ; fg: black
-	sta k_col1
+	sta col1
 	lda #15
-	sta k_col2
+	sta col2
 	lda #1  ; bg: white
-	sta k_col_bg
+	sta col_bg
 	MoveB g_windowTop, windowTop
 	MoveB g_windowBottom, windowBottom
 	MoveW g_leftMargin, leftMargin
