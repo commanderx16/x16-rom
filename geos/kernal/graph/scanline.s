@@ -38,7 +38,7 @@ _GetScanLine:
 .import k_FrameRectangle
 .import k_Rectangle
 .import k_GetPoint
-.import k_InvertLine
+.import k_FilterLine
 .import k_SetVRAMPtrFG
 .import k_SetVRAMPtrBG
 .import k_SetPointFG
@@ -291,12 +291,24 @@ _HorizontalLine:
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
 _InvertLine:
+	PushW r9
+	PushW r12
+	PushB r13L
+	LoadW r9, r12L  ; pointer to code
+	LoadB r12L, $49 ; EOR #
+	LoadB r12H, $01 ;      1
+	LoadB r13L, $60 ; RTS
 	MoveB dispBufferOn, k_dispBufferOn
 	php
 	sei
-	jsrfar k_InvertLine
+	jsrfar k_FilterLine
 	plp
+	PopB r12L
+	PopW r13
+	PopW r9
 	rts
+
+invert_filter:
 
 ;---------------------------------------------------------------
 ; RecoverLine                                             $C11E

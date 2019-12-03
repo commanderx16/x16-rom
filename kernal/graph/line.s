@@ -3,7 +3,9 @@
 ;
 ; Graphics library: line functions
 
-.global k_InvertLine
+.global k_FilterLine
+
+.setcpu "65c02"
 
 .segment "GRAPH"
 
@@ -107,22 +109,28 @@ HLineBG:
 @4:	rts
 
 ;---------------------------------------------------------------
-; InvertLine                                              $C11B
+; FilterLine
 ;
 ; Pass:      r3   x pos of left endpoint (0-319)
 ;            r4   x pos of right endpoint (0-319)
+;            r9   pointer to filter routine:
+;                 Pass:    a  color
+;                 Return:  a  color
 ;            r11L y pos (0-199)
 ; Return:    r3-r4 unchanged
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
-k_InvertLine:
+k_FilterLine:
+	PushB r8H
+	LoadB r8H, $4c
 	jsr GetLineStart
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	ldy #$11
 	jsr ILineFG
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	jmp ILineBG
-@2:	rts
+	jsr ILineBG
+@2:	PopB r8H
+	rts
 
 ; foreground version
 ILineFG:
@@ -159,7 +167,7 @@ ILineFG:
 	beq @4
 	tay
 @3:	lda veradat
-	eor #1
+	jsr r8H
 	sta veradat2
 	dey
 	bne @3
@@ -167,28 +175,28 @@ ILineFG:
 
 invert_y:
 	lda veradat
-	eor #1
+	jsr r8H
 	sta veradat2
 	lda veradat
-	eor #1
+	jsr r8H
 	sta veradat2
 	lda veradat
-	eor #1
+	jsr r8H
 	sta veradat2
 	lda veradat
-	eor #1
+	jsr r8H
 	sta veradat2
 	lda veradat
-	eor #1
+	jsr r8H
 	sta veradat2
 	lda veradat
-	eor #1
+	jsr r8H
 	sta veradat2
 	lda veradat
-	eor #1
+	jsr r8H
 	sta veradat2
 	lda veradat
-	eor #1
+	jsr r8H
 	sta veradat2
 	dey
 	bne invert_y
@@ -201,7 +209,7 @@ ILineBG:
 
 	ldy #0
 @1:	lda (r6),y
-	eor #1
+	jsr r8H
 	sta (r6),y
 	iny
 	bne @1
@@ -214,7 +222,7 @@ ILineBG:
 	beq @4
 	dey
 @3:	lda (r6),y
-	eor #1
+	jsr r8H
 	sta (r6),y
 	dey
 	cpy #$ff
