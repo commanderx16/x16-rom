@@ -27,7 +27,7 @@
 .import CalcDialogCoords
 
 .import FindFTypes
-.import HorizontalLine
+.import _HorizontalLine
 .import FrameRectangle
 .import RstrFrmDialogue
 .import GetString
@@ -187,7 +187,7 @@ DBDoGETFILES:
 	sbc #16
 	sta r11L
 	lda #$ff
-	jsr HorizontalLine
+	jsr _HorizontalLine
 	PopW r10
 	PopB r7L
 .ifdef wheels_dlgbox_features ; ???

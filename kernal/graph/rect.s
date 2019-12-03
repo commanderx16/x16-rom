@@ -4,10 +4,7 @@
 ; Graphics library: rectangles
 
 .global k_Rectangle
-.global k_InvertRectangle
 .global k_FrameRectangle
-.global RecoverRectangle
-.global ImprintRectangle
 
 .segment "GRAPH"
 
@@ -31,25 +28,6 @@ k_Rectangle:
 
 @0:	MoveB r2L, r11L
 @1:	jsr HorizontalLine
-	lda r11L
-	inc r11L
-	cmp r2H
-	bne @1
-	rts
-
-;---------------------------------------------------------------
-; InvertRectangle                                         $C12A
-;
-; Pass:      r2L top in scanlines (0-199)
-;            r2H bottom in scanlines (0-199)
-;            r3  left in pixels (0-319)
-;            r4  right in pixels (0-319)
-; Return:    r2L, r3H unchanged
-; Destroyed: a, x, y, r5 - r8
-;---------------------------------------------------------------
-k_InvertRectangle:
-	MoveB r2L, r11L
-@1:	jsr k_InvertLine
 	lda r11L
 	inc r11L
 	cmp r2H

@@ -36,9 +36,8 @@ _GetScanLine:
 .import gjsrfar
 .import k_DrawLine
 .import k_FrameRectangle
-.import k_InvertRectangle
 .import k_Rectangle
-.import k_TestPoint
+.import k_GetPoint
 .import k_InvertLine
 .import k_SetVRAMPtrFG
 .import k_SetVRAMPtrBG
@@ -184,11 +183,12 @@ _ImprintRectangle:
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
 _InvertRectangle:
-	MoveB dispBufferOn, k_dispBufferOn
-	php
-	sei
-	jsrfar k_InvertRectangle
-	plp
+	MoveB r2L, r11L
+@1:	jsr _InvertLine
+	lda r11L
+	inc r11L
+	cmp r2H
+	bne @1
 	rts
 
 ;---------------------------------------------------------------
@@ -242,7 +242,7 @@ _TestPoint:
 	php
 	sei
 	jsr gjsrfar
-	.word k_TestPoint
+	.word k_GetPoint
 	.byte BANK_KERNAL
 	plp
 	cmp #0  ; black

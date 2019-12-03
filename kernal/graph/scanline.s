@@ -1,10 +1,9 @@
+.export graph_init
 .export graph_clear
+
 .export k_GetScanLine
 .export k_SetVRAMPtrFG, k_SetVRAMPtrBG
 .export k_SetPointFG, k_SetPointBG
-
-.export graph_init
-.export inc_bgpage
 
 .segment "GRAPH"
 

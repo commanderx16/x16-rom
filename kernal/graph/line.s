@@ -4,10 +4,6 @@
 ; Graphics library: line functions
 
 .global k_InvertLine
-.global ImprintLine
-.global HorizontalLine
-.global RecoverLine
-.global VerticalLine
 
 .segment "GRAPH"
 

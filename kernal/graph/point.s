@@ -1,11 +1,10 @@
 ; GEOS KERNAL by Berkeley Softworks
 ; reverse engineered by Maciej Witkowiak, Michael Steil
 ;
-; Graphics library: TestPoint, DrawPoint, DrawLine syscalls
+; Graphics library: GetPoint, DrawPoint, DrawLine syscalls
 
 .global k_DrawLine
-.global k_TestPoint
-.global DrawPoint
+.global k_GetPoint
 
 .segment "GRAPH"
 
@@ -213,14 +212,14 @@ DrawPoint:
 	rts
 
 ;---------------------------------------------------------------
-; TestPoint                                               $C13F
+; GetPoint
 ;
 ; Pass:      r3   x position of pixel (0-319)
 ;            r11L y position of pixel (0-199)
 ; Return:    a    color of pixel
 ; Destroyed: a, x, y, r5, r6
 ;---------------------------------------------------------------
-k_TestPoint:
+k_GetPoint:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	ldx r11L
 	jsr k_SetVRAMPtrFG
