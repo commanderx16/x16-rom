@@ -1,11 +1,3 @@
-.include "../../mac.inc"
-.include "../../regs.inc"
-.include "../../io.inc"
-.include "graph.inc"
-
-.import k_dispBufferOn
-.import k_col1, k_col2, k_col_bg, k_Rectangle
-
 .export graph_clear
 .export k_GetScanLine
 .export k_SetVRAMPtrFG, k_SetVRAMPtrBG

@@ -9,7 +9,6 @@
 .import k_GetScanLine
 
 .global k_GetRealSize ; GEOS API
-.global k_FontPutChar ; used by GEOS
 
 ;
 ; For italics (actually slanted) characters, the original GEOS

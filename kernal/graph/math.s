@@ -1,13 +1,7 @@
 ; GEOS KERNAL by Berkeley Softworks
 ; reverse engineered by Maciej Witkowiak, Michael Steil
 ;
-; *COPY* of the GEOS version
-
-.global k_Dabs
-.global k_Dnegate
-.global k_Ddec
-
-.segment "GRAPH"
+; *COPY* of the GEOS versions
 
 ;---------------------------------------------------------------
 ; Dabs                                                    $C16F

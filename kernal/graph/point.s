@@ -3,22 +3,6 @@
 ;
 ; Graphics library: TestPoint, DrawPoint, DrawLine syscalls
 
-.include "../../regs.inc"
-.include "../../io.inc"
-.include "../../mac.inc"
-
-.setcpu "65c02"
-
-.import k_Dabs
-.import k_SetVRAMPtrFG, k_SetVRAMPtrBG
-.import HorizontalLine
-.import VerticalLine
-.import ImprintLine
-.import RecoverLine
-
-.import k_dispBufferOn
-.import k_col1
-
 .global k_DrawLine
 .global k_TestPoint
 .global DrawPoint

@@ -1,6 +1,4 @@
 
-.import k_col1, k_col2, k_col_bg
-
 .global k_SetColor
 
 .segment "GRAPH"

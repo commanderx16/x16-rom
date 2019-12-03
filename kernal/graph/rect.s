@@ -3,19 +3,6 @@
 ;
 ; Graphics library: rectangles
 
-.include "../../regs.inc"
-.include "../../io.inc"
-.include "../../mac.inc"
-.include "graph.inc"
-
-.import k_col1
-
-.import k_InvertLine
-.import HorizontalLine
-.import RecoverLine
-.import VerticalLine
-.import ImprintLine
-
 .global k_Rectangle
 .global k_InvertRectangle
 .global k_FrameRectangle

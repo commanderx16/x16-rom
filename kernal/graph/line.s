@@ -3,18 +3,6 @@
 ;
 ; Graphics library: line functions
 
-.setcpu "65c02"
-
-.include "../../regs.inc"
-.include "../../mac.inc"
-.include "../../io.inc"
-
-.import k_col1, k_dispBufferOn
-
-.import k_SetVRAMPtrFG
-.import k_SetVRAMPtrBG
-.import inc_bgpage
-
 .global k_InvertLine
 .global ImprintLine
 .global HorizontalLine
