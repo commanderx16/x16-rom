@@ -6,7 +6,8 @@
 .import k_BitMaskPow2
 .import k_BitMaskLeadingClear
 .import k_BitMaskLeadingSet
-.import k_GetScanLine
+
+.import k_SetVRAMPtrFG, k_SetVRAMPtrBG
 
 .global k_GetRealSize ; GEOS API
 
@@ -263,7 +264,13 @@ Font_tabH:
 
 Font_2:
 	ldx r1H
-	jsr k_GetScanLine
+
+	PushW r3
+	LoadW r3, 0
+	jsr k_SetVRAMPtrFG
+	jsr k_SetVRAMPtrBG
+	PopW r3
+
 	lda FontTVar2
 	ldx FontTVar2+1
 	bmi @2

@@ -1,10 +1,11 @@
 .export graph_init
 .export graph_clear
 
-.export k_GetScanLine
 .export k_SetVRAMPtr
 .export k_SetPoint
 .global k_FilterPoints
+
+.export k_SetVRAMPtrFG, k_SetVRAMPtrBG
 
 .segment "GRAPH"
 
@@ -22,25 +23,6 @@ graph_clear:
 	lda #0
 	jsr k_Rectangle
 	PopB k_col1
-	rts
-
-
-;---------------------------------------------------------------
-; GetScanLine                                             $C13C
-;
-; Function:  Returns the address of the beginning of a scanline
-; Pass:      x   scanline nbr
-; Return:    r5  add of 1st byte of foreground scr
-;            r6  add of 1st byte of background scr
-; Destroyed: a
-;---------------------------------------------------------------
-; XXX This is deprecated
-k_GetScanLine:
-	PushW r3
-	LoadW r3, 0
-	jsr k_SetVRAMPtrFG
-	jsr k_SetVRAMPtrBG
-	PopW r3
 	rts
 
 ;---------------------------------------------------------------
