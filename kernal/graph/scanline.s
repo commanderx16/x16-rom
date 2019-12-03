@@ -284,3 +284,42 @@ filter_y:
 	bne filter_y
 	rts
 
+;---------------------------------------------------------------
+; FilterPointsBG
+;
+; Pass:      r7   number of points
+;            r9   pointer to filter routine:
+;                 Pass:    a  color
+;                 Return:  a  color
+; Destroyed: a, x, y, r5 - r8
+;---------------------------------------------------------------
+k_FilterPointsBG:
+	PushB r8H
+	LoadB r8H, $4c
+
+; background version
+ILineBG:
+	ldx r7H
+	beq @2
+
+	ldy #0
+@1:	lda (r6),y
+	jsr r8H
+	sta (r6),y
+	iny
+	bne @1
+	jsr inc_bgpage
+	dex
+	bne @1
+
+; partial block
+@2:	ldy r7L
+	beq @4
+	dey
+@3:	lda (r6),y
+	jsr r8H
+	sta (r6),y
+	dey
+	cpy #$ff
+	bne @3
+@4:	rts
