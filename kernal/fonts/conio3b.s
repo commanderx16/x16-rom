@@ -53,7 +53,7 @@ k_GetCharWidth:
 	lda #0
 	rts
 GetChWdth1:
-	cmp #$5f
+	cmp #$5f ; code $7F = DEL
 	beq @2
 	asl
 	tay

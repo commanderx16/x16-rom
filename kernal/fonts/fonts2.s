@@ -44,7 +44,7 @@
 less_slanted = 1
 
 ;---------------------------------------------------------------
-; GetRealSize                                             $C1B1
+; GetRealSize                                             
 ;
 ; Function:  Returns the size of a character in the current
 ;            mode (bold, italic...) and current Font.
@@ -56,7 +56,6 @@ less_slanted = 1
 ;            a   baseline offset
 ; Destroyed: nothing
 ;---------------------------------------------------------------
-.ifndef wheels ; moved
 k_GetRealSize:
 	subv 32
 _GetRealSize2:
@@ -102,7 +101,6 @@ _GetRealSize2:
 @2:	lda baselineOffset
 	rts
 .endif ; bsw128
-.endif
 
 Font_1:
 	ldy r1H
@@ -440,32 +438,6 @@ Font_tab2:
 
 .ifdef wheels
 	.res 9, 0 ; XXX
-.endif
-
-.ifdef wheels ; xxx moved, but unchanged
-k_GetRealSize:
-	subv 32
-	jsr GetChWdth1
-	tay
-	txa
-	ldx curHeight
-	pha
-	and #$40
-	beq @1
-	iny
-@1:	pla
-	and #8
-	beq @2
-	inx
-	inx
-	iny
-	iny
-	lda baselineOffset
-	addv 2
-	rts
-@2:	lda baselineOffset
-	rts
-
 .endif
 
 ; called if currentMode & (SET_UNDERLINE | SET_ITALIC)

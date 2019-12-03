@@ -10,7 +10,7 @@
 .include "kernal.inc"
 .include "c64.inc"
 
-.global _GetScanLine, _GetScanLineCompat
+.global _GetScanLine
 
 .segment "graph2n"
 
@@ -18,25 +18,22 @@
 
 .setcpu "65c02"
 
-; This is a fake version of the KERNAL call GetScanLine
-; referenced by the jump table. On C64 GEOS, callers of
-; the function could safely assume the VIC-II bitmap
-; layout and that the bitmap is actually stored in CPU
-; memory on the current bank. Neither of this is the
-; case on a system with a VERA. deskTop 2.0 for example
-; would trash CPU memory if this returned real offsets
-; into video RAM. Therefore, to all users in g_compatMode,
-; we return a fake address that cannot cause any harm.
-_GetScanLineCompat:
-	bit g_compatMode
-	bpl _GetScanLine
+; The GetScanLine API is no longer supported. On C64
+; GEOS, callers of this function could safely assume the
+; VIC-II bitmap layout and that the bitmap is actually
+; stored in CPU memory on the current bank. Neither of
+; this is the case on a system with a VERA. deskTop 2.0
+; for example would trash CPU memory if this returned
+; real offsets into video RAM. Therefore, to all existing
+; GEOS apps, we return a fake address that cannot cause
+; any harm.
+_GetScanLine:
 	LoadW r5, $ff00
 	LoadW r6, $ff00
 	rts
 
 .include "../../banks.inc"
 .import gjsrfar
-.import k_GetScanLine
 .import k_DrawLine
 .import k_FrameRectangle
 .import k_InvertRectangle
@@ -48,7 +45,7 @@ _GetScanLineCompat:
 .import k_SetPointFG
 .import k_SetPointBG
 
-.export _GetScanLine, _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _SetVRAMPtrFG, _SetVRAMPtrBG, _SetPointFG, _SetPointBG
+.export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _SetVRAMPtrFG, _SetVRAMPtrBG, _SetPointFG, _SetPointBG
 
 .import k_dispBufferOn, k_col1, k_col2
 
@@ -57,13 +54,6 @@ _GetScanLineCompat:
 	.word addr
 	.byte BANK_KERNAL
 .endmacro
-
-_GetScanLine:
-	php
-	sei
-	jsrfar k_GetScanLine
-	plp
-	rts
 
 ;---------------------------------------------------------------
 ; DrawLine                                                $C130

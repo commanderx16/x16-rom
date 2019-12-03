@@ -18,7 +18,7 @@
 .import _PromptOn
 .import _InitTextPrompt
 
-.import _GetRealSize, FontPutChar
+.import _GetRealSize, _PutCharK
 
 .import NormalizeX
 
@@ -200,7 +200,7 @@ DoBACKSPC:
 	bcs @1
 	dec r11H
 @1:	PushW r11
-	lda #$5f ; '-'
-	jsr FontPutChar
+	lda #$7f ; = DEL
+	jsr _PutCharK
 	PopW r11
 	rts

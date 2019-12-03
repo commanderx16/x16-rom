@@ -168,7 +168,7 @@
 .import _ImprintRectangle
 .import _BitmapUp
 .import _TestPoint
-.import _GetScanLineCompat
+.import _GetScanLine
 .import _DrawPoint
 .import _DrawLine
 .import _RecoverRectangle
@@ -441,7 +441,7 @@ GraphicsString:
 SetPattern:
 	jmp _SetPattern
 GetScanLine:
-	jmp _GetScanLineCompat
+	jmp _GetScanLine
 TestPoint:
 	jmp _TestPoint
 BitmapUp:

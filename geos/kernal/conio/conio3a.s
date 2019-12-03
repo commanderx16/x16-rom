@@ -29,16 +29,33 @@ _PutString:
 
 ;-------
 
-.macro jsrfar addr
-	php
-	sei
+.macro get_font_parameters
+	pha
+	MoveW curIndexTable, g_curIndexTable
+	MoveB baselineOffset, g_baselineOffset
+	MoveW curSetWidth, g_curSetWidth
+	MoveB curHeight, g_curHeight
+	MoveW cardDataPntr, g_cardDataPntr
+	pla
+.endmacro
+
+.macro set_mode
 	php
 	pha
-	MoveW g_curIndexTable, curIndexTable
-	MoveB g_baselineOffset, baselineOffset
-	MoveW g_curSetWidth, curSetWidth
-	MoveB g_curHeight, curHeight
-	MoveW g_cardDataPntr, cardDataPntr
+	MoveB g_currentMode, currentMode
+	pla
+	plp
+.endmacro
+
+.macro get_mode
+	pha
+	MoveB currentMode, g_currentMode
+	pla
+.endmacro
+
+.macro set_drawing_parameters
+	php
+	pha
 	MoveB g_currentMode, currentMode
 	MoveB g_windowTop, windowTop
 	MoveB g_windowBottom, windowBottom
@@ -46,29 +63,12 @@ _PutString:
 	MoveW g_rightMargin, rightMargin
 	pla
 	plp
+.endmacro
+
+.macro jsrfar addr
 	jsr gjsrfar
 	.word addr
 	.byte BANK_KERNAL
-	pha
-	lda #0
-	rol
-	sta tmp1
-	MoveW curIndexTable, g_curIndexTable
-	MoveB baselineOffset, g_baselineOffset
-	MoveW curSetWidth, g_curSetWidth
-	MoveB curHeight, g_curHeight
-	MoveW cardDataPntr, g_cardDataPntr
-	MoveB currentMode, g_currentMode
-	MoveB windowTop, g_windowTop
-	MoveB windowBottom, g_windowBottom
-	MoveW leftMargin, g_leftMargin
-	MoveW rightMargin, g_rightMargin
-	pla
-	plp
-	pha
-	lda tmp1
-	lsr
-	pla
 .endmacro
 
 
@@ -78,42 +78,79 @@ _PutString:
 
 .import gjsrfar
 
-.import k_FontPutChar, k_GetCharWidth, k_GetRealSize, k_LoadCharSet, k_SmallPutChar, k_UseSystemFont, k_PutChar
+.import k_GetCharWidth, k_GetRealSize, k_LoadCharSet, k_SmallPutChar, k_UseSystemFont, k_PutChar
 
-.export FontPutChar, _GetCharWidth, _GetRealSize, _LoadCharSet, _SmallPutChar, _UseSystemFont, _PutCharK
-
-FontPutChar:
-	jsrfar k_FontPutChar
-	rts
+.export _GetCharWidth, _GetRealSize, _LoadCharSet, _SmallPutChar, _UseSystemFont, _PutCharK
 
 _GetCharWidth:
+	php
+	sei
 	jsrfar k_GetCharWidth
+	plp
 	rts
 
+;---------------------------------------------------------------
+; GetRealSize                                             $C1B1
+;
+; Function:  Returns the size of a character in the current
+;            mode (bold, italic...) and current Font.
+;
+; Pass:      a   ASCII character
+;            x   currentMode
+; Return:    y   character width
+;            x   character height
+;            a   baseline offset
+; Destroyed: nothing
+;---------------------------------------------------------------
 _GetRealSize:
+	php
+	sei
+	set_mode
 	jsrfar k_GetRealSize
+	plp
+	rts
+
+_UseSystemFont:
+	php
+	sei
+	set_drawing_parameters
+	jsrfar k_UseSystemFont
+	get_font_parameters
+	plp
 	rts
 
 _LoadCharSet:
+	php
+	sei
+	set_drawing_parameters
 	jsrfar k_LoadCharSet
+	get_font_parameters
+	plp
 	rts
 
 ;---------------------------------------------------------------
 ; SmallPutChar                                            $C202
 ;
-; Pass:      same as PutChar, but must be sure that
-;            everything is OK, there is no checking
+; Pass:      Print a single character; does not support control
+;            codes, ignores faults
 ; Return:    same as PutChar
 ; Destroyed: same as PutChar
 ;---------------------------------------------------------------
 _SmallPutChar:
+	php
+	sei
+	set_drawing_parameters
 	jsrfar k_SmallPutChar
-	rts
-
-_UseSystemFont:
-	jsrfar k_UseSystemFont
+	plp
 	rts
 
 _PutCharK:
+	php
+	sei
+	set_drawing_parameters
 	jsrfar k_PutChar
+	rol tmp1
+	get_mode
+	plp
+	lsr tmp1
 	rts

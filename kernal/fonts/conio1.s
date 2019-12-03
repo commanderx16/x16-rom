@@ -169,7 +169,7 @@ control_backspace:
 	bcs @1
 	dec r11H
 @1:	PushW r11
-	lda #$5f
+	lda #$7f ; = DEL
 	jsr k_FontPutChar
 	PopW r11
 	rts
