@@ -170,7 +170,7 @@ k_DrawLine:
 	rts
 
 ;---------------------------------------------------------------
-; DrawPoint                                               $C133
+; DrawPoint
 ;
 ; Pass:      N/C      0x: draw (dispBufferOn)
 ;                     10: copy FG to BG (imprint)

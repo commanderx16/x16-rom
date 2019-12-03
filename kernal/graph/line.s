@@ -3,8 +3,6 @@
 ;
 ; Graphics library: line functions
 
-.global k_FilterLine
-
 .setcpu "65c02"
 
 .segment "GRAPH"
@@ -103,127 +101,6 @@ HLineBG:
 	beq @4
 	dey
 @3:	sta (r6),y
-	dey
-	cpy #$ff
-	bne @3
-@4:	rts
-
-;---------------------------------------------------------------
-; FilterLine
-;
-; Pass:      r3   x pos of left endpoint (0-319)
-;            r4   x pos of right endpoint (0-319)
-;            r9   pointer to filter routine:
-;                 Pass:    a  color
-;                 Return:  a  color
-;            r11L y pos (0-199)
-; Return:    r3-r4 unchanged
-; Destroyed: a, x, y, r5 - r8
-;---------------------------------------------------------------
-k_FilterLine:
-	PushB r8H
-	LoadB r8H, $4c
-	jsr GetLineStart
-	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	ldy #$11
-	jsr ILineFG
-@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	jsr ILineBG
-@2:	PopB r8H
-	rts
-
-; foreground version
-ILineFG:
-	lda veralo
-	ldx veramid
-	inc veractl ; 1
-	sta veralo
-	stx veramid
-	sty verahi
-	stz veractl ; 0
-	sty verahi
-
-	ldx r7H
-	beq @2
-
-; full blocks, 8 bytes at a time
-	ldy #$20
-@1:	jsr invert_y
-	dex
-	bne @1
-
-; partial block, 8 bytes at a time
-@2:	lda r7L
-	lsr
-	lsr
-	lsr
-	beq @6
-	tay
-	jsr invert_y
-
-; remaining 0 to 7 bytes
-@6:	lda r7L
-	and #7
-	beq @4
-	tay
-@3:	lda veradat
-	jsr r8H
-	sta veradat2
-	dey
-	bne @3
-@4:	rts
-
-invert_y:
-	lda veradat
-	jsr r8H
-	sta veradat2
-	lda veradat
-	jsr r8H
-	sta veradat2
-	lda veradat
-	jsr r8H
-	sta veradat2
-	lda veradat
-	jsr r8H
-	sta veradat2
-	lda veradat
-	jsr r8H
-	sta veradat2
-	lda veradat
-	jsr r8H
-	sta veradat2
-	lda veradat
-	jsr r8H
-	sta veradat2
-	lda veradat
-	jsr r8H
-	sta veradat2
-	dey
-	bne invert_y
-	rts
-
-; background version
-ILineBG:
-	ldx r7H
-	beq @2
-
-	ldy #0
-@1:	lda (r6),y
-	jsr r8H
-	sta (r6),y
-	iny
-	bne @1
-	jsr inc_bgpage
-	dex
-	bne @1
-
-; partial block
-@2:	ldy r7L
-	beq @4
-	dey
-@3:	lda (r6),y
-	jsr r8H
-	sta (r6),y
 	dey
 	cpy #$ff
 	bne @3

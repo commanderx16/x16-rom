@@ -38,7 +38,7 @@ _GetScanLine:
 .import k_FrameRectangle
 .import k_Rectangle
 .import k_GetPoint
-.import k_FilterLine
+.import k_FilterPointsFG
 .import k_SetVRAMPtrFG
 .import k_SetVRAMPtrBG
 .import k_SetPointFG
@@ -291,6 +291,12 @@ _HorizontalLine:
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
 _InvertLine:
+	ldx r11L
+	jsr _SetVRAMPtrFG
+	MoveW r4, r7
+	SubW r3, r7
+	IncW r7
+
 	PushW r9
 	PushW r12
 	PushB r13L
@@ -298,17 +304,16 @@ _InvertLine:
 	LoadB r12L, $49 ; EOR #
 	LoadB r12H, $01 ;      1
 	LoadB r13L, $60 ; RTS
-	MoveB dispBufferOn, k_dispBufferOn
+
 	php
 	sei
-	jsrfar k_FilterLine
+	jsrfar k_FilterPointsFG
 	plp
+		
 	PopB r12L
 	PopW r13
 	PopW r9
 	rts
-
-invert_filter:
 
 ;---------------------------------------------------------------
 ; RecoverLine                                             $C11E

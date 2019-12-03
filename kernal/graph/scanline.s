@@ -4,6 +4,7 @@
 .export k_GetScanLine
 .export k_SetVRAMPtrFG, k_SetVRAMPtrBG
 .export k_SetPointFG, k_SetPointBG
+.global k_FilterPointsFG
 
 .segment "GRAPH"
 
@@ -200,3 +201,86 @@ inc_bgpage:
 	sta r6H
 	pla
 	rts
+
+;---------------------------------------------------------------
+; FilterPointsFG
+;
+; Pass:      r7   number of points
+;            r9   pointer to filter routine:
+;                 Pass:    a  color
+;                 Return:  a  color
+; Destroyed: a, x, y, r5 - r8
+;---------------------------------------------------------------
+k_FilterPointsFG:
+	PushB r8H
+	LoadB r8H, $4c
+	lda veralo
+	ldx veramid
+	inc veractl ; 1
+	sta veralo
+	stx veramid
+	lda #$11
+	sta verahi
+	stz veractl ; 0
+	sta verahi
+
+	ldx r7H
+	beq @2
+
+; full blocks, 8 bytes at a time
+	ldy #$20
+@1:	jsr filter_y
+	dex
+	bne @1
+
+; partial block, 8 bytes at a time
+@2:	lda r7L
+	lsr
+	lsr
+	lsr
+	beq @6
+	tay
+	jsr filter_y
+
+; remaining 0 to 7 bytes
+@6:	lda r7L
+	and #7
+	beq @4
+	tay
+@3:	lda veradat
+	jsr r8H
+	sta veradat2
+	dey
+	bne @3
+@4:	PopB r8H
+	rts
+
+filter_y:
+	lda veradat
+	jsr r8H
+	sta veradat2
+	lda veradat
+	jsr r8H
+	sta veradat2
+	lda veradat
+	jsr r8H
+	sta veradat2
+	lda veradat
+	jsr r8H
+	sta veradat2
+	lda veradat
+	jsr r8H
+	sta veradat2
+	lda veradat
+	jsr r8H
+	sta veradat2
+	lda veradat
+	jsr r8H
+	sta veradat2
+	lda veradat
+	jsr r8H
+	sta veradat2
+	dey
+	bne filter_y
+	rts
+
