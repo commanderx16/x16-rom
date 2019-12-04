@@ -185,21 +185,21 @@ DrawPoint:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 
 	ldx r11L
-	jsr k_SetVRAMPtrFG
+	jsr SetVRAMPtrFG
 	lda col1
 	sta veradat
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	ldx r11L
-	jsr k_SetVRAMPtrBG
+	jsr SetVRAMPtrBG
 	lda col1
 	sta (r6)
 @2:	rts
 ; imprint/recover
 @3:	php
 	ldx r11L
-	jsr k_SetVRAMPtrFG
-	jsr k_SetVRAMPtrBG
+	jsr SetVRAMPtrFG
+	jsr SetVRAMPtrBG
 	plp
 	bcc @4
 ; recover
@@ -222,13 +222,13 @@ DrawPoint:
 k_GetPoint:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	ldx r11L
-	jsr k_SetVRAMPtrFG
+	jsr SetVRAMPtrFG
 	lda veradat
 	rts
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	ldx r11L
-	jsr k_SetVRAMPtrBG
+	jsr SetVRAMPtrBG
 	lda (r6)
 	rts
 

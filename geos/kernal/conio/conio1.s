@@ -75,8 +75,7 @@ PutCharTab:
 	.word $0C            ; $1A OUTLINEON
 	.word $92            ; $1B PLAINTEXT
 
-; The KERNAL version puts the cursor font-size pixels
-; down so that printing is actually visible
+; The KERNAL version puts the cursor at the top left of the window
 DoHOME:
 	LoadW_ r11, 0
 	sta r1H

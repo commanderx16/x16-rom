@@ -5,7 +5,7 @@
 .export k_SetPoint
 .global k_FilterPoints
 
-.export k_SetVRAMPtrFG, k_SetVRAMPtrBG
+.export SetVRAMPtrFG, SetVRAMPtrBG
 
 .segment "GRAPH"
 
@@ -38,13 +38,13 @@ graph_clear:
 ;---------------------------------------------------------------
 k_SetVRAMPtr:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	jsr k_SetVRAMPtrFG
+	jsr SetVRAMPtrFG
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	jmp k_SetVRAMPtrBG
+	jmp SetVRAMPtrBG
 @2:	rts
 
 ;---------------------------------------------------------------
-; k_SetVRAMPtrFG
+; SetVRAMPtrFG
 ;
 ; Function:  Sets up the VRAM address of a pixel
 ; Pass:      r3     x pos
@@ -52,7 +52,7 @@ k_SetVRAMPtr:
 ; Return:    <VERA> VRAM address of pixel
 ; Destroyed: a
 ;---------------------------------------------------------------
-k_SetVRAMPtrFG:
+SetVRAMPtrFG:
 	; r5 = x * 320
 	stz r5H
 	txa
@@ -83,7 +83,7 @@ k_SetVRAMPtrFG:
 	rts
 
 ;---------------------------------------------------------------
-; k_SetVRAMPtrBG
+; SetVRAMPtrBG
 ;
 ; Function:  Sets up the BG address of a pixel
 ; Pass:      r3         x pos
@@ -91,7 +91,7 @@ k_SetVRAMPtrFG:
 ; Return:    r6/RAMBANK BG address of pixel
 ; Destroyed: a
 ;---------------------------------------------------------------
-k_SetVRAMPtrBG:
+SetVRAMPtrBG:
 ; For BG storage, we have to work with 8 KB banks.
 ; Lines are 320 bytes, and 8 KB is not divisible by 320,
 ; so the base address of certain lines would be so close

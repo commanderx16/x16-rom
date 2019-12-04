@@ -5,7 +5,7 @@
 
 .import graph_clear
 
-.global k_PutChar
+.global k_PutChar ; [GEOS]
 
 set_color:
 	sta col1
@@ -19,7 +19,7 @@ k_PutChar:
 	lda PutCharTab00,y
 	ldx PutCharTab00+1,y
 	beq set_color
-	jmp k_CallRoutine
+	jmp @callroutine
 @1:	cmp #$80
 	bcc @1a
 	cmp #$a0
@@ -29,7 +29,7 @@ k_PutChar:
 	lda PutCharTab80,y
 	ldx PutCharTab80+1,y
 	beq set_color
-	jsr k_CallRoutine
+	jsr @callroutine
 	clc ; C=0: OK
 	rts
 
@@ -58,7 +58,7 @@ k_PutChar:
 	bcs @4
 @3:	pla
 	subv $20
-	jsr k_FontPutChar
+	jsr FontPutChar
 	clc ; C=0: OK
 	rts
 
@@ -73,7 +73,7 @@ k_PutChar:
 	sec ; C=1: string fault!
 	rts
 
-k_CallRoutine:
+@callroutine:
 	sta r13L
 	stx r13H
 	jmp (r13)
@@ -170,7 +170,7 @@ control_backspace:
 	dec r11H
 @1:	PushW r11
 	lda #$7f ; = DEL
-	jsr k_FontPutChar
+	jsr FontPutChar
 	PopW r11
 	rts
 
@@ -210,8 +210,9 @@ control_clear:
 	jsr graph_clear
 ; fallthrough
 control_home:
-	LoadW r11, 0
-	lda curHeight
+	MoveW leftMargin, r11
+	lda windowTop
+	add curHeight
 	sta r1H
 	rts
 

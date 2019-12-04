@@ -236,7 +236,7 @@ VerticalLine:
 
 	PushW r3
 	MoveW r4, r3
-	jsr k_SetVRAMPtrFG
+	jsr SetVRAMPtrFG
 	PopW r3
 
 	plx
@@ -251,7 +251,7 @@ VerticalLine:
 
 	PushW r3
 	MoveW r4, r3
-	jsr k_SetVRAMPtrBG
+	jsr SetVRAMPtrBG
 	PopW r3
 
 	plx
@@ -284,8 +284,8 @@ VLineBG:
 
 GetLineStart:
 	ldx r11L
-	jsr k_SetVRAMPtrFG
-	jsr k_SetVRAMPtrBG
+	jsr SetVRAMPtrFG
+	jsr SetVRAMPtrBG
 
 	MoveW r4, r7
 	SubW r3, r7

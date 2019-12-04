@@ -7,9 +7,9 @@
 .import BitMaskLeadingClear
 .import BitMaskLeadingSet
 
-.import k_SetVRAMPtrFG, k_SetVRAMPtrBG
+.import SetVRAMPtrFG, SetVRAMPtrBG
 
-.global k_GetRealSize ; GEOS API
+.global k_GetRealSize ; [GEOS]
 
 ;
 ; For italics (actually slanted) characters, the original GEOS
@@ -267,8 +267,8 @@ Font_2:
 
 	PushW r3
 	LoadW r3, 0
-	jsr k_SetVRAMPtrFG
-	jsr k_SetVRAMPtrBG
+	jsr SetVRAMPtrFG
+	jsr SetVRAMPtrBG
 	PopW r3
 
 	lda FontTVar2
@@ -647,7 +647,7 @@ Font_9:
 
 ; central character printing, called from conio.s
 ; character - 32 in A
-k_FontPutChar:
+FontPutChar:
 	tay
 	PushB r1H
 	tya

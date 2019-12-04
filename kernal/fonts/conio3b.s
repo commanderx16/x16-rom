@@ -3,10 +3,10 @@
 ;
 ; Console I/O: UseSystemFont, LoadCharSet, GetCharWidth syscalls
 
-.export k_LoadCharSet   ; GEOS API
-.export k_UseSystemFont ; GEOS API
-.export k_GetCharWidth  ; GEOS API
-.export k_SmallPutChar  ; GEOS API
+.export k_LoadCharSet   ; [GEOS]
+.export k_UseSystemFont ; [GEOS]
+.export k_GetCharWidth  ; [GEOS]
+.export k_SmallPutChar  ; [GEOS]
 
 .export font_init
 
@@ -78,5 +78,5 @@ GetChWdth1:
 ;---------------------------------------------------------------
 k_SmallPutChar:
 	subv $20
-	jmp k_FontPutChar
+	jmp FontPutChar
 
