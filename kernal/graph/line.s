@@ -10,38 +10,14 @@
 ;---------------------------------------------------------------
 ; HorizontalLine
 ;
-; Pass:      r3   x position of first pixel
-;            r4   x position of last pixel
-;            r11L y position in scanlines
-; Return:    r11L unchanged
-; Destroyed: a, x, y, r5 - r8, r11
-;---------------------------------------------------------------
-HorizontalLine:
-	PushW r0
-	PushW r1
-	PushW r2
-	MoveW r3, r0
-	MoveW r11L, r1L
-	MoveW r4, r2
-	jsr HorizontalLine_NEW
-	PopW r2
-	PopW r1
-	PopW r0
-	rts
-
-;---------------------------------------------------------------
-; HorizontalLine
-;
 ; Pass:      r0   x position of first pixel
 ;            r1   y position
 ;            r2   x position of last pixel
 ;---------------------------------------------------------------
-; TODO: right to left OK?
+; XXX TODO: right to left OK?
 HorizontalLine_NEW:
-	lda col1
-	pha
 	jsr GetLineStartAndWidth
-	pla
+	lda col1
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	jsr HLineFG
 @1:	bbrf 6, k_dispBufferOn, HLine_rts ; ST_WR_BACK
@@ -270,75 +246,54 @@ ImprintLine_NEW:
 ;---------------------------------------------------------------
 ; VerticalLine
 ;
-; Pass:      a pattern byte
-;            r3L top of line (0-199)
-;            r3H bottom of line (0-199)
-;            r4  x position of line (0-319)
-; Return:    draw the line
-; Destroyed: a, x, y, r4 - r8, r11
+; Pass:      r0   x
+;            r1   y1
+;            r2   (unused)
+;            r3   y2
+;            a    color
 ;---------------------------------------------------------------
 VerticalLine:
-	lda r3H
+	lda r3L
 	sec
-	sbc r3L
+	sbc r1L
 	tax
 	inx
-	beq @2
+	beq @2 ; .x = number of pixels to draw
 
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	phx
 
-	PushW r0
-	lda r3L
-	sta r1L
-	MoveW r4, r0
 	jsr SetVRAMPtrFG
-	PopW r0
 
-	plx
 	phx
 	lda col1
-	jsr VLineFG
-	plx
-	tya
-@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	phx
-
-	PushW r0
-	PushW r1
-	MoveW r4, r0
-	MoveB r3L, r1L
-	jsr SetVRAMPtrBG
-	PopW r1
-	PopW r0
-
-	plx
-	lda col1
-	jmp VLineBG
-@2:	rts
-
-VLineFG:
 	ldy #$71    ; increment in steps of $40
 	sty verahi
 :	sta veradat
 	inc veramid ; increment hi -> add $140 = 320
 	dex
 	bne :-
-	rts
 
-VLineBG:
+	plx
+
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+
+	jsr SetVRAMPtrBG
+
 	ldy #0
-@2:	sta (ptr_bg),y
+	lda col1
+@b:	sta (ptr_bg),y
 	tya
 	clc
 	adc #$40 ; <320
 	tay
-	bne @1
+	bne @a
 	jsr inc_bgpage
-@1:	jsr inc_bgpage
+@a:	jsr inc_bgpage
 	dex
-	bne @2
-	rts
+	bne @b
+
+@2:	rts
+
 
 GetLineStartAndWidth:
 	jsr SetVRAMPtrFG

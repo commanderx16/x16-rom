@@ -138,10 +138,24 @@ _DrawPoint:
 _FrameRectangle:
 	jsr Convert8BitPattern
 	MoveB dispBufferOn, k_dispBufferOn
+	PushW r0
+	PushW r1
+	PushW r2
+	PushW r3
+	MoveW r3, r0
+	MoveB r2L, r1L
+	stz r1H
+	MoveB r2H, r3L
+	stz r3H
+	MoveW r4, r2
 	php
 	sei
 	jsrfar GRAPH_draw_frame
 	plp
+	PopW r3
+	PopW r2
+	PopW r1
+	PopW r0
 	rts
 
 ;---------------------------------------------------------------
@@ -155,12 +169,26 @@ _FrameRectangle:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _ImprintRectangle:
+	PushW r0
+	PushW r1
+	PushW r2
+	PushW r3
+	MoveW r3, r0
+	MoveB r2L, r1L
+	stz r1H
+	MoveB r2H, r3L
+	stz r3H
+	MoveW r4, r2
 	php
 	sei
 	lda #$ff
 	clc
 	jsrfar GRAPH_draw_rect
 	plp
+	PopW r3
+	PopW r2
+	PopW r1
+	PopW r0
 	rts
 
 ;---------------------------------------------------------------
@@ -193,12 +221,26 @@ _InvertRectangle:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _RecoverRectangle:
+	PushW r0
+	PushW r1
+	PushW r2
+	PushW r3
+	MoveW r3, r0
+	MoveB r2L, r1L
+	stz r1H
+	MoveB r2H, r3L
+	stz r3H
+	MoveW r4, r2
 	php
 	sei
 	lda #$ff
 	sec
 	jsrfar GRAPH_draw_rect
 	plp
+	PopW r3
+	PopW r2
+	PopW r1
+	PopW r0
 	rts
 
 ;---------------------------------------------------------------
@@ -214,11 +256,26 @@ _RecoverRectangle:
 _Rectangle:
 	MoveB dispBufferOn, k_dispBufferOn
 	MoveB g_col1, col1
+	
+	PushW r0
+	PushW r1
+	PushW r2
+	PushW r3
+	MoveW r3, r0
+	MoveB r2L, r1L
+	stz r1H
+	MoveB r2H, r3L
+	stz r3H
+	MoveW r4, r2
 	php
 	sei
 	lda #0 ; N=0 -> draw
 	jsrfar GRAPH_draw_rect
 	plp
+	PopW r3
+	PopW r2
+	PopW r1
+	PopW r0
 	rts
 
 ;---------------------------------------------------------------

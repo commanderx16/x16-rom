@@ -27,20 +27,58 @@ GRAPH_draw_line:
 	bne @0a            ; no
 	bmi @0b            ; imprint/recover?
 	plp
-	jmp HorizontalLine
+	PushW r0
+	PushW r1
+	PushW r2
+	MoveW r3, r0
+	MoveW r11L, r1L
+	MoveW r4, r2
+	jsr HorizontalLine_NEW
+	PopW r2
+	PopW r1
+	PopW r0
+	rts
 @0b:	plp
 	bcc @c             ; imprint
-	jmp RecoverLine
-@c:	jmp ImprintLine
+;	PushW r0
+;	PushW r1
+;	PushW r2
+;	MoveW r3, r0
+;	MoveW r11L, r1L
+;	MoveW r4, r2
+;	jsr RecoverLine_NEW
+;	PopW r2
+;	PopW r1
+;	PopW r0
+	rts
+@c:
+;	PushW r0
+;	PushW r1
+;	PushW r2
+;	MoveW r3, r0
+;	MoveW r11L, r1L
+;	MoveW r4, r2
+;	jsr ImprintLine_NEW
+;	PopW r2
+;	PopW r1
+;	PopW r0
+	rts
 
 @0a:	plp
 	bmi @0             ; imprint/recover? slow path
 	CmpW r3, r4        ; vertical?
 	bne @0             ; no
+
+	PushW r0
+	PushW r1
 	PushW r3
-	MoveW r11, r3
+	MoveW r4, r0
+	MoveB r11L, r1L
+	MoveB r11H, r3L
 	jsr VerticalLine
 	PopW r3
+	PopW r1
+	PopW r0
 	rts
 
 ; Bresenham
