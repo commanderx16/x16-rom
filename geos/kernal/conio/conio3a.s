@@ -14,6 +14,8 @@
 .import _PutChar
 .global _PutString
 
+.setcpu "65c02"
+
 .segment "conio3a"
 
 _PutString:
@@ -92,11 +94,25 @@ _PutString:
 
 .export _GetCharWidth, _GetRealSize, _LoadCharSet, _SmallPutChar, _UseSystemFont, _PutCharK
 
+;---------------------------------------------------------------
+; GetCharWidth
+;
+; Function:  Calculate the pixel width of a characteras it
+;            exists in the font (in its plaintext form). Ignores
+;            any style attributes.
+;
+; Pass:      a   ASCII character
+; Return:    a   character width
+; Destroyed: nothing
+;---------------------------------------------------------------
 _GetCharWidth:
-	php
-	sei
-	jsrfar k_GetCharWidth
-	plp
+	phx
+	phy
+	ldx #0; mode
+	jsr _GetRealSize
+	tya
+	ply
+	plx
 	rts
 
 ;---------------------------------------------------------------

@@ -1,12 +1,10 @@
 ; GEOS KERNAL by Berkeley Softworks
 ; reverse engineered by Maciej Witkowiak, Michael Steil
 ;
-; Console I/O: UseSystemFont, LoadCharSet, GetCharWidth syscalls
+; Console I/O: UseSystemFont, LoadCharSet syscalls
 
 .export k_LoadCharSet   ; [GEOS]
 .export k_UseSystemFont ; [GEOS]
-.export k_GetCharWidth  ; [GEOS]
-.export k_SmallPutChar  ; [GEOS]
 
 .export font_init
 
@@ -46,37 +44,3 @@ k_LoadCharSet:
 	AddW r0, curIndexTable
 	AddW r0, cardDataPntr
 	rts
-
-k_GetCharWidth:
-	subv $20
-	bcs GetChWdth1
-	lda #0
-	rts
-GetChWdth1:
-	cmp #$5f ; code $7F = DEL
-	beq @2
-	asl
-	tay
-	iny
-	iny
-	lda (curIndexTable),y
-	dey
-	dey
-	sec
-	sbc (curIndexTable),y
-	rts
-@2:	lda PrvCharWidth
-	rts
-
-;---------------------------------------------------------------
-; SmallPutChar
-;
-; Pass:      same as PutChar, but must be sure that
-;            everything is OK, there is no checking
-; Return:    same as PutChar
-; Destroyed: same as PutChar
-;---------------------------------------------------------------
-k_SmallPutChar:
-	subv $20
-	jmp FontPutChar
-

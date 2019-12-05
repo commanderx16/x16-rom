@@ -10,6 +10,7 @@
 .import SetVRAMPtrFG, SetVRAMPtrBG
 
 .global k_GetRealSize ; [GEOS]
+.export k_SmallPutChar  ; [GEOS]
 
 ;
 ; For italics (actually slanted) characters, the original GEOS
@@ -41,7 +42,7 @@
 ; This looks way better and matches the slant of Helvetica
 ; Italics vs. Helvetica Regular (1/4.6) better.
 ;
-less_slanted = 1
+less_slanted = 1	
 
 ;---------------------------------------------------------------
 ; GetRealSize                                             
@@ -57,7 +58,10 @@ less_slanted = 1
 ; Destroyed: nothing
 ;---------------------------------------------------------------
 k_GetRealSize:
-	subv 32
+	subv $20
+	bcs _GetRealSize2
+	lda #0
+	rts
 _GetRealSize2:
 	jsr GetChWdth1
 	tay
@@ -261,6 +265,22 @@ Font_tabL:
 	.lobytes Font_tab
 Font_tabH:
 	.hibytes Font_tab
+
+GetChWdth1:
+	cmp #$5f ; code $7F = DEL
+	beq @2
+	asl
+	tay
+	iny
+	iny
+	lda (curIndexTable),y
+	dey
+	dey
+	sec
+	sbc (curIndexTable),y
+	rts
+@2:	lda PrvCharWidth
+	rts
 
 Font_2:
 	ldx r1H
@@ -644,6 +664,18 @@ Font_9:
 	ror fontTemp1+6
 	ror fontTemp1+7
 	rts
+
+;---------------------------------------------------------------
+; SmallPutChar
+;
+; Pass:      same as PutChar, but must be sure that
+;            everything is OK, there is no checking
+; Return:    same as PutChar
+; Destroyed: same as PutChar
+;---------------------------------------------------------------
+k_SmallPutChar:
+	subv $20
+; fallthrough
 
 ; central character printing, called from conio.s
 ; character - 32 in A
