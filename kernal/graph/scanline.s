@@ -145,7 +145,6 @@ SetVRAMPtrBG:
 ;
 ; Function:  Stores a color in VRAM/BG and advances the pointer
 ; Pass:      a   color
-; Destroyed: preserves all registers
 ;---------------------------------------------------------------
 GRAPH_set_pixel:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
@@ -174,31 +173,18 @@ inc_bgpage:
 ;---------------------------------------------------------------
 ; GRAPH_get_pixel
 ;
-; Pass:      r3   x position of pixel (0-319)
-;            r11L y position of pixel (0-199)
+; Pass:      r0   x pos
+;            r1   y pos
 ; Return:    a    color of pixel
-; Destroyed: a, x, y
 ;---------------------------------------------------------------
 GRAPH_get_pixel:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	PushW r0
-	PushW r1
-	MoveW r3, r0
-	MoveB r11L, r1L
 	jsr SetVRAMPtrFG
-	PopW r1
-	PopW r0
 	lda veradat
 	rts
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	PushW r0
-	PushW r1
-	MoveW r3, r0
-	MoveB r11L, r1L
 	jsr SetVRAMPtrBG
-	PopW r1
-	PopW r0
 	lda (ptr_bg)
 	inc ptr_bg
 	beq inc_bgpage
@@ -210,13 +196,16 @@ GRAPH_get_pixel:
 ;---------------------------------------------------------------
 ; GRAPH_filter_pixels
 ;
-; Pass:      r7   number of points
-;            r9   pointer to filter routine:
+; Pass:      r0   number of points
+;            r1   pointer to filter routine:
 ;                 Pass:    a  color
 ;                 Return:  a  color
-; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
 GRAPH_filter_pixels:
+	; build a JMP instruction
+	LoadB r14H, $4c
+	MoveW r1, r15
+
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	jsr FilterPointsFG
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
@@ -224,8 +213,6 @@ GRAPH_filter_pixels:
 @2:	rts
 
 FilterPointsFG:
-	PushB r8H
-	LoadB r8H, $4c
 	lda veralo
 	ldx veramid
 	inc veractl ; 1
@@ -236,7 +223,7 @@ FilterPointsFG:
 	stz veractl ; 0
 	sta verahi
 
-	ldx r7H
+	ldx r0H
 	beq @2
 
 ; full blocks, 8 bytes at a time
@@ -246,7 +233,7 @@ FilterPointsFG:
 	bne @1
 
 ; partial block, 8 bytes at a time
-@2:	lda r7L
+@2:	lda r0L
 	lsr
 	lsr
 	lsr
@@ -255,59 +242,55 @@ FilterPointsFG:
 	jsr filter_y
 
 ; remaining 0 to 7 bytes
-@6:	lda r7L
+@6:	lda r0L
 	and #7
 	beq @4
 	tay
 @3:	lda veradat
-	jsr r8H
+	jsr r14H
 	sta veradat2
 	dey
 	bne @3
-@4:	PopB r8H
-	rts
+@4:	rts
 
 filter_y:
 	lda veradat
-	jsr r8H
+	jsr r14H
 	sta veradat2
 	lda veradat
-	jsr r8H
+	jsr r14H
 	sta veradat2
 	lda veradat
-	jsr r8H
+	jsr r14H
 	sta veradat2
 	lda veradat
-	jsr r8H
+	jsr r14H
 	sta veradat2
 	lda veradat
-	jsr r8H
+	jsr r14H
 	sta veradat2
 	lda veradat
-	jsr r8H
+	jsr r14H
 	sta veradat2
 	lda veradat
-	jsr r8H
+	jsr r14H
 	sta veradat2
 	lda veradat
-	jsr r8H
+	jsr r14H
 	sta veradat2
 	dey
 	bne filter_y
 	rts
 
 FilterPointsBG:
-	PushB r8H
-	LoadB r8H, $4c
-
 ; background version
 ILineBG:
-	ldx r7H
+	ldx r0H
 	beq @2
 
 	ldy #0
 @1:	lda (ptr_bg),y
-	jsr r8H
+	jsr r14H
 	sta (ptr_bg),y
 	iny
 	bne @1
@@ -316,11 +299,11 @@ ILineBG:
 	bne @1
 
 ; partial block
-@2:	ldy r7L
+@2:	ldy r0L
 	beq @4
 	dey
 @3:	lda (ptr_bg),y
-	jsr r8H
+	jsr r14H
 	sta (ptr_bg),y
 	dey
 	cpy #$ff

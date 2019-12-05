@@ -230,15 +230,23 @@ _Rectangle:
 ; Destroyed: a, x, y, r5, r6
 ;---------------------------------------------------------------
 _TestPoint:
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	MoveB r11L, r1L
+	stz r1H
 	php
 	sei
 	jsr gjsrfar
 	.word GRAPH_get_pixel
 	.byte BANK_KERNAL
 	plp
-	cmp #0  ; black
+	tax
+	PopW r1
+	PopW r0
+	cpx #0  ; black
 	beq @1
-	cmp #16 ; also black
+	cpx #16 ; also black
 	beq @1
 	clc
 	rts
@@ -288,16 +296,13 @@ _InvertLine:
 	MoveB r11L, r1L
 	stz r1H
 	jsr _GRAPH_start_direct
-	PopW r1
-	PopW r0
-	MoveW r4, r7
-	SubW r3, r7
-	IncW r7
+	MoveW r4, r0
+	SubW r3, r0
+	IncW r0
 
-	PushW r9
 	PushW r12
 	PushB r13L
-	LoadW r9, r12L  ; pointer to code
+	LoadW r1, r12L  ; pointer to code
 	LoadB r12L, $49 ; EOR #
 	LoadB r12H, $01 ;      1
 	LoadB r13L, $60 ; RTS
@@ -309,7 +314,8 @@ _InvertLine:
 		
 	PopB r12L
 	PopW r13
-	PopW r9
+	PopW r1
+	PopW r0
 	rts
 
 ;---------------------------------------------------------------
