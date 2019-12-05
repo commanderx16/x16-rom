@@ -57,9 +57,7 @@ _PutString:
 	pla
 .endmacro
 
-.macro set_drawing_parameters
-	php
-	pha
+.macro set_mode_and_colors
 	lda g_currentMode
 	ora #1
 	sta currentMode
@@ -69,6 +67,12 @@ _PutString:
 	sta col2
 	lda #1  ; bg: white
 	sta col_bg
+.endmacro
+
+.macro set_drawing_parameters
+	php
+	pha
+	set_mode_and_colors
 	MoveB g_windowTop, windowTop
 	MoveB g_windowBottom, windowBottom
 	MoveW g_leftMargin, leftMargin
@@ -153,20 +157,32 @@ _LoadCharSet:
 	rts
 
 ;---------------------------------------------------------------
-; SmallPutChar                                            $C202
+; SmallPutChar
 ;
-; Pass:      Print a single character; does not support control
-;            codes, ignores faults
-; Return:    same as PutChar
-; Destroyed: same as PutChar
+; Function:  Print a single character without the PutChar
+;            overhead.
+;
+; Pass:      a   character code (byte)
+;            r11 x-coordinate of left of character
+;            r1H y-coordinate of character baseline
+; Return:    r11 x-position for next character
+;            r1H unchanged
+; Destroyed: a, x, y, r1L, r2-r10, r12, r13
 ;---------------------------------------------------------------
+; This is no longer significantly faster than PutChar
 _SmallPutChar:
-	php
-	sei
-	set_drawing_parameters
-	jsrfar k_SmallPutChar
-	plp
-	rts
+	cmp #$20
+	bcs @1
+@0:	rts
+@1:	cmp #$80
+	bne @3
+	lda #$ff ; convert code $80 to $FF (GEOS compat. "logo" char)
+@3:	pha
+	set_mode_and_colors
+	LoadW leftMargin, 0
+	LoadW rightMargin, SC_PIX_WIDTH-1
+	pla
+; fallthrough
 
 _PutCharK:
 	php

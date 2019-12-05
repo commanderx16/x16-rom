@@ -23,6 +23,19 @@
 
 .segment "conio1"
 
+;---------------------------------------------------------------
+; PutChar
+;
+; Function:  Process a single character code (both escape codes
+;            and printable characters)
+;
+; Pass:      a   character code (byte)
+;            r11 x-coordinate of left of character
+;            r1H y-coordinate of character baseline
+; Return:    r11 x-position for next character
+;            r1H unchanged
+; Destroyed: a, x, y, r1L, r2-r10, r12, r13
+;---------------------------------------------------------------
 _PutChar:
 ; codes $00-$07 are no-op (original GEOS crashed)
 	cmp #8

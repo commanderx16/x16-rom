@@ -10,7 +10,6 @@
 .import SetVRAMPtrFG, SetVRAMPtrBG
 
 .global k_GetRealSize ; [GEOS]
-.export k_SmallPutChar  ; [GEOS]
 
 ;
 ; For italics (actually slanted) characters, the original GEOS
@@ -665,15 +664,8 @@ Font_9:
 	ror fontTemp1+7
 	rts
 
-;---------------------------------------------------------------
-; SmallPutChar
-;
-; Pass:      same as PutChar, but must be sure that
-;            everything is OK, there is no checking
-; Return:    same as PutChar
-; Destroyed: same as PutChar
-;---------------------------------------------------------------
-k_SmallPutChar:
+
+
 	subv $20
 ; fallthrough
 

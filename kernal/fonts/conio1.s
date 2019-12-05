@@ -1,7 +1,7 @@
 ; GEOS KERNAL by Berkeley Softworks
 ; reverse engineered by Maciej Witkowiak, Michael Steil
 ;
-; Console I/O: PutChar and SmallPutChar syscalls
+; Console I/O: PutChar syscall
 
 .import graph_clear
 
