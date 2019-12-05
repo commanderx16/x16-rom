@@ -184,22 +184,37 @@ DrawPoint:
 	bmi @3
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 
-	ldx r11L
-	jsr SetVRAMPtrFG
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	MoveB r11L, r1L
+	jsr SetVRAMPtrFG_NEW
+	PopW r1
+	PopW r0
 	lda col1
 	sta veradat
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	ldx r11L
-	jsr SetVRAMPtrBG
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	MoveB r11L, r1L
+	jsr SetVRAMPtrBG_NEW
+	PopW r1
+	PopW r0
 	lda col1
 	sta (ptr_bg)
 @2:	rts
 ; imprint/recover
 @3:	php
-	ldx r11L
-	jsr SetVRAMPtrFG
-	jsr SetVRAMPtrBG
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	MoveB r11L, r1L
+	jsr SetVRAMPtrFG_NEW
+	jsr SetVRAMPtrBG_NEW
+	PopW r1
+	PopW r0
 	plp
 	bcc @4
 ; recover

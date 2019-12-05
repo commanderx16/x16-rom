@@ -8,6 +8,7 @@
 .global GRAPH_filter_points
 
 .export SetVRAMPtrFG, SetVRAMPtrBG
+.export SetVRAMPtrFG_NEW, SetVRAMPtrBG_NEW
 
 .segment "GRAPH"
 
@@ -36,19 +37,32 @@ graph_clear:
 ; Destroyed: a
 ;---------------------------------------------------------------
 
-;---------------------------------------------------------------
-; GRAPH_start_direct
-;
-; Function:  Sets up the VRAM/BG address of a pixel
-; Pass:      r0     x pos
-;            r1     y pos
-; Destroyed: a
-;---------------------------------------------------------------
+;NEW---------------------------------------------------------------
+;NEW GRAPH_start_direct
+;NEW
+;NEW Function:  Sets up the VRAM/BG address of a pixel
+;NEW Pass:      r0     x pos
+;NEW            r1     y pos
+;NEW Destroyed: a
+;NEW---------------------------------------------------------------
 GRAPH_start_direct:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	jsr SetVRAMPtrFG
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	stx r1L
+	jsr SetVRAMPtrFG_NEW
+	PopW r1
+	PopW r0
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	jmp SetVRAMPtrBG
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	stx r1L
+	stz r1H
+	jsr SetVRAMPtrBG_NEW
+	PopW r1
+	PopW r0
 @2:	rts
 
 SetVRAMPtrFG:
@@ -56,11 +70,9 @@ SetVRAMPtrFG:
 	PushW r1
 	MoveW r3, r0
 	stx r1L
-	stz r1H
 	jsr SetVRAMPtrFG_NEW
 	PopW r1
 	PopW r0
-	MoveW ptr_fg, r5
 	rts
 
 SetVRAMPtrFG_NEW:
@@ -98,11 +110,9 @@ SetVRAMPtrBG:
 	PushW r1
 	MoveW r3, r0
 	stx r1L
-	stz r1H
 	jsr SetVRAMPtrBG_NEW
 	PopW r1
 	PopW r0
-	MoveW ptr_fg, r5
 	rts
 
 SetVRAMPtrBG_NEW:
@@ -217,14 +227,24 @@ inc_bgpage:
 ;---------------------------------------------------------------
 GRAPH_get_pixel:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	ldx r11L
-	jsr SetVRAMPtrFG
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	MoveB r11L, r1L
+	jsr SetVRAMPtrFG_NEW
+	PopW r1
+	PopW r0
 	lda veradat
 	rts
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	ldx r11L
-	jsr SetVRAMPtrBG
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	MoveB r11L, r1L
+	jsr SetVRAMPtrBG_NEW
+	PopW r1
+	PopW r0
 	lda (ptr_bg)
 	inc ptr_bg
 	beq inc_bgpage

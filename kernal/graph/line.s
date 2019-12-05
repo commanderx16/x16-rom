@@ -232,12 +232,13 @@ VerticalLine:
 
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	phx
-	ldx r3L
 
-	PushW r3
-	MoveW r4, r3
-	jsr SetVRAMPtrFG
-	PopW r3
+	PushW r0
+	lda r3L
+	sta r1L
+	MoveW r4, r0
+	jsr SetVRAMPtrFG_NEW
+	PopW r0
 
 	plx
 	phx
@@ -247,12 +248,14 @@ VerticalLine:
 	tya
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	phx
-	ldx r3L
 
-	PushW r3
-	MoveW r4, r3
-	jsr SetVRAMPtrBG
-	PopW r3
+	PushW r0
+	PushW r1
+	MoveW r4, r0
+	MoveB r3L, r1L
+	jsr SetVRAMPtrBG_NEW
+	PopW r1
+	PopW r0
 
 	plx
 	lda col1
@@ -283,9 +286,15 @@ VLineBG:
 	rts
 
 GetLineStart:
-	ldx r11L
-	jsr SetVRAMPtrFG
-	jsr SetVRAMPtrBG
+; XXX optimize
+	PushW r0
+	PushW r1
+	MoveB r11L, r1L
+	MoveW r3, r0
+	jsr SetVRAMPtrFG_NEW
+	jsr SetVRAMPtrBG_NEW
+	PopW r1
+	PopW r0
 
 	MoveW r4, r7
 	SubW r3, r7
