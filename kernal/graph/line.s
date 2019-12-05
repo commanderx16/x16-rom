@@ -10,16 +10,37 @@
 ;---------------------------------------------------------------
 ; HorizontalLine
 ;
-; Pass:      r3   x in pixel of left end (0-319)
-;            r4   x in pixel of right end (0-319)
-;            r11L y position in scanlines (0-199)
+; Pass:      r3   x position of first pixel
+;            r4   x position of last pixel
+;            r11L y position in scanlines
 ; Return:    r11L unchanged
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 HorizontalLine:
+	PushW r0
+	PushW r1
+	PushW r2
+	MoveW r3, r0
+	MoveW r11L, r1L
+	MoveW r4, r2
+	jsr HorizontalLine_NEW
+	PopW r2
+	PopW r1
+	PopW r0
+	rts
+
+;---------------------------------------------------------------
+; HorizontalLine
+;
+; Pass:      r0   x position of first pixel
+;            r1   y position
+;            r2   x position of last pixel
+;---------------------------------------------------------------
+; TODO: right to left OK?
+HorizontalLine_NEW:
 	lda col1
 	pha
-	jsr GetLineStart
+	jsr GetLineStartAndWidth
 	pla
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	jsr HLineFG
@@ -28,7 +49,7 @@ HorizontalLine:
 
 ; foreground version
 HLineFG:
-	ldx r7H
+	ldx r15H
 	beq @2
 
 ; full blocks, 8 bytes at a time
@@ -39,7 +60,7 @@ HLineFG:
 
 ; partial block, 8 bytes at a time
 @2:	pha
-	lda r7L
+	lda r15L
 	lsr
 	lsr
 	lsr
@@ -50,7 +71,7 @@ HLineFG:
 
 ; remaining 0 to 7 bytes
 	pha
-@6:	lda r7L
+@6:	lda r15L
 	and #7
 	beq @5
 	tay
@@ -78,7 +99,7 @@ HLine_rts:
 
 ; background version
 HLineBG:
-	ldx r7H
+	ldx r15H
 	beq @2
 
 ; full blocks, 4 bytes at a time
@@ -97,7 +118,7 @@ HLineBG:
 	bne @1
 
 ; partial block
-@2:	ldy r7L
+@2:	ldy r15L
 	beq @4
 	dey
 @3:	sta (ptr_bg),y
@@ -109,17 +130,37 @@ HLineBG:
 ;---------------------------------------------------------------
 ; RecoverLine
 ;
-; Pass:      r3   x pos of left endpoint (0-319)
-;            r4   x pos of right endpoint (0-319)
-;            r11L y pos of line (0-199)
+; Pass:      r0   x position of first pixel
+;            r1   y position
+;            r2   x position of last pixel
+;---------------------------------------------------------------
+RecoverLine:
+	PushW r0
+	PushW r1
+	PushW r2
+	MoveW r3, r0
+	MoveW r11L, r1L
+	MoveW r4, r2
+	jsr RecoverLine_NEW
+	PopW r2
+	PopW r1
+	PopW r0
+	rts
+
+;---------------------------------------------------------------
+; RecoverLine
+;
+; Pass:      r0   x pos of left endpoint (0-319)
+;            r1   y pos of line (0-199)
+;            r2   x pos of right endpoint (0-319)
 ; Return:    copies bits of line from background to
 ;            foreground sceen
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
-RecoverLine:
-	jsr GetLineStart
+RecoverLine_NEW:
+	jsr GetLineStartAndWidth
 
-	ldx r7H
+	ldx r15H
 	beq @2
 
 ; full blocks, 8 bytes at a time
@@ -154,7 +195,7 @@ RecoverLine:
 	bne @1
 
 ; partial block
-@2:	ldy r7L
+@2:	ldy r15L
 	beq @4
 	dey
 @3:	lda (ptr_bg),y
@@ -165,9 +206,23 @@ RecoverLine:
 @4:	rts
 
 ImprintLine:
-	jsr GetLineStart
+	PushW r0
+	PushW r1
+	PushW r2
+	MoveW r3, r0
+	MoveW r11L, r1L
+	MoveW r4, r2
+	jsr ImprintLine_NEW
+	PopW r2
+	PopW r1
+	PopW r0
+	rts
 
-	ldx r7H
+
+ImprintLine_NEW:
+	jsr GetLineStartAndWidth
+
+	ldx r15H
 	beq @2
 
 ; full blocks, 8 bytes at a time
@@ -202,7 +257,7 @@ ImprintLine:
 	bne @1
 
 ; partial block
-@2:	ldy r7L
+@2:	ldy r15L
 	beq @4
 	dey
 @3:	lda veradat
@@ -285,18 +340,11 @@ VLineBG:
 	bne @2
 	rts
 
-GetLineStart:
-; XXX optimize
-	PushW r0
-	PushW r1
-	MoveB r11L, r1L
-	MoveW r3, r0
+GetLineStartAndWidth:
 	jsr SetVRAMPtrFG
 	jsr SetVRAMPtrBG
-	PopW r1
-	PopW r0
 
-	MoveW r4, r7
-	SubW r3, r7
-	IncW r7
+	MoveW r2, r15
+	SubW r0, r15
+	IncW r15
 	rts
