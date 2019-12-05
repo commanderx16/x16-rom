@@ -1,7 +1,11 @@
+.importzp ptr_fg
+
 .export graph_init
 .export graph_clear
 
 .export GRAPH_start_direct
+;.export GRAPH_start_direct_OLD
+
 .export GRAPH_set_pixel
 .global GRAPH_filter_points
 
@@ -26,14 +30,20 @@ graph_clear:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_start_direct
+; GRAPH_start_direct_OLD
 ;
 ; Function:  Sets up the VRAM/BG address of a pixel
 ; Pass:      r3     x pos
 ;            x      y pos
-; Return:    <VERA> VRAM address of pixel
-;            r6/RAMBANK BG address of pixel
-;            (depending on dispBufferOn)
+; Destroyed: a
+;---------------------------------------------------------------
+
+;---------------------------------------------------------------
+; GRAPH_start_direct
+;
+; Function:  Sets up the VRAM/BG address of a pixel
+; Pass:      r0     x pos
+;            r1     y pos
 ; Destroyed: a
 ;---------------------------------------------------------------
 GRAPH_start_direct:
@@ -43,54 +53,48 @@ GRAPH_start_direct:
 	jmp SetVRAMPtrBG
 @2:	rts
 
-;---------------------------------------------------------------
-; SetVRAMPtrFG
-;
-; Function:  Sets up the VRAM address of a pixel
-; Pass:      r3     x pos
-;            x      y pos
-; Return:    <VERA> VRAM address of pixel
-; Destroyed: a
-;---------------------------------------------------------------
 SetVRAMPtrFG:
-	; r5 = x * 320
-	stz r5H
-	txa
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	stx r1L
+	stz r1H
+	jsr SetVRAMPtrFG_NEW
+	PopW r1
+	PopW r0
+	MoveW ptr_fg, r5
+	rts
+
+SetVRAMPtrFG_NEW:
+	; ptr_fg = x * 320
+	stz ptr_fg+1
+	lda r1L
 	asl
-	rol r5H
+	rol ptr_fg+1
 	asl
-	rol r5H
+	rol ptr_fg+1
 	asl
-	rol r5H
+	rol ptr_fg+1
 	asl
-	rol r5H
+	rol ptr_fg+1
 	asl
-	rol r5H
+	rol ptr_fg+1
 	asl
-	rol r5H
-	sta r5L
+	rol ptr_fg+1
+	sta ptr_fg
 	sta veralo
-	txa
+	lda r1L
 	clc
-	adc r5H
-	sta r5H
+	adc ptr_fg+1
+	sta ptr_fg+1
 	sta veramid
 	lda #$11
 	sta verahi
 
 	; add X
-	AddW r3, veralo
+	AddW r0, veralo
 	rts
 
-;---------------------------------------------------------------
-; SetVRAMPtrBG
-;
-; Function:  Sets up the BG address of a pixel
-; Pass:      r3         x pos
-;            x          y pos
-; Return:    r6/RAMBANK BG address of pixel
-; Destroyed: a
-;---------------------------------------------------------------
 SetVRAMPtrBG:
 ; For BG storage, we have to work with 8 KB banks.
 ; Lines are 320 bytes, and 8 KB is not divisible by 320,

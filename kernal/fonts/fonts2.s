@@ -7,6 +7,8 @@
 .import BitMaskLeadingClear
 .import BitMaskLeadingSet
 
+.importzp ptr_fg
+
 .import SetVRAMPtrFG, SetVRAMPtrBG
 
 .export GRAPH_get_char_size 
@@ -303,12 +305,12 @@ Font_2:
 	and #%11111000
 	sta r4L
 	clc
-	adc r5L
-	sta r5L
+	adc ptr_fg
+	sta ptr_fg
 	sta veralo
 	txa
-	adc r5H
-	sta r5H
+	adc ptr_fg+1
+	sta ptr_fg+1
 	sta veramid
 	lda #$11
 	sta verahi
@@ -698,14 +700,14 @@ FontPutChar:
 	bcc @6
 	bne @7
 @6:	jsr Font_4
-@7:	lda r5L
+@7:	lda ptr_fg
 	clc
 	adc #<SC_PIX_WIDTH
-	sta r5L
+	sta ptr_fg
 	sta veralo
-	lda r5H
+	lda ptr_fg+1
 	adc #>SC_PIX_WIDTH
-	sta r5H
+	sta ptr_fg+1
 	sta veramid
 	inc r1H
 	dec r10H

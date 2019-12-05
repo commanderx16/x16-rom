@@ -24,9 +24,12 @@ pnt	.res 2           ;$D1 pointer to row
 ;
 ; X16 additions
 ;
+.export ckbtab; [ps2kbd]
 imparm	.res 2           ;PRIMM utility string pointer
 ckbtab	.res 2           ;used for keyboard lookup
-.export ckbtab; [ps2kbd]
+.export ptr_fg, ptr_fg; [graph]
+ptr_fg	.res 2
+ptr_bg	.res 2
 
 
 .segment "KVAR"
@@ -111,8 +114,8 @@ nlinesm1 .res 1          ;    X16: y resolution - 1
 ;
 .export k_dispBufferOn, col1, col2, col_bg
 k_dispBufferOn	.res 1
-col1		.res 1
-col2		.res 1
+col1	.res 1
+col2	.res 1
 col_bg	.res 1
 
 	.segment "KVECTORS";rem kernal/os indirects(20)
