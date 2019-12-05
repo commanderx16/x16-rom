@@ -188,7 +188,7 @@ DrawPoint:
 	PushW r1
 	MoveW r3, r0
 	MoveB r11L, r1L
-	jsr SetVRAMPtrFG_NEW
+	jsr SetVRAMPtrFG
 	PopW r1
 	PopW r0
 	lda col1
@@ -199,7 +199,7 @@ DrawPoint:
 	PushW r1
 	MoveW r3, r0
 	MoveB r11L, r1L
-	jsr SetVRAMPtrBG_NEW
+	jsr SetVRAMPtrBG
 	PopW r1
 	PopW r0
 	lda col1
@@ -211,8 +211,8 @@ DrawPoint:
 	PushW r1
 	MoveW r3, r0
 	MoveB r11L, r1L
-	jsr SetVRAMPtrFG_NEW
-	jsr SetVRAMPtrBG_NEW
+	jsr SetVRAMPtrFG
+	jsr SetVRAMPtrBG
 	PopW r1
 	PopW r0
 	plp

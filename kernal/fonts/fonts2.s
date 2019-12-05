@@ -7,7 +7,7 @@
 .import BitMaskLeadingClear
 .import BitMaskLeadingSet
 
-.import SetVRAMPtrFG_NEW, SetVRAMPtrBG_NEW
+.import SetVRAMPtrFG, SetVRAMPtrBG
 
 .export GRAPH_get_char_size 
 
@@ -286,8 +286,8 @@ Font_2:
 	PushW r1
 	LoadW r0, 0
 	MoveB r1H, r1L
-	jsr SetVRAMPtrFG_NEW
-	jsr SetVRAMPtrBG_NEW
+	jsr SetVRAMPtrFG
+	jsr SetVRAMPtrBG
 	PopW r1
 	PopW r0
 

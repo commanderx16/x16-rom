@@ -237,7 +237,7 @@ VerticalLine:
 	lda r3L
 	sta r1L
 	MoveW r4, r0
-	jsr SetVRAMPtrFG_NEW
+	jsr SetVRAMPtrFG
 	PopW r0
 
 	plx
@@ -253,7 +253,7 @@ VerticalLine:
 	PushW r1
 	MoveW r4, r0
 	MoveB r3L, r1L
-	jsr SetVRAMPtrBG_NEW
+	jsr SetVRAMPtrBG
 	PopW r1
 	PopW r0
 
@@ -291,8 +291,8 @@ GetLineStart:
 	PushW r1
 	MoveB r11L, r1L
 	MoveW r3, r0
-	jsr SetVRAMPtrFG_NEW
-	jsr SetVRAMPtrBG_NEW
+	jsr SetVRAMPtrFG
+	jsr SetVRAMPtrBG
 	PopW r1
 	PopW r0
 

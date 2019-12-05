@@ -8,7 +8,6 @@
 .global GRAPH_filter_points
 
 .export SetVRAMPtrFG, SetVRAMPtrBG
-.export SetVRAMPtrFG_NEW, SetVRAMPtrBG_NEW
 
 .segment "GRAPH"
 
@@ -51,7 +50,7 @@ GRAPH_start_direct:
 	PushW r1
 	MoveW r3, r0
 	stx r1L
-	jsr SetVRAMPtrFG_NEW
+	jsr SetVRAMPtrFG
 	PopW r1
 	PopW r0
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
@@ -60,22 +59,12 @@ GRAPH_start_direct:
 	MoveW r3, r0
 	stx r1L
 	stz r1H
-	jsr SetVRAMPtrBG_NEW
+	jsr SetVRAMPtrBG
 	PopW r1
 	PopW r0
 @2:	rts
 
 SetVRAMPtrFG:
-	PushW r0
-	PushW r1
-	MoveW r3, r0
-	stx r1L
-	jsr SetVRAMPtrFG_NEW
-	PopW r1
-	PopW r0
-	rts
-
-SetVRAMPtrFG_NEW:
 	; ptr_fg = x * 320
 	stz ptr_fg+1
 	lda r1L
@@ -106,16 +95,6 @@ SetVRAMPtrFG_NEW:
 	rts
 
 SetVRAMPtrBG:
-	PushW r0
-	PushW r1
-	MoveW r3, r0
-	stx r1L
-	jsr SetVRAMPtrBG_NEW
-	PopW r1
-	PopW r0
-	rts
-
-SetVRAMPtrBG_NEW:
 ; For BG storage, we have to work with 8 KB banks.
 ; Lines are 320 bytes, and 8 KB is not divisible by 320,
 ; so the base address of certain lines would be so close
@@ -231,7 +210,7 @@ GRAPH_get_pixel:
 	PushW r1
 	MoveW r3, r0
 	MoveB r11L, r1L
-	jsr SetVRAMPtrFG_NEW
+	jsr SetVRAMPtrFG
 	PopW r1
 	PopW r0
 	lda veradat
@@ -242,7 +221,7 @@ GRAPH_get_pixel:
 	PushW r1
 	MoveW r3, r0
 	MoveB r11L, r1L
-	jsr SetVRAMPtrBG_NEW
+	jsr SetVRAMPtrBG
 	PopW r1
 	PopW r0
 	lda (ptr_bg)
