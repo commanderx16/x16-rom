@@ -103,8 +103,13 @@ _DrawPoint:
 	eor #1
 
 	pha
-	ldx r11L
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	MoveB r11L, r1L
 	jsr _GRAPH_start_direct
+	PopW r1
+	PopW r0
 	pla
 
 	jmp _GRAPH_set_pixel
@@ -277,8 +282,14 @@ _HorizontalLine:
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
 _InvertLine:
-	ldx r11L
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	MoveB r11L, r1L
+	stz r1H
 	jsr _GRAPH_start_direct
+	PopW r1
+	PopW r0
 	MoveW r4, r7
 	SubW r3, r7
 	IncW r7

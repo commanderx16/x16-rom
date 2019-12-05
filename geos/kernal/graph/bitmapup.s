@@ -15,11 +15,13 @@
 ; XXX wrong bank
 CallNoRAMSharing = $9D80
 .endif
-.import _GRAPH_start_direct, _GRAPH_set_pixel
+.import _GRAPH_start_direct, _GRAPH_start_direct, _GRAPH_set_pixel
 
 .global BitmapUpHelp
 .global BitmapDecode
 .global _BitmapUp
+
+.setcpu "65c02"
 
 .segment "graph3c"
 
@@ -63,20 +65,22 @@ _BitmapUp:
 	rts
 
 BitmapUpHelp:
-	ldx r1H ; y coord
-
-	PushW r3
+	PushW r0
+	PushW r1
 	; convert cards (r3L) into pixels (r3)
 	lda r1L
 	asl
 	asl
 	asl ; * 8
-	sta r3L
+	sta r0L
 	lda #0
 	rol
-	sta r3H
+	sta r0H
+	MoveB r1H, r1L
+	stz r1H
 	jsr _GRAPH_start_direct
-	PopW r3
+	PopW r1
+	PopW r0
 
 	MoveB r2L, r3H ; copy width (in cards)
 

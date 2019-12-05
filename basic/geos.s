@@ -38,7 +38,8 @@ pset:	jsr get_point
 	jsr get_col
 	pha
 	sei
-	ldx r11L
+	MoveW r3, r0
+	MoveB r11L, r1L
 	jsr bjsrfar
 	.word GRAPH_start_direct
 	.byte BANK_KERNAL

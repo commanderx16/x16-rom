@@ -2,7 +2,6 @@
 .export graph_clear
 
 .export GRAPH_start_direct
-;.export GRAPH_start_direct_OLD
 
 .export GRAPH_set_pixel
 .global GRAPH_filter_points
@@ -28,40 +27,17 @@ graph_clear:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_start_direct_OLD
+; GRAPH_start_direct
 ;
 ; Function:  Sets up the VRAM/BG address of a pixel
-; Pass:      r3     x pos
-;            x      y pos
+; Pass:      r0     x pos
+;            r1     y pos
 ; Destroyed: a
 ;---------------------------------------------------------------
-
-;NEW---------------------------------------------------------------
-;NEW GRAPH_start_direct
-;NEW
-;NEW Function:  Sets up the VRAM/BG address of a pixel
-;NEW Pass:      r0     x pos
-;NEW            r1     y pos
-;NEW Destroyed: a
-;NEW---------------------------------------------------------------
 GRAPH_start_direct:
-	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	PushW r0
-	PushW r1
-	MoveW r3, r0
-	stx r1L
 	jsr SetVRAMPtrFG
-	PopW r1
-	PopW r0
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	PushW r0
-	PushW r1
-	MoveW r3, r0
-	stx r1L
-	stz r1H
 	jsr SetVRAMPtrBG
-	PopW r1
-	PopW r0
 @2:	rts
 
 SetVRAMPtrFG:
