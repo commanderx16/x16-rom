@@ -14,88 +14,64 @@
 ; Pass:      N/C      0x: draw (dispBufferOn)
 ;                     10: copy FG to BG (imprint)
 ;                     11: copy BG to FG (recover)
-;            r3       x pos of 1st point (0-319)
-;            r11L     y pos of 1st point (0-199)
-;            r4       x pos of 2nd point (0-319)
-;            r11H     y pos of 2nd point (0-199)
+;            r0       x pos of 1st point (0-319)
+;            r1L      y pos of 1st point (0-199)
+;            r2       x pos of 2nd point (0-319)
+;            r3L      y pos of 2nd point (0-199)
 ; Return:    -
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
 GRAPH_draw_line:
-	php
-	CmpB r11L, r11H    ; horizontal?
-	bne @0a            ; no
-	bmi @0b            ; imprint/recover?
-	plp
 	PushW r0
 	PushW r1
 	PushW r2
+	PushW r3
 	MoveW r3, r0
-	MoveW r11L, r1L
+	MoveB r11L, r1L
 	MoveW r4, r2
-	jsr HorizontalLine_NEW
+	MoveB r11H, r3L
+	jsr GRAPH_draw_line_NEW
+	PopW r3
 	PopW r2
 	PopW r1
 	PopW r0
 	rts
+
+GRAPH_draw_line_NEW:
+	php
+	CmpB r1L, r3L      ; horizontal?
+	bne @0a            ; no
+	bmi @0b            ; imprint/recover?
+	plp
+	jmp HorizontalLine_NEW
 @0b:	plp
 	bcc @c             ; imprint
-;	PushW r0
-;	PushW r1
-;	PushW r2
-;	MoveW r3, r0
-;	MoveW r11L, r1L
-;	MoveW r4, r2
-;	jsr RecoverLine_NEW
-;	PopW r2
-;	PopW r1
-;	PopW r0
-	rts
+	jmp RecoverLine_NEW
 @c:
-;	PushW r0
-;	PushW r1
-;	PushW r2
-;	MoveW r3, r0
-;	MoveW r11L, r1L
-;	MoveW r4, r2
-;	jsr ImprintLine_NEW
-;	PopW r2
-;	PopW r1
-;	PopW r0
-	rts
+	jmp ImprintLine_NEW
 
 @0a:	plp
 	bmi @0             ; imprint/recover? slow path
-	CmpW r3, r4        ; vertical?
+	CmpW r0, r2        ; vertical?
 	bne @0             ; no
 
-	PushW r0
-	PushW r1
-	PushW r3
-	MoveW r4, r0
-	MoveB r11L, r1L
-	MoveB r11H, r3L
-	jsr VerticalLine
-	PopW r3
-	PopW r1
-	PopW r0
-	rts
+	jmp VerticalLine
 
 ; Bresenham
 @0:	php
 	LoadB r7H, 0
-	lda r11H
-	sub r11L
+	lda r3L
+	sub r1L
 	sta r7L
 	bcs @1
 	lda #0
 	sub r7L
 	sta r7L
-@1:	lda r4L
-	sub r3L
+@1:	lda r2L
+	sub r0L
 	sta r12L
-	lda r4H
-	sbc r3H
+	lda r2H
+	sbc r0H
 	sta r12H
 	ldx #r12
 	jsr k_Dabs
@@ -124,35 +100,35 @@ GRAPH_draw_line:
 	asl r10L
 	rol r10H
 	LoadB r13L, $ff
-	CmpW r3, r4
+	CmpW r0, r2
 	bcc @4
-	CmpB r11L, r11H
+	CmpB r1L, r3L
 	bcc @3
 	LoadB r13L, 1
-@3:	ldy r3H
-	ldx r3L
-	MoveW r4, r3
-	sty r4H
-	stx r4L
-	MoveB r11H, r11L
+@3:	ldy r0H
+	ldx r0L
+	MoveW r2, r0
+	sty r2H
+	stx r2L
+	MoveB r3L, r1L
 	bra @5
-@4:	ldy r11H
-	cpy r11L
+@4:	ldy r3L
+	cpy r1L
 	bcc @5
 	LoadB r13L, 1
 @5:	lda col1
 	plp
 	php
 	jsr DrawPoint
-	CmpW r3, r4
+	CmpW r0, r2
 	bcs @8
-	inc r3L
+	inc r0L
 	bne @6
-	inc r3H
+	inc r0H
 @6:	bbrf 7, r8H, @7
 	AddW r9, r8
 	bra @5
-@7:	AddB_ r13L, r11L
+@7:	AddB_ r13L, r1L
 	AddW r10, r8
 	bra @5
 @8:	plp
@@ -178,31 +154,31 @@ GRAPH_draw_line:
 	asl r10L
 	rol r10H
 	LoadW r13, $ffff
-	CmpB r11L, r11H
+	CmpB r1L, r3L
 	bcc @B
-	CmpW r3, r4
+	CmpW r0, r2
 	bcc @A
 	LoadW r13, 1
-@A:	MoveW r4, r3
-	ldx r11L
-	lda r11H
-	sta r11L
-	stx r11H
+@A:	MoveW r2, r0
+	ldx r1L
+	lda r3L
+	sta r1L
+	stx r3L
 	bra @C
-@B:	CmpW r3, r4
+@B:	CmpW r0, r2
 	bcs @C
 	LoadW r13, 1
 @C:	lda col1
 	plp
 	php
 	jsr DrawPoint
-	CmpB r11L, r11H
+	CmpB r1L, r3L
 	bcs @E
-	inc r11L
+	inc r1L
 	bbrf 7, r8H, @D
 	AddW r9, r8
 	bra @C
-@D:	AddW r13, r3
+@D:	AddW r13, r0
 	AddW r10, r8
 	bra @C
 @E:	plp
@@ -214,8 +190,8 @@ GRAPH_draw_line:
 ; Pass:      N/C      0x: draw (dispBufferOn)
 ;                     10: copy FG to BG (imprint)
 ;                     11: copy BG to FG (recover)
-;            r3       x pos of point (0-319)
-;            r11L     y pos of point (0-199)
+;            r0       x pos of point (0-319)
+;            r1L     y pos of point (0-199)
 ; Return:    -
 ; Destroyed: a, x, y, r5
 ;---------------------------------------------------------------
@@ -223,37 +199,19 @@ DrawPoint:
 	bmi @3
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 
-	PushW r0
-	PushW r1
-	MoveW r3, r0
-	MoveB r11L, r1L
 	jsr SetVRAMPtrFG
-	PopW r1
-	PopW r0
 	lda col1
 	sta veradat
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	PushW r0
-	PushW r1
-	MoveW r3, r0
-	MoveB r11L, r1L
 	jsr SetVRAMPtrBG
-	PopW r1
-	PopW r0
 	lda col1
 	sta (ptr_bg)
 @2:	rts
 ; imprint/recover
 @3:	php
-	PushW r0
-	PushW r1
-	MoveW r3, r0
-	MoveB r11L, r1L
 	jsr SetVRAMPtrFG
 	jsr SetVRAMPtrBG
-	PopW r1
-	PopW r0
 	plp
 	bcc @4
 ; recover
