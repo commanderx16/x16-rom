@@ -27,7 +27,7 @@ pnt	.res 2           ;$D1 pointer to row
 .export ckbtab; [ps2kbd]
 imparm	.res 2           ;PRIMM utility string pointer
 ckbtab	.res 2           ;used for keyboard lookup
-.export ptr_fg, ptr_fg; [graph]
+.export ptr_fg, ptr_bg; [graph]
 ptr_fg	.res 2
 ptr_bg	.res 2
 

@@ -7,8 +7,6 @@
 .import BitMaskLeadingClear
 .import BitMaskLeadingSet
 
-.importzp ptr_fg
-
 .import SetVRAMPtrFG, SetVRAMPtrBG
 
 .export GRAPH_get_char_size 

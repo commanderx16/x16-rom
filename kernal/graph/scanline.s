@@ -1,5 +1,3 @@
-.importzp ptr_fg
-
 .export graph_init
 .export graph_clear
 
@@ -99,7 +97,7 @@ SetVRAMPtrBG:
 ; For BG storage, we have to work with 8 KB banks.
 ; Lines are 320 bytes, and 8 KB is not divisible by 320,
 ; so the base address of certain lines would be so close
-; to the top of a bank that lda (r6),y shoots over the
+; to the top of a bank that lda (ptr_bg),y shoots over the
 ; end. Therefore, we need to add memory gaps at certain
 ; lines to jump over the bank boundaries.
 	cpx #25
@@ -127,31 +125,31 @@ SetVRAMPtrBG:
 	bcc @1
 	inx
 @1:
-	stz r6H
+	stz ptr_bg+1
 	txa
 	asl
-	rol r6H
+	rol ptr_bg+1
 	asl
-	rol r6H
+	rol ptr_bg+1
 	asl
-	rol r6H
+	rol ptr_bg+1
 	asl
-	rol r6H
+	rol ptr_bg+1
 	asl
-	rol r6H
+	rol ptr_bg+1
 	asl
-	rol r6H
-	sta r6L
+	rol ptr_bg+1
+	sta ptr_bg
 	txa
 	clc
-	adc r6H
-	sta r6H
+	adc ptr_bg+1
+	sta ptr_bg+1
 
-	lda r6H
+	lda ptr_bg+1
 	pha
 	and #$1f
 	ora #$a0
-	sta r6H
+	sta ptr_bg+1
 	pla
 	ror ; insert the carry from addition above, since the BG
 	    ; data exceeds 64 KB because of the added gaps
@@ -163,7 +161,7 @@ SetVRAMPtrBG:
 	sta d1pra ; RAM bank
 
 	; add X
-	AddW r3, r6
+	AddW r3, ptr_bg
 	rts
 
 ;---------------------------------------------------------------
@@ -179,21 +177,21 @@ GRAPH_set_pixel:
 	sta veradat
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 ; BG version
-	sta (r6)
-	inc r6L
+	sta (ptr_bg)
+	inc ptr_bg
 	beq inc_bgpage
 @2:	rts
 inc_bgpage:
 	pha
-	inc r6H
-	lda r6H
+	inc ptr_bg+1
+	lda ptr_bg+1
 	cmp #$c0
 	beq @1
 	pla
 	rts
 @1:	inc d1pra ; RAM bank
 	lda #$a0
-	sta r6H
+	sta ptr_bg+1
 	pla
 	rts
 
@@ -203,7 +201,7 @@ inc_bgpage:
 ; Pass:      r3   x position of pixel (0-319)
 ;            r11L y position of pixel (0-199)
 ; Return:    a    color of pixel
-; Destroyed: a, x, y, r5, r6
+; Destroyed: a, x, y
 ;---------------------------------------------------------------
 GRAPH_get_pixel:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
@@ -215,8 +213,8 @@ GRAPH_get_pixel:
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	ldx r11L
 	jsr SetVRAMPtrBG
-	lda (r6)
-	inc r6L
+	lda (ptr_bg)
+	inc ptr_bg
 	beq inc_bgpage
 	rts
 
@@ -322,9 +320,9 @@ ILineBG:
 	beq @2
 
 	ldy #0
-@1:	lda (r6),y
+@1:	lda (ptr_bg),y
 	jsr r8H
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
 	bne @1
 	jsr inc_bgpage
@@ -335,9 +333,9 @@ ILineBG:
 @2:	ldy r7L
 	beq @4
 	dey
-@3:	lda (r6),y
+@3:	lda (ptr_bg),y
 	jsr r8H
-	sta (r6),y
+	sta (ptr_bg),y
 	dey
 	cpy #$ff
 	bne @3

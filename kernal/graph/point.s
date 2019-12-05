@@ -178,7 +178,7 @@ GRAPH_draw_line:
 ;            r3       x pos of point (0-319)
 ;            r11L     y pos of point (0-199)
 ; Return:    -
-; Destroyed: a, x, y, r5 - r6
+; Destroyed: a, x, y, r5
 ;---------------------------------------------------------------
 DrawPoint:
 	bmi @3
@@ -193,7 +193,7 @@ DrawPoint:
 	ldx r11L
 	jsr SetVRAMPtrBG
 	lda col1
-	sta (r6)
+	sta (ptr_bg)
 @2:	rts
 ; imprint/recover
 @3:	php
@@ -203,10 +203,10 @@ DrawPoint:
 	plp
 	bcc @4
 ; recover
-	lda (r6)
+	lda (ptr_bg)
 	sta veradat
 	rts
 ; imprint
 @4:	lda veradat
-	sta (r6)
+	sta (ptr_bg)
 	rts

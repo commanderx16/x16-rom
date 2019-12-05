@@ -7,6 +7,7 @@
 .setcpu "65c02"
 
 .import col1, col2, col_bg, k_dispBufferOn; [declare]
+.importzp ptr_fg, ptr_bg
 
 .segment "GRAPH"
 

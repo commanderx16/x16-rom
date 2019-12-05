@@ -83,13 +83,13 @@ HLineBG:
 
 ; full blocks, 4 bytes at a time
 	ldy #0
-@1:	sta (r6),y
+@1:	sta (ptr_bg),y
 	iny
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
 	bne @1
 	jsr inc_bgpage
@@ -100,7 +100,7 @@ HLineBG:
 @2:	ldy r7L
 	beq @4
 	dey
-@3:	sta (r6),y
+@3:	sta (ptr_bg),y
 	dey
 	cpy #$ff
 	bne @3
@@ -124,28 +124,28 @@ RecoverLine:
 
 ; full blocks, 8 bytes at a time
 	ldy #0
-@1:	lda (r6),y
+@1:	lda (ptr_bg),y
 	sta veradat
 	iny
-	lda (r6),y
+	lda (ptr_bg),y
 	sta veradat
 	iny
-	lda (r6),y
+	lda (ptr_bg),y
 	sta veradat
 	iny
-	lda (r6),y
+	lda (ptr_bg),y
 	sta veradat
 	iny
-	lda (r6),y
+	lda (ptr_bg),y
 	sta veradat
 	iny
-	lda (r6),y
+	lda (ptr_bg),y
 	sta veradat
 	iny
-	lda (r6),y
+	lda (ptr_bg),y
 	sta veradat
 	iny
-	lda (r6),y
+	lda (ptr_bg),y
 	sta veradat
 	iny
 	bne @1
@@ -157,7 +157,7 @@ RecoverLine:
 @2:	ldy r7L
 	beq @4
 	dey
-@3:	lda (r6),y
+@3:	lda (ptr_bg),y
 	sta veradat
 	dey
 	cpy #$ff
@@ -173,28 +173,28 @@ ImprintLine:
 ; full blocks, 8 bytes at a time
 	ldy #0
 @1:	lda veradat
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
 	lda veradat
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
 	lda veradat
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
 	lda veradat
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
 	lda veradat
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
 	lda veradat
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
 	lda veradat
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
 	lda veradat
-	sta (r6),y
+	sta (ptr_bg),y
 	iny
 	bne @1
 	jsr inc_bgpage
@@ -206,7 +206,7 @@ ImprintLine:
 	beq @4
 	dey
 @3:	lda veradat
-	sta (r6),y
+	sta (ptr_bg),y
 	dey
 	cpy #$ff
 	bne @3
@@ -270,7 +270,7 @@ VLineFG:
 
 VLineBG:
 	ldy #0
-@2:	sta (r6),y
+@2:	sta (ptr_bg),y
 	tya
 	clc
 	adc #$40 ; <320
