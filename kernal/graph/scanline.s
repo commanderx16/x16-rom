@@ -4,7 +4,7 @@
 .export GRAPH_start_direct
 
 .export GRAPH_set_pixel
-.global GRAPH_filter_points
+.global GRAPH_filter_pixels
 
 .export SetVRAMPtrFG, SetVRAMPtrBG
 
@@ -32,12 +32,11 @@ graph_clear:
 ; Function:  Sets up the VRAM/BG address of a pixel
 ; Pass:      r0     x pos
 ;            r1     y pos
-; Destroyed: a
 ;---------------------------------------------------------------
 GRAPH_start_direct:
 	jsr SetVRAMPtrFG
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	jsr SetVRAMPtrBG
+	jmp SetVRAMPtrBG
 @2:	rts
 
 SetVRAMPtrFG:
@@ -209,7 +208,7 @@ GRAPH_get_pixel:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_filter_points
+; GRAPH_filter_pixels
 ;
 ; Pass:      r7   number of points
 ;            r9   pointer to filter routine:
@@ -217,7 +216,7 @@ GRAPH_get_pixel:
 ;                 Return:  a  color
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
-GRAPH_filter_points:
+GRAPH_filter_pixels:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	jsr FilterPointsFG
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
