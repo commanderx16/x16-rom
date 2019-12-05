@@ -8,7 +8,7 @@
 ; from KERNAL
 ; XXX TODO these should go through the jump table
 .import scrmod
-.import GRAPH_draw_line, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_start_direct, GRAPH_set_point
+.import GRAPH_draw_line, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_start_direct, GRAPH_set_pixel
 .import k_UseSystemFont, GRAPH_put_char
 
 
@@ -44,7 +44,7 @@ pset:	jsr get_point
 	.byte BANK_KERNAL
 	pla
 	jsr bjsrfar
-	.word GRAPH_set_point
+	.word GRAPH_set_pixel
 	.byte BANK_KERNAL
 	cli
 	rts

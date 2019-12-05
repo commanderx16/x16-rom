@@ -9,7 +9,7 @@
 
 .import SetVRAMPtrFG, SetVRAMPtrBG
 
-.global GRAPH_get_char_size ; [GEOS]
+.export GRAPH_get_char_size 
 
 ;
 ; For italics (actually slanted) characters, the original GEOS

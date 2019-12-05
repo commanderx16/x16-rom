@@ -3,8 +3,8 @@
 ;
 ; Graphics library: GetPoint, DrawPoint, DrawLine syscalls
 
-.global GRAPH_draw_line
-.global GRAPH_get_point
+.export GRAPH_draw_line
+.export GRAPH_get_pixel
 
 .segment "GRAPH"
 
@@ -209,28 +209,4 @@ DrawPoint:
 ; imprint
 @4:	lda veradat
 	sta (r6)
-	rts
-
-;---------------------------------------------------------------
-; GRAPH_get_point
-;
-; Pass:      r3   x position of pixel (0-319)
-;            r11L y position of pixel (0-199)
-; Return:    a    color of pixel
-; Destroyed: a, x, y, r5, r6
-;---------------------------------------------------------------
-GRAPH_get_point:
-	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	ldx r11L
-	jsr SetVRAMPtrFG
-	lda veradat
-	rts
-
-@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	ldx r11L
-	jsr SetVRAMPtrBG
-	lda (r6)
-	rts
-
-@2:	lda #0
 	rts

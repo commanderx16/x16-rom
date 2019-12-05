@@ -37,12 +37,12 @@ _GetScanLine:
 .import GRAPH_draw_line
 .import GRAPH_draw_frame
 .import GRAPH_draw_rect
-.import GRAPH_get_point
+.import GRAPH_get_pixel
 .import GRAPH_start_direct
-.import GRAPH_set_point
-.import k_FilterPoints
+.import GRAPH_set_pixel
+.import GRAPH_filter_points
 
-.export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_point
+.export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_pixel
 
 .import k_dispBufferOn, col1, col2
 
@@ -107,7 +107,7 @@ _DrawPoint:
 	jsr _GRAPH_start_direct
 	pla
 
-	jmp _GRAPH_set_point
+	jmp _GRAPH_set_pixel
 
 ; recover a point: use DrawLine
 @3:	PushW r4
@@ -228,7 +228,7 @@ _TestPoint:
 	php
 	sei
 	jsr gjsrfar
-	.word GRAPH_get_point
+	.word GRAPH_get_pixel
 	.byte BANK_KERNAL
 	plp
 	cmp #0  ; black
@@ -293,7 +293,7 @@ _InvertLine:
 
 	php
 	sei
-	jsrfar k_FilterPoints
+	jsrfar GRAPH_filter_points
 	plp
 		
 	PopB r12L
@@ -363,10 +363,10 @@ _GRAPH_start_direct:
 	plp
 	rts
 
-_GRAPH_set_point:
+_GRAPH_set_pixel:
 	php
 	sei
-	jsrfar GRAPH_set_point
+	jsrfar GRAPH_set_pixel
 	plp
 	rts
 

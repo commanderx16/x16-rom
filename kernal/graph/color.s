@@ -1,5 +1,5 @@
 
-.global GRAPH_set_colors
+.export GRAPH_set_colors
 
 .segment "GRAPH"
 

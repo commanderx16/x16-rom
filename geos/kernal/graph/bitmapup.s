@@ -15,7 +15,7 @@
 ; XXX wrong bank
 CallNoRAMSharing = $9D80
 .endif
-.import _GRAPH_start_direct, _GRAPH_set_point
+.import _GRAPH_start_direct, _GRAPH_set_pixel
 
 .global BitmapUpHelp
 .global BitmapDecode
@@ -87,7 +87,7 @@ BitmapUpHelp:
 	tay
 	lda #0
 	rol
-	jsr _GRAPH_set_point
+	jsr _GRAPH_set_pixel
 	tya
 	dex
 	bne :-

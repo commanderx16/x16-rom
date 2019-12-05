@@ -3,8 +3,8 @@
 ;
 ; Graphics library: rectangles
 
-.global GRAPH_draw_rect
-.global GRAPH_draw_frame
+.export GRAPH_draw_rect
+.export GRAPH_draw_frame
 
 .segment "GRAPH"
 

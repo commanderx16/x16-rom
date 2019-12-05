@@ -5,7 +5,7 @@
 
 .import graph_clear
 
-.global GRAPH_put_char ; [GEOS]
+.export GRAPH_put_char 
 
 set_color:
 	sta col1

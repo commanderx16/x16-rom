@@ -2,8 +2,8 @@
 .export graph_clear
 
 .export GRAPH_start_direct
-.export GRAPH_set_point
-.global k_FilterPoints
+.export GRAPH_set_pixel
+.global GRAPH_filter_points
 
 .export SetVRAMPtrFG, SetVRAMPtrBG
 
@@ -163,13 +163,13 @@ SetVRAMPtrBG:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_set_point
+; GRAPH_set_pixel
 ;
 ; Function:  Stores a color in VRAM/BG and advances the pointer
 ; Pass:      a   color
 ; Destroyed: preserves all registers
 ;---------------------------------------------------------------
-GRAPH_set_point:
+GRAPH_set_pixel:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 ; FG version
 	sta veradat
@@ -194,7 +194,33 @@ inc_bgpage:
 	rts
 
 ;---------------------------------------------------------------
-; FilterPoints
+; GRAPH_get_pixel
+;
+; Pass:      r3   x position of pixel (0-319)
+;            r11L y position of pixel (0-199)
+; Return:    a    color of pixel
+; Destroyed: a, x, y, r5, r6
+;---------------------------------------------------------------
+GRAPH_get_pixel:
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
+	ldx r11L
+	jsr SetVRAMPtrFG
+	lda veradat
+	rts
+
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+	ldx r11L
+	jsr SetVRAMPtrBG
+	lda (r6)
+	inc r6L
+	beq inc_bgpage
+	rts
+
+@2:	lda #0
+	rts
+
+;---------------------------------------------------------------
+; GRAPH_filter_points
 ;
 ; Pass:      r7   number of points
 ;            r9   pointer to filter routine:
@@ -202,7 +228,7 @@ inc_bgpage:
 ;                 Return:  a  color
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
-k_FilterPoints:
+GRAPH_filter_points:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	jsr FilterPointsFG
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK

@@ -3,7 +3,7 @@
 ;
 ; Console I/O: LoadCharSet syscalls
 
-.export GRAPH_set_font   ; [GEOS]
+.export GRAPH_set_font  
 
 .export font_init
 
