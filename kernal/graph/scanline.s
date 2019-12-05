@@ -1,8 +1,8 @@
 .export graph_init
 .export graph_clear
 
-.export k_SetVRAMPtr
-.export k_SetPoint
+.export GRAPH_start_direct
+.export GRAPH_set_point
 .global k_FilterPoints
 
 .export SetVRAMPtrFG, SetVRAMPtrBG
@@ -21,12 +21,12 @@ graph_clear:
 	LoadB r2L, 0
 	LoadB r2H, SC_PIX_HEIGHT-1
 	lda #0
-	jsr k_Rectangle
+	jsr GRAPH_draw_rect
 	PopB col1
 	rts
 
 ;---------------------------------------------------------------
-; k_SetVRAMPtr
+; GRAPH_start_direct
 ;
 ; Function:  Sets up the VRAM/BG address of a pixel
 ; Pass:      r3     x pos
@@ -36,7 +36,7 @@ graph_clear:
 ;            (depending on dispBufferOn)
 ; Destroyed: a
 ;---------------------------------------------------------------
-k_SetVRAMPtr:
+GRAPH_start_direct:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	jsr SetVRAMPtrFG
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
@@ -163,13 +163,13 @@ SetVRAMPtrBG:
 	rts
 
 ;---------------------------------------------------------------
-; SetPoint
+; GRAPH_set_point
 ;
 ; Function:  Stores a color in VRAM/BG and advances the pointer
 ; Pass:      a   color
 ; Destroyed: preserves all registers
 ;---------------------------------------------------------------
-k_SetPoint:
+GRAPH_set_point:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 ; FG version
 	sta veradat

@@ -2,7 +2,7 @@
 .include "../mac.inc"
 .include "graph/graph.inc"
 
-.import k_SetColor, k_Rectangle
+.import GRAPH_set_colors
 
 .import graph_init, graph_clear, font_init
 
@@ -224,7 +224,7 @@ grphon	lda #$0e ; light blue
 	lda #0  ; primary:    black
 	ldx #10 ; secondary:  gray
 	ldy #1  ; background: white
-	jsr k_SetColor
+	jsr GRAPH_set_colors
 	jsr graph_clear
 	jsr font_init
 

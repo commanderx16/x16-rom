@@ -8,12 +8,12 @@
 ; from KERNAL
 ; XXX TODO these should go through the jump table
 .import scrmod
-.import k_DrawLine, k_Rectangle, k_FrameRectangle, k_SetVRAMPtr, k_SetPoint
-.import k_UseSystemFont, k_PutChar
+.import GRAPH_draw_line, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_start_direct, GRAPH_set_point
+.import k_UseSystemFont, GRAPH_put_char
 
 
 ; from GEOS
-.import _ResetHandle, k_SetColor
+.import _ResetHandle, GRAPH_set_colors
 
 ;***************
 geos	jsr bjsrfar
@@ -40,11 +40,11 @@ pset:	jsr get_point
 	sei
 	ldx r11L
 	jsr bjsrfar
-	.word k_SetVRAMPtr
+	.word GRAPH_start_direct
 	.byte BANK_KERNAL
 	pla
 	jsr bjsrfar
-	.word k_SetPoint
+	.word GRAPH_set_point
 	.byte BANK_KERNAL
 	cli
 	rts
@@ -56,7 +56,7 @@ line	jsr get_points_col
 	lda #0 ; set
 	sei
 	jsr bjsrfar
-	.word k_DrawLine
+	.word GRAPH_draw_line
 	.byte BANK_KERNAL
 	cli
 	rts
@@ -70,7 +70,7 @@ frame	jsr get_points
 	jsr set_col ; needed to hint non-compat mode
 	sei
 	jsr bjsrfar
-	.word k_FrameRectangle
+	.word GRAPH_draw_frame
 	.byte BANK_KERNAL
 	cli
 	rts
@@ -82,7 +82,7 @@ rect	jsr get_points_col
 	jsr normalize_rect
 	sei
 	jsr bjsrfar
-	.word k_Rectangle
+	.word GRAPH_draw_rect
 	.byte BANK_KERNAL
 	cli
 	rts
@@ -114,7 +114,7 @@ char	jsr get_point
 	sei
 	lda #$92 ; Ctrl+0: clear attributes
 	jsr bjsrfar
-	.word k_PutChar
+	.word GRAPH_put_char
 	.byte BANK_KERNAL
 	cli
 
@@ -122,7 +122,7 @@ char	jsr get_point
 :	lda (r15),y
 	phy
 	jsr bjsrfar
-	.word k_PutChar
+	.word GRAPH_put_char
 	.byte BANK_KERNAL
 	ply
 	iny
@@ -164,7 +164,7 @@ set_col:
 	ldy #1  ; background color: white
 	sei
 	jsr bjsrfar
-	.word k_SetColor
+	.word GRAPH_set_colors
 	.byte BANK_KERNAL
 	cli
 	rts

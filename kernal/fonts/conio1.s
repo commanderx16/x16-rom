@@ -5,13 +5,13 @@
 
 .import graph_clear
 
-.global k_PutChar ; [GEOS]
+.global GRAPH_put_char ; [GEOS]
 
 set_color:
 	sta col1
 	rts
 
-k_PutChar:
+GRAPH_put_char:
 	cmp #$20
 	bcs @1
 	asl
@@ -44,7 +44,7 @@ k_PutChar:
 	ldy r11L
 	sty r13L
 	ldx currentMode
-	jsr k_GetRealSize
+	jsr GRAPH_get_char_size
 	dey
 	tya
 	add r13L
@@ -218,7 +218,7 @@ control_home:
 
 control_right:
 	lda #' '
-	jmp k_PutChar
+	jmp GRAPH_put_char
 
 control_up:
 	SubB curHeight, r1H

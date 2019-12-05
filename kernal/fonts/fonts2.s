@@ -9,7 +9,7 @@
 
 .import SetVRAMPtrFG, SetVRAMPtrBG
 
-.global k_GetRealSize ; [GEOS]
+.global GRAPH_get_char_size ; [GEOS]
 
 ;
 ; For italics (actually slanted) characters, the original GEOS
@@ -44,7 +44,7 @@
 less_slanted = 1	
 
 ;---------------------------------------------------------------
-; GetRealSize                                             
+; GRAPH_get_char_size
 ;
 ; Function:  Returns the size of a character in the current
 ;            mode (bold, italic...) and current Font.
@@ -56,7 +56,7 @@ less_slanted = 1
 ;            a   baseline offset
 ; Destroyed: nothing
 ;---------------------------------------------------------------
-k_GetRealSize:
+GRAPH_get_char_size:
 	subv $20
 	bcs _GetRealSize2
 	lda #0
@@ -116,7 +116,7 @@ Font_1:
 .else
 	ldx #0
 	addv 32
-	jsr k_GetRealSize
+	jsr GRAPH_get_char_size
 	tya
 .endif
 	pha
@@ -197,7 +197,7 @@ Font_1:
 	jsr _GetRealSize2
 .else
 	addv 32
-	jsr k_GetRealSize
+	jsr GRAPH_get_char_size
 .endif
 	sta r5H
 	SubB r5H, r1H

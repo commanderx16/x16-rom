@@ -15,7 +15,7 @@
 ; XXX wrong bank
 CallNoRAMSharing = $9D80
 .endif
-.import _SetVRAMPtr, _SetPoint
+.import _GRAPH_start_direct, _GRAPH_set_point
 
 .global BitmapUpHelp
 .global BitmapDecode
@@ -75,7 +75,7 @@ BitmapUpHelp:
 	lda #0
 	rol
 	sta r3H
-	jsr _SetVRAMPtr
+	jsr _GRAPH_start_direct
 	PopW r3
 
 	MoveB r2L, r3H ; copy width (in cards)
@@ -87,7 +87,7 @@ BitmapUpHelp:
 	tay
 	lda #0
 	rol
-	jsr _SetPoint
+	jsr _GRAPH_set_point
 	tya
 	dex
 	bne :-

@@ -34,15 +34,15 @@ _GetScanLine:
 
 .include "../../banks.inc"
 .import gjsrfar
-.import k_DrawLine
-.import k_FrameRectangle
-.import k_Rectangle
-.import k_GetPoint
-.import k_SetVRAMPtr
-.import k_SetPoint
+.import GRAPH_draw_line
+.import GRAPH_draw_frame
+.import GRAPH_draw_rect
+.import GRAPH_get_point
+.import GRAPH_start_direct
+.import GRAPH_set_point
 .import k_FilterPoints
 
-.export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _SetVRAMPtr, _SetPoint
+.export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_point
 
 .import k_dispBufferOn, col1, col2
 
@@ -80,7 +80,7 @@ _DrawLine:
 @3:	sec ; N=1, C=1 -> recover
 @2:	php
 	sei
-	jsrfar k_DrawLine
+	jsrfar GRAPH_draw_line
 	plp
 	rts
 
@@ -104,10 +104,10 @@ _DrawPoint:
 
 	pha
 	ldx r11L
-	jsr _SetVRAMPtr
+	jsr _GRAPH_start_direct
 	pla
 
-	jmp _SetPoint
+	jmp _GRAPH_set_point
 
 ; recover a point: use DrawLine
 @3:	PushW r4
@@ -135,7 +135,7 @@ _FrameRectangle:
 	MoveB dispBufferOn, k_dispBufferOn
 	php
 	sei
-	jsrfar k_FrameRectangle
+	jsrfar GRAPH_draw_frame
 	plp
 	rts
 
@@ -154,7 +154,7 @@ _ImprintRectangle:
 	sei
 	lda #$ff
 	clc
-	jsrfar k_Rectangle
+	jsrfar GRAPH_draw_rect
 	plp
 	rts
 
@@ -192,7 +192,7 @@ _RecoverRectangle:
 	sei
 	lda #$ff
 	sec
-	jsrfar k_Rectangle
+	jsrfar GRAPH_draw_rect
 	plp
 	rts
 
@@ -212,7 +212,7 @@ _Rectangle:
 	php
 	sei
 	lda #0 ; N=0 -> draw
-	jsrfar k_Rectangle
+	jsrfar GRAPH_draw_rect
 	plp
 	rts
 
@@ -228,7 +228,7 @@ _TestPoint:
 	php
 	sei
 	jsr gjsrfar
-	.word k_GetPoint
+	.word GRAPH_get_point
 	.byte BANK_KERNAL
 	plp
 	cmp #0  ; black
@@ -260,7 +260,7 @@ _HorizontalLine:
 	php
 	sei
 	lda #0 ; N=0 -> draw
-	jsrfar k_DrawLine
+	jsrfar GRAPH_draw_line
 	plp
 	PopW r11
 	PopW r4
@@ -278,7 +278,7 @@ _HorizontalLine:
 ;---------------------------------------------------------------
 _InvertLine:
 	ldx r11L
-	jsr _SetVRAMPtr
+	jsr _GRAPH_start_direct
 	MoveW r4, r7
 	SubW r3, r7
 	IncW r7
@@ -321,7 +321,7 @@ _RecoverLine:
 	sei
 	lda #$ff
 	sec      ; N=1, C=1 -> recover
-	jsrfar k_DrawLine
+	jsrfar GRAPH_draw_line
 	plp
 
 	PopW r11
@@ -349,24 +349,24 @@ _VerticalLine:
 	php
 	sei
 	lda #0 ; N=0 -> draw
-	jsrfar k_DrawLine
+	jsrfar GRAPH_draw_line
 	plp
 
 	PopW r3
 	rts
 
-_SetVRAMPtr:
+_GRAPH_start_direct:
 	MoveB dispBufferOn, k_dispBufferOn
 	php
 	sei
-	jsrfar k_SetVRAMPtr
+	jsrfar GRAPH_start_direct
 	plp
 	rts
 
-_SetPoint:
+_GRAPH_set_point:
 	php
 	sei
-	jsrfar k_SetPoint
+	jsrfar GRAPH_set_point
 	plp
 	rts
 

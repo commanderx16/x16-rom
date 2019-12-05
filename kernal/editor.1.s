@@ -480,11 +480,11 @@ prt
 	lda blnsw
 	beq @1
 	pla
-	.import k_PutChar
+	.import GRAPH_put_char
 	pha
 	phx
 	phy
-	jsr k_PutChar
+	jsr GRAPH_put_char
 	ply
 	plx
 	pla

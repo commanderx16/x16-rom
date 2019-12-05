@@ -94,7 +94,7 @@ _PutString:
 
 .import gjsrfar
 
-.import k_GetCharWidth, k_GetRealSize, k_LoadCharSet, k_SmallPutChar, k_UseSystemFont, k_PutChar
+.import k_GetCharWidth, GRAPH_get_char_size, GRAPH_set_font, k_SmallPutChar, GRAPH_put_char
 
 .export _GetCharWidth, _GetRealSize, _LoadCharSet, _SmallPutChar, _UseSystemFont, _PutCharK
 
@@ -136,14 +136,15 @@ _GetRealSize:
 	php
 	sei
 	set_mode
-	jsrfar k_GetRealSize
+	jsrfar GRAPH_get_char_size
 	plp
 	rts
 
 _UseSystemFont:
+	LoadW r0, 0
 	php
 	sei
-	jsrfar k_UseSystemFont
+	jsrfar GRAPH_set_font
 	get_font_parameters
 	plp
 	rts
@@ -151,7 +152,7 @@ _UseSystemFont:
 _LoadCharSet:
 	php
 	sei
-	jsrfar k_LoadCharSet
+	jsrfar GRAPH_set_font
 	get_font_parameters
 	plp
 	rts
@@ -188,7 +189,7 @@ _PutCharK:
 	php
 	sei
 	set_drawing_parameters
-	jsrfar k_PutChar
+	jsrfar GRAPH_put_char
 	rol tmp1
 	get_mode
 	plp

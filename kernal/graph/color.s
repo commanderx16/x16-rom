@@ -1,19 +1,17 @@
 
-.global k_SetColor
+.global GRAPH_set_colors
 
 .segment "GRAPH"
 
 ;---------------------------------------------------------------
-; SetColor
+; GRAPH_set_colors
 ;
-; Pass:      a primary color (0-255)
-;            x secondary color (0-255)
-; Return:    col1, col2 - updated
+; Pass:      a primary color
+;            x secondary color
+;            y background color
 ;---------------------------------------------------------------
-k_SetColor:
+GRAPH_set_colors:
 	sta col1   ; primary color
 	stx col2   ; secondary color
 	sty col_bg ; background color
 	rts
-
-

@@ -3,13 +3,13 @@
 ;
 ; Graphics library: rectangles
 
-.global k_Rectangle
-.global k_FrameRectangle
+.global GRAPH_draw_rect
+.global GRAPH_draw_frame
 
 .segment "GRAPH"
 
 ;---------------------------------------------------------------
-; Rectangle
+; GRAPH_draw_rect
 ;
 ; Pass:      N/C      0x: draw (dispBufferOn)
 ;                     10: copy FG to BG (imprint)
@@ -21,7 +21,7 @@
 ; Return:    draws the rectangle
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
-k_Rectangle:
+GRAPH_draw_rect:
 	bpl @0
 	bcc ImprintRectangle
 	bra RecoverRectangle
@@ -73,7 +73,7 @@ ImprintRectangle:
 	rts
 
 ;---------------------------------------------------------------
-; FrameRectangle
+; GRAPH_draw_frame
 ;
 ; Pass:      r2L top (0-199)
 ;            r2H bottom (0-199)
@@ -82,7 +82,7 @@ ImprintRectangle:
 ; Return:    r2L, r3H unchanged
 ; Destroyed: a, x, y, r5 - r9, r11
 ;---------------------------------------------------------------
-k_FrameRectangle:
+GRAPH_draw_frame:
 	ldy r2L
 	sty r11L
 	jsr HorizontalLine

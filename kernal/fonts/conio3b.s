@@ -1,10 +1,9 @@
 ; GEOS KERNAL by Berkeley Softworks
 ; reverse engineered by Maciej Witkowiak, Michael Steil
 ;
-; Console I/O: UseSystemFont, LoadCharSet syscalls
+; Console I/O: LoadCharSet syscalls
 
-.export k_LoadCharSet   ; [GEOS]
-.export k_UseSystemFont ; [GEOS]
+.export GRAPH_set_font   ; [GEOS]
 
 .export font_init
 
@@ -13,10 +12,15 @@ font_init:
 	LoadB windowBottom, SC_PIX_HEIGHT-1
 	LoadW leftMargin, 0
 	LoadW rightMargin, SC_PIX_WIDTH-1
-; fallthrough
-k_UseSystemFont:
+	bra set_system_font
+
+GRAPH_set_font:
+	lda r0L
+	ora r0H
+	bne set_font2
+set_system_font:
 	LoadW r0, SystemFont
-k_LoadCharSet:
+set_font2:
 	ldy #0
 	lda (r0),y
 	sta baselineOffset

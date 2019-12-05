@@ -3,8 +3,8 @@
 ;
 ; Graphics library: GetPoint, DrawPoint, DrawLine syscalls
 
-.global k_DrawLine
-.global k_GetPoint
+.global GRAPH_draw_line
+.global GRAPH_get_point
 
 .segment "GRAPH"
 
@@ -21,7 +21,7 @@
 ; Return:    -
 ; Destroyed: a, x, y, r4 - r8, r11
 ;---------------------------------------------------------------
-k_DrawLine:
+GRAPH_draw_line:
 	php
 	CmpB r11L, r11H    ; horizontal?
 	bne @0a            ; no
@@ -212,14 +212,14 @@ DrawPoint:
 	rts
 
 ;---------------------------------------------------------------
-; GetPoint
+; GRAPH_get_point
 ;
 ; Pass:      r3   x position of pixel (0-319)
 ;            r11L y position of pixel (0-199)
 ; Return:    a    color of pixel
 ; Destroyed: a, x, y, r5, r6
 ;---------------------------------------------------------------
-k_GetPoint:
+GRAPH_get_point:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 	ldx r11L
 	jsr SetVRAMPtrFG
