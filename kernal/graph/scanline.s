@@ -94,6 +94,18 @@ SetVRAMPtrFG_NEW:
 	rts
 
 SetVRAMPtrBG:
+	PushW r0
+	PushW r1
+	MoveW r3, r0
+	stx r1L
+	stz r1H
+	jsr SetVRAMPtrBG_NEW
+	PopW r1
+	PopW r0
+	MoveW ptr_fg, r5
+	rts
+
+SetVRAMPtrBG_NEW:
 ; For BG storage, we have to work with 8 KB banks.
 ; Lines are 320 bytes, and 8 KB is not divisible by 320,
 ; so the base address of certain lines would be so close
@@ -126,7 +138,7 @@ SetVRAMPtrBG:
 	inx
 @1:
 	stz ptr_bg+1
-	txa
+	lda r0L
 	asl
 	rol ptr_bg+1
 	asl
@@ -140,7 +152,7 @@ SetVRAMPtrBG:
 	asl
 	rol ptr_bg+1
 	sta ptr_bg
-	txa
+	lda r0L
 	clc
 	adc ptr_bg+1
 	sta ptr_bg+1
@@ -161,7 +173,7 @@ SetVRAMPtrBG:
 	sta d1pra ; RAM bank
 
 	; add X
-	AddW r3, ptr_bg
+	AddW r0, ptr_bg
 	rts
 
 ;---------------------------------------------------------------
