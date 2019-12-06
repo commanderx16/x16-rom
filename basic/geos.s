@@ -193,8 +193,8 @@ normalize_rect:
 @2:	rts
 
 
-GRAPH_set_window     = $FF1B
-GRAPH_set_options    = $FF1E
+GRAPH_set_window     = $FF1B ; TODO
+GRAPH_set_options    = $FF1E ; TODO
 GRAPH_set_colors     = $FF21
 GRAPH_start_direct   = $FF24
 GRAPH_set_pixel      = $FF27
@@ -213,10 +213,9 @@ tests:
 	sec
 	jsr scrmod
 
+	; horizontal line
 	lda #0
 	jsr GRAPH_set_colors
-
-	; horizontal line
 	LoadW r0, 1
 	LoadW r1, 2
 	LoadW r2, 318
@@ -224,10 +223,9 @@ tests:
 	lda #0 ; set
 	jsr GRAPH_draw_line
 
+	; horizontal line - reversed
 	lda #2
 	jsr GRAPH_set_colors
-
-	; horizontal line - reversed
 	LoadW r0, 318
 	LoadW r1, 4
 	LoadW r2, 1
@@ -235,10 +233,9 @@ tests:
 	lda #0 ; set
 	jsr GRAPH_draw_line
 
+	; vertical line
 	lda #3
 	jsr GRAPH_set_colors
-
-	; vertical line
 	LoadW r0, 1
 	LoadW r1, 6
 	LoadW r2, 1
@@ -246,10 +243,9 @@ tests:
 	lda #0 ; set
 	jsr GRAPH_draw_line
 
+	; vertical line - reversed
 	lda #4
 	jsr GRAPH_set_colors
-
-	; vertical line - reversed
 	LoadW r0, 3
 	LoadW r1, 198
 	LoadW r2, 3
@@ -257,4 +253,100 @@ tests:
 	lda #0 ; set
 	jsr GRAPH_draw_line
 
+	; Bresenham line TL->BR
+	lda #5
+	jsr GRAPH_set_colors
+	LoadW r0, 5
+	LoadW r1, 7
+	LoadW r2, 318
+	LoadW r3, 9
+	lda #0 ; set
+	jsr GRAPH_draw_line
+
+	; Bresenham line BL->TR
+	lda #6
+	jsr GRAPH_set_colors
+	LoadW r0, 5
+	LoadW r1, 13
+	LoadW r2, 318
+	LoadW r3, 11
+	lda #0 ; set
+	jsr GRAPH_draw_line
+
+	; Bresenham line BR->TL
+	lda #7
+	jsr GRAPH_set_colors
+	LoadW r0, 318
+	LoadW r1, 17
+	LoadW r2, 5
+	LoadW r3, 15
+	lda #0 ; set
+	jsr GRAPH_draw_line
+
+	; Bresenham line TR->BL
+	lda #8
+	jsr GRAPH_set_colors
+	LoadW r0, 318
+	LoadW r1, 19
+	LoadW r2, 5
+	LoadW r3, 21
+	lda #0 ; set
+	jsr GRAPH_draw_line
+
+	; set direct pixels
+	LoadW r0, 5
+	LoadW r1, 23
+	jsr GRAPH_start_direct
+	ldx #0
+:	phx
+	txa
+	jsr GRAPH_set_pixel
+	plx
+	inx
+	bne :-
+
+	; get direct pixels
+	LoadW r0, 5
+	LoadW r1, 23
+	jsr GRAPH_start_direct
+	LoadB r1H, 1; "OK"
+	ldx #0
+:	phx
+	jsr GRAPH_get_pixel
+@xxxxx:	plx
+	sta r0L
+	cpx r0L
+	beq @1
+	stz r1H ; "BAD"
+@1:	inx
+	bne :-
+
+	lda r1H
+	bne @2
+	LoadW 0, str_BAD
+	bra @3
+@2:	LoadW 0, str_OK
+@3:	lda #9
+	jsr GRAPH_set_colors
+	LoadW r0, 300
+	LoadW r1, 27
+	jsr print_string
 	rts
+
+
+print_string:
+	ldy #0
+:	lda (0),y
+	beq :+
+	phy
+	jsr GRAPH_put_char
+	ply
+	iny
+	bne :-
+:	rts
+
+
+str_OK:
+	.byte "OK", 0
+str_BAD:
+	.byte "BAD", 0

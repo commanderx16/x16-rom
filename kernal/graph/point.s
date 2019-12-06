@@ -34,13 +34,15 @@ GRAPH_draw_line:
 
 @0a:	plp
 	bmi @0             ; imprint/recover? slow path
+	php
 	CmpW r0, r2        ; vertical?
 	bne @0             ; no
-
+	plp
 	jmp VerticalLine
 
 ; Bresenham
-@0:	php
+@0:	plp
+	php
 	LoadB r7H, 0
 	lda r3L
 	sub r1L
@@ -169,11 +171,11 @@ GRAPH_draw_line:
 ;---------------------------------------------------------------
 ; DrawPoint
 ;
-; Pass:      N/C      0x: draw (dispBufferOn)
-;                     10: copy FG to BG (imprint)
-;                     11: copy BG to FG (recover)
-;            r0       x pos of point (0-319)
-;            r1L     y pos of point (0-199)
+; Pass:      N/C      0/x: draw (dispBufferOn)
+;                     1/0: copy FG to BG (imprint)
+;                     1/1: copy BG to FG (recover)
+;            r0       x pos of point
+;            r1L      y pos of point
 ; Return:    -
 ; Destroyed: a, x, y, r5
 ;---------------------------------------------------------------

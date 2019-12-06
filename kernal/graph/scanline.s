@@ -179,12 +179,10 @@ inc_bgpage:
 ;---------------------------------------------------------------
 GRAPH_get_pixel:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	jsr SetVRAMPtrFG
 	lda veradat
 	rts
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	jsr SetVRAMPtrBG
 	lda (ptr_bg)
 	inc ptr_bg
 	beq inc_bgpage
