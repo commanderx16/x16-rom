@@ -43,36 +43,24 @@ cscreen
 pset:	jsr get_point
 	jsr get_col
 	pha
-	sei
 	jsr GRAPH_start_direct
 	pla
-	jsr GRAPH_set_pixel
-	cli
-	rts
+	jmp GRAPH_set_pixel
 
 ;***************
 line	jsr get_points_col
 	lda #0 ; set
-	sei
-	jsr GRAPH_draw_line
-	cli
-	rts
+	jmp GRAPH_draw_line
 
 ;***************
 frame	jsr get_points_col
 	jsr normalize_rect
-	sei
-	jsr GRAPH_draw_frame
-	cli
-	rts
+	jmp GRAPH_draw_frame
 
 ;***************
 rect	jsr get_points_col
 	jsr normalize_rect
-	sei
-	jsr GRAPH_draw_rect
-	cli
-	rts
+	jmp GRAPH_draw_rect
 
 ;***************
 char	jsr get_point
@@ -96,10 +84,8 @@ char	jsr get_point
 	lda (facmo),y
 	sta r15H ; pointer hi
 
-	sei
 	lda #$92 ; Ctrl+0: clear attributes
 	jsr GRAPH_put_char
-	cli
 
 	ldy #0
 :	lda (r15),y
@@ -150,10 +136,7 @@ get_col:
 set_col:
 	ldx #15 ; secondary color:  light gray
 	ldy #1  ; background color: white
-	sei
-	jsr GRAPH_set_colors
-	cli
-	rts
+	jmp GRAPH_set_colors
 
 get_points_col:
 ; get x1,y1,x2,y2 into r0,r1,r2,r3
@@ -229,4 +212,49 @@ tests:
 	lda #$80
 	sec
 	jsr scrmod
+
+	lda #0
+	jsr GRAPH_set_colors
+
+	; horizontal line
+	LoadW r0, 1
+	LoadW r1, 2
+	LoadW r2, 318
+	LoadW r3, 2
+	lda #0 ; set
+	jsr GRAPH_draw_line
+
+	lda #2
+	jsr GRAPH_set_colors
+
+	; horizontal line - reversed
+	LoadW r0, 318
+	LoadW r1, 4
+	LoadW r2, 1
+	LoadW r3, 4
+	lda #0 ; set
+	jsr GRAPH_draw_line
+
+	lda #3
+	jsr GRAPH_set_colors
+
+	; vertical line
+	LoadW r0, 1
+	LoadW r1, 6
+	LoadW r2, 1
+	LoadW r3, 198
+	lda #0 ; set
+	jsr GRAPH_draw_line
+
+	lda #4
+	jsr GRAPH_set_colors
+
+	; vertical line - reversed
+	LoadW r0, 3
+	LoadW r1, 198
+	LoadW r2, 3
+	LoadW r3, 6
+	lda #0 ; set
+	jsr GRAPH_draw_line
+
 	rts

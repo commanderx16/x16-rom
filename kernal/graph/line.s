@@ -14,7 +14,6 @@
 ;            r1   y position
 ;            r2   x position of last pixel
 ;---------------------------------------------------------------
-; XXX TODO: right to left OK?
 HorizontalLine:
 	jsr GetLineStartAndWidth
 	lda col1
@@ -216,7 +215,15 @@ ImprintLine:
 ;            a    color
 ;---------------------------------------------------------------
 VerticalLine:
+	; make sure y2 >= y1
 	lda r3L
+	cmp r1L
+	bcs @0
+	ldx r1L
+	stx r3L
+	sta r1L
+
+@0:	lda r3L
 	sec
 	sbc r1L
 	tax
@@ -259,7 +266,23 @@ VerticalLine:
 
 
 GetLineStartAndWidth:
-	jsr SetVRAMPtrFG
+	; make sure x2 > x1
+	lda r2L
+	sec
+	sbc r0L
+	lda r2H
+	sbc r0H
+	bcs @2
+	lda r0L
+	ldx r2L
+	stx r0L
+	sta r2L
+	lda r0H
+	ldx r2H
+	stx r0H
+	sta r2H
+
+@2:	jsr SetVRAMPtrFG
 	jsr SetVRAMPtrBG
 
 	MoveW r2, r15
