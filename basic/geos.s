@@ -21,13 +21,9 @@ scrmod	=$FF5F
 
 ;***************
 geos
-.if 1
-	jmp tests
-.else
 	jsr bjsrfar
 	.word _ResetHandle
 	.byte BANK_GEOS
-.endif
 
 ;***************
 cscreen
@@ -180,7 +176,7 @@ GRAPH_set_font       = $FF3C
 GRAPH_get_char_size  = $FF3F
 GRAPH_put_char       = $FF42
 
-tests:
+test:
 	lda #$80
 	sec
 	jsr scrmod
@@ -784,6 +780,8 @@ print_string:
 	bcc @1
 	lda #10 ; LF
 	jsr GRAPH_put_char
+	ply
+	bra :-
 @1:
 	ply
 	iny
