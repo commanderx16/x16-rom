@@ -1,3 +1,6 @@
+; Commander X16 KERNAL
+;
+; Graphics library: color
 
 .export GRAPH_set_colors
 

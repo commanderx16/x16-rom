@@ -1,7 +1,6 @@
-; GEOS KERNAL by Berkeley Softworks
-; reverse engineered by Maciej Witkowiak, Michael Steil
+; Commander X16 KERNAL
 ;
-; Console I/O: PutChar syscall
+; Font library: control characters
 
 .import graph_clear
 

@@ -1,3 +1,6 @@
+; Commander X16 KERNAL
+;
+; Graphics library
 
 .include "../../mac.inc"
 .include "../../regs.inc"
@@ -15,7 +18,6 @@
 
 .include "color.s"
 .include "line.s"
-.include "math.s"
 .include "point.s"
 .include "rect.s"
 .include "scanline.s"

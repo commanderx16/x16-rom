@@ -1,15 +1,14 @@
-; GEOS KERNAL by Berkeley Softworks
-; reverse engineered by Maciej Witkowiak, Michael Steil
+; Commander X16 KERNAL
+; (Bresenham code from GEOS by Berkeley Softworks)
 ;
-; Graphics library: GetPoint, DrawPoint, DrawLine syscalls
+; Graphics library: GRAPH_draw_line syscall
 
 .export GRAPH_draw_line
-.export GRAPH_get_pixel
 
 .segment "GRAPH"
 
 ;---------------------------------------------------------------
-; DrawLine
+; GRAPH_draw_line
 ;
 ; Pass:      r0       x1
 ;            r1       y2
@@ -58,7 +57,7 @@ GRAPH_draw_line:
 	sbc r0H
 	sta r12H
 	ldx #r12
-	jsr k_Dabs
+	jsr abs
 	CmpW r12, r7
 	bcs @2
 	jmp @9
@@ -103,7 +102,7 @@ GRAPH_draw_line:
 @5:	lda col1
 	plp
 	php
-	jsr DrawPoint
+	jsr draw_point
 	CmpW r0, r2
 	bcs @8
 	inc r0L
@@ -155,7 +154,7 @@ GRAPH_draw_line:
 @C:	lda col1
 	plp
 	php
-	jsr DrawPoint
+	jsr draw_point
 	CmpB r1L, r3L
 	bcs @E
 	inc r1L
@@ -168,8 +167,24 @@ GRAPH_draw_line:
 @E:	plp
 	rts
 
+; calc abs of word in zp at location .x
+abs:
+	lda 1,x
+	bmi @0
+	rts
+@0:	lda 1,x
+	eor #$FF
+	sta 1,x
+	lda 0,x
+	eor #$FF
+	sta 0,x
+	inc 0,x
+	bne @1
+	inc 1,x
+@1:	rts
+
 ;---------------------------------------------------------------
-; DrawPoint
+; draw_point
 ;
 ; Pass:      N/C      0/x: draw (dispBufferOn)
 ;                     1/0: copy FG to BG (imprint)
@@ -179,7 +194,7 @@ GRAPH_draw_line:
 ; Return:    -
 ; Destroyed: a, x, y, r5
 ;---------------------------------------------------------------
-DrawPoint:
+draw_point:
 	bmi @3
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 

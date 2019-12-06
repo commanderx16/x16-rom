@@ -1,7 +1,6 @@
-; GEOS KERNAL by Berkeley Softworks
-; reverse engineered by Maciej Witkowiak, Michael Steil
+; Commander X16 KERNAL
 ;
-; Graphics library: line functions
+; Graphics library: line drawing fastpaths
 
 .setcpu "65c02"
 

@@ -1,5 +1,4 @@
-; GEOS KERNAL by Berkeley Softworks
-; reverse engineered by Maciej Witkowiak, Michael Steil
+; Commander X16 KERNAL
 ;
 ; Graphics library: rectangles
 

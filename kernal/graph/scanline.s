@@ -1,13 +1,16 @@
+; Commander X16 KERNAL
+;
+; Graphics library: misc
+
 .export graph_init
 .export graph_clear
-
 .export GRAPH_start_direct
-
 .export GRAPH_set_pixel
+.export GRAPH_get_pixel
 .export GRAPH_filter_pixels
 .export GRAPH_set_window
 
-.export SetVRAMPtrFG, SetVRAMPtrBG
+.export SetVRAMPtrFG, SetVRAMPtrBG ; [font]
 
 .segment "GRAPH"
 
@@ -27,6 +30,14 @@ graph_clear:
 	PopB col1
 	rts
 
+;---------------------------------------------------------------
+; GRAPH_set_window
+;
+; Pass:      r0     x1
+;            r1     y1
+;            r2     x2
+;            r3     y2
+;---------------------------------------------------------------
 GRAPH_set_window:
 	MoveW r0, leftMargin
 	MoveB r1L, windowTop

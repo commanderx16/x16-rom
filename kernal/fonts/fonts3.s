@@ -1,7 +1,7 @@
-; GEOS KERNAL by Berkeley Softworks
-; reverse engineered by Maciej Witkowiak, Michael Steil
+; Commander X16 KERNAL
+; based on GEOS by Berkeley Softworks; reversed by Maciej Witkowiak, Michael Steil
 ;
-; Font drawing: Bit shifting
+; Font library: bit shifting
 
 base:
 

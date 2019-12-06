@@ -1,7 +1,8 @@
-; GEOS KERNAL by Berkeley Softworks
-; reverse engineered by Maciej Witkowiak, Michael Steil
+; Commander X16 KERNAL
 ;
-; System font
+; Font library: system font
+
+; This font is based on Geneva by Susan Kare.
 
 SystemFont:
 .byte $06,$3e,$00,$09,$08,$00,$cc,$00,$00,$00,$03,$00,$05,$00,$09,$00

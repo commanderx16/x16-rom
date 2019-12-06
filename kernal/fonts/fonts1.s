@@ -1,7 +1,7 @@
-; GEOS KERNAL by Berkeley Softworks
-; reverse engineered by Maciej Witkowiak, Michael Steil
+; Commander X16 KERNAL
+; based on GEOS by Berkeley Softworks; reversed by Maciej Witkowiak, Michael Steil
 ;
-; Font drawing: lookup table
+; Font library: lookup table
 
 FontTab:
 	.byte $00,$01,$03,$03,$06,$07,$07,$07,$0c,$0d,$0f,$0f,$0e,$0f,$0f,$0f

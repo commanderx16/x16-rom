@@ -1,3 +1,7 @@
+; Commander X16 KERNAL
+;
+; Font library
+
 .setcpu "65c02"
 
 .include "../../regs.inc"
@@ -42,7 +46,6 @@ FontTVar4:	.res 1
 .include "fonts2.s"
 .include "fonts3.s"
 .include "fonts4.s"
-.include "fonts4a.s"
 .include "fonts4b.s"
 .include "conio1.s"
 .include "conio3b.s"
