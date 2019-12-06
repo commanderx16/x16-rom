@@ -218,6 +218,7 @@ tests:
 	jsr test3_bresenham
 	jsr test4_set_get_pixels
 	jsr test5_filter_pixels
+	jsr test6_frame
 	rts
 	
 test1_hline:
@@ -340,8 +341,8 @@ test4_set_get_pixels:
 @2:	LoadW 0, str_OK
 @3:	lda #9
 	jsr GRAPH_set_colors
-	LoadW r0, 300
-	LoadW r1, 27
+	LoadW r0, 263
+	LoadW r1, 22
 	jmp print_string
 
 test5_filter_pixels:
@@ -393,9 +394,48 @@ test5_filter_pixels:
 @2a:	LoadW 0, str_OK
 @3a:	lda #10
 	jsr GRAPH_set_colors
-	LoadW r0, 300
-	LoadW r1, 37
+	LoadW r0, 263
+	LoadW r1, 32
 	jmp print_string
+
+test6_frame:
+	; rectangle frame TL->BR
+	lda #11
+	jsr GRAPH_set_colors
+	LoadW r0, 5
+	LoadW r1, 27
+	LoadW r2, 10
+	LoadW r3, 32
+	jsr GRAPH_draw_frame
+
+	; rectangle frame BL->TR
+	lda #12
+	jsr GRAPH_set_colors
+	LoadW r0, 12
+	LoadW r1, 32
+	LoadW r2, 17
+	LoadW r3, 27
+	jsr GRAPH_draw_frame
+
+	; rectangle frame BR->TL
+	lda #13
+	jsr GRAPH_set_colors
+	LoadW r0, 24
+	LoadW r1, 32
+	LoadW r2, 19
+	LoadW r3, 27
+	jsr GRAPH_draw_frame
+
+	; rectangle frame TR->BL
+	lda #14
+	jsr GRAPH_set_colors
+	LoadW r0, 31
+	LoadW r1, 27
+	LoadW r2, 26
+	LoadW r3, 32
+	jmp GRAPH_draw_frame
+
+
 
 print_string:
 	ldy #0
@@ -407,7 +447,6 @@ print_string:
 	iny
 	bne :-
 :	rts
-
 
 str_OK:
 	.byte "OK", 0
