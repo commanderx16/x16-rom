@@ -15,6 +15,15 @@
 ; from GEOS
 .import _ResetHandle, GRAPH_set_colors
 
+x1L	=r0L
+x1H	=r0H
+y1L	=r1L
+y1H	=r1H
+x2L	=r2L
+x2H	=r2H
+y2L	=r3L
+y2H	=r3H
+
 ;***************
 geos	jsr bjsrfar
 	.word _ResetHandle
@@ -34,12 +43,9 @@ cscreen
 
 ;***************
 pset:	jsr get_point
-	sta r11L
 	jsr get_col
 	pha
 	sei
-	MoveW r3, r0
-	MoveB r11L, r1L
 	jsr bjsrfar
 	.word GRAPH_start_direct
 	.byte BANK_KERNAL
@@ -52,8 +58,6 @@ pset:	jsr get_point
 
 ;***************
 line	jsr get_points_col
-	stx r11L
-	sty r11H
 	lda #0 ; set
 	sei
 	jsr bjsrfar
@@ -63,12 +67,8 @@ line	jsr get_points_col
 	rts
 
 ;***************
-frame	jsr get_points
-	stx r2L
-	sty r2H
+frame	jsr get_points_col
 	jsr normalize_rect
-	jsr get_col
-	jsr set_col ; needed to hint non-compat mode
 	sei
 	jsr bjsrfar
 	.word GRAPH_draw_frame
@@ -78,8 +78,6 @@ frame	jsr get_points
 
 ;***************
 rect	jsr get_points_col
-	stx r2L
-	sty r2H
 	jsr normalize_rect
 	sei
 	jsr bjsrfar
@@ -90,8 +88,6 @@ rect	jsr get_points_col
 
 ;***************
 char	jsr get_point
-	sta r1H
-	MoveW r3, r11
 
 	jsr chkcom
 	jsr getbyt
@@ -137,16 +133,23 @@ linfc	jmp fcerr
 get_point:
 	jsr frmadr
 	lda poker
-	sta r3L
+	sta x1L
 	sec
 	sbc #<320
 	lda poker+1
-	sta r3H
+	sta x1H
 	sbc #>320
 	bcs linfc
 	jsr chkcom
 	jsr frmadr
 	lda poker
+	sta y1L
+	sec
+	sbc #<200
+	lda poker+1
+	sta y1H
+	sbc #>200
+	bcs linfc
 	rts
 
 get_col:
@@ -170,70 +173,56 @@ set_col:
 	cli
 	rts
 
-get_points:
+get_points_col:
+; get x1,y1,x2,y2 into r0,r1,r2,r3
 	jsr get_point
-	pha
-	sec
-	sbc #<200
-	lda poker+1
-	sbc #>200
-	bcs linfc
 	jsr chkcom
 	jsr frmadr
 	lda poker
-	sta r4L
+	sta x2L
 	sec
 	sbc #<320
 	lda poker+1
-	sta r4H
+	sta x2H
 	sbc #>320
 	bcs linfc
 	jsr chkcom
 	jsr frmadr
 	lda poker
-	pha
+	sta y2L
 	sec
 	sbc #<200
 	lda poker+1
+	sta y2H
 	sbc #>200
 	bcs linfc
-	ply
-	plx
-	rts
 
-get_points_col:
-	jsr get_points
-	phx
-	phy
 	jsr get_col
-	jsr set_col
-	ply
-	plx
-	rts
+	jmp set_col
 
 @2	jmp snerr
 
 normalize_rect:
 ; make sure y2 >= y1
-	lda r2H
-	cmp r2L
+	lda y2L
+	cmp y1L
 	bcs @1
-	ldx r2L
-	stx r2H
-	sta r2L
+	ldx y1L
+	stx y2L
+	sta y1L
 ; make sure x2 >= x1
-@1:	lda r4L
+@1:	lda x2L
 	sec
-	sbc r3L
-	lda r4H
-	sbc r3H
+	sbc x1L
+	lda x2H
+	sbc x1H
 	bcs @2
-	lda r3L
-	ldx r4L
-	stx r3L
-	sta r4L
-	lda r3H
-	ldx r4H
-	stx r3H
-	sta r4H
+	lda x1L
+	ldx x2L
+	stx x1L
+	sta x2L
+	lda x1H
+	ldx x2H
+	stx x1H
+	sta x2H
 @2:	rts

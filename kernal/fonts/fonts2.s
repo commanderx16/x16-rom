@@ -674,10 +674,6 @@ Font_9:
 	rts
 
 
-
-	subv $20
-; fallthrough
-
 ; central character printing, called from conio.s
 ; character - 32 in A
 FontPutChar:

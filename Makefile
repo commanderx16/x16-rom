@@ -116,7 +116,7 @@ GEOS_SOURCES= \
 	geos/kernal/files/files9.s \
 	geos/kernal/graph/bitmapclip.s \
 	geos/kernal/graph/bitmapup.s \
-	geos/kernal/graph/scanline.s \
+	geos/kernal/graph/graph_bridge.s \
 	geos/kernal/ramexp/ramexp1.s \
 	geos/kernal/ramexp/ramexp2.s \
 	geos/kernal/rename.s \

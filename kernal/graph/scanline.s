@@ -17,10 +17,10 @@ graph_init:
 graph_clear:
 	PushB col1
 	MoveB col_bg, col1
-	LoadW r3, 0
-	LoadW r4, SC_PIX_WIDTH-1
-	LoadB r2L, 0
-	LoadB r2H, SC_PIX_HEIGHT-1
+	LoadW r0, 0
+	LoadB r1L, 0
+	LoadW r2, SC_PIX_WIDTH-1
+	LoadB r3L, SC_PIX_HEIGHT-1
 	lda #0
 	jsr GRAPH_draw_rect
 	PopB col1
