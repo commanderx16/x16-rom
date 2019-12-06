@@ -54,12 +54,10 @@ line	jsr get_points_col
 
 ;***************
 frame	jsr get_points_col
-	jsr normalize_rect
 	jmp GRAPH_draw_frame
 
 ;***************
 rect	jsr get_points_col
-	jsr normalize_rect
 	jmp GRAPH_draw_rect
 
 ;***************
@@ -167,32 +165,6 @@ get_points_col:
 
 @2	jmp snerr
 
-normalize_rect:
-; make sure y2 >= y1
-	lda y2L
-	cmp y1L
-	bcs @1
-	ldx y1L
-	stx y2L
-	sta y1L
-; make sure x2 >= x1
-@1:	lda x2L
-	sec
-	sbc x1L
-	lda x2H
-	sbc x1H
-	bcs @2
-	lda x1L
-	ldx x2L
-	stx x1L
-	sta x2L
-	lda x1H
-	ldx x2H
-	stx x1H
-	sta x2H
-@2:	rts
-
-
 GRAPH_set_window     = $FF1B ; TODO
 GRAPH_set_options    = $FF1E ; TODO
 GRAPH_set_colors     = $FF21
@@ -220,6 +192,8 @@ tests:
 	jsr test5_filter_pixels
 	jsr test6_frame
 	jsr test7_rect
+	jsr test8_varlen_hline
+	jsr test9_varlen_vline
 	rts
 	
 test1_hline:
@@ -473,6 +447,55 @@ test7_rect:
 	LoadW r3, 39
 	jmp GRAPH_draw_rect
 
+test9_varlen_vline:
+	lda #0
+	jsr GRAPH_set_colors
+	LoadW r0, 5
+	LoadW r1, 71
+	LoadW r2, 5
+	LoadW r3, 71
+:	lda #0 ; set
+@xxxxx	jsr GRAPH_draw_line
+	IncW r0 ; x++
+	IncW r2 ; x++
+	lda r3L
+	clc
+	adc #11
+	sta r3L
+	lda r3H
+	adc #0
+	sta r3H
+	cmp #>198
+	bcc :-
+	lda r3L
+	cmp #<198
+	bcc :-
+	rts
+
+test8_varlen_hline:
+	lda #15
+	jsr GRAPH_set_colors
+	LoadW r0, 5
+	LoadW r1, 41
+	LoadW r2, 5
+	LoadW r3, 41
+:	lda #0 ; set
+@xxxxx	jsr GRAPH_draw_line
+	IncW r1 ; y++
+	IncW r3 ; y++
+	lda r2L
+	clc
+	adc #11
+	sta r2L
+	lda r2H
+	adc #0
+	sta r2H
+	cmp #>318
+	bcc :-
+	lda r2L
+	cmp #<318
+	bcc :-
+	rts
 
 
 print_string:
