@@ -194,8 +194,9 @@ tests:
 	jsr test7_rect
 	jsr test8_varlen_hline
 	jsr test9_varlen_vline
-	jsr test10_put_char
-	jsr test11_char_size
+;	jsr test10_put_char
+;	jsr test11_char_size
+	jsr test12_char_styles
 	rts
 	
 test1_hline:
@@ -599,12 +600,69 @@ test11_char_size:
 	jmp :-
 :	rts
 
+test12_char_styles:
+	lda #0
+	ldx #4
+	jsr GRAPH_set_colors
+
+	LoadW r0, 20
+	LoadW r1, 75
+	LoadW r2, 315
+	LoadW r3, 150
+	jsr GRAPH_set_window
+	jsr GRAPH_draw_frame
+
+	AddVW 7, r1 ; add baseline
+
+	ldy #0
+	
+@loop:	phy
+	lda #$92 ; attributes off
+	jsr GRAPH_put_char
+	ply
+	phy
+	tya
+	ldx #0
+@2:	lsr
+	bcc @1
+	pha
+	lda style_codes,x
+	phx
+	jsr GRAPH_put_char
+	plx
+	pla
+@1:	inx
+	cpx #5
+	bne @2
+	LoadW 0, test_string
+	jsr print_string
+	ply
+	iny
+	cpy #32
+	bne @loop
+	rts
+	
+test_string:
+	.byte "abcABC123", 0
+	
+style_codes:
+	.byte $04 ; underline
+	.byte $06 ; bold
+	.byte $0b ; italics
+	.byte $0c ; outline
+	.byte $12 ; reverse
+		
 print_string:
 	ldy #0
 :	lda (0),y
 	beq :+
 	phy
 	jsr GRAPH_put_char
+
+	bcc @1
+	lda #10 ; LF
+	jsr GRAPH_put_char
+@1:
 	ply
 	iny
 	bne :-
