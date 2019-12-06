@@ -21,6 +21,16 @@
 ; Return:    draws the rectangle
 ;---------------------------------------------------------------
 GRAPH_draw_rect:
+	php
+	; make sure y2 >= y1
+	lda r3L
+	cmp r1L
+	bcs @a
+	ldx r1L
+	stx r3L
+	sta r1L
+@a:	plp
+
 	bpl @0
 	bcc ImprintRectangle
 	bra RecoverRectangle

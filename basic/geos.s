@@ -219,6 +219,7 @@ tests:
 	jsr test4_set_get_pixels
 	jsr test5_filter_pixels
 	jsr test6_frame
+	jsr test7_rect
 	rts
 	
 test1_hline:
@@ -399,7 +400,7 @@ test5_filter_pixels:
 	jmp print_string
 
 test6_frame:
-	; rectangle frame TL->BR
+	; frame frame TL->BR
 	lda #11
 	jsr GRAPH_set_colors
 	LoadW r0, 5
@@ -408,7 +409,7 @@ test6_frame:
 	LoadW r3, 32
 	jsr GRAPH_draw_frame
 
-	; rectangle frame BL->TR
+	; frame frame BL->TR
 	lda #12
 	jsr GRAPH_set_colors
 	LoadW r0, 12
@@ -417,7 +418,7 @@ test6_frame:
 	LoadW r3, 27
 	jsr GRAPH_draw_frame
 
-	; rectangle frame BR->TL
+	; frame frame BR->TL
 	lda #13
 	jsr GRAPH_set_colors
 	LoadW r0, 24
@@ -426,7 +427,7 @@ test6_frame:
 	LoadW r3, 27
 	jsr GRAPH_draw_frame
 
-	; rectangle frame TR->BL
+	; frame frame TR->BL
 	lda #14
 	jsr GRAPH_set_colors
 	LoadW r0, 31
@@ -434,6 +435,43 @@ test6_frame:
 	LoadW r2, 26
 	LoadW r3, 32
 	jmp GRAPH_draw_frame
+
+test7_rect:
+	; rectangle frame TL->BR
+	lda #11
+	jsr GRAPH_set_colors
+	LoadW r0, 5
+	LoadW r1, 34
+	LoadW r2, 10
+	LoadW r3, 39
+	jsr GRAPH_draw_rect
+
+	; rectangle frame BL->TR
+	lda #12
+	jsr GRAPH_set_colors
+	LoadW r0, 12
+	LoadW r1, 39
+	LoadW r2, 17
+	LoadW r3, 34
+	jsr GRAPH_draw_rect
+
+	; rectangle frame BR->TL
+	lda #13
+	jsr GRAPH_set_colors
+	LoadW r0, 24
+	LoadW r1, 39
+	LoadW r2, 19
+	LoadW r3, 34
+	jsr GRAPH_draw_rect
+
+	; rectangle frame TR->BL
+	lda #14
+	jsr GRAPH_set_colors
+	LoadW r0, 31
+	LoadW r1, 34
+	LoadW r2, 26
+	LoadW r3, 39
+	jmp GRAPH_draw_rect
 
 
 
