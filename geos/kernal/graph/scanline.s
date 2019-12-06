@@ -68,7 +68,21 @@ _GetScanLine:
 ;---------------------------------------------------------------
 _DrawLine:
 	php
+	plx
 	MoveB dispBufferOn, k_dispBufferOn
+
+	PushW r0
+	PushW r1
+	PushW r2
+	PushW r3
+	MoveW r3, r0
+	MoveB r11L, r1L
+	stz r1H
+	MoveB r11H, r3L
+	stz r3H
+	MoveW r4, r2
+
+	phx
 	plp
 	bmi @3 ; recover
 ; draw
@@ -78,10 +92,16 @@ _DrawLine:
 	sta col1
 	bra @2 ; N=0 -> draw
 @3:	sec ; N=1, C=1 -> recover
-@2:	php
+@2:
+	php
 	sei
 	jsrfar GRAPH_draw_line
 	plp
+
+	PopW r3
+	PopW r2
+	PopW r1
+	PopW r0
 	rts
 
 
@@ -322,19 +342,28 @@ _TestPoint:
 ;---------------------------------------------------------------
 _HorizontalLine:
 	jsr Convert8BitPattern
-	PushW r3
-	PushW r4
-	PushW r11
-	MoveB r11L, r11H
 	MoveB dispBufferOn, k_dispBufferOn
+	PushW r0
+	PushW r1
+	PushW r2
+	PushW r3
+	MoveW r3, r0
+	MoveB r11L, r1L
+	stz r1H
+	MoveW r4, r2
+	MoveB r11L, r3L
+	stz r3H
+
 	php
 	sei
 	lda #0 ; N=0 -> draw
 	jsrfar GRAPH_draw_line
 	plp
-	PopW r11
-	PopW r4
+
 	PopW r3
+	PopW r2
+	PopW r1
+	PopW r0
 	rts
 
 ;---------------------------------------------------------------
@@ -386,10 +415,16 @@ _InvertLine:
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
 _RecoverLine:
+	PushW r0
+	PushW r1
+	PushW r2
 	PushW r3
-	PushW r4
-	PushW r11
-	MoveB r11L, r11H
+	MoveW r3, r0
+	MoveB r11L, r1L
+	stz r1H
+	MoveW r4, r2
+	MoveB r11L, r3L
+	stz r3H
 
 	php
 	sei
@@ -398,9 +433,10 @@ _RecoverLine:
 	jsrfar GRAPH_draw_line
 	plp
 
-	PopW r11
-	PopW r4
 	PopW r3
+	PopW r2
+	PopW r1
+	PopW r0
 	rts
 
 ;---------------------------------------------------------------
@@ -415,11 +451,18 @@ _RecoverLine:
 ;---------------------------------------------------------------
 _VerticalLine:
 	jsr Convert8BitPattern
-	PushW r3
-	MoveW r3, r11
-	MoveW r4, r3
-
 	MoveB dispBufferOn, k_dispBufferOn
+	PushW r0
+	PushW r1
+	PushW r2
+	PushW r3
+	MoveW r4, r0
+	MoveB r3L, r1L
+	stz r1H
+	MoveW r4, r2
+	MoveB r3H, r3L
+	stz r3H
+
 	php
 	sei
 	lda #0 ; N=0 -> draw
@@ -427,6 +470,9 @@ _VerticalLine:
 	plp
 
 	PopW r3
+	PopW r2
+	PopW r1
+	PopW r0
 	rts
 
 _GRAPH_start_direct:

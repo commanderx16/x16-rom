@@ -11,33 +11,15 @@
 ;---------------------------------------------------------------
 ; DrawLine
 ;
-; Pass:      N/C      0x: draw (dispBufferOn)
-;                     10: copy FG to BG (imprint)
-;                     11: copy BG to FG (recover)
-;            r0       x pos of 1st point (0-319)
-;            r1L      y pos of 1st point (0-199)
-;            r2       x pos of 2nd point (0-319)
-;            r3L      y pos of 2nd point (0-199)
-; Return:    -
-; Destroyed: a, x, y, r4 - r8, r11
+; Pass:      r0       x1
+;            r1       y2
+;            r2       x1
+;            r3       y2
+;            N/C      0/x: draw (dispBufferOn)
+;                     1/0: copy FG to BG (imprint)
+;                     1/1: copy BG to FG (recover)
 ;---------------------------------------------------------------
 GRAPH_draw_line:
-	PushW r0
-	PushW r1
-	PushW r2
-	PushW r3
-	MoveW r3, r0
-	MoveB r11L, r1L
-	MoveW r4, r2
-	MoveB r11H, r3L
-	jsr GRAPH_draw_line_NEW
-	PopW r3
-	PopW r2
-	PopW r1
-	PopW r0
-	rts
-
-GRAPH_draw_line_NEW:
 	php
 	CmpB r1L, r3L      ; horizontal?
 	bne @0a            ; no
