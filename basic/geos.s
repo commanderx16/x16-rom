@@ -213,6 +213,14 @@ tests:
 	sec
 	jsr scrmod
 
+	jsr test1_hline
+	jsr test2_vline
+	jsr test3_bresenham
+	jsr test4_set_get_pixels
+	jsr test5_filter_pixels
+	rts
+	
+test1_hline:
 	; horizontal line
 	lda #0
 	jsr GRAPH_set_colors
@@ -233,6 +241,7 @@ tests:
 	lda #0 ; set
 	jsr GRAPH_draw_line
 
+test2_vline:
 	; vertical line
 	lda #3
 	jsr GRAPH_set_colors
@@ -251,14 +260,15 @@ tests:
 	LoadW r2, 3
 	LoadW r3, 6
 	lda #0 ; set
-	jsr GRAPH_draw_line
+	jmp GRAPH_draw_line
 
+test3_bresenham:
 	; Bresenham line TL->BR
 	lda #5
 	jsr GRAPH_set_colors
 	LoadW r0, 5
 	LoadW r1, 7
-	LoadW r2, 318
+	LoadW r2, 10
 	LoadW r3, 9
 	lda #0 ; set
 	jsr GRAPH_draw_line
@@ -268,7 +278,7 @@ tests:
 	jsr GRAPH_set_colors
 	LoadW r0, 5
 	LoadW r1, 13
-	LoadW r2, 318
+	LoadW r2, 10
 	LoadW r3, 11
 	lda #0 ; set
 	jsr GRAPH_draw_line
@@ -276,7 +286,7 @@ tests:
 	; Bresenham line BR->TL
 	lda #7
 	jsr GRAPH_set_colors
-	LoadW r0, 318
+	LoadW r0, 10
 	LoadW r1, 17
 	LoadW r2, 5
 	LoadW r3, 15
@@ -286,13 +296,14 @@ tests:
 	; Bresenham line TR->BL
 	lda #8
 	jsr GRAPH_set_colors
-	LoadW r0, 318
+	LoadW r0, 10
 	LoadW r1, 19
 	LoadW r2, 5
 	LoadW r3, 21
 	lda #0 ; set
 	jsr GRAPH_draw_line
 
+test4_set_get_pixels:
 	; set direct pixels
 	LoadW r0, 5
 	LoadW r1, 23
@@ -313,7 +324,7 @@ tests:
 	ldx #0
 :	phx
 	jsr GRAPH_get_pixel
-@xxxxx:	plx
+	plx
 	sta r0L
 	cpx r0L
 	beq @1
@@ -321,6 +332,7 @@ tests:
 @1:	inx
 	bne :-
 
+	; print result of comparison
 	lda r1H
 	bne @2
 	LoadW 0, str_BAD
@@ -330,9 +342,60 @@ tests:
 	jsr GRAPH_set_colors
 	LoadW r0, 300
 	LoadW r1, 27
-	jsr print_string
-	rts
+	jmp print_string
 
+test5_filter_pixels:
+	; set direct pixels
+	LoadW r0, 5
+	LoadW r1, 25
+	jsr GRAPH_start_direct
+	ldx #0
+:	phx
+	txa
+	jsr GRAPH_set_pixel
+	plx
+	inx
+	bne :-
+
+	; filter pixels
+	LoadW r0, 5
+	LoadW r1, 25
+	jsr GRAPH_start_direct
+	LoadW $70, $49 ; EOR #
+	LoadW $71, $55 ;      $55
+	LoadW $72, $60 ; RTS
+	LoadW r0, 256
+	LoadW r1, $70
+	jsr GRAPH_filter_pixels
+
+	; check filter result using direct read
+	LoadW r0, 5
+	LoadW r1, 25
+	jsr GRAPH_start_direct
+	LoadB r1H, 1; "OK"
+	ldx #0
+:	phx
+	jsr GRAPH_get_pixel
+	plx
+	eor #$55
+	sta r0L
+	cpx r0L
+	beq @4
+	stz r1H ; "BAD"
+@4:	inx
+	bne :-
+
+	; print result of comparison
+	lda r1H
+	bne @2a
+	LoadW 0, str_BAD
+	bra @3a
+@2a:	LoadW 0, str_OK
+@3a:	lda #10
+	jsr GRAPH_set_colors
+	LoadW r0, 300
+	LoadW r1, 37
+	jmp print_string
 
 print_string:
 	ldy #0
