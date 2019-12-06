@@ -6,7 +6,7 @@
 .import joystick_scan, joystick_get; [joystick]
 .import clock_update, clock_get_timer, clock_set_timer, clock_get_time_date, clock_set_time_date; [time]
 
-.import GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_draw_line, GRAPH_filter_pixels, GRAPH_get_pixel, GRAPH_set_pixel, GRAPH_start_direct
+.import GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_draw_line, GRAPH_filter_pixels, GRAPH_get_pixel, GRAPH_set_pixel, GRAPH_start_direct
 
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***
@@ -34,7 +34,7 @@
 
 
 ; $FF1B: GRAPH_set_window [TODO]
-	jmp $ffff;GRAPH_set_window
+	jmp GRAPH_set_window
 ; $FF1E: GRAPH_set_options [TODO]
 	jmp $ffff;GRAPH_set_options
 ; $FF21: GRAPH_set_colors

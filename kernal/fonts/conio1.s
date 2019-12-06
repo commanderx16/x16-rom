@@ -29,9 +29,10 @@ GRAPH_put_char:
 	MoveB r1L, r1H
 	txa
 	jsr put_char
-	; copy updated x position
+	; copy updated position
 	MoveW r11, r0
-	
+	MoveB r1H, r1L
+
 	PopB r1H
 	PopW r11
 	rts

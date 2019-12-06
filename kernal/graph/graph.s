@@ -9,6 +9,8 @@
 .import col1, col2, col_bg, k_dispBufferOn; [declare]
 .importzp ptr_fg, ptr_bg
 
+.import leftMargin, windowTop, rightMargin, windowBottom
+
 .segment "GRAPH"
 
 .include "color.s"

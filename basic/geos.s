@@ -194,6 +194,8 @@ tests:
 	jsr test7_rect
 	jsr test8_varlen_hline
 	jsr test9_varlen_vline
+	jsr test10_put_char
+	jsr test11_char_size
 	rts
 	
 test1_hline:
@@ -447,31 +449,6 @@ test7_rect:
 	LoadW r3, 39
 	jmp GRAPH_draw_rect
 
-test9_varlen_vline:
-	lda #0
-	jsr GRAPH_set_colors
-	LoadW r0, 5
-	LoadW r1, 71
-	LoadW r2, 5
-	LoadW r3, 71
-:	lda #0 ; set
-@xxxxx	jsr GRAPH_draw_line
-	IncW r0 ; x++
-	IncW r2 ; x++
-	lda r3L
-	clc
-	adc #11
-	sta r3L
-	lda r3H
-	adc #0
-	sta r3H
-	cmp #>198
-	bcc :-
-	lda r3L
-	cmp #<198
-	bcc :-
-	rts
-
 test8_varlen_hline:
 	lda #15
 	jsr GRAPH_set_colors
@@ -480,7 +457,7 @@ test8_varlen_hline:
 	LoadW r2, 5
 	LoadW r3, 41
 :	lda #0 ; set
-@xxxxx	jsr GRAPH_draw_line
+	jsr GRAPH_draw_line
 	IncW r1 ; y++
 	IncW r3 ; y++
 	lda r2L
@@ -497,6 +474,130 @@ test8_varlen_hline:
 	bcc :-
 	rts
 
+test9_varlen_vline:
+	lda #0
+	jsr GRAPH_set_colors
+	LoadW r0, 5
+	LoadW r1, 71
+	LoadW r2, 5
+	LoadW r3, 71
+:	lda #0 ; set
+	jsr GRAPH_draw_line
+	IncW r0 ; x++
+	IncW r2 ; x++
+	lda r3L
+	clc
+	adc #11
+	sta r3L
+	lda r3H
+	adc #0
+	sta r3H
+	cmp #>198
+	bcc :-
+	lda r3L
+	cmp #<198
+	bcc :-
+	rts
+	
+test10_put_char:
+	lda #2
+	jsr GRAPH_set_colors
+
+	LoadW r0, 25
+	LoadW r1, 80
+	LoadW r2, 280
+	LoadW r3, 95
+	jsr GRAPH_set_window
+	jsr GRAPH_draw_frame
+
+	AddVW 5, r1 ; add baseline -2
+	
+	lda #$20
+:	jsr GRAPH_set_colors
+	pha
+	jsr GRAPH_put_char
+	pla
+	bcc @1
+	pha
+	lda #10 ; LF
+	jsr GRAPH_put_char
+	pla
+	dec
+@1:	inc
+	cmp #$7f
+	bne :-
+	rts
+
+test11_char_size:
+	LoadW r0, 25
+	LoadW r1, 100
+	LoadW r2, 280
+	LoadW r3, 120
+	jsr GRAPH_set_window
+	jsr GRAPH_draw_frame
+
+	AddVW 7, r1 ; add baseline
+
+	lda #$20
+:	jsr GRAPH_set_colors
+
+	; draw bounding box
+	pha
+	tax
+	PushW r0
+	PushW r1
+	txa
+	ldx #0; mode
+	jsr GRAPH_get_char_size
+	sta 0 ; baseline
+	PopW r1
+	PopW r0
+
+	PushW r1
+	MoveW r0, r2
+	lda r1L
+	sec
+	sbc 0; baseline
+	sta r1L
+	lda r1H
+	sbc #0
+	sta r1H
+	MoveW r1, r3
+	txa
+	clc
+	adc r2L
+	sta r2L
+	lda r2H
+	adc #0
+	sta r2H
+	tya
+	clc
+	adc r3L
+	sta r3L
+	lda r3H
+	adc #0
+	sta r3H
+	jsr GRAPH_draw_rect
+	PopW r1
+
+	lda #0
+	jsr GRAPH_set_colors
+
+	pla
+	pha
+	jsr GRAPH_put_char
+	pla
+	bcc @1
+	pha
+	lda #10 ; LF
+	jsr GRAPH_put_char
+	pla
+	dec
+@1:	inc
+	cmp #$7f
+	beq :+
+	jmp :-
+:	rts
 
 print_string:
 	ldy #0

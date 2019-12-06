@@ -4,7 +4,8 @@
 .export GRAPH_start_direct
 
 .export GRAPH_set_pixel
-.global GRAPH_filter_pixels
+.export GRAPH_filter_pixels
+.export GRAPH_set_window
 
 .export SetVRAMPtrFG, SetVRAMPtrBG
 
@@ -26,6 +27,13 @@ graph_clear:
 	PopB col1
 	rts
 
+GRAPH_set_window:
+	MoveW r0, leftMargin
+	MoveB r1L, windowTop
+	MoveW r2, rightMargin
+	MoveB r3L, windowBottom
+	rts
+	
 ;---------------------------------------------------------------
 ; GRAPH_start_direct
 ;
