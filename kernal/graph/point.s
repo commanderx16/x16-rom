@@ -25,12 +25,12 @@ GRAPH_draw_line:
 	bne @0a            ; no
 	bmi @0b            ; imprint/recover?
 	plp
-	jmp HorizontalLine_NEW
+	jmp HorizontalLine
 @0b:	plp
 	bcc @c             ; imprint
-	jmp RecoverLine_NEW
+	jmp RecoverLine
 @c:
-	jmp ImprintLine_NEW
+	jmp ImprintLine
 
 @0a:	plp
 	bmi @0             ; imprint/recover? slow path

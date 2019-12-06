@@ -11,7 +11,32 @@ set_color:
 	sta col1
 	rts
 
+;---------------------------------------------------------------
+; GRAPH_put_char
+;
+; Pass:      a   ASCII character
+;            r0  x position
+;            r1  y position
+;---------------------------------------------------------------
 GRAPH_put_char:
+	; XXX change put_char code so that moving the x/y position
+	; XXX around is no longer necessary
+	tax
+	PushW r11
+	PushB r1H
+	; move x/y position into correct register
+	MoveW r0, r11
+	MoveB r1L, r1H
+	txa
+	jsr put_char
+	; copy updated x position
+	MoveW r11, r0
+	
+	PopB r1H
+	PopW r11
+	rts
+		
+put_char:
 	cmp #$20
 	bcs @1
 	asl
@@ -44,7 +69,7 @@ GRAPH_put_char:
 	ldy r11L
 	sty r13L
 	ldx currentMode
-	jsr GRAPH_get_char_size
+	jsr get_char_size
 	dey
 	tya
 	add r13L
@@ -218,7 +243,7 @@ control_home:
 
 control_right:
 	lda #' '
-	jmp GRAPH_put_char
+	jmp put_char
 
 control_up:
 	SubB curHeight, r1H

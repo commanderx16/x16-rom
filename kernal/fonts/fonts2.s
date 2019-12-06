@@ -51,12 +51,20 @@ less_slanted = 1
 ;
 ; Pass:      a   ASCII character
 ;            x   currentMode
-; Return:    y   character width
-;            x   character height
-;            a   baseline offset
+; Return:    a   baseline offset
+;            x   character width
+;            y   character height
 ; Destroyed: nothing
 ;---------------------------------------------------------------
 GRAPH_get_char_size:
+	jsr get_char_size
+	phx
+	phy ; XXX rewrite code below instead
+	plx
+	ply
+	rts
+	
+get_char_size:
 	subv $20
 	bcs _GetRealSize2
 	lda #0
@@ -116,7 +124,7 @@ Font_1:
 .else
 	ldx #0
 	addv 32
-	jsr GRAPH_get_char_size
+	jsr get_char_size
 	tya
 .endif
 	pha
@@ -197,7 +205,7 @@ Font_1:
 	jsr _GetRealSize2
 .else
 	addv 32
-	jsr GRAPH_get_char_size
+	jsr get_char_size
 .endif
 	sta r5H
 	SubB r5H, r1H

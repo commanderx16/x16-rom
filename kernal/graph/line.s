@@ -15,7 +15,7 @@
 ;            r2   x position of last pixel
 ;---------------------------------------------------------------
 ; XXX TODO: right to left OK?
-HorizontalLine_NEW:
+HorizontalLine:
 	jsr GetLineStartAndWidth
 	lda col1
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
@@ -111,29 +111,6 @@ HLineBG:
 ;            r2   x position of last pixel
 ;---------------------------------------------------------------
 RecoverLine:
-	PushW r0
-	PushW r1
-	PushW r2
-	MoveW r3, r0
-	MoveW r11L, r1L
-	MoveW r4, r2
-	jsr RecoverLine_NEW
-	PopW r2
-	PopW r1
-	PopW r0
-	rts
-
-;---------------------------------------------------------------
-; RecoverLine
-;
-; Pass:      r0   x pos of left endpoint (0-319)
-;            r1   y pos of line (0-199)
-;            r2   x pos of right endpoint (0-319)
-; Return:    copies bits of line from background to
-;            foreground sceen
-; Destroyed: a, x, y, r5 - r8
-;---------------------------------------------------------------
-RecoverLine_NEW:
 	jsr GetLineStartAndWidth
 
 	ldx r15H
@@ -182,20 +159,6 @@ RecoverLine_NEW:
 @4:	rts
 
 ImprintLine:
-	PushW r0
-	PushW r1
-	PushW r2
-	MoveW r3, r0
-	MoveW r11L, r1L
-	MoveW r4, r2
-	jsr ImprintLine_NEW
-	PopW r2
-	PopW r1
-	PopW r0
-	rts
-
-
-ImprintLine_NEW:
 	jsr GetLineStartAndWidth
 
 	ldx r15H

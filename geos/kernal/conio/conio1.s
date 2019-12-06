@@ -21,6 +21,8 @@
 .global _PutChar
 .global _SmallPutChar
 
+.setcpu "65c02"
+
 .segment "conio1"
 
 ;---------------------------------------------------------------
@@ -57,7 +59,18 @@ _PutChar:
 	bne @1
 	lda #$ff
 
-@1:	jsr _PutCharK
+@1:	tax
+	PushW r0
+	PushW r1
+	MoveW r11, r0
+	MoveB r1H, r1L
+	stz r1H
+	txa
+	jsr _PutCharK
+	MoveW r0, r11
+	PopW r1
+	PopW r0
+	
 	bcs @6
 	rts
 

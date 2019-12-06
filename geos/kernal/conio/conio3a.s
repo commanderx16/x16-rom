@@ -138,6 +138,10 @@ _GetRealSize:
 	set_mode
 	jsrfar GRAPH_get_char_size
 	plp
+	phx
+	phy
+	plx
+	ply
 	rts
 
 _UseSystemFont:

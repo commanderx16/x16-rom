@@ -26,7 +26,7 @@ GRAPH_draw_rect:
 	bra RecoverRectangle
 
 @0:	PushW r1
-@1:	jsr HorizontalLine_NEW
+@1:	jsr HorizontalLine
 	lda r1L
 	inc r1L
 	cmp r3L
@@ -43,9 +43,8 @@ GRAPH_draw_rect:
 ;            r3   y2
 ;---------------------------------------------------------------
 RecoverRectangle:
-	rts;XXX
 	PushW r1
-@1:	jsr RecoverLine_NEW
+@1:	jsr RecoverLine
 	lda r1L
 	inc r1L
 	cmp r3L
@@ -62,9 +61,8 @@ RecoverRectangle:
 ;            r3   y2
 ;---------------------------------------------------------------
 ImprintRectangle:
-	rts;XXX
 	PushW r1
-@1:	jsr ImprintLine_NEW
+@1:	jsr ImprintLine
 	lda r1L
 	inc r1L
 	cmp r3L
@@ -81,10 +79,10 @@ ImprintRectangle:
 ;            r3   y2
 ;---------------------------------------------------------------
 GRAPH_draw_frame:
-	jsr HorizontalLine_NEW
+	jsr HorizontalLine
 	PushB r1L
 	MoveB r3L, r1L
-	jsr HorizontalLine_NEW
+	jsr HorizontalLine
 	PopB r1L
 	PushW r0
 	jsr VerticalLine
