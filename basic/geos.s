@@ -194,9 +194,10 @@ tests:
 	jsr test7_rect
 	jsr test8_varlen_hline
 	jsr test9_varlen_vline
-;	jsr test10_put_char
-;	jsr test11_char_size
+	jsr test10_put_char
+	jsr test11_char_size
 	jsr test12_char_styles
+	jsr checksum_framebuffer
 	rts
 	
 test1_hline:
@@ -606,9 +607,9 @@ test12_char_styles:
 	jsr GRAPH_set_colors
 
 	LoadW r0, 20
-	LoadW r1, 75
+	LoadW r1, 125
 	LoadW r2, 315
-	LoadW r3, 150
+	LoadW r3, 199
 	jsr GRAPH_set_window
 	jsr GRAPH_draw_frame
 
@@ -640,7 +641,9 @@ test12_char_styles:
 	iny
 	cpy #32
 	bne @loop
-	rts
+
+	lda #$92 ; attributes off
+	jmp GRAPH_put_char
 	
 test_string:
 	.byte "abcABC123", 0
@@ -651,7 +654,126 @@ style_codes:
 	.byte $0b ; italics
 	.byte $0c ; outline
 	.byte $12 ; reverse
-		
+
+checksum_framebuffer:
+	lda #$ff
+	sta crclo
+	sta crchi
+	
+	ldx #0
+@loop:	LoadW r0, 0
+	stx r1L
+	stz r1H
+	phx
+	jsr GRAPH_start_direct
+
+	ldx #>320
+	ldy #<320
+@loop2:	phy
+	phx
+	jsr GRAPH_get_pixel
+	jsr crc16_f
+	plx
+	ply
+	dey
+	bne @loop2
+	dex
+	bpl @loop2
+	
+	plx
+	inx
+	cpx #200
+	bne @loop
+
+	lda #0
+	jsr GRAPH_set_colors
+
+	LoadW r0, 295
+	LoadW r1, 190
+	LoadW r2, 319
+	LoadW r3, 199
+	jsr GRAPH_set_window
+	jsr GRAPH_draw_rect
+
+	AddVW 7, r1 ; add baseline
+
+	lda #1
+	jsr GRAPH_set_colors
+
+	lda crchi
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	lda hextab,x
+	nop
+	jsr GRAPH_put_char
+
+	lda crchi
+	and #15
+	tax
+	lda hextab,x
+	nop
+	jsr GRAPH_put_char
+
+	lda crclo
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	lda hextab,x
+	nop
+	jsr GRAPH_put_char
+
+	lda crclo
+	and #15
+	tax
+	lda hextab,x
+	nop
+	jsr GRAPH_put_char
+
+	rts
+
+hextab:
+	.byte "0123456789ABCDEF"
+
+; http://www.6502.org/source/integers/crc-more.html
+crclo	=0              ; current value of CRC
+crchi	=1              ; not necessarily contiguous
+
+crc16_f:
+	eor crchi       ; A contained the data
+	sta crchi       ; XOR it into high byte
+	lsr             ; right shift A 4 bits
+	lsr             ; to make top of x^12 term
+	lsr             ; ($1...)
+	lsr
+	tax             ; save it
+	asl             ; then make top of x^5 term
+	eor crclo       ; and XOR that with low byte
+	sta crclo       ; and save
+	txa             ; restore partial term
+	eor crchi       ; and update high byte
+	sta crchi       ; and save
+	asl             ; left shift three
+	asl             ; the rest of the terms
+	asl             ; have feedback from x^12
+	tax             ; save bottom of x^12
+	asl             ; left shift two more
+	asl             ; watch the carry flag
+	eor crchi       ; bottom of x^5 ($..2.)
+	tay             ; save high byte
+	txa             ; fetch temp value
+	rol             ; bottom of x^12, middle of x^5!
+	eor crclo       ; finally update low byte
+	sta crchi       ; then swap high and low bytes
+	sty crclo
+	rts
+
+
+
 print_string:
 	ldy #0
 :	lda (0),y
