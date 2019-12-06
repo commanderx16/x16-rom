@@ -5,15 +5,8 @@
 
 .setcpu "65c02"
 
-; from KERNAL
-; XXX TODO these should go through the jump table
-.import scrmod
-.import GRAPH_draw_line, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_start_direct, GRAPH_set_pixel
-.import k_UseSystemFont, GRAPH_put_char
-
-
 ; from GEOS
-.import _ResetHandle, GRAPH_set_colors
+.import _ResetHandle
 
 x1L	=r0L
 x1H	=r0H
@@ -24,19 +17,24 @@ x2H	=r2H
 y2L	=r3L
 y2H	=r3H
 
+scrmod	=$FF5F
+
 ;***************
-geos	jsr bjsrfar
+geos
+.if 1
+	jmp tests
+.else
+	jsr bjsrfar
 	.word _ResetHandle
 	.byte BANK_GEOS
+.endif
 
 ;***************
 cscreen
 	jsr getbyt
 	txa
 	sec
-	jsr bjsrfar
-	.word scrmod ; switch to 320x240@256c + 40x30 text
-	.byte BANK_KERNAL
+	jsr scrmod
 	bcc :+
 	jmp fcerr
 :	rts
@@ -46,13 +44,9 @@ pset:	jsr get_point
 	jsr get_col
 	pha
 	sei
-	jsr bjsrfar
-	.word GRAPH_start_direct
-	.byte BANK_KERNAL
+	jsr GRAPH_start_direct
 	pla
-	jsr bjsrfar
-	.word GRAPH_set_pixel
-	.byte BANK_KERNAL
+	jsr GRAPH_set_pixel
 	cli
 	rts
 
@@ -60,9 +54,7 @@ pset:	jsr get_point
 line	jsr get_points_col
 	lda #0 ; set
 	sei
-	jsr bjsrfar
-	.word GRAPH_draw_line
-	.byte BANK_KERNAL
+	jsr GRAPH_draw_line
 	cli
 	rts
 
@@ -70,9 +62,7 @@ line	jsr get_points_col
 frame	jsr get_points_col
 	jsr normalize_rect
 	sei
-	jsr bjsrfar
-	.word GRAPH_draw_frame
-	.byte BANK_KERNAL
+	jsr GRAPH_draw_frame
 	cli
 	rts
 
@@ -80,9 +70,7 @@ frame	jsr get_points_col
 rect	jsr get_points_col
 	jsr normalize_rect
 	sei
-	jsr bjsrfar
-	.word GRAPH_draw_rect
-	.byte BANK_KERNAL
+	jsr GRAPH_draw_rect
 	cli
 	rts
 
@@ -110,17 +98,13 @@ char	jsr get_point
 
 	sei
 	lda #$92 ; Ctrl+0: clear attributes
-	jsr bjsrfar
-	.word GRAPH_put_char
-	.byte BANK_KERNAL
+	jsr GRAPH_put_char
 	cli
 
 	ldy #0
 :	lda (r15),y
 	phy
-	jsr bjsrfar
-	.word GRAPH_put_char
-	.byte BANK_KERNAL
+	jsr GRAPH_put_char
 	ply
 	iny
 	cpy r14L
@@ -167,9 +151,7 @@ set_col:
 	ldx #15 ; secondary color:  light gray
 	ldy #1  ; background color: white
 	sei
-	jsr bjsrfar
-	.word GRAPH_set_colors
-	.byte BANK_KERNAL
+	jsr GRAPH_set_colors
 	cli
 	rts
 
@@ -226,3 +208,25 @@ normalize_rect:
 	stx x1H
 	sta x2H
 @2:	rts
+
+
+GRAPH_set_window     = $FF1B
+GRAPH_set_options    = $FF1E
+GRAPH_set_colors     = $FF21
+GRAPH_start_direct   = $FF24
+GRAPH_set_pixel      = $FF27
+GRAPH_get_pixel      = $FF2A
+GRAPH_filter_pixels  = $FF2D
+GRAPH_draw_line      = $FF30
+GRAPH_draw_frame     = $FF33
+GRAPH_draw_rect      = $FF36
+GRAPH_move_rect      = $FF39
+GRAPH_set_font       = $FF3C
+GRAPH_get_char_size  = $FF3F
+GRAPH_put_char       = $FF42
+
+tests:
+	lda #$80
+	sec
+	jsr scrmod
+	rts
