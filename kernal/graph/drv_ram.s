@@ -1,106 +1,47 @@
 ; Commander X16 KERNAL
 ;
-; Graphics library: misc
+; Offscreen 320x200@256c Graphics Driver
 
-.export graph_init
-.export graph_clear
-.export GRAPH_start_direct
-.export GRAPH_set_pixel
-.export GRAPH_get_pixel
-.export GRAPH_filter_pixels
-.export GRAPH_set_window
-.export GRAPH_set_options
-.export GRAPH_set_pixels
-.export GRAPH_get_pixels
+.export GRAPH_LL_get_info
+.export GRAPH_LL_set_ptr
+.export GRAPH_LL_set_pixel
+.export GRAPH_LL_get_pixel
+.export GRAPH_LL_set_pixels
+.export GRAPH_LL_get_pixels
+.export GRAPH_LL_filter_pixels
 
-.export SetVRAMPtrFG, SetVRAMPtrBG ; [font]
-
-.segment "GRAPH"
-
-graph_init:
-	LoadW k_dispBufferOn, ST_WR_FORE
-	rts
-
-graph_clear:
-	PushB col1
-	MoveB col_bg, col1
-	LoadW r0, 0
-	LoadB r1L, 0
-	LoadW r2, SC_PIX_WIDTH-1
-	LoadB r3L, SC_PIX_HEIGHT-1
-	lda #0
-	jsr GRAPH_draw_rect
-	PopB col1
-	rts
+.segment "RAM_DRV"
 
 ;---------------------------------------------------------------
-; GRAPH_set_window
+; GRAPH_LL_init
 ;
-; Pass:      r0     x1
-;            r1     y1
-;            r2     x2
-;            r3     y2
+; Pass:      -
 ;---------------------------------------------------------------
-GRAPH_set_window:
-	MoveW r0, leftMargin
-	MoveB r1L, windowTop
-	MoveW r2, rightMargin
-	MoveB r3L, windowBottom
+GRAPH_LL_init:
+	rts
+	
+
+;---------------------------------------------------------------
+; GRAPH_LL_get_info
+;
+; Return:    r0       width
+;            r1       height
+;            a        color depth
+;---------------------------------------------------------------
+GRAPH_LL_get_info:
+	LoadW r0, 320
+	LoadW r1, 200
+	lda #8
 	rts
 	
 ;---------------------------------------------------------------
-; GRAPH_set_options
+; GRAPH_LL_set_ptr
 ;
-; Pass:      a      options
-;---------------------------------------------------------------
-GRAPH_set_options:
-	sta k_dispBufferOn
-	rts
-	
-;---------------------------------------------------------------
-; GRAPH_start_direct
-;
-; Function:  Sets up the VRAM/BG address of a pixel
+; Function:  Sets up the VRAM address of a pixel
 ; Pass:      r0     x pos
 ;            r1     y pos
 ;---------------------------------------------------------------
-GRAPH_start_direct:
-	jsr SetVRAMPtrFG
-@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	jmp SetVRAMPtrBG
-@2:	rts
-
-SetVRAMPtrFG:
-	; ptr_fg = x * 320
-	stz ptr_fg+1
-	lda r1L
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	sta ptr_fg
-	sta veralo
-	lda r1L
-	clc
-	adc ptr_fg+1
-	sta ptr_fg+1
-	sta veramid
-	lda #$11
-	sta verahi
-
-	; add X
-	AddW r0, veralo
-	rts
-
-SetVRAMPtrBG:
+GRAPH_LL_set_ptr:
 ; For BG storage, we have to work with 8 KB banks.
 ; Lines are 320 bytes, and 8 KB is not divisible by 320,
 ; so the base address of certain lines would be so close
@@ -172,17 +113,12 @@ SetVRAMPtrBG:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_set_pixel
+; GRAPH_LL_set_pixel
 ;
 ; Function:  Stores a color in VRAM/BG and advances the pointer
 ; Pass:      a   color
 ;---------------------------------------------------------------
-GRAPH_set_pixel:
-	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-; FG version
-	sta veradat
-@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-; BG version
+GRAPH_LL_set_pixel:
 	sta (ptr_bg)
 	inc ptr_bg
 	beq inc_bgpage
@@ -202,67 +138,32 @@ inc_bgpage:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_get_pixel
+; GRAPH_LL_get_pixel
 ;
 ; Pass:      r0   x pos
 ;            r1   y pos
 ; Return:    a    color of pixel
 ;---------------------------------------------------------------
-GRAPH_get_pixel:
-	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	lda veradat
-	rts
-
-@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+GRAPH_LL_get_pixel:
 	lda (ptr_bg)
 	inc ptr_bg
 	beq inc_bgpage
 	rts
 
-@2:	lda #0
-	rts
-
 ;---------------------------------------------------------------
-; GRAPH_set_pixels
+; GRAPH_LL_set_pixels
 ;
 ; Function:  Stores an array of color values in VRAM/BG and
 ;            advances the pointer
 ; Pass:      r0  pointer
 ;            r1  count
 ;---------------------------------------------------------------
-GRAPH_set_pixels:
-	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-; FG version
-	PushB r0H
-	PushB r1H
-	jsr set_pixels_FG
-	PopB r1H
-	PopB r0H
-@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+GRAPH_LL_set_pixels:
 	PushB r0H
 	PushB r1H
 	jsr set_pixels_BG
 	PopB r1H
 	PopB r0H
-@2:	rts
-
-set_pixels_FG:
-	lda r1H
-	beq @a
-
-	ldx #0
-@c:	jsr @b
-	inc r0H
-	dec r1H
-	bne @c
-
-@a:	ldx r1L
-@b:	ldy #0
-:	lda (r0),y
-	sta veradat
-	iny
-	dex
-	bne :-
 	rts
 
 set_pixels_BG:
@@ -288,46 +189,19 @@ set_pixels_BG:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_get_pixels
+; GRAPH_LL_get_pixels
 ;
 ; Function:  Fetches an array of color values from VRAM/BG and
 ;            advances the pointer
 ; Pass:      r0  pointer
 ;            r1  count
 ;---------------------------------------------------------------
-GRAPH_get_pixels:
-	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-; FG version
-	PushB r0H
-	PushB r1H
-	jsr get_pixels_FG
-	PopB r1H
-	PopB r0H
-@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+GRAPH_LL_get_pixels:
 	PushB r0H
 	PushB r1H
 	jsr get_pixels_BG
 	PopB r1H
 	PopB r0H
-@2:	rts
-
-get_pixels_FG:
-	lda r1H
-	beq @a
-
-	ldx #0
-@c:	jsr @b
-	inc r0H
-	dec r1H
-	bne @c
-
-@a:	ldx r1L
-@b:	ldy #0
-:	lda veradat
-	sta (r0),y
-	iny
-	dex
-	bne :-
 	rts
 
 get_pixels_BG:
@@ -353,97 +227,18 @@ get_pixels_BG:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_filter_pixels
+; GRAPH_LL_filter_pixels
 ;
-; Pass:      r0   number of points
+; Pass:      r0   number of pixels
 ;            r1   pointer to filter routine:
 ;                 Pass:    a  color
 ;                 Return:  a  color
 ;---------------------------------------------------------------
-GRAPH_filter_pixels:
+GRAPH_LL_filter_pixels:
 	; build a JMP instruction
 	LoadB r14H, $4c
 	MoveW r1, r15
 
-	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	jsr FilterPointsFG
-@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	jmp FilterPointsBG
-@2:	rts
-
-FilterPointsFG:
-	lda veralo
-	ldx veramid
-	inc veractl ; 1
-	sta veralo
-	stx veramid
-	lda #$11
-	sta verahi
-	stz veractl ; 0
-	sta verahi
-
-	ldx r0H
-	beq @2
-
-; full blocks, 8 bytes at a time
-	ldy #$20
-@1:	jsr filter_y
-	dex
-	bne @1
-
-; partial block, 8 bytes at a time
-@2:	lda r0L
-	lsr
-	lsr
-	lsr
-	beq @6
-	tay
-	jsr filter_y
-
-; remaining 0 to 7 bytes
-@6:	lda r0L
-	and #7
-	beq @4
-	tay
-@3:	lda veradat
-	jsr r14H
-	sta veradat2
-	dey
-	bne @3
-@4:	rts
-
-filter_y:
-	lda veradat
-	jsr r14H
-	sta veradat2
-	lda veradat
-	jsr r14H
-	sta veradat2
-	lda veradat
-	jsr r14H
-	sta veradat2
-	lda veradat
-	jsr r14H
-	sta veradat2
-	lda veradat
-	jsr r14H
-	sta veradat2
-	lda veradat
-	jsr r14H
-	sta veradat2
-	lda veradat
-	jsr r14H
-	sta veradat2
-	lda veradat
-	jsr r14H
-	sta veradat2
-	dey
-	bne filter_y
-	rts
-
-FilterPointsBG:
-; background version
-ILineBG:
 	ldx r0H
 	beq @2
 

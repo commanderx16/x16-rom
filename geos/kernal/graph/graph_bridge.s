@@ -15,6 +15,7 @@
 .segment "graph2n"
 
 .import _DMult
+.import g_col1
 
 .setcpu "65c02"
 
@@ -37,14 +38,13 @@ _GetScanLine:
 .import GRAPH_draw_line
 .import GRAPH_draw_frame
 .import GRAPH_draw_rect
-.import GRAPH_get_pixel
-.import GRAPH_start_direct
-.import GRAPH_set_pixel
-.import GRAPH_filter_pixels
+.import GRAPH_LL_get_pixel
+.import GRAPH_LL_cursor_position
+.import GRAPH_LL_set_pixel
+.import GRAPH_LL_filter_pixels
+.import GRAPH_set_colors
 
 .export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_pixel
-
-.import k_dispBufferOn, col1, col2
 
 .macro jsrfar addr
 	jsr gjsrfar
@@ -69,7 +69,6 @@ _GetScanLine:
 _DrawLine:
 	php
 	plx
-	MoveB dispBufferOn, k_dispBufferOn
 
 	PushW r0
 	PushW r1
@@ -89,7 +88,12 @@ _DrawLine:
 	lda #0
 	rol
 	eor #1
-	sta col1
+	php
+	sei
+	jsrfar GRAPH_set_colors
+	plp
+	
+	lda #0
 	bra @2 ; N=0 -> draw
 @3:	sec ; N=1, C=1 -> recover
 @2:
@@ -157,7 +161,6 @@ _DrawPoint:
 ;---------------------------------------------------------------
 _FrameRectangle:
 	jsr Convert8BitPattern
-	MoveB dispBufferOn, k_dispBufferOn
 	PushW r0
 	PushW r1
 	PushW r2
@@ -274,9 +277,12 @@ _RecoverRectangle:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _Rectangle:
-	MoveB dispBufferOn, k_dispBufferOn
-	MoveB g_col1, col1
-	
+	lda g_col1
+	php
+	sei
+	jsrfar GRAPH_set_colors
+	plp
+
 	PushW r0
 	PushW r1
 	PushW r2
@@ -315,7 +321,7 @@ _TestPoint:
 	php
 	sei
 	jsr gjsrfar
-	.word GRAPH_get_pixel
+	.word GRAPH_LL_get_pixel
 	.byte BANK_KERNAL
 	plp
 	tax
@@ -342,7 +348,6 @@ _TestPoint:
 ;---------------------------------------------------------------
 _HorizontalLine:
 	jsr Convert8BitPattern
-	MoveB dispBufferOn, k_dispBufferOn
 	PushW r0
 	PushW r1
 	PushW r2
@@ -395,7 +400,7 @@ _InvertLine:
 
 	php
 	sei
-	jsrfar GRAPH_filter_pixels
+	jsrfar GRAPH_LL_filter_pixels
 	plp
 		
 	PopB r12L
@@ -451,7 +456,6 @@ _RecoverLine:
 ;---------------------------------------------------------------
 _VerticalLine:
 	jsr Convert8BitPattern
-	MoveB dispBufferOn, k_dispBufferOn
 	PushW r0
 	PushW r1
 	PushW r2
@@ -476,17 +480,16 @@ _VerticalLine:
 	rts
 
 _GRAPH_start_direct:
-	MoveB dispBufferOn, k_dispBufferOn
 	php
 	sei
-	jsrfar GRAPH_start_direct
+	jsrfar GRAPH_LL_cursor_position
 	plp
 	rts
 
 _GRAPH_set_pixel:
 	php
 	sei
-	jsrfar GRAPH_set_pixel
+	jsrfar GRAPH_LL_set_pixel
 	plp
 	rts
 
@@ -508,8 +511,10 @@ Convert8BitPattern:
 	tya
 	asl
 	ora #16
-	sta col1
-	rts
+	bra @4
 @3:	lda #16+15
-	sta col1
+@4:	php
+	sei
+	jsrfar GRAPH_set_colors
+	plp
 	rts

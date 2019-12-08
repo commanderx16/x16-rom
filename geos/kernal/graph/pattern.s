@@ -12,7 +12,7 @@
 
 .setcpu "65c02"
 
-.import PatternTab
+.import g_col1
 
 .global _SetPattern
 

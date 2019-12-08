@@ -3,7 +3,10 @@
 ;
 ; Font library: drawing
 
-.import SetVRAMPtrFG, SetVRAMPtrBG
+.import GRAPH_LL_cursor_position
+.import GRAPH_LL_cursor_next_line
+.import GRAPH_LL_set_8_pixels
+.import GRAPH_LL_set_8_pixels_opaque
 
 .export GRAPH_get_char_size 
 
@@ -286,15 +289,9 @@ GetChWdth1:
 	rts
 
 Font_2:
-	PushW r0
-	PushW r1
-	LoadW r0, 0
-	MoveB r1H, r1L
-	jsr SetVRAMPtrFG
-	jsr SetVRAMPtrBG
-	PopW r1
-	PopW r0
-
+	; find out effective x position:
+	; if FontTVar2 is negative or left of leftMargin,
+	; start at leftMargin
 	lda FontTVar2
 	ldx FontTVar2+1
 	bmi @2
@@ -307,16 +304,15 @@ Font_2:
 @3:	pha
 	and #%11111000
 	sta r4L
-	clc
-	adc ptr_fg
-	sta ptr_fg
-	sta veralo
-	txa
-	adc ptr_fg+1
-	sta ptr_fg+1
-	sta veramid
-	lda #$11
-	sta verahi
+
+	tay
+	PushW r1
+	sty r0L
+	stx r0H
+	MoveB r1H, r1L
+	stz r1H
+	jsr GRAPH_LL_cursor_position
+	PopW r1
 
 	MoveB FontTVar2+1, r3L
 	lsr r3L
@@ -699,15 +695,9 @@ FontPutChar:
 	bcc @6
 	bne @7
 @6:	jsr Font_4
-@7:	lda ptr_fg
-	clc
-	adc #<SC_PIX_WIDTH
-	sta ptr_fg
-	sta veralo
-	lda ptr_fg+1
-	adc #>SC_PIX_WIDTH
-	sta ptr_fg+1
-	sta veramid
+@7:
+	jsr GRAPH_LL_cursor_next_line
+
 	inc r1H
 	dec r10H
 	bne @1
@@ -716,7 +706,7 @@ FontPutChar:
 
 Draw8Pixels:
 	ldy fontTemp1,x
-	sty r4L    ; pixel pattern
+	sty r0L    ; pixel pattern
 
 	bit r10L   ; inverted/underlined?
 	bmi Draw8PixelsInv
@@ -728,49 +718,27 @@ Draw8Pixels:
 	plp
 	bcs @5
 
-; transclucent, regular
+	; transclucent, regular
 	ldy col1 ; fg: primary color
-@4:	asl
-	bcc @1
-	asl r4L
-	bcc @0
-	sty veradat
-@3:	cmp #0
-	bne @4
-	rts
-@1:	asl r4L
-@0:	inc veralo
-	bne @3
-	inc veramid
-@2:	bra @3
+	and r0L
+	jmp GRAPH_LL_set_8_pixels
 
 ; opaque mode, regular
 @5:	ldy col_bg  ; bg
-	bra Draw8PixelsInv2
+	phx
+	ldx col1 ; fg: primary color
+	jsr GRAPH_LL_set_8_pixels_opaque
+	plx
+	rts
 
 ; inverted/underlined
 Draw8PixelsInv:
 	ldy col2 ; bg: secondary color
-Draw8PixelsInv2:
 	phx
 	ldx col1 ; fg: primary color
-; opaque drawing with fg color .x and bg color .y
-@4:	asl
-	bcc @1
-	asl r4L
-	bcc @5
-	stx veradat
-	bra @3
-@5:	sty veradat
-@3:	cmp #0
-	bne @4
+	jsr GRAPH_LL_set_8_pixels_opaque
 	plx
 	rts
-@1:	asl r4L
-	inc veralo
-	bne @3
-	inc veramid
-@2:	bra @3
 
 FntIndirectJMP:
 	ldy #0
@@ -803,3 +771,4 @@ BitMaskLeadingClear:
 	.byte %00000011
 	.byte %00000001
 	.byte %00000000
+

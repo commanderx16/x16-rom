@@ -6,7 +6,63 @@
 .import joystick_scan, joystick_get; [joystick]
 .import clock_update, clock_get_timer, clock_set_timer, clock_get_time_date, clock_set_time_date; [time]
 
-.import GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_draw_line, GRAPH_filter_pixels, GRAPH_get_pixel, GRAPH_set_pixel, GRAPH_start_direct
+.import GRAPH_set_colors, GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_draw_line
+
+.export GRAPH_LL_init
+.export GRAPH_LL_get_info
+.export GRAPH_LL_cursor_position
+.export GRAPH_LL_cursor_next_line
+.export GRAPH_LL_get_pixel
+.export GRAPH_LL_get_pixels
+.export GRAPH_LL_set_pixel
+.export GRAPH_LL_set_pixels
+.export GRAPH_LL_set_8_pixels
+.export GRAPH_LL_set_8_pixels_opaque
+.export GRAPH_LL_fill_pixels
+.export GRAPH_LL_filter_pixels
+.export GRAPH_LL_move_pixels
+
+	.segment "JMPTBL3"
+	
+; $FE00
+GRAPH_LL_init:
+	jmp (I_GRAPH_LL_init)
+; $FE03
+GRAPH_LL_get_info:
+	jmp (I_GRAPH_LL_get_info)
+ ; $FE06
+ GRAPH_LL_cursor_position:
+	jmp (I_GRAPH_LL_cursor_position)
+; $FE09
+GRAPH_LL_cursor_next_line:
+	jmp (I_GRAPH_LL_cursor_next_line)
+; $FE0C
+GRAPH_LL_get_pixel:
+	jmp (I_GRAPH_LL_get_pixel)
+; $FE0F
+GRAPH_LL_get_pixels:
+	jmp (I_GRAPH_LL_get_pixels)
+; $FE12
+GRAPH_LL_set_pixel:
+	jmp (I_GRAPH_LL_set_pixel)
+; $FE15
+GRAPH_LL_set_pixels:
+	jmp (I_GRAPH_LL_set_pixels)
+; $FE18
+GRAPH_LL_set_8_pixels:
+	jmp (I_GRAPH_LL_set_8_pixels)
+; $FE1B
+GRAPH_LL_set_8_pixels_opaque:
+	jmp (I_GRAPH_LL_set_8_pixels_opaque)
+; $FE1E
+GRAPH_LL_fill_pixels:
+	jmp (I_GRAPH_LL_fill_pixels)
+; $FE21
+GRAPH_LL_filter_pixels:
+	jmp (I_GRAPH_LL_filter_pixels)
+; $FE24
+GRAPH_LL_move_pixels:
+	jmp (I_GRAPH_LL_move_pixels)
 
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***
@@ -33,24 +89,24 @@
 	jmp joystick_get
 
 
-; $FF1B: GRAPH_set_window [TODO]
+; $FF1B: void GRAPH_set_window(word x1, word y1, word x2, word y2);
 	jmp GRAPH_set_window
-; $FF1E: GRAPH_set_options [TODO]
-	jmp $ffff;GRAPH_set_options
+; $FF1E: ---undefined---
+	jmp $ffff;
 ; $FF21: GRAPH_set_colors
 	jmp GRAPH_set_colors
-; $FF24: void GRAPH_start_direct(word x, word y);
-	jmp GRAPH_start_direct
-; $FF27: void GRAPH_set_pixel(byte color);
-	jmp GRAPH_set_pixel
-;XX GRAPH_set_pixels [TODO]
-;XX	jmp $ffff;GRAPH_set_pixels
-; $FF2A: byte GRAPH_get_pixel(word x, word y);
-	jmp GRAPH_get_pixel
-;XX GRAPH_get_pixels [TODO]
-;XX	jmp $ffff;GRAPH_get_pixels
-; $FF2D: void GRAPH_filter_pixels(word num, word ptr);
-	jmp GRAPH_filter_pixels
+; $FF24: void GRAPH_LL_cursor_position(word x, word y);
+	jmp GRAPH_LL_cursor_position
+; $FF27: void GRAPH_LL_set_pixel(byte color);
+	jmp GRAPH_LL_set_pixel
+;XX void GRAPH_LL_set_pixels(word ptr, word count);
+;XX	jmp $ffff;GRAPH_LL_set_pixels
+; $FF2A: byte GRAPH_LL_get_pixel(word x, word y);
+	jmp GRAPH_LL_get_pixel
+;XX void GRAPH_LL_get_pixels(word ptr, word count);
+;XX	jmp $ffff;GRAPH_LL_get_pixels
+; $FF2D: void GRAPH_LL_filter_pixels(word num, word ptr);
+	jmp GRAPH_LL_filter_pixels
 
 ; $FF30: void GRAPH_draw_line(word x1, word y1, word x2, word y2, byte flags);
 	jmp GRAPH_draw_line
@@ -58,7 +114,7 @@
 	jmp GRAPH_draw_frame
 ; $FF36: void GRAPH_draw_rect(word x1, word y1, word x2, word y2, byte flags);
 	jmp GRAPH_draw_rect
-; $FF39: GRAPH_move_rect [TODO]
+; $FF39: void GRAPH_move_rect(word x1, word y1, word x2, word y2, word tx, word ty);  [TODO]
 	jmp $ffff;GRAPH_move_rect
 
 ; $FF3C: void GRAPH_set_font(void ptr);

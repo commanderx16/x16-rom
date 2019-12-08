@@ -72,6 +72,7 @@
 .global bootSec2
 .global bootOffs
 .global decimalTemp
+.global g_col1
 
 .segment "vars"
 
@@ -144,3 +145,5 @@ bootSec2:	.byte 0
 bootOffs:	.byte 0
 
 decimalTemp:   .res 5
+
+g_col1:         .res 1

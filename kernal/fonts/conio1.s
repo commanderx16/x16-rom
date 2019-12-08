@@ -2,7 +2,7 @@
 ;
 ; Font library: control characters
 
-.import graph_clear
+.import GRAPH_clear
 
 .export GRAPH_put_char 
 
@@ -16,6 +16,9 @@ set_color:
 ; Pass:      a   ASCII character
 ;            r0  x position
 ;            r1  y position
+; Return:    r0  x position (updated)
+;            r1  y position (updated)
+;            c   1: character outside of bounds, not printed
 ;---------------------------------------------------------------
 GRAPH_put_char:
 	; XXX change put_char code so that moving the x/y position
@@ -200,12 +203,8 @@ control_backspace:
 	rts
 
 control_tab:
-	lda #0 ; XXX was this a constant in the original source?
-	add r11L
-	sta r11L
-	bcc @1
-	inc r11H
-@1:	rts
+	; XXX what should TAB do?
+	rts
 
 control_italics:
 	smbf ITALIC_BIT, currentMode
@@ -232,7 +231,7 @@ control_reverse:
 	rts
 
 control_clear:
-	jsr graph_clear
+	jsr GRAPH_clear
 ; fallthrough
 control_home:
 	MoveW leftMargin, r11

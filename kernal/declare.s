@@ -80,6 +80,65 @@ r2d2	.res 1           ;$A3 serial bus usage
 bsour1	.res 1           ;$A4 temp used by serial routine
 count	.res 1           ;$A5 temp used by serial routine
 
+.segment "GDRVVEC"
+
+.export I_GRAPH_LL_BASE; [graph]
+I_GRAPH_LL_BASE
+I_GRAPH_LL_init
+	.res 2
+I_GRAPH_LL_get_info
+	.res 2
+I_GRAPH_LL_cursor_position
+	.res 2
+I_GRAPH_LL_cursor_next_line
+	.res 2
+I_GRAPH_LL_get_pixel
+	.res 2
+I_GRAPH_LL_get_pixels
+	.res 2
+I_GRAPH_LL_set_pixel
+	.res 2
+I_GRAPH_LL_set_pixels
+	.res 2
+I_GRAPH_LL_set_8_pixels
+	.res 2
+I_GRAPH_LL_set_8_pixels_opaque
+	.res 2
+I_GRAPH_LL_fill_pixels
+	.res 2
+I_GRAPH_LL_filter_pixels
+	.res 2
+I_GRAPH_LL_move_pixels
+	.res 2
+
+	.segment "KVECTORS";rem kernal/os indirects(20)
+cinv	.res 2           ;irq ram vector
+cbinv	.res 2           ;brk instr ram vector
+nminv	.res 2           ;nmi ram vector
+iopen	.res 2           ;indirects for code
+iclose	.res 2           ; conforms to kernal spec 8/19/80
+ichkin	.res 2
+ickout	.res 2
+iclrch	.res 2
+ibasin	.res 2
+ibsout	.res 2
+istop	.res 2
+igetin	.res 2
+iclall	.res 2
+usrcmd	.res 2
+iload	.res 2
+isave	.res 2           ;savesp
+
+.segment "KVAR2" ; more KERNAL vars
+ldtb1	.res 61 +1       ;flags+endspace
+	;       ^^ XXX at label 'lps2', the code counts up to
+	;              numlines+1, THEN writes the end marker,
+	;              which seems like one too many. This was
+	;              worked around for now by adding one more
+	;              byte here, but we should have a look at
+	;              whether there's an off-by-one error over
+	;              at 'lps2'!
+
 ; Screen
 ;
 .export mode; [ps2kbd]
@@ -109,42 +168,6 @@ llen	.res 1           ;$D9 x resolution
 nlines	.res 1           ;$DA y resolution
 nlinesp1 .res 1          ;    X16: y resolution + 1
 nlinesm1 .res 1          ;    X16: y resolution - 1
-
-; Graph
-;
-.export k_dispBufferOn, col1, col2, col_bg
-k_dispBufferOn	.res 1
-col1	.res 1
-col2	.res 1
-col_bg	.res 1
-
-	.segment "KVECTORS";rem kernal/os indirects(20)
-cinv	.res 2           ;irq ram vector
-cbinv	.res 2           ;brk instr ram vector
-nminv	.res 2           ;nmi ram vector
-iopen	.res 2           ;indirects for code
-iclose	.res 2           ; conforms to kernal spec 8/19/80
-ichkin	.res 2
-ickout	.res 2
-iclrch	.res 2
-ibasin	.res 2
-ibsout	.res 2
-istop	.res 2
-igetin	.res 2
-iclall	.res 2
-usrcmd	.res 2
-iload	.res 2
-isave	.res 2           ;savesp
-
-.segment "KVAR2" ; more KERNAL vars
-ldtb1	.res 61 +1       ;flags+endspace
-	;       ^^ XXX at label 'lps2', the code counts up to
-	;              numlines+1, THEN writes the end marker,
-	;              which seems like one too many. This was
-	;              worked around for now by adding one more
-	;              byte here, but we should have a look at
-	;              whether there's an off-by-one error over
-	;              at 'lps2'!
 
 .segment "KVARSB0"
 

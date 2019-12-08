@@ -31,8 +31,6 @@ _PutString:
 
 ;-------
 
-.import col1, col2, col_bg
-
 .macro get_font_parameters
 	pha
 	MoveW curIndexTable, g_curIndexTable
@@ -62,11 +60,9 @@ _PutString:
 	ora #1
 	sta currentMode
 	lda #0  ; fg: black
-	sta col1
-	lda #15
-	sta col2
-	lda #1  ; bg: white
-	sta col_bg
+	ldx #15
+	ldy #1  ; bg: white
+	jsrfar GRAPH_set_colors
 .endmacro
 
 .macro set_drawing_parameters
@@ -94,7 +90,7 @@ _PutString:
 
 .import gjsrfar
 
-.import k_GetCharWidth, GRAPH_get_char_size, GRAPH_set_font, k_SmallPutChar, GRAPH_put_char
+.import k_GetCharWidth, GRAPH_get_char_size, GRAPH_set_font, k_SmallPutChar, GRAPH_put_char, GRAPH_set_colors
 
 .export _GetCharWidth, _GetRealSize, _LoadCharSet, _SmallPutChar, _UseSystemFont, _PutCharK
 
