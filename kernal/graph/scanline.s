@@ -9,6 +9,9 @@
 .export GRAPH_get_pixel
 .export GRAPH_filter_pixels
 .export GRAPH_set_window
+.export GRAPH_set_options
+.export GRAPH_set_pixels
+.export GRAPH_get_pixels
 
 .export SetVRAMPtrFG, SetVRAMPtrBG ; [font]
 
@@ -43,6 +46,15 @@ GRAPH_set_window:
 	MoveB r1L, windowTop
 	MoveW r2, rightMargin
 	MoveB r3L, windowBottom
+	rts
+	
+;---------------------------------------------------------------
+; GRAPH_set_options
+;
+; Pass:      a      options
+;---------------------------------------------------------------
+GRAPH_set_options:
+	sta k_dispBufferOn
 	rts
 	
 ;---------------------------------------------------------------
@@ -208,6 +220,136 @@ GRAPH_get_pixel:
 	rts
 
 @2:	lda #0
+	rts
+
+;---------------------------------------------------------------
+; GRAPH_set_pixels
+;
+; Function:  Stores an array of color values in VRAM/BG and
+;            advances the pointer
+; Pass:      r0  pointer
+;            r1  count
+;---------------------------------------------------------------
+GRAPH_set_pixels:
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
+; FG version
+	PushB r0H
+	PushB r1H
+	jsr set_pixels_FG
+	PopB r1H
+	PopB r0H
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+	PushB r0H
+	PushB r1H
+	jsr set_pixels_BG
+	PopB r1H
+	PopB r0H
+@2:	rts
+
+set_pixels_FG:
+	lda r1H
+	beq @a
+
+	ldx #0
+@c:	jsr @b
+	inc r0H
+	dec r1H
+	bne @c
+
+@a:	ldx r1L
+@b:	ldy #0
+:	lda (r0),y
+	sta veradat
+	iny
+	dex
+	bne :-
+	rts
+
+set_pixels_BG:
+	lda r1H
+	beq @a
+
+	ldx #0
+@c:	jsr @b
+	inc r0H
+	dec r1H
+	bne @c
+
+@a:	ldx r1L
+@b:	ldy #0
+:	lda (r0),y
+	sta (ptr_bg)
+	inc ptr_bg
+	bne @d
+	jsr inc_bgpage
+@d:	iny
+	dex
+	bne :-
+	rts
+
+;---------------------------------------------------------------
+; GRAPH_get_pixels
+;
+; Function:  Fetches an array of color values from VRAM/BG and
+;            advances the pointer
+; Pass:      r0  pointer
+;            r1  count
+;---------------------------------------------------------------
+GRAPH_get_pixels:
+	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
+; FG version
+	PushB r0H
+	PushB r1H
+	jsr get_pixels_FG
+	PopB r1H
+	PopB r0H
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+	PushB r0H
+	PushB r1H
+	jsr get_pixels_BG
+	PopB r1H
+	PopB r0H
+@2:	rts
+
+get_pixels_FG:
+	lda r1H
+	beq @a
+
+	ldx #0
+@c:	jsr @b
+	inc r0H
+	dec r1H
+	bne @c
+
+@a:	ldx r1L
+@b:	ldy #0
+:	lda veradat
+	sta (r0),y
+	iny
+	dex
+	bne :-
+	rts
+
+get_pixels_BG:
+	lda r1H
+	beq @a
+
+	ldx #0
+@c:	jsr @b
+	inc r0H
+	dec r1H
+	bne @c
+
+@a:	ldx r1L
+@b:	ldy #0
+:	lda (ptr_bg)
+	sta (r0),y
+	inc ptr_bg
+	bne @d
+	jsr inc_bgpage
+@d:	iny
+	dex
+	bne :-
 	rts
 
 ;---------------------------------------------------------------

@@ -4,6 +4,7 @@
 
 .export GRAPH_draw_rect
 .export GRAPH_draw_frame
+.export GRAPH_move_rect
 
 .segment "GRAPH"
 
@@ -99,3 +100,17 @@ GRAPH_draw_frame:
 	jsr VerticalLine
 	PopW r0
 	rts
+
+;---------------------------------------------------------------
+; GRAPH_move_rect
+;
+; Pass:      r0   source x1
+;            r1   source y1
+;            r2   source x2
+;            r3   source y2
+;            r4   target x
+;            r5   target y
+;---------------------------------------------------------------
+GRAPH_move_rect:
+	; NYI
+	brk
