@@ -1,8 +1,8 @@
 GRAPH_set_window     = $FF1B ; TODO
 GRAPH_set_options    = $FF1E ; TODO
 GRAPH_set_colors     = $FF21
-GRAPH_start_direct   = $FF24
-GRAPH_set_pixel      = $FF27
+GRAPH_LL_start_direct   = $FF24
+GRAPH_LL_set_pixel      = $FF27
 GRAPH_get_pixel      = $FF2A
 GRAPH_filter_pixels  = $FF2D
 GRAPH_draw_line      = $FF30
@@ -120,11 +120,11 @@ test4_set_get_pixels:
 	; set direct pixels
 	LoadW r0, 5
 	LoadW r1, 23
-	jsr GRAPH_start_direct
+	jsr GRAPH_LL_start_direct
 	ldx #0
 :	phx
 	txa
-	jsr GRAPH_set_pixel
+	jsr GRAPH_LL_set_pixel
 	plx
 	inx
 	bne :-
@@ -132,7 +132,7 @@ test4_set_get_pixels:
 	; get direct pixels
 	LoadW r0, 5
 	LoadW r1, 23
-	jsr GRAPH_start_direct
+	jsr GRAPH_LL_start_direct
 	LoadB r1H, 1; "OK"
 	ldx #0
 :	phx
@@ -161,11 +161,11 @@ test5_filter_pixels:
 	; set direct pixels
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_start_direct
+	jsr GRAPH_LL_start_direct
 	ldx #0
 :	phx
 	txa
-	jsr GRAPH_set_pixel
+	jsr GRAPH_LL_set_pixel
 	plx
 	inx
 	bne :-
@@ -173,7 +173,7 @@ test5_filter_pixels:
 	; filter pixels
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_start_direct
+	jsr GRAPH_LL_start_direct
 	LoadW $70, $49 ; EOR #
 	LoadW $71, $55 ;      $55
 	LoadW $72, $60 ; RTS
@@ -184,7 +184,7 @@ test5_filter_pixels:
 	; check filter result using direct read
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_start_direct
+	jsr GRAPH_LL_start_direct
 	LoadB r1H, 1; "OK"
 	ldx #0
 :	phx
@@ -498,7 +498,7 @@ checksum_framebuffer:
 	stx r1L
 	stz r1H
 	phx
-	jsr GRAPH_start_direct
+	jsr GRAPH_LL_start_direct
 
 	ldx #>320
 	ldy #<320

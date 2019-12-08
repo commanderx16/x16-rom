@@ -4,13 +4,13 @@
 
 .export graph_init
 .export graph_clear
-.export GRAPH_start_direct
-.export GRAPH_set_pixel
+.export GRAPH_LL_start_direct
+.export GRAPH_LL_set_pixel
 .export GRAPH_get_pixel
 .export GRAPH_filter_pixels
 .export GRAPH_set_window
 .export GRAPH_set_options
-.export GRAPH_set_pixels
+.export GRAPH_LL_set_pixels
 .export GRAPH_get_pixels
 
 .export SetVRAMPtrFG, SetVRAMPtrBG ; [font]
@@ -58,13 +58,13 @@ GRAPH_set_options:
 	rts
 	
 ;---------------------------------------------------------------
-; GRAPH_start_direct
+; GRAPH_LL_start_direct
 ;
 ; Function:  Sets up the VRAM/BG address of a pixel
 ; Pass:      r0     x pos
 ;            r1     y pos
 ;---------------------------------------------------------------
-GRAPH_start_direct:
+GRAPH_LL_start_direct:
 	jsr SetVRAMPtrFG
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 	jmp SetVRAMPtrBG
@@ -172,12 +172,12 @@ SetVRAMPtrBG:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_set_pixel
+; GRAPH_LL_set_pixel
 ;
 ; Function:  Stores a color in VRAM/BG and advances the pointer
 ; Pass:      a   color
 ;---------------------------------------------------------------
-GRAPH_set_pixel:
+GRAPH_LL_set_pixel:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 ; FG version
 	sta veradat
@@ -223,14 +223,14 @@ GRAPH_get_pixel:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_set_pixels
+; GRAPH_LL_set_pixels
 ;
 ; Function:  Stores an array of color values in VRAM/BG and
 ;            advances the pointer
 ; Pass:      r0  pointer
 ;            r1  count
 ;---------------------------------------------------------------
-GRAPH_set_pixels:
+GRAPH_LL_set_pixels:
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 ; FG version
 	PushB r0H

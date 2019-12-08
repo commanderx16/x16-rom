@@ -3,7 +3,9 @@
 ;
 ; Font library: drawing
 
-.import SetVRAMPtrFG, SetVRAMPtrBG
+.import GRAPH_LL_start_direct
+.import GRAPH_LL_set_8_pixels
+.import GRAPH_LL_set_8_pixels_opaque
 
 .export GRAPH_get_char_size 
 
@@ -290,8 +292,7 @@ Font_2:
 	PushW r1
 	LoadW r0, 0
 	MoveB r1H, r1L
-	jsr SetVRAMPtrFG
-	jsr SetVRAMPtrBG
+	jsr GRAPH_LL_start_direct
 	PopW r1
 	PopW r0
 
@@ -728,49 +729,26 @@ Draw8Pixels:
 	plp
 	bcs @5
 
-; transclucent, regular
+	; transclucent, regular
 	ldy col1 ; fg: primary color
-@4:	asl
-	bcc @1
-	asl r4L
-	bcc @0
-	sty veradat
-@3:	cmp #0
-	bne @4
-	rts
-@1:	asl r4L
-@0:	inc veralo
-	bne @3
-	inc veramid
-@2:	bra @3
+	jmp GRAPH_LL_set_8_pixels
 
 ; opaque mode, regular
 @5:	ldy col_bg  ; bg
-	bra Draw8PixelsInv2
+	phx
+	ldx col1 ; fg: primary color
+	jsr GRAPH_LL_set_8_pixels_opaque
+	plx
+	rts
 
 ; inverted/underlined
 Draw8PixelsInv:
 	ldy col2 ; bg: secondary color
-Draw8PixelsInv2:
 	phx
 	ldx col1 ; fg: primary color
-; opaque drawing with fg color .x and bg color .y
-@4:	asl
-	bcc @1
-	asl r4L
-	bcc @5
-	stx veradat
-	bra @3
-@5:	sty veradat
-@3:	cmp #0
-	bne @4
+	jsr GRAPH_LL_set_8_pixels_opaque
 	plx
 	rts
-@1:	asl r4L
-	inc veralo
-	bne @3
-	inc veramid
-@2:	bra @3
 
 FntIndirectJMP:
 	ldy #0

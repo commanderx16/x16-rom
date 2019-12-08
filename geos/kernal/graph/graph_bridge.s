@@ -38,8 +38,8 @@ _GetScanLine:
 .import GRAPH_draw_frame
 .import GRAPH_draw_rect
 .import GRAPH_get_pixel
-.import GRAPH_start_direct
-.import GRAPH_set_pixel
+.import GRAPH_LL_start_direct
+.import GRAPH_LL_set_pixel
 .import GRAPH_filter_pixels
 
 .export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_pixel
@@ -479,14 +479,14 @@ _GRAPH_start_direct:
 	MoveB dispBufferOn, k_dispBufferOn
 	php
 	sei
-	jsrfar GRAPH_start_direct
+	jsrfar GRAPH_LL_start_direct
 	plp
 	rts
 
 _GRAPH_set_pixel:
 	php
 	sei
-	jsrfar GRAPH_set_pixel
+	jsrfar GRAPH_LL_set_pixel
 	plp
 	rts
 

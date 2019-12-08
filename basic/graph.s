@@ -39,9 +39,9 @@ cscreen
 pset:	jsr get_point
 	jsr get_col
 	pha
-	jsr GRAPH_start_direct
+	jsr GRAPH_LL_start_direct
 	pla
-	jmp GRAPH_set_pixel
+	jmp GRAPH_LL_set_pixel
 
 ;***************
 line	jsr get_points_col

@@ -4,6 +4,8 @@
 ; Graphics library: GRAPH_draw_line syscall
 
 .export GRAPH_draw_line
+.export GRAPH_LL_set_8_pixels
+.export GRAPH_LL_set_8_pixels_opaque
 
 .segment "GRAPH"
 
@@ -221,3 +223,50 @@ draw_point:
 @4:	lda veradat
 	sta (ptr_bg)
 	rts
+
+;---------------------------------------------------------------
+; GRAPH_LL_set_8_pixels
+;
+; Pass:      a        pattern
+;            r4L      mask
+;            y        color
+;---------------------------------------------------------------
+GRAPH_LL_set_8_pixels:
+@4:	asl
+	bcc @1
+	asl r4L
+	bcc @0
+	sty veradat
+@3:	cmp #0
+	bne @4
+	rts
+@1:	asl r4L
+@0:	inc veralo
+	bne @3
+	inc veramid
+@2:	bra @3
+
+;---------------------------------------------------------------
+; GRAPH_LL_set_8_pixels_opaque
+;
+; Pass:      a        pattern
+;            r4L      mask
+;            y        color
+;---------------------------------------------------------------
+GRAPH_LL_set_8_pixels_opaque:
+; opaque drawing with fg color .x and bg color .y
+@4:	asl
+	bcc @1
+	asl r4L
+	bcc @5
+	stx veradat
+	bra @3
+@5:	sty veradat
+@3:	cmp #0
+	bne @4
+	rts
+@1:	asl r4L
+	inc veralo
+	bne @3
+	inc veramid
+@2:	bra @3
