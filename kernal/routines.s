@@ -228,6 +228,8 @@ grphon	lda #$0e ; light blue
 	sta I_GRAPH_LL_BASE,x
 	dex
 	bpl :-
+	
+	jsr GRAPH_LL_init
 
 	jsr graph_init
 	lda #0  ; primary:    black
@@ -235,53 +237,7 @@ grphon	lda #$0e ; light blue
 	ldy #1  ; background: white
 	jsr GRAPH_set_colors
 	jsr graph_clear
-	jsr font_init
-
-tile_base = $10000
-
-; for GEOS
-.global initvg
-
-initvg:
-	lda #$00 ; layer0
-	sta veralo
-	lda #$20
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #7 << 5 | 1; 256c bitmap
-	sta veradat
-	lda #0
-	sta veradat; tile_w=320px
-	sta veradat; map_base_lo: ignore
-	sta veradat; map_base_hi: ignore
-	lda #<(tile_base >> 2)
-	sta veradat; tile_base_lo
-	lda #>(tile_base >> 2)
-	sta veradat; tile_base_hi
-
-	lda #$00        ;$F0000: composer registers
-	sta veralo
-	sta veramid
-	ldx #0
-px5a:	lda tvera_composer_g,x
-	sta veradat
-	inx
-	cpx #tvera_composer_g_end-tvera_composer_g
-	bne px5a
-
-	rts
-
-tvera_composer_g:
-	.byte 7 << 5 | 1  ;256c bitmap, VGA
-	.byte 64, 64      ;hscale, vscale
-	.byte 0           ;border color
-	.byte <hstart
-	.byte <hstop
-	.byte <vstart
-	.byte <vstop
-	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
-tvera_composer_g_end:
+	jmp font_init
 
 grphoff	lda #$00        ; layer0
 	sta veralo

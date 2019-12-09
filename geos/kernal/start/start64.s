@@ -76,12 +76,12 @@ _ResetHandle:
 	.word __drvcbdos_RUN__
 	.word __drvcbdos_SIZE__
 
-.import initvg
-xxxx:	jsr gjsrfar
-	.word initvg
+.import GRAPH_LL_init
+	jsr gjsrfar
+	.word GRAPH_LL_init
 	.byte BANK_KERNAL
 
-yyyy:	lda #$00 ; layer1
+	lda #$00 ; layer1
 	sta veralo
 	lda #$30
 	sta veramid

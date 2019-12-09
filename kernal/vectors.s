@@ -40,7 +40,7 @@ I_GRAPH_LL_move_pixels = I_GRAPH_LL_BASE+22
 	
 ; $FE00
 GRAPH_LL_init:
-	jmp (I_GRAPH_LL_get_info)
+	jmp (I_GRAPH_LL_init)
 ; $FE03
 GRAPH_LL_get_info:
 	jmp (I_GRAPH_LL_get_info)
