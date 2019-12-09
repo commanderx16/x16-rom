@@ -6,6 +6,8 @@
 
 .import graph_init, graph_clear, font_init
 
+.import GRAPH_LL_VERA
+
 .export jsrfar, banked_irq
 .export fetvec, fetch
 
@@ -219,6 +221,13 @@ swpp1	lda #<480
 
 grphon	lda #$0e ; light blue
 	sta color
+
+	; copy VERA driver vectors
+	ldx #11*2-1
+:	lda GRAPH_LL_VERA,x
+	sta I_GRAPH_LL_BASE,x
+	dex
+	bpl :-
 
 	jsr graph_init
 	lda #0  ; primary:    black

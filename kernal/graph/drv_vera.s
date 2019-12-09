@@ -1,12 +1,25 @@
-.export GRAPH_LL_get_info
-.export GRAPH_LL_start_direct
-.export GRAPH_LL_set_pixel
-.export GRAPH_LL_get_pixel
-.export GRAPH_LL_set_pixels
-.export GRAPH_LL_get_pixels
-.export GRAPH_LL_filter_pixels
-.export GRAPH_LL_set_8_pixels
-.export GRAPH_LL_set_8_pixels_opaque
+.include "../../mac.inc"
+.include "../../regs.inc"
+.include "../../io.inc"
+
+.importzp ptr_fg
+
+.export GRAPH_LL_VERA
+
+.segment "VERA_DRV"
+
+GRAPH_LL_VERA:
+	.word GRAPH_LL_get_info
+	.word GRAPH_LL_start_direct
+	.word GRAPH_LL_get_pixel
+	.word GRAPH_LL_get_pixels
+	.word GRAPH_LL_set_pixel
+	.word GRAPH_LL_set_pixels
+	.word GRAPH_LL_set_8_pixels
+	.word GRAPH_LL_set_8_pixels_opaque
+	.word GRAPH_LL_fill_pixels
+	.word GRAPH_LL_filter_pixels
+	.word GRAPH_LL_move_pixels
 
 ;---------------------------------------------------------------
 ; GRAPH_LL_get_info

@@ -161,6 +161,7 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/joystick.o kernal/joystick.s
 	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/clock.o kernal/clock.s
 	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/graph/graph.o kernal/graph/graph.s
+	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/graph/drv_vera.o kernal/graph/drv_vera.s
 	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/fonts/fonts.o kernal/fonts/fonts.s
 
 	$(AS) $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
@@ -184,6 +185,7 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(LD) -C rom.cfg -o rom.bin \
 		basic/basic.o \
 		fplib/fplib.o \
+		kernal/graph/drv_vera.o \
 		kernal/kernal.o kernal/cpychr.o kernal/ps2.o kernal/ps2kbd.o kernal/ps2mouse.o kernal/joystick.o kernal/clock.o kernal/graph/graph.o kernal/fonts/fonts.o \
 		monitor/monitor.o \
 		cbdos/zeropage.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o \

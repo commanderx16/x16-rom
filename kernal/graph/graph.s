@@ -14,6 +14,18 @@
 
 .import leftMargin, windowTop, rightMargin, windowBottom
 
+.import GRAPH_LL_get_info
+.import GRAPH_LL_start_direct
+.import GRAPH_LL_get_pixel
+.import GRAPH_LL_get_pixels
+.import GRAPH_LL_set_pixel
+.import GRAPH_LL_set_pixels
+.import GRAPH_LL_set_8_pixels
+.import GRAPH_LL_set_8_pixels_opaque
+.import GRAPH_LL_fill_pixels
+.import GRAPH_LL_filter_pixels
+.import GRAPH_LL_move_pixels
+
 .segment "GRAPH"
 
 .include "color.s"
@@ -21,4 +33,3 @@
 .include "point.s"
 .include "rect.s"
 .include "scanline.s"
-.include "vera320x200x256.s"

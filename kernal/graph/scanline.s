@@ -4,13 +4,8 @@
 
 .export graph_init
 .export graph_clear
-.export GRAPH_LL_set_pixel
-.export GRAPH_LL_get_pixel
-.export GRAPH_LL_filter_pixels
 .export GRAPH_set_window
 .export GRAPH_set_options
-.export GRAPH_LL_set_pixels
-.export GRAPH_LL_get_pixels
 
 .segment "GRAPH"
 

@@ -4,8 +4,6 @@
 ; Graphics library: GRAPH_draw_line syscall
 
 .export GRAPH_draw_line
-.export GRAPH_LL_set_8_pixels
-.export GRAPH_LL_set_8_pixels_opaque
 
 .segment "GRAPH"
 

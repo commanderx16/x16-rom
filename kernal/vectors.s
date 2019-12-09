@@ -6,7 +6,69 @@
 .import joystick_scan, joystick_get; [joystick]
 .import clock_update, clock_get_timer, clock_set_timer, clock_get_time_date, clock_set_time_date; [time]
 
-.import GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_draw_line, GRAPH_LL_filter_pixels, GRAPH_LL_get_pixel, GRAPH_LL_set_pixel, GRAPH_LL_start_direct
+.import GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_draw_line
+
+.export GRAPH_LL_get_info
+.export GRAPH_LL_start_direct
+.export GRAPH_LL_get_pixel
+.export GRAPH_LL_get_pixels
+.export GRAPH_LL_set_pixel
+.export GRAPH_LL_set_pixels
+.export GRAPH_LL_set_8_pixels
+.export GRAPH_LL_set_8_pixels_opaque
+.export GRAPH_LL_fill_pixels
+.export GRAPH_LL_filter_pixels
+.export GRAPH_LL_move_pixels
+
+	.segment "JMPTBL3"
+I_GRAPH_LL_BASE = $9000; XXX
+
+I_GRAPH_LL_get_info = I_GRAPH_LL_BASE
+I_GRAPH_LL_start_direct = I_GRAPH_LL_BASE+2
+I_GRAPH_LL_get_pixel = I_GRAPH_LL_BASE+4
+I_GRAPH_LL_get_pixels = I_GRAPH_LL_BASE+6
+I_GRAPH_LL_set_pixel = I_GRAPH_LL_BASE+8
+I_GRAPH_LL_set_pixels = I_GRAPH_LL_BASE+10
+I_GRAPH_LL_set_8_pixels = I_GRAPH_LL_BASE+12
+I_GRAPH_LL_set_8_pixels_opaque = I_GRAPH_LL_BASE+14
+I_GRAPH_LL_fill_pixels = I_GRAPH_LL_BASE+16
+I_GRAPH_LL_filter_pixels = I_GRAPH_LL_BASE+18
+I_GRAPH_LL_move_pixels = I_GRAPH_LL_BASE+20
+
+	
+; $FE00
+GRAPH_LL_get_info:
+	jmp (I_GRAPH_LL_get_info)
+; $FE03
+ GRAPH_LL_start_direct:
+	jmp (I_GRAPH_LL_start_direct)
+; $FE06
+GRAPH_LL_get_pixel:
+	jmp (I_GRAPH_LL_get_pixel)
+; $FE09
+GRAPH_LL_get_pixels:
+	jmp (I_GRAPH_LL_get_pixels)
+; $FE0C
+GRAPH_LL_set_pixel:
+	jmp (I_GRAPH_LL_set_pixel)
+; $FE0F
+GRAPH_LL_set_pixels:
+	jmp (I_GRAPH_LL_set_pixels)
+; $FE12
+GRAPH_LL_set_8_pixels:
+	jmp (I_GRAPH_LL_set_8_pixels)
+; $FE15
+GRAPH_LL_set_8_pixels_opaque:
+	jmp (I_GRAPH_LL_set_8_pixels_opaque)
+; $FE18
+GRAPH_LL_fill_pixels:
+	jmp (I_GRAPH_LL_fill_pixels)
+; $FE1B
+GRAPH_LL_filter_pixels:
+	jmp (I_GRAPH_LL_filter_pixels)
+; $FE1E
+GRAPH_LL_move_pixels:
+	jmp (I_GRAPH_LL_move_pixels)
 
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***

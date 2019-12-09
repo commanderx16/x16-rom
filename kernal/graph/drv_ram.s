@@ -6,6 +6,8 @@
 .export GRAPH_LL_get_pixels
 .export GRAPH_LL_filter_pixels
 
+.segment "RAM_DRV"
+
 ;---------------------------------------------------------------
 ; GRAPH_LL_get_info
 ;
