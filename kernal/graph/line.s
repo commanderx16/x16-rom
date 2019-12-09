@@ -87,7 +87,7 @@ HLineBG:
 	sta (ptr_bg),y
 	iny
 	bne @1
-	jsr inc_bgpage
+	;jsr inc_bgpage
 	dex
 	bne @1
 
@@ -141,7 +141,7 @@ RecoverLine:
 	sta veradat
 	iny
 	bne @1
-	jsr inc_bgpage
+	;jsr inc_bgpage
 	dex
 	bne @1
 
@@ -189,7 +189,7 @@ ImprintLine:
 	sta (ptr_bg),y
 	iny
 	bne @1
-	jsr inc_bgpage
+	;jsr inc_bgpage
 	dex
 	bne @1
 
@@ -231,7 +231,7 @@ VerticalLine:
 
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 
-	jsr SetVRAMPtrFG
+	jsr GRAPH_LL_start_direct
 
 	phx
 	lda col1
@@ -246,7 +246,7 @@ VerticalLine:
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
 
-	jsr SetVRAMPtrBG
+	;jsr SetVRAMPtrBG
 
 	ldy #0
 	lda col1
@@ -256,8 +256,8 @@ VerticalLine:
 	adc #$40 ; <320
 	tay
 	bne @a
-	jsr inc_bgpage
-@a:	jsr inc_bgpage
+	;jsr inc_bgpage
+@a:	;jsr inc_bgpage
 	dex
 	bne @b
 
@@ -281,8 +281,8 @@ GetLineStartAndWidth:
 	stx r0H
 	sta r2H
 
-@2:	jsr SetVRAMPtrFG
-	jsr SetVRAMPtrBG
+@2:	jsr GRAPH_LL_start_direct
+	;jsr SetVRAMPtrBG
 
 	MoveW r2, r15
 	SubW r0, r15

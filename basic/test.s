@@ -3,7 +3,7 @@ GRAPH_set_options    = $FF1E ; TODO
 GRAPH_set_colors     = $FF21
 GRAPH_LL_start_direct   = $FF24
 GRAPH_LL_set_pixel      = $FF27
-GRAPH_get_pixel      = $FF2A
+GRAPH_LL_get_pixel      = $FF2A
 GRAPH_filter_pixels  = $FF2D
 GRAPH_draw_line      = $FF30
 GRAPH_draw_frame     = $FF33
@@ -136,7 +136,7 @@ test4_set_get_pixels:
 	LoadB r1H, 1; "OK"
 	ldx #0
 :	phx
-	jsr GRAPH_get_pixel
+	jsr GRAPH_LL_get_pixel
 	plx
 	sta r0L
 	cpx r0L
@@ -188,7 +188,7 @@ test5_filter_pixels:
 	LoadB r1H, 1; "OK"
 	ldx #0
 :	phx
-	jsr GRAPH_get_pixel
+	jsr GRAPH_LL_get_pixel
 	plx
 	eor #$55
 	sta r0L
@@ -504,7 +504,7 @@ checksum_framebuffer:
 	ldy #<320
 @loop2:	phy
 	phx
-	jsr GRAPH_get_pixel
+	jsr GRAPH_LL_get_pixel
 	jsr crc16_f
 	plx
 	ply

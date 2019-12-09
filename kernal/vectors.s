@@ -6,7 +6,7 @@
 .import joystick_scan, joystick_get; [joystick]
 .import clock_update, clock_get_timer, clock_set_timer, clock_get_time_date, clock_set_time_date; [time]
 
-.import GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_draw_line, GRAPH_filter_pixels, GRAPH_get_pixel, GRAPH_LL_set_pixel, GRAPH_LL_start_direct
+.import GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_draw_line, GRAPH_filter_pixels, GRAPH_LL_get_pixel, GRAPH_LL_set_pixel, GRAPH_LL_start_direct
 
 	.segment "JMPTBL2"
 ; *** this is space for new X16 KERNAL vectors ***
@@ -45,10 +45,10 @@
 	jmp GRAPH_LL_set_pixel
 ;XX GRAPH_LL_set_pixels [TODO]
 ;XX	jmp $ffff;GRAPH_LL_set_pixels
-; $FF2A: byte GRAPH_get_pixel(word x, word y);
-	jmp GRAPH_get_pixel
-;XX GRAPH_get_pixels [TODO]
-;XX	jmp $ffff;GRAPH_get_pixels
+; $FF2A: byte GRAPH_LL_get_pixel(word x, word y);
+	jmp GRAPH_LL_get_pixel
+;XX GRAPH_LL_get_pixels [TODO]
+;XX	jmp $ffff;GRAPH_LL_get_pixels
 ; $FF2D: void GRAPH_filter_pixels(word num, word ptr);
 	jmp GRAPH_filter_pixels
 

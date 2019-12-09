@@ -21,3 +21,4 @@
 .include "point.s"
 .include "rect.s"
 .include "scanline.s"
+.include "vera320x200x256.s"

@@ -200,19 +200,19 @@ draw_point:
 	bmi @3
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
 
-	jsr SetVRAMPtrFG
+	jsr GRAPH_LL_start_direct
 	lda col1
 	sta veradat
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	jsr SetVRAMPtrBG
+	;jsr SetVRAMPtrBG
 	lda col1
 	sta (ptr_bg)
 @2:	rts
 ; imprint/recover
 @3:	php
-	jsr SetVRAMPtrFG
-	jsr SetVRAMPtrBG
+	jsr GRAPH_LL_start_direct
+	;jsr SetVRAMPtrBG
 	plp
 	bcc @4
 ; recover

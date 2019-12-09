@@ -37,7 +37,7 @@ _GetScanLine:
 .import GRAPH_draw_line
 .import GRAPH_draw_frame
 .import GRAPH_draw_rect
-.import GRAPH_get_pixel
+.import GRAPH_LL_get_pixel
 .import GRAPH_LL_start_direct
 .import GRAPH_LL_set_pixel
 .import GRAPH_filter_pixels
@@ -315,7 +315,7 @@ _TestPoint:
 	php
 	sei
 	jsr gjsrfar
-	.word GRAPH_get_pixel
+	.word GRAPH_LL_get_pixel
 	.byte BANK_KERNAL
 	plp
 	tax
