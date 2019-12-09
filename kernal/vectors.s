@@ -25,17 +25,17 @@
 I_GRAPH_LL_BASE = $9000; XXX
 
 I_GRAPH_LL_init = I_GRAPH_LL_BASE
-I_GRAPH_LL_get_info = I_GRAPH_LL_BASE
-I_GRAPH_LL_start_direct = I_GRAPH_LL_BASE+2
-I_GRAPH_LL_get_pixel = I_GRAPH_LL_BASE+4
-I_GRAPH_LL_get_pixels = I_GRAPH_LL_BASE+6
-I_GRAPH_LL_set_pixel = I_GRAPH_LL_BASE+8
-I_GRAPH_LL_set_pixels = I_GRAPH_LL_BASE+10
-I_GRAPH_LL_set_8_pixels = I_GRAPH_LL_BASE+12
-I_GRAPH_LL_set_8_pixels_opaque = I_GRAPH_LL_BASE+14
-I_GRAPH_LL_fill_pixels = I_GRAPH_LL_BASE+16
-I_GRAPH_LL_filter_pixels = I_GRAPH_LL_BASE+18
-I_GRAPH_LL_move_pixels = I_GRAPH_LL_BASE+20
+I_GRAPH_LL_get_info = I_GRAPH_LL_BASE+2
+I_GRAPH_LL_start_direct = I_GRAPH_LL_BASE+4
+I_GRAPH_LL_get_pixel = I_GRAPH_LL_BASE+6
+I_GRAPH_LL_get_pixels = I_GRAPH_LL_BASE+8
+I_GRAPH_LL_set_pixel = I_GRAPH_LL_BASE+10
+I_GRAPH_LL_set_pixels = I_GRAPH_LL_BASE+12
+I_GRAPH_LL_set_8_pixels = I_GRAPH_LL_BASE+14
+I_GRAPH_LL_set_8_pixels_opaque = I_GRAPH_LL_BASE+16
+I_GRAPH_LL_fill_pixels = I_GRAPH_LL_BASE+18
+I_GRAPH_LL_filter_pixels = I_GRAPH_LL_BASE+20
+I_GRAPH_LL_move_pixels = I_GRAPH_LL_BASE+22
 
 	
 ; $FE00

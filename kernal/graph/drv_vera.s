@@ -9,6 +9,7 @@
 .segment "VERA_DRV"
 
 GRAPH_LL_VERA:
+	.word GRAPH_LL_init
 	.word GRAPH_LL_get_info
 	.word GRAPH_LL_start_direct
 	.word GRAPH_LL_get_pixel
@@ -20,6 +21,15 @@ GRAPH_LL_VERA:
 	.word GRAPH_LL_fill_pixels
 	.word GRAPH_LL_filter_pixels
 	.word GRAPH_LL_move_pixels
+
+;---------------------------------------------------------------
+; GRAPH_LL_init
+;
+; Pass:      -
+;---------------------------------------------------------------
+GRAPH_LL_init:
+	rts
+	
 
 ;---------------------------------------------------------------
 ; GRAPH_LL_get_info
