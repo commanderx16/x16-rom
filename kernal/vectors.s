@@ -8,6 +8,7 @@
 
 .import GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_draw_frame, GRAPH_draw_line
 
+.export GRAPH_LL_init
 .export GRAPH_LL_get_info
 .export GRAPH_LL_start_direct
 .export GRAPH_LL_get_pixel
@@ -23,6 +24,7 @@
 	.segment "JMPTBL3"
 I_GRAPH_LL_BASE = $9000; XXX
 
+I_GRAPH_LL_init = I_GRAPH_LL_BASE
 I_GRAPH_LL_get_info = I_GRAPH_LL_BASE
 I_GRAPH_LL_start_direct = I_GRAPH_LL_BASE+2
 I_GRAPH_LL_get_pixel = I_GRAPH_LL_BASE+4
@@ -37,36 +39,39 @@ I_GRAPH_LL_move_pixels = I_GRAPH_LL_BASE+20
 
 	
 ; $FE00
-GRAPH_LL_get_info:
+GRAPH_LL_init:
 	jmp (I_GRAPH_LL_get_info)
 ; $FE03
+GRAPH_LL_get_info:
+	jmp (I_GRAPH_LL_get_info)
+ ; $FE06
  GRAPH_LL_start_direct:
 	jmp (I_GRAPH_LL_start_direct)
-; $FE06
+; $FE09
 GRAPH_LL_get_pixel:
 	jmp (I_GRAPH_LL_get_pixel)
-; $FE09
+; $FE0C
 GRAPH_LL_get_pixels:
 	jmp (I_GRAPH_LL_get_pixels)
-; $FE0C
+; $FE0F
 GRAPH_LL_set_pixel:
 	jmp (I_GRAPH_LL_set_pixel)
-; $FE0F
+; $FE12
 GRAPH_LL_set_pixels:
 	jmp (I_GRAPH_LL_set_pixels)
-; $FE12
+; $FE15
 GRAPH_LL_set_8_pixels:
 	jmp (I_GRAPH_LL_set_8_pixels)
-; $FE15
+; $FE18
 GRAPH_LL_set_8_pixels_opaque:
 	jmp (I_GRAPH_LL_set_8_pixels_opaque)
-; $FE18
+; $FE1B
 GRAPH_LL_fill_pixels:
 	jmp (I_GRAPH_LL_fill_pixels)
-; $FE1B
+; $FE1E
 GRAPH_LL_filter_pixels:
 	jmp (I_GRAPH_LL_filter_pixels)
-; $FE1E
+; $FE21
 GRAPH_LL_move_pixels:
 	jmp (I_GRAPH_LL_move_pixels)
 
