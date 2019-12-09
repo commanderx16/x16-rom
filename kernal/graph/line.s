@@ -15,61 +15,19 @@
 ;---------------------------------------------------------------
 HorizontalLine:
 	jsr GetLineStartAndWidth
-	lda col1
 	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-	jsr HLineFG
-@1:	bbrf 6, k_dispBufferOn, HLine_rts ; ST_WR_BACK
+	PushW r0
+	PushW r1
+	MoveW r15, r0
+	LoadW r1, 0
+	lda col1
+	jsr GRAPH_LL_fill_pixels
+	PopW r1
+	PopW r0
+@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
+	lda col1
 	jmp HLineBG
-
-; foreground version
-HLineFG:
-	ldx r15H
-	beq @2
-
-; full blocks, 8 bytes at a time
-	ldy #$20
-@1:	jsr fill_y
-	dex
-	bne @1
-
-; partial block, 8 bytes at a time
-@2:	pha
-	lda r15L
-	lsr
-	lsr
-	lsr
-	beq @6
-	tay
-	pla
-	jsr fill_y
-
-; remaining 0 to 7 bytes
-	pha
-@6:	lda r15L
-	and #7
-	beq @5
-	tay
-	pla
-@3:	sta veradat
-	dey
-	bne @3
-@4:	rts
-
-@5:	pla
-	rts
-
-fill_y:	sta veradat
-	sta veradat
-	sta veradat
-	sta veradat
-	sta veradat
-	sta veradat
-	sta veradat
-	sta veradat
-	dey
-	bne fill_y
-HLine_rts:
-	rts
+@2:	rts
 
 ; background version
 HLineBG:
@@ -234,14 +192,16 @@ VerticalLine:
 	jsr GRAPH_LL_start_direct
 
 	phx
+	PushW r0
+	PushW r1
+	LoadW r1, 320
+	stx r0L
+	stz r0H
 	lda col1
-	ldy #$71    ; increment in steps of $40
-	sty verahi
-:	sta veradat
-	inc veramid ; increment hi -> add $140 = 320
-	dex
-	bne :-
-
+	jsr GRAPH_LL_fill_pixels
+	PopW r1
+	PopW r0
+	
 	plx
 
 @1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK

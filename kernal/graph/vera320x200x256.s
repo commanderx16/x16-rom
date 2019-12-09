@@ -4,7 +4,9 @@
 .export GRAPH_LL_get_pixel
 .export GRAPH_LL_set_pixels
 .export GRAPH_LL_get_pixels
-.export GRAPH_filter_pixels
+.export GRAPH_LL_filter_pixels
+.export GRAPH_LL_set_8_pixels
+.export GRAPH_LL_set_8_pixels_opaque
 
 ;---------------------------------------------------------------
 ; GRAPH_LL_get_info
@@ -149,14 +151,133 @@ get_pixels_FG:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_filter_pixels
+; GRAPH_LL_set_8_pixels
 ;
-; Pass:      r0   number of points
+; Pass:      a        pattern
+;            r4L      mask
+;            y        color
+;---------------------------------------------------------------
+GRAPH_LL_set_8_pixels:
+@4:	asl
+	bcc @1
+	asl r4L
+	bcc @0
+	sty veradat
+@3:	cmp #0
+	bne @4
+	rts
+@1:	asl r4L
+@0:	inc veralo
+	bne @3
+	inc veramid
+@2:	bra @3
+
+;---------------------------------------------------------------
+; GRAPH_LL_set_8_pixels_opaque
+;
+; Pass:      a        pattern
+;            r4L      mask
+;            y        color
+;---------------------------------------------------------------
+GRAPH_LL_set_8_pixels_opaque:
+; opaque drawing with fg color .x and bg color .y
+@4:	asl
+	bcc @1
+	asl r4L
+	bcc @5
+	stx veradat
+	bra @3
+@5:	sty veradat
+@3:	cmp #0
+	bne @4
+	rts
+@1:	asl r4L
+	inc veralo
+	bne @3
+	inc veramid
+@2:	bra @3
+
+;---------------------------------------------------------------
+; GRAPH_LL_fill_pixels
+;
+; Pass:      r0   number of pixels
+;            r1   step size [NYI]
+;            a    color
+;---------------------------------------------------------------
+GRAPH_LL_fill_pixels:
+	ldx r1H
+	bne fill_pixels_with_step
+	ldx r1L
+	cpx #2
+	bcs fill_pixels_with_step
+
+; step 1
+	ldx r0H
+	beq @2
+
+; full blocks, 8 bytes at a time
+	ldy #$20
+@1:	jsr fill_y
+	dex
+	bne @1
+
+; partial block, 8 bytes at a time
+@2:	pha
+	lda r0L
+	lsr
+	lsr
+	lsr
+	beq @6
+	tay
+	pla
+	jsr fill_y
+
+; remaining 0 to 7 bytes
+	pha
+@6:	lda r0L
+	and #7
+	beq @5
+	tay
+	pla
+@3:	sta veradat
+	dey
+	bne @3
+@4:	rts
+
+@5:	pla
+	rts
+
+fill_y:	sta veradat
+	sta veradat
+	sta veradat
+	sta veradat
+	sta veradat
+	sta veradat
+	sta veradat
+	sta veradat
+	dey
+	bne fill_y
+	rts
+
+fill_pixels_with_step:
+	ldy #$71    ; increment in steps of $40
+	sty verahi
+	ldx r0L
+:	sta veradat
+	inc veramid ; increment hi -> add $140 = 320
+	dex
+	bne :-
+	rts
+
+;---------------------------------------------------------------
+; GRAPH_LL_filter_pixels
+;
+; Pass:      r0   number of pixels
 ;            r1   pointer to filter routine:
 ;                 Pass:    a  color
 ;                 Return:  a  color
 ;---------------------------------------------------------------
-GRAPH_filter_pixels:
+GRAPH_LL_filter_pixels:
 	; build a JMP instruction
 	LoadB r14H, $4c
 	MoveW r1, r15
@@ -230,3 +351,14 @@ filter_y:
 	bne filter_y
 	rts
 
+;---------------------------------------------------------------
+; GRAPH_LL_move_pixels
+;
+; Pass:      r0   sx
+;            r1   sy
+;            r2   tx
+;            r3   ty
+;            r4   number of pixels
+;---------------------------------------------------------------
+GRAPH_LL_move_pixels:
+	brk

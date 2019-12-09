@@ -4,7 +4,7 @@
 .export GRAPH_LL_get_pixel
 .export GRAPH_LL_set_pixels
 .export GRAPH_LL_get_pixels
-.export GRAPH_filter_pixels
+.export GRAPH_LL_filter_pixels
 
 ;---------------------------------------------------------------
 ; GRAPH_LL_get_info
@@ -212,14 +212,14 @@ get_pixels_BG:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_filter_pixels
+; GRAPH_LL_filter_pixels
 ;
-; Pass:      r0   number of points
+; Pass:      r0   number of pixels
 ;            r1   pointer to filter routine:
 ;                 Pass:    a  color
 ;                 Return:  a  color
 ;---------------------------------------------------------------
-GRAPH_filter_pixels:
+GRAPH_LL_filter_pixels:
 	; build a JMP instruction
 	LoadB r14H, $4c
 	MoveW r1, r15

@@ -40,7 +40,7 @@ _GetScanLine:
 .import GRAPH_LL_get_pixel
 .import GRAPH_LL_start_direct
 .import GRAPH_LL_set_pixel
-.import GRAPH_filter_pixels
+.import GRAPH_LL_filter_pixels
 
 .export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_pixel
 
@@ -395,7 +395,7 @@ _InvertLine:
 
 	php
 	sei
-	jsrfar GRAPH_filter_pixels
+	jsrfar GRAPH_LL_filter_pixels
 	plp
 		
 	PopB r12L
