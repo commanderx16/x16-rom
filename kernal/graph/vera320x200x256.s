@@ -201,7 +201,7 @@ GRAPH_LL_set_8_pixels_opaque:
 ; GRAPH_LL_fill_pixels
 ;
 ; Pass:      r0   number of pixels
-;            r1   step size [NYI]
+;            r1   step size
 ;            a    color
 ;---------------------------------------------------------------
 GRAPH_LL_fill_pixels:
@@ -259,9 +259,10 @@ fill_y:	sta veradat
 	bne fill_y
 	rts
 
+; XXX TODO support other step sizes
 fill_pixels_with_step:
-	ldy #$71    ; increment in steps of $40
-	sty verahi
+	ldx #$71    ; increment in steps of $40
+	stx verahi
 	ldx r0L
 :	sta veradat
 	inc veramid ; increment hi -> add $140 = 320
