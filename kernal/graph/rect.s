@@ -15,13 +15,9 @@
 ;            r1   y1
 ;            r2   x2
 ;            r3   y2
-;            N/C  0/x: draw (dispBufferOn)
-;                 1/0: copy FG to BG (imprint)
-;                 1/1: copy BG to FG (recover)
 ; Return:    draws the rectangle
 ;---------------------------------------------------------------
 GRAPH_draw_rect:
-	php
 	; make sure y2 >= y1
 	lda r3L
 	cmp r1L
@@ -29,50 +25,9 @@ GRAPH_draw_rect:
 	ldx r1L
 	stx r3L
 	sta r1L
-@a:	plp
-
-	bpl @0
-	bcc ImprintRectangle
-	bra RecoverRectangle
-
-@0:	PushW r1
+@a:
+	PushW r1
 @1:	jsr HorizontalLine
-	lda r1L
-	inc r1L
-	cmp r3L
-	bne @1
-	PopW r1
-	rts
-
-;---------------------------------------------------------------
-; RecoverRectangle
-;
-; Pass:      r0   x1
-;            r1   y1
-;            r2   x2
-;            r3   y2
-;---------------------------------------------------------------
-RecoverRectangle:
-	PushW r1
-@1:	jsr RecoverLine
-	lda r1L
-	inc r1L
-	cmp r3L
-	bne @1
-	PopW r1
-	rts
-
-;---------------------------------------------------------------
-; ImprintRectangle
-;
-; Pass:      r0   x1
-;            r1   y1
-;            r2   x2
-;            r3   y2
-;---------------------------------------------------------------
-ImprintRectangle:
-	PushW r1
-@1:	jsr ImprintLine
 	lda r1L
 	inc r1L
 	cmp r3L

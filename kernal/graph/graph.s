@@ -9,7 +9,7 @@
 
 .setcpu "65c02"
 
-.import col1, col2, col_bg, k_dispBufferOn; [declare]
+.import col1, col2, col_bg; [declare]
 .importzp ptr_fg, ptr_bg
 
 .import leftMargin, windowTop, rightMargin, windowBottom

@@ -5,12 +5,10 @@
 .export graph_init
 .export graph_clear
 .export GRAPH_set_window
-.export GRAPH_set_options
 
 .segment "GRAPH"
 
 graph_init:
-	LoadW k_dispBufferOn, ST_WR_FORE
 	rts
 
 graph_clear:
@@ -39,13 +37,4 @@ GRAPH_set_window:
 	MoveW r2, rightMargin
 	MoveB r3L, windowBottom
 	rts
-	
-;---------------------------------------------------------------
-; GRAPH_set_options
-;
-; Pass:      a      options
-;---------------------------------------------------------------
-GRAPH_set_options:
-	sta k_dispBufferOn
-	rts
-	
+

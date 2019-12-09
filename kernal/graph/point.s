@@ -14,34 +14,18 @@
 ;            r1       y2
 ;            r2       x1
 ;            r3       y2
-;            N/C      0/x: draw (dispBufferOn)
-;                     1/0: copy FG to BG (imprint)
-;                     1/1: copy BG to FG (recover)
 ;---------------------------------------------------------------
 GRAPH_draw_line:
-	php
 	CmpB r1L, r3L      ; horizontal?
 	bne @0a            ; no
-	bmi @0b            ; imprint/recover?
-	plp
 	jmp HorizontalLine
-@0b:	plp
-	bcc @c             ; imprint
-	jmp RecoverLine
-@c:
-	jmp ImprintLine
 
-@0a:	plp
-	bmi @0             ; imprint/recover? slow path
-	php
-	CmpW r0, r2        ; vertical?
+@0a:	CmpW r0, r2        ; vertical?
 	bne @0             ; no
-	plp
 	jmp VerticalLine
 
 ; Bresenham
-@0:	plp
-	php
+@0:	php
 	LoadB r7H, 0
 	lda r3L
 	sub r1L
@@ -186,38 +170,12 @@ abs:
 ;---------------------------------------------------------------
 ; draw_point
 ;
-; Pass:      N/C      0/x: draw (dispBufferOn)
-;                     1/0: copy FG to BG (imprint)
-;                     1/1: copy BG to FG (recover)
 ;            r0       x pos of point
 ;            r1L      y pos of point
 ; Return:    -
 ; Destroyed: a, x, y, r5
 ;---------------------------------------------------------------
 draw_point:
-	bmi @3
-	bbrf 7, k_dispBufferOn, @1 ; ST_WR_FORE
-
 	jsr GRAPH_LL_start_direct
 	lda col1
-	sta veradat
-
-@1:	bbrf 6, k_dispBufferOn, @2 ; ST_WR_BACK
-	;jsr SetVRAMPtrBG
-	lda col1
-	sta (ptr_bg)
-@2:	rts
-; imprint/recover
-@3:	php
-	jsr GRAPH_LL_start_direct
-	;jsr SetVRAMPtrBG
-	plp
-	bcc @4
-; recover
-	lda (ptr_bg)
-	sta veradat
-	rts
-; imprint
-@4:	lda veradat
-	sta (ptr_bg)
-	rts
+	jmp GRAPH_LL_set_pixel

@@ -100,21 +100,21 @@ GRAPH_LL_move_pixels:
 	jmp joystick_get
 
 
-; $FF1B: GRAPH_set_window [TODO]
+; $FF1B: void GRAPH_set_window(word x1, word y1, word x2, word y2);
 	jmp GRAPH_set_window
-; $FF1E: GRAPH_set_options [TODO]
-	jmp $ffff;GRAPH_set_options
+; $FF1E: ---undefined---
+	jmp $ffff;
 ; $FF21: GRAPH_set_colors
 	jmp GRAPH_set_colors
 ; $FF24: void GRAPH_LL_start_direct(word x, word y);
 	jmp GRAPH_LL_start_direct
 ; $FF27: void GRAPH_LL_set_pixel(byte color);
 	jmp GRAPH_LL_set_pixel
-;XX GRAPH_LL_set_pixels [TODO]
+;XX void GRAPH_LL_set_pixels(word ptr, word count);
 ;XX	jmp $ffff;GRAPH_LL_set_pixels
 ; $FF2A: byte GRAPH_LL_get_pixel(word x, word y);
 	jmp GRAPH_LL_get_pixel
-;XX GRAPH_LL_get_pixels [TODO]
+;XX void GRAPH_LL_get_pixels(word ptr, word count);
 ;XX	jmp $ffff;GRAPH_LL_get_pixels
 ; $FF2D: void GRAPH_LL_filter_pixels(word num, word ptr);
 	jmp GRAPH_LL_filter_pixels
@@ -125,7 +125,7 @@ GRAPH_LL_move_pixels:
 	jmp GRAPH_draw_frame
 ; $FF36: void GRAPH_draw_rect(word x1, word y1, word x2, word y2, byte flags);
 	jmp GRAPH_draw_rect
-; $FF39: GRAPH_move_rect [TODO]
+; $FF39: void GRAPH_move_rect(word x1, word y1, word x2, word y2, word tx, word ty);  [TODO]
 	jmp $ffff;GRAPH_move_rect
 
 ; $FF3C: void GRAPH_set_font(void ptr);
