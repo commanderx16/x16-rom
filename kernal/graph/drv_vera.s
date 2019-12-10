@@ -232,29 +232,35 @@ get_pixels_FG:
 ;---------------------------------------------------------------
 ; GRAPH_LL_set_8_pixels
 ;
+; Note: Always advances the pointer by 8 pixels.
+;
 ; Pass:      a        pattern
 ;            y        color
 ;---------------------------------------------------------------
 GRAPH_LL_set_8_pixels:
-	ldx #8
-@4:	asl
-	bcc @1
-	sty veradat
-@3:	dex
+	sec
+	rol
+	bcs @1
+	inc veralo
 	bne @4
-	rts
-@1:	inc veralo
-	bne @3
 	inc veramid
-	dex
+	bra @4
+@4:	asl
+@x:	bcs @1
+	inc veralo
 	bne @4
-	rts
+	inc veramid
+	bra @4
+@1:	beq @5
+	sty veradat
+	bra @4
+@5:	rts
 
 ;---------------------------------------------------------------
 ; GRAPH_LL_set_8_pixels_opaque
 ;
-; Pass:      a        pattern
-;            r4L      mask
+; Pass:      a        mask
+;            r4L      pattern
 ;            y        color
 ;---------------------------------------------------------------
 GRAPH_LL_set_8_pixels_opaque:
