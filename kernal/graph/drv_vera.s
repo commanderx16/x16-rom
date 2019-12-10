@@ -233,23 +233,22 @@ get_pixels_FG:
 ; GRAPH_LL_set_8_pixels
 ;
 ; Pass:      a        pattern
-;            r4L      mask
 ;            y        color
 ;---------------------------------------------------------------
 GRAPH_LL_set_8_pixels:
+	ldx #8
 @4:	asl
 	bcc @1
-	asl r4L
-	bcc @0
 	sty veradat
-@3:	cmp #0
+@3:	dex
 	bne @4
 	rts
-@1:	asl r4L
-@0:	inc veralo
+@1:	inc veralo
 	bne @3
 	inc veramid
-@2:	bra @3
+	dex
+	bne @4
+	rts
 
 ;---------------------------------------------------------------
 ; GRAPH_LL_set_8_pixels_opaque

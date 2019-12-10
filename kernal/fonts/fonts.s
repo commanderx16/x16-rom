@@ -10,7 +10,6 @@
 .include "fonts.inc"
 
 .import col1, col2, col_bg
-.importzp ptr_fg
 
 .export curIndexTable, baselineOffset, curSetWidth, curHeight, cardDataPntr, currentMode, windowTop, windowBottom, leftMargin, rightMargin
 
