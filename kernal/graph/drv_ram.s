@@ -1,5 +1,5 @@
 .export GRAPH_LL_get_info
-.export GRAPH_LL_start_direct
+.export GRAPH_LL_set_ptr
 .export GRAPH_LL_set_pixel
 .export GRAPH_LL_get_pixel
 .export GRAPH_LL_set_pixels
@@ -31,13 +31,13 @@ GRAPH_LL_get_info:
 	rts
 	
 ;---------------------------------------------------------------
-; GRAPH_LL_start_direct
+; GRAPH_LL_set_ptr
 ;
 ; Function:  Sets up the VRAM address of a pixel
 ; Pass:      r0     x pos
 ;            r1     y pos
 ;---------------------------------------------------------------
-GRAPH_LL_start_direct:
+GRAPH_LL_set_ptr:
 ; For BG storage, we have to work with 8 KB banks.
 ; Lines are 320 bytes, and 8 KB is not divisible by 320,
 ; so the base address of certain lines would be so close

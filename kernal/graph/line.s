@@ -30,7 +30,7 @@ HorizontalLine:
 	stx r0H
 	sta r2H
 
-@2:	jsr GRAPH_LL_start_direct
+@2:	jsr GRAPH_LL_set_ptr
 
 	MoveW r2, r15
 	SubW r0, r15
@@ -71,7 +71,7 @@ VerticalLine:
 	inx
 	beq @2 ; .x = number of pixels to draw
 
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_set_ptr
 
 	PushW r0
 	PushW r1

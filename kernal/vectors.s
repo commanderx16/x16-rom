@@ -10,7 +10,8 @@
 
 .export GRAPH_LL_init
 .export GRAPH_LL_get_info
-.export GRAPH_LL_start_direct
+.export GRAPH_LL_set_ptr
+.export GRAPH_LL_add_ptr
 .export GRAPH_LL_get_pixel
 .export GRAPH_LL_get_pixels
 .export GRAPH_LL_set_pixel
@@ -26,16 +27,17 @@ I_GRAPH_LL_BASE = $9000; XXX
 
 I_GRAPH_LL_init = I_GRAPH_LL_BASE
 I_GRAPH_LL_get_info = I_GRAPH_LL_BASE+2
-I_GRAPH_LL_start_direct = I_GRAPH_LL_BASE+4
-I_GRAPH_LL_get_pixel = I_GRAPH_LL_BASE+6
-I_GRAPH_LL_get_pixels = I_GRAPH_LL_BASE+8
-I_GRAPH_LL_set_pixel = I_GRAPH_LL_BASE+10
-I_GRAPH_LL_set_pixels = I_GRAPH_LL_BASE+12
-I_GRAPH_LL_set_8_pixels = I_GRAPH_LL_BASE+14
-I_GRAPH_LL_set_8_pixels_opaque = I_GRAPH_LL_BASE+16
-I_GRAPH_LL_fill_pixels = I_GRAPH_LL_BASE+18
-I_GRAPH_LL_filter_pixels = I_GRAPH_LL_BASE+20
-I_GRAPH_LL_move_pixels = I_GRAPH_LL_BASE+22
+I_GRAPH_LL_set_ptr = I_GRAPH_LL_BASE+4
+I_GRAPH_LL_add_ptr = I_GRAPH_LL_BASE+6
+I_GRAPH_LL_get_pixel = I_GRAPH_LL_BASE+8
+I_GRAPH_LL_get_pixels = I_GRAPH_LL_BASE+10
+I_GRAPH_LL_set_pixel = I_GRAPH_LL_BASE+12
+I_GRAPH_LL_set_pixels = I_GRAPH_LL_BASE+14
+I_GRAPH_LL_set_8_pixels = I_GRAPH_LL_BASE+16
+I_GRAPH_LL_set_8_pixels_opaque = I_GRAPH_LL_BASE+18
+I_GRAPH_LL_fill_pixels = I_GRAPH_LL_BASE+20
+I_GRAPH_LL_filter_pixels = I_GRAPH_LL_BASE+22
+I_GRAPH_LL_move_pixels = I_GRAPH_LL_BASE+24
 
 	
 ; $FE00
@@ -45,33 +47,36 @@ GRAPH_LL_init:
 GRAPH_LL_get_info:
 	jmp (I_GRAPH_LL_get_info)
  ; $FE06
- GRAPH_LL_start_direct:
-	jmp (I_GRAPH_LL_start_direct)
+ GRAPH_LL_set_ptr:
+	jmp (I_GRAPH_LL_set_ptr)
 ; $FE09
+GRAPH_LL_add_ptr:
+	jmp (I_GRAPH_LL_add_ptr)
+; $FE0C
 GRAPH_LL_get_pixel:
 	jmp (I_GRAPH_LL_get_pixel)
-; $FE0C
+; $FE0F
 GRAPH_LL_get_pixels:
 	jmp (I_GRAPH_LL_get_pixels)
-; $FE0F
+; $FE12
 GRAPH_LL_set_pixel:
 	jmp (I_GRAPH_LL_set_pixel)
-; $FE12
+; $FE15
 GRAPH_LL_set_pixels:
 	jmp (I_GRAPH_LL_set_pixels)
-; $FE15
+; $FE18
 GRAPH_LL_set_8_pixels:
 	jmp (I_GRAPH_LL_set_8_pixels)
-; $FE18
+; $FE1B
 GRAPH_LL_set_8_pixels_opaque:
 	jmp (I_GRAPH_LL_set_8_pixels_opaque)
-; $FE1B
+; $FE1E
 GRAPH_LL_fill_pixels:
 	jmp (I_GRAPH_LL_fill_pixels)
-; $FE1E
+; $FE21
 GRAPH_LL_filter_pixels:
 	jmp (I_GRAPH_LL_filter_pixels)
-; $FE21
+; $FE24
 GRAPH_LL_move_pixels:
 	jmp (I_GRAPH_LL_move_pixels)
 
@@ -106,8 +111,8 @@ GRAPH_LL_move_pixels:
 	jmp $ffff;
 ; $FF21: GRAPH_set_colors
 	jmp GRAPH_set_colors
-; $FF24: void GRAPH_LL_start_direct(word x, word y);
-	jmp GRAPH_LL_start_direct
+; $FF24: void GRAPH_LL_set_ptr(word x, word y);
+	jmp GRAPH_LL_set_ptr
 ; $FF27: void GRAPH_LL_set_pixel(byte color);
 	jmp GRAPH_LL_set_pixel
 ;XX void GRAPH_LL_set_pixels(word ptr, word count);

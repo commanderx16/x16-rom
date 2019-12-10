@@ -223,7 +223,7 @@ grphon	lda #$0e ; light blue
 	sta color
 
 	; copy VERA driver vectors
-	ldx #11*2-1
+	ldx #13*2-1
 :	lda GRAPH_LL_VERA,x
 	sta I_GRAPH_LL_BASE,x
 	dex

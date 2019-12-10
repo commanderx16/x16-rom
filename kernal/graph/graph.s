@@ -10,12 +10,11 @@
 .setcpu "65c02"
 
 .import col1, col2, col_bg; [declare]
-.importzp ptr_fg, ptr_bg
 
 .import leftMargin, windowTop, rightMargin, windowBottom
 
 .import GRAPH_LL_get_info
-.import GRAPH_LL_start_direct
+.import GRAPH_LL_set_ptr
 .import GRAPH_LL_get_pixel
 .import GRAPH_LL_get_pixels
 .import GRAPH_LL_set_pixel

@@ -11,7 +11,8 @@
 GRAPH_LL_VERA:
 	.word GRAPH_LL_init
 	.word GRAPH_LL_get_info
-	.word GRAPH_LL_start_direct
+	.word GRAPH_LL_set_ptr
+	.word GRAPH_LL_add_ptr
 	.word GRAPH_LL_get_pixel
 	.word GRAPH_LL_get_pixels
 	.word GRAPH_LL_set_pixel
@@ -87,13 +88,13 @@ GRAPH_LL_get_info:
 	rts
 	
 ;---------------------------------------------------------------
-; GRAPH_LL_start_direct
+; GRAPH_LL_set_ptr
 ;
 ; Function:  Sets up the VRAM address of a pixel
 ; Pass:      r0     x pos
 ;            r1     y pos
 ;---------------------------------------------------------------
-GRAPH_LL_start_direct:
+GRAPH_LL_set_ptr:
 ; ptr_fg = x * 320
 	stz ptr_fg+1
 	lda r1L
@@ -110,18 +111,31 @@ GRAPH_LL_start_direct:
 	asl
 	rol ptr_fg+1
 	sta ptr_fg
-	sta veralo
 	lda r1L
 	clc
 	adc ptr_fg+1
 	sta ptr_fg+1
-	sta veramid
+
 	lda #$11
 	sta verahi
+; fallthrough
 
-	; add X
-	; XXX not also to r0??
-	AddW r0, veralo
+;---------------------------------------------------------------
+; GRAPH_LL_add_ptr
+;
+; Function:  Sets up the VRAM address of a pixel (relative)
+; Pass:      r0     additional x pos
+;---------------------------------------------------------------
+GRAPH_LL_add_ptr:
+	lda r0L
+	clc
+	adc ptr_fg
+	sta ptr_fg
+	sta veralo
+	lda r0H
+	adc ptr_fg+1
+	sta ptr_fg+1
+	sta veramid
 	rts
 
 ;---------------------------------------------------------------

@@ -176,6 +176,6 @@ abs:
 ; Destroyed: a, x, y, r5
 ;---------------------------------------------------------------
 draw_point:
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_set_ptr
 	lda col1
 	jmp GRAPH_LL_set_pixel

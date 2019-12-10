@@ -3,7 +3,8 @@
 ;
 ; Font library: drawing
 
-.import GRAPH_LL_start_direct
+.import GRAPH_LL_set_ptr
+.import GRAPH_LL_add_ptr
 .import GRAPH_LL_set_8_pixels
 .import GRAPH_LL_set_8_pixels_opaque
 
@@ -292,7 +293,8 @@ Font_2:
 	PushW r1
 	LoadW r0, 0
 	MoveB r1H, r1L
-	jsr GRAPH_LL_start_direct
+	stz r1H
+	jsr GRAPH_LL_set_ptr
 	PopW r1
 	PopW r0
 
@@ -308,16 +310,13 @@ Font_2:
 @3:	pha
 	and #%11111000
 	sta r4L
-	clc
-	adc ptr_fg
-	sta ptr_fg
-	sta veralo
-	txa
-	adc ptr_fg+1
-	sta ptr_fg+1
-	sta veramid
-	lda #$11
-	sta verahi
+
+	tay
+	PushW r0
+	sty r0L
+	stx r0H
+	jsr GRAPH_LL_add_ptr
+	PopW r0
 
 	MoveB FontTVar2+1, r3L
 	lsr r3L
@@ -700,15 +699,12 @@ FontPutChar:
 	bcc @6
 	bne @7
 @6:	jsr Font_4
-@7:	lda ptr_fg
-	clc
-	adc #<SC_PIX_WIDTH
-	sta ptr_fg
-	sta veralo
-	lda ptr_fg+1
-	adc #>SC_PIX_WIDTH
-	sta ptr_fg+1
-	sta veramid
+@7:
+	PushW r0
+	LoadW r0, SC_PIX_WIDTH
+	jsr GRAPH_LL_add_ptr
+	PopW r0
+
 	inc r1H
 	dec r10H
 	bne @1
@@ -781,3 +777,4 @@ BitMaskLeadingClear:
 	.byte %00000011
 	.byte %00000001
 	.byte %00000000
+
