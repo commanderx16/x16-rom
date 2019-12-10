@@ -289,15 +289,9 @@ GetChWdth1:
 	rts
 
 Font_2:
-	PushW r0
-	PushW r1
-	LoadW r0, 0
-	MoveB r1H, r1L
-	stz r1H
-	jsr GRAPH_LL_set_ptr
-	PopW r1
-	PopW r0
-
+	; find out effective x position:
+	; if FontTVar2 is negative or left of leftMargin,
+	; start at leftMargin
 	lda FontTVar2
 	ldx FontTVar2+1
 	bmi @2
@@ -313,9 +307,13 @@ Font_2:
 
 	tay
 	PushW r0
+	PushW r1
 	sty r0L
 	stx r0H
-	jsr GRAPH_LL_add_ptr
+	MoveB r1H, r1L
+	stz r1H
+	jsr GRAPH_LL_set_ptr
+	PopW r1
 	PopW r0
 
 	MoveB FontTVar2+1, r3L
