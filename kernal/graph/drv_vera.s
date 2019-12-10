@@ -238,48 +238,58 @@ get_pixels_FG:
 ;            y        color
 ;---------------------------------------------------------------
 GRAPH_LL_set_8_pixels:
+; this takes about 120 cycles, independently of the pattern
 	sec
 	rol
-	bcs @1
+	bcs @2
 	inc veralo
-	bne @4
+	bne @1
 	inc veramid
-	bra @4
-@4:	asl
-@x:	bcs @1
+@1:	asl
+	bcs @2
 	inc veralo
-	bne @4
+	bne @1
 	inc veramid
-	bra @4
-@1:	beq @5
+	bra @1
+@2:	beq @3
 	sty veradat
-	bra @4
-@5:	rts
+	bra @1
+@3:	rts
 
 ;---------------------------------------------------------------
 ; GRAPH_LL_set_8_pixels_opaque
 ;
+; Note: Always advances the pointer by 8 pixels.
+;
 ; Pass:      a        mask
 ;            r4L      pattern
+;            x        color
 ;            y        color
 ;---------------------------------------------------------------
 GRAPH_LL_set_8_pixels_opaque:
 ; opaque drawing with fg color .x and bg color .y
-@4:	asl
-	bcc @1
+	sec
+	rol
+	bcc @3
+	beq @4
 	asl r4L
-	bcc @5
-	stx veradat
-	bra @3
-@5:	sty veradat
-@3:	cmp #0
-	bne @4
-	rts
-@1:	asl r4L
+	bcs @2
+	sty veradat
+@1:	asl
+	bcc @3
+	beq @4
+	asl r4L
+	bcs @2
+	sty veradat
+	bra @1
+@2:	stx veradat
+	bra @1
+@3:	asl r4L
 	inc veralo
-	bne @3
+	bne @1
 	inc veramid
-@2:	bra @3
+	bra @1
+@4:	rts
 
 ;---------------------------------------------------------------
 ; GRAPH_LL_fill_pixels
