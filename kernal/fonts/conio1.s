@@ -16,6 +16,9 @@ set_color:
 ; Pass:      a   ASCII character
 ;            r0  x position
 ;            r1  y position
+; Return:    r0  x position (updated)
+;            r1  y position (updated)
+;            c   1: character outside of bounds, not printed
 ;---------------------------------------------------------------
 GRAPH_put_char:
 	; XXX change put_char code so that moving the x/y position
