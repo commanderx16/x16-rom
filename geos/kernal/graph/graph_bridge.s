@@ -44,7 +44,7 @@ _GetScanLine:
 
 .export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_pixel
 
-.import k_dispBufferOn, col1, col2
+.import col1, col2
 
 .macro jsrfar addr
 	jsr gjsrfar
@@ -69,7 +69,6 @@ _GetScanLine:
 _DrawLine:
 	php
 	plx
-	MoveB dispBufferOn, k_dispBufferOn
 
 	PushW r0
 	PushW r1
@@ -157,7 +156,6 @@ _DrawPoint:
 ;---------------------------------------------------------------
 _FrameRectangle:
 	jsr Convert8BitPattern
-	MoveB dispBufferOn, k_dispBufferOn
 	PushW r0
 	PushW r1
 	PushW r2
@@ -274,7 +272,6 @@ _RecoverRectangle:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _Rectangle:
-	MoveB dispBufferOn, k_dispBufferOn
 	MoveB g_col1, col1
 	
 	PushW r0
@@ -342,7 +339,6 @@ _TestPoint:
 ;---------------------------------------------------------------
 _HorizontalLine:
 	jsr Convert8BitPattern
-	MoveB dispBufferOn, k_dispBufferOn
 	PushW r0
 	PushW r1
 	PushW r2
@@ -451,7 +447,6 @@ _RecoverLine:
 ;---------------------------------------------------------------
 _VerticalLine:
 	jsr Convert8BitPattern
-	MoveB dispBufferOn, k_dispBufferOn
 	PushW r0
 	PushW r1
 	PushW r2
@@ -476,7 +471,6 @@ _VerticalLine:
 	rts
 
 _GRAPH_start_direct:
-	MoveB dispBufferOn, k_dispBufferOn
 	php
 	sei
 	jsrfar GRAPH_LL_cursor_position

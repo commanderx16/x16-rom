@@ -7,8 +7,6 @@
 .include "../../regs.inc"
 .include "graph.inc"
 
-.import col1, col2, col_bg; [declare]
-
 .import leftMargin, windowTop, rightMargin, windowBottom
 .import GRAPH_LL_VERA
 .import I_GRAPH_LL_BASE
@@ -40,6 +38,13 @@
 
 .setcpu "65c02"
 
+.segment "KVAR"
+
+.export col1, col2, col_bg
+col1:	.res 1
+col2:	.res 1
+col_bg:	.res 1
+
 .segment "GRAPH"
 
 ;---------------------------------------------------------------
@@ -56,11 +61,19 @@ GRAPH_init:
 	
 	jsr GRAPH_LL_init
 
+	LoadW r0, 0
+	LoadW r1, 0
+	LoadW r2, SC_PIX_WIDTH-1
+	LoadW r3, SC_PIX_HEIGHT-1
+	jsr GRAPH_set_window
+
 	lda #0  ; primary:    black
 	ldx #10 ; secondary:  gray
 	ldy #1  ; background: white
 	jsr GRAPH_set_colors
+
 	jsr GRAPH_clear
+
 	jmp font_init
 
 ;---------------------------------------------------------------
@@ -70,11 +83,10 @@ GRAPH_init:
 GRAPH_clear:
 	PushB col1
 	MoveB col_bg, col1
-	LoadW r0, 0
-	LoadB r1L, 0
-	LoadW r2, SC_PIX_WIDTH-1
-	LoadB r3L, SC_PIX_HEIGHT-1
-	lda #0
+	MoveW r0, leftMargin
+	MoveW r1L, windowTop
+	MoveW r2, rightMargin
+	MoveW r3L, windowBottom
 	jsr GRAPH_draw_rect
 	PopB col1
 	rts

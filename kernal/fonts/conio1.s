@@ -200,12 +200,8 @@ control_backspace:
 	rts
 
 control_tab:
-	lda #0 ; XXX was this a constant in the original source?
-	add r11L
-	sta r11L
-	bcc @1
-	inc r11H
-@1:	rts
+	; XXX what should TAB do?
+	rts
 
 control_italics:
 	smbf ITALIC_BIT, currentMode

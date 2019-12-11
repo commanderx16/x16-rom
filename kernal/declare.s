@@ -80,14 +80,6 @@ r2d2	.res 1           ;$A3 serial bus usage
 bsour1	.res 1           ;$A4 temp used by serial routine
 count	.res 1           ;$A5 temp used by serial routine
 
-; Graph
-;
-.export k_dispBufferOn, col1, col2, col_bg
-k_dispBufferOn	.res 1
-col1	.res 1
-col2	.res 1
-col_bg	.res 1
-
 .segment "GDRVVEC"
 
 .export I_GRAPH_LL_BASE; [graph]
