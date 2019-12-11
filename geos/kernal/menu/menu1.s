@@ -103,12 +103,9 @@ DoMenu1_1:
 	LoadB dispBufferOn, ST_WR_FORE
 	PushW r11
 	jsr CopyMenuCoords
-; draw white both in color and compat mode, don't switch modes
-	PushW curPattern
 	lda #0
 	jsr _SetPattern
 	jsr _Rectangle
-	PopW curPattern
 .ifdef wheels
 	lda r2H
 	sta r11L

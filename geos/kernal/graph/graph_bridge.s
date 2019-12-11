@@ -15,6 +15,7 @@
 .segment "graph2n"
 
 .import _DMult
+.import g_col1
 
 .setcpu "65c02"
 
