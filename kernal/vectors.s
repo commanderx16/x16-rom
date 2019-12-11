@@ -10,8 +10,8 @@
 
 .export GRAPH_LL_init
 .export GRAPH_LL_get_info
-.export GRAPH_LL_set_ptr
-.export GRAPH_LL_add_ptr
+.export GRAPH_LL_cursor_position
+.export GRAPH_LL_cursor_next_line
 .export GRAPH_LL_get_pixel
 .export GRAPH_LL_get_pixels
 .export GRAPH_LL_set_pixel
@@ -27,8 +27,8 @@ I_GRAPH_LL_BASE = $9000; XXX
 
 I_GRAPH_LL_init = I_GRAPH_LL_BASE
 I_GRAPH_LL_get_info = I_GRAPH_LL_BASE+2
-I_GRAPH_LL_set_ptr = I_GRAPH_LL_BASE+4
-I_GRAPH_LL_add_ptr = I_GRAPH_LL_BASE+6
+I_GRAPH_LL_cursor_position = I_GRAPH_LL_BASE+4
+I_GRAPH_LL_cursor_next_line = I_GRAPH_LL_BASE+6
 I_GRAPH_LL_get_pixel = I_GRAPH_LL_BASE+8
 I_GRAPH_LL_get_pixels = I_GRAPH_LL_BASE+10
 I_GRAPH_LL_set_pixel = I_GRAPH_LL_BASE+12
@@ -47,11 +47,11 @@ GRAPH_LL_init:
 GRAPH_LL_get_info:
 	jmp (I_GRAPH_LL_get_info)
  ; $FE06
- GRAPH_LL_set_ptr:
-	jmp (I_GRAPH_LL_set_ptr)
+ GRAPH_LL_cursor_position:
+	jmp (I_GRAPH_LL_cursor_position)
 ; $FE09
-GRAPH_LL_add_ptr:
-	jmp (I_GRAPH_LL_add_ptr)
+GRAPH_LL_cursor_next_line:
+	jmp (I_GRAPH_LL_cursor_next_line)
 ; $FE0C
 GRAPH_LL_get_pixel:
 	jmp (I_GRAPH_LL_get_pixel)
@@ -111,8 +111,8 @@ GRAPH_LL_move_pixels:
 	jmp $ffff;
 ; $FF21: GRAPH_set_colors
 	jmp GRAPH_set_colors
-; $FF24: void GRAPH_LL_set_ptr(word x, word y);
-	jmp GRAPH_LL_set_ptr
+; $FF24: void GRAPH_LL_cursor_position(word x, word y);
+	jmp GRAPH_LL_cursor_position
 ; $FF27: void GRAPH_LL_set_pixel(byte color);
 	jmp GRAPH_LL_set_pixel
 ;XX void GRAPH_LL_set_pixels(word ptr, word count);

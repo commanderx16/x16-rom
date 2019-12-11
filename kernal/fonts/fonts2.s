@@ -3,8 +3,8 @@
 ;
 ; Font library: drawing
 
-.import GRAPH_LL_set_ptr
-.import GRAPH_LL_add_ptr
+.import GRAPH_LL_cursor_position
+.import GRAPH_LL_cursor_next_line
 .import GRAPH_LL_set_8_pixels
 .import GRAPH_LL_set_8_pixels_opaque
 
@@ -311,7 +311,7 @@ Font_2:
 	stx r0H
 	MoveB r1H, r1L
 	stz r1H
-	jsr GRAPH_LL_set_ptr
+	jsr GRAPH_LL_cursor_position
 	PopW r1
 
 	MoveB FontTVar2+1, r3L
@@ -696,8 +696,7 @@ FontPutChar:
 	bne @7
 @6:	jsr Font_4
 @7:
-	LoadW r0, SC_PIX_WIDTH
-	jsr GRAPH_LL_add_ptr
+	jsr GRAPH_LL_cursor_next_line
 
 	inc r1H
 	dec r10H

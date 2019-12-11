@@ -38,7 +38,7 @@ _GetScanLine:
 .import GRAPH_draw_frame
 .import GRAPH_draw_rect
 .import GRAPH_LL_get_pixel
-.import GRAPH_LL_set_ptr
+.import GRAPH_LL_cursor_position
 .import GRAPH_LL_set_pixel
 .import GRAPH_LL_filter_pixels
 
@@ -479,7 +479,7 @@ _GRAPH_start_direct:
 	MoveB dispBufferOn, k_dispBufferOn
 	php
 	sei
-	jsrfar GRAPH_LL_set_ptr
+	jsrfar GRAPH_LL_cursor_position
 	plp
 	rts
 

@@ -14,7 +14,7 @@
 .import leftMargin, windowTop, rightMargin, windowBottom
 
 .import GRAPH_LL_get_info
-.import GRAPH_LL_set_ptr
+.import GRAPH_LL_cursor_position
 .import GRAPH_LL_get_pixel
 .import GRAPH_LL_get_pixels
 .import GRAPH_LL_set_pixel
