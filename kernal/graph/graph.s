@@ -30,7 +30,7 @@
 .import GRAPH_LL_move_pixels
 
 .export GRAPH_init
-.export graph_clear
+.export GRAPH_clear
 .export GRAPH_set_window
 .export GRAPH_set_colors
 .export GRAPH_draw_line
@@ -42,6 +42,10 @@
 
 .segment "GRAPH"
 
+;---------------------------------------------------------------
+; GRAPH_init
+;
+;---------------------------------------------------------------
 GRAPH_init:
 	; copy VERA driver vectors
 	ldx #13*2-1
@@ -56,10 +60,14 @@ GRAPH_init:
 	ldx #10 ; secondary:  gray
 	ldy #1  ; background: white
 	jsr GRAPH_set_colors
-	jsr graph_clear
+	jsr GRAPH_clear
 	jmp font_init
 
-graph_clear:
+;---------------------------------------------------------------
+; GRAPH_clear
+;
+;---------------------------------------------------------------
+GRAPH_clear:
 	PushB col1
 	MoveB col_bg, col1
 	LoadW r0, 0

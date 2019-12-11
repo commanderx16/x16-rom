@@ -2,7 +2,7 @@
 ;
 ; Font library: control characters
 
-.import graph_clear
+.import GRAPH_clear
 
 .export GRAPH_put_char 
 
@@ -232,7 +232,7 @@ control_reverse:
 	rts
 
 control_clear:
-	jsr graph_clear
+	jsr GRAPH_clear
 ; fallthrough
 control_home:
 	MoveW leftMargin, r11
