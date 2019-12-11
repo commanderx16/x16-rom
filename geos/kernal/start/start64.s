@@ -76,6 +76,13 @@ _ResetHandle:
 	.word __drvcbdos_RUN__
 	.word __drvcbdos_SIZE__
 
+.import scrmod
+	lda #$80
+	sec
+	jsr gjsrfar
+	.word scrmod
+	.byte BANK_KERNAL
+
 .import GRAPH_LL_init
 	jsr gjsrfar
 	.word GRAPH_LL_init

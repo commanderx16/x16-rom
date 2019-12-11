@@ -80,36 +80,6 @@ r2d2	.res 1           ;$A3 serial bus usage
 bsour1	.res 1           ;$A4 temp used by serial routine
 count	.res 1           ;$A5 temp used by serial routine
 
-; Screen
-;
-.export mode; [ps2kbd]
-.export data; [cpychr]
-mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
-gdcol	.res 1           ;    original color before cursor
-hibase	.res 1           ;    base location of screen (top)
-autodn	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
-lintmp	.res 1           ;    temporary for line index
-color	.res 1           ;    activ color nybble
-rvs	.res 1           ;$C7 rvs field on flag
-indx	.res 1           ;$C8
-lsxp	.res 1           ;$C9 x pos at start
-lstp	.res 1           ;$CA
-blnsw	.res 1           ;$CC cursor blink enab
-blnct	.res 1           ;$CD count to toggle cur
-gdbln	.res 1           ;$CE char before cursor
-blnon	.res 1           ;$CF on/off blink flag
-crsw	.res 1           ;$D0 input vs get flag
-pntr	.res 1           ;$D3 pointer to column
-qtsw	.res 1           ;$D4 quote switch
-lnmx	.res 1           ;$D5 40/80 max positon
-tblx	.res 1           ;$D6
-data	.res 1           ;$D7
-insrt	.res 1           ;$D8 insert mode flag
-llen	.res 1           ;$D9 x resolution
-nlines	.res 1           ;$DA y resolution
-nlinesp1 .res 1          ;    X16: y resolution + 1
-nlinesm1 .res 1          ;    X16: y resolution - 1
-
 ; Graph
 ;
 .export k_dispBufferOn, col1, col2, col_bg
@@ -117,24 +87,6 @@ k_dispBufferOn	.res 1
 col1	.res 1
 col2	.res 1
 col_bg	.res 1
-
-	.segment "KVECTORS";rem kernal/os indirects(20)
-cinv	.res 2           ;irq ram vector
-cbinv	.res 2           ;brk instr ram vector
-nminv	.res 2           ;nmi ram vector
-iopen	.res 2           ;indirects for code
-iclose	.res 2           ; conforms to kernal spec 8/19/80
-ichkin	.res 2
-ickout	.res 2
-iclrch	.res 2
-ibasin	.res 2
-ibsout	.res 2
-istop	.res 2
-igetin	.res 2
-iclall	.res 2
-usrcmd	.res 2
-iload	.res 2
-isave	.res 2           ;savesp
 
 .segment "GDRVVEC"
 
@@ -166,6 +118,23 @@ I_GRAPH_LL_filter_pixels
 I_GRAPH_LL_move_pixels
 	.res 2
 
+	.segment "KVECTORS";rem kernal/os indirects(20)
+cinv	.res 2           ;irq ram vector
+cbinv	.res 2           ;brk instr ram vector
+nminv	.res 2           ;nmi ram vector
+iopen	.res 2           ;indirects for code
+iclose	.res 2           ; conforms to kernal spec 8/19/80
+ichkin	.res 2
+ickout	.res 2
+iclrch	.res 2
+ibasin	.res 2
+ibsout	.res 2
+istop	.res 2
+igetin	.res 2
+iclall	.res 2
+usrcmd	.res 2
+iload	.res 2
+isave	.res 2           ;savesp
 
 .segment "KVAR2" ; more KERNAL vars
 ldtb1	.res 61 +1       ;flags+endspace
@@ -176,6 +145,36 @@ ldtb1	.res 61 +1       ;flags+endspace
 	;              byte here, but we should have a look at
 	;              whether there's an off-by-one error over
 	;              at 'lps2'!
+
+; Screen
+;
+.export mode; [ps2kbd]
+.export data; [cpychr]
+mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
+gdcol	.res 1           ;    original color before cursor
+hibase	.res 1           ;    base location of screen (top)
+autodn	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
+lintmp	.res 1           ;    temporary for line index
+color	.res 1           ;    activ color nybble
+rvs	.res 1           ;$C7 rvs field on flag
+indx	.res 1           ;$C8
+lsxp	.res 1           ;$C9 x pos at start
+lstp	.res 1           ;$CA
+blnsw	.res 1           ;$CC cursor blink enab
+blnct	.res 1           ;$CD count to toggle cur
+gdbln	.res 1           ;$CE char before cursor
+blnon	.res 1           ;$CF on/off blink flag
+crsw	.res 1           ;$D0 input vs get flag
+pntr	.res 1           ;$D3 pointer to column
+qtsw	.res 1           ;$D4 quote switch
+lnmx	.res 1           ;$D5 40/80 max positon
+tblx	.res 1           ;$D6
+data	.res 1           ;$D7
+insrt	.res 1           ;$D8 insert mode flag
+llen	.res 1           ;$D9 x resolution
+nlines	.res 1           ;$DA y resolution
+nlinesp1 .res 1          ;    X16: y resolution + 1
+nlinesm1 .res 1          ;    X16: y resolution - 1
 
 .segment "KVARSB0"
 
