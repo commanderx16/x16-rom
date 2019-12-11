@@ -5,7 +5,6 @@
 .setcpu "65c02"
 
 .include "../../regs.inc"
-.include "../../io.inc"
 .include "../../mac.inc"
 .include "fonts.inc"
 

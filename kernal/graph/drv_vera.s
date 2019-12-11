@@ -1,3 +1,7 @@
+; Commander X16 KERNAL
+;
+; VERA 320x200@256c Graphics Driver
+
 .include "../../mac.inc"
 .include "../../regs.inc"
 .include "../../io.inc"

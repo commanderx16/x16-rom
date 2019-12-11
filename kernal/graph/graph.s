@@ -4,7 +4,6 @@
 
 .include "../../mac.inc"
 .include "../../regs.inc"
-.include "../../io.inc"
 .include "graph.inc"
 
 .setcpu "65c02"

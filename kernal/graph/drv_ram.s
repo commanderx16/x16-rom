@@ -1,3 +1,7 @@
+; Commander X16 KERNAL
+;
+; Offscreen 320x200@256c Graphics Driver
+
 .export GRAPH_LL_get_info
 .export GRAPH_LL_set_ptr
 .export GRAPH_LL_set_pixel
