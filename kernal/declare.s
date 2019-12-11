@@ -136,6 +136,37 @@ usrcmd	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
 
+.segment "GDRVVEC"
+
+I_GRAPH_LL_BASE
+I_GRAPH_LL_init
+	.res 2
+I_GRAPH_LL_get_info
+	.res 2
+I_GRAPH_LL_cursor_position
+	.res 2
+I_GRAPH_LL_cursor_next_line
+	.res 2
+I_GRAPH_LL_get_pixel
+	.res 2
+I_GRAPH_LL_get_pixels
+	.res 2
+I_GRAPH_LL_set_pixel
+	.res 2
+I_GRAPH_LL_set_pixels
+	.res 2
+I_GRAPH_LL_set_8_pixels
+	.res 2
+I_GRAPH_LL_set_8_pixels_opaque
+	.res 2
+I_GRAPH_LL_fill_pixels
+	.res 2
+I_GRAPH_LL_filter_pixels
+	.res 2
+I_GRAPH_LL_move_pixels
+	.res 2
+
+
 .segment "KVAR2" ; more KERNAL vars
 ldtb1	.res 61 +1       ;flags+endspace
 	;       ^^ XXX at label 'lps2', the code counts up to
