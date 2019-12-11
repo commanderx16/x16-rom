@@ -90,6 +90,7 @@ col_bg	.res 1
 
 .segment "GDRVVEC"
 
+.export I_GRAPH_LL_BASE; [graph]
 I_GRAPH_LL_BASE
 I_GRAPH_LL_init
 	.res 2

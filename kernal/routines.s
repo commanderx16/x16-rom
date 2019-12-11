@@ -2,11 +2,7 @@
 .include "../mac.inc"
 .include "graph/graph.inc"
 
-.import GRAPH_set_colors
-
-.import graph_init, graph_clear, font_init
-
-.import GRAPH_LL_VERA
+.import GRAPH_init
 
 .export jsrfar, banked_irq
 .export fetvec, fetch
@@ -222,22 +218,7 @@ swpp1	lda #<480
 grphon	lda #$0e ; light blue
 	sta color
 
-	; copy VERA driver vectors
-	ldx #13*2-1
-:	lda GRAPH_LL_VERA,x
-	sta I_GRAPH_LL_BASE,x
-	dex
-	bpl :-
-	
-	jsr GRAPH_LL_init
-
-	jsr graph_init
-	lda #0  ; primary:    black
-	ldx #10 ; secondary:  gray
-	ldy #1  ; background: white
-	jsr GRAPH_set_colors
-	jsr graph_clear
-	jmp font_init
+	jmp GRAPH_init
 
 grphoff	lda #$00        ; layer0
 	sta veralo
