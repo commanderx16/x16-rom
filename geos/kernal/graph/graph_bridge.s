@@ -41,10 +41,9 @@ _GetScanLine:
 .import GRAPH_LL_cursor_position
 .import GRAPH_LL_set_pixel
 .import GRAPH_LL_filter_pixels
+.import GRAPH_set_colors
 
 .export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_pixel
-
-.import col1, col2
 
 .macro jsrfar addr
 	jsr gjsrfar
@@ -88,7 +87,12 @@ _DrawLine:
 	lda #0
 	rol
 	eor #1
-	sta col1
+	php
+	sei
+	jsrfar GRAPH_set_colors
+	plp
+	
+	lda #0
 	bra @2 ; N=0 -> draw
 @3:	sec ; N=1, C=1 -> recover
 @2:
@@ -272,8 +276,12 @@ _RecoverRectangle:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _Rectangle:
-	MoveB g_col1, col1
-	
+	lda g_col1
+	php
+	sei
+	jsrfar GRAPH_set_colors
+	plp
+
 	PushW r0
 	PushW r1
 	PushW r2
@@ -502,8 +510,10 @@ Convert8BitPattern:
 	tya
 	asl
 	ora #16
-	sta col1
-	rts
+	bra @4
 @3:	lda #16+15
-	sta col1
+@4:	php
+	sei
+	jsrfar GRAPH_set_colors
+	plp
 	rts
