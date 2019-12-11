@@ -262,7 +262,7 @@ GRAPH_LL_set_8_pixels:
 ; Note: Always advances the pointer by 8 pixels.
 ;
 ; Pass:      a        mask
-;            r4L      pattern
+;            r0L      pattern
 ;            x        color
 ;            y        color
 ;---------------------------------------------------------------
@@ -272,19 +272,19 @@ GRAPH_LL_set_8_pixels_opaque:
 	rol
 	bcc @3
 	beq @4
-	asl r4L
+	asl r0L
 	bcs @2
 	sty veradat
 @1:	asl
 	bcc @3
 	beq @4
-	asl r4L
+	asl r0L
 	bcs @2
 	sty veradat
 	bra @1
 @2:	stx veradat
 	bra @1
-@3:	asl r4L
+@3:	asl r0L
 	inc veralo
 	bne @1
 	inc veramid

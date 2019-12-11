@@ -306,7 +306,6 @@ Font_2:
 	sta r4L
 
 	tay
-	PushW r0
 	PushW r1
 	sty r0L
 	stx r0H
@@ -314,7 +313,6 @@ Font_2:
 	stz r1H
 	jsr GRAPH_LL_set_ptr
 	PopW r1
-	PopW r0
 
 	MoveB FontTVar2+1, r3L
 	lsr r3L
@@ -698,10 +696,8 @@ FontPutChar:
 	bne @7
 @6:	jsr Font_4
 @7:
-	PushW r0
 	LoadW r0, SC_PIX_WIDTH
 	jsr GRAPH_LL_add_ptr
-	PopW r0
 
 	inc r1H
 	dec r10H
@@ -711,7 +707,7 @@ FontPutChar:
 
 Draw8Pixels:
 	ldy fontTemp1,x
-	sty r4L    ; pixel pattern
+	sty r0L    ; pixel pattern
 
 	bit r10L   ; inverted/underlined?
 	bmi Draw8PixelsInv
@@ -725,7 +721,7 @@ Draw8Pixels:
 
 	; transclucent, regular
 	ldy col1 ; fg: primary color
-	and r4L
+	and r0L
 	jmp GRAPH_LL_set_8_pixels
 
 ; opaque mode, regular
