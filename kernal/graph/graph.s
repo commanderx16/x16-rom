@@ -429,49 +429,27 @@ GRAPH_draw_frame:
 ;
 ; Note: x2 > x1, y2 > y1!
 ;
-; Pass:      r0   source x1
-;            r1   source y1
-;            r2   source x2
-;            r3   source y2
-;            r4   target x
-;            r5   target y
+; Pass:      r0   source x
+;            r1   source y
+;            r2   target x
+;            r3   target y
+;            r4   width
+;            r5   height
 ;---------------------------------------------------------------
 GRAPH_move_rect:
 ; XXX overlaps
 
-	; r14: width
-	lda r2L
-	sec
-	sbc r0L
-	sta r14L
-	lda r2H
-	sbc r0H
-	sta r14H
-
-	; r15: height
-	lda r3L
-	sec
-	sbc r1L
-	sta r15L
-	lda r3H
-	sbc r1H
-	sta r15H
-	IncW r15
-
-	MoveW r4, r2 ; tx
-	MoveW r5, r3 ; ty
-	MoveW r14, r4 ; count
 @1:	jsr GRAPH_LL_move_pixels
 	IncW r1 ; sy
 	IncW r3 ; ty
 
-	lda r15L
+	lda r5L
 	bne @2
-	dec r15H
-@2:	dec r15L
+	dec r5H
+@2:	dec r5L
 
-	lda r15L
-	ora r15H
+	lda r5L
+	ora r5H
 	bne @1
 	
 	rts

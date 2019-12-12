@@ -490,12 +490,12 @@ style_codes:
 	.byte $12 ; reverse
 
 test13_move_rect:
-	LoadW r0, 0
-	LoadW r1, 0
-	LoadW r2, 100
-	LoadW r3, 100
-	LoadW r4, 100
-	LoadW r5, 100
+	LoadW r0, 100
+	LoadW r1, 100
+	LoadW r2, 320-40
+	LoadW r3, 10
+	LoadW r4, 40
+	LoadW r5, 50
 	jsr GRAPH_move_rect
 	rts
 
