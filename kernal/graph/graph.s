@@ -427,8 +427,6 @@ GRAPH_draw_frame:
 ;---------------------------------------------------------------
 ; GRAPH_move_rect
 ;
-; Note: x2 > x1, y2 > y1!
-;
 ; Pass:      r0   source x
 ;            r1   source y
 ;            r2   target x
