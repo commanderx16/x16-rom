@@ -1,5 +1,3 @@
-.include "../graph/graph.inc"
-
 ; values of currentMode
 ; bit numbers
 UNDERLINE_BIT           =       7

@@ -30,6 +30,7 @@ test:
 	jsr test10_put_char
 	jsr test11_char_size
 	jsr test12_char_styles
+	jsr test13_move_rect
 	jsr checksum_framebuffer
 	rts
 	
@@ -487,6 +488,16 @@ style_codes:
 	.byte $0b ; italics
 	.byte $0c ; outline
 	.byte $12 ; reverse
+
+test13_move_rect:
+	LoadW r0, 0
+	LoadW r1, 0
+	LoadW r2, 100
+	LoadW r3, 100
+	LoadW r4, 100
+	LoadW r5, 100
+	jsr GRAPH_move_rect
+	rts
 
 checksum_framebuffer:
 	lda #$ff

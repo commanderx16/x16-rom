@@ -5,11 +5,10 @@
 
 .include "../../mac.inc"
 .include "../../regs.inc"
-.include "graph.inc"
 
 .import leftMargin, windowTop, rightMargin, windowBottom
 .import GRAPH_LL_VERA
-.import I_GRAPH_LL_BASE
+.import I_GRAPH_LL_BASE, I_GRAPH_LL_END
 
 .import font_init
 .import graph_init
@@ -53,7 +52,7 @@ col_bg:	.res 1
 ;---------------------------------------------------------------
 GRAPH_init:
 	; copy VERA driver vectors
-	ldx #13*2-1
+	ldx #<(I_GRAPH_LL_END - I_GRAPH_LL_BASE - 1)
 :	lda GRAPH_LL_VERA,x
 	sta I_GRAPH_LL_BASE,x
 	dex
@@ -61,10 +60,26 @@ GRAPH_init:
 	
 	jsr GRAPH_LL_init
 
-	LoadW r0, 0
-	LoadW r1, 0
-	LoadW r2, SC_PIX_WIDTH-1
-	LoadW r3, SC_PIX_HEIGHT-1
+	jsr GRAPH_LL_get_info
+	ldx r0H
+	lda r0L
+	bne :+
+	dex
+:	dec
+	sta r2L
+	stx r2H
+	ldx r1H
+	lda r1L
+	bne :+
+	dex
+:	dec
+	sta r3L
+	stx r3H
+	lda #0
+	sta r0L
+	sta r0H
+	sta r1L
+	sta r1H
 	jsr GRAPH_set_window
 
 	lda #0  ; primary:    black
@@ -284,7 +299,7 @@ abs:
 @1:	rts
 
 ;---------------------------------------------------------------
-; HorizontalLine
+; HorizontalLine (internal)
 ;
 ; Pass:      r0   x position of first pixel
 ;            r1   y position
@@ -324,7 +339,7 @@ HorizontalLine:
 	rts
 
 ;---------------------------------------------------------------
-; VerticalLine
+; VerticalLine (internal)
 ;
 ; Pass:      r0   x
 ;            r1   y1
@@ -412,6 +427,8 @@ GRAPH_draw_frame:
 ;---------------------------------------------------------------
 ; GRAPH_move_rect
 ;
+; Note: x2 > x1, y2 > y1!
+;
 ; Pass:      r0   source x1
 ;            r1   source y1
 ;            r2   source x2
@@ -420,6 +437,41 @@ GRAPH_draw_frame:
 ;            r5   target y
 ;---------------------------------------------------------------
 GRAPH_move_rect:
-	; NYI
-	; GRAPH_LL_move_pixels
-	brk
+; XXX overlaps
+
+	; r14: width
+	lda r2L
+	sec
+	sbc r0L
+	sta r14L
+	lda r2H
+	sbc r0H
+	sta r14H
+
+	; r15: height
+	lda r3L
+	sec
+	sbc r1L
+	sta r15L
+	lda r3H
+	sbc r1H
+	sta r15H
+	IncW r15
+
+	MoveW r4, r2 ; tx
+	MoveW r5, r3 ; ty
+	MoveW r14, r4 ; count
+@1:	jsr GRAPH_LL_move_pixels
+	IncW r1 ; sy
+	IncW r3 ; ty
+
+	lda r15L
+	bne @2
+	dec r15H
+@2:	dec r15L
+
+	lda r15L
+	ora r15H
+	bne @1
+	
+	rts
