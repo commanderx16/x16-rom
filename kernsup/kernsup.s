@@ -51,13 +51,13 @@ symbol:
 .segment "KERNSUPV3"
 	bridge3 monitor            ; $FF00: MONITOR
 	bridge3 restore_basic      ; $FF03
-	bridge3 query_joysticks    ; $FF06: GETJOY
+	.byte 0,0,0                ; $FF06
 	.byte 0,0,0                ; $FF09
 	bridge3 clock_set_date_time; $FF0C
 	bridge3 clock_get_date_time; $FF0F
 	.byte 0,0,0                ; $FF12
 	.byte 0,0,0                ; $FF15
-	bridge3 joystick_get       ; $FF18: joystick_get
+	.byte 0,0,0                ; $FF18:
 
 	bridge3 GRAPH_init         ; $FF1B
 	bridge3 GRAPH_clear        ; $FF1E
@@ -78,8 +78,8 @@ symbol:
 	bridge2 close_all       ; $FF4A: CLOSE_ALL – close all files on a device
 	.byte 0,0,0             ; $FF4D: C64MODE – reconfigure system as a C64
 	.byte 0,0,0             ; $FF50: DMA_CALL – send command to DMA device
-	.byte 0,0,0             ; $FF53: BOOT_CALL – boot load program from disk
-	.byte 0,0,0             ; $FF56: PHOENIX – init function cartridges
+	bridge2 joystick_scan   ; $FF53: joystick_scan
+	bridge2 joystick_get    ; $FF56: joystick_get
 	bridge2 lkupla          ; $FF59: LKUPLA
 	bridge2 lkupsa          ; $FF5C: LKUPSA
 	bridge2 swapper         ; $FF5F: SWAPPER – switch between 40 and 80 columns

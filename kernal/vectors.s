@@ -81,8 +81,8 @@ GRAPH_LL_move_pixels:
 	.byte 0,0,0;
 	.byte 0,0,0;
 
-	jmp joystick_scan
-	jmp joystick_get
+	.byte 0,0,0;
+	.byte 0,0,0;
 
 ; $FF1B: void GRAPH_init();
 	jmp GRAPH_init
@@ -120,8 +120,8 @@ GRAPH_LL_move_pixels:
 	jmp close_all     ; $FF4A: C128: CLOSE_ALL – close all files on a device
 	.byte 0,0,0       ; $FF4D:                                                    [unsupported C128: C64MODE – reconfigure system as a C64]
 	.byte 0,0,0       ; $FF50:                                                    [unsupported C128: DMA_CALL – send command to DMA device]
-	.byte 0,0,0       ; $FF53:                                                    [unsupported C128: BOOT_CALL – boot load program from disk]
-	.byte 0,0,0       ; $FF56:                                                    [unsupported C128: PHOENIX – init function cartridges]
+	jmp joystick_scan ; $FF53: joystick_scan                                      [unsupported C128: BOOT_CALL – boot load program from disk]
+	jmp joystick_get  ; $FF56: joystick_get                                       [unsupported C128: PHOENIX – init function cartridges]
 	jmp lkupla        ; $FF59: C128: LKUPLA
 	jmp lkupsa        ; $FF5C: C128: LKUPSA
 	jmp scrmod        ; $FF5F:                                                    [unsupported C128: SCRMOD – get/set screen mode]
