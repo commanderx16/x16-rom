@@ -1,17 +1,31 @@
-GRAPH_set_window     = $FF1B ; TODO
-GRAPH_set_options    = $FF1E ; TODO
-GRAPH_set_colors     = $FF21
-GRAPH_LL_start_direct   = $FF24
-GRAPH_LL_set_pixel      = $FF27
-GRAPH_LL_get_pixel      = $FF2A
-GRAPH_filter_pixels  = $FF2D
-GRAPH_draw_line      = $FF30
-GRAPH_draw_image     = $FF33
-GRAPH_draw_rect      = $FF36
-GRAPH_move_rect      = $FF39
-GRAPH_set_font       = $FF3C
-GRAPH_get_char_size  = $FF3F
-GRAPH_put_char       = $FF42
+; low level graphics
+GRAPH_LL_init                = $FE00
+GRAPH_LL_get_info            = $FE03
+GRAPH_LL_cursor_position     = $FE06
+GRAPH_LL_cursor_next_line    = $FE09
+GRAPH_LL_get_pixel           = $FE0C
+GRAPH_LL_get_pixels          = $FE0F
+GRAPH_LL_set_pixel           = $FE12
+GRAPH_LL_set_pixels          = $FE15
+GRAPH_LL_set_8_pixels        = $FE18
+GRAPH_LL_set_8_pixels_opaque = $FE1B
+GRAPH_LL_fill_pixels         = $FE1E
+GRAPH_LL_filter_pixels       = $FE21
+GRAPH_LL_move_pixels         = $FE24
+
+; high level graphics & fonts
+GRAPH_init                   = $FF1B
+GRAPH_clear                  = $FF1E
+GRAPH_set_window             = $FF21
+GRAPH_set_colors             = $FF24
+GRAPH_draw_line              = $FF27
+GRAPH_draw_rect              = $FF2A
+GRAPH_move_rect              = $FF2D
+GRAPH_draw_oval              = $FF30
+GRAPH_draw_image             = $FF33
+GRAPH_set_font               = $FF36
+GRAPH_get_char_size          = $FF39
+GRAPH_put_char               = $FF3C
 
 test:
 	lda #$80
@@ -121,7 +135,7 @@ test4_set_get_pixels:
 	; set direct pixels
 	LoadW r0, 5
 	LoadW r1, 23
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 	ldx #0
 :	phx
 	txa
@@ -133,7 +147,7 @@ test4_set_get_pixels:
 	; get direct pixels
 	LoadW r0, 5
 	LoadW r1, 23
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 	LoadB r1H, 1; "OK"
 	ldx #0
 :	phx
@@ -162,7 +176,7 @@ test5_filter_pixels:
 	; set direct pixels
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 	ldx #0
 :	phx
 	txa
@@ -174,18 +188,18 @@ test5_filter_pixels:
 	; filter pixels
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 	LoadW $70, $49 ; EOR #
 	LoadW $71, $55 ;      $55
 	LoadW $72, $60 ; RTS
 	LoadW r0, 256
 	LoadW r1, $70
-	jsr GRAPH_filter_pixels
+	jsr GRAPH_LL_filter_pixels
 
 	; check filter result using direct read
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 	LoadB r1H, 1; "OK"
 	ldx #0
 :	phx
@@ -495,7 +509,7 @@ checksum_framebuffer:
 	stx r1L
 	stz r1H
 	phx
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 
 	ldx #>320
 	ldy #<320

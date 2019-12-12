@@ -6,7 +6,7 @@
 .import joystick_scan, joystick_get; [joystick]
 .import clock_update, clock_get_timer, clock_set_timer, clock_get_time_date, clock_set_time_date; [time]
 
-.import GRAPH_set_colors, GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_move_rect, GRAPH_draw_line, GRAPH_draw_image
+.import GRAPH_set_colors, GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_move_rect, GRAPH_draw_line, GRAPH_draw_image, GRAPH_clear, GRAPH_draw_oval
 
 .export GRAPH_LL_init
 .export GRAPH_LL_get_info
@@ -89,39 +89,29 @@ GRAPH_LL_move_pixels:
 	jmp joystick_get
 
 
-; $FF1B: void GRAPH_set_window(word x1, word y1, word x2, word y2);
+; $FF1B: void GRAPH_init();
+	jmp GRAPH_init
+; $FF1E: void GRAPH_clear();
+	jmp GRAPH_clear
+; $FF21: void GRAPH_set_window(word x, word y, word width, word height);
 	jmp GRAPH_set_window
-; $FF1E: ---undefined---
-	jmp $ffff;
-; $FF21: GRAPH_set_colors
+; $FF24: void GRAPH_set_colors(byte fg, byte secondary, byte bg);
 	jmp GRAPH_set_colors
-; $FF24: void GRAPH_LL_cursor_position(word x, word y);
-	jmp GRAPH_LL_cursor_position
-; $FF27: void GRAPH_LL_set_pixel(byte color);
-	jmp GRAPH_LL_set_pixel
-;XX void GRAPH_LL_set_pixels(word ptr, word count);
-;XX	jmp $ffff;GRAPH_LL_set_pixels
-; $FF2A: byte GRAPH_LL_get_pixel(word x, word y);
-	jmp GRAPH_LL_get_pixel
-;XX void GRAPH_LL_get_pixels(word ptr, word count);
-;XX	jmp $ffff;GRAPH_LL_get_pixels
-; $FF2D: void GRAPH_LL_filter_pixels(word num, word ptr);
-	jmp GRAPH_LL_filter_pixels
-
-; $FF30: void GRAPH_draw_line(word x1, word y1, word x2, word y2, byte flags);
+; $FF27: void GRAPH_draw_line(word x1, word y1, word x2, word y2);
 	jmp GRAPH_draw_line
+; $FF2A: void GRAPH_draw_rect(word x, word y, word width, word height, word corner_radius, bool fill);
+	jmp GRAPH_draw_rect
+; $FF2D: void GRAPH_move_rect(word sx, word sy, word tx, word ty, word width, word height);
+	jmp GRAPH_move_rect
+; $FF30: void GRAPH_draw_oval(word x1, word y1, word x2, word y2, bool fill);
+	jmp GRAPH_draw_oval
 ; $FF33: void GRAPH_draw_image(word x, word y, word ptr, word width, word height);
 	jmp GRAPH_draw_image
-; $FF36: void GRAPH_draw_rect(word x1, word y1, word x2, word y2, byte flags);
-	jmp GRAPH_draw_rect
-; $FF39: void GRAPH_move_rect(word x1, word y1, word x2, word y2, word tx, word ty);
-	jmp GRAPH_move_rect
-
-; $FF3C: void GRAPH_set_font(void ptr);
+; $FF36: void GRAPH_set_font(void ptr);
 	jmp GRAPH_set_font
-; $FF3F: (byte baseline, byte width, byte height) GRAPH_get_char_size(byte c, byte mode);
+; $FF39: (byte baseline, byte width, byte height) GRAPH_get_char_size(byte c, byte mode);
 	jmp GRAPH_get_char_size
-; $FF42: void GRAPH_put_char(inout word x, inout word y, byte c);
+; $FF3C: void GRAPH_put_char(inout word x, inout word y, byte c);
 	jmp GRAPH_put_char
 
 	.segment "JMPTB128"

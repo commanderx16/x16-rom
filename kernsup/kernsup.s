@@ -28,6 +28,26 @@ symbol:
 	bridge_internal "KERNSUPV3", symbol
 .endmacro
 
+.macro bridge4 symbol
+	bridge_internal "KERNSUPV4", symbol
+.endmacro
+
+.segment "KERNSUPV4"
+	bridge4 GRAPH_LL_init                ; $FE00
+	bridge4 GRAPH_LL_get_info            ; $FE03
+	bridge4 GRAPH_LL_cursor_position     ; $FE06
+	bridge4 GRAPH_LL_cursor_next_line    ; $FE09
+	bridge4 GRAPH_LL_get_pixel           ; $FE0C
+	bridge4 GRAPH_LL_get_pixels          ; $FE0F
+	bridge4 GRAPH_LL_set_pixel           ; $FE12
+	bridge4 GRAPH_LL_set_pixels          ; $FE15
+	bridge4 GRAPH_LL_set_8_pixels        ; $FE18
+	bridge4 GRAPH_LL_set_8_pixels_opaque ; $FE1B
+	bridge4 GRAPH_LL_fill_pixels         ; $FE1E
+	bridge4 GRAPH_LL_filter_pixels       ; $FE21
+	bridge4 GRAPH_LL_move_pixels         ; $FE24
+
+
 .segment "KERNSUPV3"
 	bridge3 monitor         ; $FF00: MONITOR
 	bridge3 restore_basic   ; $FF03
@@ -39,20 +59,18 @@ symbol:
 	bridge3 mouse_get_y     ; $FF15: RDDAT
 	bridge3 joystick_get    ; $FF18: joystick_get
 
-	bridge3 GRAPH_set_window
-	bridge3 GRAPH_set_options
-	bridge3 GRAPH_set_colors
-	bridge3 GRAPH_start_direct
-	bridge3 GRAPH_set_pixel
-	bridge3 GRAPH_get_pixel
-	bridge3 GRAPH_filter_pixels
-	bridge3 GRAPH_draw_line
-	bridge3 GRAPH_draw_frame
-	bridge3 GRAPH_draw_rect
-	bridge3 GRAPH_move_rect
-	bridge3 GRAPH_set_font
-	bridge3 GRAPH_get_char_size
-	bridge3 GRAPH_put_char
+	bridge3 GRAPH_init         ; $FF1B
+	bridge3 GRAPH_clear        ; $FF1E
+	bridge3 GRAPH_set_window   ; $FF21
+	bridge3 GRAPH_set_colors   ; $FF24
+	bridge3 GRAPH_draw_line    ; $FF27
+	bridge3 GRAPH_draw_rect    ; $FF2A
+	bridge3 GRAPH_move_rect    ; $FF2D
+	bridge3 GRAPH_draw_oval    ; $FF30
+	bridge3 GRAPH_draw_image   ; $FF33
+	bridge3 GRAPH_set_font     ; $FF36
+	bridge3 GRAPH_get_char_size; $FF39
+	bridge3 GRAPH_put_char     ; $FF3C
 
 .segment "KERNSUPV2"
 

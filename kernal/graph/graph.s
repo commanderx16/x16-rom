@@ -35,6 +35,7 @@
 .export GRAPH_draw_rect
 .export GRAPH_draw_image
 .export GRAPH_move_rect
+.export GRAPH_draw_oval
 
 .setcpu "65c02"
 
@@ -522,3 +523,10 @@ GRAPH_move_rect:
 	ora r5H
 	bne @1
 	rts
+
+;---------------------------------------------------------------
+; GRAPH_draw_oval
+;
+;---------------------------------------------------------------
+GRAPH_draw_oval:
+	brk; NYI

@@ -39,7 +39,7 @@ cscreen
 pset:	jsr get_point
 	jsr get_col
 	pha
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 	pla
 	jmp GRAPH_LL_set_pixel
 
