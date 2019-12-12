@@ -34,7 +34,7 @@
 
 .import gjsrfar
 ; from KERNAL
-.import mouse_init, mouse_config, mouse_scan, mouse_get_x, mouse_get_y
+.import mouse_init, mouse_config, mouse_scan, mouse_get
 
 .global _MouseOff
 .global _StartMouseMode
@@ -253,26 +253,10 @@ UpdateMouse:
 	.word mouse_scan
 	.byte BANK_KERNAL
 
+	ldx #r0
 	jsr gjsrfar
-	.word mouse_get_x
+	.word mouse_get
 	.byte BANK_KERNAL
-	tya
-	lsr
-	sta mouseXPos + 1
-	txa
-	ror
-	sta mouseXPos
-
-	jsr gjsrfar
-	.word mouse_get_y
-	.byte BANK_KERNAL
-	pha
-	tya
-	lsr
-	txa
-	ror
-	sta mouseYPos
-	pla ; button
 	and #1
 	eor #1
 	cmp tmpFire
@@ -282,5 +266,15 @@ UpdateMouse:
 	ror
 	sta mouseData
 	smbf MOUSE_BIT, pressFlag
-:	rts
+:	lda r0H
+	lsr
+	sta mouseXPos + 1
+	lda r0L
+	ror
+	sta mouseXPos
+	lsr r1H
+	lda r1L
+	ror
+	sta mouseYPos
+	rts
 

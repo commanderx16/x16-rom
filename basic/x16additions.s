@@ -235,27 +235,28 @@ mouse:
 	jsr getbyt
 	txa
 	ldx #0 ; keep scale
-	jmp $ff09
+	jmp mouse_config
 
 mx:
 	jsr chrget
-	jsr mouse_get_x
-	tya
-	phx
-	ply
+	ldx #fac
+	jsr mouse_get
+	lda fac+1
+	ldy fac
 	jmp givayf
 
 my:
 	jsr chrget
-	jsr mouse_get_y
-	tya
-	phx
-	ply
+	ldx #fac
+	jsr mouse_get
+	lda fac+3
+	ldy fac+2
 	jmp givayf
 
 mb:
 	jsr chrget
-	jsr mouse_get_y
+	ldx #fac
+	jsr mouse_get
 	tay
 	jmp sngflt
 

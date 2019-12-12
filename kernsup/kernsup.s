@@ -52,11 +52,11 @@ symbol:
 	bridge3 monitor            ; $FF00: MONITOR
 	bridge3 restore_basic      ; $FF03
 	bridge3 query_joysticks    ; $FF06: GETJOY
-	bridge3 mouse_config       ; $FF09
+	.byte 0,0,0                ; $FF09
 	bridge3 clock_set_date_time; $FF0C
 	bridge3 clock_get_date_time; $FF0F
-	bridge3 mouse_get_x        ; $FF12
-	bridge3 mouse_get_y        ; $FF15
+	.byte 0,0,0                ; $FF12
+	.byte 0,0,0                ; $FF15
 	bridge3 joystick_get       ; $FF18: joystick_get
 
 	bridge3 GRAPH_init         ; $FF1B
@@ -83,10 +83,10 @@ symbol:
 	bridge2 lkupla          ; $FF59: LKUPLA
 	bridge2 lkupsa          ; $FF5C: LKUPSA
 	bridge2 swapper         ; $FF5F: SWAPPER – switch between 40 and 80 columns
-	.byte 0,0,0             ; $FF62: DLCHR – init 80-col character RAM
-	.byte 0,0,0             ; $FF65: PFKEY – program a function key
-	.byte 0,0,0             ; $FF68: SETBNK – set bank for I/O operations
-	.byte 0,0,0             ; $FF6B: GETCFG – lookup MMU data for given bank
+	.byte 0,0,0             ; $FF62: DLCHR – init 80-col character RAM  [NYI]
+	.byte 0,0,0             ; $FF65: PFKEY – program a function key [NYI]
+	bridge2 mouse_config    ; $FF68: mouse_config
+	bridge2 mouse_get       ; $FF6B: mouse_get
 	jmp bjsrfar             ; $FF6E: JSRFAR – gosub in another bank
 	.byte 0,0,0             ; $FF71: JMPFAR – goto another bank
 	bridge2 indfet          ; $FF74: FETCH – LDA (fetvec),Y from any bank

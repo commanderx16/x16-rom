@@ -62,12 +62,12 @@ primm                        = $ff7d
 ;monitor                      = $ff00
 restore_basic                = $ff03
 joystick_scan                = $ff06
-mouse_config                 = $ff09
 clock_set_date_time          = $ff0c
 clock_get_date_time          = $ff0f
-mouse_get_x                  = $ff12
-mouse_get_y                  = $ff15
+;                            = $ff15
 joystick_get                 = $ff18
+mouse_config                 = $ff68
+mouse_get                    = $ff6b
 
 ;
 ; low level graphics

@@ -1,6 +1,6 @@
 .global monitor
 
-.import mouse_config, mouse_get_x, mouse_get_y; [mouse]
+.import mouse_config, mouse_get; [mouse]
 .import joystick_scan; [joystick]
 .import mouse_config; [mouse]
 .import joystick_scan, joystick_get; [joystick]
@@ -74,22 +74,14 @@ GRAPH_LL_move_pixels:
 ; $FF03 restore_basic
 	jmp restore_basic
 
-; $FF06: joystick_scan
-	jmp joystick_scan
-
-; $FF09: mouse_config
-	jmp mouse_config
-; $FF0C: clock_set_date_time
 	jmp clock_set_date_time
-; $FF0F: clock_get_date_time
 	jmp clock_get_date_time
 
-; $FF12: mouse_get_x
-	jmp mouse_get_x
-; $FF15: mouse_get_y
-	jmp mouse_get_y
+	.byte 0,0,0;
+	.byte 0,0,0;
+	.byte 0,0,0;
 
-; $FF18: joystick_get
+	jmp joystick_scan
 	jmp joystick_get
 
 ; $FF1B: void GRAPH_init();
@@ -124,25 +116,25 @@ GRAPH_LL_move_pixels:
 ; Some make no sense on the X16 though, usually because
 ; their functionality is C128-specific.
 
-	.byte 0,0,0     ; $FF47:                                            [unsupported C128: SPIN_SPOUT – setup fast serial ports for I/O]
-	jmp close_all   ; $FF4A: C128: CLOSE_ALL – close all files on a device
-	.byte 0,0,0     ; $FF4D:                                            [unsupported C128: C64MODE – reconfigure system as a C64]
-	.byte 0,0,0     ; $FF50:                                            [unsupported C128: DMA_CALL – send command to DMA device]
-	.byte 0,0,0     ; $FF53:                                            [unsupported C128: BOOT_CALL – boot load program from disk]
-	.byte 0,0,0     ; $FF56:                                            [unsupported C128: PHOENIX – init function cartridges]
-	jmp lkupla      ; $FF59: C128: LKUPLA
-	jmp lkupsa      ; $FF5C: C128: LKUPSA
-	jmp scrmod      ; $FF5F:                                            [unsupported C128: SCRMOD – get/set screen mode]
-	.byte 0,0,0     ; $FF62: C128: DLCHR – init 80-col character RAM    [NYI]
-	.byte 0,0,0     ; $FF65: C128: PFKEY – program a function key       [NYI]
-	.byte 0,0,0     ; $FF68:                                            [unsupported C128: SETBNK – set bank for I/O operations]
-	.byte 0,0,0     ; $FF6B:                                            [unsupported C128: GETCFG – lookup MMU data for given bank]
-	jmp jsrfar      ; $FF6E: C128: JSRFAR – gosub in another bank       [incompatible with C128]
-	.byte 0,0,0     ; $FF71:                                            [unsupported C128: JMPFAR – goto another bank]
-	jmp indfet      ; $FF74: C128: FETCH – LDA (fetvec),Y from any bank
-	jmp stash       ; $FF77: C128: STASH – STA (stavec),Y to any bank
-	jmp cmpare      ; $FF7A: C128: CMPARE – CMP (cmpvec),Y to any bank
-	jmp primm       ; $FF7D: C128: PRIMM – print string following the caller’s code
+	.byte 0,0,0       ; $FF47:                                                    [unsupported C128: SPIN_SPOUT – setup fast serial ports for I/O]
+	jmp close_all     ; $FF4A: C128: CLOSE_ALL – close all files on a device
+	.byte 0,0,0       ; $FF4D:                                                    [unsupported C128: C64MODE – reconfigure system as a C64]
+	.byte 0,0,0       ; $FF50:                                                    [unsupported C128: DMA_CALL – send command to DMA device]
+	.byte 0,0,0       ; $FF53:                                                    [unsupported C128: BOOT_CALL – boot load program from disk]
+	.byte 0,0,0       ; $FF56:                                                    [unsupported C128: PHOENIX – init function cartridges]
+	jmp lkupla        ; $FF59: C128: LKUPLA
+	jmp lkupsa        ; $FF5C: C128: LKUPSA
+	jmp scrmod        ; $FF5F:                                                    [unsupported C128: SCRMOD – get/set screen mode]
+	.byte 0,0,0       ; $FF62: C128: DLCHR – init 80-col character RAM            [NYI]
+	.byte 0,0,0       ; $FF65: C128: PFKEY – program a function key               [NYI]
+	jmp mouse_config  ; $FF68: mouse_config                                       [unsupported C128: SETBNK – set bank for I/O operations]
+	jmp mouse_get     ; $FF6B: mouse_get                                          [unsupported C128: GETCFG – lookup MMU data for given bank]
+	jmp jsrfar        ; $FF6E: C128: JSRFAR – gosub in another bank               [incompatible with C128]
+	.byte 0,0,0       ; $FF71: placeholder: get number of RAM banks               [unsupported C128: JMPFAR – goto another bank]
+	jmp indfet        ; $FF74: C128: FETCH – LDA (fetvec),Y from any bank
+	jmp stash         ; $FF77: C128: STASH – STA (stavec),Y to any bank
+	jmp cmpare        ; $FF7A: C128: CMPARE – CMP (cmpvec),Y to any bank
+	jmp primm         ; $FF7D: C128: PRIMM – print string following the caller’s code
 
 	.segment "JMPTBL"
 
