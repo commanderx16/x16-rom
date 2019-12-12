@@ -266,6 +266,7 @@ _RecoverRectangle:
 ;---------------------------------------------------------------
 _Rectangle:
 	lda g_col1
+	tax
 	php
 	sei
 	jsrfar GRAPH_set_colors
