@@ -91,15 +91,15 @@ GRAPH_LL_move_pixels         = $fe24
 ;
 ; high level graphics & fonts
 ;
-GRAPH_init                   = $ff1b
-GRAPH_clear                  = $ff1e
-GRAPH_set_window             = $ff21
-GRAPH_set_colors             = $ff24
-GRAPH_draw_line              = $ff27
-GRAPH_draw_rect              = $ff2a
-GRAPH_move_rect              = $ff2d
-GRAPH_draw_oval              = $ff30
-GRAPH_draw_image             = $ff33
-GRAPH_set_font               = $ff36
-GRAPH_get_char_size          = $ff39
-GRAPH_put_char               = $ff3c
+GRAPH_init                   = $ff20
+GRAPH_clear                  = $ff23
+GRAPH_set_window             = $ff26
+GRAPH_set_colors             = $ff29
+GRAPH_draw_line              = $ff2c
+GRAPH_draw_rect              = $ff2f
+GRAPH_move_rect              = $ff32
+GRAPH_draw_oval              = $ff35
+GRAPH_draw_image             = $ff38
+GRAPH_set_font               = $ff3b
+GRAPH_get_char_size          = $ff3e
+GRAPH_put_char               = $ff41

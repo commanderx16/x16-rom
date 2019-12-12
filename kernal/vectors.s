@@ -81,22 +81,21 @@ GRAPH_LL_move_pixels:
 	.byte 0,0,0;
 	.byte 0,0,0;
 
-
-	jmp GRAPH_init         ; $FF1B: void GRAPH_init();
-	jmp GRAPH_clear        ; $FF1E: void GRAPH_clear();
-	jmp GRAPH_set_window   ; $FF21: void GRAPH_set_window(word x, word y, word width, word height);
-	jmp GRAPH_set_colors   ; $FF24: void GRAPH_set_colors(byte fg, byte secondary, byte bg);
-	jmp GRAPH_draw_line    ; $FF27: void GRAPH_draw_line(word x1, word y1, word x2, word y2);
-	jmp GRAPH_draw_rect    ; $FF2A: void GRAPH_draw_rect(word x, word y, word width, word height, word corner_radius, bool fill);
-	jmp GRAPH_move_rect    ; $FF2D: void GRAPH_move_rect(word sx, word sy, word tx, word ty, word width, word height);
-	jmp GRAPH_draw_oval    ; $FF30: void GRAPH_draw_oval(word x1, word y1, word x2, word y2, bool fill);
-	jmp GRAPH_draw_image   ; $FF33: void GRAPH_draw_image(word x, word y, word ptr, word width, word height);
-	jmp GRAPH_set_font     ; $FF36: void GRAPH_set_font(void ptr);
-	jmp GRAPH_get_char_size; $FF39: (byte baseline, byte width, byte height) GRAPH_get_char_size(byte c, byte mode);
-	jmp GRAPH_put_char     ; $FF3C: void GRAPH_put_char(inout word x, inout word y, byte c);
-
 	.byte 0,0,0
 	.byte 0,0
+
+	jmp GRAPH_init         ; $FF20: void GRAPH_init();
+	jmp GRAPH_clear        ; $FF23: void GRAPH_clear();
+	jmp GRAPH_set_window   ; $FF26: void GRAPH_set_window(word x, word y, word width, word height);
+	jmp GRAPH_set_colors   ; $FF29: void GRAPH_set_colors(byte fg, byte secondary, byte bg);
+	jmp GRAPH_draw_line    ; $FF2C: void GRAPH_draw_line(word x1, word y1, word x2, word y2);
+	jmp GRAPH_draw_rect    ; $FF2F: void GRAPH_draw_rect(word x, word y, word width, word height, word corner_radius, bool fill);
+	jmp GRAPH_move_rect    ; $FF32: void GRAPH_move_rect(word sx, word sy, word tx, word ty, word width, word height);
+	jmp GRAPH_draw_oval    ; $FF35: void GRAPH_draw_oval(word x1, word y1, word x2, word y2, bool fill);
+	jmp GRAPH_draw_image   ; $FF38: void GRAPH_draw_image(word x, word y, word ptr, word width, word height);
+	jmp GRAPH_set_font     ; $FF3B: void GRAPH_set_font(void ptr);
+	jmp GRAPH_get_char_size; $FF3E: (byte baseline, byte width, byte height) GRAPH_get_char_size(byte c, byte mode);
+	jmp GRAPH_put_char     ; $FF41: void GRAPH_put_char(inout word x, inout word y, byte c);
 
 	jmp monitor            ; $FF44: MONITOR
 

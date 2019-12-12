@@ -56,21 +56,22 @@ symbol:
 	.byte 0,0,0                ; $FF15
 	.byte 0,0,0                ; $FF18
 
-	bridge2 GRAPH_init         ; $FF1B
-	bridge2 GRAPH_clear        ; $FF1E
-	bridge2 GRAPH_set_window   ; $FF21
-	bridge2 GRAPH_set_colors   ; $FF24
-	bridge2 GRAPH_draw_line    ; $FF27
-	bridge2 GRAPH_draw_rect    ; $FF2A
-	bridge2 GRAPH_move_rect    ; $FF2D
-	bridge2 GRAPH_draw_oval    ; $FF30
-	bridge2 GRAPH_draw_image   ; $FF33
-	bridge2 GRAPH_set_font     ; $FF36
-	bridge2 GRAPH_get_char_size; $FF39
-	bridge2 GRAPH_put_char     ; $FF3C
-
 	.byte 0,0,0
 	.byte 0,0
+
+	bridge2 GRAPH_init         ; $FF20
+	bridge2 GRAPH_clear        ; $FF23
+	bridge2 GRAPH_set_window   ; $FF26
+	bridge2 GRAPH_set_colors   ; $FF29
+	bridge2 GRAPH_draw_line    ; $FF2C
+	bridge2 GRAPH_draw_rect    ; $FF2F
+	bridge2 GRAPH_move_rect    ; $FF32
+	bridge2 GRAPH_draw_oval    ; $FF35
+	bridge2 GRAPH_draw_image   ; $FF38
+	bridge2 GRAPH_set_font     ; $FF3B
+	bridge2 GRAPH_get_char_size; $FF3E
+	bridge2 GRAPH_put_char     ; $FF41
+
 
 	bridge2 monitor             ; $FF44: monitor
 	bridge2 restore_basic       ; $FF47: restore_basic
