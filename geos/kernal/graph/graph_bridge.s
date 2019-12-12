@@ -259,17 +259,24 @@ _Rectangle:
 	lda r4L
 	sec
 	sbc r3L
-	sta r2L
+	tax
 	lda r4H
 	sbc r3H
-	sta r2H
+	tay
 	; r3: height
 	lda r2H
 	sec
 	sbc r2L
+	inc
 	sta r3L
 	stz r3H
-	
+	; store r2
+	inx
+	bne :+
+	iny
+:	stx r2L
+	sty r2H
+
 	php
 	sei
 	jsrfar GRAPH_draw_rect
