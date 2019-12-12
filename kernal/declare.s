@@ -82,34 +82,35 @@ count	.res 1           ;$A5 temp used by serial routine
 
 .segment "GDRVVEC"
 
-.export I_GRAPH_LL_BASE; [graph]
-I_GRAPH_LL_BASE
-I_GRAPH_LL_init
+.export I_GRAPH_LL_BASE, I_GRAPH_LL_END; [graph]
+I_GRAPH_LL_BASE:
+I_GRAPH_LL_init:
 	.res 2
-I_GRAPH_LL_get_info
+I_GRAPH_LL_get_info:
 	.res 2
-I_GRAPH_LL_cursor_position
+I_GRAPH_LL_cursor_position:
 	.res 2
-I_GRAPH_LL_cursor_next_line
+I_GRAPH_LL_cursor_next_line:
 	.res 2
-I_GRAPH_LL_get_pixel
+I_GRAPH_LL_get_pixel:
 	.res 2
-I_GRAPH_LL_get_pixels
+I_GRAPH_LL_get_pixels:
 	.res 2
-I_GRAPH_LL_set_pixel
+I_GRAPH_LL_set_pixel:
 	.res 2
-I_GRAPH_LL_set_pixels
+I_GRAPH_LL_set_pixels:
 	.res 2
-I_GRAPH_LL_set_8_pixels
+I_GRAPH_LL_set_8_pixels:
 	.res 2
-I_GRAPH_LL_set_8_pixels_opaque
+I_GRAPH_LL_set_8_pixels_opaque:
 	.res 2
-I_GRAPH_LL_fill_pixels
+I_GRAPH_LL_fill_pixels:
 	.res 2
-I_GRAPH_LL_filter_pixels
+I_GRAPH_LL_filter_pixels:
 	.res 2
-I_GRAPH_LL_move_pixels
+I_GRAPH_LL_move_pixels:
 	.res 2
+I_GRAPH_LL_END:
 
 	.segment "KVECTORS";rem kernal/os indirects(20)
 cinv	.res 2           ;irq ram vector

@@ -20,65 +20,65 @@ symbol:
 	bridge_internal "KERNSUPV", symbol
 .endmacro
 
-.macro bridge2 symbol
-	bridge_internal "KERNSUPV2", symbol
-.endmacro
+	.segment "KERNSUPV"
 
-.macro bridge3 symbol
-	bridge_internal "KERNSUPV3", symbol
-.endmacro
+	.byte 0,0,0            ; $FEE1
+	.byte 0,0,0            ; $FEE4
+	.byte 0,0,0            ; $FEE7
+	.byte 0,0,0            ; $FEEA
+	.byte 0,0,0            ; $FEED
+	.byte 0,0,0            ; $FEF0
+	.byte 0,0,0            ; $FEF3
+	.byte 0,0,0            ; $FEF6
 
-.segment "KERNSUPV3"
-	bridge3 monitor         ; $FF00: MONITOR
-	bridge3 restore_basic   ; $FF03
-	bridge3 query_joysticks ; $FF06: GETJOY
-	bridge3 mouse           ; $FF09: MOUSE
-	bridge3 setdat          ; $FF0C: SETDAT
-	bridge3 rddat           ; $FF0F: RDDAT
-	bridge3 mouse_get_x     ; $FF12: RDDAT
-	bridge3 mouse_get_y     ; $FF15: RDDAT
-	bridge3 joystick_get    ; $FF18: joystick_get
+	bridge GRAPH_LL_init                ; $FEF9
+	bridge GRAPH_LL_get_info            ; $FEFC
+	bridge GRAPH_LL_cursor_position     ; $FEFF
+	bridge GRAPH_LL_cursor_next_line    ; $FF02
+	bridge GRAPH_LL_get_pixel           ; $FF05
+	bridge GRAPH_LL_get_pixels          ; $FF08
+	bridge GRAPH_LL_set_pixel           ; $FF0B
+	bridge GRAPH_LL_set_pixels          ; $FF0E
+	bridge GRAPH_LL_set_8_pixels        ; $FF11
+	bridge GRAPH_LL_set_8_pixels_opaque ; $FF14
+	bridge GRAPH_LL_fill_pixels         ; $FF17
+	bridge GRAPH_LL_filter_pixels       ; $FF1A
+	bridge GRAPH_LL_move_pixels         ; $FF1D
 
-	bridge3 GRAPH_set_window
-	bridge3 GRAPH_set_options
-	bridge3 GRAPH_set_colors
-	bridge3 GRAPH_start_direct
-	bridge3 GRAPH_set_pixel
-	bridge3 GRAPH_get_pixel
-	bridge3 GRAPH_filter_pixels
-	bridge3 GRAPH_draw_line
-	bridge3 GRAPH_draw_frame
-	bridge3 GRAPH_draw_rect
-	bridge3 GRAPH_move_rect
-	bridge3 GRAPH_set_font
-	bridge3 GRAPH_get_char_size
-	bridge3 GRAPH_put_char
+	bridge GRAPH_init          ; $FF20
+	bridge GRAPH_clear         ; $FF23
+	bridge GRAPH_set_window    ; $FF26
+	bridge GRAPH_set_colors    ; $FF29
+	bridge GRAPH_draw_line     ; $FF2C
+	bridge GRAPH_draw_rect     ; $FF2F
+	bridge GRAPH_move_rect     ; $FF32
+	bridge GRAPH_draw_oval     ; $FF35
+	bridge GRAPH_draw_image    ; $FF38
+	bridge GRAPH_set_font      ; $FF3B
+	bridge GRAPH_get_char_size ; $FF3E
+	bridge GRAPH_put_char      ; $FF41
+	bridge monitor             ; $FF44: monitor
+	bridge restore_basic       ; $FF47: restore_basic
+	bridge close_all           ; $FF4A: CLOSE_ALL – close all files on a device
+	bridge clock_set_date_time ; $FF4D: clock_set_date_time - set date and time
+	bridge clock_get_date_time ; $FF50: clock_get_date_time - get date and time
+	bridge joystick_scan       ; $FF53: joystick_scan
+	bridge joystick_get        ; $FF56: joystick_get
+	bridge lkupla              ; $FF59: LKUPLA
+	bridge lkupsa              ; $FF5C: LKUPSA
+	bridge swapper             ; $FF5F: SWAPPER – switch between 40 and 80 columns
+	.byte 0,0,0                ; $FF62: DLCHR – init 80-col character RAM  [NYI]
+	.byte 0,0,0                ; $FF65: PFKEY – program a function key [NYI]
+	bridge mouse_config        ; $FF68: mouse_config
+	bridge mouse_get           ; $FF6B: mouse_get
+	jmp bjsrfar                ; $FF6E: JSRFAR – gosub in another bank
+	.byte 0,0,0                ; $FF71: JMPFAR – goto another bank
+	bridge indfet              ; $FF74: FETCH – LDA (fetvec),Y from any bank
+	bridge stash               ; $FF77: STASH – STA (stavec),Y to any bank
+	bridge cmpare              ; $FF7A: CMPARE – CMP (cmpvec),Y to any bank
+	bridge primm               ; $FF7D: PRIMM – print string following the caller’s code
 
-.segment "KERNSUPV2"
-
-	.byte 0,0,0             ; $FF47: SPIN_SPOUT – setup fast serial ports for I/O
-	bridge2 close_all       ; $FF4A: CLOSE_ALL – close all files on a device
-	.byte 0,0,0             ; $FF4D: C64MODE – reconfigure system as a C64
-	.byte 0,0,0             ; $FF50: DMA_CALL – send command to DMA device
-	.byte 0,0,0             ; $FF53: BOOT_CALL – boot load program from disk
-	.byte 0,0,0             ; $FF56: PHOENIX – init function cartridges
-	bridge2 lkupla          ; $FF59: LKUPLA
-	bridge2 lkupsa          ; $FF5C: LKUPSA
-	bridge2 swapper         ; $FF5F: SWAPPER – switch between 40 and 80 columns
-	.byte 0,0,0             ; $FF62: DLCHR – init 80-col character RAM
-	.byte 0,0,0             ; $FF65: PFKEY – program a function key
-	.byte 0,0,0             ; $FF68: SETBNK – set bank for I/O operations
-	.byte 0,0,0             ; $FF6B: GETCFG – lookup MMU data for given bank
-	jmp bjsrfar             ; $FF6E: JSRFAR – gosub in another bank
-	.byte 0,0,0             ; $FF71: JMPFAR – goto another bank
-	bridge2 indfet          ; $FF74: FETCH – LDA (fetvec),Y from any bank
-	bridge2 stash           ; $FF77: STASH – STA (stavec),Y to any bank
-	bridge2 cmpare          ; $FF7A: CMPARE – CMP (cmpvec),Y to any bank
-	bridge2 primm           ; $FF7D: PRIMM – print string following the caller’s code
-
-.segment "KERNSUPV"
-
-	.byte $ff       ;
+	.byte $ff                  ; space for KERNAL version
 
 	bridge cint
 	bridge ioinit

@@ -1,6 +1,7 @@
 .feature labels_without_colons, pc_assignment
 
 .include "../banks.inc"
+.include "../kernal.inc"
 .include "../fplib/fplib.inc"
 
 ; XXX exports for FPLIB

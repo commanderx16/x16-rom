@@ -6,6 +6,7 @@
 
 .include "../../regs.inc"
 .include "../../mac.inc"
+.include "../../graph_ll.inc"
 .include "fonts.inc"
 
 .import col1, col2, col_bg

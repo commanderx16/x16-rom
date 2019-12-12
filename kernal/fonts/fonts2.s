@@ -3,11 +3,6 @@
 ;
 ; Font library: drawing
 
-.import GRAPH_LL_cursor_position
-.import GRAPH_LL_cursor_next_line
-.import GRAPH_LL_set_8_pixels
-.import GRAPH_LL_set_8_pixels_opaque
-
 .export GRAPH_get_char_size 
 
 ;

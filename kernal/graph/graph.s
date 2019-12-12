@@ -5,27 +5,14 @@
 
 .include "../../mac.inc"
 .include "../../regs.inc"
-.include "graph.inc"
+.include "../../graph_ll.inc"
 
 .import leftMargin, windowTop, rightMargin, windowBottom
 .import GRAPH_LL_VERA
-.import I_GRAPH_LL_BASE
+.import I_GRAPH_LL_BASE, I_GRAPH_LL_END
 
 .import font_init
 .import graph_init
-
-.import GRAPH_LL_init
-.import GRAPH_LL_get_info
-.import GRAPH_LL_cursor_position
-.import GRAPH_LL_get_pixel
-.import GRAPH_LL_get_pixels
-.import GRAPH_LL_set_pixel
-.import GRAPH_LL_set_pixels
-.import GRAPH_LL_set_8_pixels
-.import GRAPH_LL_set_8_pixels_opaque
-.import GRAPH_LL_fill_pixels
-.import GRAPH_LL_filter_pixels
-.import GRAPH_LL_move_pixels
 
 .export GRAPH_init
 .export GRAPH_clear
@@ -33,8 +20,9 @@
 .export GRAPH_set_colors
 .export GRAPH_draw_line
 .export GRAPH_draw_rect
-.export GRAPH_draw_frame
+.export GRAPH_draw_image
 .export GRAPH_move_rect
+.export GRAPH_draw_oval
 
 .setcpu "65c02"
 
@@ -53,7 +41,7 @@ col_bg:	.res 1
 ;---------------------------------------------------------------
 GRAPH_init:
 	; copy VERA driver vectors
-	ldx #13*2-1
+	ldx #<(I_GRAPH_LL_END - I_GRAPH_LL_BASE - 1)
 :	lda GRAPH_LL_VERA,x
 	sta I_GRAPH_LL_BASE,x
 	dex
@@ -61,10 +49,14 @@ GRAPH_init:
 	
 	jsr GRAPH_LL_init
 
-	LoadW r0, 0
-	LoadW r1, 0
-	LoadW r2, SC_PIX_WIDTH-1
-	LoadW r3, SC_PIX_HEIGHT-1
+	jsr GRAPH_LL_get_info
+	MoveW r0, r2
+	MoveW r1, r3
+	lda #0
+	sta r0L
+	sta r0H
+	sta r1L
+	sta r1H
 	jsr GRAPH_set_window
 
 	lda #0  ; primary:    black
@@ -82,28 +74,55 @@ GRAPH_init:
 ;---------------------------------------------------------------
 GRAPH_clear:
 	PushB col1
-	MoveB col_bg, col1
-	MoveW r0, leftMargin
-	MoveW r1L, windowTop
-	MoveW r2, rightMargin
-	MoveW r3L, windowBottom
+	PushB col2
+	lda col_bg
+	sta col1
+	sta col2
+	MoveW leftMargin, r0
+	MoveB windowTop, r1L
+	stz r1H
+	MoveW rightMargin, r2
+	SubW r0, r2
+	IncW r2
+	MoveB windowBottom, r3L
+	stz r3H
+	SubW r1, r3
+	IncW r3
+	sec
 	jsr GRAPH_draw_rect
+	PopB col2
 	PopB col1
 	rts
 
 ;---------------------------------------------------------------
 ; GRAPH_set_window
 ;
-; Pass:      r0     x1
-;            r1     y1
-;            r2     x2
-;            r3     y2
+; Pass:      r0     x
+;            r1     y
+;            r2     width
+;            r3     height
 ;---------------------------------------------------------------
 GRAPH_set_window:
 	MoveW r0, leftMargin
 	MoveB r1L, windowTop
-	MoveW r2, rightMargin
-	MoveB r3L, windowBottom
+	
+	lda r0L
+	clc
+	adc r2L
+	sta rightMargin
+	lda r0H
+	adc r2H
+	sta rightMargin+1
+	lda rightMargin
+	bne :+
+	dec rightMargin+1
+:	dec rightMargin
+
+	lda r1L
+	clc
+	adc r3L
+	dec
+	sta windowBottom
 	rts
 
 ;---------------------------------------------------------------
@@ -284,7 +303,7 @@ abs:
 @1:	rts
 
 ;---------------------------------------------------------------
-; HorizontalLine
+; HorizontalLine (internal)
 ;
 ; Pass:      r0   x position of first pixel
 ;            r1   y position
@@ -324,7 +343,7 @@ HorizontalLine:
 	rts
 
 ;---------------------------------------------------------------
-; VerticalLine
+; VerticalLine (internal)
 ;
 ; Pass:      r0   x
 ;            r1   y1
@@ -364,39 +383,69 @@ VerticalLine:
 ;---------------------------------------------------------------
 ; GRAPH_draw_rect
 ;
-; Pass:      r0   x1
-;            r1   y1
-;            r2   x2
-;            r3   y2
-; Return:    draws the rectangle
+; Pass:      r0   x
+;            r1   y
+;            r2   width
+;            r3   height
+;            r4   corner radius [TODO]
+;            c    1: fill
 ;---------------------------------------------------------------
 GRAPH_draw_rect:
-	; make sure y2 >= y1
-	lda r3L
-	cmp r1L
-	bcs @a
-	ldx r1L
-	stx r3L
-	sta r1L
-@a:
-	PushW r1
-@1:	jsr HorizontalLine
-	lda r1L
-	inc r1L
-	cmp r3L
-	bne @1
-	PopW r1
-	rts
+; check for empty
+	php
+	lda r2L
+	ora r2H
+	bne @0
+@4:	rts
+@0:	lda r3L
+	ora r3H
+	beq @4
+	plp
 
-;---------------------------------------------------------------
-; GRAPH_draw_frame
-;
-; Pass:      r0   x1
-;            r1   y1
-;            r2   x2
-;            r3   y2
-;---------------------------------------------------------------
-GRAPH_draw_frame:
+	bcc @3
+	
+; fill
+	PushW r1
+	PushW r3
+	jsr GRAPH_LL_cursor_position
+
+@1:	PushW r0
+	PushW r1
+	MoveW r2, r0
+	LoadW r1, 0
+	lda col2
+	jsr GRAPH_LL_fill_pixels
+	PopW r1
+	PopW r0
+
+	jsr GRAPH_LL_cursor_next_line
+
+	lda r3L
+	bne @2
+	dec r3H
+@2:	dec r3L
+	lda r3L
+	ora r3H
+	bne @1
+	
+	PopW r3
+	PopW r1
+
+; frame
+@3:
+	PushW r2
+	PushW r3
+	AddW r0, r2
+	lda r2L
+	bne :+
+	dec r2H
+:	dec r2L
+	AddW r1, r3
+	lda r3L
+	bne :+
+	dec r3H
+:	dec r3L
+
 	jsr HorizontalLine
 	PushB r1L
 	MoveB r3L, r1L
@@ -407,19 +456,75 @@ GRAPH_draw_frame:
 	MoveW r2, r0
 	jsr VerticalLine
 	PopW r0
+
+	PopW r3
+	PopW r2
 	rts
 
 ;---------------------------------------------------------------
+; GRAPH_draw_image
+;
+; Pass:      r0   x
+;            r1   y
+;            r2   image pointer
+;            r3   width
+;            r4   height
+;---------------------------------------------------------------
+GRAPH_draw_image:
+	PushW r0
+	PushW r1
+	PushW r4
+	jsr GRAPH_LL_cursor_position
+
+	MoveW r2, r0
+	MoveW r3, r1
+@1:	jsr GRAPH_LL_set_pixels
+
+	lda r4L
+	bne :+
+	dec r4H
+:	dec r4L
+
+	AddW r3, r0 ; update pointer
+	jsr GRAPH_LL_cursor_next_line
+	
+	lda r4L
+	ora r4H
+	bne @1
+	
+	PopW r4
+	PopW r1
+	PopW r0
+	rts
+	
+;---------------------------------------------------------------
 ; GRAPH_move_rect
 ;
-; Pass:      r0   source x1
-;            r1   source y1
-;            r2   source x2
-;            r3   source y2
-;            r4   target x
-;            r5   target y
+; Pass:      r0   source x
+;            r1   source y
+;            r2   target x
+;            r3   target y
+;            r4   width
+;            r5   height
 ;---------------------------------------------------------------
 GRAPH_move_rect:
-	; NYI
-	; GRAPH_LL_move_pixels
-	brk
+; XXX overlaps
+
+@1:	jsr GRAPH_LL_move_pixels
+	IncW r1 ; sy
+	IncW r3 ; ty
+	lda r5L
+	bne @2
+	dec r5H
+@2:	dec r5L
+	lda r5L
+	ora r5H
+	bne @1
+	rts
+
+;---------------------------------------------------------------
+; GRAPH_draw_oval
+;
+;---------------------------------------------------------------
+GRAPH_draw_oval:
+	brk; NYI

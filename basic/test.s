@@ -1,23 +1,8 @@
-GRAPH_set_window     = $FF1B ; TODO
-GRAPH_set_options    = $FF1E ; TODO
-GRAPH_set_colors     = $FF21
-GRAPH_LL_start_direct   = $FF24
-GRAPH_LL_set_pixel      = $FF27
-GRAPH_LL_get_pixel      = $FF2A
-GRAPH_filter_pixels  = $FF2D
-GRAPH_draw_line      = $FF30
-GRAPH_draw_frame     = $FF33
-GRAPH_draw_rect      = $FF36
-GRAPH_move_rect      = $FF39
-GRAPH_set_font       = $FF3C
-GRAPH_get_char_size  = $FF3F
-GRAPH_put_char       = $FF42
 
 test:
 	lda #$80
 	sec
 	jsr scrmod
-
 	jsr test1_hline
 	jsr test2_vline
 	jsr test3_bresenham
@@ -30,6 +15,8 @@ test:
 	jsr test10_put_char
 	jsr test11_char_size
 	jsr test12_char_styles
+	jsr test13_move_rect
+	jsr test14_image
 	jsr checksum_framebuffer
 	rts
 	
@@ -120,7 +107,7 @@ test4_set_get_pixels:
 	; set direct pixels
 	LoadW r0, 5
 	LoadW r1, 23
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 	ldx #0
 :	phx
 	txa
@@ -132,7 +119,7 @@ test4_set_get_pixels:
 	; get direct pixels
 	LoadW r0, 5
 	LoadW r1, 23
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 	LoadB r1H, 1; "OK"
 	ldx #0
 :	phx
@@ -161,7 +148,7 @@ test5_filter_pixels:
 	; set direct pixels
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 	ldx #0
 :	phx
 	txa
@@ -173,18 +160,18 @@ test5_filter_pixels:
 	; filter pixels
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 	LoadW $70, $49 ; EOR #
 	LoadW $71, $55 ;      $55
 	LoadW $72, $60 ; RTS
 	LoadW r0, 256
 	LoadW r1, $70
-	jsr GRAPH_filter_pixels
+	jsr GRAPH_LL_filter_pixels
 
 	; check filter result using direct read
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 	LoadB r1H, 1; "OK"
 	ldx #0
 :	phx
@@ -211,77 +198,26 @@ test5_filter_pixels:
 	jmp print_string
 
 test6_frame:
-	; frame frame TL->BR
+	; frame frame
 	lda #11
 	jsr GRAPH_set_colors
-	LoadW r0, 5
-	LoadW r1, 27
+	LoadW r0, 100
+	LoadW r1, 20
 	LoadW r2, 10
-	LoadW r3, 32
-	jsr GRAPH_draw_frame
-
-	; frame frame BL->TR
-	lda #12
-	jsr GRAPH_set_colors
-	LoadW r0, 12
-	LoadW r1, 32
-	LoadW r2, 17
-	LoadW r3, 27
-	jsr GRAPH_draw_frame
-
-	; frame frame BR->TL
-	lda #13
-	jsr GRAPH_set_colors
-	LoadW r0, 24
-	LoadW r1, 32
-	LoadW r2, 19
-	LoadW r3, 27
-	jsr GRAPH_draw_frame
-
-	; frame frame TR->BL
-	lda #14
-	jsr GRAPH_set_colors
-	LoadW r0, 31
-	LoadW r1, 27
-	LoadW r2, 26
-	LoadW r3, 32
-	jmp GRAPH_draw_frame
+	LoadW r3, 10
+	clc
+	jmp GRAPH_draw_rect
 
 test7_rect:
-	; rectangle frame TL->BR
+	; rectangle frame
 	lda #11
+	ldx #5
 	jsr GRAPH_set_colors
-	LoadW r0, 5
-	LoadW r1, 34
+	LoadW r0, 111
+	LoadW r1, 20
 	LoadW r2, 10
-	LoadW r3, 39
-	jsr GRAPH_draw_rect
-
-	; rectangle frame BL->TR
-	lda #12
-	jsr GRAPH_set_colors
-	LoadW r0, 12
-	LoadW r1, 39
-	LoadW r2, 17
-	LoadW r3, 34
-	jsr GRAPH_draw_rect
-
-	; rectangle frame BR->TL
-	lda #13
-	jsr GRAPH_set_colors
-	LoadW r0, 24
-	LoadW r1, 39
-	LoadW r2, 19
-	LoadW r3, 34
-	jsr GRAPH_draw_rect
-
-	; rectangle frame TR->BL
-	lda #14
-	jsr GRAPH_set_colors
-	LoadW r0, 31
-	LoadW r1, 34
-	LoadW r2, 26
-	LoadW r3, 39
+	LoadW r3, 10
+	sec
 	jmp GRAPH_draw_rect
 
 test8_varlen_hline:
@@ -340,10 +276,11 @@ test10_put_char:
 
 	LoadW r0, 25
 	LoadW r1, 80
-	LoadW r2, 280
-	LoadW r3, 95
+	LoadW r2, 255
+	LoadW r3, 15
 	jsr GRAPH_set_window
-	jsr GRAPH_draw_frame
+	clc
+	jsr GRAPH_draw_rect
 
 	AddVW 5, r1 ; add baseline -2
 	
@@ -366,15 +303,17 @@ test10_put_char:
 test11_char_size:
 	LoadW r0, 25
 	LoadW r1, 100
-	LoadW r2, 280
-	LoadW r3, 120
+	LoadW r2, 255
+	LoadW r3, 20
 	jsr GRAPH_set_window
-	jsr GRAPH_draw_frame
+	clc
+	jsr GRAPH_draw_rect
 
 	AddVW 7, r1 ; add baseline
 
 	lda #$20
-:	jsr GRAPH_set_colors
+:	tax
+	jsr GRAPH_set_colors
 
 	; draw bounding box
 	pha
@@ -389,7 +328,7 @@ test11_char_size:
 	PopW r0
 
 	PushW r1
-	MoveW r0, r2
+	; y -= baseline
 	lda r1L
 	sec
 	sbc 0; baseline
@@ -397,21 +336,14 @@ test11_char_size:
 	lda r1H
 	sbc #0
 	sta r1H
-	MoveW r1, r3
-	txa
-	clc
-	adc r2L
-	sta r2L
-	lda r2H
-	adc #0
-	sta r2H
-	tya
-	clc
-	adc r3L
-	sta r3L
-	lda r3H
-	adc #0
-	sta r3H
+
+	stx r2L
+	stz r2H
+
+	sty r3L
+	stz r3H
+
+	sec
 	jsr GRAPH_draw_rect
 	PopW r1
 
@@ -441,10 +373,11 @@ test12_char_styles:
 
 	LoadW r0, 20
 	LoadW r1, 125
-	LoadW r2, 315
-	LoadW r3, 199
+	LoadW r2, 295
+	LoadW r3, 74
 	jsr GRAPH_set_window
-	jsr GRAPH_draw_frame
+	clc
+	jsr GRAPH_draw_rect
 
 	AddVW 7, r1 ; add baseline
 
@@ -488,6 +421,56 @@ style_codes:
 	.byte $0c ; outline
 	.byte $12 ; reverse
 
+test13_move_rect:
+	LoadW r0, 100
+	LoadW r1, 100
+	LoadW r2, 320-40
+	LoadW r3, 10
+	LoadW r4, 40
+	LoadW r5, 50
+	jmp GRAPH_move_rect
+
+test14_image:
+	ldx #0
+:	lda image_data,x
+	sta $0400,x
+	inx
+	bne :-
+
+	LoadW r0, 50
+	LoadW r1, 6
+	LoadW r2, $0400
+	LoadW r3, 16
+	LoadW r4, 16
+	
+	ldx #10
+:	phx
+	jsr GRAPH_draw_image
+	AddVW 20, r0
+	plx
+	dex
+	bne :-
+	rts
+
+image_data:
+.byte $14,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$91
+.byte $cb,$16,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$ca,$e8
+.byte $ae,$b1,$af,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$ae,$b0,$af
+.byte $91,$b8,$b8,$b6,$91,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$b6,$b8,$b8,$91
+.byte $c9,$b7,$b9,$b9,$b8,$91,$c9,$c9,$c9,$c9,$c9,$b7,$b9,$b9,$b8,$c9
+.byte $c9,$92,$9d,$9d,$9d,$9c,$ae,$c9,$c9,$b5,$b8,$9d,$9d,$9d,$9b,$c9
+.byte $c9,$91,$9c,$95,$9d,$9d,$9d,$ae,$c9,$9c,$9d,$9d,$95,$95,$b6,$c9
+.byte $c9,$c9,$91,$ae,$92,$9b,$9c,$9a,$91,$9c,$9b,$9a,$ae,$b5,$c9,$c9
+.byte $c9,$c9,$c9,$c9,$c9,$91,$80,$99,$91,$80,$99,$c9,$c9,$c9,$c9,$c9
+.byte $c9,$c9,$c9,$c9,$5a,$63,$64,$5a,$91,$64,$63,$3e,$91,$c9,$c9,$c9
+.byte $c9,$c9,$3e,$48,$48,$48,$48,$15,$c9,$47,$48,$48,$48,$46,$c9,$c9
+.byte $c9,$c9,$47,$49,$49,$48,$14,$c9,$c9,$91,$48,$49,$49,$48,$c9,$c9
+.byte $c9,$c9,$08,$50,$08,$15,$c9,$c9,$c9,$c9,$14,$47,$50,$50,$14,$c9
+.byte $c9,$e5,$08,$2c,$e5,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2b,$2d,$22,$c9
+.byte $c9,$e5,$2b,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2a,$2a,$c9
+.byte $c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9
+
+
 checksum_framebuffer:
 	lda #$ff
 	sta crclo
@@ -498,7 +481,7 @@ checksum_framebuffer:
 	stx r1L
 	stz r1H
 	phx
-	jsr GRAPH_LL_start_direct
+	jsr GRAPH_LL_cursor_position
 
 	ldx #>320
 	ldy #<320
@@ -519,13 +502,15 @@ checksum_framebuffer:
 	bne @loop
 
 	lda #0
+	tax
 	jsr GRAPH_set_colors
 
 	LoadW r0, 295
 	LoadW r1, 190
-	LoadW r2, 319
-	LoadW r3, 199
+	LoadW r2, 24
+	LoadW r3, 9
 	jsr GRAPH_set_window
+	sec
 	jsr GRAPH_draw_rect
 
 	AddVW 7, r1 ; add baseline

@@ -11,6 +11,7 @@
 .include "inputdrv.inc"
 .include "c64.inc"
 .include "../../banks.inc"
+.include "../../graph_ll.inc"
 
 ; main.s
 .import InitGEOEnv
@@ -83,7 +84,6 @@ _ResetHandle:
 	.word scrmod
 	.byte BANK_KERNAL
 
-.import GRAPH_LL_init
 	jsr gjsrfar
 	.word GRAPH_LL_init
 	.byte BANK_KERNAL

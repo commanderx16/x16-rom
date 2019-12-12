@@ -186,12 +186,7 @@ GRAPH_LL_get_pixel:
 GRAPH_LL_set_pixels:
 	PushB r0H
 	PushB r1H
-	jsr set_pixels_FG
-	PopB r1H
-	PopB r0H
-	rts
-	
-set_pixels_FG:
+
 	lda r1H
 	beq @a
 
@@ -208,6 +203,8 @@ set_pixels_FG:
 	iny
 	dex
 	bne :-
+	PopB r1H
+	PopB r0H
 	rts
 
 ;---------------------------------------------------------------
@@ -465,11 +462,41 @@ filter_y:
 ;---------------------------------------------------------------
 ; GRAPH_LL_move_pixels
 ;
-; Pass:      r0   sx
-;            r1   sy
-;            r2   tx
-;            r3   ty
+; Pass:      r0   source x
+;            r1   source y
+;            r2   target x
+;            r3   target y
 ;            r4   number of pixels
 ;---------------------------------------------------------------
 GRAPH_LL_move_pixels:
-	brk
+; XXX sy == ty && sx < tx && sx + c > tx -> backwards!
+
+	lda #1
+	sta veractl
+	jsr GRAPH_LL_cursor_position
+	stz veractl
+	PushW r0
+	PushW r1
+	MoveW r2, r0
+	MoveW r3, r1
+	jsr GRAPH_LL_cursor_position
+	PopW r1
+	PopW r0
+
+	lda r4H
+	beq @a
+
+	PushB r4H
+	ldx #0
+@c:	jsr @b
+	dec r4H
+	bne @c
+	PopB r4H
+
+@a:	ldx r4L
+@b:	lda veradat2
+	sta veradat
+	dex
+	bne @b
+
+	rts

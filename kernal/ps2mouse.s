@@ -11,7 +11,7 @@ sprite_addr = 60 * 256 ; after text screen
 .import mousex, mousey, mousebt, msepar, mousel, mouser, mouset, mouseb; [declare]
 .import save_ram_bank; [declare]
 
-.export mouse_init, mouse_config, mouse_scan, mouse_get_x, mouse_get_y
+.export mouse_init, mouse_config, mouse_scan, mouse_get
 
 .segment "PS2MOUSE"
 
@@ -33,17 +33,16 @@ mouse_scan:
 	KVARS_END
 	rts
 
-mouse_get_x:
+mouse_get:
 	KVARS_START
-	ldx mousex
-	ldy mousex+1
-	KVARS_END
-	rts
-
-mouse_get_y:
-	KVARS_START
-	ldx mousey
-	ldy mousey+1
+	lda mousex
+	sta 0,x
+	lda mousex+1
+	sta 1,x
+	lda mousey
+	sta 2,x
+	lda mousey+1
+	sta 3,x
 	lda mousebt
 	KVARS_END
 	rts

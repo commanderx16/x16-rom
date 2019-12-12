@@ -9,6 +9,7 @@
 .include "config.inc"
 .include "kernal.inc"
 .include "c64.inc"
+.include "../../graph_ll.inc"
 
 .global _GetScanLine
 
@@ -38,10 +39,6 @@ _GetScanLine:
 .import GRAPH_draw_line
 .import GRAPH_draw_frame
 .import GRAPH_draw_rect
-.import GRAPH_LL_get_pixel
-.import GRAPH_LL_cursor_position
-.import GRAPH_LL_set_pixel
-.import GRAPH_LL_filter_pixels
 .import GRAPH_set_colors
 
 .export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_pixel
@@ -161,24 +158,50 @@ _DrawPoint:
 ;---------------------------------------------------------------
 _FrameRectangle:
 	jsr Convert8BitPattern
+
 	PushW r0
 	PushW r1
 	PushW r2
 	PushW r3
+	
+	; r0: x
 	MoveW r3, r0
+	; r1: y
 	MoveB r2L, r1L
 	stz r1H
-	MoveB r2H, r3L
+	; r2: width
+	lda r4L
+	sec
+	sbc r3L
+	tax
+	lda r4H
+	sbc r3H
+	tay
+	; r3: height
+	lda r2H
+	sec
+	sbc r2L
+	inc
+	sta r3L
 	stz r3H
-	MoveW r4, r2
+	; store r2
+	inx
+	bne :+
+	iny
+:	stx r2L
+	sty r2H
+
 	php
 	sei
-	jsrfar GRAPH_draw_frame
+	clc ; no fill
+	jsrfar GRAPH_draw_rect
 	plp
+
 	PopW r3
 	PopW r2
 	PopW r1
 	PopW r0
+
 	rts
 
 ;---------------------------------------------------------------
@@ -192,26 +215,7 @@ _FrameRectangle:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _ImprintRectangle:
-	PushW r0
-	PushW r1
-	PushW r2
-	PushW r3
-	MoveW r3, r0
-	MoveB r2L, r1L
-	stz r1H
-	MoveB r2H, r3L
-	stz r3H
-	MoveW r4, r2
-	php
-	sei
-	lda #$ff
-	clc
-	jsrfar GRAPH_draw_rect
-	plp
-	PopW r3
-	PopW r2
-	PopW r1
-	PopW r0
+	; TODO
 	rts
 
 ;---------------------------------------------------------------
@@ -244,26 +248,7 @@ _InvertRectangle:
 ; Destroyed: a, x, y, r5 - r8, r11
 ;---------------------------------------------------------------
 _RecoverRectangle:
-	PushW r0
-	PushW r1
-	PushW r2
-	PushW r3
-	MoveW r3, r0
-	MoveB r2L, r1L
-	stz r1H
-	MoveB r2H, r3L
-	stz r3H
-	MoveW r4, r2
-	php
-	sei
-	lda #$ff
-	sec
-	jsrfar GRAPH_draw_rect
-	plp
-	PopW r3
-	PopW r2
-	PopW r1
-	PopW r0
+	; TODO
 	rts
 
 ;---------------------------------------------------------------
@@ -278,6 +263,7 @@ _RecoverRectangle:
 ;---------------------------------------------------------------
 _Rectangle:
 	lda g_col1
+	tax
 	php
 	sei
 	jsrfar GRAPH_set_colors
@@ -287,17 +273,40 @@ _Rectangle:
 	PushW r1
 	PushW r2
 	PushW r3
+	
+	; r0: x
 	MoveW r3, r0
+	; r1: y
 	MoveB r2L, r1L
 	stz r1H
-	MoveB r2H, r3L
+	; r2: width
+	lda r4L
+	sec
+	sbc r3L
+	tax
+	lda r4H
+	sbc r3H
+	tay
+	; r3: height
+	lda r2H
+	sec
+	sbc r2L
+	inc
+	sta r3L
 	stz r3H
-	MoveW r4, r2
+	; store r2
+	inx
+	bne :+
+	iny
+:	stx r2L
+	sty r2H
+
 	php
 	sei
-	lda #0 ; N=0 -> draw
+	sec ; fill
 	jsrfar GRAPH_draw_rect
 	plp
+
 	PopW r3
 	PopW r2
 	PopW r1
@@ -420,28 +429,7 @@ _InvertLine:
 ; Destroyed: a, x, y, r5 - r8
 ;---------------------------------------------------------------
 _RecoverLine:
-	PushW r0
-	PushW r1
-	PushW r2
-	PushW r3
-	MoveW r3, r0
-	MoveB r11L, r1L
-	stz r1H
-	MoveW r4, r2
-	MoveB r11L, r3L
-	stz r3H
-
-	php
-	sei
-	lda #$ff
-	sec      ; N=1, C=1 -> recover
-	jsrfar GRAPH_draw_line
-	plp
-
-	PopW r3
-	PopW r2
-	PopW r1
-	PopW r0
+	; TODO
 	rts
 
 ;---------------------------------------------------------------

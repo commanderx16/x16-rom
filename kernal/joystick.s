@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; NES & SNES Controller Driver for 6502
+; NES & SNES Controller Driver
 ;----------------------------------------------------------------------
 
 .include "../banks.inc"
@@ -9,7 +9,11 @@
 .import j0tmp, joy0, joy1, joy2; [declare]
 .import save_ram_bank; [declare]
 
-.export joystick_scan, joystick_from_ps2, joystick_get
+; KERNAL API
+.export joystick_scan
+.export joystick_get
+; called by ps2 keyboard driver
+.export joystick_from_ps2
 
 nes_data = d2pra
 nes_ddr  = d2ddra
@@ -21,65 +25,15 @@ bit_data2 = $40 ; PB6 (user port pin K): DATA  (controller #2)
 
 .segment "JOYSTICK"
 
-; API
+;---------------------------------------------------------------
+; joystick_scan
+;
+; Function:  Scan all joysticks
+;
+;---------------------------------------------------------------
 joystick_scan:
 	KVARS_START
-	jsr _joystick_scan
-	KVARS_END
-	rts
 
-joystick_from_ps2:
-	KVARS_START
-	jsr _joystick_from_ps2
-	KVARS_END
-	rts
-
-joystick_get:
-	KVARS_START
-	tax
-	bne @1       ; -> joy2
-
-; joy1
-	lda joy1
-	ldx joy1+1
-	ldy joy1+2
-	beq @2       ; present
-
-; joy1 not present, return keyboard
-	lda joy0
-	ldx #1       ; type = keyboard
-	ldy #0       ; present
-	bra @2
-
-; joy 2
-@1:	lda joy2
-	ldx joy2+1
-	ldy joy2+2
-
-@2:	KVARS_END
-	rts
-
-;----------------------------------------------------------------------
-; joystick_scan:
-;
-; byte 0:      | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-;         NES  | A | B |SEL|STA|UP |DN |LT |RT |
-;         SNES | B | Y |SEL|STA|UP |DN |LT |RT |
-;
-; byte 1:      | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-;         NES  | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-;         SNES | A | X | L | R | 1 | 1 | 1 | 1 |
-; byte 2:
-;         $00 = joystick present
-;         $FF = joystick not present
-;
-; * Presence can be detected by checking byte 2.
-; * The type of controller is encoded in bits 0-3 in byte 1:
-;   0000: NES
-;   0001: keyboard (NES-like)
-;   1111: SNES
-; * Note that bits 6 and 7 in byte 0 map to different buttons on NES and SNES.
-_joystick_scan:
 	lda #$ff-bit_data1-bit_data2
 	sta nes_ddr
 	lda #$00
@@ -110,13 +64,71 @@ l1:	lda nes_data
 	inx
 	cpx #3
 	bne l2
+
+	KVARS_END
+	rts
+
+;---------------------------------------------------------------
+; joystick_get
+;
+; Function:  Return the state of a given joystick.
+;
+; Pass:      a    number of joystick (0 or 1)
+; Return:    a    byte 0:      | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+;                         NES  | A | B |SEL|STA|UP |DN |LT |RT |
+;                         SNES | B | Y |SEL|STA|UP |DN |LT |RT |
+;
+;            x    byte 1:      | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+;                         NES  | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+;                         SNES | A | X | L | R | 1 | 1 | 1 | 1 |
+;            y    byte 2:
+;                         $00 = joystick present
+;                         $FF = joystick not present
+;
+; Notes:     * Presence can be detected by checking byte 2.
+;            * The type of controller is encoded in bits 0-3 in
+;              byte 1:
+;              0000: NES
+;              0001: keyboard (NES-like)
+;              1111: SNES
+;            * Bits 6 and 7 in byte 0 map to different buttons
+;              on NES and SNES.
+;---------------------------------------------------------------
+joystick_get:
+	KVARS_START
+	tax
+	bne @1       ; -> joy2
+
+; joy1
+	lda joy1
+	ldx joy1+1
+	ldy joy1+2
+	beq @2       ; present
+
+; joy1 not present, return keyboard
+	lda joy0
+	ldx #1       ; type = keyboard
+	ldy #0       ; present
+	bra @2
+
+; joy 2
+@1:	lda joy2
+	ldx joy2+1
+	ldy joy2+2
+
+@2:	KVARS_END
 	rts
 
 ;----------------------------------------------------------------------
 ; joystick_from_ps2:
 ;
-;  convert PS/2 scancode into NES joystick state
-;
+;  convert PS/2 scancode into NES joystick state (internal)
+joystick_from_ps2:
+	KVARS_START
+	jsr _joystick_from_ps2
+	KVARS_END
+	rts
+
 _joystick_from_ps2:
 NES_A      = (1 << 7)
 NES_B      = (1 << 6)
