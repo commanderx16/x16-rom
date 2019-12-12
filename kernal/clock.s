@@ -1,5 +1,6 @@
-; Clock
-;
+;----------------------------------------------------------------------
+; Software Clock Driver
+;----------------------------------------------------------------------
 
 .include "../regs.inc"
 .include "../banks.inc"
@@ -8,14 +9,23 @@
 .import datey, datem, dated, timeh, timem, times, timej, timer; [declare]
 .import save_ram_bank; [declare]
 
-.export clock_update, clock_get_timer, clock_set_timer, clock_get_time_date, clock_set_time_date
+; KERNAL API
+.export clock_update
+.export clock_get_timer
+.export clock_set_timer
+.export clock_get_date_time
+.export clock_set_date_time
 
 .segment "TIME"
 
-; UDTIM: update time. called every 60th second
+;---------------------------------------------------------------
+; clock_update
 ;
-;interrupts are coming at 60 Hz from VERA's VBLANK
+; Function:  Update timer, date and time. Needs to be called
+;            every 1/60 seconds on average for accurate state.
 ;
+; Note:     The original symbol is UDTIM.
+;---------------------------------------------------------------
 clock_update:
 ;
 ;increment 24 bit timer
@@ -96,8 +106,18 @@ daystab:
 	.byte 31, 28, 31, 30, 31, 30
 	.byte 31, 31, 30, 31, 30, 31
 
-; RDTIM: read timer. .y=msd, .x=next significant,.a=lsd
+;---------------------------------------------------------------
+; clock_get_timer
 ;
+; Function:  Return 24 bit 60 Hz timer
+;
+; Return:    a    bits 0-7
+;            x    bits 8-15
+;            y    bits 16-23
+;
+; Note:     The original symbol is RDTIM.
+;
+;---------------------------------------------------------------
 clock_get_timer:
 	KVARS_START
 	php
@@ -109,8 +129,18 @@ clock_get_timer:
 	KVARS_END
 	rts
 
-; SETTIM: set timer. .y=msd, .x=next significant,.a=lsd
+;---------------------------------------------------------------
+; clock_set_timer
 ;
+; Function:  Set 24 bit 60 Hz timer
+;
+; Return:    a    bits 0-7
+;            x    bits 8-15
+;            y    bits 16-23
+;
+; Note:     The original symbol is SETTIM.
+;
+;---------------------------------------------------------------
 clock_set_timer:
 	KVARS_START
 	php
@@ -122,7 +152,20 @@ clock_set_timer:
 	KVARS_END
 	rts
 
-clock_get_time_date:
+;---------------------------------------------------------------
+; clock_get_date_time
+;
+; Function:  Get the current date and time
+;
+; Return:    r0L  year
+;            r0H  month
+;            r1L  day
+;            r1H  hours
+;            r2L  minutes
+;            r2H  seconds
+;            r3L  jiffies (1/60s)
+;---------------------------------------------------------------
+clock_get_date_time:
 	KVARS_START
 	php
 	sei             ;keep date from rolling
@@ -144,7 +187,20 @@ clock_get_time_date:
 	KVARS_END
 	rts
 
-clock_set_time_date:
+;---------------------------------------------------------------
+; clock_get_date_time
+;
+; Function:  Set the current date and time
+;
+; Pass:      r0L  year
+;            r0H  month
+;            r1L  day
+;            r1H  hours
+;            r2L  minutes
+;            r2H  seconds
+;            r3L  jiffies (1/60s)
+;---------------------------------------------------------------
+clock_set_date_time:
 	KVARS_START
 	php
 	sei             ;keep date from changing

@@ -49,15 +49,15 @@ symbol:
 
 
 .segment "KERNSUPV3"
-	bridge3 monitor         ; $FF00: MONITOR
-	bridge3 restore_basic   ; $FF03
-	bridge3 query_joysticks ; $FF06: GETJOY
-	bridge3 mouse           ; $FF09: MOUSE
-	bridge3 setdat          ; $FF0C: SETDAT
-	bridge3 rddat           ; $FF0F: RDDAT
-	bridge3 mouse_get_x     ; $FF12: RDDAT
-	bridge3 mouse_get_y     ; $FF15: RDDAT
-	bridge3 joystick_get    ; $FF18: joystick_get
+	bridge3 monitor            ; $FF00: MONITOR
+	bridge3 restore_basic      ; $FF03
+	bridge3 query_joysticks    ; $FF06: GETJOY
+	bridge3 mouse_config       ; $FF09
+	bridge3 clock_set_date_time; $FF0C
+	bridge3 clock_get_date_time; $FF0F
+	bridge3 mouse_get_x        ; $FF12
+	bridge3 mouse_get_y        ; $FF15
+	bridge3 joystick_get       ; $FF18: joystick_get
 
 	bridge3 GRAPH_init         ; $FF1B
 	bridge3 GRAPH_clear        ; $FF1E

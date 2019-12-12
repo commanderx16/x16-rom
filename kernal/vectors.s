@@ -4,7 +4,7 @@
 .import joystick_scan; [joystick]
 .import mouse_config; [mouse]
 .import joystick_scan, joystick_get; [joystick]
-.import clock_update, clock_get_timer, clock_set_timer, clock_get_time_date, clock_set_time_date; [time]
+.import clock_update, clock_get_timer, clock_set_timer, clock_get_date_time, clock_set_date_time; [time]
 
 .import GRAPH_set_colors, GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_move_rect, GRAPH_draw_line, GRAPH_draw_image, GRAPH_clear, GRAPH_draw_oval
 
@@ -73,18 +73,22 @@ GRAPH_LL_move_pixels:
 	jmp monitor
 ; $FF03 restore_basic
 	jmp restore_basic
+
 ; $FF06: joystick_scan
 	jmp joystick_scan
+
 ; $FF09: mouse_config
 	jmp mouse_config
-; $FF0C: clock_set_time_date
-	jmp clock_set_time_date
-; $FF0F: clock_get_time_date
-	jmp clock_get_time_date
+; $FF0C: clock_set_date_time
+	jmp clock_set_date_time
+; $FF0F: clock_get_date_time
+	jmp clock_get_date_time
+
 ; $FF12: mouse_get_x
 	jmp mouse_get_x
 ; $FF15: mouse_get_y
 	jmp mouse_get_y
+
 ; $FF18: joystick_get
 	jmp joystick_get
 
