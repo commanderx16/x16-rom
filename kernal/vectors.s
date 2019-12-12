@@ -92,7 +92,6 @@ GRAPH_LL_move_pixels:
 ; $FF18: joystick_get
 	jmp joystick_get
 
-
 ; $FF1B: void GRAPH_init();
 	jmp GRAPH_init
 ; $FF1E: void GRAPH_clear();

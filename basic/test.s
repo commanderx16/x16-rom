@@ -1,31 +1,3 @@
-; low level graphics
-GRAPH_LL_init                = $FE00
-GRAPH_LL_get_info            = $FE03
-GRAPH_LL_cursor_position     = $FE06
-GRAPH_LL_cursor_next_line    = $FE09
-GRAPH_LL_get_pixel           = $FE0C
-GRAPH_LL_get_pixels          = $FE0F
-GRAPH_LL_set_pixel           = $FE12
-GRAPH_LL_set_pixels          = $FE15
-GRAPH_LL_set_8_pixels        = $FE18
-GRAPH_LL_set_8_pixels_opaque = $FE1B
-GRAPH_LL_fill_pixels         = $FE1E
-GRAPH_LL_filter_pixels       = $FE21
-GRAPH_LL_move_pixels         = $FE24
-
-; high level graphics & fonts
-GRAPH_init                   = $FF1B
-GRAPH_clear                  = $FF1E
-GRAPH_set_window             = $FF21
-GRAPH_set_colors             = $FF24
-GRAPH_draw_line              = $FF27
-GRAPH_draw_rect              = $FF2A
-GRAPH_move_rect              = $FF2D
-GRAPH_draw_oval              = $FF30
-GRAPH_draw_image             = $FF33
-GRAPH_set_font               = $FF36
-GRAPH_get_char_size          = $FF39
-GRAPH_put_char               = $FF3C
 
 test:
 	lda #$80

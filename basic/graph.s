@@ -5,9 +5,6 @@
 
 .setcpu "65c02"
 
-; from GEOS
-.import _ResetHandle
-
 x1L	=r0L
 x1H	=r0H
 y1L	=r1L
@@ -16,14 +13,6 @@ x2L	=r2L
 x2H	=r2H
 y2L	=r3L
 y2H	=r3H
-
-scrmod	=$FF5F
-
-;***************
-geos
-	jsr bjsrfar
-	.word _ResetHandle
-	.byte BANK_GEOS
 
 ;***************
 cscreen
