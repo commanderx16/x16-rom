@@ -6,6 +6,7 @@ GRAPH_LL_set_pixel      = $FF27
 GRAPH_LL_get_pixel      = $FF2A
 GRAPH_filter_pixels  = $FF2D
 GRAPH_draw_line      = $FF30
+GRAPH_draw_image     = $FF33
 GRAPH_draw_rect      = $FF36
 GRAPH_move_rect      = $FF39
 GRAPH_set_font       = $FF3C
@@ -16,7 +17,6 @@ test:
 	lda #$80
 	sec
 	jsr scrmod
-
 	jsr test1_hline
 	jsr test2_vline
 	jsr test3_bresenham
@@ -30,6 +30,7 @@ test:
 	jsr test11_char_size
 	jsr test12_char_styles
 	jsr test13_move_rect
+	jsr test14_image
 	jsr checksum_framebuffer
 	rts
 	
@@ -441,8 +442,48 @@ test13_move_rect:
 	LoadW r3, 10
 	LoadW r4, 40
 	LoadW r5, 50
-	jsr GRAPH_move_rect
+	jmp GRAPH_move_rect
+
+test14_image:
+	ldx #0
+:	lda image_data,x
+	sta $0400,x
+	inx
+	bne :-
+
+	LoadW r0, 50
+	LoadW r1, 6
+	LoadW r2, $0400
+	LoadW r3, 16
+	LoadW r4, 16
+	
+	ldx #10
+:	phx
+	jsr GRAPH_draw_image
+	AddVW 20, r0
+	plx
+	dex
+	bne :-
 	rts
+
+image_data:
+.byte $14,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$91
+.byte $cb,$16,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$ca,$e8
+.byte $ae,$b1,$af,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$ae,$b0,$af
+.byte $91,$b8,$b8,$b6,$91,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$b6,$b8,$b8,$91
+.byte $c9,$b7,$b9,$b9,$b8,$91,$c9,$c9,$c9,$c9,$c9,$b7,$b9,$b9,$b8,$c9
+.byte $c9,$92,$9d,$9d,$9d,$9c,$ae,$c9,$c9,$b5,$b8,$9d,$9d,$9d,$9b,$c9
+.byte $c9,$91,$9c,$95,$9d,$9d,$9d,$ae,$c9,$9c,$9d,$9d,$95,$95,$b6,$c9
+.byte $c9,$c9,$91,$ae,$92,$9b,$9c,$9a,$91,$9c,$9b,$9a,$ae,$b5,$c9,$c9
+.byte $c9,$c9,$c9,$c9,$c9,$91,$80,$99,$91,$80,$99,$c9,$c9,$c9,$c9,$c9
+.byte $c9,$c9,$c9,$c9,$5a,$63,$64,$5a,$91,$64,$63,$3e,$91,$c9,$c9,$c9
+.byte $c9,$c9,$3e,$48,$48,$48,$48,$15,$c9,$47,$48,$48,$48,$46,$c9,$c9
+.byte $c9,$c9,$47,$49,$49,$48,$14,$c9,$c9,$91,$48,$49,$49,$48,$c9,$c9
+.byte $c9,$c9,$08,$50,$08,$15,$c9,$c9,$c9,$c9,$14,$47,$50,$50,$14,$c9
+.byte $c9,$e5,$08,$2c,$e5,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2b,$2d,$22,$c9
+.byte $c9,$e5,$2b,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2a,$2a,$c9
+.byte $c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9
+
 
 checksum_framebuffer:
 	lda #$ff

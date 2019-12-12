@@ -33,6 +33,7 @@
 .export GRAPH_set_colors
 .export GRAPH_draw_line
 .export GRAPH_draw_rect
+.export GRAPH_draw_image
 .export GRAPH_move_rect
 
 .setcpu "65c02"
@@ -398,6 +399,7 @@ VerticalLine:
 ;            r1   y
 ;            r2   width
 ;            r3   height
+;            r4   corner radius [TODO]
 ;            c    1: fill
 ;---------------------------------------------------------------
 GRAPH_draw_rect:
@@ -460,6 +462,42 @@ GRAPH_draw_rect:
 	PopW r2
 	rts
 
+;---------------------------------------------------------------
+; GRAPH_draw_image
+;
+; Pass:      r0   x
+;            r1   y
+;            r2   image pointer
+;            r3   width
+;            r4   height
+;---------------------------------------------------------------
+GRAPH_draw_image:
+	PushW r0
+	PushW r1
+	PushW r4
+	jsr GRAPH_LL_cursor_position
+
+	MoveW r2, r0
+	MoveW r3, r1
+@1:	jsr GRAPH_LL_set_pixels
+
+	lda r4L
+	bne :+
+	dec r4H
+:	dec r4L
+
+	AddW r3, r0 ; update pointer
+	jsr GRAPH_LL_cursor_next_line
+	
+	lda r4L
+	ora r4H
+	bne @1
+	
+	PopW r4
+	PopW r1
+	PopW r0
+	rts
+	
 ;---------------------------------------------------------------
 ; GRAPH_move_rect
 ;
