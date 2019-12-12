@@ -9,6 +9,7 @@
 .include "config.inc"
 .include "kernal.inc"
 .include "c64.inc"
+.include "../../graph_ll.inc"
 
 .global _GetScanLine
 
@@ -38,10 +39,6 @@ _GetScanLine:
 .import GRAPH_draw_line
 .import GRAPH_draw_frame
 .import GRAPH_draw_rect
-.import GRAPH_LL_get_pixel
-.import GRAPH_LL_cursor_position
-.import GRAPH_LL_set_pixel
-.import GRAPH_LL_filter_pixels
 .import GRAPH_set_colors
 
 .export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_pixel

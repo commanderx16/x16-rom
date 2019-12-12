@@ -6,35 +6,7 @@
 .import joystick_scan, joystick_get; [joystick]
 .import clock_update, clock_get_timer, clock_set_timer, clock_get_date_time, clock_set_date_time; [time]
 
-.import GRAPH_set_colors, GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_move_rect, GRAPH_draw_line, GRAPH_draw_image, GRAPH_clear, GRAPH_draw_oval
-
-.export GRAPH_LL_init
-.export GRAPH_LL_get_info
-.export GRAPH_LL_cursor_position
-.export GRAPH_LL_cursor_next_line
-.export GRAPH_LL_get_pixel
-.export GRAPH_LL_get_pixels
-.export GRAPH_LL_set_pixel
-.export GRAPH_LL_set_pixels
-.export GRAPH_LL_set_8_pixels
-.export GRAPH_LL_set_8_pixels_opaque
-.export GRAPH_LL_fill_pixels
-.export GRAPH_LL_filter_pixels
-.export GRAPH_LL_move_pixels
-
-GRAPH_LL_init                = $fef9
-GRAPH_LL_get_info            = $fefc
-GRAPH_LL_cursor_position     = $feff
-GRAPH_LL_cursor_next_line    = $ff02
-GRAPH_LL_get_pixel           = $ff05
-GRAPH_LL_get_pixels          = $ff08
-GRAPH_LL_set_pixel           = $ff0b
-GRAPH_LL_set_pixels          = $ff0e
-GRAPH_LL_set_8_pixels        = $ff11
-GRAPH_LL_set_8_pixels_opaque = $ff14
-GRAPH_LL_fill_pixels         = $ff17
-GRAPH_LL_filter_pixels       = $ff1a
-GRAPH_LL_move_pixels         = $ff1d
+.import GRAPH_init, GRAPH_clear, GRAPH_set_window, GRAPH_set_colors, GRAPH_draw_line, GRAPH_draw_rect, GRAPH_move_rect, GRAPH_draw_oval, GRAPH_draw_image, GRAPH_set_font, GRAPH_get_char_size, GRAPH_put_char
 
 	.segment "JMPTBL"
 ; *** this is space for new X16 KERNAL vectors ***

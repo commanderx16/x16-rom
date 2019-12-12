@@ -5,6 +5,7 @@
 
 .include "../../mac.inc"
 .include "../../regs.inc"
+.include "../../graph_ll.inc"
 
 .import leftMargin, windowTop, rightMargin, windowBottom
 .import GRAPH_LL_VERA
@@ -12,20 +13,6 @@
 
 .import font_init
 .import graph_init
-
-.import GRAPH_LL_init
-.import GRAPH_LL_get_info
-.import GRAPH_LL_cursor_position
-.import GRAPH_LL_cursor_next_line
-.import GRAPH_LL_get_pixel
-.import GRAPH_LL_get_pixels
-.import GRAPH_LL_set_pixel
-.import GRAPH_LL_set_pixels
-.import GRAPH_LL_set_8_pixels
-.import GRAPH_LL_set_8_pixels_opaque
-.import GRAPH_LL_fill_pixels
-.import GRAPH_LL_filter_pixels
-.import GRAPH_LL_move_pixels
 
 .export GRAPH_init
 .export GRAPH_clear
