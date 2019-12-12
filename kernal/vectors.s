@@ -64,25 +64,23 @@ GRAPH_LL_filter_pixels:
 GRAPH_LL_move_pixels:
 	jmp (I_GRAPH_LL_move_pixels)
 
-	.segment "JMPTBL2"
+	.segment "JMPTBL"
 ; *** this is space for new X16 KERNAL vectors ***
 ; for now, these are private API, they have not been
 ; finalized
 
-
-
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-
-	.byte 0,0,0
 	.byte 0,0
+
+	.byte 0,0,0;
+	.byte 0,0,0;
+	.byte 0,0,0;
+	.byte 0,0,0;
+	.byte 0,0,0;
+	.byte 0,0,0;
+	.byte 0,0,0;
+	.byte 0,0,0;
+	.byte 0,0,0;
+	.byte 0,0,0
 
 	jmp GRAPH_init         ; $FF20: void GRAPH_init();
 	jmp GRAPH_clear        ; $FF23: void GRAPH_clear();
@@ -120,8 +118,6 @@ GRAPH_LL_move_pixels:
 	jmp stash              ; $FF77: [C128] STASH – STA (stavec),Y to any bank
 	jmp cmpare             ; $FF7A: [C128] CMPARE – CMP (cmpvec),Y to any bank
 	jmp primm              ; $FF7D: [C128] PRIMM – print string following the caller’s code
-
-	.segment "JMPTBL"
 
 	;KERNAL revision
 .ifdef PRERELEASE_VERSION

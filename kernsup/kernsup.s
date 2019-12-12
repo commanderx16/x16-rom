@@ -46,18 +46,18 @@ symbol:
 
 	.segment "KERNSUPV2"
 
-	.byte 0,0,0                ; $FF00
-	.byte 0,0,0                ; $FF03
-	.byte 0,0,0                ; $FF06
-	.byte 0,0,0                ; $FF09
-	.byte 0,0,0                ; $FF0C
-	.byte 0,0,0                ; $FF0F
-	.byte 0,0,0                ; $FF12
-	.byte 0,0,0                ; $FF15
-	.byte 0,0,0                ; $FF18
+	.byte 0,0
 
 	.byte 0,0,0
-	.byte 0,0
+	.byte 0,0,0
+	.byte 0,0,0
+	.byte 0,0,0
+	.byte 0,0,0
+	.byte 0,0,0
+	.byte 0,0,0
+	.byte 0,0,0
+	.byte 0,0,0
+	.byte 0,0,0
 
 	bridge2 GRAPH_init         ; $FF20
 	bridge2 GRAPH_clear        ; $FF23
@@ -71,8 +71,6 @@ symbol:
 	bridge2 GRAPH_set_font     ; $FF3B
 	bridge2 GRAPH_get_char_size; $FF3E
 	bridge2 GRAPH_put_char     ; $FF41
-
-
 	bridge2 monitor             ; $FF44: monitor
 	bridge2 restore_basic       ; $FF47: restore_basic
 	bridge2 close_all           ; $FF4A: CLOSE_ALL – close all files on a device
