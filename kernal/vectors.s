@@ -22,66 +22,54 @@
 .export GRAPH_LL_filter_pixels
 .export GRAPH_LL_move_pixels
 
-	.segment "JMPTBL3"
-	
-; $FE00
-GRAPH_LL_init:
-	jmp (I_GRAPH_LL_init)
-; $FE03
-GRAPH_LL_get_info:
-	jmp (I_GRAPH_LL_get_info)
- ; $FE06
- GRAPH_LL_cursor_position:
-	jmp (I_GRAPH_LL_cursor_position)
-; $FE09
-GRAPH_LL_cursor_next_line:
-	jmp (I_GRAPH_LL_cursor_next_line)
-; $FE0C
-GRAPH_LL_get_pixel:
-	jmp (I_GRAPH_LL_get_pixel)
-; $FE0F
-GRAPH_LL_get_pixels:
-	jmp (I_GRAPH_LL_get_pixels)
-; $FE12
-GRAPH_LL_set_pixel:
-	jmp (I_GRAPH_LL_set_pixel)
-; $FE15
-GRAPH_LL_set_pixels:
-	jmp (I_GRAPH_LL_set_pixels)
-; $FE18
-GRAPH_LL_set_8_pixels:
-	jmp (I_GRAPH_LL_set_8_pixels)
-; $FE1B
-GRAPH_LL_set_8_pixels_opaque:
-	jmp (I_GRAPH_LL_set_8_pixels_opaque)
-; $FE1E
-GRAPH_LL_fill_pixels:
-	jmp (I_GRAPH_LL_fill_pixels)
-; $FE21
-GRAPH_LL_filter_pixels:
-	jmp (I_GRAPH_LL_filter_pixels)
-; $FE24
-GRAPH_LL_move_pixels:
-	jmp (I_GRAPH_LL_move_pixels)
+GRAPH_LL_init                = $fef9
+GRAPH_LL_get_info            = $fefc
+GRAPH_LL_cursor_position     = $feff
+GRAPH_LL_cursor_next_line    = $ff02
+GRAPH_LL_get_pixel           = $ff05
+GRAPH_LL_get_pixels          = $ff08
+GRAPH_LL_set_pixel           = $ff0b
+GRAPH_LL_set_pixels          = $ff0e
+GRAPH_LL_set_8_pixels        = $ff11
+GRAPH_LL_set_8_pixels_opaque = $ff14
+GRAPH_LL_fill_pixels         = $ff17
+GRAPH_LL_filter_pixels       = $ff1a
+GRAPH_LL_move_pixels         = $ff1d
 
 	.segment "JMPTBL"
 ; *** this is space for new X16 KERNAL vectors ***
 ; for now, these are private API, they have not been
 ; finalized
 
-	.byte 0,0
+	.byte 0,0,0            ; $FEE1
+	.byte 0,0,0            ; $FEE4
+	.byte 0,0,0            ; $FEE7
+	.byte 0,0,0            ; $FEEA
+	.byte 0,0,0            ; $FEED
+	.byte 0,0,0            ; $FEF0
+	.byte 0,0,0            ; $FEF3
+	.byte 0,0,0            ; $FEF6
 
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0;
-	.byte 0,0,0
+	;
+	; graph low-level API
+	;
+	jmp (I_GRAPH_LL_init)                ; $FEF9: GRAPH_LL_init
+	jmp (I_GRAPH_LL_get_info)            ; $FEFC: GRAPH_LL_get_info
+	jmp (I_GRAPH_LL_cursor_position)     ; $FEFF: GRAPH_LL_cursor_position
+	jmp (I_GRAPH_LL_cursor_next_line)    ; $FF02: GRAPH_LL_cursor_next_line
+	jmp (I_GRAPH_LL_get_pixel)           ; $FF05: GRAPH_LL_get_pixel
+	jmp (I_GRAPH_LL_get_pixels)          ; $FF08: GRAPH_LL_get_pixels
+	jmp (I_GRAPH_LL_set_pixel)           ; $FF0B: GRAPH_LL_set_pixel
+	jmp (I_GRAPH_LL_set_pixels)          ; $FF0E: GRAPH_LL_set_pixels
+	jmp (I_GRAPH_LL_set_8_pixels)        ; $FF11: GRAPH_LL_set_8_pixels
+	jmp (I_GRAPH_LL_set_8_pixels_opaque) ; $FF14: GRAPH_LL_set_8_pixels_opaque
+	jmp (I_GRAPH_LL_fill_pixels)         ; $FF17: GRAPH_LL_fill_pixels
+	jmp (I_GRAPH_LL_filter_pixels)       ; $FF1A: GRAPH_LL_filter_pixels
+	jmp (I_GRAPH_LL_move_pixels)         ; $FF1D: GRAPH_LL_move_pixels
 
+	;
+	; graph high-level API
+	;
 	jmp GRAPH_init         ; $FF20: void GRAPH_init();
 	jmp GRAPH_clear        ; $FF23: void GRAPH_clear();
 	jmp GRAPH_set_window   ; $FF26: void GRAPH_set_window(word x, word y, word width, word height);
