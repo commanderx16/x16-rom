@@ -16,6 +16,7 @@
 .import GRAPH_LL_init
 .import GRAPH_LL_get_info
 .import GRAPH_LL_cursor_position
+.import GRAPH_LL_cursor_next_line
 .import GRAPH_LL_get_pixel
 .import GRAPH_LL_get_pixels
 .import GRAPH_LL_set_pixel
@@ -61,20 +62,8 @@ GRAPH_init:
 	jsr GRAPH_LL_init
 
 	jsr GRAPH_LL_get_info
-	ldx r0H
-	lda r0L
-	bne :+
-	dex
-:	dec
-	sta r2L
-	stx r2H
-	ldx r1H
-	lda r1L
-	bne :+
-	dex
-:	dec
-	sta r3L
-	stx r3H
+	MoveW r0, r2
+	MoveW r1, r3
 	lda #0
 	sta r0L
 	sta r0H
@@ -98,10 +87,16 @@ GRAPH_init:
 GRAPH_clear:
 	PushB col1
 	MoveB col_bg, col1
-	MoveW r0, leftMargin
-	MoveW r1L, windowTop
-	MoveW r2, rightMargin
-	MoveW r3L, windowBottom
+	MoveW leftMargin, r0
+	MoveB windowTop, r1L
+	stz r1H
+	MoveW rightMargin, r2
+	SubW r0, r2
+	IncW r2
+	MoveB windowBottom, r3L
+	stz r3H
+	SubW r1, r3
+	IncW r3
 	jsr GRAPH_draw_rect
 	PopB col1
 	rts
@@ -109,16 +104,32 @@ GRAPH_clear:
 ;---------------------------------------------------------------
 ; GRAPH_set_window
 ;
-; Pass:      r0     x1
-;            r1     y1
-;            r2     x2
-;            r3     y2
+; Pass:      r0     x
+;            r1     y
+;            r2     width
+;            r3     height
 ;---------------------------------------------------------------
 GRAPH_set_window:
 	MoveW r0, leftMargin
 	MoveB r1L, windowTop
-	MoveW r2, rightMargin
-	MoveB r3L, windowBottom
+	
+	lda r0L
+	clc
+	adc r2L
+	sta rightMargin
+	lda r0H
+	adc r2H
+	sta rightMargin+1
+	lda rightMargin
+	bne :+
+	dec rightMargin+1
+:	dec rightMargin
+
+	lda r1L
+	clc
+	adc r3L
+	dec
+	sta windowBottom
 	rts
 
 ;---------------------------------------------------------------
@@ -379,39 +390,61 @@ VerticalLine:
 ;---------------------------------------------------------------
 ; GRAPH_draw_rect
 ;
-; Pass:      r0   x1
-;            r1   y1
-;            r2   x2
-;            r3   y2
-; Return:    draws the rectangle
+; Pass:      r0   x
+;            r1   y
+;            r2   width
+;            r3   height
 ;---------------------------------------------------------------
 GRAPH_draw_rect:
-	; make sure y2 >= y1
-	lda r3L
-	cmp r1L
-	bcs @a
-	ldx r1L
-	stx r3L
-	sta r1L
-@a:
 	PushW r1
-@1:	jsr HorizontalLine
-	lda r1L
-	inc r1L
-	cmp r3L
+	PushW r3
+	jsr GRAPH_LL_cursor_position
+
+@1:	PushW r0
+	PushW r1
+	MoveW r2, r0
+	LoadW r1, 0
+	lda col1
+	jsr GRAPH_LL_fill_pixels
+	PopW r1
+	PopW r0
+
+	jsr GRAPH_LL_cursor_next_line
+
+	lda r3L
+	bne @2
+	dec r3H
+@2:	dec r3L
+	lda r3L
+	ora r3H
 	bne @1
+	
+	PopW r3
 	PopW r1
 	rts
 
 ;---------------------------------------------------------------
 ; GRAPH_draw_frame
 ;
-; Pass:      r0   x1
-;            r1   y1
-;            r2   x2
-;            r3   y2
+; Pass:      r0   x
+;            r1   y
+;            r2   width
+;            r3   height
 ;---------------------------------------------------------------
 GRAPH_draw_frame:
+	PushW r2
+	PushW r3
+	AddW r0, r2
+	lda r2L
+	bne :+
+	dec r2H
+:	dec r2L
+	AddW r1, r3
+	lda r3L
+	bne :+
+	dec r3H
+:	dec r3L
+
 	jsr HorizontalLine
 	PushB r1L
 	MoveB r3L, r1L
@@ -422,6 +455,9 @@ GRAPH_draw_frame:
 	MoveW r2, r0
 	jsr VerticalLine
 	PopW r0
+
+	PopW r3
+	PopW r2
 	rts
 
 ;---------------------------------------------------------------
@@ -440,14 +476,11 @@ GRAPH_move_rect:
 @1:	jsr GRAPH_LL_move_pixels
 	IncW r1 ; sy
 	IncW r3 ; ty
-
 	lda r5L
 	bne @2
 	dec r5H
 @2:	dec r5L
-
 	lda r5L
 	ora r5H
 	bne @1
-	
 	rts

@@ -217,72 +217,18 @@ test6_frame:
 	jsr GRAPH_set_colors
 	LoadW r0, 5
 	LoadW r1, 27
-	LoadW r2, 10
-	LoadW r3, 32
-	jsr GRAPH_draw_frame
-
-	; frame frame BL->TR
-	lda #12
-	jsr GRAPH_set_colors
-	LoadW r0, 12
-	LoadW r1, 32
-	LoadW r2, 17
-	LoadW r3, 27
-	jsr GRAPH_draw_frame
-
-	; frame frame BR->TL
-	lda #13
-	jsr GRAPH_set_colors
-	LoadW r0, 24
-	LoadW r1, 32
-	LoadW r2, 19
-	LoadW r3, 27
-	jsr GRAPH_draw_frame
-
-	; frame frame TR->BL
-	lda #14
-	jsr GRAPH_set_colors
-	LoadW r0, 31
-	LoadW r1, 27
-	LoadW r2, 26
-	LoadW r3, 32
+	LoadW r2, 5
+	LoadW r3, 5
 	jmp GRAPH_draw_frame
 
 test7_rect:
-	; rectangle frame TL->BR
+	; rectangle frame
 	lda #11
 	jsr GRAPH_set_colors
 	LoadW r0, 5
 	LoadW r1, 34
-	LoadW r2, 10
-	LoadW r3, 39
-	jsr GRAPH_draw_rect
-
-	; rectangle frame BL->TR
-	lda #12
-	jsr GRAPH_set_colors
-	LoadW r0, 12
-	LoadW r1, 39
-	LoadW r2, 17
-	LoadW r3, 34
-	jsr GRAPH_draw_rect
-
-	; rectangle frame BR->TL
-	lda #13
-	jsr GRAPH_set_colors
-	LoadW r0, 24
-	LoadW r1, 39
-	LoadW r2, 19
-	LoadW r3, 34
-	jsr GRAPH_draw_rect
-
-	; rectangle frame TR->BL
-	lda #14
-	jsr GRAPH_set_colors
-	LoadW r0, 31
-	LoadW r1, 34
-	LoadW r2, 26
-	LoadW r3, 39
+	LoadW r2, 5
+	LoadW r3, 5
 	jmp GRAPH_draw_rect
 
 test8_varlen_hline:
@@ -341,8 +287,8 @@ test10_put_char:
 
 	LoadW r0, 25
 	LoadW r1, 80
-	LoadW r2, 280
-	LoadW r3, 95
+	LoadW r2, 255
+	LoadW r3, 15
 	jsr GRAPH_set_window
 	jsr GRAPH_draw_frame
 
@@ -367,8 +313,8 @@ test10_put_char:
 test11_char_size:
 	LoadW r0, 25
 	LoadW r1, 100
-	LoadW r2, 280
-	LoadW r3, 120
+	LoadW r2, 255
+	LoadW r3, 20
 	jsr GRAPH_set_window
 	jsr GRAPH_draw_frame
 
@@ -390,7 +336,7 @@ test11_char_size:
 	PopW r0
 
 	PushW r1
-	MoveW r0, r2
+	; y -= baseline
 	lda r1L
 	sec
 	sbc 0; baseline
@@ -398,21 +344,13 @@ test11_char_size:
 	lda r1H
 	sbc #0
 	sta r1H
-	MoveW r1, r3
-	txa
-	clc
-	adc r2L
-	sta r2L
-	lda r2H
-	adc #0
-	sta r2H
-	tya
-	clc
-	adc r3L
-	sta r3L
-	lda r3H
-	adc #0
-	sta r3H
+
+	stx r2L
+	stz r2H
+
+	sty r3L
+	stz r3H
+
 	jsr GRAPH_draw_rect
 	PopW r1
 
@@ -442,8 +380,8 @@ test12_char_styles:
 
 	LoadW r0, 20
 	LoadW r1, 125
-	LoadW r2, 315
-	LoadW r3, 199
+	LoadW r2, 295
+	LoadW r3, 74
 	jsr GRAPH_set_window
 	jsr GRAPH_draw_frame
 
@@ -534,8 +472,8 @@ checksum_framebuffer:
 
 	LoadW r0, 295
 	LoadW r1, 190
-	LoadW r2, 319
-	LoadW r3, 199
+	LoadW r2, 24
+	LoadW r3, 9
 	jsr GRAPH_set_window
 	jsr GRAPH_draw_rect
 
