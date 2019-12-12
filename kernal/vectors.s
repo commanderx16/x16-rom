@@ -69,11 +69,10 @@ GRAPH_LL_move_pixels:
 ; for now, these are private API, they have not been
 ; finalized
 
-; $FF00: MONITOR
-	jmp monitor
-; $FF03 restore_basic
-	jmp restore_basic
 
+
+	.byte 0,0,0;
+	.byte 0,0,0;
 	.byte 0,0,0;
 	.byte 0,0,0;
 	.byte 0,0,0;
@@ -97,12 +96,13 @@ GRAPH_LL_move_pixels:
 	jmp GRAPH_put_char     ; $FF3C: void GRAPH_put_char(inout word x, inout word y, byte c);
 
 	.byte 0,0,0
-	.byte 0,0,0
 	.byte 0,0
+
+	jmp monitor            ; $FF44: MONITOR
 
 ; $FF47-$FF7F contains the extended C128 KERNAL API. We are trying to support as many C128 calls as possible.
 ; Some make no sense on the X16 though, usually because their functionality is C128-specific.
-	.byte 0,0,0            ; $FF47:                                                [unsupported C128: SPIN_SPOUT – setup fast serial ports for I/O]
+	jmp restore_basic      ; $FF47: restore_basic                                  [unsupported C128: SPIN_SPOUT – setup fast serial ports for I/O]
 	jmp close_all          ; $FF4A: [C128] CLOSE_ALL – close all files on a device
 	jmp clock_set_date_time; $FF4D: clock_set_date_time - set date and time        [unsupported C128: C64MODE – reconfigure system as a C64]
 	jmp clock_get_date_time; $FF50: clock_get_date_time - get date and time        [unsupported C128: DMA_CALL – send command to DMA device]

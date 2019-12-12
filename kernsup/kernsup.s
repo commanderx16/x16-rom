@@ -46,8 +46,8 @@ symbol:
 
 	.segment "KERNSUPV2"
 
-	bridge2 monitor            ; $FF00
-	bridge2 restore_basic      ; $FF03
+	.byte 0,0,0                ; $FF00
+	.byte 0,0,0                ; $FF03
 	.byte 0,0,0                ; $FF06
 	.byte 0,0,0                ; $FF09
 	.byte 0,0,0                ; $FF0C
@@ -70,10 +70,10 @@ symbol:
 	bridge2 GRAPH_put_char     ; $FF3C
 
 	.byte 0,0,0
-	.byte 0,0,0
 	.byte 0,0
 
-	.byte 0,0,0                 ; $FF47: SPIN_SPOUT – setup fast serial ports for I/O
+	bridge2 monitor             ; $FF44: monitor
+	bridge2 restore_basic       ; $FF47: restore_basic
 	bridge2 close_all           ; $FF4A: CLOSE_ALL – close all files on a device
 	bridge2 clock_set_date_time ; $FF4D: clock_set_date_time - set date and time
 	bridge2 clock_get_date_time ; $FF50: clock_get_date_time - get date and time

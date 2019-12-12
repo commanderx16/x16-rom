@@ -59,8 +59,8 @@ primm                        = $ff7d
 ;
 ; X16 additions
 ;
-;monitor                      = $ff00
-restore_basic                = $ff03
+;monitor                      = $ff44
+restore_basic                = $ff47
 ;                            = $ff15
 mouse_config                 = $ff68
 mouse_get                    = $ff6b
