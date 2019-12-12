@@ -124,84 +124,25 @@ GRAPH_LL_move_pixels:
 ; Some make no sense on the X16 though, usually because
 ; their functionality is C128-specific.
 
-; $FF47: SPIN_SPOUT – setup fast serial ports for I/O
-	; UNSUPPORTED
-	; no fast serial support
-	.byte 0,0,0
-; $FF4A: CLOSE_ALL – close all files on a device
-	; COMPATIBLE
-	jmp close_all
-; $FF4D: C64MODE – reconfigure system as a C64
-	; UNSUPPORTED
-	; no C64 compatibility support
-	.byte 0,0,0
-; $FF50: DMA_CALL – send command to DMA device
-	; UNSUPPORTED
-	; no support for Commodore REU devices
-	.byte 0,0,0
-; $FF53: BOOT_CALL – boot load program from disk
-	; TODO
-	; We need better disk support first.
-	.byte 0,0,0
-; $FF56: PHOENIX – init function cartridges
-	; UNSUPPORTED
-	; no external ROM support
-	.byte 0,0,0
-; $FF59: LKUPLA
-	; COMPATIBLE
-	jmp lkupla
-; $FF5C: LKUPSA
-	; COMPATIBLE
-	jmp lkupsa
-; $FF5F: SCRMOD – get/set screen mode
-	; NOT COMPATIBLE
-	; On the C128, this is "SWAPPER", which takes no arguments
-	; and switches between 40/80 column text modes.
-	jmp scrmod
-; $FF62: DLCHR – init 80-col character RAM
-	; UNSUPPORTED
-	; VDC8563-specific
-	; XXX use this call to  upload the charset
-	.byte 0,0,0
-; $FF65: PFKEY – program a function key
-	; TODO
-	; Currently, the fkey strings are stored in ROM.
-	; In order to make them editable, 256 bytes of RAM are
-	; required. (C128: PKYBUF, PKYDEF)
-	.byte 0,0,0
-; $FF68: SETBNK – set bank for I/O operations
-	; UNSUPPORTED
-	; To keep things simple, the X16 KERNAL APIs do not
-	; support banking. Data for use with KERNAL APIs must be
-	; in non-banked RAM < $9F00.
-	.byte 0,0,0
-; $FF6B: GETCFG – lookup MMU data for given bank
-	; UNSUPPORTED
-	; no MMU
-	.byte 0,0,0
-; $FF6E: JSRFAR – gosub in another bank
-	; NOT COMPATIBLE
-	; This call takes the address (2 bytes) and bank (1 byte)
-	; from the instruction stream.
-	jmp jsrfar
-; $FF71: JMPFAR – goto another bank
-	; TODO/UNSUPPORTED
-	; Not sure we want this. It is not very useful, and would
-	; require a lot of new code.
-	.byte 0,0,0
-; $FF74: FETCH – LDA (fetvec),Y from any bank
-	; COMPATIBLE
-	jmp indfet
-; $FF77: STASH – STA (stavec),Y to any bank
-	; COMPATIBLE
-	jmp stash       ; (*note* user must setup 'stavec')
-; $FF7A: CMPARE – CMP (cmpvec),Y to any bank
-	; COMPATIBLE
-	jmp cmpare      ; (*note*  user must setup 'cmpvec')
-; $FF7D: PRIMM – print string following the caller’s code
-	; COMPATIBLE
-	jmp primm
-
+	.byte 0,0,0     ; $FF47:                                            [unsupported C128: SPIN_SPOUT – setup fast serial ports for I/O]
+	jmp close_all   ; $FF4A: C128: CLOSE_ALL – close all files on a device
+	.byte 0,0,0     ; $FF4D:                                            [unsupported C128: C64MODE – reconfigure system as a C64]
+	.byte 0,0,0     ; $FF50:                                            [unsupported C128: DMA_CALL – send command to DMA device]
+	.byte 0,0,0     ; $FF53:                                            [unsupported C128: BOOT_CALL – boot load program from disk]
+	.byte 0,0,0     ; $FF56:                                            [unsupported C128: PHOENIX – init function cartridges]
+	jmp lkupla      ; $FF59: C128: LKUPLA
+	jmp lkupsa      ; $FF5C: C128: LKUPSA
+	jmp scrmod      ; $FF5F:                                            [unsupported C128: SCRMOD – get/set screen mode]
+	.byte 0,0,0     ; $FF62: C128: DLCHR – init 80-col character RAM    [NYI]
+	.byte 0,0,0     ; $FF65: C128: PFKEY – program a function key       [NYI]
+	.byte 0,0,0     ; $FF68:                                            [unsupported C128: SETBNK – set bank for I/O operations]
+	.byte 0,0,0     ; $FF6B:                                            [unsupported C128: GETCFG – lookup MMU data for given bank]
+	jmp jsrfar      ; $FF6E: C128: JSRFAR – gosub in another bank       [incompatible with C128]
+	.byte 0,0,0     ; $FF71:                                            [unsupported C128: JMPFAR – goto another bank]
+	jmp indfet      ; $FF74: C128: FETCH – LDA (fetvec),Y from any bank
+	jmp stash       ; $FF77: C128: STASH – STA (stavec),Y to any bank
+	jmp cmpare      ; $FF7A: C128: CMPARE – CMP (cmpvec),Y to any bank
+	jmp primm       ; $FF7D: C128: PRIMM – print string following the caller’s code
 
 	.segment "JMPTBL"
 

@@ -59,8 +59,12 @@ primm                        = $ff7d
 ;
 ; X16 additions
 ;
+;monitor                      = $ff00
+restore_basic                = $ff03
 joystick_scan                = $ff06
-rddat                        = $ff0f
+mouse_config                 = $ff09
+clock_set_date_time          = $ff0c
+clock_get_date_time          = $ff0f
 mouse_get_x                  = $ff12
 mouse_get_y                  = $ff15
 joystick_get                 = $ff18
