@@ -161,24 +161,49 @@ _DrawPoint:
 ;---------------------------------------------------------------
 _FrameRectangle:
 	jsr Convert8BitPattern
+
 	PushW r0
 	PushW r1
 	PushW r2
 	PushW r3
+	
+	; r0: x
 	MoveW r3, r0
+	; r1: y
 	MoveB r2L, r1L
 	stz r1H
-	MoveB r2H, r3L
+	; r2: width
+	lda r4L
+	sec
+	sbc r3L
+	tax
+	lda r4H
+	sbc r3H
+	tay
+	; r3: height
+	lda r2H
+	sec
+	sbc r2L
+	inc
+	sta r3L
 	stz r3H
-	MoveW r4, r2
+	; store r2
+	inx
+	bne :+
+	iny
+:	stx r2L
+	sty r2H
+
 	php
 	sei
 	jsrfar GRAPH_draw_frame
 	plp
+
 	PopW r3
 	PopW r2
 	PopW r1
 	PopW r0
+
 	rts
 
 ;---------------------------------------------------------------
