@@ -24,10 +24,6 @@ symbol:
 	bridge_internal "KERNSUPV2", symbol
 .endmacro
 
-.macro bridge3 symbol
-	bridge_internal "KERNSUPV3", symbol
-.endmacro
-
 .macro bridge4 symbol
 	bridge_internal "KERNSUPV4", symbol
 .endmacro
@@ -48,51 +44,54 @@ symbol:
 	bridge4 GRAPH_LL_move_pixels         ; $FE24
 
 
-.segment "KERNSUPV3"
-	bridge3 monitor            ; $FF00: MONITOR
-	bridge3 restore_basic      ; $FF03
+	.segment "KERNSUPV2"
+
+	bridge2 monitor            ; $FF00
+	bridge2 restore_basic      ; $FF03
 	.byte 0,0,0                ; $FF06
 	.byte 0,0,0                ; $FF09
-	bridge3 clock_set_date_time; $FF0C
-	bridge3 clock_get_date_time; $FF0F
+	.byte 0,0,0                ; $FF0C
+	.byte 0,0,0                ; $FF0F
 	.byte 0,0,0                ; $FF12
 	.byte 0,0,0                ; $FF15
-	.byte 0,0,0                ; $FF18:
+	.byte 0,0,0                ; $FF18
 
-	bridge3 GRAPH_init         ; $FF1B
-	bridge3 GRAPH_clear        ; $FF1E
-	bridge3 GRAPH_set_window   ; $FF21
-	bridge3 GRAPH_set_colors   ; $FF24
-	bridge3 GRAPH_draw_line    ; $FF27
-	bridge3 GRAPH_draw_rect    ; $FF2A
-	bridge3 GRAPH_move_rect    ; $FF2D
-	bridge3 GRAPH_draw_oval    ; $FF30
-	bridge3 GRAPH_draw_image   ; $FF33
-	bridge3 GRAPH_set_font     ; $FF36
-	bridge3 GRAPH_get_char_size; $FF39
-	bridge3 GRAPH_put_char     ; $FF3C
+	bridge2 GRAPH_init         ; $FF1B
+	bridge2 GRAPH_clear        ; $FF1E
+	bridge2 GRAPH_set_window   ; $FF21
+	bridge2 GRAPH_set_colors   ; $FF24
+	bridge2 GRAPH_draw_line    ; $FF27
+	bridge2 GRAPH_draw_rect    ; $FF2A
+	bridge2 GRAPH_move_rect    ; $FF2D
+	bridge2 GRAPH_draw_oval    ; $FF30
+	bridge2 GRAPH_draw_image   ; $FF33
+	bridge2 GRAPH_set_font     ; $FF36
+	bridge2 GRAPH_get_char_size; $FF39
+	bridge2 GRAPH_put_char     ; $FF3C
 
-.segment "KERNSUPV2"
+	.byte 0,0,0
+	.byte 0,0,0
+	.byte 0,0
 
-	.byte 0,0,0             ; $FF47: SPIN_SPOUT – setup fast serial ports for I/O
-	bridge2 close_all       ; $FF4A: CLOSE_ALL – close all files on a device
-	.byte 0,0,0             ; $FF4D: C64MODE – reconfigure system as a C64
-	.byte 0,0,0             ; $FF50: DMA_CALL – send command to DMA device
-	bridge2 joystick_scan   ; $FF53: joystick_scan
-	bridge2 joystick_get    ; $FF56: joystick_get
-	bridge2 lkupla          ; $FF59: LKUPLA
-	bridge2 lkupsa          ; $FF5C: LKUPSA
-	bridge2 swapper         ; $FF5F: SWAPPER – switch between 40 and 80 columns
-	.byte 0,0,0             ; $FF62: DLCHR – init 80-col character RAM  [NYI]
-	.byte 0,0,0             ; $FF65: PFKEY – program a function key [NYI]
-	bridge2 mouse_config    ; $FF68: mouse_config
-	bridge2 mouse_get       ; $FF6B: mouse_get
-	jmp bjsrfar             ; $FF6E: JSRFAR – gosub in another bank
-	.byte 0,0,0             ; $FF71: JMPFAR – goto another bank
-	bridge2 indfet          ; $FF74: FETCH – LDA (fetvec),Y from any bank
-	bridge2 stash           ; $FF77: STASH – STA (stavec),Y to any bank
-	bridge2 cmpare          ; $FF7A: CMPARE – CMP (cmpvec),Y to any bank
-	bridge2 primm           ; $FF7D: PRIMM – print string following the caller’s code
+	.byte 0,0,0                 ; $FF47: SPIN_SPOUT – setup fast serial ports for I/O
+	bridge2 close_all           ; $FF4A: CLOSE_ALL – close all files on a device
+	bridge2 clock_set_date_time ; $FF4D: clock_set_date_time - set date and time
+	bridge2 clock_get_date_time ; $FF50: clock_get_date_time - get date and time
+	bridge2 joystick_scan       ; $FF53: joystick_scan
+	bridge2 joystick_get        ; $FF56: joystick_get
+	bridge2 lkupla              ; $FF59: LKUPLA
+	bridge2 lkupsa              ; $FF5C: LKUPSA
+	bridge2 swapper             ; $FF5F: SWAPPER – switch between 40 and 80 columns
+	.byte 0,0,0                 ; $FF62: DLCHR – init 80-col character RAM  [NYI]
+	.byte 0,0,0                 ; $FF65: PFKEY – program a function key [NYI]
+	bridge2 mouse_config        ; $FF68: mouse_config
+	bridge2 mouse_get           ; $FF6B: mouse_get
+	jmp bjsrfar                 ; $FF6E: JSRFAR – gosub in another bank
+	.byte 0,0,0                 ; $FF71: JMPFAR – goto another bank
+	bridge2 indfet              ; $FF74: FETCH – LDA (fetvec),Y from any bank
+	bridge2 stash               ; $FF77: STASH – STA (stavec),Y to any bank
+	bridge2 cmpare              ; $FF7A: CMPARE – CMP (cmpvec),Y to any bank
+	bridge2 primm               ; $FF7D: PRIMM – print string following the caller’s code
 
 .segment "KERNSUPV"
 

@@ -74,67 +74,53 @@ GRAPH_LL_move_pixels:
 ; $FF03 restore_basic
 	jmp restore_basic
 
-	jmp clock_set_date_time
-	jmp clock_get_date_time
-
 	.byte 0,0,0;
 	.byte 0,0,0;
 	.byte 0,0,0;
-
+	.byte 0,0,0;
+	.byte 0,0,0;
 	.byte 0,0,0;
 	.byte 0,0,0;
 
-; $FF1B: void GRAPH_init();
-	jmp GRAPH_init
-; $FF1E: void GRAPH_clear();
-	jmp GRAPH_clear
-; $FF21: void GRAPH_set_window(word x, word y, word width, word height);
-	jmp GRAPH_set_window
-; $FF24: void GRAPH_set_colors(byte fg, byte secondary, byte bg);
-	jmp GRAPH_set_colors
-; $FF27: void GRAPH_draw_line(word x1, word y1, word x2, word y2);
-	jmp GRAPH_draw_line
-; $FF2A: void GRAPH_draw_rect(word x, word y, word width, word height, word corner_radius, bool fill);
-	jmp GRAPH_draw_rect
-; $FF2D: void GRAPH_move_rect(word sx, word sy, word tx, word ty, word width, word height);
-	jmp GRAPH_move_rect
-; $FF30: void GRAPH_draw_oval(word x1, word y1, word x2, word y2, bool fill);
-	jmp GRAPH_draw_oval
-; $FF33: void GRAPH_draw_image(word x, word y, word ptr, word width, word height);
-	jmp GRAPH_draw_image
-; $FF36: void GRAPH_set_font(void ptr);
-	jmp GRAPH_set_font
-; $FF39: (byte baseline, byte width, byte height) GRAPH_get_char_size(byte c, byte mode);
-	jmp GRAPH_get_char_size
-; $FF3C: void GRAPH_put_char(inout word x, inout word y, byte c);
-	jmp GRAPH_put_char
 
-	.segment "JMPTB128"
-; C128 KERNAL API
-;
-; We are trying to support as many C128 calls as possible.
-; Some make no sense on the X16 though, usually because
-; their functionality is C128-specific.
+	jmp GRAPH_init         ; $FF1B: void GRAPH_init();
+	jmp GRAPH_clear        ; $FF1E: void GRAPH_clear();
+	jmp GRAPH_set_window   ; $FF21: void GRAPH_set_window(word x, word y, word width, word height);
+	jmp GRAPH_set_colors   ; $FF24: void GRAPH_set_colors(byte fg, byte secondary, byte bg);
+	jmp GRAPH_draw_line    ; $FF27: void GRAPH_draw_line(word x1, word y1, word x2, word y2);
+	jmp GRAPH_draw_rect    ; $FF2A: void GRAPH_draw_rect(word x, word y, word width, word height, word corner_radius, bool fill);
+	jmp GRAPH_move_rect    ; $FF2D: void GRAPH_move_rect(word sx, word sy, word tx, word ty, word width, word height);
+	jmp GRAPH_draw_oval    ; $FF30: void GRAPH_draw_oval(word x1, word y1, word x2, word y2, bool fill);
+	jmp GRAPH_draw_image   ; $FF33: void GRAPH_draw_image(word x, word y, word ptr, word width, word height);
+	jmp GRAPH_set_font     ; $FF36: void GRAPH_set_font(void ptr);
+	jmp GRAPH_get_char_size; $FF39: (byte baseline, byte width, byte height) GRAPH_get_char_size(byte c, byte mode);
+	jmp GRAPH_put_char     ; $FF3C: void GRAPH_put_char(inout word x, inout word y, byte c);
 
-	.byte 0,0,0       ; $FF47:                                                    [unsupported C128: SPIN_SPOUT – setup fast serial ports for I/O]
-	jmp close_all     ; $FF4A: C128: CLOSE_ALL – close all files on a device
-	.byte 0,0,0       ; $FF4D:                                                    [unsupported C128: C64MODE – reconfigure system as a C64]
-	.byte 0,0,0       ; $FF50:                                                    [unsupported C128: DMA_CALL – send command to DMA device]
-	jmp joystick_scan ; $FF53: joystick_scan                                      [unsupported C128: BOOT_CALL – boot load program from disk]
-	jmp joystick_get  ; $FF56: joystick_get                                       [unsupported C128: PHOENIX – init function cartridges]
-	jmp lkupla        ; $FF59: C128: LKUPLA
-	jmp lkupsa        ; $FF5C: C128: LKUPSA
-	jmp scrmod        ; $FF5F:                                                    [unsupported C128: SCRMOD – get/set screen mode]
-	.byte 0,0,0       ; $FF62: C128: DLCHR – init 80-col character RAM            [NYI]
-	.byte 0,0,0       ; $FF65: C128: PFKEY – program a function key               [NYI]
-	jmp mouse_config  ; $FF68: mouse_config                                       [unsupported C128: SETBNK – set bank for I/O operations]
-	jmp mouse_get     ; $FF6B: mouse_get                                          [unsupported C128: GETCFG – lookup MMU data for given bank]
-	jmp jsrfar        ; $FF6E: C128: JSRFAR – gosub in another bank               [incompatible with C128]
-	.byte 0,0,0       ; $FF71: placeholder: get number of RAM banks               [unsupported C128: JMPFAR – goto another bank]
-	jmp indfet        ; $FF74: C128: FETCH – LDA (fetvec),Y from any bank
-	jmp stash         ; $FF77: C128: STASH – STA (stavec),Y to any bank
-	jmp cmpare        ; $FF7A: C128: CMPARE – CMP (cmpvec),Y to any bank
-	jmp primm         ; $FF7D: C128: PRIMM – print string following the caller’s code
+	.byte 0,0,0
+	.byte 0,0,0
+	.byte 0,0
+
+; $FF47-$FF7F contains the extended C128 KERNAL API. We are trying to support as many C128 calls as possible.
+; Some make no sense on the X16 though, usually because their functionality is C128-specific.
+	.byte 0,0,0            ; $FF47:                                                [unsupported C128: SPIN_SPOUT – setup fast serial ports for I/O]
+	jmp close_all          ; $FF4A: [C128] CLOSE_ALL – close all files on a device
+	jmp clock_set_date_time; $FF4D: clock_set_date_time - set date and time        [unsupported C128: C64MODE – reconfigure system as a C64]
+	jmp clock_get_date_time; $FF50: clock_get_date_time - get date and time        [unsupported C128: DMA_CALL – send command to DMA device]
+	jmp joystick_scan      ; $FF53: joystick_scan - query joysticks                [unsupported C128: BOOT_CALL – boot load program from disk]
+	jmp joystick_get       ; $FF56: joystick_get - get state of one joystick       [unsupported C128: PHOENIX – init function cartridges]
+	jmp lkupla             ; $FF59: [C128] LKUPLA - look up logical file address
+	jmp lkupsa             ; $FF5C: [C128] LKUPSA - look up secondary address
+	jmp scrmod             ; $FF5F: scrmod - set screen mode                       [unsupported C128: SCRMOD – get/set screen mode]
+	.byte 0,0,0            ; $FF62: [C128] DLCHR – init 80-col character RAM       [NYI]
+	.byte 0,0,0            ; $FF65: [C128] PFKEY – program a function key          [NYI]
+	jmp mouse_config       ; $FF68: mouse_config - configure mouse pointer         [unsupported C128: SETBNK – set bank for I/O operations]
+	jmp mouse_get          ; $FF6B: mouse_get - get state of mouse                 [unsupported C128: GETCFG – lookup MMU data for given bank]
+	jmp jsrfar             ; $FF6E: [C128] JSRFAR – gosub in another bank          [incompatible with C128]
+	.byte 0,0,0            ; $FF71: placeholder: get number of RAM banks           [NYI; unsupported C128: JMPFAR – goto another bank]
+	jmp indfet             ; $FF74: [C128] FETCH – LDA (fetvec),Y from any bank
+	jmp stash              ; $FF77: [C128] STASH – STA (stavec),Y to any bank
+	jmp cmpare             ; $FF7A: [C128] CMPARE – CMP (cmpvec),Y to any bank
+	jmp primm              ; $FF7D: [C128] PRIMM – print string following the caller’s code
 
 	.segment "JMPTBL"
 
