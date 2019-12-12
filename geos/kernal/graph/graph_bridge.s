@@ -196,7 +196,8 @@ _FrameRectangle:
 
 	php
 	sei
-	jsrfar GRAPH_draw_frame
+	clc ; no fill
+	jsrfar GRAPH_draw_rect
 	plp
 
 	PopW r3
@@ -304,6 +305,7 @@ _Rectangle:
 
 	php
 	sei
+	sec ; fill
 	jsrfar GRAPH_draw_rect
 	plp
 

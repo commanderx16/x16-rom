@@ -6,7 +6,7 @@
 .import joystick_scan, joystick_get; [joystick]
 .import clock_update, clock_get_timer, clock_set_timer, clock_get_time_date, clock_set_time_date; [time]
 
-.import GRAPH_set_colors, GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_move_rect, GRAPH_draw_frame, GRAPH_draw_line
+.import GRAPH_set_colors, GRAPH_set_window, GRAPH_put_char, GRAPH_get_char_size, GRAPH_set_font, GRAPH_draw_rect, GRAPH_move_rect, GRAPH_draw_line
 
 .export GRAPH_LL_init
 .export GRAPH_LL_get_info
@@ -110,8 +110,8 @@ GRAPH_LL_move_pixels:
 
 ; $FF30: void GRAPH_draw_line(word x1, word y1, word x2, word y2, byte flags);
 	jmp GRAPH_draw_line
-; $FF33: void GRAPH_draw_frame(word x1, word y1, word x2, word y2);
-	jmp GRAPH_draw_frame
+; $FF33: EMPTY
+	jmp $ffff
 ; $FF36: void GRAPH_draw_rect(word x1, word y1, word x2, word y2, byte flags);
 	jmp GRAPH_draw_rect
 ; $FF39: void GRAPH_move_rect(word x1, word y1, word x2, word y2, word tx, word ty);

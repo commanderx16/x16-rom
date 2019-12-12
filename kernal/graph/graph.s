@@ -33,7 +33,6 @@
 .export GRAPH_set_colors
 .export GRAPH_draw_line
 .export GRAPH_draw_rect
-.export GRAPH_draw_frame
 .export GRAPH_move_rect
 
 .setcpu "65c02"
@@ -86,7 +85,10 @@ GRAPH_init:
 ;---------------------------------------------------------------
 GRAPH_clear:
 	PushB col1
-	MoveB col_bg, col1
+	PushB col2
+	lda col_bg
+	sta col1
+	sta col2
 	MoveW leftMargin, r0
 	MoveB windowTop, r1L
 	stz r1H
@@ -97,7 +99,9 @@ GRAPH_clear:
 	stz r3H
 	SubW r1, r3
 	IncW r3
+	sec
 	jsr GRAPH_draw_rect
+	PopB col2
 	PopB col1
 	rts
 
@@ -394,8 +398,12 @@ VerticalLine:
 ;            r1   y
 ;            r2   width
 ;            r3   height
+;            c    1: fill
 ;---------------------------------------------------------------
 GRAPH_draw_rect:
+	bcc @3
+	
+; fill
 	PushW r1
 	PushW r3
 	jsr GRAPH_LL_cursor_position
@@ -404,7 +412,7 @@ GRAPH_draw_rect:
 	PushW r1
 	MoveW r2, r0
 	LoadW r1, 0
-	lda col1
+	lda col2
 	jsr GRAPH_LL_fill_pixels
 	PopW r1
 	PopW r0
@@ -421,17 +429,9 @@ GRAPH_draw_rect:
 	
 	PopW r3
 	PopW r1
-	rts
 
-;---------------------------------------------------------------
-; GRAPH_draw_frame
-;
-; Pass:      r0   x
-;            r1   y
-;            r2   width
-;            r3   height
-;---------------------------------------------------------------
-GRAPH_draw_frame:
+; frame
+@3:
 	PushW r2
 	PushW r3
 	AddW r0, r2

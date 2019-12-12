@@ -50,10 +50,12 @@ line	jsr get_points_col
 
 ;***************
 frame	jsr get_points_col
-	jmp GRAPH_draw_frame
+	clc
+	jmp GRAPH_draw_rect
 
 ;***************
 rect	jsr get_points_col
+	sec
 	jmp GRAPH_draw_rect
 
 ;***************

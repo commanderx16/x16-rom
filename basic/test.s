@@ -6,7 +6,6 @@ GRAPH_LL_set_pixel      = $FF27
 GRAPH_LL_get_pixel      = $FF2A
 GRAPH_filter_pixels  = $FF2D
 GRAPH_draw_line      = $FF30
-GRAPH_draw_frame     = $FF33
 GRAPH_draw_rect      = $FF36
 GRAPH_move_rect      = $FF39
 GRAPH_set_font       = $FF3C
@@ -212,23 +211,26 @@ test5_filter_pixels:
 	jmp print_string
 
 test6_frame:
-	; frame frame TL->BR
+	; frame frame
 	lda #11
 	jsr GRAPH_set_colors
-	LoadW r0, 5
-	LoadW r1, 27
-	LoadW r2, 5
-	LoadW r3, 5
-	jmp GRAPH_draw_frame
+	LoadW r0, 100
+	LoadW r1, 20
+	LoadW r2, 10
+	LoadW r3, 10
+	clc
+	jmp GRAPH_draw_rect
 
 test7_rect:
 	; rectangle frame
 	lda #11
+	ldx #5
 	jsr GRAPH_set_colors
-	LoadW r0, 5
-	LoadW r1, 34
-	LoadW r2, 5
-	LoadW r3, 5
+	LoadW r0, 111
+	LoadW r1, 20
+	LoadW r2, 10
+	LoadW r3, 10
+	sec
 	jmp GRAPH_draw_rect
 
 test8_varlen_hline:
@@ -290,7 +292,8 @@ test10_put_char:
 	LoadW r2, 255
 	LoadW r3, 15
 	jsr GRAPH_set_window
-	jsr GRAPH_draw_frame
+	clc
+	jsr GRAPH_draw_rect
 
 	AddVW 5, r1 ; add baseline -2
 	
@@ -316,12 +319,14 @@ test11_char_size:
 	LoadW r2, 255
 	LoadW r3, 20
 	jsr GRAPH_set_window
-	jsr GRAPH_draw_frame
+	clc
+	jsr GRAPH_draw_rect
 
 	AddVW 7, r1 ; add baseline
 
 	lda #$20
-:	jsr GRAPH_set_colors
+:	tax
+	jsr GRAPH_set_colors
 
 	; draw bounding box
 	pha
@@ -351,6 +356,7 @@ test11_char_size:
 	sty r3L
 	stz r3H
 
+	sec
 	jsr GRAPH_draw_rect
 	PopW r1
 
@@ -383,7 +389,8 @@ test12_char_styles:
 	LoadW r2, 295
 	LoadW r3, 74
 	jsr GRAPH_set_window
-	jsr GRAPH_draw_frame
+	clc
+	jsr GRAPH_draw_rect
 
 	AddVW 7, r1 ; add baseline
 
@@ -468,6 +475,7 @@ checksum_framebuffer:
 	bne @loop
 
 	lda #0
+	tax
 	jsr GRAPH_set_colors
 
 	LoadW r0, 295
@@ -475,6 +483,7 @@ checksum_framebuffer:
 	LoadW r2, 24
 	LoadW r3, 9
 	jsr GRAPH_set_window
+	sec
 	jsr GRAPH_draw_rect
 
 	AddVW 7, r1 ; add baseline
