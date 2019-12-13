@@ -714,9 +714,12 @@ Draw8Pixels:
 	bcs @5
 
 	; transclucent, regular
-	ldy col1 ; fg: primary color
+	phx
+	ldx col1 ; fg: primary color
 	and r0L
-	jmp GRAPH_LL_set_8_pixels
+	jsr GRAPH_LL_set_8_pixels
+	plx
+	rts
 
 ; opaque mode, regular
 @5:	ldy col_bg  ; bg

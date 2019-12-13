@@ -1,8 +1,9 @@
 ;
 ; low level graphics
 ;
-GRAPH_LL_init                = $fef9
-GRAPH_LL_get_info            = $fefc
+GRAPH_LL_init                = $fef6
+GRAPH_LL_get_info            = $fef9
+GRAPH_LL_set_palette         = $fefc
 GRAPH_LL_cursor_position     = $feff
 GRAPH_LL_cursor_next_line    = $ff02
 GRAPH_LL_get_pixel           = $ff05

@@ -88,6 +88,8 @@ I_GRAPH_LL_init:
 	.res 2
 I_GRAPH_LL_get_info:
 	.res 2
+I_GRAPH_LL_set_palette
+	.res 2
 I_GRAPH_LL_cursor_position:
 	.res 2
 I_GRAPH_LL_cursor_next_line:

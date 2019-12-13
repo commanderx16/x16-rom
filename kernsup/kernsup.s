@@ -29,10 +29,10 @@ symbol:
 	.byte 0,0,0            ; $FEED
 	.byte 0,0,0            ; $FEF0
 	.byte 0,0,0            ; $FEF3
-	.byte 0,0,0            ; $FEF6
 
-	bridge GRAPH_LL_init                ; $FEF9
-	bridge GRAPH_LL_get_info            ; $FEFC
+	bridge GRAPH_LL_init                ; $FEF6
+	bridge GRAPH_LL_get_info            ; $FEF9
+	bridge GRAPH_LL_set_palette         ; $FEFC
 	bridge GRAPH_LL_cursor_position     ; $FEFF
 	bridge GRAPH_LL_cursor_next_line    ; $FF02
 	bridge GRAPH_LL_get_pixel           ; $FF05
@@ -66,7 +66,7 @@ symbol:
 	bridge joystick_get        ; $FF56: joystick_get
 	bridge lkupla              ; $FF59: LKUPLA
 	bridge lkupsa              ; $FF5C: LKUPSA
-	bridge swapper             ; $FF5F: SWAPPER – switch between 40 and 80 columns
+	bridge scrmod              ; $FF5F: get/set screen mode
 	.byte 0,0,0                ; $FF62: DLCHR – init 80-col character RAM  [NYI]
 	.byte 0,0,0                ; $FF65: PFKEY – program a function key [NYI]
 	bridge mouse_config        ; $FF68: mouse_config

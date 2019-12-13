@@ -320,6 +320,8 @@ fetvec	=*+1
 ;
 ;  exits with .x & status altered
 
+; XXX this needs to be in RAM in order to work!
+
 stash	sta stash1
 	lda d1pra       ;save current config (RAM)
 	pha
@@ -341,6 +343,8 @@ stavec	=*+1
 ;             .x= memory configuration
 ;
 ;  exits with .a= data byte & status flags valid, .x is altered
+
+; XXX this needs to be in RAM in order to work!
 
 cmpare
 	pha

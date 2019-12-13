@@ -20,13 +20,13 @@
 	.byte 0,0,0            ; $FEED
 	.byte 0,0,0            ; $FEF0
 	.byte 0,0,0            ; $FEF3
-	.byte 0,0,0            ; $FEF6
 
 	;
 	; graph low-level API
 	;
-	jmp (I_GRAPH_LL_init)                ; $FEF9: GRAPH_LL_init
-	jmp (I_GRAPH_LL_get_info)            ; $FEFC: GRAPH_LL_get_info
+	jmp (I_GRAPH_LL_init)                ; $FEF6: GRAPH_LL_init
+	jmp (I_GRAPH_LL_get_info)            ; $FEF9: GRAPH_LL_get_info
+	jmp (I_GRAPH_LL_set_palette)         ; $FEFC: GRAPH_LL_set_palette
 	jmp (I_GRAPH_LL_cursor_position)     ; $FEFF: GRAPH_LL_cursor_position
 	jmp (I_GRAPH_LL_cursor_next_line)    ; $FF02: GRAPH_LL_cursor_next_line
 	jmp (I_GRAPH_LL_get_pixel)           ; $FF05: GRAPH_LL_get_pixel
@@ -45,14 +45,14 @@
 	jmp GRAPH_init         ; $FF20: void GRAPH_init();
 	jmp GRAPH_clear        ; $FF23: void GRAPH_clear();
 	jmp GRAPH_set_window   ; $FF26: void GRAPH_set_window(word x, word y, word width, word height);
-	jmp GRAPH_set_colors   ; $FF29: void GRAPH_set_colors(byte fg, byte secondary, byte bg);
+	jmp GRAPH_set_colors   ; $FF29: void GRAPH_set_colors(byte stroke, byte fill, byte background);
 	jmp GRAPH_draw_line    ; $FF2C: void GRAPH_draw_line(word x1, word y1, word x2, word y2);
 	jmp GRAPH_draw_rect    ; $FF2F: void GRAPH_draw_rect(word x, word y, word width, word height, word corner_radius, bool fill);
 	jmp GRAPH_move_rect    ; $FF32: void GRAPH_move_rect(word sx, word sy, word tx, word ty, word width, word height);
-	jmp GRAPH_draw_oval    ; $FF35: void GRAPH_draw_oval(word x1, word y1, word x2, word y2, bool fill);
+	jmp GRAPH_draw_oval    ; $FF35: void GRAPH_draw_oval(word x, word y, word width, word height, bool fill);
 	jmp GRAPH_draw_image   ; $FF38: void GRAPH_draw_image(word x, word y, word ptr, word width, word height);
 	jmp GRAPH_set_font     ; $FF3B: void GRAPH_set_font(void ptr);
-	jmp GRAPH_get_char_size; $FF3E: (byte baseline, byte width, byte height) GRAPH_get_char_size(byte c, byte mode);
+	jmp GRAPH_get_char_size; $FF3E: (byte baseline, byte width, byte height) GRAPH_get_char_size(byte c, byte format);
 	jmp GRAPH_put_char     ; $FF41: void GRAPH_put_char(inout word x, inout word y, byte c);
 
 	jmp monitor            ; $FF44: MONITOR
@@ -67,7 +67,7 @@
 	jmp joystick_get       ; $FF56: joystick_get - get state of one joystick       [unsupported C128: PHOENIX – init function cartridges]
 	jmp lkupla             ; $FF59: [C128] LKUPLA - look up logical file address
 	jmp lkupsa             ; $FF5C: [C128] LKUPSA - look up secondary address
-	jmp scrmod             ; $FF5F: scrmod - set screen mode                       [unsupported C128: SCRMOD – get/set screen mode]
+	jmp scrmod             ; $FF5F: scrmod - get/set screen mode                   [unsupported C128: SWAPPER]
 	.byte 0,0,0            ; $FF62: [C128] DLCHR – init 80-col character RAM       [NYI]
 	.byte 0,0,0            ; $FF65: [C128] PFKEY – program a function key          [NYI]
 	jmp mouse_config       ; $FF68: mouse_config - configure mouse pointer         [unsupported C128: SETBNK – set bank for I/O operations]

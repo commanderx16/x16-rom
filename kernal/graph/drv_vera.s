@@ -15,6 +15,7 @@
 GRAPH_LL_VERA:
 	.word GRAPH_LL_init
 	.word GRAPH_LL_get_info
+	.word GRAPH_LL_set_palette
 	.word GRAPH_LL_cursor_position
 	.word GRAPH_LL_cursor_next_line
 	.word GRAPH_LL_get_pixel
@@ -90,7 +91,18 @@ GRAPH_LL_get_info:
 	LoadW r1, 200
 	lda #8
 	rts
-	
+
+;---------------------------------------------------------------
+; GRAPH_LL_set_palette
+;
+; Return:    r0       pointer
+;            a        start index
+;            x        count
+;---------------------------------------------------------------
+GRAPH_LL_set_palette:
+	; TODO
+	rts
+
 ;---------------------------------------------------------------
 ; GRAPH_LL_cursor_position
 ;
@@ -248,7 +260,7 @@ get_pixels_FG:
 ; Note: Always advances the pointer by 8 pixels.
 ;
 ; Pass:      a        pattern
-;            y        color
+;            x        color
 ;---------------------------------------------------------------
 GRAPH_LL_set_8_pixels:
 ; this takes about 120 cycles, independently of the pattern
@@ -265,7 +277,7 @@ GRAPH_LL_set_8_pixels:
 	inc veramid
 	bra @1
 @2:	beq @3
-	sty veradat
+	stx veradat
 	bra @1
 @3:	rts
 
