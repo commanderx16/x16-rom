@@ -39,11 +39,13 @@ line	jsr get_points_col
 
 ;***************
 frame	jsr get_points_col
+	jsr convert_point_size
 	clc
 	jmp GRAPH_draw_rect
 
 ;***************
 rect	jsr get_points_col
+	jsr convert_point_size
 	sec
 	jmp GRAPH_draw_rect
 
@@ -53,7 +55,9 @@ char	jsr get_point
 	jsr chkcom
 	jsr getbyt
 	txa
-	jsr set_col
+	ldx #15 ; secondary color:  light gray
+	ldy #1  ; background color: white
+	jsr GRAPH_set_colors
 
 	jsr chkcom
 	jsr frmevl
@@ -119,8 +123,7 @@ get_col:
 	rts
 
 set_col:
-	ldx #15 ; secondary color:  light gray
-	ldy #1  ; background color: white
+	tax
 	jmp GRAPH_set_colors
 
 get_points_col:
@@ -151,3 +154,25 @@ get_points_col:
 	jmp set_col
 
 @2	jmp snerr
+
+convert_point_size:
+	; sort x1/x2
+	CmpW r0, r2
+	bcc :+
+	PushW r0
+	MoveW r2, r0
+	PopW r2
+:
+	; sort y1/y2
+	CmpW r1, r3
+	bcc :+
+	PushW r1
+	MoveW r3, r1
+	PopW r3
+:
+	; convert x2/y2 into width/height
+	SubW r0, r2
+	IncW r2
+	SubW r1, r3
+	IncW r3
+	rts

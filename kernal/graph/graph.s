@@ -391,6 +391,17 @@ VerticalLine:
 ;            c    1: fill
 ;---------------------------------------------------------------
 GRAPH_draw_rect:
+; check for empty
+	php
+	lda r2L
+	ora r2H
+	bne @0
+@4:	rts
+@0:	lda r3L
+	ora r3H
+	beq @4
+	plp
+
 	bcc @3
 	
 ; fill
