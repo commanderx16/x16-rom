@@ -52,8 +52,8 @@ SCREEN          := $FFED
 PLOT            := $FFF0
 IOBASE          := $FFF3
 
-CHRGET          := $0073
-CHRGOT          := $0079
+;CHRGET          := $0073
+;CHRGOT          := $0079
 
 ; PETSCII
 CR              := $0D

@@ -17,7 +17,16 @@ veraisr =verareg+7
 
 
 ;***************
-monitor	jmp $fff6
+monitor:
+	jsr bjsrfar
+	.word $c000
+	.byte BANK_MONITOR
+
+;***************
+geos:
+	jsr bjsrfar
+	.word _ResetHandle
+	.byte BANK_GEOS
 
 ;***************
 color	jsr getcol ; fg
@@ -278,12 +287,6 @@ joy:
 	jsr joystick_get
 	tay
 	jmp sngflt
-
-geos:
-	jsr bjsrfar
-	.word _ResetHandle
-	.byte BANK_GEOS
-
 
 ; BASIC's entry into jsrfar
 .setcpu "65c02"

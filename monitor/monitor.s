@@ -1,16 +1,3 @@
-.if 1
-.segment "monitor_a"
-.global monitor
-.segment "monitor_b"
-.segment "asmchars1"
-.segment "asmchars2"
-.segment "mnemos1"
-.segment "mnemos2"
-.segment "monitor_c"
-.segment "monitor_ram_code"
-monitor:
-	brk
-.else
 ; ----------------------------------------------------------------
 ; Monitor
 ; ----------------------------------------------------------------
@@ -60,7 +47,7 @@ monitor:
 .ifdef MACHINE_C64
 _basic_warm_start := $E37B
 .elseif .defined(MACHINE_X16)
-_basic_warm_start := $ff03
+_basic_warm_start := $ff47
 .elseif .defined(MACHINE_TED)
 _basic_warm_start := $800A
 .endif
@@ -89,7 +76,7 @@ DEFAULT_BANK    := $37
 zp1             := $C1
 zp2             := $C3
 zp3             := $FF
-DEFAULT_BANK    := 7
+DEFAULT_BANK    := 0
 .endif
 
 .ifdef MACHINE_TED
@@ -101,7 +88,7 @@ NUM_LINES       := 25
 DEFAULT_BANK    := 0
 .endif
 
-CINV   := $0314 ; IRQ vector
+CINV2  := $0401 ; IRQ vector
 CBINV  := $0316 ; BRK vector
 
 .ifdef CART_FC3
@@ -126,6 +113,7 @@ tmp17           := BUF + 17
 tmp_opcode      := tmp12
 .endif
 
+ram_code_end = __monitor_ram_code_RUN__ + __monitor_ram_code_SIZE__
 reg_pc_hi       := ram_code_end + 5
 reg_pc_lo       := ram_code_end + 6
 reg_p           := ram_code_end + 7
@@ -156,6 +144,7 @@ video_bank_flag := ram_code_end + 20
 
 .import __monitor_ram_code_LOAD__
 .import __monitor_ram_code_RUN__
+.import __monitor_ram_code_SIZE__
 
 .import __mnemos1_RUN__
 .import __mnemos2_RUN__
@@ -188,7 +177,7 @@ monitor:
         lda     #$70
         sta     cartridge_bank ; by default, hide cartridge
 .endif
-        ldx     #ram_code_end - ram_code - 1
+        ldx     #<(__monitor_ram_code_SIZE__ - 1)
 :       lda     __monitor_ram_code_LOAD__,x
         sta     __monitor_ram_code_RUN__,x
         dex
@@ -249,12 +238,11 @@ brk_entry:
         jsr     enable_all_roms
 .elseif .defined(MACHINE_X16)
 	pha
-	lda #BANK_KERNAL
+	lda #BANK_MONITOR
 	sta d1prb ; ROM bank
 	pla
 .endif
         jmp     brk_entry2
-ram_code_end:
 
 ; XXX ram_code is here - why put it between ROM code, so we have to jump over it?
 
@@ -423,7 +411,7 @@ fill_kbd_buffer_with_csr_right:
         ldx     #0
 :
 .ifdef MACHINE_X16
-	jsr kbd_put
+	jsr _kbd_put
 .else
 	sta     KEYD,x ; fill kbd buffer with 7 CSR RIGHT characters
 .endif
@@ -2165,16 +2153,16 @@ fill_kbd_buffer_singlequote
         lda     #$27 ; "'"
 :
 .ifdef MACHINE_X16
-	jsr kbd_put
+	jsr _kbd_put
 .else
         sta     KEYD
 .endif
         lda     zp1 + 1
         jsr     byte_to_hex_ascii
 .ifdef MACHINE_X16
-	jsr kbd_put
+	jsr _kbd_put
 	tya
-	jsr kbd_put
+	jsr _kbd_put
 .else
         sta     KEYD + 1
         sty     KEYD + 2
@@ -2182,16 +2170,16 @@ fill_kbd_buffer_singlequote
         lda     zp1
         jsr     byte_to_hex_ascii
 .ifdef MACHINE_X16
-	jsr kbd_put
+	jsr _kbd_put
 	tya
-	jsr kbd_put
+	jsr _kbd_put
 .else
         sta     KEYD + 3
         sty     KEYD + 4
 .endif
         lda     #' '
 .ifdef MACHINE_X16
-	jsr kbd_put
+	jsr _kbd_put
 .else
         sta     KEYD + 5
         lda     #6 ; number of characters
@@ -2220,14 +2208,16 @@ LB6AC:  jsr     BSOUT
 ; IRQ logic to handle F keys and scrolling
 ; ----------------------------------------------------------------
 set_irq_vector:
-        lda     CINV
+;	rts
+	
+        lda     CINV2
         cmp     #<irq_handler
         bne     LB6C1
-        lda     CINV + 1
+        lda     CINV2 + 1
         cmp     #>irq_handler
         beq     LB6D3
-LB6C1:  lda     CINV
-        ldx     CINV + 1
+LB6C1:  lda     CINV2
+        ldx     CINV2 + 1
         sta     irq_lo
         stx     irq_hi
         lda     #<irq_handler
@@ -2236,50 +2226,32 @@ LB6C1:  lda     CINV
 LB6D3:  lda     irq_lo
         ldx     irq_hi
 LB6D9:  sei
-        sta     CINV
-        stx     CINV + 1
+        sta     CINV2
+        stx     CINV2 + 1
         cli
         rts
 
-irq_handler:
-        lda     #>after_irq
-        pha
-        lda     #<after_irq
-        pha
-        lda     #0 ; fill A/X/Y/P
-        pha
-        pha
-        pha
-        pha
-        jmp     LEA31 ; run normal IRQ handler, then return to this code
+.segment "monitor_ram_code"
 
-after_irq:
+irq_handler:
+	lda d1prb
+	pha
+	lda #BANK_MONITOR
+	sta d1prb ; ROM bank
+	jsr irqhandler2
+	pla
+	sta d1prb
+	rts
+
+.segment "monitor_b"
+
+irqhandler2:
         lda     disable_f_keys
         bne     LB6FA
-.ifdef MACHINE_TED
-        lda     KYNDX
-        beq     :+
-        ldy KEYIDX
-        lda PKYBUF,y
-        ; we leave it in there for the editor to discard,
-        ; otherwise we don't go through the kernal code
-        ; that repositions the hardware cursor
-        bne fk_2 ; always
-:
-.endif
-.ifdef MACHINE_X16
-	jsr kbd_peek
-.else
-        lda     NDX
-.endif
+	jsr _kbd_peek
         bne     LB700
-LB6FA:  pla ; XXX JMP $EA81
-        tay
-        pla
-        tax
-        pla
-        rti
-
+LB6FA:	rts
+	
 LB700:
 .ifndef MACHINE_X16
         lda     KEYD
@@ -2287,23 +2259,23 @@ LB700:
 fk_2:   cmp     #KEY_F7
         bne     LB71C
 .ifdef MACHINE_X16
-	jsr kbd_clear
+	jsr _kbd_clear
 .endif
         lda     #'@'
 .ifdef MACHINE_X16
-        jsr kbd_put
+	jsr _kbd_put
 .else
         sta     KEYD
 .endif
         lda     #'$'
 .ifdef MACHINE_X16
-	jsr kbd_put
+	jsr _kbd_put
 .else
         sta     KEYD + 1
 .endif
         lda     #CR
 .ifdef MACHINE_X16
-	jsr kbd_put
+	jsr _kbd_put
 	bra     LB6FA
 .else
         sta     KEYD + 2 ; store "@$' + CR into keyboard buffer
@@ -2315,7 +2287,7 @@ fk_2:   cmp     #KEY_F7
 LB71C:  cmp     #KEY_F5
         bne     LB733
 .ifdef MACHINE_X16
-	jsr kbd_clear
+	jsr _kbd_clear
 .endif
 .ifdef MACHINE_X16
         ldx     nlinesm1
@@ -2329,14 +2301,14 @@ LB71C:  cmp     #KEY_F5
         jsr     LE50C ; KERNAL set cursor position
 LB72E:  lda     #CSR_DOWN
 .ifdef MACHINE_X16
-	jsr kbd_put
+	jsr _kbd_put
 .else
         sta     KEYD
 .endif
 LB733:  cmp     #KEY_F3
         bne     LB74A
 .ifdef MACHINE_X16
-	jsr kbd_clear
+	jsr _kbd_clear
 .endif
         ldx     #0
         cpx     TBLX
@@ -2346,7 +2318,7 @@ LB733:  cmp     #KEY_F3
         jsr     LE50C ; KERNAL set cursor position
 LB745:  lda     #CSR_UP
 .ifdef MACHINE_X16
-	jsr kbd_put
+	jsr _kbd_put
 .else
         sta     KEYD
 .endif
@@ -2370,8 +2342,9 @@ LB75E:  jsr     LB838
         php
         jsr     LB8D4
         plp
-        bcs     LB6FA
-        lda     TBLX
+        bcc	:+
+        jmp     LB6FA
+:       lda     TBLX
         beq     LB7E1
         lda     tmp12
         cmp     #','
@@ -2416,7 +2389,7 @@ LB7CD:  lda     #CR
         ldx     #CSR_HOME
 LB7D1:  ldy     #0
 .ifdef MACHINE_X16
-	jsr kbd_clear
+	jsr _kbd_clear
 .else
         sty     NDX
 .endif
@@ -2488,7 +2461,7 @@ LB845:  ldy     #1 ; column 1
         dec     tmp13
         beq     LB889
 .ifdef MACHINE_X16
-	jsr kbd_peek
+	jsr _kbd_peek
 .else
         lda     KEYD
 .endif
@@ -3575,7 +3548,7 @@ LBC11:  jsr     basin_cmp_cr
         bne     syn_err8
 LBC16:
 .ifdef MACHINE_X16
-	jsr kbd_put
+	jsr _kbd_put
 .else
 	sta     KEYD
 	inc     NDX
@@ -3600,7 +3573,7 @@ LBC39:  lda     LA
         lda     #8
         sta     FA
 .ifdef MACHINE_X16
-	jsr kbd_clear
+	jsr _kbd_clear
 .else
         lda     #0
         sta     NDX
@@ -3787,4 +3760,50 @@ LBD8D:  lda     #9
         bcs     LBD8C
         lda     #8
         bne     LBD8A ; always
-.endif
+
+
+.import mjsrfar
+LE50C:
+	jsr mjsrfar
+	.word xmon1 ; set cursor position
+	.byte BANK_KERNAL
+	rts
+
+LE716:
+	jsr mjsrfar
+	.word loop4 ; screen CHROUT
+	.byte BANK_KERNAL
+	rts
+
+LE96C:
+	jsr mjsrfar
+	.word bmt2  ; insert line at top of screen
+	.byte BANK_KERNAL
+	rts
+
+LF646:
+	jsr mjsrfar
+	.word xmon2 ; IEC close
+	.byte BANK_KERNAL
+	rts
+
+_kbd_put:
+	jsr mjsrfar
+	.word kbd_put
+	.byte BANK_KERNAL
+	rts
+
+_kbd_peek:
+	jsr mjsrfar
+	.word kbd_peek
+	.byte BANK_KERNAL
+	rts
+
+_kbd_clear:
+	jsr mjsrfar
+	.word kbd_clear
+	.byte BANK_KERNAL
+	rts
+
+LF0BD:
+    .byte "I/O ERROR"

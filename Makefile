@@ -9,13 +9,13 @@ AS           = ca65
 LD           = ld65
 
 ARGS_KERNAL=-g --cpu 65SC02 
-ARGS_BASIC=-g --cpu 65SC02 
+ARGS_BASIC=--cpu 65SC02 #-g
 ARGS_MONITOR=-g --cpu 65SC02 
 #ARGS_DOS=-g
-ARGS_GEOS=-g
+#ARGS_GEOS=-g
 
 
-ASFLAGS      = -I geos/inc -I geos -g
+ASFLAGS      = -I geos/inc -I geos #-g
 
 GEOS_SOURCES= \
 	geos/kernal/bitmask/bitmask2.s \
@@ -146,23 +146,24 @@ $(GEOS_BUILD_DIR)/%.o: %.s
 	$(AS) $(ARGS_GEOS) -D bsw=1 -D drv1541=1 $(ASFLAGS) $< -o $@
 
 all: $(PREFIXED_GEOS_OBJS)
-	$(AS) -o kernsup/kernsup.o kernsup/kernsup.s
+	$(AS) -o kernsup/kernsup_basic.o kernsup/kernsup_basic.s
+	$(AS) -o kernsup/kernsup_monitor.o kernsup/kernsup_monitor.s
 	$(AS) -o kernsup/irqsup.o kernsup/irqsup.s
 
 	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o basic/basic.o basic/basic.s
 
 	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o fplib/fplib.o fplib/fplib.s
 
-	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
-	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/cpychr.o kernal/cpychr.s
-	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/ps2.o kernal/ps2.s
-	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/ps2kbd.o kernal/ps2kbd.s
-	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/ps2mouse.o kernal/ps2mouse.s
-	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/joystick.o kernal/joystick.s
-	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/clock.o kernal/clock.s
-	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/graph/graph.o kernal/graph/graph.s
-	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/graph/drv_vera.o kernal/graph/drv_vera.s
-	$(AS) $(ARGS_KERNAL) -g -DCBDOS $(VERSION_DEFINE) -o kernal/fonts/fonts.o kernal/fonts/fonts.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
+	$(AS) $(ARGS_KERNAL)-DCBDOS $(VERSION_DEFINE) -o kernal/cpychr.o kernal/cpychr.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/ps2.o kernal/ps2.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/ps2kbd.o kernal/ps2kbd.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/ps2mouse.o kernal/ps2mouse.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/joystick.o kernal/joystick.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/clock.o kernal/clock.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/graph/graph.o kernal/graph/graph.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/graph/drv_vera.o kernal/graph/drv_vera.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/fonts/fonts.o kernal/fonts/fonts.s
 
 	$(AS) $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
 
@@ -191,7 +192,7 @@ all: $(PREFIXED_GEOS_OBJS)
 		cbdos/zeropage.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o \
 		keymap/keymap.o \
 		charset/petscii.o charset/iso-8859-15.o \
-		kernsup/kernsup.o kernsup/irqsup.o \
+		kernsup/kernsup_basic.o kernsup/kernsup_monitor.o kernsup/irqsup.o \
 		$(PREFIXED_GEOS_OBJS) \
 		-Ln rom.txt -m rom.map
 
