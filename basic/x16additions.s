@@ -285,6 +285,7 @@ joy:
 	pla
 	dec ; KERNAL uses #0 and #1
 	jsr joystick_get
+	eor #$ff
 	tay
 	jmp sngflt
 
