@@ -113,28 +113,39 @@ ld45	jsr acptr       ;get byte off ieee
 	sta veradat     ;write into vram
 	bne ld60        ;branch always
 ;
-ld47	cmp (eal),y     ;verify it
+ld47	ldy #0
+	cmp (eal),y     ;verify it
 	beq ld60        ;o.k....
 	lda #16         ;no good...verify error (sperr)
 	jsr udst        ;update status
 	bra ld60
 ;
-ld50	sta (eal),y
+ld50	ldy #0
+	sta (eal),y
 ld60	inc eal         ;increment store addr
 	bne ld64
 	inc eah
 ;
 ;if necessary, wrap to next bank
 ;
+	lda verck       ;check mode
+	bpl ld64        ;loading into vram
 	lda eah
 	cmp #$c0        ;reached top of high ram?
-	bne ld64        ;no
-	lda verck       ;check mode
-	beq ld62        ;verify
-	bpl ld64        ;loading into vram
-ld62	lda #$a0        ;wrap to bottom of high ram
+	bne ld61        ;no
+	lda #$a0        ;wrap to bottom of high ram
 	sta eah
 	inc $9f61       ;move to next ram bank
+;
+;skip IO area
+;
+ld61	lda eah
+	cmp #$9f        ;reached top of low ram?
+	bne ld64        ;no
+	lda #$a0        ;skip to start of high ram
+	sta eah
+	lda #0
+	sta $9f61
 
 ld64	bit status      ;eoi?
 	bvc ld40        ;no...continue load
