@@ -88,7 +88,7 @@ NUM_LINES       := 25
 DEFAULT_BANK    := 0
 .endif
 
-CINV2  := $0401 ; IRQ vector
+CINV   := $0314 ; IRQ vector
 CBINV  := $0316 ; BRK vector
 
 .ifdef CART_FC3
@@ -2208,16 +2208,17 @@ LB6AC:  jsr     BSOUT
 ; IRQ logic to handle F keys and scrolling
 ; ----------------------------------------------------------------
 set_irq_vector:
-;	rts
-	
-        lda     CINV2
+.if 1
+	rts
+.else
+        lda     CINV
         cmp     #<irq_handler
         bne     LB6C1
-        lda     CINV2 + 1
+        lda     CINV + 1
         cmp     #>irq_handler
         beq     LB6D3
-LB6C1:  lda     CINV2
-        ldx     CINV2 + 1
+LB6C1:  lda     CINV
+        ldx     CINV + 1
         sta     irq_lo
         stx     irq_hi
         lda     #<irq_handler
@@ -2226,10 +2227,11 @@ LB6C1:  lda     CINV2
 LB6D3:  lda     irq_lo
         ldx     irq_hi
 LB6D9:  sei
-        sta     CINV2
-        stx     CINV2 + 1
+        sta     CINV
+        stx     CINV + 1
         cli
         rts
+.endif
 
 .segment "monitor_ram_code"
 

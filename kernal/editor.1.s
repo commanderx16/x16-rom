@@ -1098,15 +1098,6 @@ key4
 	jsr kbd_scan    ;scan keyboard
 ;
 kprend
-
-	lda $0401
-	ora $0401
-	beq :+
-	lda #$4c
-	sta $0400
-	jsr $0400
-:
-
 ; restore VERA state
 	pla
 	sta verahi
