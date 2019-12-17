@@ -326,6 +326,9 @@ stash	sta stash1
 	lda d1pra       ;save current config (RAM)
 	pha
 	stx d1pra       ;set RAM bank
+	jmp stash0
+.segment "KERNRAM2" ; *** RAM code ***
+stash0
 stash1	=*+1
 	lda #$ff
 stavec	=*+1
@@ -334,6 +337,7 @@ stavec	=*+1
 	sta d1pra
 	rts
 
+.segment "ROUTINES"
 
 
 ;  CMPARE  ram code      ( CMP (cmpare_vector),Y  to any bank )
@@ -354,12 +358,18 @@ cmpare
 	sta d1pra       ;set RAM bank
 	and #$07
 	ldx d1prb       ;save current config (ROM)
+	jmp cmpare0
+.segment "KERNRAM2" ; *** RAM code ***
+cmpare0
 	sta d1prb       ;set ROM bank
 	pla
 cmpvec	=*+1
 	cmp ($ff),y     ;compare bytes ($ff here is a dummy address, 'CMPVEC')
 	php
 	stx d1prb       ;restore previous memory configuration
+	jmp cmpare1
+.segment "ROUTINES"
+cmpare1:
 	pla
 	tax
 	pla
