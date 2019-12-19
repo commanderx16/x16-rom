@@ -8,7 +8,6 @@ blue	=$06            ;blue screen color
 
 .export plot   ; set cursor position
 .export scrorg ; return screen size
-.export scnsiz ; set screen size
 .export cint   ; initialize screen
 .export prt    ; print character
 .export loop5  ; input a line until carriage return
@@ -58,6 +57,12 @@ blue	=$06            ;blue screen color
 .segment "ZPKERNAL" : zeropage
 pnt	.res 2           ;$D1 pointer to row
 
+.segment "KVAR"
+
+; Screen Mode
+;
+cscrmd	.res 1           ;    X16: current screen mode (argument to scrmod)
+
 .segment "KVAR2" ; more KERNAL vars
 ldtb1	.res 61 +1       ;flags+endspace
 	;       ^^ XXX at label 'lps2', the code counts up to
@@ -98,11 +103,7 @@ nlines	.res 1           ;$DA y resolution
 nlinesp1 .res 1          ;    X16: y resolution + 1
 nlinesm1 .res 1          ;    X16: y resolution - 1
 
-.segment "KVAR"
-
-; Screen Mode
-;
-cscrmd	.res 1           ;    X16: current screen mode (argument to scrmod)
+.segment "EDITOR"
 
 .include "editor.1.s"
 .include "editor.3.s"

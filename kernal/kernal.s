@@ -9,20 +9,21 @@
 ; from editor
 .import plot
 .import scrorg
-.import kbd_scan
-.import scnsiz
 .import cint
-.import kbd_clear
-.import kbd_get_stop
 .import prt
 .import loop5
-.import kbd_get
-.import stapnty
-.import ldapnty
-.import xmon1
-.import loop4
-.import bmt2
+.import crsw
+.import hibase
+.import indx
+.import lnmx
+.import lstp
+.import lsxp
 .import key
+
+.import kbd_scan
+.import kbd_clear
+.import kbd_get
+.import kbd_get_stop
 
 ; for editor
 .export dfltn
@@ -53,26 +54,3 @@
 .include "irqfile.s"
 .include "routines.s"
 .include "vectors.s"
-
-
-
-
-
-
-; from editor
-.import nlinesp1
-.import lsxp
-.import lstp
-.import lnmx
-.import llen
-.import lintmp
-.import indx
-.import hibase
-.import gdcol
-.import crsw
-.import color
-.import blnct
-.import autodn
-.import nlinesm1
-.import nlines
-.import ldtb1
