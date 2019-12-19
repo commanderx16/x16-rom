@@ -32,12 +32,14 @@
 .export sah
 .export sal
 
+; from RS232
+.import opn232, cls232, cko232, cki232, bso232, bsi232
+
 .include "../banks.inc"
 .include "../io.inc"
 
 .include "declare.s"
 .include "serial4.0.s"
-.include "rs232.s"
 .include "messages.s"
 .include "channelio.s"
 .include "openchannel.s"

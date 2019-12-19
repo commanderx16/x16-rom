@@ -2,9 +2,9 @@
 ; Software Clock Driver
 ;----------------------------------------------------------------------
 
-.include "../regs.inc"
-.include "../banks.inc"
-.include "../io.inc"
+.include "../../regs.inc"
+.include "../../banks.inc"
+.include "../../io.inc"
 
 .import datey, datem, dated, timeh, timem, times, timej, timer; [declare]
 .import save_ram_bank; [declare]

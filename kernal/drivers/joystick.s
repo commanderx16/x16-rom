@@ -2,8 +2,8 @@
 ; NES & SNES Controller Driver
 ;----------------------------------------------------------------------
 
-.include "../banks.inc"
-.include "../io.inc"
+.include "../../banks.inc"
+.include "../../io.inc"
 
 ; data
 .import j0tmp, joy0, joy1, joy2; [declare]

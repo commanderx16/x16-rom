@@ -3,8 +3,8 @@
 
 .feature labels_without_colons
 
-.include "../banks.inc"
-.include "../io.inc"
+.include "../../banks.inc"
+.include "../../io.inc"
 
 ; code
 .import ps2_receive_byte; [ps2]

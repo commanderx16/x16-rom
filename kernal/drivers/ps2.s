@@ -1,6 +1,6 @@
 ; Generic PS/2 Port
 
-.include "../io.inc"
+.include "../../io.inc"
 
 ; data
 .import kbdbyte ; [declare]

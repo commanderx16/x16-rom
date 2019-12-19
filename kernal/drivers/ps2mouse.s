@@ -2,8 +2,8 @@
 ;
 sprite_addr = 60 * 256 ; after text screen
 
-.include "../banks.inc"
-.include "../io.inc"
+.include "../../banks.inc"
+.include "../../io.inc"
 
 ; code
 .import ps2_receive_byte; [ps2]
