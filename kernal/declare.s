@@ -20,7 +20,6 @@ eah	.res 1           ;$AF
 fnadr	.res 2           ;$BB addr current file name str
 memuss	=tmp2            ;$C3 load temps (2 bytes)
 tmp2	.res 2           ;$C3
-pnt	.res 2           ;$D1 pointer to row
 ;
 ; X16 additions
 ;
@@ -42,10 +41,6 @@ buf	.res 2*40+1      ;    basic/monitor buffer
 .export save_ram_bank
 save_ram_bank
 	.res 1
-
-; Screen Mode
-;
-cscrmd	.res 1           ;    X16: current screen mode (argument to scrmod)
 
 ; Memory
 memstr	.res 2           ;    start of memory
@@ -132,46 +127,6 @@ usrcmd	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
 
-.segment "KVAR2" ; more KERNAL vars
-ldtb1	.res 61 +1       ;flags+endspace
-	;       ^^ XXX at label 'lps2', the code counts up to
-	;              numlines+1, THEN writes the end marker,
-	;              which seems like one too many. This was
-	;              worked around for now by adding one more
-	;              byte here, but we should have a look at
-	;              whether there's an off-by-one error over
-	;              at 'lps2'!
-
-; Screen
-;
-.export mode; [ps2kbd]
-.export data; [cpychr]
-mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
-gdcol	.res 1           ;    original color before cursor
-hibase	.res 1           ;    base location of screen (top)
-autodn	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
-lintmp	.res 1           ;    temporary for line index
-color	.res 1           ;    activ color nybble
-rvs	.res 1           ;$C7 rvs field on flag
-indx	.res 1           ;$C8
-lsxp	.res 1           ;$C9 x pos at start
-lstp	.res 1           ;$CA
-blnsw	.res 1           ;$CC cursor blink enab
-blnct	.res 1           ;$CD count to toggle cur
-gdbln	.res 1           ;$CE char before cursor
-blnon	.res 1           ;$CF on/off blink flag
-crsw	.res 1           ;$D0 input vs get flag
-pntr	.res 1           ;$D3 pointer to column
-qtsw	.res 1           ;$D4 quote switch
-lnmx	.res 1           ;$D5 40/80 max positon
-tblx	.res 1           ;$D6
-data	.res 1           ;$D7
-insrt	.res 1           ;$D8 insert mode flag
-llen	.res 1           ;$D9 x resolution
-nlines	.res 1           ;$DA y resolution
-nlinesp1 .res 1          ;    X16: y resolution + 1
-nlinesm1 .res 1          ;    X16: y resolution - 1
-
 .segment "KVARSB0"
 
 KVARSB0_START:
@@ -248,12 +203,6 @@ rows	=d1prb                  ;keyboard matrix
 
 ; XXX TODO
 timrb	=$19            ;6526 crb enable one-shot tb
-
-;screen editor constants
-;
-white	=$01            ;white char color
-blue	=$06            ;blue screen color
-cr	=$d             ;carriage return
 
 .export mhz
 mhz     =8              ;for the scroll delay loop

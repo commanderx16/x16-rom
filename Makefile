@@ -155,7 +155,8 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o fplib/fplib.o fplib/fplib.s
 
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
-	$(AS) $(ARGS_KERNAL)-DCBDOS $(VERSION_DEFINE) -o kernal/cpychr.o kernal/cpychr.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/editor/editor.o kernal/editor/editor.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/cpychr.o kernal/cpychr.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/ps2.o kernal/ps2.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/ps2kbd.o kernal/ps2kbd.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/ps2mouse.o kernal/ps2mouse.s
@@ -187,7 +188,7 @@ all: $(PREFIXED_GEOS_OBJS)
 		basic/basic.o \
 		fplib/fplib.o \
 		kernal/graph/drv_vera.o \
-		kernal/kernal.o kernal/cpychr.o kernal/ps2.o kernal/ps2kbd.o kernal/ps2mouse.o kernal/joystick.o kernal/clock.o kernal/graph/graph.o kernal/fonts/fonts.o \
+		kernal/kernal.o kernal/editor/editor.o kernal/cpychr.o kernal/ps2.o kernal/ps2kbd.o kernal/ps2mouse.o kernal/joystick.o kernal/clock.o kernal/graph/graph.o kernal/fonts/fonts.o \
 		monitor/monitor.o \
 		cbdos/zeropage.o cbdos/fat32.o cbdos/util.o cbdos/matcher.o cbdos/sdcard.o cbdos/spi_rw_byte.o cbdos/spi_select_device.o cbdos/spi_deselect.o cbdos/main.o \
 		keymap/keymap.o \

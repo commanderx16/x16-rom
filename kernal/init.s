@@ -198,6 +198,14 @@ setbot	stx memstr
 	sty memstr+1
 	rts
 
+;
+;return address of first 6522
+;
+iobase
+	ldx #<via1
+	ldy #>via1
+	rts
+
 ; rsr 8/5/80 change io structure
 ; rsr 8/15/80 add memory test
 ; rsr 8/21/80 change i/o for mod

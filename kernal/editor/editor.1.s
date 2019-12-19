@@ -1,19 +1,14 @@
 .import kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop ; [ps2kbd]
 .import mouse_init, mouse_scan ; [ps2mouse]
 
+.import GRAPH_init
+
 	.segment "EDITOR"
 maxchr=80
 nwrap=2 ;max number of physical lines per logical line
 
 .import banked_cpychr
 
-;
-;return address of first 6522
-;
-iobase
-	ldx #<via1
-	ldy #>via1
-	rts
 ;
 ;return max rows,cols of screen
 ;
@@ -897,7 +892,7 @@ scrl3	sta ldtb1,x
 	and #4
 	beq mlp42
 ;
-	lda #mhz
+	lda #<mhz
 	ldy #0
 mlp4	nop             ;delay
 	dex
@@ -1118,4 +1113,95 @@ kprend
 	plx
 	pla
 	rti             ;exit from irq routines
+
+; modes:
+; $00: 40x30
+; $01: 80x30 ; XXX currently unsupported
+; $02: 80x60
+; $80: 320x240@256c + 40x30 text
+;     (320x200@256c + 40x25 text, currently)
+; $81: 640x400@16c ; XXX currently unsupported
+; $ff: toggle between $00 and $02
+
+scrmod	bcs scrnmd0
+	lda cscrmd
+	rts
+scrnmd0	cmp #$ff
+	bne scrmd1
+; toggle between 40x30 and  80x60
+	lda #2
+	cmp cscrmd
+	bne scrmd1
+	lda #0
+scrmd1	sta cscrmd
+	cmp #0 ; 40x30
+	beq swpp30
+	cmp #1 ; 80x30 currently unsupported
+	bne scrmd2
+scrmd3	sec
+	rts
+scrmd2	cmp #2 ; 80x60
+	beq swpp60
+	cmp #$80 ; 320x240@256c + 40x30 text
+	beq swpp25
+	cmp #$81 ; 640x400@16c
+	beq scrmd3 ; currently unsupported
+	bra scrmd3 ; otherwise: illegal mode
+
+swpp60	ldx #80
+	ldy #60
+	lda #128 ; scale = 1.0
+	clc
+	bra swpp2
+
+swpp25	jsr grphon
+	ldy #25
+	sec
+	bra swpp3
+
+swpp30	clc
+	ldy #30
+swpp3	ldx #40
+	lda #64 ; scale = 2.0
+swpp2	pha
+	bcs swppp4
+	jsr grphoff
+swppp4	lda #$01
+	sta veralo
+	lda #$00
+	sta veramid
+	lda #$1F
+	sta verahi
+	pla
+	sta veradat ; reg $F0001: hscale
+	sta veradat ; reg $F0002: vscale
+	cpy #25
+	bne swpp1
+	lda #<400
+	bra :+
+swpp1	lda #<480
+:	pha
+	lda #7 ; vstop_lo
+	sta veralo
+	pla
+	sta veradat
+	jsr scnsiz
+	clc
+	rts
+
+
+grphon	lda #$0e ; light blue
+	sta color
+
+	jmp GRAPH_init
+
+grphoff	lda #$00        ; layer0
+	sta veralo
+	lda #$20
+	sta veramid
+	lda #$1F
+	sta verahi
+	lda #0          ; off
+	sta veradat
+	rts
 

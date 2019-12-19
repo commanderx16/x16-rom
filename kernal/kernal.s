@@ -3,15 +3,38 @@
 
 ; for monitor
 ; XXX these should be removed or at least minimized
-.export xmon2, ms1, key, bmt2, loop4, xmon1, ldapnty, stapnty, ldtb1, nlines, nlinesm1
+.export xmon2, ms1
 .export stavec
+
+; from editor
+.import plot
+.import scrorg
+.import kbd_scan
+.import scnsiz
+.import cint
+.import kbd_clear
+.import kbd_get_stop
+.import prt
+.import loop5
+.import kbd_get
+.import stapnty
+.import ldapnty
+.import xmon1
+.import loop4
+.import bmt2
+.import key
+
+; for editor
+.export dfltn
+.export dflto
+.export iokeys
+.export sah
+.export sal
 
 .include "../banks.inc"
 .include "../io.inc"
 
 .include "declare.s"
-.include "editor.1.s"
-.include "editor.3.s"
 .include "serial4.0.s"
 .include "rs232.s"
 .include "messages.s"
@@ -31,3 +54,25 @@
 .include "routines.s"
 .include "vectors.s"
 
+
+
+
+
+
+; from editor
+.import nlinesp1
+.import lsxp
+.import lstp
+.import lnmx
+.import llen
+.import lintmp
+.import indx
+.import hibase
+.import gdcol
+.import crsw
+.import color
+.import blnct
+.import autodn
+.import nlinesm1
+.import nlines
+.import ldtb1
