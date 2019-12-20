@@ -286,8 +286,6 @@ cmpare1:
 	plp
 	rts
 
-
-	; this should not live in the vector area, but it's ok for now
 restore_basic:
 	jsr jsrfar
 	.word $c000 + 3
