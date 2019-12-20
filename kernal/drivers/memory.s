@@ -7,7 +7,7 @@
 
 .import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
 .import __KERNRAM2_LOAD__, __KERNRAM2_RUN__, __KERNRAM2_SIZE__
-.import KVARSB0_END, KVARSB0_START
+.import __KVARSB0_LOAD__, __KVARSB0_RUN__, __KVARSB0_SIZE__
 .import memtop
 .import membot
 
@@ -49,8 +49,9 @@ ramtas:
 ;
 ; clear bank 0 kernal variables
 ;
-	ldx #<(KVARSB0_END - KVARSB0_START + 1)
-:	stz KVARSB0_START-1,x
+.assert __KVARSB0_SIZE__ < 256, error, "KVARSB0 overflow!"
+	ldx #<__KVARSB0_SIZE__
+:	stz __KVARSB0_LOAD__,x
 	dex
 	bne :-
 

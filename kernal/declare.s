@@ -128,9 +128,6 @@ isave	.res 2           ;savesp
 
 .segment "KVARSB0"
 
-.export KVARSB0_START, KVARSB0_END
-KVARSB0_START:
-
 ; Keyboard
 ;
 .export keyd, ndx, shflag, kbdbyte, prefix, brkflg, stkey, curkbd, kbdnam, kbdtab
@@ -176,8 +173,6 @@ timem	.res 1           ;    minutes
 times	.res 1           ;    seconds
 timej	.res 1           ;    jiffies
 timer	.res 3           ;$A0 24 bit 1/60th second timer
-
-KVARSB0_END:
 
 ; i/o devices
 ;
