@@ -45,30 +45,3 @@ d2ier	=via2+14
 d2ora	=via2+15
 
 tilbas	=$0f800         ;top of bank 0 of VRAM
-
-; save VERA state
-.macro VERA_SAVE
-	lda veractl
-	pha
-	lda #0
-	sta veractl
-	lda veralo
-	pha
-	lda veramid
-	pha
-	lda verahi
-	pha
-.endmacro
-
-; restore VERA state
-.macro VERA_RESTORE
-	pla
-	sta verahi
-	pla
-	sta veramid
-	pla
-	sta veralo
-	pla
-	sta veractl
-.endmacro
-

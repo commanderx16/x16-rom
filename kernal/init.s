@@ -1,4 +1,6 @@
 .import ps2_init ; [ps2]
+; mouse driver
+.import mouse_init
 
 	.segment "INIT"
 ; start - system reset
@@ -131,9 +133,9 @@ ioinit
 	lda #0
 	sta d1pra ; RAM bank
 ;
-;jsr clkhi ;clkhi to release serial devices  ^
-;
 iokeys
+	jsr mouse_init  ;init mouse
+
 	lda #1
 	sta veraien     ;VERA VSYNC IRQ for 60 Hz
 	jmp clklo       ;release the clock line***901227-03***

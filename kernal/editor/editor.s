@@ -46,9 +46,8 @@ blue	=$06            ;blue screen color
 .export loop4
 .export bmt2
 
-; editor_vera
-.import initv
-.import scrmod
+; screen driver
+.import screen_set_mode
 .import screen_set_charset
 .import screen_get_color
 .import screen_set_color
@@ -64,6 +63,9 @@ blue	=$06            ;blue screen color
 .export llen
 .export scnsiz
 .export color
+
+; keyboard driver
+.import kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop
 
 .include "../../banks.inc"
 .include "../../io.inc"

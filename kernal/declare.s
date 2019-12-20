@@ -4,8 +4,6 @@
 .global buf
 ; for monitor and CBDOS
 .global status
-; for BASIC
-.global scrmod
 ; for BASIC and GEOS
 .global mousex, mousey, mousebt
 

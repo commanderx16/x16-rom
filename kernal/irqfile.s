@@ -1,6 +1,6 @@
 	.segment "IRQFILE"
 
-.import initv
+.import screen_init
 .import mouse_scan ; [ps2mouse]
 .import cursor_blink
 .export panic
@@ -38,4 +38,4 @@ panic	lda #3          ;reset default i/o
 	sta dflto
 	lda #0
 	sta dfltn
-	jmp initv
+	jmp screen_init

@@ -1,5 +1,3 @@
-.import kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop ; [ps2kbd]
-.import mouse_init ; [ps2mouse]
 
 maxchr=80
 nwrap=2 ;max number of physical lines per logical line
@@ -38,8 +36,6 @@ scnsiz	stx llen
 ;
 cint	jsr iokeys
 
-	jsr mouse_init  ;init mouse
-
 ;
 ; establish screen memory
 ;
@@ -47,7 +43,7 @@ cint	jsr iokeys
 
 	lda #2
 	sec
-	jsr scrmod      ;set screen mode to default
+	jsr screen_set_mode ;set screen mode to default
 ;
 	lda #0          ;make sure we're in pet mode
 	sta mode

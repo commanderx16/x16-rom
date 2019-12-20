@@ -1,8 +1,8 @@
 .include "../../io.inc"
 .include "../../banks.inc"
 
-.export initv
-.export scrmod
+.export screen_init
+.export screen_set_mode
 .export screen_set_charset
 .export screen_get_color
 .export screen_set_color
@@ -42,13 +42,13 @@ pnt:	.res 2           ;$D1 pointer to row
 
 ; Screen Mode
 ;
-cscrmd:	.res 1           ;    X16: current screen mode (argument to scrmod)
+cscrmd:	.res 1           ;    X16: current screen mode (argument to screen_set_mode)
 
 .segment "EDITOR_VERA"
 
 ;init video
 ;
-initv:
+screen_init:
 	lda #0
 	sta veractl     ;set ADDR1 active
 
@@ -146,7 +146,8 @@ tvera_composer_end:
 ; $81: 640x400@16c ; XXX currently unsupported
 ; $ff: toggle between $00 and $02
 
-scrmod:	bcs scrnmd0
+screen_set_mode:
+	bcs scrnmd0
 	lda cscrmd
 	rts
 scrnmd0:

@@ -24,6 +24,8 @@
 .import kbd_get
 .import kbd_get_stop
 
+.import screen_set_mode
+
 ; for editor
 .export dfltn
 .export dflto
