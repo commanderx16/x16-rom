@@ -137,6 +137,36 @@ FAT32 and SD card drivers: Copyright (c) 2018 Thomas Woinke, Marko Lauke, [www.s
 Release Notes
 -------------
 
+### Release 35
+
+* API Fetures
+	* new KERNAL API: low-level and high-level 320x200@256c bitmap graphics
+	* new KERNAL API: get mouse state
+	* new KERNAL API: get joystick state
+	* new KERNAL API: get/set date and time (old RDTIM call is now a 24 bit timer)
+	* new floating point API, jump table at $FC00 on ROM bank 4 (BASIC)
+
+* KERNAL Features
+	* invert fg/bg color control code (Ctrl+A) [Daniel Mecklenburg Jr]
+	
+* BASIC
+	* added COLOR &lt;fg, bg> statement to set text color
+	* added JOY(n) function (arg 1 for joy1, arg 2 for joy2)
+	* added TEST statement to start graphics API unit test
+	* CHAR statement supports PETSCII control codes (instead of GEOS control codes), including color codes
+
+* misc
+	* KERNAL variables for keyboard/mouse/clock drivers were moved from $0200-$02FF to RAM bank #0
+	* $8F (set PETSCII-UC even if ISO) printed first after reset [Mikael O. Bonnier]
+
+* bug fixes:
+	* got rid of $2c partial instruction skip [Joshua Scholar]
+	* fixed TI/TI$
+	* fixed CDBOS infinite loop
+	* zp address 0 is no longer overwritten by mouse code
+	* mouse scanning is disabled if mouse is off
+	* VERA state is correctly saved/restored by IRQ code
+
 ### Release 34
 
 * new layout for zero page and KERNAL/BASIC variables:
