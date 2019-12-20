@@ -177,8 +177,6 @@ timer	.res 3           ;$A0 24 bit 1/60th second timer
 
 KVARSB0_END:
 
-vicscn	=$0000
-
 ; i/o devices
 ;
 mmtop   =$9f00

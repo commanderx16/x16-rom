@@ -13,7 +13,6 @@
 .import prt
 .import loop5
 .import crsw
-.import hibase
 .import indx
 .import lnmx
 .import lstp

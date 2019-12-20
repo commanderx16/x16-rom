@@ -15,7 +15,6 @@ start	ldx #$ff
 	jsr cint        ;go initilize screen
 	cli             ;interrupts okay now
 
-
 	jsr jsrfar
 	.word $c000     ;go to basic system
 	.byte BANK_BASIC
@@ -59,6 +58,9 @@ ramtz0	sta $0000,y     ;zero page
 	iny
 	bne ramtz0
 
+;
+; clear bank 0 kernal variables
+;
 	ldy #KVARSB0_END - KVARSB0_START + 1
 :	sta KVARSB0_START-1,y
 	dey
@@ -73,8 +75,6 @@ ramtz0	sta $0000,y     ;zero page
 	jsr settop
 	lda #$08        ;set bottom of memory
 	sta memstr+1    ;always at $0800
-	lda #>vicscn
-	sta hibase      ;set base of screen
 ;
 ; copy banking code into RAM
 ;
@@ -139,26 +139,6 @@ iokeys
 	lda #1
 	sta veraien     ;VERA VSYNC IRQ for 60 Hz
 	jmp clklo       ;release the clock line***901227-03***
-;
-; sixty hertz value
-;
-sixty	= mhz * 1000000 / 60
-
-setnam	sta fnlen
-	stx fnadr
-	sty fnadr+1
-	rts
-
-setlfs	sta la
-	stx fa
-	sty sa
-	rts
-
-setmsg	sta msgflg
-readst	lda status
-udst	ora status
-	sta status
-settmo	rts
 
 memtop	bcc settop
 ;

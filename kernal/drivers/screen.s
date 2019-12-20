@@ -28,7 +28,6 @@
 .importzp tmp2
 .import color
 .import llen
-.import hibase
 .import data
 
 ; kernal call
@@ -236,10 +235,7 @@ grphoff:
 ;---------------------------------------------------------------
 screen_set_position:
 	stz pnt
-	txa
-	and #scrmsk
-	ora hibase
-	sta pnt+1
+	stx pnt+1
 	rts
 
 ;---------------------------------------------------------------
@@ -376,10 +372,7 @@ screen_copy_line:
 
 	lda #0          ;set from addr
 	sta sal
-	txa
-	and #scrmsk     ;clear any garbage stuff
-	ora hibase      ;put in hiorder bits
-	sta sal+1
+	stx sal+1
 
 	;destination into addr1
 	lda #$10

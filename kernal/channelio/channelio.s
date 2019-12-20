@@ -1,5 +1,21 @@
 	.segment "CHANNEL"
 
+setnam	sta fnlen
+	stx fnadr
+	sty fnadr+1
+	rts
+
+setlfs	sta la
+	stx fa
+	sty sa
+	rts
+
+setmsg	sta msgflg
+readst	lda status
+udst	ora status
+	sta status
+settmo	rts
+
 ;***************************************
 ;* getin -- get character from channel *
 ;*      channel is determined by dfltn.*

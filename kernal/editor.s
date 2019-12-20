@@ -23,7 +23,6 @@ nwrap=2 ;max number of physical lines per logical line
 
 ; kernal
 .export crsw
-.export hibase
 .export indx
 .export lnmx
 .export lstp
@@ -88,7 +87,6 @@ ldtb1	.res 61 +1       ;flags+endspace
 .export data; [cpychr]
 mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
 gdcol	.res 1           ;    original color before cursor
-hibase	.res 1           ;    base location of screen (top)
 autodn	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
 lintmp	.res 1           ;    temporary for line index
 color	.res 1           ;    activ color nybble
