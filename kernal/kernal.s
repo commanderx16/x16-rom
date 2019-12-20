@@ -40,6 +40,7 @@
 .import stash
 .import cmpare
 .import jsrfar
+.import restore_basic
 
 ; from platform driver
 .import ioinit
@@ -59,8 +60,6 @@
 .include "channelio/load.s"
 .include "channelio/save.s"
 .include "channelio/errorhandler.s"
-.include "channelio/read.s"
-.include "channelio/write.s"
 
 .include "init.s"
 .include "nmi.s"

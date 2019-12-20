@@ -1,6 +1,3 @@
-.include "../regs.inc"
-.include "../mac.inc"
-
 	.segment "ROUTINES"
 
 ;//////////////////   J U M P   T A B L E   R O U T I N E S   \\\\\\\\\\\\\\\\\
@@ -39,10 +36,3 @@ primm
 	tax
 	pla
 	rts             ;return
-
-
-restore_basic:
-	jsr jsrfar
-	.word $c000 + 3
-	.byte BANK_BASIC
-	;not reached

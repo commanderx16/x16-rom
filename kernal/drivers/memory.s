@@ -12,6 +12,7 @@
 .import membot
 
 .export ramtas
+.export restore_basic
 
 .export fetch
 .export fetvec
@@ -278,3 +279,9 @@ cmpare1:
 	pha
 	plp
 	rts
+
+restore_basic:
+	jsr jsrfar
+	.word $c000 + 3
+	.byte BANK_BASIC
+	;not reached
