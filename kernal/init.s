@@ -53,27 +53,6 @@ vectss	.word key,timb,nnmi
 vectse
 
 
-; ioinit - initilize io devices
-;
-ioinit
-	; XXX TODO: VIC-20: $FDF9
-	jsr ps2_init    ;inhibit ps/2 communcation
-;
-; set up banking
-;
-	lda #$ff
-	sta d1ddra
-	sta d1ddrb
-	lda #0
-	sta d1pra ; RAM bank
-;
-iokeys
-	jsr mouse_init  ;init mouse
-
-	lda #1
-	sta veraien     ;VERA VSYNC IRQ for 60 Hz
-	jmp clklo       ;release the clock line***901227-03***
-
 memtop	bcc settop
 ;
 ;carry set--read top of memory

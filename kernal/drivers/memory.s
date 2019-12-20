@@ -39,6 +39,18 @@ mmtop   =$9f00
 ;---------------------------------------------------------------
 ;
 ramtas:
+;
+; set up banking
+;
+	lda #$ff
+	sta d1ddra
+	sta d1ddrb
+	lda #0
+	sta d1pra ; RAM bank
+
+;
+; clear kernal variables
+;
 	ldx #0          ;zero low memory
 :	stz $0000,x     ;zero page
 	stz $0200,x     ;user buffers and vars

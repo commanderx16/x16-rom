@@ -76,6 +76,16 @@ _mouse_init:
 ;    $01 set scale to 1
 ;    $02 set scale to 2
 _mouse_config:
+	; init mouse if necessary
+	pha
+	lda mouser
+	ora mouser+1
+	ora mouseb
+	ora mouseb+1
+	bne :+
+	jsr mouse_init
+:	pla
+
 	cpx #0
 	beq mous1
 ;  set scale

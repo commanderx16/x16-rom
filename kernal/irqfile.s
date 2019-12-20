@@ -17,7 +17,7 @@ puls	pha
 	jmp (cbinv)     ;...yes...break instr
 puls1	jmp (cinv)      ;...irq
 
-; VSYNC IRQ handler
+; VBLANK IRQ handler
 ;
 key
 	jsr mouse_scan  ;scan mouse (do this first to avoid sprite tearing)
@@ -26,7 +26,7 @@ key
 	jsr kbd_scan    ;scan keyboard
 
 	lda #1
-	sta veraisr     ;ACK VERA VSYNC
+	sta veraisr     ;ACK VERA VBLANK
 	ply             ;restore registers
 	plx
 	pla

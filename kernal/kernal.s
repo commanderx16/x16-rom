@@ -27,7 +27,6 @@
 ; for editor
 .export dfltn
 .export dflto
-.export iokeys
 .export sah
 .export sal
 
@@ -41,6 +40,9 @@
 .import stash
 .import cmpare
 .import jsrfar
+
+; from platform driver
+.import ioinit
 
 .include "../banks.inc"
 .include "../io.inc"
