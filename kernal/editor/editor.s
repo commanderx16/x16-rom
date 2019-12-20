@@ -46,16 +46,12 @@ blue	=$06            ;blue screen color
 .export xmon1
 .export loop4
 .export bmt2
-.export pnt
 
 ; driver
 .export color
 
 .include "../../banks.inc"
 .include "../../io.inc"
-
-.segment "ZPKERNAL" : zeropage
-pnt	.res 2           ;$D1 pointer to row
 
 .segment "KVAR2" ; more KERNAL vars
 ldtb1	.res 61 +1       ;flags+endspace
