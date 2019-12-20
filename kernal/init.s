@@ -1,10 +1,6 @@
-.import ps2_init ; [ps2]
-; mouse driver
-.import mouse_init
 
 .export membot
 .export memtop
-.export rambks
 
 	.segment "INIT"
 ; start - system reset
@@ -37,8 +33,8 @@ vector	stx tmp2
 	ldy #vectse-vectss-1
 movos1	lda cinv,y      ;get from storage
 	bcs movos2      ;c...want storage to user
-	lda (tmp2),y     ;...want user to storage
-movos2	sta (tmp2),y     ;put in user
+	lda (tmp2),y    ;...want user to storage
+movos2	sta (tmp2),y    ;put in user
 	sta cinv,y      ;put in storage
 	dey
 	bpl movos1
@@ -90,11 +86,3 @@ iobase
 	ldx #<via1
 	ldy #>via1
 	rts
-
-; rsr 8/5/80 change io structure
-; rsr 8/15/80 add memory test
-; rsr 8/21/80 change i/o for mod
-; rsr 8/25/80 change i/o for mod2
-; rsr 8/29/80 change ramtest for hardware mistake
-; rsr 9/22/80 change so ram hang rs232 status read
-; rsr 5/12/82 change start1 order to remove disk problem
