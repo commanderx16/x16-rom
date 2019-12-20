@@ -13,6 +13,8 @@
 .export screen_set_position
 .export screen_copy_line
 .export screen_clear_line
+.export screen_save_state
+.export screen_restore_state
 
 ; for monitor
 .export pnt
@@ -442,4 +444,35 @@ screen_clear_line:
 	sta veradat
 	dey
 	bne :-
+	rts
+
+screen_save_state:
+	plx
+	ply
+	lda veractl
+	pha
+	stz veractl
+	lda veralo
+	pha
+	lda veramid
+	pha
+	lda verahi
+	pha
+	phy
+	phx
+	rts
+
+screen_restore_state:
+	plx
+	ply
+	pla
+	sta verahi
+	pla
+	sta veramid
+	pla
+	sta veralo
+	pla
+	sta veractl
+	phy
+	phx
 	rts

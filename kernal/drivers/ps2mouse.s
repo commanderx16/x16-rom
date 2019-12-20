@@ -11,6 +11,9 @@ sprite_addr = 60 * 256 ; after text screen
 .import mousex, mousey, mousebt, msepar, mousel, mouser, mouset, mouseb; [declare]
 .import save_ram_bank; [declare]
 
+.import screen_save_state
+.import screen_restore_state
+
 .export mouse_init, mouse_config, mouse_scan, mouse_get
 
 .segment "PS2MOUSE"
@@ -263,7 +266,7 @@ scnms2:
 ; update sprite
 	lda msepar
 	bpl @s2 ; don't update sprite pos
-	VERA_SAVE
+	jsr screen_save_state
 	ldx #$02
 	stx veralo
 	ldx #$50
@@ -294,7 +297,7 @@ scnms2:
 	ror
 @s1:	sta veradat
 	stx veradat
-	VERA_RESTORE
+	jsr screen_restore_state
 @s2:	rts
 
 ; This is the Susan Kare mouse pointer

@@ -800,7 +800,7 @@ cursor_blink:
 	dec blnct       ;time to blink ?
 	bne @5          ;no
 
-	VERA_SAVE
+	jsr screen_save_state
 	lda #20         ;reset blink counter
 	sta blnct
 	ldy pntr        ;cursor position
@@ -824,6 +824,6 @@ cursor_blink:
 @3	eor #$80        ;blink it
 @4	ldy pntr
 	jsr screen_set_char_color       ;display it
-	VERA_RESTORE
+	jsr screen_restore_state
 
 @5	rts

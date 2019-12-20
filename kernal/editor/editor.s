@@ -59,6 +59,8 @@ blue	=$06            ;blue screen color
 .import screen_set_position
 .import screen_copy_line
 .import screen_clear_line
+.import screen_save_state
+.import screen_restore_state
 .export llen
 .export scnsiz
 .export color
