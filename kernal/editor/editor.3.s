@@ -4,7 +4,7 @@ lower
 	bit mode
 	bvs outhre      ;ISO
 	lda #2
-	jsr cpychr
+	jsr screen_set_charset
 	jmp loop2
 
 upper
@@ -13,7 +13,7 @@ upper
 	bit mode
 	bvs outhre      ;ISO
 	lda #1
-	jsr cpychr
+	jsr screen_set_charset
 outhre	jmp loop2
 
 lock
@@ -35,7 +35,7 @@ isoon
 	cmp #$0f        ;switch to ISO mode?
 	bne isooff      ;branch if not
 	lda #0
-	jsr cpychr
+	jsr screen_set_charset
 	lda mode
 	ora #$40
 	bra isosto
@@ -44,7 +44,7 @@ isooff
 	cmp #$8f        ;switch to PETSCII mode?
 	bne outhre      ;branch if not
 	lda #1
-	jsr cpychr
+	jsr screen_set_charset
 	lda mode
 	and #$ff-$40
 isosto	sta mode

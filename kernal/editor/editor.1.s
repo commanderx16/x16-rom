@@ -1,22 +1,6 @@
 .import kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop ; [ps2kbd]
 .import mouse_init ; [ps2mouse]
 
-; editor_vera
-.import initv
-.import scrmod
-.import cpychr
-.import screen_get_color
-.import screen_set_color
-.import screen_get_char
-.import screen_set_char
-.import screen_set_char_color
-.import screen_get_char_color
-.import screen_set_position
-.import screen_copy_line
-.import screen_clear_line
-.export llen
-.export scnsiz
-
 maxchr=80
 nwrap=2 ;max number of physical lines per logical line
 
@@ -84,17 +68,10 @@ nemu	lda #0          ;US layout
 	lda #$c
 	sta blnct
 	sta blnsw
-clsr	lda hibase      ;fill hi byte ptr table
-	ora #$80
-	tay
-	lda #0
-	tax
-lps1	pha
-	tya
-	sta ldtb1,x
-	pla
-	iny             ;carry bump hi byte
-lps2	inx
+clsr	lda #$80        ;fill end of line table
+	ldx #0
+lps1	sta ldtb1,x
+	inx
 	cpx nlinesp1    ;done # of lines?
 	bne lps1        ;no...
 	lda #$ff        ;tag end of line table

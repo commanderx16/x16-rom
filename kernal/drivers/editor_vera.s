@@ -3,7 +3,7 @@
 
 .export initv
 .export scrmod
-.export cpychr
+.export screen_set_charset
 .export screen_get_color
 .export screen_set_color
 .export screen_get_char
@@ -22,7 +22,6 @@
 .import color
 .import llen
 .import hibase
-.import ldtb1
 
 ; kernal call
 .import scnsiz
@@ -52,7 +51,7 @@ initv:
 	sta veractl     ;set ADDR1 active
 
 	lda #1
-	jsr cpychr
+	jsr screen_set_charset
 
 	lda #$00        ;$F3000: layer 1 registers
 	sta veralo
@@ -79,7 +78,7 @@ px5:	lda tvera_composer,x
 	bne px5
 	rts
 
-cpychr:
+screen_set_charset:
 	php
 	sei
 	jsr jsrfar
@@ -239,7 +238,7 @@ grphoff:
 ;
 screen_set_position:
 	stz pnt
-	lda ldtb1,x
+	txa
 	and #scrmsk
 	ora hibase
 	sta pnt+1
@@ -381,7 +380,7 @@ screen_copy_line:
 
 	lda #0          ;set from addr
 	sta sal
-	lda ldtb1,x
+	txa
 	and #scrmsk     ;clear any garbage stuff
 	ora hibase      ;put in hiorder bits
 	sta sal+1

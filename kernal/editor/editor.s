@@ -46,13 +46,28 @@ blue	=$06            ;blue screen color
 .export loop4
 .export bmt2
 
-; driver
+; editor_vera
+.import initv
+.import scrmod
+.import screen_set_charset
+.import screen_get_color
+.import screen_set_color
+.import screen_get_char
+.import screen_set_char
+.import screen_set_char_color
+.import screen_get_char_color
+.import screen_set_position
+.import screen_copy_line
+.import screen_clear_line
+.export llen
+.export scnsiz
 .export color
 
 .include "../../banks.inc"
 .include "../../io.inc"
 
 .segment "KVAR2" ; more KERNAL vars
+; XXX TODO only one bit per byte is used, this should be compressed!
 ldtb1	.res 61 +1       ;flags+endspace
 	;       ^^ XXX at label 'lps2', the code counts up to
 	;              numlines+1, THEN writes the end marker,
