@@ -14,7 +14,6 @@ blue	=$06            ;blue screen color
 
 .importzp mhz  ; constant
 
-.importzp sah, sal   ; XXX looks unused
 .import dfltn, dflto ; XXX
 
 .import iokeys

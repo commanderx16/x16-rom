@@ -700,10 +700,7 @@ coltab
 
 ;screen scroll routine
 ;
-scrol	lda sal
-	pha
-	lda sah
-	pha
+scrol
 ;
 ;   s c r o l l   u p
 ;
@@ -716,11 +713,11 @@ scr10	inx             ;goto next line
 	cpx nlinesm1    ;done?
 	bcs scr41       ;branch if so
 ;
-	lda #0          ;setup from pntr
-	sta sal
-	lda ldtb1+1,x
+	phx
+	inx
 	jsr scrlin      ;scroll this line up1
-	bmi scr10
+	plx
+	bra scr10
 ;
 scr41
 	jsr clrln
@@ -763,11 +760,7 @@ mlp4	nop             ;delay
 ;
 mlp42	ldx tblx
 ;
-pulind	pla             ;restore old indirects
-	sta sah
-	pla
-	sta sal
-	rts
+pulind	rts
 
 newlin
 	ldx tblx
@@ -784,21 +777,17 @@ bmt2	stx lintmp      ;found it
 	dex
 	dec tblx
 	jmp wlog30
-newlx	lda sal
-	pha
-	lda sah
-	pha
-	ldx nlines
+newlx	ldx nlines
 scd10	dex
 	jsr setpnt      ;set up to addr
 	cpx lintmp
 	bcc scr40
 	beq scr40       ;branch if finished
-	lda #0          ;set from addr
-	sta sal
-	lda ldtb1-1,x
+	phx
+	dex
 	jsr scrlin      ;scroll this line down
-	bmi scd10
+	plx
+	bra scd10
 scr40
 	jsr clrln
 	ldx nlines
@@ -817,9 +806,7 @@ scrd19	sta ldtb1+1,x
 	bne scrd21
 scrd22
 	ldx lintmp
-	jsr wlog30
-;
-	jmp pulind      ;go pul old indirects and return
+	jmp wlog30
 
 ;
 ;put a char on the screen
@@ -829,40 +816,38 @@ dspp	ldy #2
 	ldy pntr
 	jmp dspp2
 
+.import get_char_col
+
 cursor_blink:
 	lda blnsw       ;blinking crsr ?
-	bne key4        ;no
+	bne @5          ;no
 	dec blnct       ;time to blink ?
-	bne key4        ;no
+	bne @5          ;no
+
 	VERA_SAVE
 	lda #20         ;reset blink counter
 	sta blnct
 	ldy pntr        ;cursor position
 	lsr blnon       ;carry set if original char
-	ldx gdcol       ;get char original color
 	php
-	jsr ldapnty     ;get character
+	jsr get_char_col;get character and color
 	inc blnon       ;set to 1
 	plp
-	bcs key5        ;branch if not needed
+	bcs @1          ;branch if not needed
 	sta gdbln       ;save original char
-	lda veradat     ;get original color
-	sta gdcol       ;save it
+	stx gdcol       ;save original color
 	ldx color       ;blink in this color
-	lda gdbln       ;with original character
-;
-key5
-	bit mode
-	bvc key3        ;not ISO
+@1	bit mode
+	bvc @3          ;not ISO
 	cmp #$9f
-	bne key2
+	bne @2
 	lda gdbln
-	bra :+
-key2	lda #$9f
-	bra :+
-key3	eor #$80        ;blink it
-:	ldy pntr
+	bra @4
+@2	lda #$9f
+	bra @4
+@3	eor #$80        ;blink it
+@4	ldy pntr
 	jsr dspp2       ;display it
-;
 	VERA_RESTORE
-key4	rts
+
+@5	rts

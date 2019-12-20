@@ -9,6 +9,7 @@
 .export ldapnty
 .export stapnty
 .export dspp2
+.export get_char_col
 .export setpnt
 .export scrlin
 .export clrln
@@ -17,7 +18,7 @@
 .export pnt
 
 ; kernal var
-.importzp sal
+.importzp sal, sah ; reused temps from load/save
 .import color
 .import llen
 .import hibase
@@ -247,7 +248,7 @@ setpnt:
 ;
 ; Get single color
 ;
-;   In:   .y       x coordinate
+;   In:   .y       column
 ;         pnt      line location
 ;   Out:  .a       PETSCII/ISO
 ;
@@ -260,7 +261,7 @@ ldausery:
 ;
 ; Get single character
 ;
-;   In:   .y       x coordinate
+;   In:   .y       column
 ;         pnt      line location
 ;   Out:  .a       PETSCII/ISO
 ;
@@ -293,7 +294,7 @@ ldapnt3:
 ; Set single color
 ;
 ;   In:   .a       color
-;         .y       x coordinate
+;         .y       column
 ;         pnt      line location
 ;   Out:  -
 ;
@@ -308,7 +309,7 @@ stausery:
 ; Set single character
 ;
 ;   In:   .a       PETSCII/ISO
-;         .y       x coordinate
+;         .y       column
 ;         pnt      line location
 ;   Out:  -
 ;
@@ -343,23 +344,44 @@ stapnt3:
 ;
 ;   In:   .a       PETSCII/ISO
 ;         .x       color
-;         .y       x coordinate
+;         .y       column
 ;         pnt      line location
 ;   Out:  -
 ;
 dspp2:
-	jsr stapnty
-	stx veradat     ;color to screen
+	jsr stapnty     ;set character
+	stx veradat     ;set color
+	rts
+
+;
+; Get single character and color
+;
+;   In:   .y       column
+;         pnt      line location
+;   Out:  .a       PETSCII/ISO
+;         .x       color
+;
+get_char_col:
+	jsr ldapnty     ;get character
+	ldx veradat     ;get color
 	rts
 
 ;
 ; Copy line
 ;
-;   In:   .a/sal+1  source line location
-;         pnt       target line location
+;   In:   x    source line
+;         pnt  target line location
 ;   Out:  -
 ;
 scrlin:
+	lda sal
+	pha
+	lda sah
+	pha
+
+	lda #0          ;set from addr
+	sta sal
+	lda ldtb1,x
 	and #scrmsk     ;clear any garbage stuff
 	ora hibase      ;put in hiorder bits
 	sta sal+1
@@ -394,12 +416,17 @@ scrlin:
 	sta veradat
 	dey
 	bpl :-
+
+	pla             ;restore old indirects
+	sta sah
+	pla
+	sta sal
 	rts
 
 ;
 ; Clear line
 ;
-;   In:   .x  y coordinate
+;   In:   .x  line
 ;
 clrln:
 	ldy llen
