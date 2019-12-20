@@ -8,6 +8,9 @@
 .global error, fcerr  ; code
 .global errdvo, errov ; constants
 
+; for emulator
+.global vartab
+
 .include "declare.s"
 .include "tokens.s"
 .include "token2.s"

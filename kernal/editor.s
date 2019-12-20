@@ -1,7 +1,118 @@
+.feature labels_without_colons
+.setcpu "65c02"
 
+;screen editor constants
+;
+white	=$01            ;white char color
+blue	=$06            ;blue screen color
 maxchr=80
 nwrap=2 ;max number of physical lines per logical line
 
+.export plot   ; set cursor position
+.export scrorg ; return screen size
+.export cint   ; initialize screen
+.export prt    ; print character
+.export loop5  ; input a line until carriage return
+
+.importzp mhz  ; constant
+
+.import dfltn, dflto ; XXX
+
+.import iokeys
+.import panic
+
+; kernal
+.export crsw
+.export hibase
+.export indx
+.export lnmx
+.export lstp
+.export lsxp
+.export cursor_blink
+
+; monitor and kernal
+.export tblx
+.export pntr
+
+; monitor
+.export blnon
+.export blnsw
+.export gdbln
+.export insrt
+.export ldtb1
+.export nlines
+.export nlinesm1
+.export qtsw
+.export rvs
+.export xmon1
+.export loop4
+.export bmt2
+
+; screen driver
+.import screen_set_mode
+.import screen_set_charset
+.import screen_get_color
+.import screen_set_color
+.import screen_get_char
+.import screen_set_char
+.import screen_set_char_color
+.import screen_get_char_color
+.import screen_set_position
+.import screen_copy_line
+.import screen_clear_line
+.import screen_save_state
+.import screen_restore_state
+.export llen
+.export scnsiz
+.export color
+
+; keyboard driver
+.import kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop
+
+.include "../banks.inc"
+
+.segment "KVAR2" ; more KERNAL vars
+; XXX TODO only one bit per byte is used, this should be compressed!
+ldtb1	.res 61 +1       ;flags+endspace
+	;       ^^ XXX at label 'lps2', the code counts up to
+	;              numlines+1, THEN writes the end marker,
+	;              which seems like one too many. This was
+	;              worked around for now by adding one more
+	;              byte here, but we should have a look at
+	;              whether there's an off-by-one error over
+	;              at 'lps2'!
+
+; Screen
+;
+.export mode; [ps2kbd]
+.export data; [cpychr]
+mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
+gdcol	.res 1           ;    original color before cursor
+hibase	.res 1           ;    base location of screen (top)
+autodn	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
+lintmp	.res 1           ;    temporary for line index
+color	.res 1           ;    activ color nybble
+rvs	.res 1           ;$C7 rvs field on flag
+indx	.res 1           ;$C8
+lsxp	.res 1           ;$C9 x pos at start
+lstp	.res 1           ;$CA
+blnsw	.res 1           ;$CC cursor blink enab
+blnct	.res 1           ;$CD count to toggle cur
+gdbln	.res 1           ;$CE char before cursor
+blnon	.res 1           ;$CF on/off blink flag
+crsw	.res 1           ;$D0 input vs get flag
+pntr	.res 1           ;$D3 pointer to column
+qtsw	.res 1           ;$D4 quote switch
+lnmx	.res 1           ;$D5 40/80 max positon
+tblx	.res 1           ;$D6
+data	.res 1           ;$D7
+insrt	.res 1           ;$D8 insert mode flag
+llen	.res 1           ;$D9 x resolution
+nlines	.res 1           ;$DA y resolution
+nlinesp1 .res 1          ;    X16: y resolution + 1
+nlinesm1 .res 1          ;    X16: y resolution - 1
+
+.segment "EDITOR"
 
 ;
 ;return max rows,cols of screen
@@ -479,10 +590,60 @@ curs10	sbc llen
 gotdwn	jsr nxln
 jpl3	jmp loop2
 colr1	jsr chkcol      ;check for a color
-	jmp lower       ;was jmp loop2
 
-;check color
-;
+	cmp #$0e        ;does he want lower case?
+	bne upper       ;branch if not
+	bit mode
+	bvs outhre      ;ISO
+	lda #3
+	jsr screen_set_charset
+	jmp loop2
+
+upper
+	cmp #$8e        ;does he want upper case
+	bne lock        ;branch if not
+	bit mode
+	bvs outhre      ;ISO
+	lda #2
+	jsr screen_set_charset
+outhre	jmp loop2
+
+lock
+	cmp #8          ;does he want to lock in this mode?
+	bne unlock      ;branch if not
+	lda #$80        ;else set lock switch on
+	ora mode        ;don't hurt anything - just in case
+	bmi lexit
+
+unlock
+	cmp #9          ;does he want to unlock the keyboard?
+	bne isoon       ;branch if not
+	lda #$7f        ;clear the lock switch
+	and mode        ;dont hurt anything
+lexit	sta mode
+	jmp loop2       ;get out
+
+isoon
+	cmp #$0f        ;switch to ISO mode?
+	bne isooff      ;branch if not
+	lda #1
+	jsr screen_set_charset
+	lda mode
+	ora #$40
+	bra isosto
+
+isooff
+	cmp #$8f        ;switch to PETSCII mode?
+	bne outhre      ;branch if not
+	lda #2
+	jsr screen_set_charset
+	lda mode
+	and #$ff-$40
+isosto	sta mode
+	lda #$ff
+	jsr kbd_config  ;reload keymap
+	jsr clsr        ;clear screen
+	jmp loop2
 
 ;shifted keys
 ;
@@ -822,3 +983,16 @@ cursor_blink:
 	jsr screen_restore_state
 
 @5	rts
+
+
+runtb	.byt "LOAD",$d,"RUN",$d
+runtb_end:
+
+fkeytb	.byt $8D, "LIST:", 13, 0
+	.byt $8D, "M", 'O' + $80, ":", 13, 0
+	.byt $8D, "RUN:", 13, 0
+	.byt $93, "S", 'C' + $80, "255:", 13, 0
+	.byt "LOAD", 13, 0
+	.byt "SAVE", '"', 0
+	.byt $8D, $93, "DOS",'"', "$",13, 0
+	.byt "DOS", '"', 0
