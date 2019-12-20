@@ -1,3 +1,6 @@
+;----------------------------------------------------------------------
+; Commander X16 Memory Driver
+;----------------------------------------------------------------------
 
 .include "../../banks.inc"
 .include "../../io.inc"
@@ -11,12 +14,13 @@
 .import membot
 
 .export ramtas
-.export cmpare
+
 .export fetch
 .export fetvec
 .export indfet
 .export stash
 .export stavec
+.export cmpare
 
 .export jsrfar, banked_irq
 
@@ -28,20 +32,19 @@ mmtop   =$9f00
 ; ramtas - memory size check and set
 ;
 ramtas:
-	lda #0          ;zero low memory
-	tay
-:	sta $0000,y     ;zero page
-	sta $0200,y     ;user buffers and vars
-	sta $0300,y     ;system space and user space
-	iny
+	ldx #0          ;zero low memory
+:	stz $0000,x     ;zero page
+	stz $0200,x     ;user buffers and vars
+	stz $0300,x     ;system space and user space
+	inx
 	bne :-
 
 ;
 ; clear bank 0 kernal variables
 ;
-	ldy #<(KVARSB0_END - KVARSB0_START + 1)
-:	sta KVARSB0_START-1,y
-	dey
+	ldx #<(KVARSB0_END - KVARSB0_START + 1)
+:	stz KVARSB0_START-1,x
+	dex
 	bne :-
 
 ;
@@ -55,6 +58,7 @@ ramtas:
 	ldy #>mmbot
 	clc
 	jsr membot
+
 ;
 ; copy banking code into RAM
 ;
