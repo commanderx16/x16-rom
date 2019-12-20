@@ -2,7 +2,7 @@
 test:
 	lda #$80
 	sec
-	jsr scrmod
+	jsr screen_set_mode
 	jsr test1_hline
 	jsr test2_vline
 	jsr test3_bresenham

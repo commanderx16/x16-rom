@@ -38,6 +38,8 @@ col_bg:	.res 1
 ;---------------------------------------------------------------
 ; GRAPH_init
 ;
+; Function:  Switch to 320x200@256c graphics mode and
+;            enable low-level driver for this mdoe.
 ;---------------------------------------------------------------
 GRAPH_init:
 	; copy VERA driver vectors

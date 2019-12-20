@@ -4,7 +4,6 @@
 ; for monitor
 ; XXX these should be removed or at least minimized
 .export xmon2, ms1
-.export stavec
 
 ; from editor
 .import plot
@@ -13,27 +12,38 @@
 .import prt
 .import loop5
 .import crsw
-.import hibase
 .import indx
 .import lnmx
 .import lstp
 .import lsxp
-.import key
 
 .import kbd_scan
 .import kbd_clear
 .import kbd_get
 .import kbd_get_stop
 
+.import screen_set_mode
+
 ; for editor
 .export dfltn
 .export dflto
-.export iokeys
 .export sah
 .export sal
 
 ; from RS232
 .import opn232, cls232, cko232, cki232, bso232, bsi232
+
+; from memory driver
+.import ramtas
+.import indfet
+.import fetch
+.import stash
+.import cmpare
+.import jsrfar
+.import restore_basic
+
+; from platform driver
+.import ioinit
 
 .include "../banks.inc"
 .include "../io.inc"
@@ -50,11 +60,9 @@
 .include "channelio/load.s"
 .include "channelio/save.s"
 .include "channelio/errorhandler.s"
-.include "channelio/read.s"
-.include "channelio/write.s"
 
 .include "init.s"
 .include "nmi.s"
 .include "irqfile.s"
-.include "routines.s"
+.include "primm.s"
 .include "vectors.s"

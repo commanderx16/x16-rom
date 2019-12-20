@@ -77,11 +77,10 @@ _ResetHandle:
 	.word __drvcbdos_RUN__
 	.word __drvcbdos_SIZE__
 
-.import scrmod
+.import screen_set_mode
 	lda #$80
-	sec
 	jsr gjsrfar
-	.word scrmod
+	.word screen_set_mode
 	.byte BANK_KERNAL
 
 	jsr gjsrfar

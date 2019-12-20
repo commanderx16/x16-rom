@@ -1,3 +1,5 @@
+.export clklo
+
 	.segment "SERIAL"
 
 sdata = $ffff ; XXX fill for X16

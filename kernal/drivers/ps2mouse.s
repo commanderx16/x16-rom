@@ -1,5 +1,7 @@
-; PS/2 Mouse
-;
+;----------------------------------------------------------------------
+; PS/2 Mouse Driver
+;----------------------------------------------------------------------
+
 sprite_addr = 60 * 256 ; after text screen
 
 .include "../../banks.inc"
@@ -10,6 +12,9 @@ sprite_addr = 60 * 256 ; after text screen
 ; data
 .import mousex, mousey, mousebt, msepar, mousel, mouser, mouset, mouseb; [declare]
 .import save_ram_bank; [declare]
+
+.import screen_save_state
+.import screen_restore_state
 
 .export mouse_init, mouse_config, mouse_scan, mouse_get
 
@@ -71,6 +76,16 @@ _mouse_init:
 ;    $01 set scale to 1
 ;    $02 set scale to 2
 _mouse_config:
+	; init mouse if necessary
+	pha
+	lda mouser
+	ora mouser+1
+	ora mouseb
+	ora mouseb+1
+	bne :+
+	jsr mouse_init
+:	pla
+
 	cpx #0
 	beq mous1
 ;  set scale
@@ -263,6 +278,7 @@ scnms2:
 ; update sprite
 	lda msepar
 	bpl @s2 ; don't update sprite pos
+	jsr screen_save_state
 	ldx #$02
 	stx veralo
 	ldx #$50
@@ -293,7 +309,7 @@ scnms2:
 	ror
 @s1:	sta veradat
 	stx veradat
-
+	jsr screen_restore_state
 @s2:	rts
 
 ; This is the Susan Kare mouse pointer

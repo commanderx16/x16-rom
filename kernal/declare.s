@@ -4,8 +4,6 @@
 .global buf
 ; for monitor and CBDOS
 .global status
-; for BASIC
-.global scrmod
 ; for BASIC and GEOS
 .global mousex, mousey, mousebt
 
@@ -24,6 +22,7 @@ tmp2	.res 2           ;$C3
 ; X16 additions
 ;
 .export ckbtab; [ps2kbd]
+.export imparm; [jsrfar]
 imparm	.res 2           ;PRIMM utility string pointer
 ckbtab	.res 2           ;used for keyboard lookup
 .export ptr_fg, ptr_bg; [graph]
@@ -129,8 +128,6 @@ isave	.res 2           ;savesp
 
 .segment "KVARSB0"
 
-KVARSB0_START:
-
 ; Keyboard
 ;
 .export keyd, ndx, shflag, kbdbyte, prefix, brkflg, stkey, curkbd, kbdnam, kbdtab
@@ -177,13 +174,8 @@ times	.res 1           ;    seconds
 timej	.res 1           ;    jiffies
 timer	.res 3           ;$A0 24 bit 1/60th second timer
 
-KVARSB0_END:
-
-vicscn	=$0000
-
 ; i/o devices
 ;
-mmtop   =$9f00
 
 ; XXX TODO:
 ; XXX The following symbols are CIA 6526-based and required for

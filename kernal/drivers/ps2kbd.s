@@ -1,7 +1,6 @@
-; PS/2 Keyboard
-;
-
-.feature labels_without_colons
+;----------------------------------------------------------------------
+; PS/2 Keyboard Driver
+;----------------------------------------------------------------------
 
 .include "../../banks.inc"
 .include "../../io.inc"
@@ -102,14 +101,14 @@ _kbd_config:
 	lda #<kbdmeta
 	ldx #>kbdmeta
 	bne setkb3
-setkb0	lda #<ikbdmeta
+setkb0:	lda #<ikbdmeta
 	ldx #>ikbdmeta
-setkb3	sta 2
+setkb3:	sta 2
 	stx 3
 	lda #2
 	sta fetvec
 	tya
-setkb2	sta curkbd
+setkb2:	sta curkbd
 	asl
 	asl
 	asl
@@ -119,7 +118,7 @@ setkb2	sta curkbd
 	jsr fetch
 	beq setkb2      ;end of list? set #0
 	ldx #0
-setkb1	phx
+setkb1:	phx
 	ldx #BANK_KEYBD
 	jsr fetch
 	plx
@@ -229,10 +228,10 @@ drv_end:
 is_home:
 	ldx #$13 * 2; home (-> clr)
 	bra :+
-is_enter
+is_enter:
 	ldx #$0d * 2 ; return (-> shift+return)
 	bra :+
-is_stop
+is_stop:
 	ldx #$03 * 2 ; stop (-> run)
 :	lda shflag
 	lsr ; shift -> C
@@ -314,7 +313,7 @@ receive_down_scancode_no_modifiers:
 	eor #$ff
 	and shflag
 	bra :+
-key_down
+key_down:
 	ora shflag
 :	sta shflag
 key_up:	lda #0 ; no key to return
@@ -354,11 +353,11 @@ ckmod2:	cmp #$1F ; left win (001F)
 	bne ckmod1
 md_win:	lda #MODIFIER_WIN
 	bra :+
-md_alt	lda #MODIFIER_ALT
+md_alt:	lda #MODIFIER_ALT
 	bra :+
-md_ctl	lda #MODIFIER_CTRL
+md_ctl:	lda #MODIFIER_CTRL
 	bra :+
-md_sh	lda #MODIFIER_SHIFT
+md_sh:	lda #MODIFIER_SHIFT
 : sec
 	rts
 
@@ -384,13 +383,13 @@ _kbd_get:
 _kbd_remove:
 	ldy keyd
 	ldx #0
-lp1	lda keyd+1,x
+:	lda keyd+1,x
 	sta keyd,x
 	inx
 	cpx ndx
-	bne lp1
+	bne :-
 	dec ndx
 	tya
 	cli
-lp0	clc             ;good return
+lp0:	clc             ;good return
 	rts

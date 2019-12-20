@@ -2,7 +2,7 @@
 ; http://www.c64.ch/programming/memorymap.php
 
 ; from KERNAL
-.import xmon2, bmt2, loop4, xmon1, ldapnty, stapnty, ldtb1, stavec
+.import xmon2, bmt2, loop4, xmon1, screen_get_char, screen_set_char, ldtb1, stavec
 .import nlines, nlinesm1
 
 .importzp txtptr, fnadr, pnt

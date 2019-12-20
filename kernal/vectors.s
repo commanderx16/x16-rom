@@ -67,7 +67,7 @@
 	jmp joystick_get       ; $FF56: joystick_get - get state of one joystick       [unsupported C128: PHOENIX – init function cartridges]
 	jmp lkupla             ; $FF59: [C128] LKUPLA - look up logical file address
 	jmp lkupsa             ; $FF5C: [C128] LKUPSA - look up secondary address
-	jmp scrmod             ; $FF5F: scrmod - get/set screen mode                   [unsupported C128: SWAPPER]
+	jmp screen_set_mode    ; $FF5F: screen_set_mode - set screen mode              [unsupported C128: SWAPPER]
 	.byte 0,0,0            ; $FF62: [C128] DLCHR – init 80-col character RAM       [NYI]
 	.byte 0,0,0            ; $FF65: [C128] PFKEY – program a function key          [NYI]
 	jmp mouse_config       ; $FF68: mouse_config - configure mouse pointer         [unsupported C128: SETBNK – set bank for I/O operations]
