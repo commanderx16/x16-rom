@@ -4,15 +4,15 @@
 .export initv
 .export scrmod
 .export cpychr
-.export ldausery
-.export stausery
-.export ldapnty
-.export stapnty
-.export dspp2
-.export get_char_col
-.export setpnt
-.export scrlin
-.export clrln
+.export screen_get_color
+.export screen_set_color
+.export screen_get_char
+.export screen_set_char
+.export screen_set_char_color
+.export screen_get_char_color
+.export screen_set_position
+.export screen_copy_line
+.export screen_clear_line
 
 ; for monitor
 .export pnt
@@ -237,7 +237,7 @@ grphoff:
 ;   In:   .x   line
 ;   Out:  pnt  line location
 ;
-setpnt:
+screen_set_position:
 	stz pnt
 	lda ldtb1,x
 	and #scrmsk
@@ -252,7 +252,7 @@ setpnt:
 ;         pnt      line location
 ;   Out:  .a       PETSCII/ISO
 ;
-ldausery:
+screen_get_color:
 	tya
 	sec
 	rol
@@ -265,7 +265,7 @@ ldausery:
 ;         pnt      line location
 ;   Out:  .a       PETSCII/ISO
 ;
-ldapnty:
+screen_get_char:
 	tya
 	cmp llen
 	bcc ldapnt1
@@ -298,7 +298,7 @@ ldapnt3:
 ;         pnt      line location
 ;   Out:  -
 ;
-stausery:
+screen_set_color:
 	pha
 	tya
 	sec
@@ -313,7 +313,7 @@ stausery:
 ;         pnt      line location
 ;   Out:  -
 ;
-stapnty:
+screen_set_char:
 	pha
 	tya
 	cmp llen
@@ -348,8 +348,8 @@ stapnt3:
 ;         pnt      line location
 ;   Out:  -
 ;
-dspp2:
-	jsr stapnty     ;set character
+screen_set_char_color:
+	jsr screen_set_char
 	stx veradat     ;set color
 	rts
 
@@ -361,8 +361,8 @@ dspp2:
 ;   Out:  .a       PETSCII/ISO
 ;         .x       color
 ;
-get_char_col:
-	jsr ldapnty     ;get character
+screen_get_char_color:
+	jsr screen_get_char
 	ldx veradat     ;get color
 	rts
 
@@ -373,7 +373,7 @@ get_char_col:
 ;         pnt  target line location
 ;   Out:  -
 ;
-scrlin:
+screen_copy_line:
 	lda sal
 	pha
 	lda sah
@@ -428,16 +428,16 @@ scrlin:
 ;
 ;   In:   .x  line
 ;
-clrln:
+screen_clear_line:
 	ldy llen
-	jsr setpnt
+	jsr screen_set_position
 	lda pnt
 	sta veralo      ;set base address
 	lda pnt+1
 	sta veramid
 	lda #$10        ;auto-increment = 1
 	sta verahi
-:	lda #$20
+:	lda #' '
 	sta veradat     ;store space
 	lda color       ;always clear to current foregnd color
 	sta veradat

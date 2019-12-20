@@ -2020,7 +2020,7 @@ read_ascii:
 LB5C8:  sty     tmp9
         ldy     PNTR
 .ifdef MACHINE_X16
-        jsr     ldapnty
+        jsr     screen_get_char
 .else
         lda     (PNT),y
 .endif
@@ -2576,7 +2576,7 @@ clear_cursor:
         lda     GDBLN
         ldy     PNTR
 .ifdef MACHINE_X16
-        jsr     stapnty
+        jsr     screen_set_char
 .else
         sta     (PNT),y
 .endif

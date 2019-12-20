@@ -5,14 +5,15 @@
 .import initv
 .import scrmod
 .import cpychr
-.import ldausery
-.import stausery
-.import ldapnty
-.import stapnty
-.import dspp2
-.import setpnt
-.import scrlin
-.import clrln
+.import screen_get_color
+.import screen_set_color
+.import screen_get_char
+.import screen_set_char
+.import screen_set_char_color
+.import screen_get_char_color
+.import screen_set_position
+.import screen_copy_line
+.import screen_clear_line
 .export llen
 .export scnsiz
 
@@ -99,7 +100,7 @@ lps2	inx
 	lda #$ff        ;tag end of line table
 	sta ldtb1,x
 	ldx nlinesm1    ;clear from the bottom line up
-clear1	jsr clrln       ;see scroll routines
+clear1	jsr screen_clear_line ;see scroll routines
 	dex
 	bpl clear1
 
@@ -122,7 +123,7 @@ fndstr	ldy ldtb1,x     ;find begining of line
 	dex
 	bpl fndstr
 ;
-stok	jsr setpnt      ;set up pnt indirect 901227-03**********
+stok	jsr screen_set_position
 ;
 	lda llen
 	dec
@@ -210,7 +211,7 @@ lp29	pla
 	ldy lnmx
 	sty crsw
 clp5
-	jsr ldapnty
+	jsr screen_get_char
 	cmp #' '
 	bne clp6
 	dey
@@ -242,7 +243,7 @@ loop5	tya
 	lda crsw
 	beq loop3a
 lop5	ldy pntr
-	jsr ldapnty
+	jsr screen_get_char
 notone
 	sta data
 	bit mode
@@ -355,7 +356,7 @@ findst
 	dex             ;else backup 1
 	bne findst
 finx
-	jmp setpnt      ;make sure pnt is right
+	jmp screen_set_position ;make sure pnt is right
 
 wlog10	dec tblx
 	jsr nxln
@@ -445,21 +446,21 @@ bak1up	jsr chkbak      ;should we dec tblx
 	sty pntr
 ; move line left
 bk15	iny
-	jsr ldapnty
+	jsr screen_get_char
 	dey
-	jsr stapnty
+	jsr screen_set_char
 	iny
-	jsr ldausery
+	jsr screen_get_color
 	dey
-	jsr stausery
+	jsr screen_set_color
 	iny
 	cpy lnmx
 	bne bk15
 ; insert space
 bk2	lda #' '
-	jsr stapnty
+	jsr screen_set_char
 	lda color
-	jsr stausery
+	jsr screen_set_color
 	bpl jpl3
 ntcn1	ldx qtsw
 	beq nc3w
@@ -539,7 +540,7 @@ up5	ldx  qtsw
 	bne up9
 ; check whether last char in line is a space
 	ldy lnmx
-	jsr ldapnty
+	jsr screen_get_char
 	cmp #' '
 	bne ins3
 	cpy pntr
@@ -550,21 +551,21 @@ ins3	cpy #maxchr-1
 ins1	ldy lnmx
 ; move line right
 ins2	dey
-	jsr ldapnty
+	jsr screen_get_char
 	iny
-	jsr stapnty
+	jsr screen_set_char
 	dey
-	jsr ldausery
+	jsr screen_get_color
 	iny
-	jsr stausery
+	jsr screen_set_color
 	dey
 	cpy pntr
 	bne ins2
 ; insert space
 	lda #$20
-	jsr stapnty
+	jsr screen_set_char
 	lda color
-	jsr stausery
+	jsr screen_set_color
 	inc insrt
 insext	jmp loop2
 up9	ldx insrt
@@ -709,18 +710,18 @@ scro0	ldx #$ff
 	dec lsxp
 	dec lintmp
 scr10	inx             ;goto next line
-	jsr setpnt      ;point to 'to' line
+	jsr screen_set_position ;point to 'to' line
 	cpx nlinesm1    ;done?
 	bcs scr41       ;branch if so
 ;
 	phx
 	inx
-	jsr scrlin      ;scroll this line up1
+	jsr screen_copy_line ;scroll this line up1
 	plx
 	bra scr10
 ;
 scr41
-	jsr clrln
+	jsr screen_clear_line
 ;
 	ldx #0          ;scroll hi byte pointers
 scrl5	lda ldtb1,x
@@ -779,17 +780,17 @@ bmt2	stx lintmp      ;found it
 	jmp wlog30
 newlx	ldx nlines
 scd10	dex
-	jsr setpnt      ;set up to addr
+	jsr screen_set_position ;set up to addr
 	cpx lintmp
 	bcc scr40
 	beq scr40       ;branch if finished
 	phx
 	dex
-	jsr scrlin      ;scroll this line down
+	jsr screen_copy_line ;scroll this line down
 	plx
 	bra scd10
 scr40
-	jsr clrln
+	jsr screen_clear_line
 	ldx nlines
 	dex
 	dex
@@ -814,9 +815,7 @@ scrd22
 dspp	ldy #2
 	sty blnct       ;blink cursor
 	ldy pntr
-	jmp dspp2
-
-.import get_char_col
+	jmp screen_set_char_color
 
 cursor_blink:
 	lda blnsw       ;blinking crsr ?
@@ -830,7 +829,7 @@ cursor_blink:
 	ldy pntr        ;cursor position
 	lsr blnon       ;carry set if original char
 	php
-	jsr get_char_col;get character and color
+	jsr screen_get_char_color
 	inc blnon       ;set to 1
 	plp
 	bcs @1          ;branch if not needed
@@ -847,7 +846,7 @@ cursor_blink:
 	bra @4
 @3	eor #$80        ;blink it
 @4	ldy pntr
-	jsr dspp2       ;display it
+	jsr screen_set_char_color       ;display it
 	VERA_RESTORE
 
 @5	rts
