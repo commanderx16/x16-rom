@@ -68,6 +68,8 @@ nwrap=2 ;max number of physical lines per logical line
 ; keyboard driver
 .import kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop
 
+.import emulator_get_data
+
 .include "../banks.inc"
 
 .segment "KVAR2" ; more KERNAL vars
@@ -157,16 +159,9 @@ cint	jsr iokeys
 	sta mode
 	sta blnon       ;we dont have a good char from the screen yet
 
-	lda $9fbe       ;emulator detection
-	cmp #'1'
-	bne nemu
-	lda $9fbf
-	cmp #'6'
-	bne nemu
-	lda $9fbd       ;emulator keyboard layout
-	bra :+
-nemu	lda #0          ;US layout
-:	jsr kbd_config
+	jsr emulator_get_data
+	jsr kbd_config  ;set keyboard layout
+
 	lda #blue << 4 | white
 	sta color       ;init text color
 	lda #$c

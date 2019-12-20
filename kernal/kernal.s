@@ -64,5 +64,5 @@
 .include "init.s"
 .include "nmi.s"
 .include "irqfile.s"
-.include "routines.s"
+.include "primm.s"
 .include "vectors.s"

@@ -7,6 +7,7 @@
 .export ioinit
 .export iokeys
 .export irq_ack
+.export emulator_get_data
 
 .import mouse_init
 .import ps2_init
@@ -27,7 +28,6 @@ ioinit:
 ;---------------------------------------------------------------
 ; Set up VBLANK IRQ
 ;
-; Function:  (This is KERNAL API.)
 ;---------------------------------------------------------------
 iokeys:
 	lda #1
@@ -38,3 +38,21 @@ irq_ack:
 	lda #1
 	sta veraisr     ;ACK VERA VBLANK
 	rts
+
+;---------------------------------------------------------------
+; Get some data from the emulator
+;
+; Function:  Detect an emulator and get config information.
+;            For now, this is the keyboard layout.
+;---------------------------------------------------------------
+emulator_get_data:
+	lda $9fbe       ;emulator detection
+	cmp #'1'
+	bne @1
+	lda $9fbf
+	cmp #'6'
+	bne @1
+	lda $9fbd       ;emulator keyboard layout
+	bra @2
+@1:	lda #0          ;fall back to US layout
+@2:	rts

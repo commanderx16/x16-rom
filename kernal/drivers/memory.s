@@ -177,7 +177,7 @@ banked_irq:
 	pla
 	rti
 
-.segment "ROUTINES"
+.segment "MEMORY"
 
 ; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 indfet:
@@ -211,7 +211,7 @@ fetvec	=*+1
 	stx d1prb       ;restore ROM bank
 	rts
 
-.segment "ROUTINES"
+.segment "MEMORY"
 
 ;  STASH  ram code      ( STA (stash_vector),Y  to any bank )
 ;
@@ -238,7 +238,7 @@ stavec	=*+1
 	sta d1pra
 	rts
 
-.segment "ROUTINES"
+.segment "MEMORY"
 
 
 ;  CMPARE  ram code      ( CMP (cmpare_vector),Y  to any bank )
@@ -269,7 +269,7 @@ cmpvec	=*+1
 	php
 	stx d1prb       ;restore previous memory configuration
 	jmp cmpare1
-.segment "ROUTINES"
+.segment "MEMORY"
 cmpare1:
 	pla
 	tax
