@@ -8,8 +8,6 @@
 .import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
 .import __KERNRAM2_LOAD__, __KERNRAM2_RUN__, __KERNRAM2_SIZE__
 .import KVARSB0_END, KVARSB0_START
-.import rambks
-.import memstr
 .import memtop
 .import membot
 
@@ -29,7 +27,16 @@ mmtop   =$9f00
 
 .segment "MEMORY"
 
-; ramtas - memory size check and set
+;---------------------------------------------------------------
+; Measure and initialize RAM
+;
+; Function:  This routine
+;            * clears kernal variables
+;            * copies banking code into RAM
+;            * detects RAM size, calling
+;              - MEMTOP
+;              - MEMBOT
+;---------------------------------------------------------------
 ;
 ramtas:
 	ldx #0          ;zero low memory
@@ -46,18 +53,6 @@ ramtas:
 :	stz KVARSB0_START-1,x
 	dex
 	bne :-
-
-;
-; set top of memory
-;
-	ldx #<mmtop
-	ldy #>mmtop
-	clc
-	jsr memtop
-	ldx #<mmbot
-	ldy #>mmbot
-	clc
-	jsr membot
 
 ;
 ; copy banking code into RAM
@@ -93,12 +88,26 @@ ramtas:
 	beq :+
 	asl
 	bne :-
-:	sta rambks
+:	tay
 	stz d1pra
 	dex
 	stx $a000
 	pla
 	sta d1pra
+	
+	tya ; number of RAM banks
+;
+; set top of memory
+;
+	ldx #<mmtop
+	ldy #>mmtop
+	clc
+	jsr memtop
+	ldx #<mmbot
+	ldy #>mmbot
+	clc
+	jsr membot
+
 	rts
 
 .importzp imparm

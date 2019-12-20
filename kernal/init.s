@@ -84,7 +84,8 @@ gettop	ldx memsiz
 ;
 ;carry clear--set top of memory
 ;
-settop	stx memsiz
+settop	sta rambks
+	stx memsiz
 	sty memsiz+1
 	rts
 
