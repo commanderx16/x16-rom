@@ -1,12 +1,24 @@
 .import kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop ; [ps2kbd]
-.import mouse_init, mouse_scan ; [ps2mouse]
+.import mouse_init ; [ps2mouse]
 
-.import GRAPH_init
+; editor_vera
+.import initv
+.import scrmod
+.import cpychr
+.import ldausery
+.import stausery
+.import ldapnty
+.import stapnty
+.import dspp2
+.import setpnt
+.import scrlin
+.import clrln
+.export llen
+.export scnsiz
 
 maxchr=80
 nwrap=2 ;max number of physical lines per logical line
 
-.import banked_cpychr
 
 ;
 ;return max rows,cols of screen
@@ -132,107 +144,6 @@ finput	cpx lsxp        ;check if on same line
 	beq finpux      ;yes..return to send
 	jmp findst      ;check if we wrapped down...
 finpux	rts
-
-;panic nmi entry
-;
-vpan	jsr panic       ;fix vic screen
-	jmp nxtd        ;home cursor
-
-panic	lda #3          ;reset default i/o
-	sta dflto
-	lda #0
-	sta dfltn
-
-;init video
-;
-initv
-	lda #0
-	sta veractl     ;set ADDR1 active
-
-	lda #1
-	jsr cpychr
-
-	lda #$00        ;$F3000: layer 1 registers
-	sta veralo
-	lda #$30
-	sta veramid
-	lda #$1f
-	sta verahi
-
-	ldx #0
-px4	lda tvera_layer1,x
-	sta veradat
-	inx
-	cpx #tvera_layer1_end-tvera_layer1
-	bne px4
-
-	lda #$00        ;$F0000: composer registers
-	sta veralo
-	sta veramid
-	ldx #0
-px5	lda tvera_composer,x
-	sta veradat
-	inx
-	cpx #tvera_composer_end-tvera_composer
-	bne px5
-	rts
-
-cpychr:
-	php
-	sei
-	jsr jsrfar
-	.word banked_cpychr
-	.byte BANK_CHARSET
-	plp
-	rts
-
-;NTSC=1
-
-tvera_layer1
-	.byte 0 << 5 | 1  ;mode=0, enabled=1
-	.byte 1 << 2 | 2  ;maph=64, mapw=128
-	.word mapbas >> 2 ;map_base
-	.word tilbas >> 2 ;tile_bas
-	.word 0, 0        ;hscroll, vscroll
-tvera_layer1_end
-
-mapbas	=0
-
-.ifdef NTSC
-; ***** NTSC (with overscan)
-hstart  =46
-hstop   =591
-vstart  =35
-vstop   =444
-
-tvera_composer
-	.byte 2           ;NTSC
-	.byte 150, 150    ;hscale, vscale
-	.byte 14          ;border color
-	.byte <hstart
-	.byte <hstop
-	.byte <vstart
-	.byte <vstop
-	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
-tvera_composer_end
-.else
-; ***** VGA
-hstart  =0
-hstop   =640
-vstart  =0
-vstop   =480
-
-tvera_composer
-	.byte 1           ;VGA
-	.byte 128, 128    ;hscale, vscale
-	.byte 14          ;border color
-	.byte <hstart
-	.byte <hstop
-	.byte <vstart
-	.byte <vstop
-	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
-tvera_composer_end
-.endif
 
 ;
 loop4	jsr prt
@@ -532,6 +443,7 @@ cnc3x	cmp #$14
 bak1up	jsr chkbak      ;should we dec tblx
 	dey
 	sty pntr
+; move line left
 bk15	iny
 	jsr ldapnty
 	dey
@@ -543,6 +455,7 @@ bk15	iny
 	iny
 	cpy lnmx
 	bne bk15
+; insert space
 bk2	lda #' '
 	jsr stapnty
 	lda color
@@ -624,6 +537,7 @@ up5	ldx  qtsw
 	bne up6
 	cmp #$14
 	bne up9
+; check whether last char in line is a space
 	ldy lnmx
 	jsr ldapnty
 	cmp #' '
@@ -634,6 +548,7 @@ ins3	cpy #maxchr-1
 	beq insext      ;exit if line too long
 	jsr newlin      ;scroll down 1
 ins1	ldy lnmx
+; move line right
 ins2	dey
 	jsr ldapnty
 	iny
@@ -645,6 +560,7 @@ ins2	dey
 	dey
 	cpy pntr
 	bne ins2
+; insert space
 	lda #$20
 	jsr stapnty
 	lda color
@@ -782,64 +698,6 @@ coltab
 	.byt $90,$05,$1c,$9f,$9c,$1e,$1f,$9e
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
-ldausery
-	tya
-	sec
-	rol
-	bcc ldapnt2 ; always
-
-ldapnty	tya
-	cmp llen
-	bcc ldapnt1
-	sec
-	sbc llen
-	asl
-	sta veralo
-	lda pnt+1
-	adc #1 ; C=0
-	bne ldapnt3
-
-ldapnt1	asl
-ldapnt2	sta veralo
-	lda pnt+1
-ldapnt3	sta veramid
-	lda #$10
-	sta verahi
-	lda veradat
-	rts
-
-stausery
-	pha
-	tya
-	sec
-	rol
-	bcc stapnt2 ; always
-
-stapnty	pha
-	tya
-	cmp llen
-	bcc stapnt1
-	sec
-	sbc llen
-	asl
-	sta veralo
-	lda pnt+1
-	adc #1 ; C=0
-	bne stapnt3
-
-stapnt1	asl
-stapnt2	sta veralo
-	lda pnt+1
-stapnt3	sta veramid
-	lda #$10
-	sta verahi
-	pla
-	sta veradat
-	rts
-
-scrsz   =$4000          ;screen ram size, rounded up to power of two
-scrmsk  =(>scrsz)-1     ;for masking offset in screen ram
-
 ;screen scroll routine
 ;
 scrol	lda sal
@@ -962,106 +820,23 @@ scrd22
 	jsr wlog30
 ;
 	jmp pulind      ;go pul old indirects and return
-;
-; scroll line from sal to pnt
-;
-scrlin
-	and #scrmsk     ;clear any garbage stuff
-	ora hibase      ;put in hiorder bits
-	sta sal+1
-
-	;destination into addr1
-	lda #$10
-	sta verahi
-	lda pnt
-	sta veralo
-	lda pnt+1
-	sta veramid
-
-	lda #1
-	sta veractl
-
-	;source into addr2
-	lda #$10
-	sta verahi
-	lda sal
-	sta veralo
-	lda sal+1
-	sta veramid
-
-	lda #0
-	sta veractl
-
-	ldy llen
-	dey
-scd20	lda veradat2    ;character
-	sta veradat
-	lda veradat2    ;color
-	sta veradat
-	dey
-	bpl scd20
-	rts
-;
-; set up pnt and y
-; from .x
-;
-setpnt	lda #0
-	sta pnt
-	lda ldtb1,x
-	and #scrmsk
-	ora hibase
-	sta pnt+1
-	rts
-;
-; clear the line pointed to by .x
-;
-clrln	ldy llen
-	jsr setpnt
-	lda pnt
-	sta veralo      ;set base address
-	lda pnt+1
-	sta veramid
-	lda #$10        ;auto-increment = 1
-	sta verahi
-clr10	lda #$20
-	sta veradat     ;store space
-	lda color       ;always clear to current foregnd color
-	sta veradat
-	dey
-	bne clr10
-	rts
 
 ;
 ;put a char on the screen
 ;
 dspp	ldy #2
 	sty blnct       ;blink cursor
-dspp2	ldy pntr
-	jsr stapnty
-	stx veradat     ;color to screen
-	rts
+	ldy pntr
+	jmp dspp2
 
-key
-; save VERA state
-	lda veractl
-	pha
-	lda #0
-	sta veractl
-	lda veralo
-	pha
-	lda veramid
-	pha
-	lda verahi
-	pha
-
-	jsr mouse_scan  ;scan mouse (do this first to avoid sprite tearing)
-	jsr $ffea       ;update jiffy clock
+cursor_blink:
 	lda blnsw       ;blinking crsr ?
 	bne key4        ;no
 	dec blnct       ;time to blink ?
 	bne key4        ;no
+	VERA_SAVE
 	lda #20         ;reset blink counter
-repdo	sta blnct
+	sta blnct
 	ldy pntr        ;cursor position
 	lsr blnon       ;carry set if original char
 	ldx gdcol       ;get char original color
@@ -1086,121 +861,8 @@ key5
 key2	lda #$9f
 	bra :+
 key3	eor #$80        ;blink it
-:	jsr dspp2       ;display it
+:	ldy pntr
+	jsr dspp2       ;display it
 ;
-key4
-	jsr kbd_scan    ;scan keyboard
-;
-kprend
-; restore VERA state
-	pla
-	sta verahi
-	pla
-	sta veramid
-	pla
-	sta veralo
-	pla
-	sta veractl
-
-.if 0 ; VIA#2 timer IRQ for 60 Hz
-	lda d1t1l       ;clear interupt flags
-.else
-	lda #1
-	sta veraisr
-.endif
-	ply             ;restore registers
-	plx
-	pla
-	rti             ;exit from irq routines
-
-; modes:
-; $00: 40x30
-; $01: 80x30 ; XXX currently unsupported
-; $02: 80x60
-; $80: 320x240@256c + 40x30 text
-;     (320x200@256c + 40x25 text, currently)
-; $81: 640x400@16c ; XXX currently unsupported
-; $ff: toggle between $00 and $02
-
-scrmod	bcs scrnmd0
-	lda cscrmd
-	rts
-scrnmd0	cmp #$ff
-	bne scrmd1
-; toggle between 40x30 and  80x60
-	lda #2
-	cmp cscrmd
-	bne scrmd1
-	lda #0
-scrmd1	sta cscrmd
-	cmp #0 ; 40x30
-	beq swpp30
-	cmp #1 ; 80x30 currently unsupported
-	bne scrmd2
-scrmd3	sec
-	rts
-scrmd2	cmp #2 ; 80x60
-	beq swpp60
-	cmp #$80 ; 320x240@256c + 40x30 text
-	beq swpp25
-	cmp #$81 ; 640x400@16c
-	beq scrmd3 ; currently unsupported
-	bra scrmd3 ; otherwise: illegal mode
-
-swpp60	ldx #80
-	ldy #60
-	lda #128 ; scale = 1.0
-	clc
-	bra swpp2
-
-swpp25	jsr grphon
-	ldy #25
-	sec
-	bra swpp3
-
-swpp30	clc
-	ldy #30
-swpp3	ldx #40
-	lda #64 ; scale = 2.0
-swpp2	pha
-	bcs swppp4
-	jsr grphoff
-swppp4	lda #$01
-	sta veralo
-	lda #$00
-	sta veramid
-	lda #$1F
-	sta verahi
-	pla
-	sta veradat ; reg $F0001: hscale
-	sta veradat ; reg $F0002: vscale
-	cpy #25
-	bne swpp1
-	lda #<400
-	bra :+
-swpp1	lda #<480
-:	pha
-	lda #7 ; vstop_lo
-	sta veralo
-	pla
-	sta veradat
-	jsr scnsiz
-	clc
-	rts
-
-
-grphon	lda #$0e ; light blue
-	sta color
-
-	jmp GRAPH_init
-
-grphoff	lda #$00        ; layer0
-	sta veralo
-	lda #$20
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #0          ; off
-	sta veradat
-	rts
-
+	VERA_RESTORE
+key4	rts

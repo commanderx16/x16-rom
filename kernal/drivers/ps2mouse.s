@@ -263,6 +263,7 @@ scnms2:
 ; update sprite
 	lda msepar
 	bpl @s2 ; don't update sprite pos
+	VERA_SAVE
 	ldx #$02
 	stx veralo
 	ldx #$50
@@ -293,7 +294,7 @@ scnms2:
 	ror
 @s1:	sta veradat
 	stx veradat
-
+	VERA_RESTORE
 @s2:	rts
 
 ; This is the Susan Kare mouse pointer

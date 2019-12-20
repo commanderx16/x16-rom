@@ -134,19 +134,8 @@ ioinit
 ;jsr clkhi ;clkhi to release serial devices  ^
 ;
 iokeys
-.if 0 ; VIA#2 timer IRQ for 60 Hz
-	lda #<sixty     ;keyboard scan irq's
-	sta d1t1l
-	lda #>sixty
-	sta d1t1h
-	lda #$40        ;t1 free run
-	sta d1acr
-	lda #$c0        ;enable t1 irq's
-	sta d1ier
-.else ; VERA VSYNC IRQ for 60 Hz
 	lda #1
-	sta veraien
-.endif
+	sta veraien     ;VERA VSYNC IRQ for 60 Hz
 	jmp clklo       ;release the clock line***901227-03***
 ;
 ; sixty hertz value

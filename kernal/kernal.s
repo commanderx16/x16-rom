@@ -18,7 +18,6 @@
 .import lnmx
 .import lstp
 .import lsxp
-.import key
 
 .import kbd_scan
 .import kbd_clear

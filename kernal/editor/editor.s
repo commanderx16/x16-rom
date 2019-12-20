@@ -15,10 +15,10 @@ blue	=$06            ;blue screen color
 .importzp mhz  ; constant
 
 .importzp sah, sal   ; XXX looks unused
-.import dfltn, dflto ; XXX move "panic" out
+.import dfltn, dflto ; XXX
 
-.import jsrfar ; for banked_cpychr
 .import iokeys
+.import panic
 
 ; kernal
 .export crsw
@@ -27,8 +27,7 @@ blue	=$06            ;blue screen color
 .export lnmx
 .export lstp
 .export lsxp
-.export key
-.export scrmod
+.export cursor_blink
 
 ; monitor and kernal
 .export tblx
@@ -44,24 +43,19 @@ blue	=$06            ;blue screen color
 .export nlinesm1
 .export qtsw
 .export rvs
-.export stapnty
-.export ldapnty
 .export xmon1
 .export loop4
 .export bmt2
 .export pnt
+
+; driver
+.export color
 
 .include "../../banks.inc"
 .include "../../io.inc"
 
 .segment "ZPKERNAL" : zeropage
 pnt	.res 2           ;$D1 pointer to row
-
-.segment "KVAR"
-
-; Screen Mode
-;
-cscrmd	.res 1           ;    X16: current screen mode (argument to scrmod)
 
 .segment "KVAR2" ; more KERNAL vars
 ldtb1	.res 61 +1       ;flags+endspace
