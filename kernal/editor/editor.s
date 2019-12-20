@@ -68,7 +68,6 @@ blue	=$06            ;blue screen color
 .import kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop
 
 .include "../../banks.inc"
-.include "../../io.inc"
 
 .segment "KVAR2" ; more KERNAL vars
 ; XXX TODO only one bit per byte is used, this should be compressed!

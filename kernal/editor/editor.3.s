@@ -3,7 +3,7 @@ lower
 	bne upper       ;branch if not
 	bit mode
 	bvs outhre      ;ISO
-	lda #2
+	lda #3
 	jsr screen_set_charset
 	jmp loop2
 
@@ -12,7 +12,7 @@ upper
 	bne lock        ;branch if not
 	bit mode
 	bvs outhre      ;ISO
-	lda #1
+	lda #2
 	jsr screen_set_charset
 outhre	jmp loop2
 
@@ -34,7 +34,7 @@ lexit	sta mode
 isoon
 	cmp #$0f        ;switch to ISO mode?
 	bne isooff      ;branch if not
-	lda #0
+	lda #1
 	jsr screen_set_charset
 	lda mode
 	ora #$40
@@ -43,7 +43,7 @@ isoon
 isooff
 	cmp #$8f        ;switch to PETSCII mode?
 	bne outhre      ;branch if not
-	lda #1
+	lda #2
 	jsr screen_set_charset
 	lda mode
 	and #$ff-$40

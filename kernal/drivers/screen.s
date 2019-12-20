@@ -25,15 +25,16 @@
 
 ; kernal var
 .importzp sal, sah ; reused temps from load/save
+.importzp tmp2
 .import color
 .import llen
 .import hibase
+.import data
 
 ; kernal call
 .import scnsiz
 .import jsrfar
 
-.import banked_cpychr
 .import GRAPH_init
 
 scrsz   =$4000          ;screen ram size, rounded up to power of two
@@ -225,23 +226,6 @@ grphoff:
 	sta verahi
 	lda #0          ; off
 	sta veradat
-	rts
-
-;---------------------------------------------------------------
-; Set charset
-;
-;   In:   .a  charset
-;             0: ISO
-;             1: PET upper/graph
-;             2: PET upper/lower
-;---------------------------------------------------------------
-screen_set_charset:
-	php
-	sei
-	jsr jsrfar
-	.word banked_cpychr
-	.byte BANK_CHARSET
-	plp
 	rts
 
 ;---------------------------------------------------------------
@@ -496,4 +480,97 @@ screen_restore_state:
 	sta veractl
 	phy
 	phx
+	rts
+
+;---------------------------------------------------------------
+; Set charset
+;
+; Function: Activate a 256 character 8x8 charset.
+;
+;   In:   .a     charset
+;                0: use pointer in .x/.y
+;                1: ISO
+;                2: PET upper/graph
+;                3: PET upper/lower
+;         .x/.y  pointer to charset
+;---------------------------------------------------------------
+screen_set_charset:
+	php
+	sei
+	jsr jsrfar
+	.word banked_cpychr
+	.byte BANK_CHARSET
+	plp
+	rts
+
+; this code lives on the same ROM bank as the character sets
+.segment "CPYCHR"
+
+banked_cpychr:
+	jsr inicpy
+	cmp #0
+	beq cpycustom
+	cmp #1
+	beq cpyiso
+	cmp #2
+	beq cpypet1
+	cmp #3
+	beq cpypet2
+	rts ; ignore unsupported values
+
+; 0: custom character set
+cpycustom:
+	stx tmp2
+	sty tmp2+1
+	ldx #8
+copyv:	ldy #0
+:	lda (tmp2),y
+	eor data
+	sta veradat
+	iny
+	bne :-
+	inc tmp2+1
+	dex
+	bne :-
+	rts
+
+; 1: ISO character set
+cpyiso:	lda #$c8
+	sta tmp2+1       ;character data at ROM 0800
+	ldx #8
+	jmp copyv
+
+; 2: PETSCII upper/graph character set
+cpypet1:
+	lda #$c0
+	sta tmp2+1       ;character data at ROM 0000
+	ldx #4
+	jsr copyv
+	dec data
+	lda #$c0
+	sta tmp2+1       ;character data at ROM 0000
+	ldx #4
+	jmp copyv
+
+; 3: PETSCII upper/lower character set
+cpypet2:
+	lda #$c4
+	sta tmp2+1       ;character data at ROM 0400
+	ldx #4
+	jsr copyv
+	dec data
+	lda #$c4
+	sta tmp2+1       ;character data at ROM 0400
+	ldx #4
+	jmp copyv
+
+inicpy:
+	ldx #<tilbas
+	stx veralo
+	ldx #>tilbas
+	stx veramid
+	ldx #$10 | (tilbas >> 16)
+	stx verahi
+	stz data
+	stz tmp2
 	rts
