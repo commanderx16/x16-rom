@@ -22,6 +22,7 @@ tmp2	.res 2           ;$C3
 ; X16 additions
 ;
 .export ckbtab; [ps2kbd]
+.export imparm; [jsrfar]
 imparm	.res 2           ;PRIMM utility string pointer
 ckbtab	.res 2           ;used for keyboard lookup
 .export ptr_fg, ptr_bg; [graph]
@@ -127,6 +128,7 @@ isave	.res 2           ;savesp
 
 .segment "KVARSB0"
 
+.export KVARSB0_START, KVARSB0_END
 KVARSB0_START:
 
 ; Keyboard
@@ -179,7 +181,6 @@ KVARSB0_END:
 
 ; i/o devices
 ;
-mmtop   =$9f00
 
 ; XXX TODO:
 ; XXX The following symbols are CIA 6526-based and required for

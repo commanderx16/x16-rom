@@ -4,7 +4,6 @@
 ; for monitor
 ; XXX these should be removed or at least minimized
 .export xmon2, ms1
-.export stavec
 
 ; from editor
 .import plot
@@ -34,6 +33,14 @@
 
 ; from RS232
 .import opn232, cls232, cko232, cki232, bso232, bsi232
+
+; from memory driver
+.import ramtas
+.import indfet
+.import fetch
+.import stash
+.import cmpare
+.import jsrfar
 
 .include "../banks.inc"
 .include "../io.inc"

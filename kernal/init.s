@@ -2,6 +2,10 @@
 ; mouse driver
 .import mouse_init
 
+.export membot
+.export memtop
+.export rambks
+
 	.segment "INIT"
 ; start - system reset
 ;
@@ -48,76 +52,6 @@ vectss	.word key,timb,nnmi
 	.word nload,nsave
 vectse
 
-; ramtas - memory size check and set
-;
-ramtas	lda #0          ;zero low memory
-	tay
-ramtz0	sta $0000,y     ;zero page
-	sta $0200,y     ;user buffers and vars
-	sta $0300,y     ;system space and user space
-	iny
-	bne ramtz0
-
-;
-; clear bank 0 kernal variables
-;
-	ldy #KVARSB0_END - KVARSB0_START + 1
-:	sta KVARSB0_START-1,y
-	dey
-	bne :-
-
-;
-; set top of memory
-;
-	ldx #<mmtop
-	ldy #>mmtop
-	clc
-	jsr settop
-	lda #$08        ;set bottom of memory
-	sta memstr+1    ;always at $0800
-;
-; copy banking code into RAM
-;
-.import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
-	ldx #<__KERNRAM_SIZE__
-ramtz1	lda __KERNRAM_LOAD__-1,x
-	sta __KERNRAM_RUN__-1,x
-	dex
-	bne ramtz1
-
-.import __KERNRAM2_LOAD__, __KERNRAM2_RUN__, __KERNRAM2_SIZE__
-	ldx #<__KERNRAM2_SIZE__
-ramtz2	lda __KERNRAM2_LOAD__-1,x
-	sta __KERNRAM2_RUN__-1,x
-	dex
-	bne ramtz2
-
-;
-; detect number of RAM banks
-;
-	lda d1pra       ;RAM bank
-	pha
-	stz d1pra
-	ldx $a000
-	inx
-	lda #1
-:	sta d1pra
-	ldy $a000
-	stx $a000
-	stz d1pra
-	cpx $a000
-	sta d1pra
-	sty $a000
-	beq :+
-	asl
-	bne :-
-:	sta rambks
-	stz d1pra
-	dex
-	stx $a000
-	pla
-	sta d1pra
-	rts
 
 ; ioinit - initilize io devices
 ;

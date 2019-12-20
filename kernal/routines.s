@@ -1,9 +1,6 @@
 .include "../regs.inc"
 .include "../mac.inc"
 
-.export jsrfar, banked_irq
-.export fetvec, fetch
-
 	.segment "ROUTINES"
 
 ;//////////////////   J U M P   T A B L E   R O U T I N E S   \\\\\\\\\\\\\\\\\
@@ -95,12 +92,6 @@ getlfs
 
 
 ; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-indfet
-	sta fetvec      ; LDA (fetvec),Y  utility
-	jmp fetch
-
-
-; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;     *** print immediate ***
 ;  a jsr to this routine is followed by an immediate ascii string,
 ;  terminated by a $00. the immediate string must not be longer
@@ -135,156 +126,6 @@ primm
 	pla
 	rts             ;return
 
-
-jsrfar:
-.include "../jsrfar.inc"
-
-;/////////////////////   K E R N A L   R A M   C O D E  \\\\\\\\\\\\\\\\\\\\\\\
-
-.segment "KERNRAM"
-.export jsrfar3, jmpfr, imparm
-jsrfar3	sta d1prb       ;set ROM bank
-	pla
-	plp
-	jsr jmpfr
-	php
-	pha
-	phx
-	tsx
-	lda $0104,x
-	sta d1prb       ;restore ROM bank
-	lda $0103,x     ;overwrite reserved byte...
-	sta $0104,x     ;...with copy of .p
-	plx
-	pla
-	plp
-	plp
-	rts
-jmpfr	jmp $ffff
-
-.assert * <= $0400, error, "jmpfar must fit below $0400"
-
-.segment "KERNRAM2"
-
-banked_irq
-	pha
-	phx
-	lda d1prb       ;save ROM bank
-	pha
-	lda #BANK_KERNAL
-	sta d1prb
-	lda #>@l1       ;put RTI-style
-	pha             ;return-address
-	lda #<@l1       ;onto the
-	pha             ;stack
-	tsx
-	lda $0106,x     ;fetch status
-	pha             ;put it on the stack at the right location
-	jmp ($fffe)     ;execute other bank's IRQ handler
-@l1	pla
-	sta d1prb       ;restore ROM bank
-	plx
-	pla
-	rti
-
-.segment "ROUTINES"
-
-;  FETCH                ( LDA (fetch_vector),Y  from any bank )
-;
-;  enter with 'fetvec' pointing to indirect adr & .y= index
-;             .x= memory configuration
-;
-;  exits with .a= data byte & status flags valid
-;             .x altered
-
-fetch	lda d1pra       ;save current config (RAM)
-	pha
-	lda d1prb       ;save current config (ROM)
-	pha
-	txa
-	sta d1pra       ;set RAM bank
-	plx             ;original ROM bank
-	and #$07
-	jsr fetch2
-	plx
-	stx d1pra       ;restore RAM bank
-	ora #0          ;set flags
-	rts
-.segment "KERNRAM2" ; *** RAM code ***
-fetch2	sta d1prb       ;set new ROM bank
-fetvec	=*+1
-	lda ($ff),y     ;get the byte ($ff here is a dummy address, 'FETVEC')
-	stx d1prb       ;restore ROM bank
-	rts
-
-.segment "ROUTINES"
-
-;  STASH  ram code      ( STA (stash_vector),Y  to any bank )
-;
-;  enter with 'stavec' pointing to indirect adr & .y= index
-;             .a= data byte to store
-;             .x= memory configuration (RAM bank)
-;
-;  exits with .x & status altered
-
-; XXX this needs to be in RAM in order to work!
-
-stash	sta stash1
-	lda d1pra       ;save current config (RAM)
-	pha
-	stx d1pra       ;set RAM bank
-	jmp stash0
-.segment "KERNRAM2" ; *** RAM code ***
-stash0
-stash1	=*+1
-	lda #$ff
-stavec	=*+1
-	sta ($ff),y     ;put the byte ($ff here is a dummy address, 'STAVEC')
-	pla
-	sta d1pra
-	rts
-
-.segment "ROUTINES"
-
-
-;  CMPARE  ram code      ( CMP (cmpare_vector),Y  to any bank )
-;
-;  enter with 'cmpvec' pointing to indirect adr & .y= index
-;             .a= data byte to compare to memory
-;             .x= memory configuration
-;
-;  exits with .a= data byte & status flags valid, .x is altered
-
-; XXX this needs to be in RAM in order to work!
-
-cmpare
-	pha
-	lda d1pra       ;save current config (RAM)
-	pha
-	txa
-	sta d1pra       ;set RAM bank
-	and #$07
-	ldx d1prb       ;save current config (ROM)
-	jmp cmpare0
-.segment "KERNRAM2" ; *** RAM code ***
-cmpare0
-	sta d1prb       ;set ROM bank
-	pla
-cmpvec	=*+1
-	cmp ($ff),y     ;compare bytes ($ff here is a dummy address, 'CMPVEC')
-	php
-	stx d1prb       ;restore previous memory configuration
-	jmp cmpare1
-.segment "ROUTINES"
-cmpare1:
-	pla
-	tax
-	pla
-	sta d1pra
-	txa
-	pha
-	plp
-	rts
 
 restore_basic:
 	jsr jsrfar
