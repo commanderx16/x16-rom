@@ -19,7 +19,7 @@ cscreen
 	jsr getbyt
 	txa
 	sec
-	jsr scrmod
+	jsr screen_set_mode
 	bcc :+
 	jmp fcerr
 :	rts

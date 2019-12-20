@@ -42,7 +42,7 @@ bridge joystick_scan       ; $FF53: joystick_scan
 bridge joystick_get        ; $FF56: joystick_get
 bridge lkupla              ; $FF59: LKUPLA
 bridge lkupsa              ; $FF5C: LKUPSA
-bridge scrmod              ; $FF5F: get/set screen mode
+bridge screen_set_mode     ; $FF5F: get/set screen mode
 .byte 0,0,0                ; $FF62: DLCHR – init 80-col character RAM  [NYI]
 .byte 0,0,0                ; $FF65: PFKEY – program a function key [NYI]
 bridge mouse_config        ; $FF68: mouse_config

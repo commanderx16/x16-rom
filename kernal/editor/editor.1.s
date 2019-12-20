@@ -41,8 +41,7 @@ cint	jsr iokeys
 ;
 	jsr panic       ;set up vic
 
-	lda #2
-	sec
+	lda #2          ;80x60
 	jsr screen_set_mode ;set screen mode to default
 ;
 	lda #0          ;make sure we're in pet mode

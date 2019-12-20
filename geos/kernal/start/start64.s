@@ -79,7 +79,6 @@ _ResetHandle:
 
 .import screen_set_mode
 	lda #$80
-	sec
 	jsr gjsrfar
 	.word screen_set_mode
 	.byte BANK_KERNAL

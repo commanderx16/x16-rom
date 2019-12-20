@@ -1,3 +1,7 @@
+;----------------------------------------------------------------------
+; VERA Text Mode Screen Driver
+;----------------------------------------------------------------------
+
 .include "../../io.inc"
 .include "../../banks.inc"
 
@@ -44,10 +48,12 @@ pnt:	.res 2           ;$D1 pointer to row
 ;
 cscrmd:	.res 1           ;    X16: current screen mode (argument to screen_set_mode)
 
-.segment "EDITOR_VERA"
+.segment "SCREEN"
 
-;init video
+;---------------------------------------------------------------
+; Initialize screen
 ;
+;---------------------------------------------------------------
 screen_init:
 	lda #0
 	sta veractl     ;set ADDR1 active
@@ -78,15 +84,6 @@ px5:	lda tvera_composer,x
 	inx
 	cpx #tvera_composer_end-tvera_composer
 	bne px5
-	rts
-
-screen_set_charset:
-	php
-	sei
-	jsr jsrfar
-	.word banked_cpychr
-	.byte BANK_CHARSET
-	plp
 	rts
 
 ;NTSC=1
@@ -137,20 +134,19 @@ tvera_composer:
 tvera_composer_end:
 .endif
 
-; modes:
-; $00: 40x30
-; $01: 80x30 ; XXX currently unsupported
-; $02: 80x60
-; $80: 320x240@256c + 40x30 text
-;     (320x200@256c + 40x25 text, currently)
-; $81: 640x400@16c ; XXX currently unsupported
-; $ff: toggle between $00 and $02
-
+;---------------------------------------------------------------
+; Set screen mode
+;
+;   In:   .a  mode
+;             $00: 40x30
+;             $01: 80x30 ; XXX currently unsupported
+;             $02: 80x60
+;             $80: 320x240@256c + 40x30 text
+;                 (320x200@256c + 40x25 text, currently)
+;             $81: 640x400@16c ; XXX currently unsupported
+;             $ff: toggle between $00 and $02
+;---------------------------------------------------------------
 screen_set_mode:
-	bcs scrnmd0
-	lda cscrmd
-	rts
-scrnmd0:
 	cmp #$ff
 	bne scrmd1
 ; toggle between 40x30 and  80x60
@@ -214,7 +210,6 @@ swpp1:	lda #<480
 	clc
 	rts
 
-
 grphon:
 	lda #$0e ; light blue
 	sta color
@@ -232,13 +227,29 @@ grphoff:
 	sta veradat
 	rts
 
-
+;---------------------------------------------------------------
+; Set charset
 ;
+;   In:   .a  charset
+;             0: ISO
+;             1: PET upper/graph
+;             2: PET upper/lower
+;---------------------------------------------------------------
+screen_set_charset:
+	php
+	sei
+	jsr jsrfar
+	.word banked_cpychr
+	.byte BANK_CHARSET
+	plp
+	rts
+
+;---------------------------------------------------------------
 ; Calculate start of line
 ;
 ;   In:   .x   line
 ;   Out:  pnt  line location
-;
+;---------------------------------------------------------------
 screen_set_position:
 	stz pnt
 	txa
@@ -247,26 +258,26 @@ screen_set_position:
 	sta pnt+1
 	rts
 
-;
+;---------------------------------------------------------------
 ; Get single color
 ;
 ;   In:   .y       column
 ;         pnt      line location
 ;   Out:  .a       PETSCII/ISO
-;
+;---------------------------------------------------------------
 screen_get_color:
 	tya
 	sec
 	rol
 	bra ldapnt2
 
-;
+;---------------------------------------------------------------
 ; Get single character
 ;
 ;   In:   .y       column
 ;         pnt      line location
 ;   Out:  .a       PETSCII/ISO
-;
+;---------------------------------------------------------------
 screen_get_char:
 	tya
 	cmp llen
@@ -278,7 +289,6 @@ screen_get_char:
 	lda pnt+1
 	adc #1 ; C=0
 	bne ldapnt3
-
 ldapnt1:
 	asl
 ldapnt2:
@@ -292,14 +302,14 @@ ldapnt3:
 	rts
 
 
-;
+;---------------------------------------------------------------
 ; Set single color
 ;
 ;   In:   .a       color
 ;         .y       column
 ;         pnt      line location
 ;   Out:  -
-;
+;---------------------------------------------------------------
 screen_set_color:
 	pha
 	tya
@@ -307,14 +317,14 @@ screen_set_color:
 	rol
 	bra stapnt2
 
-;
+;---------------------------------------------------------------
 ; Set single character
 ;
 ;   In:   .a       PETSCII/ISO
 ;         .y       column
 ;         pnt      line location
 ;   Out:  -
-;
+;---------------------------------------------------------------
 screen_set_char:
 	pha
 	tya
@@ -327,7 +337,6 @@ screen_set_char:
 	lda pnt+1
 	adc #1 ; C=0
 	bne stapnt3
-
 stapnt1:
 	asl
 stapnt2:
@@ -341,7 +350,7 @@ stapnt3:
 	sta veradat
 	rts
 
-;
+;---------------------------------------------------------------
 ; Set single character and color
 ;
 ;   In:   .a       PETSCII/ISO
@@ -349,32 +358,32 @@ stapnt3:
 ;         .y       column
 ;         pnt      line location
 ;   Out:  -
-;
+;---------------------------------------------------------------
 screen_set_char_color:
 	jsr screen_set_char
 	stx veradat     ;set color
 	rts
 
-;
+;---------------------------------------------------------------
 ; Get single character and color
 ;
 ;   In:   .y       column
 ;         pnt      line location
 ;   Out:  .a       PETSCII/ISO
 ;         .x       color
-;
+;---------------------------------------------------------------
 screen_get_char_color:
 	jsr screen_get_char
 	ldx veradat     ;get color
 	rts
 
-;
+;---------------------------------------------------------------
 ; Copy line
 ;
 ;   In:   x    source line
 ;         pnt  target line location
 ;   Out:  -
-;
+;---------------------------------------------------------------
 screen_copy_line:
 	lda sal
 	pha
@@ -425,11 +434,11 @@ screen_copy_line:
 	sta sal
 	rts
 
-;
+;---------------------------------------------------------------
 ; Clear line
 ;
 ;   In:   .x  line
-;
+;---------------------------------------------------------------
 screen_clear_line:
 	ldy llen
 	jsr screen_set_position
@@ -447,6 +456,13 @@ screen_clear_line:
 	bne :-
 	rts
 
+;---------------------------------------------------------------
+; Save state of the video hardware
+;
+; Function:  screen_save_state and screen_restore_state must be
+;            called before and after any interrupt code that
+;            calls any of the functions in this driver.
+;---------------------------------------------------------------
 screen_save_state:
 	plx
 	ply
@@ -463,6 +479,10 @@ screen_save_state:
 	phx
 	rts
 
+;---------------------------------------------------------------
+; Restore state of the video hardware
+;
+;---------------------------------------------------------------
 screen_restore_state:
 	plx
 	ply
