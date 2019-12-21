@@ -2,41 +2,50 @@
 
 .include "../../io.inc"
 
-.import acptr
-.import bsi232
-.import bso232
-.import bsout
-.import ciout
-.import cki232
-.import cko232
-.import close
-.import clrch
-.import cls232
-.import crsw
-.import iload
-.import indx
-.import isave
+bsout                        = $ffd2
+close                        = $ffc3
+clrch                        = $ffcc
+stop                         = $ffe1
+
 .import kbd_clear
 .import kbd_get
 .import kbd_get_stop
-.import listn
-.import lnmx
-.import loop5
-.import lstp
-.import lsxp
+
+.import bsi232
+.import bso232
+.import cki232
+.import cko232
+.import cls232
 .import opn232
-.import pntr
-.import prt
+
+; serial
+.import acptr
+.import ciout
+.import listn
 .import scatn
 .import secnd
-.import stop
 .import talk
-.import tblx
 .import tkatn
 .import tksa
 .import unlsn
 .import untlk
 
+; vectors
+.import iload
+.import isave
+
+; editor
+.import crsw
+.import indx
+.import lnmx
+.import loop5
+.import lstp
+.import lsxp
+.import pntr
+.import prt
+.import tblx
+
+; KERNAL API
 .export savesp
 .export loadsp
 .export setnam
@@ -47,6 +56,7 @@
 .export lkupsa
 .export lkupla
 .export close_all
+; vecors
 .export nsave
 .export nload
 .export nclall
@@ -59,6 +69,8 @@
 .export nchkin
 .export nclose
 .export nopen
+
+; serial
 .export udst
 
 ; XXX exports that shouldn't be

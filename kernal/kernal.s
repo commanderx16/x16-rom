@@ -59,15 +59,9 @@
 .import udst      ; serial
 .import dfltn     ; XXX
 .import dflto     ; XXX
-.import sal, sah  ; XXX
 
 .export iload     ; vectors
 .export isave     ; vectors
-
-.export bsout     ; XXX should go through jump table symbol
-.export close     ; XXX should go through jump table symbol
-.export clrch     ; XXX should go through jump table symbol
-.export stop      ; XXX should go through jump table symbol
 
 .include "../banks.inc"
 .include "../io.inc"
