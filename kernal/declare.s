@@ -97,20 +97,6 @@ usrcmd	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
 
-.segment "KVARSB0"
-
-; Time
-;
-.export datey, datem, dated, timeh, timem, times, timej, timer; [time]
-datey	.res 1           ;    year-1900
-datem	.res 1           ;    month
-dated	.res 1           ;    day
-timeh	.res 1           ;    hours
-timem	.res 1           ;    minutes
-times	.res 1           ;    seconds
-timej	.res 1           ;    jiffies
-timer	.res 3           ;$A0 24 bit 1/60th second timer
-
 .export mhz
 mhz     =8              ;for the scroll delay loop
 
