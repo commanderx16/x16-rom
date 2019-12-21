@@ -1,4 +1,3 @@
-	.segment "CHANNEL"
 
 setnam	sta fnlen
 	stx fnadr

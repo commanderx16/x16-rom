@@ -11,7 +11,6 @@
 ; code
 .import ps2_receive_byte; [ps2]
 ; data
-.import mousex, mousey, mousebt, msepar, mousel, mouser, mouset, mouseb; [declare]
 .import save_ram_bank; [declare]
 
 .import screen_save_state
@@ -20,6 +19,18 @@
 .import sprite_set_image, sprite_set_position
 
 .export mouse_init, mouse_config, mouse_scan, mouse_get
+
+.segment "KVARSB0"
+
+msepar:	.res 1           ;    $80=on; 1/2: scale
+mousel:	.res 2           ;    min x coordinate
+mouser:	.res 2           ;    max x coordinate
+mouset:	.res 2           ;    min y coordinate
+mouseb:	.res 2           ;    max y coordinate
+mousex:	.res 2           ;    x coordinate
+mousey:	.res 2           ;    y coordinate
+mousebt:
+	.res 1           ;    buttons (1: left, 2: right, 4: third)
 
 .segment "PS2MOUSE"
 

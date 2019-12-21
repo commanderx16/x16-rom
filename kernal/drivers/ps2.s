@@ -7,7 +7,6 @@
 .include "../../io.inc"
 
 ; data
-.import kbdbyte ; [declare]
 .importzp mhz ; [declare]
 
 .export ps2_init, ps2_receive_byte
@@ -16,6 +15,11 @@ port_ddr  =d2ddrb
 port_data =d2prb
 bit_data=1              ; 6522 IO port data bit mask  (PA0/PB0)
 bit_clk =2              ; 6522 IO port clock bit mask (PA1/PB1)
+
+.segment "KVARSB0"
+
+ps2byte:
+.res 1           ;    bit input
 
 .segment "PS2"
 
@@ -64,19 +68,19 @@ lc04a:	bit port_data,x
 	lda port_data,x
 	and #bit_data
 	cmp #bit_data
-	ror kbdbyte ; save bit
+	ror ps2byte ; save bit
 	lda #bit_clk
 lc058:	bit port_data,x
 	beq lc058 ; wait for CLK=1 (not ready)
 	dey
 	bne lc04a
-	rol kbdbyte ; get parity bit into C
+	rol ps2byte ; get parity bit into C
 lc061:	bit port_data,x
 	bne lc061 ; wait for CLK=0 (ready)
 lc065:	bit port_data,x
 	beq lc065 ; wait for CLK=1 (not ready)
 lc069:	jsr ps2dis
-	lda kbdbyte
+	lda ps2byte
 	php ; save parity
 lc07c:	lsr a ; calculate parity
 	bcc lc080
@@ -87,7 +91,7 @@ lc080:	cmp #0
 	plp ; transmitted parity
 	adc #1
 	lsr a ; C=0: parity OK
-	lda kbdbyte
+	lda ps2byte
 	ldy #1 ; Z=0
 	rts
 

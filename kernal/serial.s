@@ -1,11 +1,39 @@
-.export clklo
+.feature labels_without_colons
 
-	.segment "SERIAL"
+.include "../io.inc"
+.include "../banks.inc"
+
+.import status
+.import jsrfar
+.import udst
+
+.export acptr
+.export ciout
+.export listn
+.export scatn
+.export secnd
+.export talk
+.export tkatn
+.export tksa
+.export unlsn
+.export untlk
+
+.export clklo     ; machine init
 
 sdata	=$ffff ; XXX fill for X16
 d1crb	=$ffff ; XXX fill for X16
 d1icr	=$ffff ; XXX fill for X16
 timrb	=$19            ;6526 crb enable one-shot tb
+
+.segment "KVAR"
+
+c3p0	.res 1           ;$94 ieee buffered char flag
+bsour	.res 1           ;$95 char buffer for ieee
+r2d2	.res 1           ;$A3 serial bus usage
+bsour1	.res 1           ;$A4 temp used by serial routine
+count	.res 1           ;$A5 temp used by serial routine
+
+	.segment "SERIAL"
 
 ;command serial bus device to talk
 ;

@@ -7,7 +7,6 @@
 .include "../../banks.inc"
 .include "../../io.inc"
 
-.import datey, datem, dated, timeh, timem, times, timej, timer; [declare]
 .import save_ram_bank; [declare]
 
 ; KERNAL API
@@ -16,6 +15,17 @@
 .export clock_set_timer
 .export clock_get_date_time
 .export clock_set_date_time
+
+.segment "KVARSB0"
+
+datey:	.res 1           ;    year-1900
+datem:	.res 1           ;    month
+dated:	.res 1           ;    day
+timeh:	.res 1           ;    hours
+timem:	.res 1           ;    minutes
+times:	.res 1           ;    seconds
+timej:	.res 1           ;    jiffies
+timer:	.res 3           ;$A0 24 bit 1/60th second timer
 
 .segment "TIME"
 
