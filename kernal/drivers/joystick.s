@@ -124,13 +124,11 @@ joystick_get:
 ; joystick_from_ps2:
 ;
 ;  convert PS/2 scancode into NES joystick state (internal)
+;
+; Note: This is called from the ps2kbd driver while bank 0 is active,
+;       no bank switching is performed.
+;
 joystick_from_ps2:
-	KVARS_START
-	jsr _joystick_from_ps2
-	KVARS_END
-	rts
-
-_joystick_from_ps2:
 NES_A      = (1 << 7)
 NES_B      = (1 << 6)
 NES_SELECT = (1 << 5)
