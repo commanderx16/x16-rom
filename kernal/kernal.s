@@ -64,16 +64,6 @@
 .import nopen     ; vectors
 .import udst      ; serial
 
-.export acptr     ; serial
-.export ciout     ; serial
-.export listn     ; serial
-.export scatn     ; serial
-.export secnd     ; serial
-.export talk      ; serial
-.export tkatn     ; serial
-.export tksa      ; serial
-.export unlsn     ; serial
-.export untlk     ; serial
 
 .export iload     ; vectors
 .export isave     ; vectors

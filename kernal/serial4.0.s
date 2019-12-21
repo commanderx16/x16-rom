@@ -1,4 +1,15 @@
-.export clklo
+.export acptr
+.export ciout
+.export listn
+.export scatn
+.export secnd
+.export talk
+.export tkatn
+.export tksa
+.export unlsn
+.export untlk
+
+.export clklo     ; machine init
 
 	.segment "SERIAL"
 
