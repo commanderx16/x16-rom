@@ -21,12 +21,12 @@
 ;         .Y     data height
 ;         r0     pointer to pixel data
 ;         r1     pointer to mask data
-;         r1L    data bits per pixel
+;         r2L    data bits per pixel
 ;---------------------------------------------------------------
 sprite_set_image:
 	.import mouse_sprite_mask, mouse_sprite_col
 
-	PushB r1H
+	PushB r2H
 
 	lda #<sprite_addr
 	sta veralo
@@ -36,7 +36,7 @@ sprite_set_image:
 	sta verahi
 	ldx #0
 @1:	lda #8
-	sta r1H
+	sta r2H
 	lda mouse_sprite_mask,x
 	ldy mouse_sprite_col,x
 @2:	asl
@@ -58,13 +58,13 @@ sprite_set_image:
 @5:	lda #16 ; black
 @6:	sta veradat
 	pla
-@4:	dec r1H
+@4:	dec r2H
 	bne @2
 	inx
 	cpx #32
 	bne @1
 
-	PopB r1H
+	PopB r2H
 
 	lda #$00
 	sta veralo
