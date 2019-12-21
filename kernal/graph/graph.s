@@ -1,7 +1,8 @@
-; Commander X16 KERNAL
-;
-; Graphics library
-; (Bresenham code from GEOS by Berkeley Softworks)
+;----------------------------------------------------------------------
+; Commander X16 KERNAL: Graphics library
+;----------------------------------------------------------------------
+; (C)2019 Michael Steil, License: 2-clause BSD
+; (Bresenham code based on GEOS by Berkeley Softworks)
 
 .include "../../mac.inc"
 .include "../../regs.inc"

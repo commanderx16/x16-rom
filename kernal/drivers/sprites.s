@@ -1,6 +1,7 @@
 ;----------------------------------------------------------------------
 ; VERA Sprites Driver
 ;----------------------------------------------------------------------
+; (C)2019 Michael Steil, License: 2-clause BSD
 
 ; This code currently supports up to 8 sprites.
 

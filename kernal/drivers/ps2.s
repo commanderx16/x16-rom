@@ -1,6 +1,8 @@
 ;----------------------------------------------------------------------
 ; Generic PS/2 Port Driver
 ;----------------------------------------------------------------------
+; (C)2019 Michael Steil, License: 2-clause BSD
+; (based on "AT-Keyboard" by İlker Fıçıcılar)
 
 .include "../../io.inc"
 
@@ -39,9 +41,6 @@ ps2dis:	lda port_ddr,x
 ;           1: no
 ;      C:   0: parity OK
 ;           1: parity error
-;****************************************
-; The byte receive function is based on
-; "AT-Keyboard" by İlker Fıçıcılar
 ;****************************************
 ps2_receive_byte:
 ; set input, bus idle

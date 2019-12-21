@@ -162,7 +162,7 @@ Release Notes
 * bug fixes:
 	* got rid of $2c partial instruction skip [Joshua Scholar]
 	* fixed TI/TI$
-	* fixed CDBOS infinite loop
+	* fixed CBDOS infinite loop
 	* zp address 0 is no longer overwritten by mouse code
 	* mouse scanning is disabled if mouse is off
 	* VERA state is correctly saved/restored by IRQ code
