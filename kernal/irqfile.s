@@ -1,7 +1,8 @@
 	.segment "IRQFILE"
 
 .import screen_init
-.import mouse_scan ; [ps2mouse]
+.import mouse_scan
+.import joystick_scan
 .import cursor_blink
 .import irq_ack
 .export panic
@@ -22,9 +23,10 @@ puls1	jmp (cinv)      ;...irq
 ;
 key
 	jsr mouse_scan  ;scan mouse (do this first to avoid sprite tearing)
-	jsr clock_update;update jiffy clock
+	jsr joystick_scan
+	jsr clock_update
 	jsr cursor_blink
-	jsr kbd_scan    ;scan keyboard
+	jsr kbd_scan
 
 	jsr irq_ack
 	ply             ;restore registers

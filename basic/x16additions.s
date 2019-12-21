@@ -270,7 +270,6 @@ mb:
 	jmp sngflt
 
 joy:
-	jsr joystick_scan
 	jsr chrget
 	jsr chkopn ; open paren
 	jsr getbyt ; byte: joystick number (1 or 2)
@@ -281,7 +280,6 @@ joy:
 	jmp fcerr
 :	phx
 	jsr chkcls ; closing paren
-	jsr joystick_scan
 	pla
 	dec ; KERNAL uses #0 and #1
 	jsr joystick_get
