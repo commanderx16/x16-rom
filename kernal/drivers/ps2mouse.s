@@ -117,10 +117,10 @@ mous2:	cmp #$ff
 	LoadW r0, mouse_sprite_col
 	LoadW r1, mouse_sprite_mask
 	LoadB r2L, 1 ; 1 bpp
-	ldx #16
-	ldy #16
-	lda #0
-	sec ; apply mask
+	ldx #16      ; width
+	ldy #16      ; height
+	lda #0       ; sprite 0
+	sec          ; apply mask
 	jsr sprite_set_image
 	PopW r1
 	PopW r0
