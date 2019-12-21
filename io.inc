@@ -62,6 +62,5 @@ d2ora	=via2+15
 ; $1:0000 - $1:F9FF  320x200@256c Bitmap
 ; $1:FA00 - $1:FFFF  -- unused --
 
-
 sprite_addr = $07800
 tilbas      = $0f800

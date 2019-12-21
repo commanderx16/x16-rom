@@ -174,28 +174,6 @@ times	.res 1           ;    seconds
 timej	.res 1           ;    jiffies
 timer	.res 3           ;$A0 24 bit 1/60th second timer
 
-; i/o devices
-;
-
-; XXX TODO:
-; XXX The following symbols are CIA 6526-based and required for
-; XXX serial & rs232. Both drivers need to be changed to use
-; XXX the VIAs instead. At that point, these symbols must be removed.
-d2cra	=0
-d2crb	=0
-d2icr	=0
-d1crb	=0
-d1icr	=0
-
-; XXX TODO:
-; XXX These symbols are currently used in the screen editor. They
-; XXX need to be removed once the keyboard driver has been replaced.
-colm	=d1pra                  ;keyboard matrix
-rows	=d1prb                  ;keyboard matrix
-
-; XXX TODO
-timrb	=$19            ;6526 crb enable one-shot tb
-
 .export mhz
 mhz     =8              ;for the scroll delay loop
 

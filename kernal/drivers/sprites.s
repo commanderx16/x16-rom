@@ -23,6 +23,7 @@
 ;         r0     pointer to pixel data
 ;         r1     pointer to mask data (if .C=1)
 ;         r2L    pixel data bits per pixel
+;   Out: .C      0: OK, 1: error
 ;
 ; Notes: This function is very generic. "data width/height" and
 ;        bpp can be any numbers up to the maximum supported
@@ -31,11 +32,12 @@
 ;---------------------------------------------------------------
 sprite_set_image:
 	pha ; sprite number
+	php
 
 	asl
 	asl
 	asl
-	asl ; add $1000 for every sprite
+	asl ; add $1000 per sprite ; see memory layout in io.inc
 	clc
 	adc #>sprite_addr
 	sta veramid
@@ -44,46 +46,26 @@ sprite_set_image:
 	lda #$10 | (sprite_addr >> 16)
 	sta verahi
 
-	; this is the code for
-	; .X  = 16 (width)
-	; .Y  = 16 (height)
-	; .C  = 1  (apply mask)
-	; r2L = 1  (1 bpp)
+	plp
+	bcc @a
+	cpx #16
+	bne @a
+	cpy #16
+	bne @a
+	lda r2L
+	cmp #1
+	bne @a
 
-	PushB r2H
-	ldy #0
-@1:	lda #8
-	sta r2H
-	lda (r1),y
-	tax
-	lda (r0),y
-@2:	asl
-	bcs @3
-	stz veradat
-	pha
-	txa
-	asl
-	tax
-	pla
-	bra @4
-@3:	pha
-	txa
-	asl
-	tax
-	bcc @5
-	lda #1  ; white
-	bra @6
-@5:	lda #16 ; black
-@6:	sta veradat
-	pla
-@4:	dec r2H
-	bne @2
-	iny
-	cpy #32
-	bne @1
+	jsr convert_16x16x1_mask
+	bra @z
+	
+@a:
+	; XXX support more formats
 
-	PopB r2H
+	sec ; unsupported
+	rts
 
+@z:
 ; set sprite data offset & bpp
 	lda #$00
 	sta veralo
@@ -108,7 +90,50 @@ sprite_set_image:
 	sta veralo
 	lda #1 << 6 | 1 << 4 ;  16x16 px
 	sta veradat
-	
+
+	clc ; OK
+	rts
+
+convert_16x16x1_mask:
+; this is the code for
+; .X  = 16 (width)
+; .Y  = 16 (height)
+; .C  = 1  (apply mask)
+; r2L = 1  (1 bpp)
+
+	PushB r2H
+	ldy #0
+@1:	lda #8
+	sta r2H
+	lda (r0),y ; pixels
+	tax
+	lda (r1),y ; mask
+@2:	asl
+	bcs @3
+	stz veradat ; mask = 0 -> color 0 (translucent)
+	pha
+	txa
+	asl         ; skip color
+	tax
+	pla
+	bra @4
+@3:	pha
+	txa
+	asl
+	tax
+	bcc @5
+@0xxx:	lda #1  ; white
+	bra @6
+@5:	lda #16 ; black
+@6:	sta veradat
+	pla
+@4:	dec r2H
+	bne @2
+	iny
+	cpy #32
+	bne @1
+
+	PopB r2H
 	rts
 
 ;---------------------------------------------------------------

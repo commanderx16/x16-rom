@@ -2,7 +2,10 @@
 
 	.segment "SERIAL"
 
-sdata = $ffff ; XXX fill for X16
+sdata	=$ffff ; XXX fill for X16
+d1crb	=$ffff ; XXX fill for X16
+d1icr	=$ffff ; XXX fill for X16
+timrb	=$19            ;6526 crb enable one-shot tb
 
 ;command serial bus device to talk
 ;
