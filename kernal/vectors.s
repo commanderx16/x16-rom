@@ -8,6 +8,8 @@
 
 .import GRAPH_init, GRAPH_clear, GRAPH_set_window, GRAPH_set_colors, GRAPH_draw_line, GRAPH_draw_rect, GRAPH_move_rect, GRAPH_draw_oval, GRAPH_draw_image, GRAPH_set_font, GRAPH_get_char_size, GRAPH_put_char
 
+.import sprite_set_image, sprite_set_position
+
 	.segment "JMPTBL"
 ; *** this is space for new X16 KERNAL vectors ***
 ; for now, these are private API, they have not been
@@ -18,8 +20,8 @@
 	.byte 0,0,0            ; $FEE7
 	.byte 0,0,0            ; $FEEA
 	.byte 0,0,0            ; $FEED
-	.byte 0,0,0            ; $FEF0
-	.byte 0,0,0            ; $FEF3
+	jmp sprite_set_image   ; $FEF0
+	jmp sprite_set_position; $FEF3
 
 	;
 	; graph low-level API
@@ -68,7 +70,7 @@
 	jmp lkupla             ; $FF59: [C128] LKUPLA - look up logical file address
 	jmp lkupsa             ; $FF5C: [C128] LKUPSA - look up secondary address
 	jmp screen_set_mode    ; $FF5F: screen_set_mode - set screen mode              [unsupported C128: SWAPPER]
-	.byte 0,0,0            ; $FF62: [C128] DLCHR – init 80-col character RAM       [NYI]
+	jmp screen_set_charset ; $FF62: activate 8x8 text mode charset                 [incompatible with C128: DLCHR – init 80-col character RAM]
 	.byte 0,0,0            ; $FF65: [C128] PFKEY – program a function key          [NYI]
 	jmp mouse_config       ; $FF68: mouse_config - configure mouse pointer         [unsupported C128: SETBNK – set bank for I/O operations]
 	jmp mouse_get          ; $FF6B: mouse_get - get state of mouse                 [unsupported C128: GETCFG – lookup MMU data for given bank]

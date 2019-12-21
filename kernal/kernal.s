@@ -23,6 +23,7 @@
 .import kbd_get_stop
 
 .import screen_set_mode
+.import screen_set_charset
 
 ; for editor
 .export dfltn

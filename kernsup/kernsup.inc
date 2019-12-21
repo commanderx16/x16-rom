@@ -3,8 +3,8 @@
 .byte 0,0,0            ; $FEE7
 .byte 0,0,0            ; $FEEA
 .byte 0,0,0            ; $FEED
-.byte 0,0,0            ; $FEF0
-.byte 0,0,0            ; $FEF3
+bridge sprite_set_image   ; $FEF0
+bridge sprite_set_position; $FEF3
 
 bridge GRAPH_LL_init                ; $FEF6
 bridge GRAPH_LL_get_info            ; $FEF9
@@ -42,8 +42,8 @@ bridge joystick_scan       ; $FF53: joystick_scan
 bridge joystick_get        ; $FF56: joystick_get
 bridge lkupla              ; $FF59: LKUPLA
 bridge lkupsa              ; $FF5C: LKUPSA
-bridge screen_set_mode     ; $FF5F: get/set screen mode
-.byte 0,0,0                ; $FF62: DLCHR – init 80-col character RAM  [NYI]
+bridge screen_set_mode     ; $FF5F: set screen mode
+bridge screen_set_charset  ; $FF62: activate 8x8 text mode charset
 .byte 0,0,0                ; $FF65: PFKEY – program a function key [NYI]
 bridge mouse_config        ; $FF68: mouse_config
 bridge mouse_get           ; $FF6B: mouse_get

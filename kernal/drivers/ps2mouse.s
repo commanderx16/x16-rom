@@ -2,10 +2,10 @@
 ; PS/2 Mouse Driver
 ;----------------------------------------------------------------------
 
-sprite_addr = 60 * 256 ; after text screen
-
 .include "../../banks.inc"
 .include "../../io.inc"
+.include "../../regs.inc"
+.include "../../mac.inc"
 
 ; code
 .import ps2_receive_byte; [ps2]
@@ -15,6 +15,8 @@ sprite_addr = 60 * 256 ; after text screen
 
 .import screen_save_state
 .import screen_restore_state
+
+.import sprite_set_image, sprite_set_position
 
 .export mouse_init, mouse_config, mouse_scan, mouse_get
 
@@ -96,96 +98,48 @@ mous1:	cmp #0
 	lda msepar
 	and #$7f
 	sta msepar
-	lda #$06
-	sta veralo
-	lda #$50
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #0
-	sta veradat
+
+	PushW r0H
+	lda #$ff
+	sta r0H
+	inc
+	jsr sprite_set_position
+	PopW r0H
 	rts
+	
 ; show mouse
 mous2:	cmp #$ff
 	beq mous3
+
 	; we ignore the cursor #, always set std pointer
-	lda #<sprite_addr
-	sta veralo
-	lda #>sprite_addr
-	sta veramid
-	lda #$10 | (sprite_addr >> 16)
-	sta verahi
-	lda msepar ; save this, we'll re-use as temp counter
-	pha
-	ldx #0
-@1:	lda #8
-	sta msepar
-	lda mouse_sprite_mask,x
-	ldy mouse_sprite_col,x
-@2:	asl
-	bcs @3
-	stz veradat
-	pha
-	tya
-	asl
-	tay
-	pla
-	bra @4
-@3:	pha
-	tya
-	asl
-	tay
-	bcc @5
-	lda #1  ; white
-	bra @6
-@5:	lda #16 ; black
-@6:	sta veradat
-	pla
-@4:	dec msepar
-	bne @2
-	inx
-	cpx #32
-	bne @1
-	pla
-	sta msepar
+	PushW r0
+	PushW r1
+	LoadW r0, mouse_sprite_col
+	LoadW r1, mouse_sprite_mask
+	LoadB r2L, 1 ; 1 bpp
+	ldx #16      ; width
+	ldy #16      ; height
+	lda #0       ; sprite 0
+	sec          ; apply mask
+	jsr sprite_set_image
+	PopW r1
+	PopW r0
 
 mous3:	lda msepar
 	ora #$80 ; flag: mouse on
 	sta msepar
-	lda #$00
-	sta veralo
-	lda #$40
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #1
-	sta veradat ; enable sprites
 
-	lda #$00
-	sta veralo
-	lda #$50
-	sta veramid
-	lda #<(sprite_addr >> 5)
-	sta veradat
-	lda #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
-	sta veradat
-	lda #$06
-	sta veralo
-	lda #3 << 2 ; z-depth: in front of everything
-	sta veradat
-	lda #1 << 6 | 1 << 4 ;  16x16 px
-	sta veradat
-	rts
+	jmp mouse_update_position
 
 _mouse_scan:
 	bit msepar ; do nothing if mouse is off
-	bpl scnms1
+	bpl @a
 	ldx #0
 	jsr ps2_receive_byte
-	bcs scnms1 ; parity error
-	bne scnms2 ; no data
-scnms1:	rts
-scnms2:
+	bcs @a ; parity error
+	bne @b ; no data
+@a:	rts
+@b:
 .if 0
 	; heuristic to test we're not out
 	; of sync:
@@ -199,7 +153,7 @@ scnms2:
 	tax
 	and #$c8
 	cmp #$08
-	bne scnms1
+	bne @a
 	txa
 .endif
 	sta mousebt
@@ -275,42 +229,47 @@ scnms2:
 	stx mousey+1
 @5a:
 
-; update sprite
-	lda msepar
-	bpl @s2 ; don't update sprite pos
+mouse_update_position:
 	jsr screen_save_state
-	ldx #$02
-	stx veralo
-	ldx #$50
-	stx veramid
-	ldx #$1F
-	stx verahi
+	
+	PushW r0
+	PushW r1
+	
+	lda msepar
 	and #$7f
 	cmp #2 ; scale
 	beq :+
+
 	lda mousex
 	ldx mousex+1
-	sta veradat
-	stx veradat
+	sta r0L
+	stx r0H
 	lda mousey
 	ldx mousey+1
 	bra @s1
-:	lda mousex+1
+:
+	lda mousex+1
 	lsr
 	tax
 	lda mousex
 	ror
-	sta veradat
-	stx veradat
+	sta r0L
+	stx r0H
 	lda mousey+1
 	lsr
 	tax
 	lda mousey
 	ror
-@s1:	sta veradat
-	stx veradat
+@s1:	sta r1L
+	stx r1H
+	lda #0
+	jsr sprite_set_position
+
+	PopW r1
+	PopW r0
+
 	jsr screen_restore_state
-@s2:	rts
+	rts ; NB: call above does not support tail call optimization
 
 ; This is the Susan Kare mouse pointer
 mouse_sprite_col: ; 0: black, 1: white
@@ -347,3 +306,4 @@ mouse_sprite_mask: ; 0: transparent, 1: opaque
 .byte %10000111,%10000000
 .byte %00000111,%10000000
 .byte %00000011,%10000000
+
