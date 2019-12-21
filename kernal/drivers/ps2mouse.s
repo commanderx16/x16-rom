@@ -6,6 +6,8 @@ sprite_addr = 60 * 256 ; after text screen
 
 .include "../../banks.inc"
 .include "../../io.inc"
+.include "../../regs.inc"
+.include "../../mac.inc"
 
 ; code
 .import ps2_receive_byte; [ps2]
@@ -15,6 +17,8 @@ sprite_addr = 60 * 256 ; after text screen
 
 .import screen_save_state
 .import screen_restore_state
+
+.import sprite_set_position
 
 .export mouse_init, mouse_config, mouse_scan, mouse_get
 
@@ -96,15 +100,12 @@ mous1:	cmp #0
 	lda msepar
 	and #$7f
 	sta msepar
-	lda #$06
-	sta veralo
-	lda #$50
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #0
-	sta veradat
-	rts
+
+	lda #$ff
+	sta r0H
+	inc
+	jmp sprite_set_position
+	
 ; show mouse
 mous2:	cmp #$ff
 	beq mous3
@@ -179,13 +180,13 @@ mous3:	lda msepar
 
 _mouse_scan:
 	bit msepar ; do nothing if mouse is off
-	bpl scnms1
+	bpl @a
 	ldx #0
 	jsr ps2_receive_byte
-	bcs scnms1 ; parity error
-	bne scnms2 ; no data
-scnms1:	rts
-scnms2:
+	bcs @a ; parity error
+	bne @b ; no data
+@a:	rts
+@b:
 .if 0
 	; heuristic to test we're not out
 	; of sync:
@@ -199,7 +200,7 @@ scnms2:
 	tax
 	and #$c8
 	cmp #$08
-	bne scnms1
+	bne @a
 	txa
 .endif
 	sta mousebt
@@ -276,41 +277,46 @@ scnms2:
 @5a:
 
 ; update sprite
-	lda msepar
-	bpl @s2 ; don't update sprite pos
 	jsr screen_save_state
-	ldx #$02
-	stx veralo
-	ldx #$50
-	stx veramid
-	ldx #$1F
-	stx verahi
+	
+	PushW r0
+	PushW r1
+	
+	lda msepar
 	and #$7f
 	cmp #2 ; scale
 	beq :+
+
 	lda mousex
 	ldx mousex+1
-	sta veradat
-	stx veradat
+	sta r0L
+	stx r0H
 	lda mousey
 	ldx mousey+1
 	bra @s1
-:	lda mousex+1
+:
+	lda mousex+1
 	lsr
 	tax
 	lda mousex
 	ror
-	sta veradat
-	stx veradat
+	sta r0L
+	stx r0H
 	lda mousey+1
 	lsr
 	tax
 	lda mousey
 	ror
-@s1:	sta veradat
-	stx veradat
+@s1:	sta r1L
+	stx r1H
+	lda #0
+	jsr sprite_set_position
+
+	PopW r1
+	PopW r0
+
 	jsr screen_restore_state
-@s2:	rts
+	rts ; NB: call above does not support tail call optimization
 
 ; This is the Susan Kare mouse pointer
 mouse_sprite_col: ; 0: black, 1: white

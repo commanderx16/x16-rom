@@ -68,7 +68,7 @@
 	jmp lkupla             ; $FF59: [C128] LKUPLA - look up logical file address
 	jmp lkupsa             ; $FF5C: [C128] LKUPSA - look up secondary address
 	jmp screen_set_mode    ; $FF5F: screen_set_mode - set screen mode              [unsupported C128: SWAPPER]
-	.byte 0,0,0            ; $FF62: [C128] DLCHR – init 80-col character RAM       [NYI]
+	jmp screen_set_charset ; $FF62: activate 8x8 text mode charset                 [incompatible with C128: DLCHR – init 80-col character RAM]
 	.byte 0,0,0            ; $FF65: [C128] PFKEY – program a function key          [NYI]
 	jmp mouse_config       ; $FF68: mouse_config - configure mouse pointer         [unsupported C128: SETBNK – set bank for I/O operations]
 	jmp mouse_get          ; $FF6B: mouse_get - get state of mouse                 [unsupported C128: GETCFG – lookup MMU data for given bank]
