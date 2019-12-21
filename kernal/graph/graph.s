@@ -25,8 +25,6 @@
 .export GRAPH_move_rect
 .export GRAPH_draw_oval
 
-.setcpu "65c02"
-
 .segment "KVAR"
 
 .export col1, col2, col_bg

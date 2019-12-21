@@ -1,5 +1,4 @@
 .feature labels_without_colons
-.setcpu "65c02"
 
 ;screen editor constants
 ;

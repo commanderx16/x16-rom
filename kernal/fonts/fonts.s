@@ -2,8 +2,6 @@
 ;
 ; Font library
 
-.setcpu "65c02"
-
 .include "../../regs.inc"
 .include "../../mac.inc"
 .include "../../graph_ll.inc"
@@ -17,7 +15,7 @@
 ; GEOS public ZP
 curIndexTable:	.res 2
 
-.segment "FONTSVAR"
+.segment "VARFONTS"
 ; GEOS public
 baselineOffset:	.res 1
 curSetWidth:	.res 2
