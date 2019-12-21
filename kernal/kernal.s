@@ -1,10 +1,6 @@
 .feature labels_without_colons
 .setcpu "65c02"
 
-; for monitor
-; XXX these should be removed or at least minimized
-;.export xmon2, ms1
-
 ; from editor
 .import plot
 .import scrorg
@@ -44,84 +40,72 @@
 .import ioinit
 
 ; channelio
-.import savesp
-.import loadsp
-.import setnam
-.import setlfs
-.import readst
-.import settmo
-.import setmsg
-.import lkupsa
-.import lkupla
-.import close_all
-.import nsave
-.import nload
-.import nclall
-.import ngetin
-.import nstop
-.import nbsout
-.import nbasin
-.import nclrch
-.import nckout
-.import nchkin
-.import nclose
-.import nopen
-.import udst
-.export acptr
-.export bsout
-.export ciout
-.export close
-.export clrch
-;.export crsw
-.export dfltn
-.export dflto
-.export eah
-.export eal
-.export fa
-.export fat
-.exportzp fnadr
-.export fnlen
-.export iload
-;.export indx
-.export isave
-;.export kbd_clear
-;.export kbd_get
-;.export kbd_get_stop
-.export la
-.export lat
-.export ldtnd
-.export listn
-;.export lnmx
-;.export loop5
-;.export lstp
-;.export lsxp
-.export memuss
-.export msgflg
-;.export pntr
-;.export prt
-.export sa
-.export sah
-.export sal
-.export sat
-.export scatn
-.export secnd
-.export stah
-.export stal
-.export status
-.export stop
-.export t1
-.export talk
-;.export tblx
-.export tkatn
-.export tksa
-.export unlsn
-.export untlk
-.export veradat
-.export verahi
-.export veralo
-.export veramid
-.export verck
-.export xsav
+.import savesp    ; jmp table
+.import loadsp    ; jmp table
+.import setnam    ; jmp table
+.import setlfs    ; jmp table
+.import readst    ; jmp table
+.import settmo    ; jmp table
+.import setmsg    ; jmp table
+.import lkupsa    ; jmp table
+.import lkupla    ; jmp table
+.import close_all ; jmp table
+.import nsave     ; vectors
+.import nload     ; vectors
+.import nclall    ; vectors
+.import ngetin    ; vectors
+.import nstop     ; vectors
+.import nbsout    ; vectors
+.import nbasin    ; vectors
+.import nclrch    ; vectors
+.import nckout    ; vectors
+.import nchkin    ; vectors
+.import nclose    ; vectors
+.import nopen     ; vectors
+.import udst      ; serial
+
+.export acptr     ; serial
+.export ciout     ; serial
+.export listn     ; serial
+.export scatn     ; serial
+.export secnd     ; serial
+.export talk      ; serial
+.export tkatn     ; serial
+.export tksa      ; serial
+.export unlsn     ; serial
+.export untlk     ; serial
+
+.export iload     ; vectors
+.export isave     ; vectors
+
+.export bsout     ; XXX should go through jump table symbol
+.export close     ; XXX should go through jump table symbol
+.export clrch     ; XXX should go through jump table symbol
+.export stop      ; XXX should go through jump table symbol
+
+.export dfltn     ; XXX zp move?
+.export dflto     ; XXX zp move?
+.export sah       ; XXX zp move?
+.export sal       ; XXX zp move?
+.export eah       ; XXX zp move
+.export eal       ; XXX zp move
+.export fa        ; XXX zp move
+.export fat       ; XXX zp move
+.exportzp fnadr   ; XXX zp move
+.export fnlen     ; XXX zp move
+.export la        ; XXX zp move
+.export lat       ; XXX zp move
+.export ldtnd     ; XXX zp move
+.export memuss    ; XXX zp move
+.export msgflg    ; XXX zp move
+.export sa        ; XXX zp move
+.export sat       ; XXX zp move
+.export stah      ; XXX zp move
+.export stal      ; XXX zp move
+.export status    ; XXX zp move
+.export t1        ; XXX zp move
+.export verck     ; XXX zp move
+.export xsav      ; XXX zp move
 
 .include "../banks.inc"
 .include "../io.inc"

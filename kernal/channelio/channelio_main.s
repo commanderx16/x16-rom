@@ -1,5 +1,6 @@
 .feature labels_without_colons
-;.setcpu "65c02"
+
+.include "../../io.inc"
 
 .import acptr
 .import bsi232
@@ -56,10 +57,6 @@
 .import tksa
 .import unlsn
 .import untlk
-.import veradat
-.import verahi
-.import veralo
-.import veramid
 .import verck
 .import xsav
 
