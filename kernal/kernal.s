@@ -21,12 +21,6 @@
 .import screen_set_mode
 .import screen_set_charset
 
-; for editor
-.export dfltn
-.export dflto
-.export sah
-.export sal
-
 ; from memory driver
 .import ramtas
 .import indfet
@@ -63,7 +57,9 @@
 .import nclose    ; vectors
 .import nopen     ; vectors
 .import udst      ; serial
-
+.import dfltn     ; XXX
+.import dflto     ; XXX
+.import sal, sah  ; XXX
 
 .export iload     ; vectors
 .export isave     ; vectors
@@ -72,30 +68,6 @@
 .export close     ; XXX should go through jump table symbol
 .export clrch     ; XXX should go through jump table symbol
 .export stop      ; XXX should go through jump table symbol
-
-.export dfltn     ; XXX zp move?
-.export dflto     ; XXX zp move?
-.export sah       ; XXX zp move?
-.export sal       ; XXX zp move?
-.export eah       ; XXX zp move
-.export eal       ; XXX zp move
-.export fa        ; XXX zp move
-.export fat       ; XXX zp move
-.exportzp fnadr   ; XXX zp move
-.export fnlen     ; XXX zp move
-.export la        ; XXX zp move
-.export lat       ; XXX zp move
-.export ldtnd     ; XXX zp move
-.export memuss    ; XXX zp move
-.export msgflg    ; XXX zp move
-.export sa        ; XXX zp move
-.export sat       ; XXX zp move
-.export stah      ; XXX zp move
-.export stal      ; XXX zp move
-.export status    ; XXX zp move
-.export t1        ; XXX zp move
-.export verck     ; XXX zp move
-.export xsav      ; XXX zp move
 
 .include "../banks.inc"
 .include "../io.inc"
