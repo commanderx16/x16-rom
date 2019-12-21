@@ -99,10 +99,13 @@ mous1:	cmp #0
 	and #$7f
 	sta msepar
 
+	PushW r0H
 	lda #$ff
 	sta r0H
 	inc
-	jmp sprite_set_position
+	jsr sprite_set_position
+	PopW r0H
+	rts
 	
 ; show mouse
 mous2:	cmp #$ff
@@ -110,10 +113,16 @@ mous2:	cmp #$ff
 
 	; we ignore the cursor #, always set std pointer
 	PushW r0
+	PushW r1
 	LoadW r0, mouse_sprite_col
 	LoadW r1, mouse_sprite_mask
+	LoadB r2L, 1 ; 1 bpp
+	ldx #16
+	ldy #16
 	lda #0
+	sec ; apply mask
 	jsr sprite_set_image
+	PopW r1
 	PopW r0
 
 mous3:	lda msepar

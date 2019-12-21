@@ -14,14 +14,20 @@
 .segment "SPRITES"
 
 ;---------------------------------------------------------------
-; sprites_set_image
+; sprite_set_image
 ;
 ;   In:   .A     sprite number
 ;         .X     data width
 ;         .Y     data height
+;         .C     1: apply mask; 0: don't apply mask
 ;         r0     pointer to pixel data
-;         r1     pointer to mask data
-;         r2L    data bits per pixel
+;         r1     pointer to mask data (if .C=1)
+;         r2L    pixel data bits per pixel
+;
+; Notes: This function is very generic. "data width/height" and
+;        bpp can be any numbers up to the maximum supported
+;        by the hardware; this code will convert the sprite
+;        data into the appropriate hardware format. [NYI]
 ;---------------------------------------------------------------
 sprite_set_image:
 	pha ; sprite number
@@ -37,6 +43,12 @@ sprite_set_image:
 	sta veralo
 	lda #$10 | (sprite_addr >> 16)
 	sta verahi
+
+	; this is the code for
+	; .X  = 16 (width)
+	; .Y  = 16 (height)
+	; .C  = 1  (apply mask)
+	; r2L = 1  (1 bpp)
 
 	PushB r2H
 	ldy #0
@@ -72,6 +84,7 @@ sprite_set_image:
 
 	PopB r2H
 
+; set sprite data offset & bpp
 	lda #$00
 	sta veralo
 	lda #$50
@@ -89,17 +102,17 @@ sprite_set_image:
 	pla ; remaining bits
 	adc #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
 	sta veradat
-	lda #$06
+
+; set size
+	lda #$07
 	sta veralo
-	lda #3 << 2 ; z-depth: in front of everything
-	sta veradat
 	lda #1 << 6 | 1 << 4 ;  16x16 px
 	sta veradat
 	
 	rts
 
 ;---------------------------------------------------------------
-; sprites_set_position
+; sprite_set_position
 ;
 ;   In:   .A     sprite number
 ;         r0     x coordinate
