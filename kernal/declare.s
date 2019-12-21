@@ -99,26 +99,6 @@ isave	.res 2           ;savesp
 
 .segment "KVARSB0"
 
-; Mouse
-;
-.export msepar, mousel, mouser, mouset, mouseb, mousex, mousey, mousebt
-msepar	.res 1           ;    X16: mouse: $80=on; 1/2: scale
-mousel	.res 2           ;    X16: mouse: min x coordinate
-mouser	.res 2           ;    X16: mouse: max x coordinate
-mouset	.res 2           ;    X16: mouse: min y coordinate
-mouseb	.res 2           ;    X16: mouse: max y coordinate
-mousex	.res 2           ;    X16: mouse: x coordinate
-mousey	.res 2           ;    X16: mouse: y coordinate
-mousebt	.res 1           ;    X16: mouse: buttons (1: left, 2: right, 4: third)
-
-; Joystick
-;
-.export j0tmp, joy0, joy1, joy2
-j0tmp	.res 1           ;    X16: keyboard joystick temp
-joy0	.res 1           ;    X16: keyboard joystick temp
-joy1	.res 3           ;    X16: joystick 1 status
-joy2	.res 3           ;    X16: joystick 2 status
-
 ; Time
 ;
 .export datey, datem, dated, timeh, timem, times, timej, timer; [time]

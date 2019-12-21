@@ -7,7 +7,6 @@
 .include "../../io.inc"
 
 ; data
-.import j0tmp, joy0, joy1, joy2; [declare]
 .import save_ram_bank; [declare]
 
 ; KERNAL API
@@ -23,6 +22,13 @@ bit_latch = $08 ; PB3 (user port pin F): LATCH (both controllers)
 bit_data1 = $10 ; PB4 (user port pin H): DATA  (controller #1)
 bit_jclk  = $20 ; PB5 (user port pin J): CLK   (both controllers)
 bit_data2 = $40 ; PB6 (user port pin K): DATA  (controller #2)
+
+.segment "KVARSB0"
+
+j0tmp:	.res 1           ;    keyboard joystick temp
+joy0:	.res 1           ;    keyboard joystick temp
+joy1:	.res 3           ;    joystick 1 status
+joy2:	.res 3           ;    joystick 2 status
 
 .segment "JOYSTICK"
 
