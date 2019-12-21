@@ -64,11 +64,20 @@
 .export iload     ; vectors
 .export isave     ; vectors
 
+; serial
+.import talk
+.import listn
+.import unlsn
+.import untlk
+.import ciout
+.import acptr
+.import tksa
+.import secnd
+
 .include "../banks.inc"
 .include "../io.inc"
 
 .include "declare.s"
-.include "serial4.0.s"
 .include "init.s"
 .include "nmi.s"
 .include "irqfile.s"

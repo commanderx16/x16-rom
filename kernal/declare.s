@@ -30,14 +30,6 @@ rambks	.res 1           ;    X16: number of ram banks (0 means 256)
 save_ram_bank
 	.res 1
 
-; Serial
-;
-c3p0	.res 1           ;$94 ieee buffered char flag
-bsour	.res 1           ;$95 char buffer for ieee
-r2d2	.res 1           ;$A3 serial bus usage
-bsour1	.res 1           ;$A4 temp used by serial routine
-count	.res 1           ;$A5 temp used by serial routine
-
 .segment "GDRVVEC"
 
 .export I_GRAPH_LL_BASE, I_GRAPH_LL_END; [graph]

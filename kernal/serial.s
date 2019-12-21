@@ -1,4 +1,11 @@
+.feature labels_without_colons
+
+.include "../io.inc"
+.include "../banks.inc"
+
 .import status
+.import jsrfar
+.import udst
 
 .export acptr
 .export ciout
@@ -12,6 +19,14 @@
 .export untlk
 
 .export clklo     ; machine init
+
+.segment "KVAR"
+
+c3p0	.res 1           ;$94 ieee buffered char flag
+bsour	.res 1           ;$95 char buffer for ieee
+r2d2	.res 1           ;$A3 serial bus usage
+bsour1	.res 1           ;$A4 temp used by serial routine
+count	.res 1           ;$A5 temp used by serial routine
 
 	.segment "SERIAL"
 
