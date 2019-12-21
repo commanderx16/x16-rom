@@ -2,15 +2,17 @@
 
 .include "../../io.inc"
 
-bsout                        = $ffd2
-close                        = $ffc3
-clrch                        = $ffcc
-stop                         = $ffe1
+bsout = $ffd2
+close = $ffc3
+clrch = $ffcc
+stop  = $ffe1
 
+; keyboard
 .import kbd_clear
 .import kbd_get
 .import kbd_get_stop
 
+; rs232
 .import bsi232
 .import bso232
 .import cki232
@@ -83,7 +85,7 @@ stop                         = $ffe1
 ; for monitor
 .export xmon2, fnadr
 
-.segment "ZPKERNAL" : zeropage
+.segment "ZPCHANNEL" : zeropage
 ;                      C64 location
 ;                         VVV
 sal	.res 1           ;$AC
@@ -93,7 +95,7 @@ eah	.res 1           ;$AF
 fnadr	.res 2           ;$BB addr current file name str
 memuss	.res 2           ;$C3 load temps
 
-.segment "KVAR"
+.segment "VARCHANNEL"
 
 ; Channel I/O
 ;
@@ -114,6 +116,8 @@ sa	.res 1           ;$B9 current file 2nd addr
 fa	.res 1           ;$BA current file primary addr
 stal	.res 1           ;$C1
 stah	.res 1           ;$C2
+
+.segment "CHANNEL"
 
 .include "messages.s"
 .include "channelio.s"

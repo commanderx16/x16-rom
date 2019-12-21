@@ -60,6 +60,7 @@
 .import dfltn     ; XXX
 .import dflto     ; XXX
 
+; channelio
 .export iload     ; vectors
 .export isave     ; vectors
 

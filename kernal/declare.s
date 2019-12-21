@@ -7,19 +7,18 @@
 ; for BASIC and GEOS
 .global mousex, mousey, mousebt
 
+.export tmp2; [cpychr]
+.export ckbtab; [ps2kbd]
+.export imparm; [jsrfar]
+.export ptr_fg; [graph]
+.export save_ram_bank
+
 .segment "ZPKERNAL" : zeropage
 ;                      C64 location
 ;                         VVV
-.export tmp2; [cpychr]
 tmp2	.res 2           ;$C3
-;
-; X16 additions
-;
-.export ckbtab; [ps2kbd]
-.export imparm; [jsrfar]
-imparm	.res 2           ;PRIMM utility string pointer
-ckbtab	.res 2           ;used for keyboard lookup
-.export ptr_fg; [graph]
+imparm	.res 2           ;    PRIMM utility string pointer
+ckbtab	.res 2           ;    used for keyboard lookup
 ptr_fg	.res 2
 
 
@@ -30,7 +29,6 @@ ptr_fg	.res 2
 buf	.res 2*40+1      ;    basic/monitor buffer
 .assert buf = $0200, error, "buf has to be at $0200"
 
-.export save_ram_bank
 save_ram_bank
 	.res 1
 
