@@ -7,7 +7,6 @@
 .include "../../io.inc"
 
 ; data
-.import kbdbyte ; [declare]
 .importzp mhz ; [declare]
 
 .export ps2_init, ps2_receive_byte
@@ -16,6 +15,11 @@ port_ddr  =d2ddrb
 port_data =d2prb
 bit_data=1              ; 6522 IO port data bit mask  (PA0/PB0)
 bit_clk =2              ; 6522 IO port clock bit mask (PA1/PB1)
+
+.segment "KVARSB0"
+
+kbdbyte:
+.res 1           ;    X16: PS/2: bit input
 
 .segment "PS2"
 

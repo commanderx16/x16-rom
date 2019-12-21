@@ -11,7 +11,7 @@
 .import joystick_from_ps2; [joystick]
 ; data
 .import save_ram_bank; [declare]
-.import brkflg, prefix, stkey, kbdtab, shflag, ndx, keyd, kbdnam, curkbd, mode; [declare]
+.import mode; [declare]
 .importzp ckbtab; [declare]
 .import fetch, fetvec; [routines]
 .import kbdmeta, ikbdmeta ; [keymap]
@@ -23,6 +23,18 @@ MODIFIER_ALT   = 2 ; C64:  Commodore
 MODIFIER_CTRL  = 4 ; C64:  Ctrl
 MODIFIER_WIN   = 8 ; C128: Alt
 MODIFIER_CAPS  = 16; C128: Caps
+
+.segment "KVARSB0"
+
+keyd:	.res 10          ;    irq keyboard buffer
+ndx:	.res 1           ;$C6 index to keyboard q
+shflag:	.res 1           ;    shift flag byte
+prefix:	.res 1           ;    X16: PS/2: prefix code (e0/e1)
+brkflg:	.res 1           ;    X16: PS/2: was key-up event
+stkey:	.res 1           ;$91 stop key flag: $ff = stop down
+curkbd:	.res 1           ;    X16: current keyboard layout index
+kbdnam:	.res 6           ;    keyboard layout name
+kbdtab:	.res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
 
 .segment "PS2KBD"
 
