@@ -3,8 +3,8 @@
 .byte 0,0,0            ; $FEE7
 .byte 0,0,0            ; $FEEA
 .byte 0,0,0            ; $FEED
-.byte 0,0,0            ; $FEF0
-.byte 0,0,0            ; $FEF3
+bridge sprite_set_image   ; $FEF0
+bridge sprite_set_position; $FEF3
 
 bridge GRAPH_LL_init                ; $FEF6
 bridge GRAPH_LL_get_info            ; $FEF9

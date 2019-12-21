@@ -8,6 +8,8 @@
 
 .import GRAPH_init, GRAPH_clear, GRAPH_set_window, GRAPH_set_colors, GRAPH_draw_line, GRAPH_draw_rect, GRAPH_move_rect, GRAPH_draw_oval, GRAPH_draw_image, GRAPH_set_font, GRAPH_get_char_size, GRAPH_put_char
 
+.import sprite_set_image, sprite_set_position
+
 	.segment "JMPTBL"
 ; *** this is space for new X16 KERNAL vectors ***
 ; for now, these are private API, they have not been
@@ -18,8 +20,8 @@
 	.byte 0,0,0            ; $FEE7
 	.byte 0,0,0            ; $FEEA
 	.byte 0,0,0            ; $FEED
-	.byte 0,0,0            ; $FEF0
-	.byte 0,0,0            ; $FEF3
+	jmp sprite_set_image   ; $FEF0
+	jmp sprite_set_position; $FEF3
 
 	;
 	; graph low-level API
