@@ -1,3 +1,5 @@
+.import status
+
 .export acptr
 .export ciout
 .export listn

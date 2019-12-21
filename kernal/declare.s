@@ -1,17 +1,12 @@
-; for monitor
-.globalzp txtptr, fnadr, pnt
-.global fnlen, la, sa, fa, mode, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
-.global buf
-; for monitor and CBDOS
-.global status
-; for BASIC and GEOS
-.global mousex, mousey, mousebt
-
+.export buf; [monitor]
 .export tmp2; [cpychr]
 .export ckbtab; [ps2kbd]
 .export imparm; [jsrfar]
 .export ptr_fg; [graph]
 .export save_ram_bank
+.export mhz
+
+mhz     =8
 
 .segment "ZPKERNAL" : zeropage
 ;                      C64 location
@@ -21,7 +16,6 @@ imparm	.res 2           ;    PRIMM utility string pointer
 ckbtab	.res 2           ;    used for keyboard lookup
 ptr_fg	.res 2
 
-
 .segment "KVAR"
 
 ;                      C64 location
@@ -29,13 +23,12 @@ ptr_fg	.res 2
 buf	.res 2*40+1      ;    basic/monitor buffer
 .assert buf = $0200, error, "buf has to be at $0200"
 
-save_ram_bank
-	.res 1
-
 ; Memory
 memstr	.res 2           ;    start of memory
 memsiz	.res 2           ;    top of memory
 rambks	.res 1           ;    X16: number of ram banks (0 means 256)
+save_ram_bank
+	.res 1
 
 ; Serial
 ;
@@ -96,14 +89,3 @@ iclall	.res 2
 usrcmd	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
-
-.export mhz
-mhz     =8              ;for the scroll delay loop
-
-;rsr 8/3/80 add & change z-page
-;rsr 8/11/80 add memuss & plf type
-;rsr 8/22/80 add rs-232 routines
-;rsr 8/24/80 add open variables
-;rsr 8/29/80 add baud space move rs232 to z-page
-;rsr 9/2/80 add screen editor vars&con
-;rsr 12/7/81 modify for vic-40
