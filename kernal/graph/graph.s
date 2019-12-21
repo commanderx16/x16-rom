@@ -6,11 +6,11 @@
 
 .include "../../mac.inc"
 .include "../../regs.inc"
-.include "../../graph_ll.inc"
+.include "../../fb.inc"
 
 .import leftMargin, windowTop, rightMargin, windowBottom
-.import GRAPH_LL_VERA
-.import I_GRAPH_LL_BASE, I_GRAPH_LL_END
+.import FB_VERA
+.import I_FB_BASE, I_FB_END
 
 .import font_init
 .import graph_init
@@ -42,15 +42,15 @@ col_bg:	.res 1
 ;---------------------------------------------------------------
 GRAPH_init:
 	; copy VERA driver vectors
-	ldx #<(I_GRAPH_LL_END - I_GRAPH_LL_BASE - 1)
-:	lda GRAPH_LL_VERA,x
-	sta I_GRAPH_LL_BASE,x
+	ldx #<(I_FB_END - I_FB_BASE - 1)
+:	lda FB_VERA,x
+	sta I_FB_BASE,x
 	dex
 	bpl :-
 	
-	jsr GRAPH_LL_init
+	jsr FB_init
 
-	jsr GRAPH_LL_get_info
+	jsr FB_get_info
 	MoveW r0, r2
 	MoveW r1, r3
 	lda #0
@@ -218,9 +218,9 @@ GRAPH_draw_line:
 @5:	lda col1
 	plp
 	php
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 	lda col1
-	jsr GRAPH_LL_set_pixel
+	jsr FB_set_pixel
 	CmpW r0, r2
 	bcs @8
 	inc r0L
@@ -272,9 +272,9 @@ GRAPH_draw_line:
 @C:	lda col1
 	plp
 	php
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 	lda col1
-	jsr GRAPH_LL_set_pixel
+	jsr FB_set_pixel
 	CmpB r1L, r3L
 	bcs @E
 	inc r1L
@@ -327,7 +327,7 @@ HorizontalLine:
 	stx r0H
 	sta r2H
 
-@2:	jsr GRAPH_LL_cursor_position
+@2:	jsr FB_cursor_position
 
 	MoveW r2, r15
 	SubW r0, r15
@@ -338,7 +338,7 @@ HorizontalLine:
 	MoveW r15, r0
 	LoadW r1, 0
 	lda col1
-	jsr GRAPH_LL_fill_pixels
+	jsr FB_fill_pixels
 	PopW r1
 	PopW r0
 	rts
@@ -368,7 +368,7 @@ VerticalLine:
 	inx
 	beq @2 ; .x = number of pixels to draw
 
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 
 	PushW r0
 	PushW r1
@@ -376,7 +376,7 @@ VerticalLine:
 	stx r0L
 	stz r0H
 	lda col1
-	jsr GRAPH_LL_fill_pixels
+	jsr FB_fill_pixels
 	PopW r1
 	PopW r0
 @2:	rts
@@ -408,18 +408,18 @@ GRAPH_draw_rect:
 ; fill
 	PushW r1
 	PushW r3
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 
 @1:	PushW r0
 	PushW r1
 	MoveW r2, r0
 	LoadW r1, 0
 	lda col2
-	jsr GRAPH_LL_fill_pixels
+	jsr FB_fill_pixels
 	PopW r1
 	PopW r0
 
-	jsr GRAPH_LL_cursor_next_line
+	jsr FB_cursor_next_line
 
 	lda r3L
 	bne @2
@@ -475,11 +475,11 @@ GRAPH_draw_image:
 	PushW r0
 	PushW r1
 	PushW r4
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 
 	MoveW r2, r0
 	MoveW r3, r1
-@1:	jsr GRAPH_LL_set_pixels
+@1:	jsr FB_set_pixels
 
 	lda r4L
 	bne :+
@@ -487,7 +487,7 @@ GRAPH_draw_image:
 :	dec r4L
 
 	AddW r3, r0 ; update pointer
-	jsr GRAPH_LL_cursor_next_line
+	jsr FB_cursor_next_line
 	
 	lda r4L
 	ora r4H
@@ -511,7 +511,7 @@ GRAPH_draw_image:
 GRAPH_move_rect:
 ; XXX overlaps
 
-@1:	jsr GRAPH_LL_move_pixels
+@1:	jsr FB_move_pixels
 	IncW r1 ; sy
 	IncW r3 ; ty
 	lda r5L

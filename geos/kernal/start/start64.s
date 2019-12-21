@@ -11,7 +11,7 @@
 .include "inputdrv.inc"
 .include "c64.inc"
 .include "../../banks.inc"
-.include "../../graph_ll.inc"
+.include "../../fb.inc"
 
 ; main.s
 .import InitGEOEnv
@@ -84,7 +84,7 @@ _ResetHandle:
 	.byte BANK_KERNAL
 
 	jsr gjsrfar
-	.word GRAPH_LL_init
+	.word FB_init
 	.byte BANK_KERNAL
 
 	lda #$00 ; layer1

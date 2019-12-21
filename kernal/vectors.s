@@ -26,20 +26,20 @@
 	;
 	; graph low-level API
 	;
-	jmp (I_GRAPH_LL_init)                ; $FEF6: GRAPH_LL_init
-	jmp (I_GRAPH_LL_get_info)            ; $FEF9: GRAPH_LL_get_info
-	jmp (I_GRAPH_LL_set_palette)         ; $FEFC: GRAPH_LL_set_palette
-	jmp (I_GRAPH_LL_cursor_position)     ; $FEFF: GRAPH_LL_cursor_position
-	jmp (I_GRAPH_LL_cursor_next_line)    ; $FF02: GRAPH_LL_cursor_next_line
-	jmp (I_GRAPH_LL_get_pixel)           ; $FF05: GRAPH_LL_get_pixel
-	jmp (I_GRAPH_LL_get_pixels)          ; $FF08: GRAPH_LL_get_pixels
-	jmp (I_GRAPH_LL_set_pixel)           ; $FF0B: GRAPH_LL_set_pixel
-	jmp (I_GRAPH_LL_set_pixels)          ; $FF0E: GRAPH_LL_set_pixels
-	jmp (I_GRAPH_LL_set_8_pixels)        ; $FF11: GRAPH_LL_set_8_pixels
-	jmp (I_GRAPH_LL_set_8_pixels_opaque) ; $FF14: GRAPH_LL_set_8_pixels_opaque
-	jmp (I_GRAPH_LL_fill_pixels)         ; $FF17: GRAPH_LL_fill_pixels
-	jmp (I_GRAPH_LL_filter_pixels)       ; $FF1A: GRAPH_LL_filter_pixels
-	jmp (I_GRAPH_LL_move_pixels)         ; $FF1D: GRAPH_LL_move_pixels
+	jmp (I_FB_init)                ; $FEF6: FB_init
+	jmp (I_FB_get_info)            ; $FEF9: FB_get_info
+	jmp (I_FB_set_palette)         ; $FEFC: FB_set_palette
+	jmp (I_FB_cursor_position)     ; $FEFF: FB_cursor_position
+	jmp (I_FB_cursor_next_line)    ; $FF02: FB_cursor_next_line
+	jmp (I_FB_get_pixel)           ; $FF05: FB_get_pixel
+	jmp (I_FB_get_pixels)          ; $FF08: FB_get_pixels
+	jmp (I_FB_set_pixel)           ; $FF0B: FB_set_pixel
+	jmp (I_FB_set_pixels)          ; $FF0E: FB_set_pixels
+	jmp (I_FB_set_8_pixels)        ; $FF11: FB_set_8_pixels
+	jmp (I_FB_set_8_pixels_opaque) ; $FF14: FB_set_8_pixels_opaque
+	jmp (I_FB_fill_pixels)         ; $FF17: FB_fill_pixels
+	jmp (I_FB_filter_pixels)       ; $FF1A: FB_filter_pixels
+	jmp (I_FB_move_pixels)         ; $FF1D: FB_move_pixels
 
 	;
 	; graph high-level API

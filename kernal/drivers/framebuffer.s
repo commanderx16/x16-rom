@@ -9,32 +9,32 @@
 
 .importzp ptr_fg
 
-.export GRAPH_LL_VERA
+.export FB_VERA
 
 .segment "VERA_DRV"
 
-GRAPH_LL_VERA:
-	.word GRAPH_LL_init
-	.word GRAPH_LL_get_info
-	.word GRAPH_LL_set_palette
-	.word GRAPH_LL_cursor_position
-	.word GRAPH_LL_cursor_next_line
-	.word GRAPH_LL_get_pixel
-	.word GRAPH_LL_get_pixels
-	.word GRAPH_LL_set_pixel
-	.word GRAPH_LL_set_pixels
-	.word GRAPH_LL_set_8_pixels
-	.word GRAPH_LL_set_8_pixels_opaque
-	.word GRAPH_LL_fill_pixels
-	.word GRAPH_LL_filter_pixels
-	.word GRAPH_LL_move_pixels
+FB_VERA:
+	.word FB_init
+	.word FB_get_info
+	.word FB_set_palette
+	.word FB_cursor_position
+	.word FB_cursor_next_line
+	.word FB_get_pixel
+	.word FB_get_pixels
+	.word FB_set_pixel
+	.word FB_set_pixels
+	.word FB_set_8_pixels
+	.word FB_set_8_pixels_opaque
+	.word FB_fill_pixels
+	.word FB_filter_pixels
+	.word FB_move_pixels
 
 ;---------------------------------------------------------------
-; GRAPH_LL_init
+; FB_init
 ;
 ; Pass:      -
 ;---------------------------------------------------------------
-GRAPH_LL_init:
+FB_init:
 	lda #$00 ; layer0
 	sta veralo
 	lda #$20
@@ -81,37 +81,37 @@ tvera_composer_g:
 tvera_composer_g_end:
 
 ;---------------------------------------------------------------
-; GRAPH_LL_get_info
+; FB_get_info
 ;
 ; Return:    r0       width
 ;            r1       height
 ;            a        color depth
 ;---------------------------------------------------------------
-GRAPH_LL_get_info:
+FB_get_info:
 	LoadW r0, 320
 	LoadW r1, 200
 	lda #8
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_set_palette
+; FB_set_palette
 ;
 ; Return:    r0       pointer
 ;            a        start index
 ;            x        count
 ;---------------------------------------------------------------
-GRAPH_LL_set_palette:
+FB_set_palette:
 	; TODO
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_cursor_position
+; FB_cursor_position
 ;
 ; Function:  Sets up the VRAM ptr
 ; Pass:      r0     x pos
 ;            r1     y pos
 ;---------------------------------------------------------------
-GRAPH_LL_cursor_position:
+FB_cursor_position:
 ; ptr_fg = y * 320
 	stz ptr_fg+1
 	lda r1L
@@ -150,12 +150,12 @@ GRAPH_LL_cursor_position:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_cursor_next_line
+; FB_cursor_next_line
 ;
 ; Function:  Advances VRAM ptr to next line
 ; Pass:      r0     additional x pos
 ;---------------------------------------------------------------
-GRAPH_LL_cursor_next_line:
+FB_cursor_next_line:
 	lda #<320
 	clc
 	adc ptr_fg
@@ -168,35 +168,35 @@ GRAPH_LL_cursor_next_line:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_set_pixel
+; FB_set_pixel
 ;
 ; Function:  Stores a color in VRAM/BG and advances the pointer
 ; Pass:      a   color
 ;---------------------------------------------------------------
-GRAPH_LL_set_pixel:
+FB_set_pixel:
 	sta veradat
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_get_pixel
+; FB_get_pixel
 ;
 ; Pass:      r0   x pos
 ;            r1   y pos
 ; Return:    a    color of pixel
 ;---------------------------------------------------------------
-GRAPH_LL_get_pixel:
+FB_get_pixel:
 	lda veradat
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_set_pixels
+; FB_set_pixels
 ;
 ; Function:  Stores an array of color values in VRAM/BG and
 ;            advances the pointer
 ; Pass:      r0  pointer
 ;            r1  count
 ;---------------------------------------------------------------
-GRAPH_LL_set_pixels:
+FB_set_pixels:
 	PushB r0H
 	PushB r1H
 
@@ -221,14 +221,14 @@ GRAPH_LL_set_pixels:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_get_pixels
+; FB_get_pixels
 ;
 ; Function:  Fetches an array of color values from VRAM/BG and
 ;            advances the pointer
 ; Pass:      r0  pointer
 ;            r1  count
 ;---------------------------------------------------------------
-GRAPH_LL_get_pixels:
+FB_get_pixels:
 	PushB r0H
 	PushB r1H
 	jsr get_pixels_FG
@@ -256,14 +256,14 @@ get_pixels_FG:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_set_8_pixels
+; FB_set_8_pixels
 ;
 ; Note: Always advances the pointer by 8 pixels.
 ;
 ; Pass:      a        pattern
 ;            x        color
 ;---------------------------------------------------------------
-GRAPH_LL_set_8_pixels:
+FB_set_8_pixels:
 ; this takes about 120 cycles, independently of the pattern
 	sec
 	rol
@@ -283,7 +283,7 @@ GRAPH_LL_set_8_pixels:
 @3:	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_set_8_pixels_opaque
+; FB_set_8_pixels_opaque
 ;
 ; Note: Always advances the pointer by 8 pixels.
 ;
@@ -292,7 +292,7 @@ GRAPH_LL_set_8_pixels:
 ;            x        color
 ;            y        color
 ;---------------------------------------------------------------
-GRAPH_LL_set_8_pixels_opaque:
+FB_set_8_pixels_opaque:
 ; opaque drawing with fg color .x and bg color .y
 	sec
 	rol
@@ -318,13 +318,13 @@ GRAPH_LL_set_8_pixels_opaque:
 @4:	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_fill_pixels
+; FB_fill_pixels
 ;
 ; Pass:      r0   number of pixels
 ;            r1   step size
 ;            a    color
 ;---------------------------------------------------------------
-GRAPH_LL_fill_pixels:
+FB_fill_pixels:
 	ldx r1H
 	bne fill_pixels_with_step
 	ldx r1L
@@ -391,14 +391,14 @@ fill_pixels_with_step:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_filter_pixels
+; FB_filter_pixels
 ;
 ; Pass:      r0   number of pixels
 ;            r1   pointer to filter routine:
 ;                 Pass:    a  color
 ;                 Return:  a  color
 ;---------------------------------------------------------------
-GRAPH_LL_filter_pixels:
+FB_filter_pixels:
 	; build a JMP instruction
 	LoadB r14H, $4c
 	MoveW r1, r15
@@ -473,7 +473,7 @@ filter_y:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_move_pixels
+; FB_move_pixels
 ;
 ; Pass:      r0   source x
 ;            r1   source y
@@ -481,18 +481,18 @@ filter_y:
 ;            r3   target y
 ;            r4   number of pixels
 ;---------------------------------------------------------------
-GRAPH_LL_move_pixels:
+FB_move_pixels:
 ; XXX sy == ty && sx < tx && sx + c > tx -> backwards!
 
 	lda #1
 	sta veractl
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 	stz veractl
 	PushW r0
 	PushW r1
 	MoveW r2, r0
 	MoveW r3, r1
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 	PopW r1
 	PopW r0
 

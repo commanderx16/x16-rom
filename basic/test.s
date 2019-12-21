@@ -107,11 +107,11 @@ test4_set_get_pixels:
 	; set direct pixels
 	LoadW r0, 5
 	LoadW r1, 23
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 	ldx #0
 :	phx
 	txa
-	jsr GRAPH_LL_set_pixel
+	jsr FB_set_pixel
 	plx
 	inx
 	bne :-
@@ -119,11 +119,11 @@ test4_set_get_pixels:
 	; get direct pixels
 	LoadW r0, 5
 	LoadW r1, 23
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 	LoadB r1H, 1; "OK"
 	ldx #0
 :	phx
-	jsr GRAPH_LL_get_pixel
+	jsr FB_get_pixel
 	plx
 	sta r0L
 	cpx r0L
@@ -148,11 +148,11 @@ test5_filter_pixels:
 	; set direct pixels
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 	ldx #0
 :	phx
 	txa
-	jsr GRAPH_LL_set_pixel
+	jsr FB_set_pixel
 	plx
 	inx
 	bne :-
@@ -160,22 +160,22 @@ test5_filter_pixels:
 	; filter pixels
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 	LoadW $70, $49 ; EOR #
 	LoadW $71, $55 ;      $55
 	LoadW $72, $60 ; RTS
 	LoadW r0, 256
 	LoadW r1, $70
-	jsr GRAPH_LL_filter_pixels
+	jsr FB_filter_pixels
 
 	; check filter result using direct read
 	LoadW r0, 5
 	LoadW r1, 25
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 	LoadB r1H, 1; "OK"
 	ldx #0
 :	phx
-	jsr GRAPH_LL_get_pixel
+	jsr FB_get_pixel
 	plx
 	eor #$55
 	sta r0L
@@ -481,13 +481,13 @@ checksum_framebuffer:
 	stx r1L
 	stz r1H
 	phx
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 
 	ldx #>320
 	ldy #<320
 @loop2:	phy
 	phx
-	jsr GRAPH_LL_get_pixel
+	jsr FB_get_pixel
 	jsr crc16_f
 	plx
 	ply

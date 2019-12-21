@@ -6,20 +6,20 @@
 bridge sprite_set_image   ; $FEF0
 bridge sprite_set_position; $FEF3
 
-bridge GRAPH_LL_init                ; $FEF6
-bridge GRAPH_LL_get_info            ; $FEF9
-bridge GRAPH_LL_set_palette         ; $FEFC
-bridge GRAPH_LL_cursor_position     ; $FEFF
-bridge GRAPH_LL_cursor_next_line    ; $FF02
-bridge GRAPH_LL_get_pixel           ; $FF05
-bridge GRAPH_LL_get_pixels          ; $FF08
-bridge GRAPH_LL_set_pixel           ; $FF0B
-bridge GRAPH_LL_set_pixels          ; $FF0E
-bridge GRAPH_LL_set_8_pixels        ; $FF11
-bridge GRAPH_LL_set_8_pixels_opaque ; $FF14
-bridge GRAPH_LL_fill_pixels         ; $FF17
-bridge GRAPH_LL_filter_pixels       ; $FF1A
-bridge GRAPH_LL_move_pixels         ; $FF1D
+bridge FB_init                ; $FEF6
+bridge FB_get_info            ; $FEF9
+bridge FB_set_palette         ; $FEFC
+bridge FB_cursor_position     ; $FEFF
+bridge FB_cursor_next_line    ; $FF02
+bridge FB_get_pixel           ; $FF05
+bridge FB_get_pixels          ; $FF08
+bridge FB_set_pixel           ; $FF0B
+bridge FB_set_pixels          ; $FF0E
+bridge FB_set_8_pixels        ; $FF11
+bridge FB_set_8_pixels_opaque ; $FF14
+bridge FB_fill_pixels         ; $FF17
+bridge FB_filter_pixels       ; $FF1A
+bridge FB_move_pixels         ; $FF1D
 
 bridge GRAPH_init          ; $FF20
 bridge GRAPH_clear         ; $FF23

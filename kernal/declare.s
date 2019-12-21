@@ -32,37 +32,37 @@ save_ram_bank
 
 .segment "GDRVVEC"
 
-.export I_GRAPH_LL_BASE, I_GRAPH_LL_END; [graph]
-I_GRAPH_LL_BASE:
-I_GRAPH_LL_init:
+.export I_FB_BASE, I_FB_END; [graph]
+I_FB_BASE:
+I_FB_init:
 	.res 2
-I_GRAPH_LL_get_info:
+I_FB_get_info:
 	.res 2
-I_GRAPH_LL_set_palette
+I_FB_set_palette
 	.res 2
-I_GRAPH_LL_cursor_position:
+I_FB_cursor_position:
 	.res 2
-I_GRAPH_LL_cursor_next_line:
+I_FB_cursor_next_line:
 	.res 2
-I_GRAPH_LL_get_pixel:
+I_FB_get_pixel:
 	.res 2
-I_GRAPH_LL_get_pixels:
+I_FB_get_pixels:
 	.res 2
-I_GRAPH_LL_set_pixel:
+I_FB_set_pixel:
 	.res 2
-I_GRAPH_LL_set_pixels:
+I_FB_set_pixels:
 	.res 2
-I_GRAPH_LL_set_8_pixels:
+I_FB_set_8_pixels:
 	.res 2
-I_GRAPH_LL_set_8_pixels_opaque:
+I_FB_set_8_pixels_opaque:
 	.res 2
-I_GRAPH_LL_fill_pixels:
+I_FB_fill_pixels:
 	.res 2
-I_GRAPH_LL_filter_pixels:
+I_FB_filter_pixels:
 	.res 2
-I_GRAPH_LL_move_pixels:
+I_FB_move_pixels:
 	.res 2
-I_GRAPH_LL_END:
+I_FB_END:
 
 	.segment "KVECTORS";rem kernal/os indirects(20)
 cinv	.res 2           ;irq ram vector

@@ -306,7 +306,7 @@ Font_2:
 	stx r0H
 	MoveB r1H, r1L
 	stz r1H
-	jsr GRAPH_LL_cursor_position
+	jsr FB_cursor_position
 	PopW r1
 
 	MoveB FontTVar2+1, r3L
@@ -691,7 +691,7 @@ FontPutChar:
 	bne @7
 @6:	jsr Font_4
 @7:
-	jsr GRAPH_LL_cursor_next_line
+	jsr FB_cursor_next_line
 
 	inc r1H
 	dec r10H
@@ -717,7 +717,7 @@ Draw8Pixels:
 	phx
 	ldx col1 ; fg: primary color
 	and r0L
-	jsr GRAPH_LL_set_8_pixels
+	jsr FB_set_8_pixels
 	plx
 	rts
 
@@ -725,7 +725,7 @@ Draw8Pixels:
 @5:	ldy col_bg  ; bg
 	phx
 	ldx col1 ; fg: primary color
-	jsr GRAPH_LL_set_8_pixels_opaque
+	jsr FB_set_8_pixels_opaque
 	plx
 	rts
 
@@ -734,7 +734,7 @@ Draw8PixelsInv:
 	ldy col2 ; bg: secondary color
 	phx
 	ldx col1 ; fg: primary color
-	jsr GRAPH_LL_set_8_pixels_opaque
+	jsr FB_set_8_pixels_opaque
 	plx
 	rts
 

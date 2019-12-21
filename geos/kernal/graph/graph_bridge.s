@@ -9,7 +9,7 @@
 .include "config.inc"
 .include "kernal.inc"
 .include "c64.inc"
-.include "../../graph_ll.inc"
+.include "../../fb.inc"
 
 .global _GetScanLine
 
@@ -330,7 +330,7 @@ _TestPoint:
 	php
 	sei
 	jsr gjsrfar
-	.word GRAPH_LL_get_pixel
+	.word FB_get_pixel
 	.byte BANK_KERNAL
 	plp
 	tax
@@ -409,7 +409,7 @@ _InvertLine:
 
 	php
 	sei
-	jsrfar GRAPH_LL_filter_pixels
+	jsrfar FB_filter_pixels
 	plp
 		
 	PopB r12L
@@ -470,14 +470,14 @@ _VerticalLine:
 _GRAPH_start_direct:
 	php
 	sei
-	jsrfar GRAPH_LL_cursor_position
+	jsrfar FB_cursor_position
 	plp
 	rts
 
 _GRAPH_set_pixel:
 	php
 	sei
-	jsrfar GRAPH_LL_set_pixel
+	jsrfar FB_set_pixel
 	plp
 	rts
 

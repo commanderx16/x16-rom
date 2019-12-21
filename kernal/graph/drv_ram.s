@@ -1,47 +1,50 @@
-; Commander X16 KERNAL
-;
+;----------------------------------------------------------------------
 ; Offscreen 320x200@256c Graphics Driver
+;----------------------------------------------------------------------
+; (C)2019 Michael Steil, License: 2-clause BSD
 
-.export GRAPH_LL_get_info
-.export GRAPH_LL_set_ptr
-.export GRAPH_LL_set_pixel
-.export GRAPH_LL_get_pixel
-.export GRAPH_LL_set_pixels
-.export GRAPH_LL_get_pixels
-.export GRAPH_LL_filter_pixels
+; XXX This code is incomplete and not currently included in the build.
+
+.export FB_get_info
+.export FB_set_ptr
+.export FB_set_pixel
+.export FB_get_pixel
+.export FB_set_pixels
+.export FB_get_pixels
+.export FB_filter_pixels
 
 .segment "RAM_DRV"
 
 ;---------------------------------------------------------------
-; GRAPH_LL_init
+; FB_init
 ;
 ; Pass:      -
 ;---------------------------------------------------------------
-GRAPH_LL_init:
+FB_init:
 	rts
 	
 
 ;---------------------------------------------------------------
-; GRAPH_LL_get_info
+; FB_get_info
 ;
 ; Return:    r0       width
 ;            r1       height
 ;            a        color depth
 ;---------------------------------------------------------------
-GRAPH_LL_get_info:
+FB_get_info:
 	LoadW r0, 320
 	LoadW r1, 200
 	lda #8
 	rts
 	
 ;---------------------------------------------------------------
-; GRAPH_LL_set_ptr
+; FB_set_ptr
 ;
 ; Function:  Sets up the VRAM address of a pixel
 ; Pass:      r0     x pos
 ;            r1     y pos
 ;---------------------------------------------------------------
-GRAPH_LL_set_ptr:
+FB_set_ptr:
 ; For BG storage, we have to work with 8 KB banks.
 ; Lines are 320 bytes, and 8 KB is not divisible by 320,
 ; so the base address of certain lines would be so close
@@ -113,12 +116,12 @@ GRAPH_LL_set_ptr:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_set_pixel
+; FB_set_pixel
 ;
 ; Function:  Stores a color in VRAM/BG and advances the pointer
 ; Pass:      a   color
 ;---------------------------------------------------------------
-GRAPH_LL_set_pixel:
+FB_set_pixel:
 	sta (ptr_bg)
 	inc ptr_bg
 	beq inc_bgpage
@@ -138,27 +141,27 @@ inc_bgpage:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_get_pixel
+; FB_get_pixel
 ;
 ; Pass:      r0   x pos
 ;            r1   y pos
 ; Return:    a    color of pixel
 ;---------------------------------------------------------------
-GRAPH_LL_get_pixel:
+FB_get_pixel:
 	lda (ptr_bg)
 	inc ptr_bg
 	beq inc_bgpage
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_set_pixels
+; FB_set_pixels
 ;
 ; Function:  Stores an array of color values in VRAM/BG and
 ;            advances the pointer
 ; Pass:      r0  pointer
 ;            r1  count
 ;---------------------------------------------------------------
-GRAPH_LL_set_pixels:
+FB_set_pixels:
 	PushB r0H
 	PushB r1H
 	jsr set_pixels_BG
@@ -189,14 +192,14 @@ set_pixels_BG:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_get_pixels
+; FB_get_pixels
 ;
 ; Function:  Fetches an array of color values from VRAM/BG and
 ;            advances the pointer
 ; Pass:      r0  pointer
 ;            r1  count
 ;---------------------------------------------------------------
-GRAPH_LL_get_pixels:
+FB_get_pixels:
 	PushB r0H
 	PushB r1H
 	jsr get_pixels_BG
@@ -227,14 +230,14 @@ get_pixels_BG:
 	rts
 
 ;---------------------------------------------------------------
-; GRAPH_LL_filter_pixels
+; FB_filter_pixels
 ;
 ; Pass:      r0   number of pixels
 ;            r1   pointer to filter routine:
 ;                 Pass:    a  color
 ;                 Return:  a  color
 ;---------------------------------------------------------------
-GRAPH_LL_filter_pixels:
+FB_filter_pixels:
 	; build a JMP instruction
 	LoadB r14H, $4c
 	MoveW r1, r15

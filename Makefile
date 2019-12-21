@@ -167,7 +167,7 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/joystick.o kernal/drivers/joystick.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/clock.o kernal/drivers/clock.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/rs232.o kernal/drivers/rs232.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/bitmap.o kernal/drivers/bitmap.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/framebuffer.o kernal/drivers/framebuffer.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/sprites.o kernal/drivers/sprites.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/graph/graph.o kernal/graph/graph.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/fonts/fonts.o kernal/fonts/fonts.s
@@ -206,7 +206,7 @@ all: $(PREFIXED_GEOS_OBJS)
 		kernal/drivers/joystick.o \
 		kernal/drivers/clock.o \
 		kernal/drivers/rs232.o \
-		kernal/drivers/bitmap.o \
+		kernal/drivers/framebuffer.o \
 		kernal/drivers/sprites.o \
 		kernal/graph/graph.o kernal/fonts/fonts.o \
 		monitor/monitor.o \
