@@ -37,17 +37,10 @@
 
 .import GRAPH_init
 
-scrsz   =$4000          ;screen ram size, rounded up to power of two
-scrmsk  =(>scrsz)-1     ;for masking offset in screen ram
-
-.segment "ZPKERNAL" : zeropage
-pnt:	.res 2           ;$D1 pointer to row
-
 .segment "KVAR"
 
-; Screen Mode
-;
 cscrmd:	.res 1           ;    X16: current screen mode (argument to screen_set_mode)
+pnt:	.res 2           ;$D1 pointer to row
 
 .segment "SCREEN"
 

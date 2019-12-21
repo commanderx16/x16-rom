@@ -5,7 +5,8 @@
 .import xmon2, bmt2, loop4, xmon1, screen_get_char, screen_set_char, ldtb1, stavec
 .import nlines, nlinesm1
 
-.importzp txtptr, fnadr, pnt
+.importzp txtptr, fnadr
+.import pnt
 .import status, fnlen, la, sa, fa, mode, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
 .import buf, rptflg
 
