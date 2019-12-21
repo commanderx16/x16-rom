@@ -107,8 +107,8 @@ mous1:	cmp #0
 ; show mouse
 mous2:	cmp #$ff
 	beq mous3
-	; we ignore the cursor #, always set std pointer
 
+	; we ignore the cursor #, always set std pointer
 	PushW r0
 	LoadW r0, mouse_sprite_col
 	LoadW r1, mouse_sprite_mask
@@ -298,5 +298,3 @@ mouse_sprite_mask: ; 0: transparent, 1: opaque
 .byte %00000111,%10000000
 .byte %00000011,%10000000
 
-.export mouse_sprite_col
-.export mouse_sprite_mask

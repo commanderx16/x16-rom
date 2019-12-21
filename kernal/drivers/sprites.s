@@ -24,34 +24,40 @@
 ;         r2L    data bits per pixel
 ;---------------------------------------------------------------
 sprite_set_image:
-	.import mouse_sprite_mask, mouse_sprite_col
+	pha ; sprite number
 
-	PushB r2H
-
+	asl
+	asl
+	asl
+	asl ; add $1000 for every sprite
+	clc
+	adc #>sprite_addr
+	sta veramid
 	lda #<sprite_addr
 	sta veralo
-	lda #>sprite_addr
-	sta veramid
 	lda #$10 | (sprite_addr >> 16)
 	sta verahi
-	ldx #0
+
+	PushB r2H
+	ldy #0
 @1:	lda #8
 	sta r2H
-	lda mouse_sprite_mask,x
-	ldy mouse_sprite_col,x
+	lda (r1),y
+	tax
+	lda (r0),y
 @2:	asl
 	bcs @3
 	stz veradat
 	pha
-	tya
+	txa
 	asl
-	tay
+	tax
 	pla
 	bra @4
 @3:	pha
-	tya
+	txa
 	asl
-	tay
+	tax
 	bcc @5
 	lda #1  ; white
 	bra @6
@@ -60,8 +66,8 @@ sprite_set_image:
 	pla
 @4:	dec r2H
 	bne @2
-	inx
-	cpx #32
+	iny
+	cpy #32
 	bne @1
 
 	PopB r2H
@@ -72,9 +78,16 @@ sprite_set_image:
 	sta veramid
 	lda #$1F
 	sta verahi
-	lda #<(sprite_addr >> 5)
+	pla ; sprite number
+	lsr
+	pha
+	lda #0
+	ror ; LSB will be bit #12 of address
+	clc
+	adc #<(sprite_addr >> 5)
 	sta veradat
-	lda #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
+	pla ; remaining bits
+	adc #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
 	sta veradat
 	lda #$06
 	sta veralo
