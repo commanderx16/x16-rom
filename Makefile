@@ -156,6 +156,7 @@ all: $(PREFIXED_GEOS_OBJS)
 
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/editor.o kernal/editor.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/channelio/channelio_main.o kernal/channelio/channelio_main.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16.o kernal/drivers/x16.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/memory.o kernal/drivers/memory.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/screen.o kernal/drivers/screen.s
@@ -193,6 +194,7 @@ all: $(PREFIXED_GEOS_OBJS)
 		fplib/fplib.o \
 		kernal/kernal.o \
 		kernal/editor.o \
+		kernal/channelio/channelio_main.o \
 		kernal/drivers/x16.o \
 		kernal/drivers/memory.o \
 		kernal/drivers/screen.o \

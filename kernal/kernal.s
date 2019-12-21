@@ -3,7 +3,7 @@
 
 ; for monitor
 ; XXX these should be removed or at least minimized
-.export xmon2, ms1
+;.export xmon2, ms1
 
 ; from editor
 .import plot
@@ -31,9 +31,6 @@
 .export sah
 .export sal
 
-; from RS232
-.import opn232, cls232, cko232, cki232, bso232, bsi232
-
 ; from memory driver
 .import ramtas
 .import indfet
@@ -46,22 +43,91 @@
 ; from platform driver
 .import ioinit
 
+; channelio
+.import savesp
+.import loadsp
+.import setnam
+.import setlfs
+.import readst
+.import settmo
+.import setmsg
+.import lkupsa
+.import lkupla
+.import close_all
+.import nsave
+.import nload
+.import nclall
+.import ngetin
+.import nstop
+.import nbsout
+.import nbasin
+.import nclrch
+.import nckout
+.import nchkin
+.import nclose
+.import nopen
+.import udst
+.export acptr
+.export bsout
+.export ciout
+.export close
+.export clrch
+;.export crsw
+.export dfltn
+.export dflto
+.export eah
+.export eal
+.export fa
+.export fat
+.exportzp fnadr
+.export fnlen
+.export iload
+;.export indx
+.export isave
+;.export kbd_clear
+;.export kbd_get
+;.export kbd_get_stop
+.export la
+.export lat
+.export ldtnd
+.export listn
+;.export lnmx
+;.export loop5
+;.export lstp
+;.export lsxp
+.export memuss
+.export msgflg
+;.export pntr
+;.export prt
+.export sa
+.export sah
+.export sal
+.export sat
+.export scatn
+.export secnd
+.export stah
+.export stal
+.export status
+.export stop
+.export t1
+.export talk
+;.export tblx
+.export tkatn
+.export tksa
+.export unlsn
+.export untlk
+.export veradat
+.export verahi
+.export veralo
+.export veramid
+.export verck
+.export xsav
+
 .include "../banks.inc"
 .include "../io.inc"
 
 .include "declare.s"
 .include "serial4.0.s"
-
-.include "channelio/messages.s"
-.include "channelio/channelio.s"
-.include "channelio/openchannel.s"
-.include "channelio/close.s"
-.include "channelio/clall.s"
-.include "channelio/open.s"
-.include "channelio/load.s"
-.include "channelio/save.s"
-.include "channelio/errorhandler.s"
-
 .include "init.s"
 .include "nmi.s"
 .include "irqfile.s"
