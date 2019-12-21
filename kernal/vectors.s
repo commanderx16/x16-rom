@@ -1,4 +1,4 @@
-.global monitor
+.import monitor
 
 .import mouse_config, mouse_get; [mouse]
 .import joystick_scan; [joystick]

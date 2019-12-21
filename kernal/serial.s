@@ -20,6 +20,11 @@
 
 .export clklo     ; machine init
 
+sdata	=$ffff ; XXX fill for X16
+d1crb	=$ffff ; XXX fill for X16
+d1icr	=$ffff ; XXX fill for X16
+timrb	=$19            ;6526 crb enable one-shot tb
+
 .segment "KVAR"
 
 c3p0	.res 1           ;$94 ieee buffered char flag
@@ -29,11 +34,6 @@ bsour1	.res 1           ;$A4 temp used by serial routine
 count	.res 1           ;$A5 temp used by serial routine
 
 	.segment "SERIAL"
-
-sdata	=$ffff ; XXX fill for X16
-d1crb	=$ffff ; XXX fill for X16
-d1icr	=$ffff ; XXX fill for X16
-timrb	=$19            ;6526 crb enable one-shot tb
 
 ;command serial bus device to talk
 ;
