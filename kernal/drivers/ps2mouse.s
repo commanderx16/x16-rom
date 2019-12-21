@@ -2,8 +2,6 @@
 ; PS/2 Mouse Driver
 ;----------------------------------------------------------------------
 
-sprite_addr = 60 * 256 ; after text screen
-
 .include "../../banks.inc"
 .include "../../io.inc"
 .include "../../regs.inc"
@@ -18,7 +16,7 @@ sprite_addr = 60 * 256 ; after text screen
 .import screen_save_state
 .import screen_restore_state
 
-.import sprite_set_position
+.import sprite_set_image, sprite_set_position
 
 .export mouse_init, mouse_config, mouse_scan, mouse_get
 
@@ -110,73 +108,19 @@ mous1:	cmp #0
 mous2:	cmp #$ff
 	beq mous3
 	; we ignore the cursor #, always set std pointer
-	lda #<sprite_addr
-	sta veralo
-	lda #>sprite_addr
-	sta veramid
-	lda #$10 | (sprite_addr >> 16)
-	sta verahi
-	lda msepar ; save this, we'll re-use as temp counter
-	pha
-	ldx #0
-@1:	lda #8
-	sta msepar
-	lda mouse_sprite_mask,x
-	ldy mouse_sprite_col,x
-@2:	asl
-	bcs @3
-	stz veradat
-	pha
-	tya
-	asl
-	tay
-	pla
-	bra @4
-@3:	pha
-	tya
-	asl
-	tay
-	bcc @5
-	lda #1  ; white
-	bra @6
-@5:	lda #16 ; black
-@6:	sta veradat
-	pla
-@4:	dec msepar
-	bne @2
-	inx
-	cpx #32
-	bne @1
-	pla
-	sta msepar
+
+	PushW r0
+	LoadW r0, mouse_sprite_col
+	LoadW r1, mouse_sprite_mask
+	lda #0
+	jsr sprite_set_image
+	PopW r0
 
 mous3:	lda msepar
 	ora #$80 ; flag: mouse on
 	sta msepar
-	lda #$00
-	sta veralo
-	lda #$40
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #1
-	sta veradat ; enable sprites
 
-	lda #$00
-	sta veralo
-	lda #$50
-	sta veramid
-	lda #<(sprite_addr >> 5)
-	sta veradat
-	lda #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
-	sta veradat
-	lda #$06
-	sta veralo
-	lda #3 << 2 ; z-depth: in front of everything
-	sta veradat
-	lda #1 << 6 | 1 << 4 ;  16x16 px
-	sta veradat
-	rts
+	jmp mouse_update_position
 
 _mouse_scan:
 	bit msepar ; do nothing if mouse is off
@@ -276,7 +220,7 @@ _mouse_scan:
 	stx mousey+1
 @5a:
 
-; update sprite
+mouse_update_position:
 	jsr screen_save_state
 	
 	PushW r0
@@ -353,3 +297,6 @@ mouse_sprite_mask: ; 0: transparent, 1: opaque
 .byte %10000111,%10000000
 .byte %00000111,%10000000
 .byte %00000011,%10000000
+
+.export mouse_sprite_col
+.export mouse_sprite_mask
