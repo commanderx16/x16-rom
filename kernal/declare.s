@@ -25,9 +25,8 @@ tmp2	.res 2           ;$C3
 .export imparm; [jsrfar]
 imparm	.res 2           ;PRIMM utility string pointer
 ckbtab	.res 2           ;used for keyboard lookup
-.export ptr_fg, ptr_bg; [graph]
+.export ptr_fg; [graph]
 ptr_fg	.res 2
-ptr_bg	.res 2
 
 
 .segment "KVAR"
