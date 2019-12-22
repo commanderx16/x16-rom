@@ -273,7 +273,7 @@ lzsa_src = *+1
 	lda $aaaa
 	inc getsrc+1
 	beq getsrc_adj_hi
-rts
+	rts
 
 getsrc_adj_hi
 	inc getsrc+2
