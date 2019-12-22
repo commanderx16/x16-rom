@@ -1,24 +1,27 @@
+
+.include "../regs.inc"
+
+.segment "KVAR"
+
+nibcount:
+	.res 1                        ; zero-page location for temp offset
+offslo:	.res 1
+offshi:	.res 1
+nibbles:
+	.res 1
+
+.segment "LZSA"
+
 ; -----------------------------------------------------------------------------
 ; Decompress raw LZSA2 block.
 ; Create one with lzsa -r -f2 <original_file> <compressed_file>
 ;
 ; in:
-; * LZSA_SRC contains the compressed raw block address
-; * LZSA_DST contains the destination buffer address
+; * r0 contains the compressed raw block address
+; * r1 contains the destination buffer address
 ;
 ; out:
-; * LZSA_DST contain the last decompressed byte address, +1
-;
-; -----------------------------------------------------------------------------
-; Backward decompression is also supported, use lzsa -r -b -f2 <original_file> <compressed_file>
-; To use it, also define BACKWARD_DECOMPRESS=1 before including this code!
-;
-; in:
-; * LZSA_SRC must contain the address of the last byte of compressed data
-; * LZSA_DST must contain the address of the last byte of the destination buffer
-;
-; out:
-; * LZSA_DST contain the last decompressed byte address, -1
+; * r1 contain the last decompressed byte address, +1
 ;
 ; -----------------------------------------------------------------------------
 ;
@@ -40,24 +43,7 @@
 ;     misrepresented as being the original software.
 ;  3. This notice may not be removed or altered from any source distribution.
 ; -----------------------------------------------------------------------------
-
-.include "../regs.inc"
-
-.segment "KVAR"
-
-nibcount:
-	.res 1                        ; zero-page location for temp offset
-offslo:	.res 1
-offshi:	.res 1
-nibbles:
-	.res 1
-
-lzsa_src = r0
-lzsa_dst = r1
-
-.segment "LZSA"
-
-decompress_lzsa2_fast:
+decompress:
 	ldy #$00
 	sty nibcount
 
@@ -258,13 +244,13 @@ need_nibbles:
 getput:
 	jsr getsrc
 putdst:
-	sta (lzsa_dst)
-	inc lzsa_dst
+	sta (r1)
+	inc r1L
 	beq putdst_adj_hi
 	rts
 
 putdst_adj_hi:
-	inc lzsa_dst+1
+	inc r1H
 	rts
 
 getlargesrc:
@@ -273,12 +259,12 @@ getlargesrc:
 					; fall through grab high 8 bits
 
 getsrc:
-	lda (lzsa_src)
-	inc lzsa_src
+	lda (r0)
+	inc r0L
 	beq getsrc_adj_hi
 	rts
 
 getsrc_adj_hi:
-	inc lzsa_src+1
+	inc r0H
 	rts
 
