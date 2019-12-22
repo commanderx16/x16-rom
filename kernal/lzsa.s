@@ -41,323 +41,323 @@
 ;  3. This notice may not be removed or altered from any source distribution.
 ; -----------------------------------------------------------------------------
 
-NIBCOUNT = $FC                          ; zero-page location for temp offset
+nibcount = $fc                          ; zero-page location for temp offset
 
-DECOMPRESS_LZSA2_FAST
-   LDY #$00
-   STY NIBCOUNT
+decompress_lzsa2_fast
+   ldy #$00
+   sty nibcount
 
-DECODE_TOKEN
-   JSR GETSRC                           ; read token byte: XYZ|LL|MMM
-   PHA                                  ; preserve token on stack
+decode_token
+   jsr getsrc                           ; read token byte: XYZ|LL|MMM
+   pha                                  ; preserve token on stack
 
-   AND #$18                             ; isolate literals count (LL)
-   BEQ NO_LITERALS                      ; skip if no literals to copy
-   CMP #$18                             ; LITERALS_RUN_LEN_V2?
-   BCC PREPARE_COPY_LITERALS            ; if less, count is directly embedded in token
+   and #$18                             ; isolate literals count (LL)
+   beq no_literals                      ; skip if no literals to copy
+   cmp #$18                             ; LITERALS_RUN_LEN_V2?
+   bcc prepare_copy_literals            ; if less, count is directly embedded in token
 
-   JSR GETNIBBLE                        ; get extra literals length nibble
+   jsr getnibble                        ; get extra literals length nibble
                                         ; add nibble to len from token
-   ADC #$02                             ; (LITERALS_RUN_LEN_V2) minus carry
-   CMP #$12                             ; LITERALS_RUN_LEN_V2 + 15 ?
-   BCC PREPARE_COPY_LITERALS_DIRECT     ; if less, literals count is complete
+   adc #$02                             ; (LITERALS_RUN_LEN_V2) minus carry
+   cmp #$12                             ; LITERALS_RUN_LEN_V2 + 15 ?
+   bcc prepare_copy_literals_direct     ; if less, literals count is complete
 
-   JSR GETSRC                           ; get extra byte of variable literals count
+   jsr getsrc                           ; get extra byte of variable literals count
                                         ; the carry is always set by the CMP above
                                         ; GETSRC doesn't change it
-   SBC #$EE                             ; overflow?
-   JMP PREPARE_COPY_LITERALS_DIRECT
+   sbc #$ee                             ; overflow?
+   jmp prepare_copy_literals_direct
 
-PREPARE_COPY_LITERALS_LARGE
+prepare_copy_literals_large
                                         ; handle 16 bits literals count
                                         ; literals count = directly these 16 bits
-   JSR GETLARGESRC                      ; grab low 8 bits in X, high 8 bits in A
-   TAY                                  ; put high 8 bits in Y
-   BCS PREPARE_COPY_LITERALS_HIGH       ; (*same as JMP PREPARE_COPY_LITERALS_HIGH but shorter)
+   jsr getlargesrc                      ; grab low 8 bits in X, high 8 bits in A
+   tay                                  ; put high 8 bits in Y
+   bcs prepare_copy_literals_high       ; (*same as JMP PREPARE_COPY_LITERALS_HIGH but shorter)
 
-PREPARE_COPY_LITERALS
-   LSR                                  ; shift literals count into place
-   LSR
-   LSR
+prepare_copy_literals
+   lsr                                  ; shift literals count into place
+   lsr
+   lsr
 
-PREPARE_COPY_LITERALS_DIRECT
-   TAX
-   BCS PREPARE_COPY_LITERALS_LARGE      ; if so, literals count is large
+prepare_copy_literals_direct
+   tax
+   bcs prepare_copy_literals_large      ; if so, literals count is large
 
-PREPARE_COPY_LITERALS_HIGH
-   TXA
-   BEQ COPY_LITERALS
-   INY
+prepare_copy_literals_high
+   txa
+   beq copy_literals
+   iny
 
-COPY_LITERALS
-   JSR GETPUT                           ; copy one byte of literals
-   DEX
-   BNE COPY_LITERALS
-   DEY
-   BNE COPY_LITERALS
+copy_literals
+   jsr getput                           ; copy one byte of literals
+   dex
+   bne copy_literals
+   dey
+   bne copy_literals
    
-NO_LITERALS
-   PLA                                  ; retrieve token from stack
-   PHA                                  ; preserve token again
-   ASL
-   BCS REPMATCH_OR_LARGE_OFFSET         ; 1YZ: rep-match or 13/16 bit offset
+no_literals
+   pla                                  ; retrieve token from stack
+   pha                                  ; preserve token again
+   asl
+   bcs repmatch_or_large_offset         ; 1YZ: rep-match or 13/16 bit offset
 
-   ASL                                  ; 0YZ: 5 or 9 bit offset
-   BCS OFFSET_9_BIT         
+   asl                                  ; 0YZ: 5 or 9 bit offset
+   bcs offset_9_bit
     
                                         ; 00Z: 5 bit offset
 
-   LDX #$FF                             ; set offset bits 15-8 to 1
+   ldx #$ff                             ; set offset bits 15-8 to 1
 
-   JSR GETCOMBINEDBITS                  ; rotate Z bit into bit 0, read nibble for bits 4-1
-   ORA #$E0                             ; set bits 7-5 to 1
-   BNE GOT_OFFSET_LO                    ; go store low byte of match offset and prepare match
+   jsr getcombinedbits                  ; rotate Z bit into bit 0, read nibble for bits 4-1
+   ora #$e0                             ; set bits 7-5 to 1
+   bne got_offset_lo                    ; go store low byte of match offset and prepare match
    
-OFFSET_9_BIT                            ; 01Z: 9 bit offset
-   ;;ASL                                  ; shift Z (offset bit 8) in place
-   ROL
-   ROL
-   AND #$01
-   EOR #$FF                             ; set offset bits 15-9 to 1
-   BNE GOT_OFFSET_HI                    ; go store high byte, read low byte of match offset and prepare match
+offset_9_bit                            ; 01Z: 9 bit offset
+   ;;asl                                  ; shift Z (offset bit 8) in place
+   rol
+   rol
+   and #$01
+   eor #$ff                             ; set offset bits 15-9 to 1
+   bne got_offset_hi                    ; go store high byte, read low byte of match offset and prepare match
                                         ; (*same as JMP GOT_OFFSET_HI but shorter)
 
-REPMATCH_OR_LARGE_OFFSET
-   ASL                                  ; 13 bit offset?
-   BCS REPMATCH_OR_16_BIT               ; handle rep-match or 16-bit offset if not
+repmatch_or_large_offset
+   asl                                  ; 13 bit offset?
+   bcs repmatch_or_16_bit               ; handle rep-match or 16-bit offset if not
 
                                         ; 10Z: 13 bit offset
 
-   JSR GETCOMBINEDBITS                  ; rotate Z bit into bit 8, read nibble for bits 12-9
-   ADC #$DE                             ; set bits 15-13 to 1 and substract 2 (to substract 512)
-   BNE GOT_OFFSET_HI                    ; go store high byte, read low byte of match offset and prepare match
+   jsr getcombinedbits                  ; rotate Z bit into bit 8, read nibble for bits 12-9
+   adc #$de                             ; set bits 15-13 to 1 and substract 2 (to substract 512)
+   bne got_offset_hi                    ; go store high byte, read low byte of match offset and prepare match
                                         ; (*same as JMP GOT_OFFSET_HI but shorter)
 
-REPMATCH_OR_16_BIT                      ; rep-match or 16 bit offset
-   ;;ASL                                  ; XYZ=111?
-   BMI REP_MATCH                        ; reuse previous offset if so (rep-match)
+repmatch_or_16_bit                      ; rep-match or 16 bit offset
+   ;;asl                                  ; XYZ=111?
+   bmi rep_match                        ; reuse previous offset if so (rep-match)
    
                                         ; 110: handle 16 bit offset
-   JSR GETSRC                           ; grab high 8 bits
-GOT_OFFSET_HI
-   TAX
-   JSR GETSRC                           ; grab low 8 bits
-GOT_OFFSET_LO
-   STA OFFSLO                           ; store low byte of match offset
-   STX OFFSHI                           ; store high byte of match offset
+   jsr getsrc                           ; grab high 8 bits
+got_offset_hi
+   tax
+   jsr getsrc                           ; grab low 8 bits
+got_offset_lo
+   sta offslo                           ; store low byte of match offset
+   stx offshi                           ; store high byte of match offset
 
-REP_MATCH
-!ifdef BACKWARD_DECOMPRESS {
+rep_match
+!ifdef backward_decompress {
 
    ; Backward decompression - substract match offset
 
-   SEC                                  ; add dest + match offset
-   LDA PUTDST+1                         ; low 8 bits
-OFFSLO = *+1
-   SBC #$AA
-   STA COPY_MATCH_LOOP+1                ; store back reference address
-   LDA PUTDST+2
-OFFSHI = *+1
-   SBC #$AA                             ; high 8 bits
-   STA COPY_MATCH_LOOP+2                ; store high 8 bits of address
-   SEC
+   sec                                  ; add dest + match offset
+   lda putdst+1                         ; low 8 bits
+offslo = *+1
+   sbc #$aa
+   sta copy_match_loop+1                ; store back reference address
+   lda putdst+2
+offshi = *+1
+   sbc #$aa                             ; high 8 bits
+   sta copy_match_loop+2                ; store high 8 bits of address
+   sec
 
 } else {
 
    ; Forward decompression - add match offset
 
-   CLC                                  ; add dest + match offset
-   LDA PUTDST+1                         ; low 8 bits
-OFFSLO = *+1
-   ADC #$AA
-   STA COPY_MATCH_LOOP+1                ; store back reference address
-OFFSHI = *+1
-   LDA #$AA                             ; high 8 bits
-   ADC PUTDST+2
-   STA COPY_MATCH_LOOP+2                ; store high 8 bits of address
+   clc                                  ; add dest + match offset
+   lda putdst+1                         ; low 8 bits
+offslo = *+1
+   adc #$aa
+   sta copy_match_loop+1                ; store back reference address
+offshi = *+1
+   lda #$aa                             ; high 8 bits
+   adc putdst+2
+   sta copy_match_loop+2                ; store high 8 bits of address
    
 }
    
-   PLA                                  ; retrieve token from stack again
-   AND #$07                             ; isolate match len (MMM)
-   ADC #$01                             ; add MIN_MATCH_SIZE_V2 and carry
-   CMP #$09                             ; MIN_MATCH_SIZE_V2 + MATCH_RUN_LEN_V2?
-   BCC PREPARE_COPY_MATCH               ; if less, length is directly embedded in token
+   pla                                  ; retrieve token from stack again
+   and #$07                             ; isolate match len (MMM)
+   adc #$01                             ; add MIN_MATCH_SIZE_V2 and carry
+   cmp #$09                             ; MIN_MATCH_SIZE_V2 + MATCH_RUN_LEN_V2?
+   bcc prepare_copy_match               ; if less, length is directly embedded in token
 
-   JSR GETNIBBLE                        ; get extra match length nibble
+   jsr getnibble                        ; get extra match length nibble
                                         ; add nibble to len from token
-   ADC #$08                             ; (MIN_MATCH_SIZE_V2 + MATCH_RUN_LEN_V2) minus carry
-   CMP #$18                             ; MIN_MATCH_SIZE_V2 + MATCH_RUN_LEN_V2 + 15?
-   BCC PREPARE_COPY_MATCH               ; if less, match length is complete
+   adc #$08                             ; (MIN_MATCH_SIZE_V2 + MATCH_RUN_LEN_V2) minus carry
+   cmp #$18                             ; MIN_MATCH_SIZE_V2 + MATCH_RUN_LEN_V2 + 15?
+   bcc prepare_copy_match               ; if less, match length is complete
 
-   JSR GETSRC                           ; get extra byte of variable match length
+   jsr getsrc                           ; get extra byte of variable match length
                                         ; the carry is always set by the CMP above
                                         ; GETSRC doesn't change it
-   SBC #$E8                             ; overflow?
+   sbc #$e8                             ; overflow?
 
-PREPARE_COPY_MATCH
-   TAX
-   BCC PREPARE_COPY_MATCH_Y             ; if not, the match length is complete
-   BEQ DECOMPRESSION_DONE               ; if EOD code, bail
+prepare_copy_match
+   tax
+   bcc prepare_copy_match_y             ; if not, the match length is complete
+   beq decompression_done               ; if EOD code, bail
 
                                         ; Handle 16 bits match length
-   JSR GETLARGESRC                      ; grab low 8 bits in X, high 8 bits in A
-   TAY                                  ; put high 8 bits in Y
+   jsr getlargesrc                      ; grab low 8 bits in X, high 8 bits in A
+   tay                                  ; put high 8 bits in Y
 
-PREPARE_COPY_MATCH_Y
-   TXA
-   BEQ COPY_MATCH_LOOP
-   INY
+prepare_copy_match_y
+   txa
+   beq copy_match_loop
+   iny
 
-COPY_MATCH_LOOP
-   LDA $AAAA                            ; get one byte of backreference
-   JSR PUTDST                           ; copy to destination
+copy_match_loop
+   lda $aaaa                            ; get one byte of backreference
+   jsr putdst                           ; copy to destination
 
-!ifdef BACKWARD_DECOMPRESS {
+!ifdef backward_decompress {
 
    ; Backward decompression -- put backreference bytes backward
 
-   LDA COPY_MATCH_LOOP+1
-   BEQ GETMATCH_ADJ_HI
-GETMATCH_DONE
-   DEC COPY_MATCH_LOOP+1
+   lda copy_match_loop+1
+   beq getmatch_adj_hi
+getmatch_done
+   dec copy_match_loop+1
 
 } else {
 
    ; Forward decompression -- put backreference bytes forward
 
-   INC COPY_MATCH_LOOP+1
-   BEQ GETMATCH_ADJ_HI
-GETMATCH_DONE
+   inc copy_match_loop+1
+   beq getmatch_adj_hi
+getmatch_done
 
 }
 
-   DEX
-   BNE COPY_MATCH_LOOP
-   DEY
-   BNE COPY_MATCH_LOOP
-   JMP DECODE_TOKEN
+   dex
+   bne copy_match_loop
+   dey
+   bne copy_match_loop
+   jmp decode_token
 
-!ifdef BACKWARD_DECOMPRESS {
+!ifdef backward_decompress {
 
-GETMATCH_ADJ_HI
-   DEC COPY_MATCH_LOOP+2
-   JMP GETMATCH_DONE
+getmatch_adj_hi
+   dec copy_match_loop+2
+   jmp getmatch_done
 
 } else {
 
-GETMATCH_ADJ_HI
-   INC COPY_MATCH_LOOP+2
-   JMP GETMATCH_DONE
+getmatch_adj_hi
+   inc copy_match_loop+2
+   jmp getmatch_done
 
 }
 
-GETCOMBINEDBITS
-   EOR #$80
-   ASL
-   PHP
+getcombinedbits
+   eor #$80
+   asl
+   php
 
-   JSR GETNIBBLE                        ; get nibble into bits 0-3 (for offset bits 1-4)
-   PLP                                  ; merge Z bit as the carry bit (for offset bit 0)
-COMBINEDBITZ
-   ROL                                  ; nibble -> bits 1-4; carry(!Z bit) -> bit 0 ; carry cleared
-DECOMPRESSION_DONE
-   RTS
+   jsr getnibble                        ; get nibble into bits 0-3 (for offset bits 1-4)
+   plp                                  ; merge Z bit as the carry bit (for offset bit 0)
+combinedbitz
+   rol                                  ; nibble -> bits 1-4; carry(!Z bit) -> bit 0 ; carry cleared
+decompression_done
+   rts
 
-GETNIBBLE
-NIBBLES = *+1
-   LDA #$AA
-   LSR NIBCOUNT
-   BCC NEED_NIBBLES
-   AND #$0F                             ; isolate low 4 bits of nibble
-   RTS
+getnibble
+nibbles = *+1
+   lda #$aa
+   lsr nibcount
+   bcc need_nibbles
+   and #$0f                             ; isolate low 4 bits of nibble
+   rts
 
-NEED_NIBBLES
-   INC NIBCOUNT
-   JSR GETSRC                           ; get 2 nibbles
-   STA NIBBLES
-   LSR 
-   LSR 
-   LSR 
-   LSR 
-   SEC
-   RTS
+need_nibbles
+   inc nibcount
+   jsr getsrc                           ; get 2 nibbles
+   sta nibbles
+   lsr
+   lsr
+   lsr
+   lsr
+   sec
+   rts
 
-!ifdef BACKWARD_DECOMPRESS {
+!ifdef backward_decompress {
 
    ; Backward decompression -- get and put bytes backward
 
-GETPUT
-   JSR GETSRC
-PUTDST
-LZSA_DST_LO = *+1
-LZSA_DST_HI = *+2
-   STA $AAAA
-   LDA PUTDST+1
-   BEQ PUTDST_ADJ_HI
-   DEC PUTDST+1
-   RTS
+getput
+   jsr getsrc
+putdst
+lzsa_dst_lo = *+1
+lzsa_dst_hi = *+2
+   sta $aaaa
+   lda putdst+1
+   beq putdst_adj_hi
+   dec putdst+1
+   rts
 
-PUTDST_ADJ_HI
-   DEC PUTDST+2
-   DEC PUTDST+1
-   RTS
+putdst_adj_hi
+   dec putdst+2
+   dec putdst+1
+   rts
 
-GETLARGESRC
-   JSR GETSRC                           ; grab low 8 bits
-   TAX                                  ; move to X
+getlargesrc
+   jsr getsrc                           ; grab low 8 bits
+   tax                                  ; move to X
                                         ; fall through grab high 8 bits
 
-GETSRC
-LZSA_SRC_LO = *+1
-LZSA_SRC_HI = *+2
-   LDA $AAAA
-   PHA
-   LDA GETSRC+1
-   BEQ GETSRC_ADJ_HI
-   DEC GETSRC+1
-   PLA
-   RTS
+getsrc
+lzsa_src_lo = *+1
+lzsa_src_hi = *+2
+   lda $aaaa
+   pha
+   lda getsrc+1
+   beq getsrc_adj_hi
+   dec getsrc+1
+   pla
+   rts
 
-GETSRC_ADJ_HI
-   DEC GETSRC+2
-   DEC GETSRC+1
-   PLA
-   RTS
+getsrc_adj_hi
+   dec getsrc+2
+   dec getsrc+1
+   pla
+   rts
 
 } else {
 
    ; Forward decompression -- get and put bytes forward
 
-GETPUT
-   JSR GETSRC
-PUTDST
-LZSA_DST_LO = *+1
-LZSA_DST_HI = *+2
-   STA $AAAA
-   INC PUTDST+1
-   BEQ PUTDST_ADJ_HI
-   RTS
+getput
+   jsr getsrc
+putdst
+lzsa_dst_lo = *+1
+lzsa_dst_hi = *+2
+   sta $aaaa
+   inc putdst+1
+   beq putdst_adj_hi
+   rts
 
-PUTDST_ADJ_HI
-   INC PUTDST+2
-   RTS
+putdst_adj_hi
+   inc putdst+2
+   rts
 
-GETLARGESRC
-   JSR GETSRC                           ; grab low 8 bits
-   TAX                                  ; move to X
+getlargesrc
+   jsr getsrc                           ; grab low 8 bits
+   tax                                  ; move to X
                                         ; fall through grab high 8 bits
 
-GETSRC
-LZSA_SRC_LO = *+1
-LZSA_SRC_HI = *+2
-   LDA $AAAA
-   INC GETSRC+1
-   BEQ GETSRC_ADJ_HI
-   RTS
+getsrc
+lzsa_src_lo = *+1
+lzsa_src_hi = *+2
+   lda $aaaa
+   inc getsrc+1
+   beq getsrc_adj_hi
+   rts
 
-GETSRC_ADJ_HI
-   INC GETSRC+2
-   RTS
+getsrc_adj_hi
+   inc getsrc+2
+   rts
 }
 
