@@ -153,22 +153,6 @@ got_offset_lo
    stx offshi                           ; store high byte of match offset
 
 rep_match
-.ifdef backward_decompress
-
-   ; Backward decompression - substract match offset
-
-   sec                                  ; add dest + match offset
-   lda putdst+1                         ; low 8 bits
-offslo = *+1
-   sbc #$aa
-   sta copy_match_loop+1                ; store back reference address
-   lda putdst+2
-offshi = *+1
-   sbc #$aa                             ; high 8 bits
-   sta copy_match_loop+2                ; store high 8 bits of address
-   sec
-
-.else
 
    ; Forward decompression - add match offset
 
@@ -181,8 +165,6 @@ offshi = *+1
    lda #$aa                             ; high 8 bits
    adc putdst+2
    sta copy_match_loop+2                ; store high 8 bits of address
-   
-.endif
    
    pla                                  ; retrieve token from stack again
    and #$07                             ; isolate match len (MMM)
@@ -219,24 +201,11 @@ copy_match_loop
    lda $aaaa                            ; get one byte of backreference
    jsr putdst                           ; copy to destination
 
-.ifdef backward_decompress
-
-   ; Backward decompression -- put backreference bytes backward
-
-   lda copy_match_loop+1
-   beq getmatch_adj_hi
-getmatch_done
-   dec copy_match_loop+1
-
-.else
-
    ; Forward decompression -- put backreference bytes forward
 
    inc copy_match_loop+1
    beq getmatch_adj_hi
 getmatch_done
-
-.endif
 
    dex
    bne copy_match_loop
@@ -244,19 +213,9 @@ getmatch_done
    bne copy_match_loop
    jmp decode_token
 
-.ifdef backward_decompress
-
-getmatch_adj_hi
-   dec copy_match_loop+2
-   jmp getmatch_done
-
-.else
-
 getmatch_adj_hi
    inc copy_match_loop+2
    jmp getmatch_done
-
-.endif
 
 getcombinedbits
    eor #$80
@@ -289,48 +248,6 @@ need_nibbles
    sec
    rts
 
-.ifdef backward_decompress
-
-   ; Backward decompression -- get and put bytes backward
-
-getput
-   jsr getsrc
-putdst
-lzsa_dst = *+1
-   sta $aaaa
-   lda putdst+1
-   beq putdst_adj_hi
-   dec putdst+1
-   rts
-
-putdst_adj_hi
-   dec putdst+2
-   dec putdst+1
-   rts
-
-getlargesrc
-   jsr getsrc                           ; grab low 8 bits
-   tax                                  ; move to X
-                                        ; fall through grab high 8 bits
-
-getsrc
-lzsa_src = *+1
-   lda $aaaa
-   pha
-   lda getsrc+1
-   beq getsrc_adj_hi
-   dec getsrc+1
-   pla
-   rts
-
-getsrc_adj_hi
-   dec getsrc+2
-   dec getsrc+1
-   pla
-   rts
-
-.else
-
    ; Forward decompression -- get and put bytes forward
 
 getput
@@ -361,5 +278,4 @@ lzsa_src = *+1
 getsrc_adj_hi
    inc getsrc+2
    rts
-.endif
 
