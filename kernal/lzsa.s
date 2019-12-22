@@ -3,22 +3,22 @@
 ; Create one with lzsa -r -f2 <original_file> <compressed_file>
 ;
 ; in:
-; * LZSA_SRC_LO and LZSA_SRC_HI contain the compressed raw block address
-; * LZSA_DST_LO and LZSA_DST_HI contain the destination buffer address
+; * LZSA_SRC contains the compressed raw block address
+; * LZSA_DST contains the destination buffer address
 ;
 ; out:
-; * LZSA_DST_LO and LZSA_DST_HI contain the last decompressed byte address, +1
+; * LZSA_DST contain the last decompressed byte address, +1
 ;
 ; -----------------------------------------------------------------------------
 ; Backward decompression is also supported, use lzsa -r -b -f2 <original_file> <compressed_file>
 ; To use it, also define BACKWARD_DECOMPRESS=1 before including this code!
 ;
 ; in:
-; * LZSA_SRC_LO/LZSA_SRC_HI must contain the address of the last byte of compressed data
-; * LZSA_DST_LO/LZSA_DST_HI must contain the address of the last byte of the destination buffer
+; * LZSA_SRC must contain the address of the last byte of compressed data
+; * LZSA_DST must contain the address of the last byte of the destination buffer
 ;
 ; out:
-; * LZSA_DST_LO/LZSA_DST_HI contain the last decompressed byte address, -1
+; * LZSA_DST contain the last decompressed byte address, -1
 ;
 ; -----------------------------------------------------------------------------
 ;
@@ -43,9 +43,11 @@
 
 .feature labels_without_colons
 
-.segment "LZSA"
+.segment "KVAR"
 
-nibcount = $fc                          ; zero-page location for temp offset
+nibcount .res 1                         ; zero-page location for temp offset
+
+.segment "LZSA"
 
 decompress_lzsa2_fast
    ldy #$00
@@ -294,8 +296,7 @@ need_nibbles
 getput
    jsr getsrc
 putdst
-lzsa_dst_lo = *+1
-lzsa_dst_hi = *+2
+lzsa_dst = *+1
    sta $aaaa
    lda putdst+1
    beq putdst_adj_hi
@@ -313,8 +314,7 @@ getlargesrc
                                         ; fall through grab high 8 bits
 
 getsrc
-lzsa_src_lo = *+1
-lzsa_src_hi = *+2
+lzsa_src = *+1
    lda $aaaa
    pha
    lda getsrc+1
@@ -336,8 +336,7 @@ getsrc_adj_hi
 getput
    jsr getsrc
 putdst
-lzsa_dst_lo = *+1
-lzsa_dst_hi = *+2
+lzsa_dst = *+1
    sta $aaaa
    inc putdst+1
    beq putdst_adj_hi
@@ -353,8 +352,7 @@ getlargesrc
                                         ; fall through grab high 8 bits
 
 getsrc
-lzsa_src_lo = *+1
-lzsa_src_hi = *+2
+lzsa_src = *+1
    lda $aaaa
    inc getsrc+1
    beq getsrc_adj_hi
