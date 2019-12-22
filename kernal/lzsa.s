@@ -152,7 +152,7 @@ got_offset_lo:
 
 rep_match:
 
-	; Forward decompression - add match offset
+; Forward decompression - add match offset
 
 	clc                             ; add dest + match offset
 	lda putdst+1                    ; low 8 bits
@@ -199,7 +199,7 @@ copy_match_loop:
 	lda $aaaa                       ; get one byte of backreference
 	jsr putdst                      ; copy to destination
 
-	; Forward decompression -- put backreference bytes forward
+; Forward decompression -- put backreference bytes forward
 
 	inc copy_match_loop+1
 	beq getmatch_adj_hi
@@ -246,7 +246,7 @@ need_nibbles:
 	sec
 	rts
 
-   ; Forward decompression -- get and put bytes forward
+; Forward decompression -- get and put bytes forward
 
 getput:
 	jsr getsrc
