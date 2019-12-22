@@ -41,6 +41,10 @@
 ;  3. This notice may not be removed or altered from any source distribution.
 ; -----------------------------------------------------------------------------
 
+.feature labels_without_colons
+
+.segment "LZSA"
+
 nibcount = $fc                          ; zero-page location for temp offset
 
 decompress_lzsa2_fast
@@ -147,7 +151,7 @@ got_offset_lo
    stx offshi                           ; store high byte of match offset
 
 rep_match
-!ifdef backward_decompress {
+.ifdef backward_decompress
 
    ; Backward decompression - substract match offset
 
@@ -162,7 +166,7 @@ offshi = *+1
    sta copy_match_loop+2                ; store high 8 bits of address
    sec
 
-} else {
+.else
 
    ; Forward decompression - add match offset
 
@@ -176,7 +180,7 @@ offshi = *+1
    adc putdst+2
    sta copy_match_loop+2                ; store high 8 bits of address
    
-}
+.endif
    
    pla                                  ; retrieve token from stack again
    and #$07                             ; isolate match len (MMM)
@@ -213,7 +217,7 @@ copy_match_loop
    lda $aaaa                            ; get one byte of backreference
    jsr putdst                           ; copy to destination
 
-!ifdef backward_decompress {
+.ifdef backward_decompress
 
    ; Backward decompression -- put backreference bytes backward
 
@@ -222,7 +226,7 @@ copy_match_loop
 getmatch_done
    dec copy_match_loop+1
 
-} else {
+.else
 
    ; Forward decompression -- put backreference bytes forward
 
@@ -230,7 +234,7 @@ getmatch_done
    beq getmatch_adj_hi
 getmatch_done
 
-}
+.endif
 
    dex
    bne copy_match_loop
@@ -238,19 +242,19 @@ getmatch_done
    bne copy_match_loop
    jmp decode_token
 
-!ifdef backward_decompress {
+.ifdef backward_decompress
 
 getmatch_adj_hi
    dec copy_match_loop+2
    jmp getmatch_done
 
-} else {
+.else
 
 getmatch_adj_hi
    inc copy_match_loop+2
    jmp getmatch_done
 
-}
+.endif
 
 getcombinedbits
    eor #$80
@@ -283,7 +287,7 @@ need_nibbles
    sec
    rts
 
-!ifdef backward_decompress {
+.ifdef backward_decompress
 
    ; Backward decompression -- get and put bytes backward
 
@@ -325,7 +329,7 @@ getsrc_adj_hi
    pla
    rts
 
-} else {
+.else
 
    ; Forward decompression -- get and put bytes forward
 
@@ -359,5 +363,5 @@ lzsa_src_hi = *+2
 getsrc_adj_hi
    inc getsrc+2
    rts
-}
+.endif
 

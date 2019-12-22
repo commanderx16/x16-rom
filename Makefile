@@ -158,6 +158,7 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/editor.o kernal/editor.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/channel/channel.o kernal/channel/channel.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/serial.o kernal/serial.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/lzsa.o kernal/lzsa.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16.o kernal/drivers/x16.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/memory.o kernal/drivers/memory.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/screen.o kernal/drivers/screen.s
@@ -197,6 +198,7 @@ all: $(PREFIXED_GEOS_OBJS)
 		kernal/editor.o \
 		kernal/channel/channel.o \
 		kernal/serial.o \
+		kernal/lzsa.o \
 		kernal/drivers/x16.o \
 		kernal/drivers/memory.o \
 		kernal/drivers/screen.o \
