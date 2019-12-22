@@ -41,19 +41,17 @@
 ;  3. This notice may not be removed or altered from any source distribution.
 ; -----------------------------------------------------------------------------
 
-.feature labels_without_colons
-
 .segment "KVAR"
 
-nibcount .res 1                         ; zero-page location for temp offset
+nibcount: .res 1                        ; zero-page location for temp offset
 
 .segment "LZSA"
 
-decompress_lzsa2_fast
+decompress_lzsa2_fast:
 	ldy #$00
 	sty nibcount
 
-decode_token
+decode_token:
 	jsr getsrc                      ; read token byte: XYZ|LL|MMM
 	pha                             ; preserve token on stack
 
@@ -74,35 +72,35 @@ decode_token
 	sbc #$ee                        ; overflow?
 	jmp prepare_copy_literals_direct
 
-prepare_copy_literals_large
+prepare_copy_literals_large:
 					; handle 16 bits literals count
 					; literals count = directly these 16 bits
 	jsr getlargesrc                 ; grab low 8 bits in X, high 8 bits in A
 	tay                             ; put high 8 bits in Y
 	bcs prepare_copy_literals_high  ; (*same as JMP PREPARE_COPY_LITERALS_HIGH but shorter)
 
-prepare_copy_literals
+prepare_copy_literals:
 	lsr                             ; shift literals count into place
 	lsr
 	lsr
 
-prepare_copy_literals_direct
+prepare_copy_literals_direct:
 	tax
 	bcs prepare_copy_literals_large ; if so, literals count is large
 
-prepare_copy_literals_high
+prepare_copy_literals_high:
 	txa
 	beq copy_literals
 	iny
 
-copy_literals
+copy_literals:
 	jsr getput                      ; copy one byte of literals
 	dex
 	bne copy_literals
 	dey
 	bne copy_literals
    
-no_literals
+no_literals:
 	pla                             ; retrieve token from stack
 	pha                             ; preserve token again
 	asl
@@ -119,7 +117,7 @@ no_literals
 	ora #$e0                        ; set bits 7-5 to 1
 	bne got_offset_lo               ; go store low byte of match offset and prepare match
    
-offset_9_bit                            ; 01Z: 9 bit offset
+offset_9_bit:                           ; 01Z: 9 bit offset
 	;;asl                           ; shift Z (offset bit 8) in place
 	rol
 	rol
@@ -128,7 +126,7 @@ offset_9_bit                            ; 01Z: 9 bit offset
 	bne got_offset_hi               ; go store high byte, read low byte of match offset and prepare match
 					; (*same as JMP GOT_OFFSET_HI but shorter)
 
-repmatch_or_large_offset
+repmatch_or_large_offset:
 	asl                             ; 13 bit offset?
 	bcs repmatch_or_16_bit          ; handle rep-match or 16-bit offset if not
 
@@ -139,20 +137,20 @@ repmatch_or_large_offset
 	bne got_offset_hi               ; go store high byte, read low byte of match offset and prepare match
 					; (*same as JMP GOT_OFFSET_HI but shorter)
 
-repmatch_or_16_bit                      ; rep-match or 16 bit offset
-	;;asl                                  ; XYZ=111?
+repmatch_or_16_bit:                     ; rep-match or 16 bit offset
+	;;asl                           ; XYZ=111?
 	bmi rep_match                   ; reuse previous offset if so (rep-match)
 
 					; 110: handle 16 bit offset
 	jsr getsrc                      ; grab high 8 bits
-got_offset_hi
+got_offset_hi:
 	tax
 	jsr getsrc                      ; grab low 8 bits
-got_offset_lo
+got_offset_lo:
 	sta offslo                      ; store low byte of match offset
 	stx offshi                      ; store high byte of match offset
 
-rep_match
+rep_match:
 
 	; Forward decompression - add match offset
 
@@ -183,7 +181,7 @@ rep_match
 					; GETSRC doesn't change it
 	sbc #$e8                        ; overflow?
 
-prepare_copy_match
+prepare_copy_match:
 	tax
 	bcc prepare_copy_match_y        ; if not, the match length is complete
 	beq decompression_done          ; if EOD code, bail
@@ -192,12 +190,12 @@ prepare_copy_match
 	jsr getlargesrc                 ; grab low 8 bits in X, high 8 bits in A
 	tay                             ; put high 8 bits in Y
 
-prepare_copy_match_y
+prepare_copy_match_y:
 	txa
 	beq copy_match_loop
 	iny
 
-copy_match_loop
+copy_match_loop:
 	lda $aaaa                       ; get one byte of backreference
 	jsr putdst                      ; copy to destination
 
@@ -205,7 +203,7 @@ copy_match_loop
 
 	inc copy_match_loop+1
 	beq getmatch_adj_hi
-getmatch_done
+getmatch_done:
 
 	dex
 	bne copy_match_loop
@@ -213,23 +211,23 @@ getmatch_done
 	bne copy_match_loop
 	jmp decode_token
 
-getmatch_adj_hi
+getmatch_adj_hi:
 	inc copy_match_loop+2
 	jmp getmatch_done
 
-getcombinedbits
+getcombinedbits:
 	eor #$80
 	asl
 	php
 
 	jsr getnibble                   ; get nibble into bits 0-3 (for offset bits 1-4)
 	plp                             ; merge Z bit as the carry bit (for offset bit 0)
-combinedbitz
+combinedbitz:
 	rol                             ; nibble -> bits 1-4; carry(!Z bit) -> bit 0 ; carry cleared
-decompression_done
+decompression_done:
 	rts
 
-getnibble
+getnibble:
 nibbles = *+1
 	lda #$aa
 	lsr nibcount
@@ -237,7 +235,7 @@ nibbles = *+1
 	and #$0f                        ; isolate low 4 bits of nibble
 	rts
 
-need_nibbles
+need_nibbles:
 	inc nibcount
 	jsr getsrc                      ; get 2 nibbles
 	sta nibbles
@@ -250,32 +248,32 @@ need_nibbles
 
    ; Forward decompression -- get and put bytes forward
 
-getput
+getput:
 	jsr getsrc
-putdst
+putdst:
 lzsa_dst = *+1
 	sta $aaaa
 	inc putdst+1
 	beq putdst_adj_hi
 	rts
 
-putdst_adj_hi
+putdst_adj_hi:
 	inc putdst+2
 	rts
 
-getlargesrc
+getlargesrc:
 	jsr getsrc                      ; grab low 8 bits
 	tax                             ; move to X
 					; fall through grab high 8 bits
 
-getsrc
+getsrc:
 lzsa_src = *+1
 	lda $aaaa
 	inc getsrc+1
 	beq getsrc_adj_hi
 	rts
 
-getsrc_adj_hi
+getsrc_adj_hi:
 	inc getsrc+2
 	rts
 
