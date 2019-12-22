@@ -41,9 +41,19 @@
 ;  3. This notice may not be removed or altered from any source distribution.
 ; -----------------------------------------------------------------------------
 
+.include "../regs.inc"
+
 .segment "KVAR"
 
-nibcount: .res 1                        ; zero-page location for temp offset
+nibcount:
+	.res 1                        ; zero-page location for temp offset
+offslo:	.res 1
+offshi:	.res 1
+nibbles:
+	.res 1
+
+lzsa_src = r0
+lzsa_dst = r1
 
 .segment "LZSA"
 
@@ -156,11 +166,9 @@ rep_match:
 
 	clc                             ; add dest + match offset
 	lda putdst+1                    ; low 8 bits
-	offslo = *+1
-	adc #$aa
+	adc offslo
 	sta copy_match_loop+1           ; store back reference address
-	offshi = *+1
-	lda #$aa                        ; high 8 bits
+	lda offshi                      ; high 8 bits
 	adc putdst+2
 	sta copy_match_loop+2           ; store high 8 bits of address
 
@@ -228,8 +236,7 @@ decompression_done:
 	rts
 
 getnibble:
-nibbles = *+1
-	lda #$aa
+	lda nibbles
 	lsr nibcount
 	bcc need_nibbles
 	and #$0f                        ; isolate low 4 bits of nibble
@@ -251,14 +258,13 @@ need_nibbles:
 getput:
 	jsr getsrc
 putdst:
-lzsa_dst = *+1
-	sta $aaaa
-	inc putdst+1
+	sta (lzsa_dst)
+	inc lzsa_dst
 	beq putdst_adj_hi
 	rts
 
 putdst_adj_hi:
-	inc putdst+2
+	inc lzsa_dst+1
 	rts
 
 getlargesrc:
@@ -267,13 +273,12 @@ getlargesrc:
 					; fall through grab high 8 bits
 
 getsrc:
-lzsa_src = *+1
-	lda $aaaa
-	inc getsrc+1
+	lda (lzsa_src)
+	inc lzsa_src
 	beq getsrc_adj_hi
 	rts
 
 getsrc_adj_hi:
-	inc getsrc+2
+	inc lzsa_src+1
 	rts
 
