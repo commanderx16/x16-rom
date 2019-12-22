@@ -34,6 +34,8 @@ jx050	jsr jz100       ;extract table data
 ; rs-232 close
 ;
 ; remove file from tables
+	pla
+	jsr jxrmv
 	jmp cls232
 
 ;

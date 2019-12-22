@@ -19,6 +19,7 @@ stop  = $ffe1
 .import cko232
 .import cls232
 .import opn232
+.export t1
 
 ; serial
 .import acptr
