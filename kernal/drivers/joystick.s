@@ -6,9 +6,6 @@
 .include "../../banks.inc"
 .include "../../io.inc"
 
-; data
-.import save_ram_bank; [declare]
-
 ; KERNAL API
 .export joystick_scan
 .export joystick_get

@@ -10,7 +10,6 @@
 .import ps2_receive_byte; [ps2]
 .import joystick_from_ps2; [joystick]
 ; data
-.import save_ram_bank; [declare]
 .import mode; [declare]
 .importzp ckbtab; [declare]
 .import fetch, fetvec; [routines]

@@ -7,8 +7,6 @@
 .include "../../banks.inc"
 .include "../../io.inc"
 
-.import save_ram_bank; [declare]
-
 ; KERNAL API
 .export clock_update
 .export clock_get_timer

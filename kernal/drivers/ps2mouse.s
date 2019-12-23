@@ -10,8 +10,6 @@
 
 ; code
 .import ps2_receive_byte; [ps2]
-; data
-.import save_ram_bank; [declare]
 
 .import screen_save_state
 .import screen_restore_state
@@ -39,33 +37,6 @@ mouse_init:
 	jsr _mouse_init
 	KVARS_END
 	rts
-
-mouse_config:
-	KVARS_START
-	jsr _mouse_config
-	KVARS_END
-	rts
-
-mouse_scan:
-	KVARS_START
-	jsr _mouse_scan
-	KVARS_END
-	rts
-
-mouse_get:
-	KVARS_START
-	lda mousex
-	sta 0,x
-	lda mousex+1
-	sta 1,x
-	lda mousey
-	sta 2,x
-	lda mousey+1
-	sta 3,x
-	lda mousebt
-	KVARS_END
-	rts
-
 _mouse_init:
 	lda #0
 	sta mousel
@@ -89,6 +60,11 @@ _mouse_init:
 ; X: $00 no-op
 ;    $01 set scale to 1
 ;    $02 set scale to 2
+mouse_config:
+	KVARS_START
+	jsr _mouse_config
+	KVARS_END
+	rts
 _mouse_config:
 	; init mouse if necessary
 	pha
@@ -142,6 +118,12 @@ mous3:	lda msepar
 	sta msepar
 
 	jmp mouse_update_position
+
+mouse_scan:
+	KVARS_START
+	jsr _mouse_scan
+	KVARS_END
+	rts
 
 _mouse_scan:
 	bit msepar ; do nothing if mouse is off
@@ -282,6 +264,21 @@ mouse_update_position:
 
 	jsr screen_restore_state
 	rts ; NB: call above does not support tail call optimization
+
+mouse_get:
+	KVARS_START
+	lda mousex
+	sta 0,x
+	lda mousex+1
+	sta 1,x
+	lda mousey
+	sta 2,x
+	lda mousey+1
+	sta 3,x
+	lda mousebt
+	KVARS_END
+	rts
+
 
 ; This is the Susan Kare mouse pointer
 mouse_sprite_col: ; 0: black, 1: white

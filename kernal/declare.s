@@ -3,7 +3,7 @@
 .export ckbtab; [ps2kbd]
 .export imparm; [jsrfar]
 .export ptr_fg; [graph]
-.export save_ram_bank
+.export kvswitch_tmp1, kvswitch_tmp2
 .export mhz
 
 mhz     =8
@@ -27,7 +27,9 @@ buf	.res 2*40+1      ;    basic/monitor buffer
 memstr	.res 2           ;    start of memory
 memsiz	.res 2           ;    top of memory
 rambks	.res 1           ;    X16: number of ram banks (0 means 256)
-save_ram_bank
+kvswitch_tmp1
+	.res 1
+kvswitch_tmp2
 	.res 1
 
 .segment "GDRVVEC"
