@@ -1,3 +1,7 @@
+;----------------------------------------------------------------------
+; LZSA2 Decompression
+;----------------------------------------------------------------------
+; (C)2019 Emmanuel Marty, Peter Ferrie, M. Steil; License: 3-clause BSD
 
 .include "../regs.inc"
 .include "../mac.inc"
@@ -7,45 +11,32 @@
 .segment "KVAR"
 
 nibcount:
-	.res 1                        ; zero-page location for temp offset
-offslo:	.res 1
-offshi:	.res 1
+	.res 1
 nibbles:
 	.res 1
+offslo:	.res 1
+offshi:	.res 1
 
 .segment "LZSA"
 
-; -----------------------------------------------------------------------------
-; Decompress raw LZSA2 block.
-; Create one with lzsa -r -f2 <original_file> <compressed_file>
+;---------------------------------------------------------------
+; decompress
 ;
-; in:
-; * r0 contains the compressed raw block address
-; * r1 contains the destination buffer address
+; Function:  Decompress a raw LZSA2 block.
+;            Create one with
+;              lzsa -r -f2 <original_file> <compressed_file>
 ;
-; out:
-; * r1 contains the last decompressed byte address, +1
+; Pass:      r0   input address
+;            r1   output address
 ;
-; -----------------------------------------------------------------------------
+; Return:    r1   address of last output byte + 1
 ;
-;  Copyright (C) 2019 Emmanuel Marty, Peter Ferrie
-;
-;  This software is provided 'as-is', without any express or implied
-;  warranty.  In no event will the authors be held liable for any damages
-;  arising from the use of this software.
-;
-;  Permission is granted to anyone to use this software for any purpose,
-;  including commercial applications, and to alter it and redistribute it
-;  freely, subject to the following restrictions:
-;
-;  1. The origin of this software must not be misrepresented; you must not
-;     claim that you wrote the original software. If you use this software
-;     in a product, an acknowledgment in the product documentation would be
-;     appreciated but is not required.
-;  2. Altered source versions must be plainly marked as such, and must not be
-;     misrepresented as being the original software.
-;  3. This notice may not be removed or altered from any source distribution.
-; -----------------------------------------------------------------------------
+; Note:      This code is based on decompress_small_v2.asm
+;            from https://github.com/emmanuel-marty/lzsa
+;            and was modified to work from ROM by rewriting
+;            all self-modifying code. The original license
+;            can be found at the end of this source file.
+;---------------------------------------------------------------
 decompress:
 	PushW r2
 
@@ -276,3 +267,25 @@ getsrc_adj_hi:
 	inc r0H
 	rts
 
+; -----------------------------------------------------------------------------
+; Original license of decompress_small_v2.asm follows. For modifications
+; in this file, see notes above.
+; -----------------------------------------------------------------------------
+;  Copyright (C) 2019 Emmanuel Marty, Peter Ferrie
+;
+;  This software is provided 'as-is', without any express or implied
+;  warranty.  In no event will the authors be held liable for any damages
+;  arising from the use of this software.
+;
+;  Permission is granted to anyone to use this software for any purpose,
+;  including commercial applications, and to alter it and redistribute it
+;  freely, subject to the following restrictions:
+;
+;  1. The origin of this software must not be misrepresented; you must not
+;     claim that you wrote the original software. If you use this software
+;     in a product, an acknowledgment in the product documentation would be
+;     appreciated but is not required.
+;  2. Altered source versions must be plainly marked as such, and must not be
+;     misrepresented as being the original software.
+;  3. This notice may not be removed or altered from any source distribution.
+; -----------------------------------------------------------------------------
