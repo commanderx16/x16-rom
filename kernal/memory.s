@@ -19,6 +19,7 @@
 ;
 ; Pass:      r0   address
 ;            r1   number of bytes
+;            a    byte value
 ;---------------------------------------------------------------
 memory_fill:
 	ldx r0H
@@ -49,7 +50,7 @@ memory_fill:
 ;            two regions may overlap.
 ;
 ; Pass:      r0   source address
-;            r1   destination address
+;            r1   target address
 ;            r2   number of bytes
 ;
 ; Note:      This could be sped up by ~20% by special casing
