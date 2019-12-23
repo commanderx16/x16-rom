@@ -65,6 +65,9 @@
 .import tksa
 .import secnd
 
+; lzsa
+.import decompress
+
 .include "../banks.inc"
 .include "../io.inc"
 

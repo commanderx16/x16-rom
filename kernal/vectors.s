@@ -19,7 +19,7 @@
 	.byte 0,0,0            ; $FEE4
 	.byte 0,0,0            ; $FEE7
 	.byte 0,0,0            ; $FEEA
-	.byte 0,0,0            ; $FEED
+	jmp decompress         ; $FEED
 	jmp sprite_set_image   ; $FEF0
 	jmp sprite_set_position; $FEF3
 

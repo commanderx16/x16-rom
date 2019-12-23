@@ -1,6 +1,8 @@
 
 .include "../regs.inc"
 
+.export decompress
+
 .segment "KVAR"
 
 nibcount:
@@ -23,6 +25,8 @@ nibbles:
 ; out:
 ; * r1 contain the last decompressed byte address, +1
 ;
+; destroys:
+; * r2
 ; -----------------------------------------------------------------------------
 ;
 ;  Copyright (C) 2019 Emmanuel Marty, Peter Ferrie
@@ -151,12 +155,12 @@ rep_match:
 ; Forward decompression - add match offset
 
 	clc                             ; add dest + match offset
-	lda putdst+1                    ; low 8 bits
+	lda r1L                         ; low 8 bits
 	adc offslo
-	sta copy_match_loop+1           ; store back reference address
+	sta r2L                         ; store back reference address
 	lda offshi                      ; high 8 bits
-	adc putdst+2
-	sta copy_match_loop+2           ; store high 8 bits of address
+	adc r1H
+	sta r2H                         ; store high 8 bits of address
 
 	pla                             ; retrieve token from stack again
 	and #$07                        ; isolate match len (MMM)
@@ -190,12 +194,12 @@ prepare_copy_match_y:
 	iny
 
 copy_match_loop:
-	lda $aaaa                       ; get one byte of backreference
+	lda (r2)                        ; get one byte of backreference
 	jsr putdst                      ; copy to destination
 
 ; Forward decompression -- put backreference bytes forward
 
-	inc copy_match_loop+1
+	inc r2L
 	beq getmatch_adj_hi
 getmatch_done:
 
@@ -206,7 +210,7 @@ getmatch_done:
 	jmp decode_token
 
 getmatch_adj_hi:
-	inc copy_match_loop+2
+	inc r2H
 	jmp getmatch_done
 
 getcombinedbits:
