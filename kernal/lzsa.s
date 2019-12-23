@@ -1,5 +1,6 @@
 
 .include "../regs.inc"
+.include "../mac.inc"
 
 .export decompress
 
@@ -23,10 +24,8 @@ nibbles:
 ; * r1 contains the destination buffer address
 ;
 ; out:
-; * r1 contain the last decompressed byte address, +1
+; * r1 contains the last decompressed byte address, +1
 ;
-; destroys:
-; * r2
 ; -----------------------------------------------------------------------------
 ;
 ;  Copyright (C) 2019 Emmanuel Marty, Peter Ferrie
@@ -48,6 +47,8 @@ nibbles:
 ;  3. This notice may not be removed or altered from any source distribution.
 ; -----------------------------------------------------------------------------
 decompress:
+	PushW r2
+
 	ldy #$00
 	sty nibcount
 
@@ -222,7 +223,10 @@ getcombinedbits:
 	plp                             ; merge Z bit as the carry bit (for offset bit 0)
 combinedbitz:
 	rol                             ; nibble -> bits 1-4; carry(!Z bit) -> bit 0 ; carry cleared
+	rts
+
 decompression_done:
+	PopW r2
 	rts
 
 getnibble:
