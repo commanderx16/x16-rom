@@ -16,10 +16,10 @@
 ; finalized
 
 	.byte 0,0,0            ; $FEE1
-	.byte 0,0,0            ; $FEE4
-	.byte 0,0,0            ; $FEE7
-	.byte 0,0,0            ; $FEEA
-	jmp decompress         ; $FEED
+	jmp memory_fill        ; $FEE4
+	jmp memory_copy        ; $FEE7
+	jmp memory_crc         ; $FEEA
+	jmp memory_decompress  ; $FEED
 	jmp sprite_set_image   ; $FEF0
 	jmp sprite_set_position; $FEF3
 

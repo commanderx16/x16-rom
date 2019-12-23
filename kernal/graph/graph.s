@@ -229,7 +229,7 @@ GRAPH_draw_line:
 @6:	bbrf 7, r8H, @7
 	AddW r9, r8
 	bra @5
-@7:	AddB_ r13L, r1L
+@7:	AddB r13L, r1L
 	AddW r10, r8
 	bra @5
 @8:	plp

@@ -27,7 +27,7 @@
 mmbot	=$0800
 mmtop   =$9f00
 
-.segment "MEMORY"
+.segment "MEMDRV"
 
 ;---------------------------------------------------------------
 ; Measure and initialize RAM
@@ -178,7 +178,7 @@ banked_irq:
 	pla
 	rti
 
-.segment "MEMORY"
+.segment "MEMDRV"
 
 ; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 indfet:
@@ -212,7 +212,7 @@ fetvec	=*+1
 	stx d1prb       ;restore ROM bank
 	rts
 
-.segment "MEMORY"
+.segment "MEMDRV"
 
 ;  STASH  ram code      ( STA (stash_vector),Y  to any bank )
 ;
@@ -239,7 +239,7 @@ stavec	=*+1
 	sta d1pra
 	rts
 
-.segment "MEMORY"
+.segment "MEMDRV"
 
 
 ;  CMPARE  ram code      ( CMP (cmpare_vector),Y  to any bank )
@@ -270,7 +270,7 @@ cmpvec	=*+1
 	php
 	stx d1prb       ;restore previous memory configuration
 	jmp cmpare1
-.segment "MEMORY"
+.segment "MEMDRV"
 cmpare1:
 	pla
 	tax

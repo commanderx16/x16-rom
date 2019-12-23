@@ -7,24 +7,11 @@
 .endmacro
 
 .macro LoadW dest, value
-	LoadB dest+1, >(value)
-	.if (.not .const(value)) .or (>(value))<>(<(value))
-	lda #<(value)
-	.endif
-	sta dest+0
-.endmacro
-
-.macro LoadW_ dest, value
 	LoadB dest+0, <(value)
 	.if (.not .const(value)) .or (>(value))<>(<(value))
 	lda #>(value)
 	.endif
 	sta dest+1
-.endmacro
-
-.macro LoadW__ dest, value
-	LoadB dest+1, >(value)
-	LoadB dest+0, <(value)
 .endmacro
 
 .macro MoveB source, dest
@@ -33,11 +20,6 @@
 .endmacro
 
 .macro MoveW source, dest
-	MoveB source+1, dest+1
-	MoveB source+0, dest+0
-.endmacro
-
-.macro MoveW_ source, dest
 	MoveB source+0, dest+0
 	MoveB source+1, dest+1
 .endmacro
@@ -50,13 +32,6 @@
 .macro AddB source, dest
 	lda source
 	add dest
-	sta dest
-.endmacro
-
-.macro AddB_ source, dest
-	clc
-	lda source
-	adc dest
 	sta dest
 .endmacro
 
@@ -75,23 +50,6 @@
 .endmacro
 
 .macro AddVW value, dest
-	.local @j
-	clc
-	lda #<(value)
-	adc dest
-	sta dest
-	.if (>(value))=0
-	bcc @j
-	inc dest+1
-@j:
-	.else
-	lda #>(value)
-	adc dest + 1
-	sta dest + 1
-	.endif
-.endmacro
-
-.macro AddVW_ value, dest
 	.local j
 	lda dest
 	clc
@@ -193,12 +151,6 @@
 .macro smbf bitN, dest
 	lda #1 << bitN
 	ora dest
-	sta dest
-.endmacro
-
-.macro smbf_ bitN, dest
-	lda dest
-	ora #1 << bitN
 	sta dest
 .endmacro
 

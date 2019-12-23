@@ -1,8 +1,8 @@
 .byte 0,0,0            ; $FEE1
-.byte 0,0,0            ; $FEE4
-.byte 0,0,0            ; $FEE7
-.byte 0,0,0            ; $FEEA
-bridge decompress         ; $FEED
+bridge memory_fill        ; $FEE4
+bridge memory_copy        ; $FEE7
+bridge memory_crc         ; $FEEA
+bridge memory_decompress  ; $FEED
 bridge sprite_set_image   ; $FEF0
 bridge sprite_set_position; $FEF3
 

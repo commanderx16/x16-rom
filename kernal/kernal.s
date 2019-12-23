@@ -66,7 +66,10 @@
 .import secnd
 
 ; lzsa
-.import decompress
+.import memory_fill
+.import memory_copy
+.import memory_crc
+.import memory_decompress
 
 .include "../banks.inc"
 .include "../io.inc"

@@ -6,7 +6,7 @@
 .include "../regs.inc"
 .include "../mac.inc"
 
-.export decompress
+.export memory_decompress
 
 .segment "KVAR"
 
@@ -20,7 +20,7 @@ offshi:	.res 1
 .segment "LZSA"
 
 ;---------------------------------------------------------------
-; decompress
+; memory_decompress
 ;
 ; Function:  Decompress a raw LZSA2 block.
 ;            Create one with
@@ -37,7 +37,7 @@ offshi:	.res 1
 ;            all self-modifying code. The original license
 ;            can be found at the end of this source file.
 ;---------------------------------------------------------------
-decompress:
+memory_decompress:
 	PushW r2
 
 	ldy #$00
