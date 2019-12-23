@@ -37,11 +37,11 @@ color	jsr getcol ; fg
 	rts
 :	jsr chkcom
 	jsr getcol ; bg
-	lda #2 ; swap fg/bg
+	lda #1 ; swap fg/bg
 	jsr bsout
 	lda coltab,x
 	jsr bsout
-	lda #2 ; swap fg/bg
+	lda #1 ; swap fg/bg
 	jmp bsout
 
 
