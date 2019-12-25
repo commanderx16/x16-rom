@@ -1,24 +1,22 @@
 .feature labels_without_colons
 
 .include "../io.inc"
-.include "../banks.inc"
 
 .import status
-.import jsrfar
 .import udst
 
-.export acptr
-.export ciout
-.export listn
-.export scatn
-.export secnd
-.export talk
-.export tkatn
-.export tksa
-.export unlsn
-.export untlk
+.export serial_secnd
+.export serial_tksa
+.export serial_acptr
+.export serial_ciout
+.export serial_untlk
+.export serial_unlsn
+.export serial_listn
+.export serial_talk
 
-.export clklo     ; machine init
+.export tkatn; [channel]
+.export scatn; [channel]
+.export clklo; [machine init]
 
 sdata	=$ffff ; XXX fill for X16
 d1crb	=$ffff ; XXX fill for X16
@@ -37,25 +35,13 @@ count	.res 1           ;$A5 temp used by serial routine
 
 ;command serial bus device to talk
 ;
-talk
-.ifdef CBDOS
-	jsr jsrfar
-	.word $c000 + 3 * 7
-	.byte BANK_CBDOS
-	rts
-.endif
+serial_talk
 	ora #$40        ;make a talk adr
 	bra list1       
 
 ;command serial bus device to listen
 ;
-listn
-.ifdef CBDOS
-	jsr jsrfar
-	.word $c000 + 3 * 6
-	.byte BANK_CBDOS
-	rts
-.endif
+serial_listn
 	ora #$20        ;make a listen adr
 list1	pha
 ;
@@ -164,13 +150,7 @@ csberr	jsr udst        ;commodore serial buss error entry
 
 ;send secondary address after listen
 ;
-secnd
-.ifdef CBDOS
-	jsr jsrfar
-	.word $c000 + 3 * 0
-	.byte BANK_CBDOS
-	rts
-.endif
+serial_secnd
 	sta bsour       ;buffer character
 	jsr isoura      ;send it
 
@@ -183,13 +163,7 @@ scatn	lda sdata
 
 ;talk second address
 ;
-tksa
-.ifdef CBDOS
-	jsr jsrfar
-	.word $c000 + 3 * 1
-	.byte BANK_CBDOS
-	rts
-.endif
+serial_tksa
 	sta bsour       ;buffer character
 	jsr isoura      ;send second addr
 
@@ -205,13 +179,7 @@ tkatn1	jsr debpia      ;wait for clock to go low
 
 ;buffered output to serial bus
 ;
-ciout
-.ifdef CBDOS
-	jsr jsrfar
-	.word $c000 + 3 * 3
-	.byte BANK_CBDOS
-	rts
-.endif
+serial_ciout
 	bit c3p0        ;buffered char?
 	bmi ci2         ;yes...send last
 ;
@@ -228,13 +196,7 @@ ci4	sta bsour       ;buffer current char
 
 ;send untalk command on serial bus
 ;
-untlk
-.ifdef CBDOS
-	jsr jsrfar
-	.word $c000 + 3 * 4
-	.byte BANK_CBDOS
-	rts
-.endif
+serial_untlk
 	sei
 	jsr clklo
 	lda sdata       ;pull atn
@@ -245,13 +207,7 @@ untlk
 
 ;send unlisten command on serial bus
 ;
-unlsn
-.ifdef CBDOS
-	jsr jsrfar
-	.word $c000 + 3 * 5
-	.byte BANK_CBDOS
-	rts
-.endif
+serial_unlsn
 	lda #$3f        ;unlisten command
 :	jsr list1       ;send it
 ;
@@ -269,13 +225,7 @@ dlad00	dex
 
 ;input a byte from serial bus
 ;
-acptr
-.ifdef CBDOS
-	jsr jsrfar
-	.word $c000 + 3 * 2
-	.byte BANK_CBDOS
-	rts
-.endif
+serial_acptr
 	sei             ;no irq allowed
 	lda #$00        ;set eoi/error flag
 	sta count

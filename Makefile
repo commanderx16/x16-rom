@@ -157,6 +157,7 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/editor.o kernal/editor.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/channel/channel.o kernal/channel/channel.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/ieee_switch.o kernal/ieee_switch.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/serial.o kernal/serial.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/memory.o kernal/memory.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/lzsa.o kernal/lzsa.s
@@ -198,6 +199,7 @@ all: $(PREFIXED_GEOS_OBJS)
 		kernal/kernal.o \
 		kernal/editor.o \
 		kernal/channel/channel.o \
+		kernal/ieee_switch.o \
 		kernal/serial.o \
 		kernal/memory.o \
 		kernal/lzsa.o \
