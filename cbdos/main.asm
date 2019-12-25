@@ -48,8 +48,7 @@ via1porta   = via1+1 ; RAM bank
 	pha
 	lda via1porta
 	sta bank_save
-	lda #$ff
-	sta via1porta
+	stz via1porta
 	pla
 .endmacro
 
@@ -163,13 +162,13 @@ buffer_for_channel:
 	jmp cbdos_listn
 	jmp cbdos_talk
 ; GEOS
-	jmp OpenDisk
-	jmp ReadBuff
-	jmp ReadBlock
-	jmp GetDirHead
-	jmp CalcBlksFree
-	jmp Get1stDirEntry
-	jmp GetNxtDirEntry
+	jmp cbmdos_OpenDisk
+	jmp cbmdos_ReadBuff
+	jmp cbmdos_ReadBlock
+	jmp cbmdos_GetDirHead
+	jmp cbmdos_CalcBlksFree
+	jmp cbmdos_Get1stDirEntry
+	jmp cbmdos_GetNxtDirEntry
 
 cbdos_init:
 	; XXX don't do lazy init
@@ -1090,7 +1089,7 @@ cmd_u:
 
 .import sd_read_block_lower, sd_read_block_upper
 
-OpenDisk:
+cbmdos_OpenDisk:
 	jsr sdcard_init
 
 	jsr get_dir_head
@@ -1104,9 +1103,9 @@ OpenDisk:
 	ldx #0
 	rts
 
-ReadBuff:
+cbmdos_ReadBuff:
 	LoadW r4, $8000
-ReadBlock:
+cbmdos_ReadBlock:
 GetBlock:
 	ldx #1
 	lda #0
@@ -1141,24 +1140,24 @@ GetBlock:
 
 
 
-GetDirHead:
+cbmdos_GetDirHead:
 	jsr get_dir_head
 	LoadW r4, $8200
 	rts
 
 
-CalcBlksFree:
+cbmdos_CalcBlksFree:
 	LoadW r4, 999*4
 	LoadW r3, 999*4
 	ldx #0
 	rts
 
 
-Get1stDirEntry:
+cbmdos_Get1stDirEntry:
 	LoadW r4, $8000
 	LoadB r1L, 18
 	LoadB r1H, 1
-	jsr ReadBlock
+	jsr cbmdos_ReadBlock
 	lda #$02
 	sta r4L
 	sta r5L
@@ -1169,7 +1168,7 @@ Get1stDirEntry:
 	sec
 	rts
 
-GetNxtDirEntry:
+cbmdos_GetNxtDirEntry:
 	ldy #1
 	clc
 	rts
@@ -1178,7 +1177,7 @@ get_dir_head:
 	LoadB r1L, 18
 	LoadB r1H, 0
 	LoadW r4, $8200
-	jmp ReadBlock
+	jmp cbmdos_ReadBlock
 
 secpertrack:
 	.byte 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 19, 19, 19, 19, 19, 19, 19, 18, 18, 18, 18, 18, 18, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17
