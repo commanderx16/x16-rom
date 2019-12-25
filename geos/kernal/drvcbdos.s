@@ -11,6 +11,14 @@
 
 .include "../banks.inc"
 
+.import cbmdos_OpenDisk
+.import cbmdos_ReadBuff
+.import cbmdos_ReadBlock
+.import cbmdos_GetDirHead
+.import cbmdos_CalcBlksFree
+.import cbmdos_Get1stDirEntry
+.import cbmdos_GetNxtDirEntry
+
 .segment "drvcbdos"
 
 ; CALL ffffff33 GetNxtDirEntry
@@ -127,7 +135,7 @@ __OpenDisk:
 	php
 	sei
 	jsr gjsrfar
-	.word $c000 + 3 * 8
+	.word cbmdos_OpenDisk
 	.byte BANK_CBDOS
 	plp
 	rts
@@ -136,7 +144,7 @@ _ReadBuff:
 	php
 	sei
 	jsr gjsrfar
-	.word $c000 + 3 * 9
+	.word cbmdos_ReadBuff
 	.byte BANK_CBDOS
 	plp
 	rts
@@ -146,7 +154,7 @@ __GetBlock:
 	php
 	sei
 	jsr gjsrfar
-	.word $c000 + 3 * 10
+	.word cbmdos_ReadBlock
 	.byte BANK_CBDOS
 	plp
 	rts
@@ -155,7 +163,7 @@ __GetDirHead:
 	php
 	sei
 	jsr gjsrfar
-	.word $c000 + 3 * 11
+	.word cbmdos_GetDirHead
 	.byte BANK_CBDOS
 	plp
 	rts
@@ -164,7 +172,7 @@ __CalcBlksFree:
 	php
 	sei
 	jsr gjsrfar
-	.word $c000 + 3 * 12
+	.word cbmdos_CalcBlksFree
 	.byte BANK_CBDOS
 	plp
 	rts
@@ -173,7 +181,7 @@ _Get1stDirEntry:
 	php
 	sei
 	jsr gjsrfar
-	.word $c000 + 3 * 13
+	.word cbmdos_Get1stDirEntry
 	.byte BANK_CBDOS
 	plp
 	rts
@@ -182,7 +190,7 @@ _GetNxtDirEntry:
 	php
 	sei
 	jsr gjsrfar
-	.word $c000 + 3 * 14
+	.word cbmdos_GetNxtDirEntry
 	.byte BANK_CBDOS
 	plp
 	rts
