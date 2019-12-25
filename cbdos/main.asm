@@ -18,6 +18,15 @@
 .export tmp1, krn_tmp, krn_tmp2, krn_tmp3, sd_tmp, lba_addr, blocks
 .export fd_area, sd_blktarget, block_data, block_fat
 
+.export cbdos_secnd
+.export cbdos_tksa
+.export cbdos_acptr
+.export cbdos_ciout
+.export cbdos_untlk
+.export cbdos_unlsn
+.export cbdos_listn
+.export cbdos_talk
+
 ; for GEOS
 .export cbmdos_OpenDisk
 .export cbmdos_ReadBuff
@@ -161,24 +170,6 @@ buffer_for_channel:
 
 
 .segment "cbdos"
-; $C000
-
-	jmp cbdos_secnd
-	jmp cbdos_tksa
-	jmp cbdos_acptr
-	jmp cbdos_ciout
-	jmp cbdos_untlk
-	jmp cbdos_unlsn
-	jmp cbdos_listn
-	jmp cbdos_talk
-; GEOS
-	jmp cbmdos_OpenDisk
-	jmp cbmdos_ReadBuff
-	jmp cbmdos_ReadBlock
-	jmp cbmdos_GetDirHead
-	jmp cbmdos_CalcBlksFree
-	jmp cbmdos_Get1stDirEntry
-	jmp cbmdos_GetNxtDirEntry
 
 cbdos_init:
 	; XXX don't do lazy init
