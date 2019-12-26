@@ -802,6 +802,7 @@ chkcol
         adc #$80
         rol a
         sta color    ; stash back.
+	lda #$01     ; restore .a
         rts
 ntinv
 	ldx #15         ;there's 15 colors
