@@ -170,6 +170,9 @@ buffer_for_channel:
 	jmp cbmdos_Get1stDirEntry
 	jmp cbmdos_GetNxtDirEntry
 
+; detection
+	jmp sdcard_init
+
 cbdos_init:
 	; XXX don't do lazy init
 	lda #MAGIC_INITIALIZED
@@ -619,8 +622,14 @@ set_status_writeprot
 set_status_synerr
 	lda #$31
 	bra :+
+set_status_62
+	lda #$62
+	bra :+
 set_status_73
 	lda #$73
+	bra :+
+set_status_74
+	lda #$74
 :	pha
 	pha
 	lsr
@@ -679,14 +688,16 @@ set_status_73
 	rts
 
 stcodes:
-	.byte $00, $26, $31, $73
+	.byte $00, $26, $31, $62, $73, $74
 stcodes_end:
 
 ststrs:
 	.word status_00
 	.word status_26
 	.word status_31
+	.word status_62
 	.word status_73
+	.word status_74
 
 status_00:
 	.byte "OK", 0
@@ -694,8 +705,12 @@ status_26:
 	.byte "WRITE PROTECT ON", 0
 status_31:
 	.byte "SYNTAX ERROR" ,0
+status_62:
+	.byte " FILE NOT FOUND" ,0
 status_73:
 	.byte "CBDOS V1.0 X16", 0
+status_74:
+	.byte "DRIVE NOT READY", 0
 
 ;****************************************
 open_file:
@@ -795,11 +810,15 @@ read_block:
 
 
 open_dir:
+	jsr fat_mount
+	beq :+
+	lda #$02 ; timeout/file not found
+	sta status
+	jmp set_status_62
+:
 	lda #MAGIC_FD_DIR_LOAD
 	ldx channel
 	sta fd_for_channel,x ; remember fd
-
-	jsr fat_mount
 
 	ldy #0
 	lda #<DIRSTART

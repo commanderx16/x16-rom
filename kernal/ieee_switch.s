@@ -101,6 +101,7 @@ listn:
 	rts
 
 talk:
+	jsr cbdos_detect
 	bit cbdos_enabled
 	bmi :+
 	jmp serial_talk
@@ -111,7 +112,22 @@ talk:
 
 cbdos_detect:
 	pha
+	phx
+	phy
+
+	php
+	sei
+	jsr jsrfar
+	.word $c000 + 3 * 15
+	.byte BANK_CBDOS
+	beq @detected
+	lda #0
+	bra :+
+@detected:
 	lda #$80
-	sta cbdos_enabled
+:	sta cbdos_enabled
+	plp
+	ply
+	plx
 	pla
 	rts
