@@ -260,11 +260,3 @@
 	inc addr+1
 	@j:
 .endmacro
-
-.macro DecW addr
-	.local @j
-	dec addr
-	bpl @j
-	dec addr+1
-	@j: 
-.endmacro

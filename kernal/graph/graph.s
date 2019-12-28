@@ -508,29 +508,40 @@ GRAPH_draw_image:
 ;            r4   width
 ;            r5   height
 ;---------------------------------------------------------------
-GRAPH_move_rect:
-	CmpW r1, r3
-	bpl @3
+_DecW:
+	lda 0,x
+	bne @1
+	dec 1,x
+@1:	dec 0,x
+	rts
 
-@1:	AddW r5, r1
+GRAPH_move_rect:
+	CmpW r3, r1
+	bcc @2
+
+	AddW r5, r1
 	AddW r5, r3
 	IncW r5
+@1:	jsr FB_move_pixels
+	ldx #r1
+	jsr _DecW
+	ldx #r3
+	jsr _DecW
+	ldx #r5
+	jsr _DecW
+	lda r5L
+	ora r5H
+	bne @1
+	rts
+
 @2:	jsr FB_move_pixels
-	DecW r1
-	DecW r3
-	DecW r5
+	IncW r1 ; sy
+	IncW r3 ; ty
+	ldx #r5
+	jsr _DecW
 	lda r5L
 	ora r5H
 	bne @2
-	rts
-
-@3:	jsr FB_move_pixels
-	IncW r1 ; sy
-	IncW r3 ; ty
-	DecW r5
-	lda r5L
-	ora r5H
-	bne @3
 	rts
 
 ;---------------------------------------------------------------
