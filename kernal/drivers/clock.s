@@ -53,22 +53,22 @@ clock_update:
 	inc timej       ;jiffies
 	lda timej
 	cmp #60
-	bne @b
+	bne @z
 	stz timej
 	inc times       ;seconds
 	lda times
 	cmp #60
-	bne @b
+	bne @z
 	stz times
 	inc timem       ;minutes
 	lda timem
 	cmp #60
-	bne @b
+	bne @z
 	stz timem
 	inc timeh       ;hours
 	lda timeh
 	cmp #24
-	bne @b
+	bne @z
 	stz timeh
 @b:
 ;
