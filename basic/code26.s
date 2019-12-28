@@ -183,7 +183,7 @@ plsv
 ;
 ;default device #
 ;
-	ldx #1          ;device #1
+	ldx #8          ;device #8
 	ldy #0          ;command 0
 	jsr $ffba
 ;
