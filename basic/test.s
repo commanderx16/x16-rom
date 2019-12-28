@@ -16,7 +16,7 @@ _console_print_char:
 
 test:
 	jsr _console_init
-	LoadW r15, text
+@1:	LoadW r15, text
 :	lda (r15)
 	beq @end
 	jsr _console_print_char
@@ -24,7 +24,7 @@ test:
 	bne :-
 	inc r15H
 	bra :-
-@end	rts
+@end	jmp @1
 
 ATTR_BOLD  = $06
 ATTR_RESET = $92

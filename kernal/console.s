@@ -7,6 +7,7 @@
 .import GRAPH_move_rect
 .import GRAPH_draw_rect
 .import GRAPH_set_colors
+.import GRAPH_get_char_size
 
 .export console_init
 .export console_print_char
@@ -58,13 +59,17 @@ SCROLL_AMOUNT=20
 	jsr GRAPH_set_colors
 :
 
-;	ldx #0
-;	jsr GRAPH_get_char_size
-
 	MoveW px, r0
 	MoveW py, r1
-	
-	CmpWI r0, 300
+
+	pla
+	pha
+	ldx #0
+	jsr GRAPH_get_char_size
+	stx r2L
+	stz r2H
+	AddW r0, r2
+	CmpWI r2, 320
 	bcc :+
 	
 ; line break
