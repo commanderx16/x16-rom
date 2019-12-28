@@ -44,25 +44,61 @@ less_slanted = 1
 ;            mode (bold, italic...) and current Font.
 ;
 ; Pass:      a   ASCII character
-;            x   currentMode
-; Return:    a   baseline offset
+;            x   style
+;
+; Return:  printable character:
+;            c   0
+;            a   baseline offset
 ;            x   character width
 ;            y   character height
-; Destroyed: nothing
+;          control character:
+;            c   1
+;            x   new style
 ;---------------------------------------------------------------
 GRAPH_get_char_size:
-	jsr get_char_size
+	cmp #$20
+	bcc @control
+	cmp #$80
+	bcc @1
+	cmp #$a0
+	bcc @control
+@1:	jsr get_char_size
 	phx
 	phy ; XXX rewrite code below instead
 	plx
 	ply
+	clc ; C=0: printable caracter
+	rts
+
+.macro x_or_imm_sec_rts imm
+	txa
+	ora #imm
+	tax
+	sec ; C=1: control character
+	rts
+.endmacro
+
+@control:
+	cmp #$04 ; underline
+	bne :+
+	x_or_imm_sec_rts SET_UNDERLINE
+:	cmp #$06 ; bold
+	bne :+
+	x_or_imm_sec_rts SET_BOLD
+:	cmp #$0b ; italics
+	bne :+
+	x_or_imm_sec_rts SET_ITALIC
+:	cmp #$0c ; outline
+	bne :+
+	x_or_imm_sec_rts SET_OUTLINE
+:	cmp #$92 ; attribute clear
+	bne :+
+	ldx #0
+:	sec
 	rts
 	
 get_char_size:
 	subv $20
-	bcs _GetRealSize2
-	lda #0
-	rts
 _GetRealSize2:
 	jsr GetChWdth1
 	tay

@@ -10,21 +10,39 @@
 
 .import sprite_set_image, sprite_set_position
 
-	.segment "JMPTBL"
-; *** this is space for new X16 KERNAL vectors ***
-; for now, these are private API, they have not been
-; finalized
+.import console_init, console_put_char, console_get_char
 
-	.byte 0,0,0            ; $FEE1
+	.segment "JMPTBL"
+
+; *** this is space for new X16 KERNAL vectors ***
+;
+; !!! DO NOT RELY ON THEIR ADDRESSES JUST YET !!!
+;
+
+	.byte 0,0,0            ; $FEC0
+	.byte 0,0,0            ; $FEC3
+	.byte 0,0,0            ; $FEC6
+	.byte 0,0,0            ; $FEC9
+	.byte 0,0,0            ; $FECC
+	.byte 0,0,0            ; $FECF
+	.byte 0,0,0            ; $FED2
+	.byte 0,0,0            ; $FED5
+	.byte 0,0,0            ; $FED8
+
+	jmp console_init       ; $FEDB
+	jmp console_put_char   ; $FEDE
+	jmp console_get_char   ; $FEE1
+
 	jmp memory_fill        ; $FEE4
 	jmp memory_copy        ; $FEE7
 	jmp memory_crc         ; $FEEA
 	jmp memory_decompress  ; $FEED
+
 	jmp sprite_set_image   ; $FEF0
 	jmp sprite_set_position; $FEF3
 
 	;
-	; graph low-level API
+	; framebuffer API
 	;
 	jmp (I_FB_init)                ; $FEF6: FB_init
 	jmp (I_FB_get_info)            ; $FEF9: FB_get_info

@@ -68,7 +68,11 @@ sprite_set_image:
 
 @z:
 ; set sprite data offset & bpp
-	lda #$00
+	pla ; sprite number
+	pha
+	asl
+	asl
+	asl ; *8
 	sta veralo
 	lda #$50
 	sta veramid
@@ -87,7 +91,9 @@ sprite_set_image:
 	sta veradat
 
 ; set size
-	lda #$07
+	lda veralo
+	clc
+	adc #5 ; skip to offset #7
 	sta veralo
 	lda #1 << 6 | 1 << 4 ;  16x16 px
 	sta veradat

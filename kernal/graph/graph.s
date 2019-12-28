@@ -397,7 +397,8 @@ GRAPH_draw_rect:
 	lda r2L
 	ora r2H
 	bne @0
-@4:	rts
+@4:	plp
+	rts
 @0:	lda r3L
 	ora r3H
 	beq @4

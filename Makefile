@@ -173,6 +173,7 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/framebuffer.o kernal/drivers/framebuffer.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/sprites.o kernal/drivers/sprites.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/graph/graph.o kernal/graph/graph.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/console.o kernal/console.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/fonts/fonts.o kernal/fonts/fonts.s
 
 	$(AS) $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
@@ -215,6 +216,7 @@ all: $(PREFIXED_GEOS_OBJS)
 		kernal/drivers/framebuffer.o \
 		kernal/drivers/sprites.o \
 		kernal/graph/graph.o kernal/fonts/fonts.o \
+		kernal/console.o \
 		monitor/monitor.o \
 		cbdos/zeropage.o \
 		cbdos/fat32.o \

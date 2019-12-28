@@ -88,3 +88,36 @@ GRAPH_draw_image             = $ff38
 GRAPH_set_font               = $ff3b
 GRAPH_get_char_size          = $ff3e
 GRAPH_put_char               = $ff41
+
+.if 0
+;
+; framebuffer API
+;
+FB_init                      = $fef6
+FB_get_info                  = $fef9
+FB_set_palette               = $fefc
+FB_cursor_position           = $feff
+FB_cursor_next_line          = $ff02
+FB_get_pixel                 = $ff05
+FB_get_pixels                = $ff08
+FB_set_pixel                 = $ff0b
+FB_set_pixels                = $ff0e
+FB_set_8_pixels              = $ff11
+FB_set_8_pixels_opaque       = $ff14
+FB_fill_pixels               = $ff17
+FB_filter_pixels             = $ff1a
+FB_move_pixels               = $ff1d
+.endif
+
+sprite_set_image             = $fef0
+sprite_set_position          = $fef3
+
+memory_fill                  = $fee4
+memory_copy                  = $fee7
+memory_crc                   = $feea
+memory_decompress            = $feed
+
+console_init                 = $fedb
+console_put_char             = $fede
+console_get_char             = $fee1
+

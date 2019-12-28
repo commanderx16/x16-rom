@@ -14,7 +14,6 @@ BANK_CHARSET = 6
 
 .macro KVARS_START
 .import kvswitch_tmp1, kvswitch_tmp2
-	nop
 	php
 	sei
 	sta kvswitch_tmp1
@@ -27,7 +26,6 @@ BANK_CHARSET = 6
 	pha
 	lda kvswitch_tmp1
 	plp
-	nop
 .endmacro
 
 .macro KVARS_END

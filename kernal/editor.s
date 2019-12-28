@@ -456,25 +456,6 @@ bkln1	dex
 ;print routine
 ;
 prt
-.if 0
-	pha
-	lda blnsw
-	beq @1
-	pla
-	.import GRAPH_put_char
-	pha
-	phx
-	phy
-	jsr GRAPH_put_char
-	ply
-	plx
-	pla
-	clc
-	rts
-
-@1:	pla
-.endif
-
 	pha
 	sta data
 	txa
