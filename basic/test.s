@@ -1,4 +1,48 @@
 
+.import console_init
+.import console_print_char
+
+_console_init:
+	jsr jsrfar
+	.word console_init
+	.byte BANK_KERNAL
+	rts
+
+_console_print_char:
+	jsr jsrfar
+	.word console_print_char
+	.byte BANK_KERNAL
+	rts
+
+test:
+	jsr _console_init
+	LoadW r15, text
+:	lda (r15)
+	beq @end
+	jsr _console_print_char
+	inc r15L
+	bne :-
+	inc r15H
+	bra :-
+@end	rts
+
+ATTR_BOLD  = $06
+ATTR_RESET = $92
+
+text:
+	.byte ATTR_BOLD,"Bees",ATTR_RESET," are flying insects closely related to wasps and ants, known for their role in pollination and, in the case of the best-known bee species, the western honey bee, for producing honey and beeswax. Bees are a monophyletic lineage within the superfamily Apoidea and are presently considered a clade, called ",ATTR_BOLD,"Anthophila",ATTR_RESET,". There are over 16,000 known species of bees in seven recognized biological families.[1][2] They are found on every continent except Antarctica, in every habitat on the planet that contains insect-pollinated flowering plants.",13
+
+	.byte "Some species — including honey bees, bumblebees, and stingless bees — live socially in colonies. Bees are adapted for feeding on nectar and pollen, the former primarily as an energy source and the latter primarily for protein and other nutrients. Most pollen is used as food for larvae. Bee pollination is important both ecologically and commercially. The decline in wild bees has increased the value of pollination by commercially managed hives of honey bees.",13
+
+	.byte "Bees range in size from tiny stingless bee species whose workers are less than 2 millimetres (0.08 in) long, to Megachile pluto, the largest species of leafcutter bee, whose females can attain a length of 39 millimetres (1.54 in). The most common bees in the Northern Hemisphere are the Halictidae, or sweat bees, but they are small and often mistaken for wasps or flies. Vertebrate predators of bees include birds such as bee-eaters; insect predators include beewolves and dragonflies.",13
+
+	.byte "Human beekeeping or apiculture has been practised for millennia, since at least the times of Ancient Egypt and Ancient Greece. Apart from honey and pollination, honey bees produce beeswax, royal jelly and propolis. Bees have appeared in mythology and folklore, through all phases of art and literature, from ancient times to the present day, though primarily focused in the Northern Hemisphere, where beekeeping is far more common.",13
+
+	.byte "The analysis of 353 wild bee and hoverfly species across Britain from 1980 to 2013 found the insects have been lost from a quarter of the places they inhabited in 1980.[3]",13
+
+	.byte 0
+
+.if 0
 test:
 	lda #$80
 	sec
@@ -615,3 +659,4 @@ str_OK:
 str_BAD:
 	.byte "BAD", 0
 
+.endif
