@@ -20,13 +20,58 @@ py:	.res 2
 .segment "CONSOLE"
 
 console_init:
+	lda #$00
+	sta r6L
+	lda #$05
+	sta r6H
+	stz r7L
+
 	lda #$80
 	jsr screen_set_mode
 	lda #147
 ; fallthrough
 
 console_print_char:
+	cmp #' '
+	beq flush
+	cmp #10
+	beq flush
+	
+	ldy r7L
+	sta (r6),y
+	inc r7L
+	rts
+	
+	
+flush:
 	pha
+
+; measure word
+	MoveW px, r3 ; start with x pos
+	ldy #0
+:	lda (r6),y
+	phy
+	ldx #0
+	jsr GRAPH_get_char_size
+	ply
+	stx r2L
+	stz r2H
+	AddW r2, r3 ; add width to x pos
+	iny
+	cpy r7L
+	bne :-
+	
+	CmpWI r3, 320
+	bcc :+
+
+	MoveW px, r0
+	MoveW py, r1
+	lda #10
+	jsr GRAPH_put_char
+	MoveW r0, px
+	MoveW r1, py
+
+:
 
 	CmpWI py, 200-9
 	bcc :+
@@ -62,21 +107,18 @@ SCROLL_AMOUNT=20
 	MoveW px, r0
 	MoveW py, r1
 
-	pla
-	pha
-	ldx #0
-	jsr GRAPH_get_char_size
-	stx r2L
-	stz r2H
-	AddW r0, r2
-	CmpWI r2, 320
-	bcc :+
-	
-; line break
-	lda #10
+	ldy #0
+:	lda (r6),y
+	phy
 	jsr GRAPH_put_char
-	
-:	pla
+	ply
+	iny
+	cpy r7L
+	bne :-
+
+	stz r7L
+
+	pla
 	jsr GRAPH_put_char
 	MoveW r0, px
 	MoveW r1, py

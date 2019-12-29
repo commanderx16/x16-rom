@@ -24,7 +24,8 @@ test:
 	bne :-
 	inc r15H
 	bra :-
-@end	jmp @1
+@end	rts
+	;jmp @1
 
 ATTR_UNDERLINE = $04
 ATTR_BOLD      = $06
@@ -33,6 +34,8 @@ ATTR_OUTLINE   = $0C
 ATTR_RESET     = $92
 
 text:
+;	.byte "Hello Welt",10,0
+
 	.byte 10,ATTR_BOLD,ATTR_OUTLINE,"Bee",ATTR_RESET,10
 
 	.byte ATTR_BOLD,"Bees",ATTR_RESET," are flying insects closely related to wasps and ants, known for their role in pollination and, in the case of the best-known bee species, the western honey bee, for producing honey and beeswax. Bees are a monophyletic lineage within the superfamily Apoidea and are presently considered a clade, called ",ATTR_BOLD,"Anthophila",ATTR_RESET,". There are over 16,000 known species of bees in seven recognized biological families.[1][2] They are found on every continent except Antarctica, in every habitat on the planet that contains insect-pollinated flowering plants.",10
