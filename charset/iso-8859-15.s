@@ -1998,12 +1998,12 @@
 .byte %________
 ; Ö (based on CP437 99)
 .byte %██____██
-.byte %___██___
 .byte %__████__
 .byte %_██__██_
 .byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
 .byte %__████__
-.byte %___██___
 .byte %________
 ; × (CP850 9E); TODO: should not use left column
 .byte %________
