@@ -104,6 +104,9 @@ SCROLL_AMOUNT=20
 	jsr GRAPH_set_colors
 :
 
+	lda r7L
+	beq @l1
+
 	MoveW px, r0
 	MoveW py, r1
 
@@ -118,7 +121,7 @@ SCROLL_AMOUNT=20
 
 	stz r7L
 
-	pla
+@l1:	pla
 	jsr GRAPH_put_char
 	MoveW r0, px
 	MoveW r1, py
