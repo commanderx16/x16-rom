@@ -2042,13 +2042,13 @@
 .byte %__████__
 .byte %________
 ; Û (CP850 EA)
-.byte %_█████__
-.byte %█_____█_
+.byte %__████__
+.byte %_█____█_
 .byte %________
-.byte %██___██_
-.byte %██___██_
-.byte %██___██_
-.byte %_█████__
+.byte %_██__██_
+.byte %_██__██_
+.byte %_██__██_
+.byte %__████__
 .byte %________
 ; Ü (based on PXLfont and CP850 9A)
 .byte %_██__██_
@@ -2124,11 +2124,11 @@
 ; ã (based on PXLfont and CP850 C6)
 .byte %_███_██_
 .byte %██_███__
-.byte %_█████__
+.byte %__████__
 .byte %_____██_
-.byte %_██████_
-.byte %██___██_
-.byte %_██████_
+.byte %__█████_
+.byte %_██__██_
+.byte %__█████_
 .byte %________
 ; ä (based on PXLfont and CP850 84)
 .byte %_██__██_
@@ -2221,10 +2221,10 @@
 .byte %_██████_
 .byte %________
 ; î (based on PXLfont and CP850 8C)
-.byte %_█████__
-.byte %█_____█_
+.byte %__████__
+.byte %_█____█_
+.byte %________
 .byte %_████___
-.byte %___██___
 .byte %___██___
 .byte %___██___
 .byte %_██████_
