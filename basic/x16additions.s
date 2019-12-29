@@ -287,6 +287,18 @@ joy:
 	tay
 	jmp sngflt
 
+reset:	
+	ldx #5
+:	lda reset_copy,x 
+	sta $0100,x 
+	dex
+	bpl :-
+	jmp $0100
+
+reset_copy:
+	stz d1prb 
+	jmp ($fffc)
+
 ; BASIC's entry into jsrfar
 .setcpu "65c02"
 via1	=$9f60                  ;VIA 6522 #1

@@ -99,6 +99,7 @@ stmdsp2	; statements
 	.word mouse-1
 	.word color-1
 	.word test-1
+	.word reset-1
 	; functions
 	.word vpeek
 	.word mx
