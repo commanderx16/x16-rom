@@ -1,0 +1,2780 @@
+Modules list:
+-------------
+basic.o:
+    ZPBASIC           Offs=000000  Size=00002B  Align=00001  Fill=0000
+    BVARS             Offs=000000  Size=00002B  Align=00001  Fill=0000
+    BVECTORS          Offs=000000  Size=000013  Align=00001  Fill=0000
+    BASIC             Offs=000000  Size=002A5C  Align=00001  Fill=0000
+fplib.o:
+    ZPFPLIB           Offs=000000  Size=00002B  Align=00001  Fill=0000
+    FPVARS            Offs=000000  Size=000009  Align=00001  Fill=0000
+    FPJMP             Offs=000000  Size=0000B1  Align=00001  Fill=0000
+    FPLIB             Offs=000000  Size=000961  Align=00001  Fill=0000
+kernal.o:
+    ZPKERNAL          Offs=000000  Size=000008  Align=00001  Fill=0000
+    KVAR              Offs=000000  Size=000058  Align=00001  Fill=0000
+    GDRVVEC           Offs=000000  Size=00001C  Align=00001  Fill=0000
+    KVECTORS          Offs=000000  Size=000020  Align=00001  Fill=0000
+    INIT              Offs=000000  Size=00007B  Align=00001  Fill=0000
+    RS232NMI          Offs=000000  Size=00001F  Align=00001  Fill=0000
+    IRQFILE           Offs=000000  Size=000034  Align=00001  Fill=0000
+    PRIMM             Offs=000000  Size=000029  Align=00001  Fill=0000
+    JMPTBL            Offs=000000  Size=000119  Align=00001  Fill=0000
+    VECTORS           Offs=000000  Size=000006  Align=00001  Fill=0000
+editor.o:
+    KVAR2             Offs=000000  Size=000056  Align=00001  Fill=0000
+    EDITOR            Offs=000000  Size=000695  Align=00001  Fill=0000
+channel.o:
+    ZPCHANNEL         Offs=000000  Size=000008  Align=00001  Fill=0000
+    VARCHANNEL        Offs=000000  Size=00002C  Align=00001  Fill=0000
+    CHANNEL           Offs=000000  Size=000565  Align=00001  Fill=0000
+ieee_switch.o:
+    KVAR              Offs=000058  Size=000001  Align=00001  Fill=0000
+    IEEESWTCH         Offs=000000  Size=000099  Align=00001  Fill=0000
+serial.o:
+    KVAR              Offs=000059  Size=000005  Align=00001  Fill=0000
+    SERIAL            Offs=000000  Size=0001C8  Align=00001  Fill=0000
+memory.o:
+    MEMORY            Offs=000000  Size=0000E9  Align=00001  Fill=0000
+lzsa.o:
+    KVAR              Offs=00005E  Size=000004  Align=00001  Fill=0000
+    LZSA              Offs=000000  Size=000103  Align=00001  Fill=0000
+x16.o:
+    MACHINE           Offs=000000  Size=000028  Align=00001  Fill=0000
+memory.o:
+    MEMDRV            Offs=000000  Size=000125  Align=00001  Fill=0000
+    KERNRAM           Offs=000000  Size=000020  Align=00001  Fill=0000
+    KERNRAM2          Offs=000000  Size=00003F  Align=00001  Fill=0000
+screen.o:
+    KVAR              Offs=000062  Size=000003  Align=00001  Fill=0000
+    SCREEN            Offs=000000  Size=000200  Align=00001  Fill=0000
+    CPYCHR            Offs=000000  Size=000075  Align=00001  Fill=0000
+ps2.o:
+    KVARSB0           Offs=000000  Size=000001  Align=00001  Fill=0000
+    PS2               Offs=000000  Size=00007D  Align=00001  Fill=0000
+ps2kbd.o:
+    KVARSB0           Offs=000001  Size=000020  Align=00001  Fill=0000
+    PS2KBD            Offs=000000  Size=0003A7  Align=00001  Fill=0000
+ps2mouse.o:
+    KVARSB0           Offs=000021  Size=00000E  Align=00001  Fill=0000
+    PS2MOUSE          Offs=000000  Size=0002D2  Align=00001  Fill=0000
+joystick.o:
+    KVARSB0           Offs=00002F  Size=000008  Align=00001  Fill=0000
+    JOYSTICK          Offs=000000  Size=000129  Align=00001  Fill=0000
+clock.o:
+    KVARSB0           Offs=000037  Size=00000A  Align=00001  Fill=0000
+    TIME              Offs=000000  Size=0001E8  Align=00001  Fill=0000
+rs232.o:
+    RS232             Offs=000000  Size=000058  Align=00001  Fill=0000
+framebuffer.o:
+    VERA_DRV          Offs=000000  Size=0002C4  Align=00001  Fill=0000
+sprites.o:
+    SPRITES           Offs=000000  Size=0000E3  Align=00001  Fill=0000
+graph.o:
+    KVAR              Offs=000065  Size=000003  Align=00001  Fill=0000
+    GRAPH             Offs=000000  Size=00049F  Align=00001  Fill=0000
+fonts.o:
+    ZPFONTS           Offs=000000  Size=000002  Align=00001  Fill=0000
+    VARFONTS          Offs=000000  Size=000024  Align=00001  Fill=0000
+    GRAPH             Offs=00049F  Size=000BEC  Align=00001  Fill=0000
+monitor.o:
+    monitor_a         Offs=000000  Size=000020  Align=00001  Fill=0000
+    monitor_ram_code  Offs=000000  Size=000027  Align=00001  Fill=0000
+    monitor_b         Offs=000000  Size=000F8E  Align=00001  Fill=0000
+    asmchars1         Offs=000000  Size=000006  Align=00001  Fill=0000
+    asmchars2         Offs=000000  Size=000006  Align=00001  Fill=0000
+    mnemos1           Offs=000000  Size=000046  Align=00001  Fill=0000
+    mnemos2           Offs=000000  Size=000046  Align=00001  Fill=0000
+    monitor_c         Offs=000000  Size=0003CA  Align=00001  Fill=0000
+zeropage.o:
+    ZPCBDOS           Offs=000000  Size=000011  Align=00001  Fill=0000
+fat32.o:
+    CODE              Offs=000000  Size=000A25  Align=00001  Fill=0000
+util.o:
+    CODE              Offs=000A25  Size=000155  Align=00001  Fill=0000
+matcher.o:
+    CODE              Offs=000B7A  Size=000013  Align=00001  Fill=0000
+sdcard.o:
+    CODE              Offs=000B8D  Size=00021B  Align=00001  Fill=0000
+spi_rw_byte.o:
+    CODE              Offs=000DA8  Size=000025  Align=00001  Fill=0000
+spi_select_device.o:
+    CODE              Offs=000DCD  Size=000013  Align=00001  Fill=0000
+spi_deselect.o:
+    CODE              Offs=000DE0  Size=000016  Align=00001  Fill=0000
+main.o:
+    cbdos_data        Offs=000000  Size=001329  Align=00001  Fill=0000
+    cbdos             Offs=000000  Size=0007CB  Align=00001  Fill=0000
+keymap.o:
+    KBDMETA           Offs=000000  Size=0000C1  Align=00001  Fill=0000
+    KBDTABLES         Offs=000000  Size=0016B5  Align=00001  Fill=0000
+    IKBDMETA          Offs=000000  Size=0000C1  Align=00001  Fill=0000
+    IKBDTABLES        Offs=000000  Size=0016B5  Align=00001  Fill=0000
+petscii.o:
+    CHARSET           Offs=000000  Size=000800  Align=00001  Fill=0000
+iso-8859-15.o:
+    CHARISO           Offs=000000  Size=000800  Align=00001  Fill=0000
+kernsup_basic.o:
+    KSUP_VEC          Offs=000000  Size=00011F  Align=00001  Fill=0000
+    KSUP_CODE         Offs=000000  Size=000268  Align=00001  Fill=0000
+kernsup_monitor.o:
+    KSUP_CODE2        Offs=000000  Size=0002C6  Align=00001  Fill=0000
+    KSUP_VEC2         Offs=000000  Size=00011F  Align=00001  Fill=0000
+irqsup.o:
+    IRQA              Offs=000000  Size=000002  Align=00001  Fill=0000
+    IRQB              Offs=000000  Size=000002  Align=00001  Fill=0000
+bitmask2.o:
+conio1.o:
+    conio1            Offs=000000  Size=0000E0  Align=00001  Fill=0000
+conio2.o:
+    conio2            Offs=000000  Size=000039  Align=00001  Fill=0000
+conio3a.o:
+    conio3a           Offs=000000  Size=00011A  Align=00001  Fill=0000
+conio4.o:
+    conio4            Offs=000000  Size=000198  Align=00001  Fill=0000
+conio6.o:
+    conio6            Offs=000000  Size=00008B  Align=00001  Fill=0000
+dlgbox1a.o:
+    dlgbox1a          Offs=000000  Size=000084  Align=00001  Fill=0000
+dlgbox1b.o:
+    dlgbox1b          Offs=000000  Size=000026  Align=00001  Fill=0000
+dlgbox1c.o:
+    dlgbox1c          Offs=000000  Size=0000DB  Align=00001  Fill=0000
+dlgbox1d.o:
+    dlgbox1d          Offs=000000  Size=0000EC  Align=00001  Fill=0000
+dlgbox1e1.o:
+    dlgbox1e1         Offs=000000  Size=000030  Align=00001  Fill=0000
+dlgbox1e2.o:
+    dlgbox1e2         Offs=000000  Size=000026  Align=00001  Fill=0000
+dlgbox1f.o:
+    dlgbox1f          Offs=000000  Size=00000B  Align=00001  Fill=0000
+dlgbox1g.o:
+    dlgbox1g          Offs=000000  Size=000049  Align=00001  Fill=0000
+dlgbox1h.o:
+    dlgbox1h          Offs=000000  Size=000153  Align=00001  Fill=0000
+dlgbox1i.o:
+    dlgbox1i          Offs=000000  Size=000023  Align=00001  Fill=0000
+dlgbox1j.o:
+    dlgbox1j          Offs=000000  Size=0001A5  Align=00001  Fill=0000
+dlgbox1k.o:
+    dlgbox1k          Offs=000000  Size=000142  Align=00001  Fill=0000
+dlgbox2.o:
+    dlgbox2           Offs=000000  Size=0000A8  Align=00001  Fill=0000
+files10.o:
+    files10           Offs=000000  Size=000467  Align=00001  Fill=0000
+files1a2a.o:
+    files1a2a         Offs=000000  Size=00000C  Align=00001  Fill=0000
+files1a2b.o:
+    files1a2b         Offs=000000  Size=000094  Align=00001  Fill=0000
+files1b.o:
+    files1b           Offs=000000  Size=000077  Align=00001  Fill=0000
+files2.o:
+    files2            Offs=000000  Size=000008  Align=00001  Fill=0000
+files3.o:
+    files3            Offs=000000  Size=00000E  Align=00001  Fill=0000
+files6a.o:
+    files6a           Offs=000000  Size=0000B5  Align=00001  Fill=0000
+files6b.o:
+    files6b           Offs=000000  Size=00001D  Align=00001  Fill=0000
+files6c.o:
+    files6c           Offs=000000  Size=000119  Align=00001  Fill=0000
+files7.o:
+files8.o:
+    files8            Offs=000000  Size=0000CA  Align=00001  Fill=0000
+clrscr.o:
+    graph1            Offs=000000  Size=000013  Align=00001  Fill=0000
+inlinefunc.o:
+    graph2b           Offs=000000  Size=00000C  Align=00001  Fill=0000
+    graph2d           Offs=000000  Size=00000C  Align=00001  Fill=0000
+    graph2f           Offs=000000  Size=00000C  Align=00001  Fill=0000
+    graph2h           Offs=000000  Size=00000F  Align=00001  Fill=0000
+    graph2j           Offs=000000  Size=000013  Align=00001  Fill=0000
+    graph3b           Offs=000000  Size=00002E  Align=00001  Fill=0000
+graphicsstring.o:
+    graph2k           Offs=000000  Size=0000B3  Align=00001  Fill=0000
+    graph2m           Offs=000000  Size=00001C  Align=00001  Fill=0000
+graph2l1.o:
+    graph2l1          Offs=000000  Size=000053  Align=00001  Fill=0000
+pattern.o:
+    graph2l2          Offs=000000  Size=00001A  Align=00001  Fill=0000
+inline.o:
+    inline            Offs=000000  Size=000032  Align=00001  Fill=0000
+header.o:
+hw1a.o:
+hw1b.o:
+    hw1b              Offs=000000  Size=00000F  Align=00001  Fill=0000
+hw2.o:
+hw3.o:
+icon1.o:
+    icon1             Offs=000000  Size=000033  Align=00001  Fill=0000
+icon2.o:
+    icon2             Offs=000000  Size=00011C  Align=00001  Fill=0000
+init1.o:
+    init1             Offs=000000  Size=00000E  Align=00001  Fill=0000
+init2.o:
+    init2             Offs=000000  Size=00001F  Align=00001  Fill=0000
+init3.o:
+init4.o:
+    init4             Offs=000000  Size=00003D  Align=00001  Fill=0000
+irq.o:
+    irq               Offs=000000  Size=0000A1  Align=00001  Fill=0000
+jumptab.o:
+    jumptab           Offs=000000  Size=0001D7  Align=00001  Fill=0000
+keyboard1.o:
+    keyboard1         Offs=000000  Size=000001  Align=00001  Fill=0000
+keyboard2.o:
+keyboard3.o:
+    keyboard3         Offs=000000  Size=00004F  Align=00001  Fill=0000
+deskacc.o:
+    deskacc1          Offs=000000  Size=00008D  Align=00001  Fill=0000
+    deskacc2          Offs=000000  Size=00000B  Align=00001  Fill=0000
+    deskacc3          Offs=000000  Size=00001B  Align=00001  Fill=0000
+load1a.o:
+    load1a            Offs=000000  Size=00009A  Align=00001  Fill=0000
+load1b.o:
+    load1b            Offs=000000  Size=00000F  Align=00001  Fill=0000
+load1c.o:
+    load1c            Offs=000000  Size=000009  Align=00001  Fill=0000
+    load1d            Offs=000000  Size=000032  Align=00001  Fill=0000
+load2.o:
+    load2             Offs=000000  Size=00005C  Align=00001  Fill=0000
+load3.o:
+    load3             Offs=000000  Size=000070  Align=00001  Fill=0000
+load4b.o:
+    load4b            Offs=000000  Size=000021  Align=00001  Fill=0000
+mainloop.o:
+    mainloop1         Offs=000000  Size=000019  Align=00001  Fill=0000
+    mainloop3         Offs=000000  Size=00000F  Align=00001  Fill=0000
+shl.o:
+    math1a1           Offs=000000  Size=00000B  Align=00001  Fill=0000
+shr.o:
+    math1a2           Offs=000000  Size=00000B  Align=00001  Fill=0000
+muldiv.o:
+    math1b            Offs=000000  Size=0000A3  Align=00001  Fill=0000
+neg.o:
+    math1c1           Offs=000000  Size=000018  Align=00001  Fill=0000
+dec.o:
+    math1c2           Offs=000000  Size=00000D  Align=00001  Fill=0000
+random.o:
+    math1d            Offs=000000  Size=000037  Align=00001  Fill=0000
+crc.o:
+    math2             Offs=000000  Size=00003A  Align=00001  Fill=0000
+memory1a.o:
+    memory1a          Offs=000000  Size=000026  Align=00001  Fill=0000
+memory1b.o:
+    memory1b          Offs=000000  Size=000038  Align=00001  Fill=0000
+memory2.o:
+    memory2           Offs=000000  Size=00012B  Align=00001  Fill=0000
+memory3.o:
+    memory3           Offs=000000  Size=000012  Align=00001  Fill=0000
+menu1.o:
+    menu1             Offs=000000  Size=0001FA  Align=00001  Fill=0000
+menu2.o:
+    menu2             Offs=000000  Size=00000B  Align=00001  Fill=0000
+menu3.o:
+    menu3             Offs=000000  Size=0001FC  Align=00001  Fill=0000
+misc.o:
+    misc              Offs=000000  Size=00001D  Align=00001  Fill=0000
+mouse1.o:
+    mouse1            Offs=000000  Size=00002C  Align=00001  Fill=0000
+mouse2.o:
+    mouse2            Offs=000000  Size=0001B5  Align=00001  Fill=0000
+mouse3.o:
+    mouse3            Offs=000000  Size=00001B  Align=00001  Fill=0000
+mouse4.o:
+    mouse4            Offs=000000  Size=00004C  Align=00001  Fill=0000
+mouseptr.o:
+panic.o:
+    panic1            Offs=000000  Size=00002B  Align=00001  Fill=0000
+    panic2            Offs=000000  Size=000007  Align=00001  Fill=0000
+    panic3            Offs=000000  Size=000019  Align=00001  Fill=0000
+patterns.o:
+process.o:
+    process1          Offs=000000  Size=000069  Align=00001  Fill=0000
+    process2          Offs=000000  Size=00003F  Align=00001  Fill=0000
+    process3a         Offs=000000  Size=000044  Align=00001  Fill=0000
+    process3aa        Offs=000000  Size=00001A  Align=00001  Fill=0000
+    process3b         Offs=000000  Size=000026  Align=00001  Fill=0000
+    process3c         Offs=000000  Size=000051  Align=00001  Fill=0000
+reu.o:
+    reu               Offs=000000  Size=000001  Align=00001  Fill=0000
+serial1.o:
+    serial1           Offs=000000  Size=000003  Align=00001  Fill=0000
+serial2.o:
+    serial2           Offs=000000  Size=00000D  Align=00001  Fill=0000
+sprites.o:
+    sprites           Offs=000000  Size=00002A  Align=00001  Fill=0000
+time1.o:
+    time1             Offs=000000  Size=000012  Align=00001  Fill=0000
+time2.o:
+tobasic2.o:
+    tobasic2          Offs=000000  Size=000001  Align=00001  Fill=0000
+vars.o:
+    vars              Offs=000000  Size=000199  Align=00001  Fill=0000
+start64.o:
+    start             Offs=000000  Size=000167  Align=00001  Fill=0000
+    entry             Offs=000000  Size=000003  Align=00001  Fill=0000
+    vectors           Offs=000000  Size=000006  Align=00001  Fill=0000
+bitmask1.o:
+bitmask3.o:
+conio5.o:
+    conio5            Offs=000000  Size=000040  Align=00001  Fill=0000
+files9.o:
+    files9            Offs=000000  Size=00007E  Align=00001  Fill=0000
+bitmapclip.o:
+    graph3a           Offs=000000  Size=000052  Align=00001  Fill=0000
+bitmapup.o:
+    graph3c           Offs=000000  Size=0000DD  Align=00001  Fill=0000
+graph_bridge.o:
+    graph2n           Offs=000000  Size=00035F  Align=00001  Fill=0000
+ramexp1.o:
+ramexp2.o:
+rename.o:
+tobasic1.o:
+drvcbdos.o:
+    drvcbdos          Offs=000000  Size=000089  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+ZPKERNAL              000080  000087  000008  00001
+ZPCHANNEL             000088  00008F  000008  00001
+ZPFONTS               000090  000091  000002  00001
+ZPCBDOS               000092  0000A2  000011  00001
+ZPFPLIB               0000A9  0000D3  00002B  00001
+ZPBASIC               0000D4  0000FE  00002B  00001
+KVAR                  000200  000267  000068  00001
+monitor_ram_code      000220  000246  000027  00001
+VARCHANNEL            000268  000293  00002C  00001
+VARFONTS              000294  0002B7  000024  00001
+KERNRAM               0002C4  0002E3  000020  00001
+GDRVVEC               0002E4  0002FF  00001C  00001
+BVECTORS              000300  000312  000013  00001
+KVECTORS              000314  000333  000020  00001
+KVAR2                 000334  000389  000056  00001
+KERNRAM2              00038B  0003C9  00003F  00001
+FPVARS                0003CC  0003D4  000009  00001
+BVARS                 0003D5  0003FF  00002B  00001
+drvcbdos              009000  009088  000089  00001
+vars                  009D00  009E98  000199  00001
+KVARSB0               00A000  00A040  000041  00001
+cbdos_data            00AC00  00BF28  001329  00001
+BASIC                 00C000  00EA5B  002A5C  00001
+CHARSET               00C000  00C7FF  000800  00001
+EDITOR                00C000  00C694  000695  00001
+KBDMETA               00C000  00C0C0  0000C1  00001
+cbdos                 00C000  00C7CA  0007CB  00001
+monitor_a             00C000  00C01F  000020  00001
+tobasic2              00C000  00C000  000001  00001
+mainloop1             00C001  00C019  000019  00001
+files2                00C01A  00C021  000008  00001
+monitor_b             00C020  00CFAD  000F8E  00001
+KBDTABLES             00C0C1  00D775  0016B5  00001
+jumptab               00C100  00C2D6  0001D7  00001
+start                 00C2D7  00C43D  000167  00001
+memory2               00C43E  00C568  00012B  00001
+files1a2a             00C569  00C574  00000C  00001
+files1a2b             00C575  00C608  000094  00001
+files1b               00C609  00C67F  000077  00001
+serial1               00C680  00C682  000003  00001
+reu                   00C683  00C683  000001  00001
+dlgbox2               00C684  00C72B  0000A8  00001
+SCREEN                00C695  00C894  000200  00001
+mainloop3             00C72C  00C73A  00000F  00001
+files3                00C73B  00C748  00000E  00001
+load1a                00C749  00C7E2  00009A  00001
+CODE                  00C7CB  00D5C0  000DF6  00001
+load1b                00C7E3  00C7F1  00000F  00001
+load1c                00C7F2  00C7FA  000009  00001
+load1d                00C7FB  00C82C  000032  00001
+CHARISO               00C800  00CFFF  000800  00001
+init1                 00C82D  00C83A  00000E  00001
+hw1b                  00C83B  00C849  00000F  00001
+graph1                00C84A  00C85C  000013  00001
+init2                 00C85D  00C87B  00001F  00001
+memory1a              00C87C  00C8A1  000026  00001
+PS2                   00C895  00C911  00007D  00001
+memory1b              00C8A2  00C8D9  000038  00001
+misc                  00C8DA  00C8F6  00001D  00001
+load2                 00C8F7  00C952  00005C  00001
+PS2KBD                00C912  00CCB8  0003A7  00001
+graph2b               00C953  00C95E  00000C  00001
+graph2d               00C95F  00C96A  00000C  00001
+graph2f               00C96B  00C976  00000C  00001
+graph2h               00C977  00C985  00000F  00001
+inline                00C986  00C9B7  000032  00001
+graph2j               00C9B8  00C9CA  000013  00001
+graph2k               00C9CB  00CA7D  0000B3  00001
+graph2l1              00CA7E  00CAD0  000053  00001
+graph2l2              00CAD1  00CAEA  00001A  00001
+graph2m               00CAEB  00CB06  00001C  00001
+graph2n               00CB07  00CE65  00035F  00001
+PS2MOUSE              00CCB9  00CF8A  0002D2  00001
+process1              00CE66  00CECE  000069  00001
+process2              00CECF  00CF0D  00003F  00001
+process3a             00CF0E  00CF51  000044  00001
+process3aa            00CF52  00CF6B  00001A  00001
+process3b             00CF6C  00CF91  000026  00001
+JOYSTICK              00CF8B  00D0B3  000129  00001
+process3c             00CF92  00CFE2  000051  00001
+asmchars1             00CFAE  00CFB3  000006  00001
+asmchars2             00CFB4  00CFB9  000006  00001
+mnemos1               00CFBA  00CFFF  000046  00001
+sprites               00CFE3  00D00C  00002A  00001
+CPYCHR                00D000  00D074  000075  00001
+mnemos2               00D000  00D045  000046  00001
+math1a1               00D00D  00D017  00000B  00001
+math1a2               00D018  00D022  00000B  00001
+math1b                00D023  00D0C5  0000A3  00001
+monitor_c             00D046  00D40F  0003CA  00001
+IEEESWTCH             00D0B4  00D14C  000099  00001
+math1c1               00D0C6  00D0DD  000018  00001
+math1c2               00D0DE  00D0EA  00000D  00001
+math1d                00D0EB  00D121  000037  00001
+mouse1                00D122  00D14D  00002C  00001
+SERIAL                00D14D  00D314  0001C8  00001
+panic1                00D14E  00D178  00002B  00001
+panic2                00D179  00D17F  000007  00001
+panic3                00D180  00D198  000019  00001
+serial2               00D199  00D1A5  00000D  00001
+memory3               00D1A6  00D1B7  000012  00001
+load3                 00D1B8  00D227  000070  00001
+files6a               00D228  00D2DC  0000B5  00001
+files6b               00D2DD  00D2F9  00001D  00001
+files6c               00D2FA  00D412  000119  00001
+MEMORY                00D315  00D3FD  0000E9  00001
+LZSA                  00D3FE  00D500  000103  00001
+deskacc1              00D413  00D49F  00008D  00001
+load4b                00D4A0  00D4C0  000021  00001
+deskacc2              00D4C1  00D4CB  00000B  00001
+deskacc3              00D4CC  00D4E6  00001B  00001
+files8                00D4E7  00D5B0  0000CA  00001
+RS232                 00D501  00D558  000058  00001
+CHANNEL               00D559  00DABD  000565  00001
+files9                00D5B1  00D62E  00007E  00001
+files10               00D62F  00DA95  000467  00001
+IKBDMETA              00D776  00D836  0000C1  00001
+IKBDTABLES            00D837  00EEEB  0016B5  00001
+init4                 00DA96  00DAD2  00003D  00001
+TIME                  00DABE  00DCA5  0001E8  00001
+graph3a               00DAD3  00DB24  000052  00001
+graph3b               00DB25  00DB52  00002E  00001
+graph3c               00DB53  00DC2F  0000DD  00001
+conio1                00DC30  00DD0F  0000E0  00001
+INIT                  00DCA6  00DD20  00007B  00001
+conio2                00DD10  00DD48  000039  00001
+MACHINE               00DD21  00DD48  000028  00001
+MEMDRV                00DD49  00DE6D  000125  00001
+conio3a               00DD49  00DE62  00011A  00001
+conio4                00DE63  00DFFA  000198  00001
+RS232NMI              00DE6E  00DE8C  00001F  00001
+IRQFILE               00DE8D  00DEC0  000034  00001
+PRIMM                 00DEC1  00DEE9  000029  00001
+GRAPH                 00DEEA  00EF74  00108B  00001
+conio5                00DFFB  00E03A  000040  00001
+conio6                00E03B  00E0C5  00008B  00001
+math2                 00E0C6  00E0FF  00003A  00001
+mouse2                00E100  00E2B4  0001B5  00001
+menu1                 00E2B5  00E4AE  0001FA  00001
+menu2                 00E4AF  00E4B9  00000B  00001
+menu3                 00E4BA  00E6B5  0001FC  00001
+icon1                 00E6B6  00E6E8  000033  00001
+mouse3                00E6E9  00E703  00001B  00001
+icon2                 00E704  00E81F  00011C  00001
+dlgbox1a              00E820  00E8A3  000084  00001
+dlgbox1b              00E8A4  00E8C9  000026  00001
+dlgbox1c              00E8CA  00E9A4  0000DB  00001
+dlgbox1d              00E9A5  00EA90  0000EC  00001
+FPLIB                 00EA5C  00F3BC  000961  00001
+dlgbox1e1             00EA91  00EAC0  000030  00001
+dlgbox1e2             00EAC1  00EAE6  000026  00001
+dlgbox1f              00EAE7  00EAF1  00000B  00001
+dlgbox1g              00EAF2  00EB3A  000049  00001
+dlgbox1h              00EB3B  00EC8D  000153  00001
+dlgbox1i              00EC8E  00ECB0  000023  00001
+dlgbox1j              00ECB1  00EE55  0001A5  00001
+dlgbox1k              00EE56  00EF97  000142  00001
+SPRITES               00EF75  00F057  0000E3  00001
+mouse4                00EF98  00EFE3  00004C  00001
+irq                   00EFE4  00F084  0000A1  00001
+VERA_DRV              00F058  00F31B  0002C4  00001
+keyboard1             00F085  00F085  000001  00001
+keyboard3             00F086  00F0D4  00004F  00001
+time1                 00F0D5  00F0E6  000012  00001
+entry                 00F170  00F172  000003  00001
+KSUP_CODE             00F900  00FB67  000268  00001
+FPJMP                 00FC00  00FCB0  0000B1  00001
+KSUP_CODE2            00FC00  00FEC5  0002C6  00001
+JMPTBL                00FEE1  00FFF9  000119  00001
+KSUP_VEC              00FEE1  00FFFF  00011F  00001
+KSUP_VEC2             00FEE1  00FFFF  00011F  00001
+VECTORS               00FFFA  00FFFF  000006  00001
+vectors               00FFFA  00FFFF  000006  00001
+IRQA                  00FFFE  00FFFF  000002  00001
+IRQB                  00FFFE  00FFFF  000002  00001
+
+
+Exports list by name:
+---------------------
+A885D                     009E80 RLA    A885E                     009E81 RLA    
+A885F                     009E82 RLA    Add2                      00C569 RLA    
+Add2_return               00C574 RLA    BBMult                    00C160 RLA    
+BitmapDecode              00DBB6 RLA    BitmapUpHelp              00DB6D RLA    
+BldGDirEntry              00C1F3 RLA    BlkAlloc                  00C1FC RLA    
+CalcDialogCoords          00E930 RLA    CalcIconDescTab           00E704 RLA    
+CallRoutine               00C1D8 RLA    ClearRam                  00C178 RLA    
+ClrScr                    00C84A RLA    CopyFString               00C268 RLA    
+CopyMenuCoords            00E580 RLA    CopyString                00C265 RLA    
+DBDefIconsTab             00EA91 RLA    DBDoGETFILES              00EBC1 RLA    
+DBDoGETSTR                00EB71 RLA    DBDoGRPHSTR               00EB10 RLA    
+DBDoIcons                 00EA06 RLA    DBDoOPVEC                 00EAFF RLA    
+DBDoSYSOPV                00EAE7 RLA    DBDoTXTSTR                00EB3B RLA    
+DBDoUSRICON               00EA30 RLA    DBDoUSR_ROUT              00EB25 RLA    
+DBDoVARSTR                00EB55 RLA    DBGFArrowPic              00EC8E RLA    
+DBGFArrowX                00EC88 RLA    DBGFDoArrow               00ECFD RLA    
+DBGFNameTable             009E7C RLA    DBGFOffsLeft              009E7A RLA    
+DBGFOffsTop               009E7B RLA    DBGFPressVector           00ECB1 RLA    
+DBGFTableIndex            009E7E RLA    DBGFileSelected           009E7F RLA    
+DBGFilesFound             009E79 RLA    DBGFilesHelp2             00ED52 RLA    
+DBGFilesHelp3             00ED5D RLA    DBGFilesHelp5             00ED8C RLA    
+DBGFilesHelp7             00EE02 RLA    DBIcCANCEL                00EACD RLA    
+DBIcDISK                  00EADD RLA    DBIcNO                    00EAD5 RLA    
+DBIcOK                    00EAC9 RLA    DBIcOPEN                  00EAD9 RLA    
+DBIcPicCANCEL             00C684 RLA    DBIcPicDISK               00EF45 RLA    
+DBIcPicNO                 00EE56 RLA    DBIcPicOK                 00C6D8 RLA    
+DBIcPicOPEN               00EEF2 RLA    DBIcPicYES                00EEA1 RLA    
+DBIcYES                   00EAD1 RLA    DBIconsHelp2              00EA67 RLA    
+DBKeyVector               00EAC1 RLA    DBStringFaultVec          00EAF2 RLA    
+DShiftLeft                00C15D RLA    Ddec                      00C175 RLA    
+Ddiv                      00C169 RLA    DelayRtnsH                009DFB RLA    
+DelayRtnsL                009DE7 RLA    DelaySP                   009DBE RLA    
+DelayValH                 009DD3 RLA    DelayValL                 009DBF RLA    
+DeskAccPC                 009E73 RLA    DeskAccSP                 009E75 RLA    
+DeskTopName               00C7F2 RLA    DialogRestore             00E9BA RLA    
+DialogSave                00E9A5 RLA    Dialog_2                  00E999 RLA    
+DkNmTabH                  00C01E RLA    DkNmTabL                  00C01A RLA    
+DlgBoxPrep                00E8CA RLA    DlgBoxProcH               00E8B7 RLA    
+DlgBoxProcL               00E8A4 RLA    DoDlgBox                  00C256 RLA    
+DoESC_RULER               00EFE3 RLA    DoIcons                   00C15A RLA    
+DoInlineReturn            00C2A4 RLA    DoMenu0                   00E2BF RLA    
+DoneWithIO                00C25F RLA    DrawDlgBox                00E8DE RLA    
+DrawMenu                  00E519 RLA    EnterDeskTop              00C22C RLA    
+EnterTurbo                00C214 RLA    ExitTurbo                 00C232 RLA    
+FB_VERA                   00F058 RLA    FastDelFile               00C244 RLA    
+FetchRAM                  00C2CB RLA    FindFTypes                00C23B RLA    
+FindFile                  00C20B RLA    FirstInit                 00C271 RLA    
+FlaggedPutBlock           00C5FE RLA    FrameRectangle            00C127 RLA    
+FreeBlock                 00C2B9 RLA    GRAPH_clear               00DF27 RLA    
+GRAPH_draw_image          00E311 RLA    GRAPH_draw_line           00DFCA RLA    
+GRAPH_draw_oval           00E388 RLA    GRAPH_draw_rect           00E23B RLA    
+GRAPH_get_char_size       00E489 RLA    GRAPH_init                00DEEA RLA    
+GRAPH_move_rect           00E36A RLA    GRAPH_put_char            00EA4C RLA    
+GRAPH_set_colors          00DFC0 RLA    GRAPH_set_font            00EC1F RLA    
+GRAPH_set_window          00DF8D RLA    GetBlock                  00C1E4 RLA    
+GetCoords                 00CAEB RLA    GetDirHead                00C247 RLA    
+GetFHdrInfo               00C229 RLA    GetFile                   00C208 RLA    
+GetFreeDirBlk             00C1F6 RLA    GetHeaderFileName         00D3E4 RLA    
+GetInlineDrwParms         00C986 RLA    GetMDataDatas             00C480 RLA    
+GetMenuDesc               00E3B2 RLA    GetStartHAddr             00D2E6 RLA    
+GetString                 00C1BA RLA    GrStSetCoords             00CA7E RLA    
+GraphPenX                 009E14 RLA    GraphPenY                 009E16 RLA    
+GraphicsString            00C136 RLA    I_FB_BASE                 0002E4 RLA    
+I_FB_END                  000300 RLA    Icons_1                   00E70C RLA    
+InitForIO                 00C25C RLA    InitGEOEnv                00C830 RLA    
+InitRamTab                00DA96 RLA    InvertRectangle           00C12A RLA    
+IsMseInRegion             00C2B3 RLA    KbdQueFlag                009E19 RLA    
+KbdQueHead                009E17 RLA    KbdQueTail                009E18 RLA    
+KbdQueue                  009E1A RLA    KbdScanHelp3              00F0A3 RLA    
+LdApplic                  00C21D RLA    LdDeskAcc                 00C217 RLA    
+LdFile                    00C211 RLA    MainLoop                  00C1C3 RLA    
+MenuDoInvert              00E692 RLA    MenuRestoreFont           00E6AB RLA    
+MenuStoreFont             00E6A0 RLA    MenuStringFault           00E4AF RLA    
+Menu_0                    00E399 RLA    Menu_3                    00E4BA RLA    
+Menu_4                    00E4CF RLA    Menu_5                    00E58B RLA    
+MouseInit                 00E272 RLA    MouseUp                   00C18A RLA    
+NumTimers                 009DBD RLA    OpenDisk                  00C2A1 RLA    
+ProcessClick              00E735 RLA    ProcessCursor             00DEDD RLA    
+ProcessMouse              00E14C RLA    PutBlock                  00C1E7 RLA    
+PutChar                   00C145 RLA    PutDirHead                00C24A RLA    
+PutString                 00C148 RLA    RcvrMnu0                  00E506 RLA    
+ReadBlock                 00C21A RLA    ReadFile                  00C1FF RLA    
+RecordDirOffs             009E86 RLA    RecordDirTS               009E84 RLA    
+RecordTableTS             009E88 RLA    Rectangle                 00C124 RLA    
+ResetMseRegion            00E6E9 RLA    RstrFrmDialogue           00C2BF RLA    
+SGDCopyDate               00D5A4 RLA    SerialNumber              00C680 RLA    
+SetBufTSVector            00D2DD RLA    SetDevice                 00C2B0 RLA    
+SetFHeadVector            00D2F1 RLA    SetGDirEntry              00C1F0 RLA    
+SetPattern                00C139 RLA    StartAppl                 00C22F RLA    
+StashRAM                  00C2C8 RLA    TempCurDrive              009E8B RLA    
+TimersCMDs                009D59 RLA    TimersRtns                009D6D RLA    
+TimersTab                 009D31 RLA    TimersVals                009D95 RLA    
+UNK_4                     00C8F7 RLA    UNK_5                     00C920 RLA    
+UseSystemFont             00C14B RLA    VerWriteBlock             00C223 RLA    
+WriteBlock                00C220 RLA    WriteFile                 00C1F9 RLA    
+_AppendRecord             00D8D3 RLA    _BBMult                   00D023 RLA    
+_BMult                    00D044 RLA    _BitOtherClip             00DAD3 RLA    
+_BitmapClip               00DAD8 RLA    _BitmapUp                 00DB53 RLA    
+_BldGDirEntry             00D5B1 RLA    _BlockProcess             00CF32 RLA    
+_CRC                      00E0C6 RLA    _CallRoutine              00C8DA RLA    
+_ClearMouseMode           00E131 RLA    _ClearRam                 00C87C RLA    
+_CloseRecordFile          00D802 RLA    _CmpFString               00C53B RLA    
+_CmpString                00C539 RLA    _CopyFString              00C440 RLA    
+_CopyString               00C43E RLA    _DMult                    00D049 RLA    
+_DSdiv                    00D0AA RLA    _DShiftLeft               00D00D RLA    
+_DShiftRight              00D018 RLA    _Dabs                     00D0C6 RLA    
+_Ddec                     00D0DE RLA    _Ddiv                     00D07C RLA    
+_DeleteFile               00D62F RLA    _DeleteRecord             00D87A RLA    
+_DisablSprite             00CFE3 RLA    _Dnegate                  00D0CB RLA    
+_DoCheckButtons           00EF98 RLA    _DoCheckDelays            00CF6C RLA    
+_DoDlgBox                 00E820 RLA    _DoFirstInitIO            00C83B RLA    
+_DoIcons                  00E6B6 RLA    _DoInlineReturn           00C8EA RLA    
+_DoKeyboardScan           00F085 RLA    _DoMenu                   00E2B5 RLA    
+_DoPreviousMenu           00E389 RLA    _DoRAMOp                  00C683 RLA    
+_DoUpdateTime             00F0D5 RLA    _DrawLine                 00CB18 RLA    
+_DrawPoint                00CB87 RLA    _DrawSprite               00CFE3 RLA    
+_EnablSprite              00CFE3 RLA    _EnableProcess            00CF29 RLA    
+_EnterDT_DB               00C7E3 RLA    _EnterDT_Str0             00C7FB RLA    
+_EnterDT_Str1             00C811 RLA    _EnterDeskTop             00C749 RLA    
+_ExecuteProcesses         00CE9E RLA    _FastDelFile              00D705 RLA    
+_FetchRAM                 00C683 RLA    _FillRam                  00C880 RLA    
+_FindFTypes               00D25F RLA    _FindFile                 00D2FA RLA    
+_FirstInit                00C85D RLA    _FollowChain              00D228 RLA    
+_FrameRectangle           00CBDC RLA    _FreeFile                 00D63E RLA    
+_FreezeProcess            00CF42 RLA    _GRAPH_set_pixel          00CE3B RLA    
+_GRAPH_start_direct       00CE31 RLA    _GetCharWidth             00DD5B RLA    
+_GetFHdrInfo              00D3B7 RLA    _GetFile                  00D1B8 RLA    
+_GetNextChar              00F0CB RLA    _GetPtrCurDkNm            00C73B RLA    
+_GetRandom                00D0EB RLA    _GetRealSize              00DD66 RLA    
+_GetScanLine              00CB07 RLA    _GetSerialNumber          00D199 RLA    
+_GetString                00DE63 RLA    _GotoFirstMenu            00E378 RLA    
+_GraphicsString           00C9CB RLA    _HorizontalLine           00CD06 RLA    
+_IRQHandler               00EFE4 RLA    _ImprintRectangle         00CC45 RLA    
+_InitMachine              00C82D RLA    _InitProcesses            00CE66 RLA    
+_InitRam                  00C8A2 RLA    _InitTextPrompt           00E039 RLA    
+_InsertRecord             00D8BD RLA    _InterruptMain            00C72C RLA    
+_InvertLine               00CD61 RLA    _InvertRectangle          00CC46 RLA    
+_IsMseInRegion            00D122 RLA    _LdApplic                 00D4A0 RLA    
+_LdDeskAcc                00D413 RLA    _LdFile                   00D1E1 RLA    
+_LoadCharSet              00DDB5 RLA    _MNLP                     00C013 RLA    
+_MainLoop                 00C001 RLA    _MouseOff                 00E13C RLA    
+_MouseUp                  00E145 RLA    _MoveData                 00C49B RLA    
+_NMIHandler               00F084 RLA    _NextRecord               00D851 RLA    
+_OpenRecordFile           00D788 RLA    _Panic                    00D14E RLA    
+_PointRecord              00D860 RLA    _PosSprite                00CFE4 RLA    
+_PreviousRecord           00D85A RLA    _ProcessDelays            00CF52 RLA    
+_ProcessTimers            00CECF RLA    _PromptOff                00E01F RLA    
+_PromptOn                 00DFFB RLA    _PutChar                  00DC30 RLA    
+_PutCharK                 00DE19 RLA    _PutDecimal               00E09B RLA    
+_PutString                00DD49 RLA    _ReDoMenu                 00E372 RLA    
+_ReadByte                 00DA64 RLA    _ReadFile                 00C575 RLA    
+_ReadRecord               00D8ED RLA    _RecoverAllMenus          00E4F2 RLA    
+_RecoverLine              00CDD5 RLA    _RecoverMenu              00E503 RLA    
+_RecoverRectangle         00CC56 RLA    _Rectangle                00CC57 RLA    
+_RenameFile               00D74F RLA    _ResetHandle              00C2D7 RLA    
+_RestartProcess           00CF0E RLA    _RstrAppl                 00D469 RLA    
+_RstrFrmDialogue          00E981 RLA    _SaveFile                 00D4E7 RLA    
+_SetDevice                00D34A RLA    _SetGDirEntry             00D57F RLA    
+_SetPattern               00CAD1 RLA    _Sleep                    00CFC3 RLA    
+_SmallPutChar             00DDE7 RLA    _StartAppl                00C7CB RLA    
+_StartMouseMode           00E100 RLA    _StashRAM                 00C683 RLA    
+_SwapRAM                  00C683 RLA    _TestPoint                00CCCA RLA    
+_ToBASIC                  00C000 RLA    _UnblockProcess           00CF3A RLA    
+_UnfreezeProcess          00CF4A RLA    _UpdateRecordFile         00D80B RLA    
+_UseSystemFont            00DD7D RLA    _VerifyRAM                00C683 RLA    
+_VerticalLine             00CDD6 RLA    _WriteFile                00C609 RLA    
+_WriteRecord              00D902 RLA    __BBMult                  00D023 REA    
+__BMult                   00D044 REA    __CRC                     00E0C6 REA    
+__DMult                   00D049 REA    __DSdiv                   00D0AA REA    
+__Ddiv                    00D07C REA    __GetInlineDrwParms       00C986 REA    
+__GetRandom               00D0EB REA    __GrStSetCoords           00CA7E REA    
+__IsMseInRegion           00D122 REA    __KERNRAM2_LOAD__         00F33C RLA    
+__KERNRAM2_RUN__          00038B RLA    __KERNRAM2_SIZE__         00003F REA    
+__KERNRAM_LOAD__          00F31C RLA    __KERNRAM_RUN__           0002C4 RLA    
+__KERNRAM_SIZE__          000020 REA    __KVARSB0_LOAD__          00A000 RLA    
+__KVARSB0_SIZE__          000041 REA    __ProcessDelays           00CF52 REA    
+__ProcessTimers           00CECF REA    __asmchars1_RUN__         00CFAE RLA    
+__asmchars2_RUN__         00CFB4 RLA    __drvcbdos_LOAD__         00F0E7 RLA    
+__drvcbdos_RUN__          009000 RLA    __drvcbdos_SIZE__         000089 REA    
+__mnemos1_RUN__           00CFBA RLA    __mnemos2_RUN__           00D000 RLA    
+__monitor_ram_code_LOAD__ 00D410 RLA    __monitor_ram_code_RUN__  000220 RLA    
+__monitor_ram_code_SIZE__ 000027 REA    __rtc_systime_update      00C694 RLA    
+_i_BitmapUp               00DB25 RLA    _i_FillRam                00D1A6 RLA    
+_i_FrameRectangle         00C977 RLA    _i_GraphicsString         00C9B8 RLA    
+_i_ImprintRectangle       00C96B RLA    _i_MoveData               00C469 RLA    
+_i_PutString              00DD10 RLA    _i_RecoverRectangle       00C95F RLA    
+_i_Rectangle              00C953 RLA    acptr                     00D0D2 RLA    
+addprc                    000001 REZ    alarmWarnFlag             009E2D RLA    
+argexp                    0000CA RLZ    argho                     0000CB RLZ    
+arglo                     0000CE RLZ    argmo                     0000CD RLZ    
+argmoh                    0000CC RLZ    argsgn                    0000CF RLZ    
+arisgn                    0000D0 RLZ    bank_save                 0000A2 RLZ    
+banked_irq                00038B RLA    baselineOffset            000294 RLA    
+bits                      0003CF RLA    bjsrfar                   00E127 RLA    
+blnon                     00037E RLA    blnsw                     00037B RLA    
+block_data                00BA80 RLA    block_fat                 00BC80 RLA    
+blocks                    00BE89 RLA    bmt2                      00C5AE RLA    
+bootOffs                  009E92 RLA    bootSec                   009E8F RLA    
+bootSec2                  009E91 RLA    bootTr                    009E8E RLA    
+bootTr2                   009E90 RLA    bsi232                    00D52F RLA    
+bso232                    00D50F RLA    buf                       000200 RLA    
+buffer                    0000A0 RLZ    cardDataPntr              000298 RLA    
+cint                      00C02B RLA    ciout                     00D0E1 RLA    
+ckbtab                    000084 RLZ    cki232                    00D50A RLA    
+cko232                    00D505 RLA    clkBoxTemp                009E2B RLA    
+clkBoxTemp2               009E2C RLA    clklo                     00D2E8 RLA    
+clock_get_date_time       00DBFA RLA    clock_get_timer           00DB82 RLA    
+clock_set_date_time       00DC50 RLA    clock_set_timer           00DBBE RLA    
+clock_update              00DABE RLA    close_all                 00D755 RLA    
+cls232                    00D503 RLA    cluster_nr_matcher        00D1F0 RLA    
+cmpare                    00DE4D RLA    col1                      000265 RLA    
+col2                      000266 RLA    col_bg                    000267 RLA    
+color                     000376 RLA    crsw                      00037F RLA    
+curHeight                 000297 RLA    curIndexTable             000090 RLZ    
+curSetWidth               000295 RLA    currentMode               00029A RLA    
+cursor_blink              00C60B RLA    data                      000384 RLA    
+deccnt                    0000BF REZ    decimalTemp               009E93 RLA    
+defIconTab                009E2F RLA    degree                    0000C9 RLZ    
+dfltn                     00028A RLA    dflto                     00028B RLA    
+dirname_mask_matcher      00D345 RLA    dirptr                    00009A RLZ    
+dlgBoxCallerPC            009E76 RLA    dlgBoxCallerSP            009E78 RLA    
+emulator_get_data         00DD33 RLA    errdvo                    000014 REZ    
+error                     00C4BA RLA    errov                     00000F REZ    
+fa                        000291 RLA    fac                       0000C3 RLZ    
+facexp                    0000C3 RLZ    facho                     0000C4 RLZ    
+faclo                     0000C7 RLZ    facmo                     0000C6 RLZ    
+facmoh                    0000C5 RLZ    facov                     0000D1 RLZ    
+facsgn                    0000C8 RLZ    fat_find_first            00D10F RLA    
+fat_find_next             00D164 RLA    fat_fread                 00C7CD RLA    
+fat_mount                 00CF34 RLA    fat_name_string           00D2AB RLA    
+fat_open                  00CCBE RLA    fbufpt                    0000D2 REZ    
+fcerr                     00D497 RLA    fd_area                   00BA00 RLA    
+fdcend                    00F08D RLA    fdecpt                    0000B2 RLZ    
+fetch                     00DE27 RLA    fetvec                    0003AF REA    
+filenameptr               000098 RLZ    fnadr                     00008C RLZ    
+fnlen                     00028E RLA    fone                      00EBD5 RLA    
+font_init                 00EC25 RLA    foutbl                    00F069 RLA    
+g_col1                    009E98 RLA    gdbln                     00037D RLA    
+gjsrfar                   00C3E0 RLA    i_Rectangle               00C19F RLA    
+ikbdmeta                  00D776 RLA    iload                     000330 RLA    
+imparm                    000082 RLZ    index                     0000A9 REZ    
+index1                    0000A9 RLZ    index2                    0000AB RLZ    
+indfet                    00DE24 RLA    indx                      000378 RLA    
+insrt                     000385 RLA    integr                    0003CC RLA    
+ioinit                    00DD21 RLA    iokeys                    00DD27 RLA    
+irq_ack                   00DD2D RLA    isave                     000332 RLA    
+jmpfr                     0002E1 RLA    joystick_from_ps2         00D044 RLA    
+joystick_get              00CFF4 RLA    joystick_scan             00CF8B RLA    
+jsrfar                    00DDC6 RLA    jsrfar3                   0002C4 RLA    
+kbd_clear                 00C978 RLA    kbd_config                00C912 RLA    
+kbd_get                   00C9E0 RLA    kbd_get_modifiers         00CA7E RLA    
+kbd_get_stop              00CAB1 RLA    kbd_peek                  00CA13 RLA    
+kbd_put                   00C9AB RLA    kbd_scan                  00C945 RLA    
+kbdmeta                   00C000 RLA    krn_ptr1                  000092 RLZ    
+krn_ptr2                  000094 RLZ    krn_ptr3                  000096 RLZ    
+krn_tmp                   00BE81 RLA    krn_tmp2                  00BE82 RLA    
+krn_tmp3                  00BE83 RLA    kvswitch_tmp1             000256 RLA    
+kvswitch_tmp2             000257 RLA    la                        00028F RLA    
+lba_addr                  00BE85 RLA    ldtb1                     000334 RLA    
+leftMargin                00029D RLA    listn                     00D10E RLA    
+lkupla                    00D79F RLA    lkupsa                    00D785 RLA    
+llen                      000386 RLA    lnmx                      000382 RLA    
+loadsp                    00D863 RLA    loop4                     00C0AA RLA    
+loop5                     00C159 RLA    lstp                      00037A RLA    
+lsxp                      000379 RLA    membot                    00DD0D RLA    
+memory_copy               00D337 RLA    memory_crc                00D3A3 RLA    
+memory_decompress         00D3FE RLA    memory_fill               00D315 RLA    
+memtop                    00DCF8 RLA    menuBottom                009D02 RLA    
+menuLeft                  009D03 RLA    menuLimitTabH             009D22 RLA    
+menuLimitTabL             009D13 RLA    menuOptNumber             009D00 RLA    
+menuOptionTab             009D0F RLA    menuRight                 009D05 RLA    
+menuStackH                009D0B RLA    menuStackL                009D07 RLA    
+menuTop                   009D01 RLA    mhz                       000008 REZ    
+mjsrfar                   00FC00 RLA    mode                      000372 RLA    
+monitor                   00C000 RLA    mouse_config              00CD0F RLA    
+mouse_get                 00CF04 RLA    mouse_scan                00CDC2 RLA    
+nbasin                    00D5EF RLA    nbsout                    00D62B RLA    
+nchkin                    00D65D RLA    nckout                    00D6A4 RLA    
+nclall                    00D7BA RLA    nclose                    00D6EA RLA    
+nclrch                    00D7BF RLA    ngetin                    00D5D8 RLA    
+nlines                    000387 RLA    nlinesm1                  000389 RLA    
+nload                     00D86A RLA    nopen                     00D7DA RLA    
+nsave                     00D9D9 RLA    nstop                     00DA76 RLA    
+opn232                    00D501 RLA    panic                     00DEB4 RLA    
+path_inverse              00D2D7 RLA    plot                      00C007 RLA    
+pnt                       000263 RLA    pntr                      000380 RLA    
+polypt                    0000D2 RLZ    prt                       00C277 RLA    
+ps2_init                  00C895 RLA    ps2_receive_byte          00C8AE RLA    
+ptr_fg                    000086 RLZ    put_char                  00D2CE RLA    
+qtsw                      000381 RLA    ramtas                    00DD49 RLA    
+read_blkptr               00009C RLZ    read_block                00D426 REA    
+readst                    00D5CE RLA    resmo                     0000AF RLZ    
+restore_basic             00DE68 RLA    rightMargin               00029F RLA    
+rndx                      0003D0 RLA    rvs                       000377 RLA    
+sa                        000290 RLA    sah                       000089 RLZ    
+sal                       000088 RLZ    savesp                    00D9C7 RLA    
+scatn                     00D20B RLA    scnsiz                    00C019 RLA    
+screen_clear_line         00C838 RLA    screen_copy_line          00C7E8 RLA    
+screen_get_char           00C782 RLA    screen_get_char_color     00C7E1 RLA    
+screen_get_color          00C77D RLA    screen_init               00C695 RLA    
+screen_restore_state      00C876 RLA    screen_save_state         00C85E RLA    
+screen_set_char           00C7B0 RLA    screen_set_char_color     00C7DA RLA    
+screen_set_charset        00C88B RLA    screen_set_color          00C7AA RLA    
+screen_set_mode           00C6E4 RLA    screen_set_position       00C776 RLA    
+scrorg                    00C000 RLA    sd_blktarget              00BA80 RLA    
+sd_read_block_lower       00D446 RLA    sd_read_block_upper       00D468 RLA    
+sd_read_multiblock        00D4AA RLA    sd_tmp                    00BE84 RLA    
+sdcard_init               00D359 RLA    secnd                     00D0B4 RLA    
+serial_acptr              00D265 RLA    serial_ciout              00D22B RLA    
+serial_listn              00D151 RLA    serial_secnd              00D205 RLA    
+serial_talk               00D14D RLA    serial_tksa               00D214 RLA    
+serial_unlsn              00D250 RLA    serial_untlk              00D240 RLA    
+setlfs                    00D5C1 RLA    setmsg                    00D5CB RLA    
+setnam                    00D5B9 RLA    settmo                    00D5D7 RLA    
+spi_deselect              00D5AB RLA    spi_r_byte                00D573 RLA    
+spi_rw_byte               00D575 RLA    sprite_set_image          00EF75 RLA    
+sprite_set_position       00F008 RLA    stash                     00DE40 RLA    
+status                    000286 RLA    stavec                    0003B7 REA    
+stringLen                 009E0F RLA    stringMargCtrl            009E13 RLA    
+stringMaxLen              009E10 RLA    string_fat_mask           00D245 RLA    
+string_fat_name           00D311 RLA    t1                        00028D RLA    
+talk                      00D120 RLA    tansgn                    0003CD RLA    
+tblx                      000383 RLA    tempIRQAcc                009E2E RLA    
+tempf1                    0000B9 RLZ    tempf2                    0000BE RLZ    
+tempf3                    0000B4 RLZ    tenexp                    0000C0 REZ    
+tkatn                     00D21A RLA    tksa                      00D0C3 RLA    
+tmp2                      000080 RLZ    tmpKeyVector              009E11 RLA    
+udst                      00D5D1 RLA    unlsn                     00D0FF RLA    
+untlk                     00D0F0 RLA    verifyFlag                009E8A RLA    
+windowBottom              00029C RLA    windowTop                 00029B RLA    
+write_blkptr              00009E RLZ    write_block               00D4CF REA    
+xmon1                     00C009 RLA    xmon2                     00DA38 RLA    
+zero                      00F066 RLA    
+
+
+Exports list by value:
+----------------------
+addprc                    000001 REZ    mhz                       000008 REZ    
+errov                     00000F REZ    errdvo                    000014 REZ    
+__KERNRAM_SIZE__          000020 REA    __monitor_ram_code_SIZE__ 000027 REA    
+__KERNRAM2_SIZE__         00003F REA    __KVARSB0_SIZE__          000041 REA    
+tmp2                      000080 RLZ    imparm                    000082 RLZ    
+ckbtab                    000084 RLZ    ptr_fg                    000086 RLZ    
+sal                       000088 RLZ    __drvcbdos_SIZE__         000089 REA    
+sah                       000089 RLZ    fnadr                     00008C RLZ    
+curIndexTable             000090 RLZ    krn_ptr1                  000092 RLZ    
+krn_ptr2                  000094 RLZ    krn_ptr3                  000096 RLZ    
+filenameptr               000098 RLZ    dirptr                    00009A RLZ    
+read_blkptr               00009C RLZ    write_blkptr              00009E RLZ    
+buffer                    0000A0 RLZ    bank_save                 0000A2 RLZ    
+index                     0000A9 REZ    index1                    0000A9 RLZ    
+index2                    0000AB RLZ    resmo                     0000AF RLZ    
+fdecpt                    0000B2 RLZ    tempf3                    0000B4 RLZ    
+tempf1                    0000B9 RLZ    tempf2                    0000BE RLZ    
+deccnt                    0000BF REZ    tenexp                    0000C0 REZ    
+fac                       0000C3 RLZ    facexp                    0000C3 RLZ    
+facho                     0000C4 RLZ    facmoh                    0000C5 RLZ    
+facmo                     0000C6 RLZ    faclo                     0000C7 RLZ    
+facsgn                    0000C8 RLZ    degree                    0000C9 RLZ    
+argexp                    0000CA RLZ    argho                     0000CB RLZ    
+argmoh                    0000CC RLZ    argmo                     0000CD RLZ    
+arglo                     0000CE RLZ    argsgn                    0000CF RLZ    
+arisgn                    0000D0 RLZ    facov                     0000D1 RLZ    
+polypt                    0000D2 RLZ    fbufpt                    0000D2 REZ    
+buf                       000200 RLA    __monitor_ram_code_RUN__  000220 RLA    
+kvswitch_tmp1             000256 RLA    kvswitch_tmp2             000257 RLA    
+pnt                       000263 RLA    col1                      000265 RLA    
+col2                      000266 RLA    col_bg                    000267 RLA    
+status                    000286 RLA    dfltn                     00028A RLA    
+dflto                     00028B RLA    t1                        00028D RLA    
+fnlen                     00028E RLA    la                        00028F RLA    
+sa                        000290 RLA    fa                        000291 RLA    
+baselineOffset            000294 RLA    curSetWidth               000295 RLA    
+curHeight                 000297 RLA    cardDataPntr              000298 RLA    
+currentMode               00029A RLA    windowTop                 00029B RLA    
+windowBottom              00029C RLA    leftMargin                00029D RLA    
+rightMargin               00029F RLA    __KERNRAM_RUN__           0002C4 RLA    
+jsrfar3                   0002C4 RLA    jmpfr                     0002E1 RLA    
+I_FB_BASE                 0002E4 RLA    I_FB_END                  000300 RLA    
+iload                     000330 RLA    isave                     000332 RLA    
+ldtb1                     000334 RLA    mode                      000372 RLA    
+color                     000376 RLA    rvs                       000377 RLA    
+indx                      000378 RLA    lsxp                      000379 RLA    
+lstp                      00037A RLA    blnsw                     00037B RLA    
+gdbln                     00037D RLA    blnon                     00037E RLA    
+crsw                      00037F RLA    pntr                      000380 RLA    
+qtsw                      000381 RLA    lnmx                      000382 RLA    
+tblx                      000383 RLA    data                      000384 RLA    
+insrt                     000385 RLA    llen                      000386 RLA    
+nlines                    000387 RLA    nlinesm1                  000389 RLA    
+__KERNRAM2_RUN__          00038B RLA    banked_irq                00038B RLA    
+fetvec                    0003AF REA    stavec                    0003B7 REA    
+integr                    0003CC RLA    tansgn                    0003CD RLA    
+bits                      0003CF RLA    rndx                      0003D0 RLA    
+__drvcbdos_RUN__          009000 RLA    menuOptNumber             009D00 RLA    
+menuTop                   009D01 RLA    menuBottom                009D02 RLA    
+menuLeft                  009D03 RLA    menuRight                 009D05 RLA    
+menuStackL                009D07 RLA    menuStackH                009D0B RLA    
+menuOptionTab             009D0F RLA    menuLimitTabL             009D13 RLA    
+menuLimitTabH             009D22 RLA    TimersTab                 009D31 RLA    
+TimersCMDs                009D59 RLA    TimersRtns                009D6D RLA    
+TimersVals                009D95 RLA    NumTimers                 009DBD RLA    
+DelaySP                   009DBE RLA    DelayValL                 009DBF RLA    
+DelayValH                 009DD3 RLA    DelayRtnsL                009DE7 RLA    
+DelayRtnsH                009DFB RLA    stringLen                 009E0F RLA    
+stringMaxLen              009E10 RLA    tmpKeyVector              009E11 RLA    
+stringMargCtrl            009E13 RLA    GraphPenX                 009E14 RLA    
+GraphPenY                 009E16 RLA    KbdQueHead                009E17 RLA    
+KbdQueTail                009E18 RLA    KbdQueFlag                009E19 RLA    
+KbdQueue                  009E1A RLA    clkBoxTemp                009E2B RLA    
+clkBoxTemp2               009E2C RLA    alarmWarnFlag             009E2D RLA    
+tempIRQAcc                009E2E RLA    defIconTab                009E2F RLA    
+DeskAccPC                 009E73 RLA    DeskAccSP                 009E75 RLA    
+dlgBoxCallerPC            009E76 RLA    dlgBoxCallerSP            009E78 RLA    
+DBGFilesFound             009E79 RLA    DBGFOffsLeft              009E7A RLA    
+DBGFOffsTop               009E7B RLA    DBGFNameTable             009E7C RLA    
+DBGFTableIndex            009E7E RLA    DBGFileSelected           009E7F RLA    
+A885D                     009E80 RLA    A885E                     009E81 RLA    
+A885F                     009E82 RLA    RecordDirTS               009E84 RLA    
+RecordDirOffs             009E86 RLA    RecordTableTS             009E88 RLA    
+verifyFlag                009E8A RLA    TempCurDrive              009E8B RLA    
+bootTr                    009E8E RLA    bootSec                   009E8F RLA    
+bootTr2                   009E90 RLA    bootSec2                  009E91 RLA    
+bootOffs                  009E92 RLA    decimalTemp               009E93 RLA    
+g_col1                    009E98 RLA    __KVARSB0_LOAD__          00A000 RLA    
+fd_area                   00BA00 RLA    block_data                00BA80 RLA    
+sd_blktarget              00BA80 RLA    block_fat                 00BC80 RLA    
+krn_tmp                   00BE81 RLA    krn_tmp2                  00BE82 RLA    
+krn_tmp3                  00BE83 RLA    sd_tmp                    00BE84 RLA    
+lba_addr                  00BE85 RLA    blocks                    00BE89 RLA    
+scrorg                    00C000 RLA    kbdmeta                   00C000 RLA    
+monitor                   00C000 RLA    _ToBASIC                  00C000 RLA    
+_MainLoop                 00C001 RLA    plot                      00C007 RLA    
+xmon1                     00C009 RLA    _MNLP                     00C013 RLA    
+scnsiz                    00C019 RLA    DkNmTabL                  00C01A RLA    
+DkNmTabH                  00C01E RLA    cint                      00C02B RLA    
+loop4                     00C0AA RLA    Rectangle                 00C124 RLA    
+FrameRectangle            00C127 RLA    InvertRectangle           00C12A RLA    
+GraphicsString            00C136 RLA    SetPattern                00C139 RLA    
+PutChar                   00C145 RLA    PutString                 00C148 RLA    
+UseSystemFont             00C14B RLA    loop5                     00C159 RLA    
+DoIcons                   00C15A RLA    DShiftLeft                00C15D RLA    
+BBMult                    00C160 RLA    Ddiv                      00C169 RLA    
+Ddec                      00C175 RLA    ClearRam                  00C178 RLA    
+MouseUp                   00C18A RLA    i_Rectangle               00C19F RLA    
+GetString                 00C1BA RLA    MainLoop                  00C1C3 RLA    
+CallRoutine               00C1D8 RLA    GetBlock                  00C1E4 RLA    
+PutBlock                  00C1E7 RLA    SetGDirEntry              00C1F0 RLA    
+BldGDirEntry              00C1F3 RLA    GetFreeDirBlk             00C1F6 RLA    
+WriteFile                 00C1F9 RLA    BlkAlloc                  00C1FC RLA    
+ReadFile                  00C1FF RLA    GetFile                   00C208 RLA    
+FindFile                  00C20B RLA    LdFile                    00C211 RLA    
+EnterTurbo                00C214 RLA    LdDeskAcc                 00C217 RLA    
+ReadBlock                 00C21A RLA    LdApplic                  00C21D RLA    
+WriteBlock                00C220 RLA    VerWriteBlock             00C223 RLA    
+GetFHdrInfo               00C229 RLA    EnterDeskTop              00C22C RLA    
+StartAppl                 00C22F RLA    ExitTurbo                 00C232 RLA    
+FindFTypes                00C23B RLA    FastDelFile               00C244 RLA    
+GetDirHead                00C247 RLA    PutDirHead                00C24A RLA    
+DoDlgBox                  00C256 RLA    InitForIO                 00C25C RLA    
+DoneWithIO                00C25F RLA    CopyString                00C265 RLA    
+CopyFString               00C268 RLA    FirstInit                 00C271 RLA    
+prt                       00C277 RLA    OpenDisk                  00C2A1 RLA    
+DoInlineReturn            00C2A4 RLA    SetDevice                 00C2B0 RLA    
+IsMseInRegion             00C2B3 RLA    FreeBlock                 00C2B9 RLA    
+RstrFrmDialogue           00C2BF RLA    StashRAM                  00C2C8 RLA    
+FetchRAM                  00C2CB RLA    _ResetHandle              00C2D7 RLA    
+gjsrfar                   00C3E0 RLA    _CopyString               00C43E RLA    
+_CopyFString              00C440 RLA    _i_MoveData               00C469 RLA    
+GetMDataDatas             00C480 RLA    _MoveData                 00C49B RLA    
+error                     00C4BA RLA    _CmpString                00C539 RLA    
+_CmpFString               00C53B RLA    Add2                      00C569 RLA    
+Add2_return               00C574 RLA    _ReadFile                 00C575 RLA    
+bmt2                      00C5AE RLA    FlaggedPutBlock           00C5FE RLA    
+_WriteFile                00C609 RLA    cursor_blink              00C60B RLA    
+SerialNumber              00C680 RLA    _SwapRAM                  00C683 RLA    
+_DoRAMOp                  00C683 RLA    _StashRAM                 00C683 RLA    
+_FetchRAM                 00C683 RLA    _VerifyRAM                00C683 RLA    
+DBIcPicCANCEL             00C684 RLA    __rtc_systime_update      00C694 RLA    
+screen_init               00C695 RLA    DBIcPicOK                 00C6D8 RLA    
+screen_set_mode           00C6E4 RLA    _InterruptMain            00C72C RLA    
+_GetPtrCurDkNm            00C73B RLA    _EnterDeskTop             00C749 RLA    
+screen_set_position       00C776 RLA    screen_get_color          00C77D RLA    
+screen_get_char           00C782 RLA    screen_set_color          00C7AA RLA    
+screen_set_char           00C7B0 RLA    _StartAppl                00C7CB RLA    
+fat_fread                 00C7CD RLA    screen_set_char_color     00C7DA RLA    
+screen_get_char_color     00C7E1 RLA    _EnterDT_DB               00C7E3 RLA    
+screen_copy_line          00C7E8 RLA    DeskTopName               00C7F2 RLA    
+_EnterDT_Str0             00C7FB RLA    _EnterDT_Str1             00C811 RLA    
+_InitMachine              00C82D RLA    InitGEOEnv                00C830 RLA    
+screen_clear_line         00C838 RLA    _DoFirstInitIO            00C83B RLA    
+ClrScr                    00C84A RLA    _FirstInit                00C85D RLA    
+screen_save_state         00C85E RLA    screen_restore_state      00C876 RLA    
+_ClearRam                 00C87C RLA    _FillRam                  00C880 RLA    
+screen_set_charset        00C88B RLA    ps2_init                  00C895 RLA    
+_InitRam                  00C8A2 RLA    ps2_receive_byte          00C8AE RLA    
+_CallRoutine              00C8DA RLA    _DoInlineReturn           00C8EA RLA    
+UNK_4                     00C8F7 RLA    kbd_config                00C912 RLA    
+UNK_5                     00C920 RLA    kbd_scan                  00C945 RLA    
+_i_Rectangle              00C953 RLA    _i_RecoverRectangle       00C95F RLA    
+_i_ImprintRectangle       00C96B RLA    _i_FrameRectangle         00C977 RLA    
+kbd_clear                 00C978 RLA    __GetInlineDrwParms       00C986 REA    
+GetInlineDrwParms         00C986 RLA    kbd_put                   00C9AB RLA    
+_i_GraphicsString         00C9B8 RLA    _GraphicsString           00C9CB RLA    
+kbd_get                   00C9E0 RLA    kbd_peek                  00CA13 RLA    
+kbd_get_modifiers         00CA7E RLA    GrStSetCoords             00CA7E RLA    
+__GrStSetCoords           00CA7E REA    kbd_get_stop              00CAB1 RLA    
+_SetPattern               00CAD1 RLA    GetCoords                 00CAEB RLA    
+_GetScanLine              00CB07 RLA    _DrawLine                 00CB18 RLA    
+_DrawPoint                00CB87 RLA    _FrameRectangle           00CBDC RLA    
+_ImprintRectangle         00CC45 RLA    _InvertRectangle          00CC46 RLA    
+_RecoverRectangle         00CC56 RLA    _Rectangle                00CC57 RLA    
+fat_open                  00CCBE RLA    _TestPoint                00CCCA RLA    
+_HorizontalLine           00CD06 RLA    mouse_config              00CD0F RLA    
+_InvertLine               00CD61 RLA    mouse_scan                00CDC2 RLA    
+_RecoverLine              00CDD5 RLA    _VerticalLine             00CDD6 RLA    
+_GRAPH_start_direct       00CE31 RLA    _GRAPH_set_pixel          00CE3B RLA    
+_InitProcesses            00CE66 RLA    _ExecuteProcesses         00CE9E RLA    
+__ProcessTimers           00CECF REA    _ProcessTimers            00CECF RLA    
+mouse_get                 00CF04 RLA    _RestartProcess           00CF0E RLA    
+_EnableProcess            00CF29 RLA    _BlockProcess             00CF32 RLA    
+fat_mount                 00CF34 RLA    _UnblockProcess           00CF3A RLA    
+_FreezeProcess            00CF42 RLA    _UnfreezeProcess          00CF4A RLA    
+_ProcessDelays            00CF52 RLA    __ProcessDelays           00CF52 REA    
+_DoCheckDelays            00CF6C RLA    joystick_scan             00CF8B RLA    
+__asmchars1_RUN__         00CFAE RLA    __asmchars2_RUN__         00CFB4 RLA    
+__mnemos1_RUN__           00CFBA RLA    _Sleep                    00CFC3 RLA    
+_DisablSprite             00CFE3 RLA    _EnablSprite              00CFE3 RLA    
+_DrawSprite               00CFE3 RLA    _PosSprite                00CFE4 RLA    
+joystick_get              00CFF4 RLA    __mnemos2_RUN__           00D000 RLA    
+_DShiftLeft               00D00D RLA    _DShiftRight              00D018 RLA    
+_BBMult                   00D023 RLA    __BBMult                  00D023 REA    
+joystick_from_ps2         00D044 RLA    __BMult                   00D044 REA    
+_BMult                    00D044 RLA    __DMult                   00D049 REA    
+_DMult                    00D049 RLA    _Ddiv                     00D07C RLA    
+__Ddiv                    00D07C REA    __DSdiv                   00D0AA REA    
+_DSdiv                    00D0AA RLA    secnd                     00D0B4 RLA    
+tksa                      00D0C3 RLA    _Dabs                     00D0C6 RLA    
+_Dnegate                  00D0CB RLA    acptr                     00D0D2 RLA    
+_Ddec                     00D0DE RLA    ciout                     00D0E1 RLA    
+__GetRandom               00D0EB REA    _GetRandom                00D0EB RLA    
+untlk                     00D0F0 RLA    unlsn                     00D0FF RLA    
+listn                     00D10E RLA    fat_find_first            00D10F RLA    
+talk                      00D120 RLA    _IsMseInRegion            00D122 RLA    
+__IsMseInRegion           00D122 REA    serial_talk               00D14D RLA    
+_Panic                    00D14E RLA    serial_listn              00D151 RLA    
+fat_find_next             00D164 RLA    _GetSerialNumber          00D199 RLA    
+_i_FillRam                00D1A6 RLA    _GetFile                  00D1B8 RLA    
+_LdFile                   00D1E1 RLA    cluster_nr_matcher        00D1F0 RLA    
+serial_secnd              00D205 RLA    scatn                     00D20B RLA    
+serial_tksa               00D214 RLA    tkatn                     00D21A RLA    
+_FollowChain              00D228 RLA    serial_ciout              00D22B RLA    
+serial_untlk              00D240 RLA    string_fat_mask           00D245 RLA    
+serial_unlsn              00D250 RLA    _FindFTypes               00D25F RLA    
+serial_acptr              00D265 RLA    fat_name_string           00D2AB RLA    
+put_char                  00D2CE RLA    path_inverse              00D2D7 RLA    
+SetBufTSVector            00D2DD RLA    GetStartHAddr             00D2E6 RLA    
+clklo                     00D2E8 RLA    SetFHeadVector            00D2F1 RLA    
+_FindFile                 00D2FA RLA    string_fat_name           00D311 RLA    
+memory_fill               00D315 RLA    memory_copy               00D337 RLA    
+dirname_mask_matcher      00D345 RLA    _SetDevice                00D34A RLA    
+sdcard_init               00D359 RLA    memory_crc                00D3A3 RLA    
+_GetFHdrInfo              00D3B7 RLA    GetHeaderFileName         00D3E4 RLA    
+memory_decompress         00D3FE RLA    __monitor_ram_code_LOAD__ 00D410 RLA    
+_LdDeskAcc                00D413 RLA    read_block                00D426 REA    
+sd_read_block_lower       00D446 RLA    sd_read_block_upper       00D468 RLA    
+_RstrAppl                 00D469 RLA    fcerr                     00D497 RLA    
+_LdApplic                 00D4A0 RLA    sd_read_multiblock        00D4AA RLA    
+write_block               00D4CF REA    _SaveFile                 00D4E7 RLA    
+opn232                    00D501 RLA    cls232                    00D503 RLA    
+cko232                    00D505 RLA    cki232                    00D50A RLA    
+bso232                    00D50F RLA    bsi232                    00D52F RLA    
+spi_r_byte                00D573 RLA    spi_rw_byte               00D575 RLA    
+_SetGDirEntry             00D57F RLA    SGDCopyDate               00D5A4 RLA    
+spi_deselect              00D5AB RLA    _BldGDirEntry             00D5B1 RLA    
+setnam                    00D5B9 RLA    setlfs                    00D5C1 RLA    
+setmsg                    00D5CB RLA    readst                    00D5CE RLA    
+udst                      00D5D1 RLA    settmo                    00D5D7 RLA    
+ngetin                    00D5D8 RLA    nbasin                    00D5EF RLA    
+nbsout                    00D62B RLA    _DeleteFile               00D62F RLA    
+_FreeFile                 00D63E RLA    nchkin                    00D65D RLA    
+nckout                    00D6A4 RLA    nclose                    00D6EA RLA    
+_FastDelFile              00D705 RLA    _RenameFile               00D74F RLA    
+close_all                 00D755 RLA    ikbdmeta                  00D776 RLA    
+lkupsa                    00D785 RLA    _OpenRecordFile           00D788 RLA    
+lkupla                    00D79F RLA    nclall                    00D7BA RLA    
+nclrch                    00D7BF RLA    nopen                     00D7DA RLA    
+_CloseRecordFile          00D802 RLA    _UpdateRecordFile         00D80B RLA    
+_NextRecord               00D851 RLA    _PreviousRecord           00D85A RLA    
+_PointRecord              00D860 RLA    loadsp                    00D863 RLA    
+nload                     00D86A RLA    _DeleteRecord             00D87A RLA    
+_InsertRecord             00D8BD RLA    _AppendRecord             00D8D3 RLA    
+_ReadRecord               00D8ED RLA    _WriteRecord              00D902 RLA    
+savesp                    00D9C7 RLA    nsave                     00D9D9 RLA    
+xmon2                     00DA38 RLA    _ReadByte                 00DA64 RLA    
+nstop                     00DA76 RLA    InitRamTab                00DA96 RLA    
+clock_update              00DABE RLA    _BitOtherClip             00DAD3 RLA    
+_BitmapClip               00DAD8 RLA    _i_BitmapUp               00DB25 RLA    
+_BitmapUp                 00DB53 RLA    BitmapUpHelp              00DB6D RLA    
+clock_get_timer           00DB82 RLA    BitmapDecode              00DBB6 RLA    
+clock_set_timer           00DBBE RLA    clock_get_date_time       00DBFA RLA    
+_PutChar                  00DC30 RLA    clock_set_date_time       00DC50 RLA    
+memtop                    00DCF8 RLA    membot                    00DD0D RLA    
+_i_PutString              00DD10 RLA    ioinit                    00DD21 RLA    
+iokeys                    00DD27 RLA    irq_ack                   00DD2D RLA    
+emulator_get_data         00DD33 RLA    ramtas                    00DD49 RLA    
+_PutString                00DD49 RLA    _GetCharWidth             00DD5B RLA    
+_GetRealSize              00DD66 RLA    _UseSystemFont            00DD7D RLA    
+_LoadCharSet              00DDB5 RLA    jsrfar                    00DDC6 RLA    
+_SmallPutChar             00DDE7 RLA    _PutCharK                 00DE19 RLA    
+indfet                    00DE24 RLA    fetch                     00DE27 RLA    
+stash                     00DE40 RLA    cmpare                    00DE4D RLA    
+_GetString                00DE63 RLA    restore_basic             00DE68 RLA    
+panic                     00DEB4 RLA    ProcessCursor             00DEDD RLA    
+GRAPH_init                00DEEA RLA    GRAPH_clear               00DF27 RLA    
+GRAPH_set_window          00DF8D RLA    GRAPH_set_colors          00DFC0 RLA    
+GRAPH_draw_line           00DFCA RLA    _PromptOn                 00DFFB RLA    
+_PromptOff                00E01F RLA    _InitTextPrompt           00E039 RLA    
+_PutDecimal               00E09B RLA    __CRC                     00E0C6 REA    
+_CRC                      00E0C6 RLA    _StartMouseMode           00E100 RLA    
+bjsrfar                   00E127 RLA    _ClearMouseMode           00E131 RLA    
+_MouseOff                 00E13C RLA    _MouseUp                  00E145 RLA    
+ProcessMouse              00E14C RLA    GRAPH_draw_rect           00E23B RLA    
+MouseInit                 00E272 RLA    _DoMenu                   00E2B5 RLA    
+DoMenu0                   00E2BF RLA    GRAPH_draw_image          00E311 RLA    
+GRAPH_move_rect           00E36A RLA    _ReDoMenu                 00E372 RLA    
+_GotoFirstMenu            00E378 RLA    GRAPH_draw_oval           00E388 RLA    
+_DoPreviousMenu           00E389 RLA    Menu_0                    00E399 RLA    
+GetMenuDesc               00E3B2 RLA    GRAPH_get_char_size       00E489 RLA    
+MenuStringFault           00E4AF RLA    Menu_3                    00E4BA RLA    
+Menu_4                    00E4CF RLA    _RecoverAllMenus          00E4F2 RLA    
+_RecoverMenu              00E503 RLA    RcvrMnu0                  00E506 RLA    
+DrawMenu                  00E519 RLA    CopyMenuCoords            00E580 RLA    
+Menu_5                    00E58B RLA    MenuDoInvert              00E692 RLA    
+MenuStoreFont             00E6A0 RLA    MenuRestoreFont           00E6AB RLA    
+_DoIcons                  00E6B6 RLA    ResetMseRegion            00E6E9 RLA    
+CalcIconDescTab           00E704 RLA    Icons_1                   00E70C RLA    
+ProcessClick              00E735 RLA    _DoDlgBox                 00E820 RLA    
+DlgBoxProcL               00E8A4 RLA    DlgBoxProcH               00E8B7 RLA    
+DlgBoxPrep                00E8CA RLA    DrawDlgBox                00E8DE RLA    
+CalcDialogCoords          00E930 RLA    _RstrFrmDialogue          00E981 RLA    
+Dialog_2                  00E999 RLA    DialogSave                00E9A5 RLA    
+DialogRestore             00E9BA RLA    DBDoIcons                 00EA06 RLA    
+DBDoUSRICON               00EA30 RLA    GRAPH_put_char            00EA4C RLA    
+DBIconsHelp2              00EA67 RLA    DBDefIconsTab             00EA91 RLA    
+DBKeyVector               00EAC1 RLA    DBIcOK                    00EAC9 RLA    
+DBIcCANCEL                00EACD RLA    DBIcYES                   00EAD1 RLA    
+DBIcNO                    00EAD5 RLA    DBIcOPEN                  00EAD9 RLA    
+DBIcDISK                  00EADD RLA    DBDoSYSOPV                00EAE7 RLA    
+DBStringFaultVec          00EAF2 RLA    DBDoOPVEC                 00EAFF RLA    
+DBDoGRPHSTR               00EB10 RLA    DBDoUSR_ROUT              00EB25 RLA    
+DBDoTXTSTR                00EB3B RLA    DBDoVARSTR                00EB55 RLA    
+DBDoGETSTR                00EB71 RLA    DBDoGETFILES              00EBC1 RLA    
+fone                      00EBD5 RLA    GRAPH_set_font            00EC1F RLA    
+font_init                 00EC25 RLA    DBGFArrowX                00EC88 RLA    
+DBGFArrowPic              00EC8E RLA    DBGFPressVector           00ECB1 RLA    
+DBGFDoArrow               00ECFD RLA    DBGFilesHelp2             00ED52 RLA    
+DBGFilesHelp3             00ED5D RLA    DBGFilesHelp5             00ED8C RLA    
+DBGFilesHelp7             00EE02 RLA    DBIcPicNO                 00EE56 RLA    
+DBIcPicYES                00EEA1 RLA    DBIcPicOPEN               00EEF2 RLA    
+DBIcPicDISK               00EF45 RLA    sprite_set_image          00EF75 RLA    
+_DoCheckButtons           00EF98 RLA    DoESC_RULER               00EFE3 RLA    
+_IRQHandler               00EFE4 RLA    sprite_set_position       00F008 RLA    
+FB_VERA                   00F058 RLA    zero                      00F066 RLA    
+foutbl                    00F069 RLA    _NMIHandler               00F084 RLA    
+_DoKeyboardScan           00F085 RLA    fdcend                    00F08D RLA    
+KbdScanHelp3              00F0A3 RLA    _GetNextChar              00F0CB RLA    
+_DoUpdateTime             00F0D5 RLA    __drvcbdos_LOAD__         00F0E7 RLA    
+__KERNRAM_LOAD__          00F31C RLA    __KERNRAM2_LOAD__         00F33C RLA    
+mjsrfar                   00FC00 RLA    
+
+
+Imports list:
+-------------
+A885D (vars.o):
+    load2.o                   geos/kernal/load/load2.s(16)
+    deskacc.o                 geos/kernal/load/deskacc.s(30)
+A885E (vars.o):
+    load4b.o                  geos/kernal/load/load4b.s(18)
+    load3.o                   geos/kernal/load/load3.s(17)
+    load2.o                   geos/kernal/load/load2.s(15)
+A885F (vars.o):
+    load3.o                   geos/kernal/load/load3.s(16)
+    load2.o                   geos/kernal/load/load2.s(14)
+Add2 (files1a2a.o):
+    files9.o                  geos/kernal/files/files9.s(13)
+    files1b.o                 geos/kernal/files/files1b.s(14)
+Add2_return (files1a2a.o):
+    files1a2b.o               geos/kernal/files/files1a2b.s(14)
+BBMult (jumptab.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(28)
+BitmapDecode (bitmapup.o):
+    bitmapclip.o              geos/kernal/graph/bitmapclip.s(14)
+BitmapUpHelp (bitmapup.o):
+    bitmapclip.o              geos/kernal/graph/bitmapclip.s(13)
+BldGDirEntry (jumptab.o):
+    files8.o                  geos/kernal/files/files8.s(19)
+BlkAlloc (jumptab.o):
+    files8.o                  geos/kernal/files/files8.s(24)
+    files10.o                 geos/kernal/files/files10.s(22)
+CalcDialogCoords (dlgbox1c.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(15)
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(27)
+    dlgbox1d.o                geos/kernal/dlgbox/dlgbox1d.s(15)
+CalcIconDescTab (icon2.o):
+    dlgbox1d.o                geos/kernal/dlgbox/dlgbox1d.s(13)
+CallRoutine (jumptab.o):
+    mouse4.o                  geos/kernal/mouse/mouse4.s(15)
+    mouse2.o                  geos/kernal/mouse/mouse2.s(26)
+    mainloop.o                geos/kernal/mainloop/mainloop.s(22)
+    irq.o                     geos/kernal/irq/irq.s(21)
+    icon2.o                   geos/kernal/icon/icon2.s(21)
+    graphicsstring.o          geos/kernal/graph/graphicsstring.s(21)
+    dlgbox1g.o                geos/kernal/dlgbox/dlgbox1g.s(18)
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(25)
+    conio1.o                  geos/kernal/conio/conio1.s(17)
+ClearRam (jumptab.o):
+    files6a.o                 geos/kernal/files/files6a.s(20)
+ClrScr (clrscr.o):
+    load1a.o                  geos/kernal/load/load1a.s(21)
+CopyFString (jumptab.o):
+    load2.o                   geos/kernal/load/load2.s(13)
+CopyMenuCoords (menu3.o):
+    menu1.o                   geos/kernal/menu/menu1.s(35)
+CopyString (jumptab.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(29)
+DBDefIconsTab (dlgbox1e1.o):
+    dlgbox1d.o                geos/kernal/dlgbox/dlgbox1d.s(16)
+DBDoGETFILES (dlgbox1h.o):
+    dlgbox1b.o                geos/kernal/dlgbox/dlgbox1b.s(16)
+DBDoGETSTR (dlgbox1h.o):
+    dlgbox1b.o                geos/kernal/dlgbox/dlgbox1b.s(19)
+DBDoGRPHSTR (dlgbox1g.o):
+    dlgbox1b.o                geos/kernal/dlgbox/dlgbox1b.s(17)
+DBDoIcons (dlgbox1d.o):
+    dlgbox1b.o                geos/kernal/dlgbox/dlgbox1b.s(22)
+DBDoOPVEC (dlgbox1g.o):
+    dlgbox1b.o                geos/kernal/dlgbox/dlgbox1b.s(15)
+DBDoSYSOPV (dlgbox1f.o):
+    dlgbox1b.o                geos/kernal/dlgbox/dlgbox1b.s(18)
+DBDoTXTSTR (dlgbox1h.o):
+    dlgbox1b.o                geos/kernal/dlgbox/dlgbox1b.s(21)
+DBDoUSRICON (dlgbox1d.o):
+    dlgbox1b.o                geos/kernal/dlgbox/dlgbox1b.s(14)
+DBDoUSR_ROUT (dlgbox1g.o):
+    dlgbox1b.o                geos/kernal/dlgbox/dlgbox1b.s(13)
+DBDoVARSTR (dlgbox1h.o):
+    dlgbox1b.o                geos/kernal/dlgbox/dlgbox1b.s(20)
+DBGFArrowPic (dlgbox1i.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(14)
+DBGFArrowX (dlgbox1h.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(17)
+DBGFDoArrow (dlgbox1j.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(13)
+DBGFNameTable (vars.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(16)
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(24)
+DBGFOffsLeft (vars.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(14)
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(26)
+DBGFOffsTop (vars.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(13)
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(25)
+DBGFPressVector (dlgbox1j.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(20)
+DBGFTableIndex (vars.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(20)
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(15)
+DBGFileSelected (vars.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(18)
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(16)
+DBGFilesFound (vars.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(19)
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(22)
+DBGFilesHelp2 (dlgbox1j.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(18)
+DBGFilesHelp3 (dlgbox1j.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(17)
+DBGFilesHelp5 (dlgbox1j.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(19)
+DBGFilesHelp7 (dlgbox1j.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(23)
+DBIcCANCEL (dlgbox1e2.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(21)
+DBIcDISK (dlgbox1e2.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(13)
+DBIcNO (dlgbox1e2.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(17)
+DBIcOK (dlgbox1e2.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(23)
+DBIcOPEN (dlgbox1e2.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(15)
+DBIcPicCANCEL (dlgbox2.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(22)
+DBIcPicDISK (dlgbox1k.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(14)
+DBIcPicNO (dlgbox1k.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(18)
+DBIcPicOK (dlgbox2.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(24)
+DBIcPicOPEN (dlgbox1k.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(16)
+DBIcPicYES (dlgbox1k.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(20)
+DBIcYES (dlgbox1e2.o):
+    dlgbox1e1.o               geos/kernal/dlgbox/dlgbox1e1.s(19)
+DBIconsHelp2 (dlgbox1d.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(21)
+DBKeyVector (dlgbox1e2.o):
+    dlgbox1d.o                geos/kernal/dlgbox/dlgbox1d.s(17)
+DBStringFaultVec (dlgbox1g.o):
+    dlgbox1f.o                geos/kernal/dlgbox/dlgbox1f.s(13)
+DShiftLeft (jumptab.o):
+    icon2.o                   geos/kernal/icon/icon2.s(20)
+Ddec (jumptab.o):
+    menu3.o                   geos/kernal/menu/menu3.s(30)
+    crc.o                     geos/kernal/math/crc.s(13)
+    icon2.o                   geos/kernal/icon/icon2.s(19)
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(23)
+    conio1.o                  geos/kernal/conio/conio1.s(16)
+Ddiv (jumptab.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(31)
+DelayRtnsH (vars.o):
+    process.o                 geos/kernal/process/process.s(17)
+DelayRtnsL (vars.o):
+    process.o                 geos/kernal/process/process.s(16)
+DelaySP (vars.o):
+    process.o                 geos/kernal/process/process.s(20)
+DelayValH (vars.o):
+    process.o                 geos/kernal/process/process.s(18)
+DelayValL (vars.o):
+    process.o                 geos/kernal/process/process.s(19)
+DeskAccPC (vars.o):
+    deskacc.o                 geos/kernal/load/deskacc.s(16)
+DeskAccSP (vars.o):
+    deskacc.o                 geos/kernal/load/deskacc.s(15)
+DeskTopName (load1c.o):
+    load1a.o                  geos/kernal/load/load1a.s(17)
+DialogRestore (dlgbox1d.o):
+    dlgbox1c.o                geos/kernal/dlgbox/dlgbox1c.s(13)
+DialogSave (dlgbox1d.o):
+    dlgbox1c.o                geos/kernal/dlgbox/dlgbox1c.s(18)
+Dialog_2 (dlgbox1c.o):
+    deskacc.o                 geos/kernal/load/deskacc.s(13)
+DkNmTabH (files2.o):
+    files3.o                  geos/kernal/files/files3.s(13)
+DkNmTabL (files2.o):
+    files3.o                  geos/kernal/files/files3.s(14)
+DlgBoxPrep (dlgbox1c.o):
+    deskacc.o                 geos/kernal/load/deskacc.s(18)
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(21)
+DlgBoxProcH (dlgbox1b.o):
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(17)
+DlgBoxProcL (dlgbox1b.o):
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(18)
+DoDlgBox (jumptab.o):
+    panic.o                   geos/kernal/panic/panic.s(14)
+    load1a.o                  geos/kernal/load/load1a.s(29)
+DoESC_RULER (mouse4.o):
+    conio1.o                  geos/kernal/conio/conio1.s(13)
+DoIcons (jumptab.o):
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(24)
+DoInlineReturn (jumptab.o):
+    memory3.o                 geos/kernal/memory/memory3.s(16)
+    memory2.o                 geos/kernal/memory/memory2.s(15)
+    inlinefunc.o              geos/kernal/graph/inlinefunc.s(14)
+DoMenu0 (menu1.o):
+    menu3.o                   geos/kernal/menu/menu3.s(14)
+DoneWithIO (jumptab.o):
+    files1b.o                 geos/kernal/files/files1b.s(17)
+    files1a2b.o               geos/kernal/files/files1a2b.s(18)
+DrawDlgBox (dlgbox1c.o):
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(20)
+DrawMenu (menu3.o):
+    menu1.o                   geos/kernal/menu/menu1.s(33)
+EnterDeskTop (jumptab.o):
+    start64.o                 geos/kernal/start/start64.s(27)
+    init2.o                   geos/kernal/init/init2.s(19)
+EnterTurbo (jumptab.o):
+    files1b.o                 geos/kernal/files/files1b.s(19)
+    files1a2b.o               geos/kernal/files/files1a2b.s(21)
+ExitTurbo (jumptab.o):
+    files6c.o                 geos/kernal/files/files6c.s(23)
+FB_VERA (framebuffer.o):
+    graph.o                   kernal/graph/graph.s(12)
+FastDelFile (jumptab.o):
+    deskacc.o                 geos/kernal/load/deskacc.s(27)
+FetchRAM (jumptab.o):
+    memory2.o                 geos/kernal/memory/memory2.s(13)
+    files6c.o                 geos/kernal/files/files6c.s(22)
+FindFTypes (jumptab.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(29)
+FindFile (jumptab.o):
+    load3.o                   geos/kernal/load/load3.s(23)
+    files10.o                 geos/kernal/files/files10.s(25)
+FirstInit (jumptab.o):
+    start64.o                 geos/kernal/start/start64.s(29)
+FlaggedPutBlock (files1a2b.o):
+    files1b.o                 geos/kernal/files/files1b.s(13)
+FrameRectangle (jumptab.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(31)
+    dlgbox1c.o                geos/kernal/dlgbox/dlgbox1c.s(22)
+FreeBlock (jumptab.o):
+    files10.o                 geos/kernal/files/files10.s(27)
+GRAPH_clear (graph.o):
+    fonts.o                   kernal/fonts/conio1.s(5)
+    kernal.o                  kernal/vectors.s(9)
+GRAPH_draw_image (graph.o):
+    kernal.o                  kernal/vectors.s(9)
+GRAPH_draw_line (graph.o):
+    graph_bridge.o            geos/kernal/graph/graph_bridge.s(39)
+    kernal.o                  kernal/vectors.s(9)
+GRAPH_draw_oval (graph.o):
+    kernal.o                  kernal/vectors.s(9)
+GRAPH_draw_rect (graph.o):
+    graph_bridge.o            geos/kernal/graph/graph_bridge.s(41)
+    kernal.o                  kernal/vectors.s(9)
+GRAPH_get_char_size (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(93)
+    kernal.o                  kernal/vectors.s(9)
+GRAPH_init (graph.o):
+    screen.o                  kernal/drivers/screen.s(38)
+    kernal.o                  kernal/vectors.s(9)
+GRAPH_move_rect (graph.o):
+    kernal.o                  kernal/vectors.s(9)
+GRAPH_put_char (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(93)
+    kernal.o                  kernal/vectors.s(9)
+GRAPH_set_colors (graph.o):
+    graph_bridge.o            geos/kernal/graph/graph_bridge.s(42)
+    conio3a.o                 geos/kernal/conio/conio3a.s(93)
+    kernal.o                  kernal/vectors.s(9)
+GRAPH_set_font (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(93)
+    kernal.o                  kernal/vectors.s(9)
+GRAPH_set_window (graph.o):
+    kernal.o                  kernal/vectors.s(9)
+GetBlock (jumptab.o):
+    start64.o                 geos/kernal/start/start64.s(26)
+    files6c.o                 geos/kernal/files/files6c.s(21)
+    files10.o                 geos/kernal/files/files10.s(30)
+GetCoords (graphicsstring.o):
+    graph2l1.o                geos/kernal/graph/graph2l1.s(15)
+GetDirHead (jumptab.o):
+    start64.o                 geos/kernal/start/start64.s(28)
+    files8.o                  geos/kernal/files/files8.s(25)
+    files10.o                 geos/kernal/files/files10.s(32)
+GetFHdrInfo (jumptab.o):
+    load3.o                   geos/kernal/load/load3.s(20)
+    deskacc.o                 geos/kernal/load/deskacc.s(24)
+GetFile (jumptab.o):
+    load1a.o                  geos/kernal/load/load1a.s(26)
+    deskacc.o                 geos/kernal/load/deskacc.s(28)
+GetFreeDirBlk (jumptab.o):
+    files8.o                  geos/kernal/files/files8.s(18)
+GetHeaderFileName (files6c.o):
+    files6a.o                 geos/kernal/files/files6a.s(14)
+GetInlineDrwParms (inline.o):
+    rename.o                  geos/kernal/rename.s(10)
+GetMDataDatas (memory2.o):
+    memory3.o                 geos/kernal/memory/memory3.s(14)
+GetMenuDesc (menu1.o):
+    menu3.o                   geos/kernal/menu/menu3.s(22)
+GetStartHAddr (files6b.o):
+    deskacc.o                 geos/kernal/load/deskacc.s(19)
+    files8.o                  geos/kernal/files/files8.s(14)
+    files6c.o                 geos/kernal/files/files6c.s(14)
+GetString (jumptab.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(33)
+GrStSetCoords (graph2l1.o):
+    rename.o                  geos/kernal/rename.s(11)
+GraphPenX (vars.o):
+    graph2l1.o                geos/kernal/graph/graph2l1.s(13)
+    graphicsstring.o          geos/kernal/graph/graphicsstring.s(15)
+GraphPenY (vars.o):
+    graph2l1.o                geos/kernal/graph/graph2l1.s(14)
+    graphicsstring.o          geos/kernal/graph/graphicsstring.s(16)
+GraphicsString (jumptab.o):
+    dlgbox1g.o                geos/kernal/dlgbox/dlgbox1g.s(19)
+I_FB_BASE (kernal.o):
+    graph.o                   kernal/graph/graph.s(13)
+I_FB_END (kernal.o):
+    graph.o                   kernal/graph/graph.s(13)
+Icons_1 (icon2.o):
+    icon1.o                   geos/kernal/icon/icon1.s(15)
+InitForIO (jumptab.o):
+    files1b.o                 geos/kernal/files/files1b.s(18)
+    files1a2b.o               geos/kernal/files/files1a2b.s(20)
+InitGEOEnv (init1.o):
+    start64.o                 geos/kernal/start/start64.s(17)
+    deskacc.o                 geos/kernal/load/deskacc.s(17)
+    dlgbox1c.o                geos/kernal/dlgbox/dlgbox1c.s(19)
+InitRamTab (init4.o):
+    init1.o                   geos/kernal/init/init1.s(13)
+InvertRectangle (jumptab.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(24)
+IsMseInRegion (jumptab.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(32)
+KbdQueFlag (vars.o):
+    irq.o                     geos/kernal/irq/irq.s(17)
+    hw1b.o                    geos/kernal/hw/hw1b.s(17)
+KbdQueHead (vars.o):
+    keyboard3.o               geos/kernal/keyboard/keyboard3.s(13)
+    hw1b.o                    geos/kernal/hw/hw1b.s(16)
+KbdQueTail (vars.o):
+    keyboard3.o               geos/kernal/keyboard/keyboard3.s(15)
+    hw1b.o                    geos/kernal/hw/hw1b.s(15)
+KbdQueue (vars.o):
+    keyboard3.o               geos/kernal/keyboard/keyboard3.s(14)
+KbdScanHelp3 (keyboard3.o):
+    mouse4.o                  geos/kernal/mouse/mouse4.s(13)
+LdApplic (jumptab.o):
+    start64.o                 geos/kernal/start/start64.s(25)
+    load3.o                   geos/kernal/load/load3.s(21)
+LdDeskAcc (jumptab.o):
+    load3.o                   geos/kernal/load/load3.s(22)
+LdFile (jumptab.o):
+    load4b.o                  geos/kernal/load/load4b.s(23)
+MainLoop (jumptab.o):
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(23)
+MenuDoInvert (menu3.o):
+    icon2.o                   geos/kernal/icon/icon2.s(14)
+MenuRestoreFont (menu3.o):
+    menu1.o                   geos/kernal/menu/menu1.s(16)
+MenuStoreFont (menu3.o):
+    menu1.o                   geos/kernal/menu/menu1.s(19)
+MenuStringFault (menu2.o):
+    menu1.o                   geos/kernal/menu/menu1.s(15)
+Menu_0 (menu1.o):
+    menu3.o                   geos/kernal/menu/menu3.s(13)
+Menu_3 (menu3.o):
+    menu1.o                   geos/kernal/menu/menu1.s(17)
+Menu_4 (menu3.o):
+    menu1.o                   geos/kernal/menu/menu1.s(18)
+Menu_5 (menu3.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(19)
+MouseInit (mouse2.o):
+    start64.o                 geos/kernal/start/start64.s(41)
+MouseUp (jumptab.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(29)
+NumTimers (vars.o):
+    process.o                 geos/kernal/process/process.s(14)
+    init4.o                   geos/kernal/init/init4.s(13)
+OpenDisk (jumptab.o):
+    load1a.o                  geos/kernal/load/load1a.s(27)
+ProcessClick (icon2.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(18)
+ProcessCursor (conio4.o):
+    mainloop.o                geos/kernal/mainloop/mainloop.s(18)
+ProcessMouse (mouse2.o):
+    mainloop.o                geos/kernal/mainloop/mainloop.s(21)
+PutBlock (jumptab.o):
+    files8.o                  geos/kernal/files/files8.s(21)
+    files10.o                 geos/kernal/files/files10.s(23)
+PutChar (jumptab.o):
+    conio4.o                  geos/kernal/conio/conio4.s(32)
+PutDirHead (jumptab.o):
+    files8.o                  geos/kernal/files/files8.s(22)
+    files10.o                 geos/kernal/files/files10.s(31)
+PutString (jumptab.o):
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(25)
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(34)
+    conio4.o                  geos/kernal/conio/conio4.s(33)
+RcvrMnu0 (menu3.o):
+    dlgbox1c.o                geos/kernal/dlgbox/dlgbox1c.s(16)
+ReadBlock (jumptab.o):
+    files1a2b.o               geos/kernal/files/files1a2b.s(19)
+ReadFile (jumptab.o):
+    load3.o                   geos/kernal/load/load3.s(19)
+    deskacc.o                 geos/kernal/load/deskacc.s(23)
+    files10.o                 geos/kernal/files/files10.s(24)
+RecordDirOffs (vars.o):
+    files10.o                 geos/kernal/files/files10.s(17)
+RecordDirTS (vars.o):
+    files10.o                 geos/kernal/files/files10.s(18)
+RecordTableTS (vars.o):
+    files10.o                 geos/kernal/files/files10.s(19)
+Rectangle (jumptab.o):
+    menu3.o                   geos/kernal/menu/menu3.s(31)
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(26)
+    dlgbox1c.o                geos/kernal/dlgbox/dlgbox1c.s(23)
+ResetMseRegion (mouse3.o):
+    menu1.o                   geos/kernal/menu/menu1.s(20)
+    icon1.o                   geos/kernal/icon/icon1.s(14)
+    hw1b.o                    geos/kernal/hw/hw1b.s(13)
+RstrFrmDialogue (jumptab.o):
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(32)
+    dlgbox1g.o                geos/kernal/dlgbox/dlgbox1g.s(20)
+    dlgbox1e2.o               geos/kernal/dlgbox/dlgbox1e2.s(21)
+SGDCopyDate (files8.o):
+    files10.o                 geos/kernal/files/files10.s(16)
+SerialNumber (serial1.o):
+    serial2.o                 geos/kernal/serial/serial2.s(13)
+SetBufTSVector (files6b.o):
+    files8.o                  geos/kernal/files/files8.s(16)
+    files10.o                 geos/kernal/files/files10.s(14)
+SetDevice (jumptab.o):
+    load1a.o                  geos/kernal/load/load1a.s(28)
+SetFHeadVector (files6b.o):
+    files8.o                  geos/kernal/files/files8.s(15)
+    files6c.o                 geos/kernal/files/files6c.s(15)
+    files10.o                 geos/kernal/files/files10.s(15)
+SetGDirEntry (jumptab.o):
+    files8.o                  geos/kernal/files/files8.s(23)
+SetPattern (jumptab.o):
+    menu3.o                   geos/kernal/menu/menu3.s(32)
+    clrscr.o                  geos/kernal/graph/clrscr.s(16)
+    dlgbox1j.o                geos/kernal/dlgbox/dlgbox1j.s(27)
+    dlgbox1c.o                geos/kernal/dlgbox/dlgbox1c.s(24)
+StartAppl (jumptab.o):
+    load4b.o                  geos/kernal/load/load4b.s(16)
+StashRAM (jumptab.o):
+    memory2.o                 geos/kernal/memory/memory2.s(14)
+TempCurDrive (vars.o):
+    load1a.o                  geos/kernal/load/load1a.s(19)
+TimersCMDs (vars.o):
+    process.o                 geos/kernal/process/process.s(13)
+TimersRtns (vars.o):
+    process.o                 geos/kernal/process/process.s(12)
+TimersTab (vars.o):
+    process.o                 geos/kernal/process/process.s(15)
+    dlgbox1d.o                geos/kernal/dlgbox/dlgbox1d.s(18)
+TimersVals (vars.o):
+    process.o                 geos/kernal/process/process.s(11)
+UNK_4 (load2.o):
+    load4b.o                  geos/kernal/load/load4b.s(13)
+    load3.o                   geos/kernal/load/load3.s(14)
+    load1a.o                  geos/kernal/load/load1a.s(15)
+UNK_5 (load2.o):
+    load4b.o                  geos/kernal/load/load4b.s(14)
+    load3.o                   geos/kernal/load/load3.s(15)
+    load1a.o                  geos/kernal/load/load1a.s(16)
+UseSystemFont (jumptab.o):
+    deskacc.o                 geos/kernal/load/deskacc.s(22)
+VerWriteBlock (jumptab.o):
+    files1a2b.o               geos/kernal/files/files1a2b.s(17)
+WriteBlock (jumptab.o):
+    files1a2b.o               geos/kernal/files/files1a2b.s(16)
+WriteFile (jumptab.o):
+    files8.o                  geos/kernal/files/files8.s(20)
+    files10.o                 geos/kernal/files/files10.s(21)
+_AppendRecord (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(74)
+_BBMult (muldiv.o):
+    rename.o                  geos/kernal/rename.s(20)
+_BMult (muldiv.o):
+    rename.o                  geos/kernal/rename.s(19)
+_BitOtherClip (bitmapclip.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(166)
+_BitmapClip (bitmapclip.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(167)
+_BitmapUp (bitmapup.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(169)
+    icon2.o                   geos/kernal/icon/icon2.s(17)
+    inlinefunc.o              geos/kernal/graph/inlinefunc.s(20)
+_BldGDirEntry (files9.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(189)
+_BlockProcess (process.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(37)
+_CRC (crc.o):
+    rename.o                  geos/kernal/rename.s(14)
+_CallRoutine (misc.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(146)
+_ClearMouseMode (mouse2.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(43)
+_ClearRam (memory1a.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(111)
+_CloseRecordFile (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(75)
+_CmpFString (memory2.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(102)
+_CmpString (memory2.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(103)
+_CopyFString (memory2.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(104)
+_CopyString (memory2.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(105)
+_DMult (muldiv.o):
+    rename.o                  geos/kernal/rename.s(18)
+_DSdiv (muldiv.o):
+    rename.o                  geos/kernal/rename.s(16)
+_DShiftLeft (shl.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(118)
+_DShiftRight (shr.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(114)
+_Dabs (neg.o):
+    muldiv.o                  geos/kernal/math/muldiv.s(14)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(117)
+_Ddec (dec.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(115)
+_Ddiv (muldiv.o):
+    rename.o                  geos/kernal/rename.s(17)
+_DeleteFile (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(76)
+_DeleteRecord (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(77)
+_DisablSprite (sprites.o):
+    conio5.o                  geos/kernal/conio/conio5.s(13)
+    mouse2.o                  geos/kernal/mouse/mouse2.s(24)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(121)
+_Dnegate (neg.o):
+    muldiv.o                  geos/kernal/math/muldiv.s(13)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(116)
+_DoCheckButtons (mouse4.o):
+    mainloop.o                geos/kernal/mainloop/mainloop.s(15)
+_DoCheckDelays (process.o):
+    mainloop.o                geos/kernal/mainloop/mainloop.s(16)
+_DoDlgBox (dlgbox1a.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(64)
+_DoFirstInitIO (hw1b.o):
+    start64.o                 geos/kernal/start/start64.s(18)
+    init1.o                   geos/kernal/init/init1.s(14)
+_DoIcons (icon1.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(17)
+_DoInlineReturn (misc.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(147)
+_DoKeyboardScan (keyboard1.o):
+    irq.o                     geos/kernal/irq/irq.s(14)
+_DoMenu (menu1.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(132)
+_DoPreviousMenu (menu1.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(16)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(129)
+_DoRAMOp (reu.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(56)
+_DoUpdateTime (time1.o):
+    start64.o                 geos/kernal/start/start64.s(31)
+    mainloop.o                geos/kernal/mainloop/mainloop.s(13)
+_DrawLine (graph_bridge.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(173)
+    graphicsstring.o          geos/kernal/graph/graphicsstring.s(18)
+_DrawPoint (graph_bridge.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(172)
+_DrawSprite (sprites.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(124)
+_EnablSprite (sprites.o):
+    conio5.o                  geos/kernal/conio/conio5.s(14)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(122)
+_EnableProcess (process.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(38)
+_EnterDT_DB (load1b.o):
+    load1a.o                  geos/kernal/load/load1a.s(18)
+_EnterDT_Str0 (load1c.o):
+    load1b.o                  geos/kernal/load/load1b.s(14)
+_EnterDT_Str1 (load1c.o):
+    load1b.o                  geos/kernal/load/load1b.s(13)
+_EnterDeskTop (load1a.o):
+    start64.o                 geos/kernal/start/start64.s(19)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(141)
+    init2.o                   geos/kernal/init/init2.s(13)
+_ExecuteProcesses (process.o):
+    mainloop.o                geos/kernal/mainloop/mainloop.s(14)
+_FastDelFile (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(78)
+_FetchRAM (reu.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(59)
+_FillRam (memory1a.o):
+    memory3.o                 geos/kernal/memory/memory3.s(13)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(110)
+_FindFTypes (files6a.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(79)
+_FindFile (files6c.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(80)
+_FirstInit (init2.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(14)
+_FollowChain (files6a.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(81)
+_FrameRectangle (graph_bridge.o):
+    menu1.o                   geos/kernal/menu/menu1.s(40)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(176)
+    graphicsstring.o          geos/kernal/graph/graphicsstring.s(20)
+    inlinefunc.o              geos/kernal/graph/inlinefunc.s(18)
+_FreeFile (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(82)
+_FreezeProcess (process.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(35)
+_GRAPH_set_pixel (graph_bridge.o):
+    bitmapup.o                geos/kernal/graph/bitmapup.s(18)
+_GRAPH_start_direct (graph_bridge.o):
+    bitmapup.o                geos/kernal/graph/bitmapup.s(18)
+_GetCharWidth (conio3a.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(185)
+_GetFHdrInfo (files6c.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(83)
+_GetFile (load3.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(67)
+_GetNextChar (keyboard3.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(30)
+_GetPtrCurDkNm (files3.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(84)
+_GetRandom (random.o):
+    rename.o                  geos/kernal/rename.s(15)
+_GetRealSize (conio3a.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(190)
+    conio6.o                  geos/kernal/conio/conio6.s(14)
+    conio4.o                  geos/kernal/conio/conio4.s(21)
+_GetScanLine (graph_bridge.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(171)
+_GetSerialNumber (serial2.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(153)
+_GetString (conio4.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(187)
+_GotoFirstMenu (menu1.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(127)
+_GraphicsString (graphicsstring.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(27)
+    inlinefunc.o              geos/kernal/graph/inlinefunc.s(19)
+    conio1.o                  geos/kernal/conio/conio1.s(14)
+_HorizontalLine (graph_bridge.o):
+    menu3.o                   geos/kernal/menu/menu3.s(27)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(181)
+    dlgbox1h.o                geos/kernal/dlgbox/dlgbox1h.s(30)
+_IRQHandler (irq.o):
+    start64.o                 geos/kernal/start/start64.s(22)
+_ImprintRectangle (graph_bridge.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(168)
+    inlinefunc.o              geos/kernal/graph/inlinefunc.s(17)
+_InitMachine (init1.o):
+    load1a.o                  geos/kernal/load/load1a.s(20)
+    init2.o                   geos/kernal/init/init2.s(14)
+_InitProcesses (process.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(40)
+_InitRam (memory1b.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(108)
+    init1.o                   geos/kernal/init/init1.s(15)
+_InitTextPrompt (conio5.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(186)
+    conio4.o                  geos/kernal/conio/conio4.s(19)
+_InsertRecord (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(85)
+_InterruptMain (mainloop.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(143)
+    irq.o                     geos/kernal/irq/irq.s(24)
+_InvertLine (graph_bridge.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(180)
+_InvertRectangle (graph_bridge.o):
+    menu3.o                   geos/kernal/menu/menu3.s(26)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(175)
+_IsMseInRegion (mouse1.o):
+    rename.o                  geos/kernal/rename.s(13)
+_LdApplic (load4b.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(68)
+_LdDeskAcc (deskacc.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(69)
+_LdFile (load3.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(70)
+_LoadCharSet (conio3a.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(184)
+_MNLP (mainloop.o):
+    load1a.o                  geos/kernal/load/load1a.s(14)
+    deskacc.o                 geos/kernal/load/deskacc.s(14)
+_MainLoop (mainloop.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(142)
+_MouseOff (mouse2.o):
+    menu3.o                   geos/kernal/menu/menu3.s(17)
+    menu1.o                   geos/kernal/menu/menu1.s(24)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(44)
+_MouseUp (mouse2.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(45)
+_MoveData (memory2.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(109)
+_NMIHandler (irq.o):
+    start64.o                 geos/kernal/start/start64.s(23)
+_NextRecord (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(86)
+_OpenRecordFile (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(87)
+_Panic (panic.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(150)
+    init4.o                   geos/kernal/init/init4.s(14)
+_PointRecord (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(88)
+_PosSprite (sprites.o):
+    conio5.o                  geos/kernal/conio/conio5.s(15)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(123)
+_PreviousRecord (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(89)
+_ProcessDelays (process.o):
+    rename.o                  geos/kernal/rename.s(9)
+_ProcessTimers (process.o):
+    rename.o                  geos/kernal/rename.s(12)
+_PromptOff (conio5.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(182)
+    conio4.o                  geos/kernal/conio/conio4.s(17)
+_PromptOn (conio5.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(183)
+    conio4.o                  geos/kernal/conio/conio4.s(18)
+_PutChar (conio1.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(53)
+    conio6.o                  geos/kernal/conio/conio6.s(13)
+    conio3a.o                 geos/kernal/conio/conio3a.s(14)
+_PutCharK (conio3a.o):
+    conio4.o                  geos/kernal/conio/conio4.s(21)
+    conio1.o                  geos/kernal/conio/conio1.s(18)
+_PutDecimal (conio6.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(51)
+_PutString (conio3a.o):
+    menu1.o                   geos/kernal/menu/menu1.s(14)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(52)
+    graphicsstring.o          geos/kernal/graph/graphicsstring.s(13)
+    conio2.o                  geos/kernal/conio/conio2.s(13)
+_ReDoMenu (menu1.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(128)
+_ReadByte (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(90)
+_ReadFile (files1a2b.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(91)
+_ReadRecord (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(92)
+_RecoverAllMenus (menu3.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(130)
+_RecoverLine (graph_bridge.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(179)
+_RecoverMenu (menu3.o):
+    menu1.o                   geos/kernal/menu/menu1.s(23)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(131)
+_RecoverRectangle (graph_bridge.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(174)
+    init4.o                   geos/kernal/init/init4.s(16)
+    inlinefunc.o              geos/kernal/graph/inlinefunc.s(16)
+_Rectangle (graph_bridge.o):
+    menu1.o                   geos/kernal/menu/menu1.s(41)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(177)
+    graphicsstring.o          geos/kernal/graph/graphicsstring.s(19)
+    inlinefunc.o              geos/kernal/graph/inlinefunc.s(15)
+_RenameFile (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(93)
+_ResetHandle (start64.o):
+    basic.o                   basic/x16additions.s(16)
+_RestartProcess (process.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(39)
+_RstrAppl (deskacc.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(71)
+_RstrFrmDialogue (dlgbox1c.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(63)
+_SaveFile (files8.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(94)
+_SetDevice (files6c.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(95)
+_SetGDirEntry (files8.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(96)
+_SetPattern (pattern.o):
+    menu1.o                   geos/kernal/menu/menu1.s(34)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(26)
+    graphicsstring.o          geos/kernal/graph/graphicsstring.s(14)
+_Sleep (process.o):
+    menu3.o                   geos/kernal/menu/menu3.s(15)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(33)
+    icon2.o                   geos/kernal/icon/icon2.s(13)
+_SmallPutChar (conio3a.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(49)
+_StartAppl (load1a.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(140)
+_StartMouseMode (mouse2.o):
+    menu1.o                   geos/kernal/menu/menu1.s(25)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(46)
+    icon1.o                   geos/kernal/icon/icon1.s(13)
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(19)
+_StashRAM (reu.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(60)
+_SwapRAM (reu.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(58)
+_TestPoint (graph_bridge.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(170)
+_ToBASIC (tobasic2.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(137)
+_UnblockProcess (process.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(36)
+_UnfreezeProcess (process.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(34)
+_UpdateRecordFile (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(97)
+_UseSystemFont (conio3a.o):
+    menu1.o                   geos/kernal/menu/menu1.s(39)
+    load1a.o                  geos/kernal/load/load1a.s(22)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(188)
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(13)
+_VerifyRAM (reu.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(57)
+_VerticalLine (graph_bridge.o):
+    menu3.o                   geos/kernal/menu/menu3.s(28)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(178)
+_WriteFile (files1b.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(98)
+_WriteRecord (files10.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(99)
+__BBMult (rename.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(163)
+__BMult (rename.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(162)
+__CRC (rename.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(157)
+__DMult (rename.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(161)
+__DSdiv (rename.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(159)
+__Ddiv (rename.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(160)
+__GetInlineDrwParms (rename.o):
+    inlinefunc.o              geos/kernal/graph/inlinefunc.s(13)
+__GetRandom (rename.o):
+    mainloop.o                geos/kernal/mainloop/mainloop.s(17)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(158)
+__GrStSetCoords (rename.o):
+    graphicsstring.o          geos/kernal/graph/graphicsstring.s(17)
+__IsMseInRegion (rename.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(156)
+__KERNRAM2_LOAD__ ([linker generated]):
+    memory.o                  kernal/drivers/memory.s(10)
+__KERNRAM2_RUN__ ([linker generated]):
+    memory.o                  kernal/drivers/memory.s(10)
+__KERNRAM2_SIZE__ ([linker generated]):
+    memory.o                  kernal/drivers/memory.s(10)
+__KERNRAM_LOAD__ ([linker generated]):
+    memory.o                  kernal/drivers/memory.s(9)
+__KERNRAM_RUN__ ([linker generated]):
+    memory.o                  kernal/drivers/memory.s(9)
+__KERNRAM_SIZE__ ([linker generated]):
+    memory.o                  kernal/drivers/memory.s(9)
+__KVARSB0_LOAD__ ([linker generated]):
+    memory.o                  kernal/drivers/memory.s(11)
+__KVARSB0_SIZE__ ([linker generated]):
+    memory.o                  kernal/drivers/memory.s(11)
+__ProcessDelays (rename.o):
+    mainloop.o                geos/kernal/mainloop/mainloop.s(19)
+__ProcessTimers (rename.o):
+    mainloop.o                geos/kernal/mainloop/mainloop.s(20)
+__asmchars1_RUN__ ([linker generated]):
+    monitor.o                 monitor/monitor.s(152)
+__asmchars2_RUN__ ([linker generated]):
+    monitor.o                 monitor/monitor.s(153)
+__drvcbdos_LOAD__ ([linker generated]):
+    start64.o                 geos/kernal/start/start64.s(72)
+__drvcbdos_RUN__ ([linker generated]):
+    start64.o                 geos/kernal/start/start64.s(72)
+__drvcbdos_SIZE__ ([linker generated]):
+    start64.o                 geos/kernal/start/start64.s(72)
+__mnemos1_RUN__ ([linker generated]):
+    monitor.o                 monitor/monitor.s(149)
+__mnemos2_RUN__ ([linker generated]):
+    monitor.o                 monitor/monitor.s(150)
+__monitor_ram_code_LOAD__ ([linker generated]):
+    monitor.o                 monitor/monitor.s(145)
+__monitor_ram_code_RUN__ ([linker generated]):
+    monitor.o                 monitor/monitor.s(146)
+__monitor_ram_code_SIZE__ ([linker generated]):
+    monitor.o                 monitor/monitor.s(147)
+__rtc_systime_update (main.o):
+    fat32.o                   cbdos/fat32.asm(51)
+_i_BitmapUp (inlinefunc.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(21)
+_i_FillRam (memory3.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(107)
+_i_FrameRectangle (inlinefunc.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(24)
+_i_GraphicsString (inlinefunc.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(22)
+_i_ImprintRectangle (inlinefunc.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(20)
+_i_MoveData (memory2.o):
+    start64.o                 geos/kernal/start/start64.s(73)
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(106)
+_i_PutString (conio2.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(50)
+_i_RecoverRectangle (inlinefunc.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(23)
+_i_Rectangle (inlinefunc.o):
+    jumptab.o                 geos/kernal/jumptab/jumptab.s(25)
+acptr (ieee_switch.o):
+    channel.o                 kernal/channel/channel.s(25)
+    kernal.o                  kernal/kernal.s(64)
+addprc (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(6)
+alarmWarnFlag (vars.o):
+    irq.o                     geos/kernal/irq/irq.s(18)
+argexp (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+argho (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+arglo (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+argmo (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+argmoh (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+argsgn (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+arisgn (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+bank_save (zeropage.o):
+    main.o                    cbdos/main.asm(21)
+banked_irq (memory.o):
+    irqsup.o                  kernsup/irqsup.s(1)
+    kernsup_monitor.o         kernsup/kernsup_monitor.s(3)
+    kernsup_basic.o           kernsup/kernsup_basic.s(3)
+baselineOffset (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(89)
+bits (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(9)
+bjsrfar (basic.o):
+    kernsup_basic.o           kernsup/kernsup_basic.s(3)
+blnon (editor.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+blnsw (editor.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+block_data (main.o):
+    fat32.o                   cbdos/fat32.asm(78)
+block_fat (main.o):
+    fat32.o                   cbdos/fat32.asm(78)
+blocks (main.o):
+    sdcard.o                  cbdos/sdcard.asm(57)
+    fat32.o                   cbdos/fat32.asm(77)
+bmt2 (editor.o):
+    monitor.o                 monitor/kernal_x16.i(5)
+bootOffs (vars.o):
+    start64.o                 geos/kernal/start/start64.s(35)
+bootSec (vars.o):
+    start64.o                 geos/kernal/start/start64.s(36)
+bootSec2 (vars.o):
+    start64.o                 geos/kernal/start/start64.s(34)
+bootTr (vars.o):
+    start64.o                 geos/kernal/start/start64.s(37)
+bootTr2 (vars.o):
+    start64.o                 geos/kernal/start/start64.s(33)
+bsi232 (rs232.o):
+    channel.o                 kernal/channel/channel.s(16)
+bso232 (rs232.o):
+    channel.o                 kernal/channel/channel.s(17)
+buf (kernal.o):
+    monitor.o                 monitor/kernal_x16.i(11)
+buffer (zeropage.o):
+    main.o                    cbdos/main.asm(21)
+cardDataPntr (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(89)
+cint (editor.o):
+    kernal.o                  kernal/kernal.s(6)
+ciout (ieee_switch.o):
+    channel.o                 kernal/channel/channel.s(26)
+    kernal.o                  kernal/kernal.s(63)
+ckbtab (kernal.o):
+    ps2kbd.o                  kernal/drivers/ps2kbd.s(14)
+cki232 (rs232.o):
+    channel.o                 kernal/channel/channel.s(18)
+cko232 (rs232.o):
+    channel.o                 kernal/channel/channel.s(19)
+clkBoxTemp (vars.o):
+    init4.o                   geos/kernal/init/init4.s(15)
+    icon2.o                   geos/kernal/icon/icon2.s(16)
+clkBoxTemp2 (vars.o):
+    icon2.o                   geos/kernal/icon/icon2.s(15)
+clklo (serial.o):
+    x16.o                     kernal/drivers/x16.s(15)
+clock_get_date_time (clock.o):
+    kernal.o                  kernal/vectors.s(7)
+clock_get_timer (clock.o):
+    kernal.o                  kernal/vectors.s(7)
+clock_set_date_time (clock.o):
+    kernal.o                  kernal/vectors.s(7)
+clock_set_timer (clock.o):
+    kernal.o                  kernal/vectors.s(7)
+clock_update (clock.o):
+    kernal.o                  kernal/vectors.s(7)
+close_all (channel.o):
+    kernal.o                  kernal/kernal.s(35)
+cls232 (rs232.o):
+    channel.o                 kernal/channel/channel.s(20)
+cluster_nr_matcher (util.o):
+    fat32.o                   cbdos/fat32.asm(54)
+cmpare (memory.o):
+    kernal.o                  kernal/kernal.s(17)
+col1 (graph.o):
+    fonts.o                   kernal/fonts/fonts.s(10)
+col2 (graph.o):
+    fonts.o                   kernal/fonts/fonts.s(10)
+col_bg (graph.o):
+    fonts.o                   kernal/fonts/fonts.s(10)
+color (editor.o):
+    screen.o                  kernal/drivers/screen.s(30)
+crsw (editor.o):
+    channel.o                 kernal/channel/channel.s(41)
+curHeight (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(89)
+curIndexTable (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(88)
+curSetWidth (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(89)
+currentMode (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(89)
+cursor_blink (editor.o):
+    kernal.o                  kernal/irqfile.s(6)
+data (editor.o):
+    screen.o                  kernal/drivers/screen.s(32)
+deccnt (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+decimalTemp (vars.o):
+    conio6.o                  geos/kernal/conio/conio6.s(16)
+defIconTab (vars.o):
+    dlgbox1d.o                geos/kernal/dlgbox/dlgbox1d.s(14)
+    dlgbox1c.o                geos/kernal/dlgbox/dlgbox1c.s(17)
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(16)
+degree (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+dfltn (channel.o):
+    rs232.o                   kernal/drivers/rs232.s(10)
+    editor.o                  kernal/editor.s(18)
+    kernal.o                  kernal/kernal.s(51)
+dflto (channel.o):
+    rs232.o                   kernal/drivers/rs232.s(10)
+    editor.o                  kernal/editor.s(18)
+    kernal.o                  kernal/kernal.s(52)
+dirname_mask_matcher (matcher.o):
+    fat32.o                   cbdos/fat32.asm(54)
+dirptr (zeropage.o):
+    main.o                    cbdos/main.asm(21)
+    matcher.o                 cbdos/matcher.asm(22)
+    util.o                    cbdos/util.asm(28)
+    fat32.o                   cbdos/fat32.asm(37)
+dlgBoxCallerPC (vars.o):
+    dlgbox1c.o                geos/kernal/dlgbox/dlgbox1c.s(14)
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(15)
+dlgBoxCallerSP (vars.o):
+    dlgbox1c.o                geos/kernal/dlgbox/dlgbox1c.s(15)
+    dlgbox1a.o                geos/kernal/dlgbox/dlgbox1a.s(14)
+emulator_get_data (x16.o):
+    editor.o                  kernal/editor.s(70)
+errdvo (basic.o):
+    fplib.o                   fplib/declare.s(11)
+error (basic.o):
+    fplib.o                   fplib/declare.s(10)
+errov (basic.o):
+    fplib.o                   fplib/declare.s(11)
+fa (channel.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+    basic.o                   basic/x16additions.s(12)
+fac (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+facexp (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+facho (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+faclo (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+facmo (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+facmoh (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+facov (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+facsgn (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+fat_find_first (fat32.o):
+    main.o                    cbdos/main.asm(11)
+fat_find_next (fat32.o):
+    main.o                    cbdos/main.asm(11)
+fat_fread (fat32.o):
+    main.o                    cbdos/main.asm(8)
+fat_mount (fat32.o):
+    main.o                    cbdos/main.asm(5)
+fat_name_string (util.o):
+    main.o                    cbdos/main.asm(16)
+    fat32.o                   cbdos/fat32.asm(52)
+fat_open (fat32.o):
+    main.o                    cbdos/main.asm(6)
+fbufpt (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+fcerr (basic.o):
+    fplib.o                   fplib/declare.s(10)
+fd_area (main.o):
+    matcher.o                 cbdos/fat32.inc(25)
+    util.o                    cbdos/fat32.inc(25)
+    fat32.o                   cbdos/fat32.inc(25)
+fdcend (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(13)
+fdecpt (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+fetch (memory.o):
+    ps2kbd.o                  kernal/drivers/ps2kbd.s(15)
+fetvec (memory.o):
+    ps2kbd.o                  kernal/drivers/ps2kbd.s(15)
+    basic.o                   basic/code17.s(59)
+filenameptr (zeropage.o):
+    main.o                    cbdos/main.asm(21)
+    util.o                    cbdos/util.asm(28)
+    fat32.o                   cbdos/fat32.asm(37)
+fnadr (channel.o):
+    monitor.o                 monitor/kernal_x16.i(8)
+fnlen (channel.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+    basic.o                   basic/x16additions.s(12)
+fone (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(13)
+font_init (fonts.o):
+    graph.o                   kernal/graph/graph.s(15)
+foutbl (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(13)
+g_col1 (vars.o):
+    graph_bridge.o            geos/kernal/graph/graph_bridge.s(19)
+    pattern.o                 geos/kernal/graph/pattern.s(15)
+gdbln (editor.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+gjsrfar (start64.o):
+    drvcbdos.o                geos/kernal/drvcbdos.s(124)
+    graph_bridge.o            geos/kernal/graph/graph_bridge.s(38)
+    mouse2.o                  geos/kernal/mouse/mouse2.s(35)
+    conio3a.o                 geos/kernal/conio/conio3a.s(91)
+i_Rectangle (jumptab.o):
+    clrscr.o                  geos/kernal/graph/clrscr.s(15)
+ikbdmeta (keymap.o):
+    ps2kbd.o                  kernal/drivers/ps2kbd.s(16)
+iload (kernal.o):
+    channel.o                 kernal/channel/channel.s(37)
+imparm (kernal.o):
+    kernsup_monitor.o         kernsup/kernsup_monitor.s(30)
+    memory.o                  kernal/drivers/memory.s(128)
+    basic.o                   basic/x16additions.s(309)
+index (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+index1 (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+index2 (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+indfet (memory.o):
+    kernal.o                  kernal/kernal.s(15)
+indx (editor.o):
+    channel.o                 kernal/channel/channel.s(42)
+insrt (editor.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+integr (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(9)
+ioinit (x16.o):
+    kernal.o                  kernal/kernal.s(22)
+iokeys (x16.o):
+    editor.o                  kernal/editor.s(20)
+irq_ack (x16.o):
+    kernal.o                  kernal/irqfile.s(7)
+isave (kernal.o):
+    channel.o                 kernal/channel/channel.s(38)
+jmpfr (memory.o):
+    start64.o                 geos/kernal/start/start64.s(196)
+    kernsup_monitor.o         kernsup/kernsup_monitor.s(29)
+    basic.o                   basic/x16additions.s(308)
+joystick_from_ps2 (joystick.o):
+    ps2kbd.o                  kernal/drivers/ps2kbd.s(11)
+joystick_get (joystick.o):
+    kernal.o                  kernal/vectors.s(6)
+joystick_scan (joystick.o):
+    kernal.o                  kernal/irqfile.s(5)
+jsrfar (memory.o):
+    screen.o                  kernal/drivers/screen.s(36)
+    ieee_switch.o             kernal/ieee_switch.s(3)
+    kernal.o                  kernal/kernal.s(18)
+jsrfar3 (memory.o):
+    start64.o                 geos/kernal/start/start64.s(195)
+    kernsup_monitor.o         kernsup/kernsup_monitor.s(28)
+    basic.o                   basic/x16additions.s(307)
+kbd_clear (ps2kbd.o):
+    monitor.o                 monitor/kernal_x16.i(13)
+    channel.o                 kernal/channel/channel.s(11)
+    editor.o                  kernal/editor.s(68)
+kbd_config (ps2kbd.o):
+    editor.o                  kernal/editor.s(68)
+kbd_get (ps2kbd.o):
+    channel.o                 kernal/channel/channel.s(12)
+    editor.o                  kernal/editor.s(68)
+kbd_get_modifiers (ps2kbd.o):
+    editor.o                  kernal/editor.s(68)
+kbd_get_stop (ps2kbd.o):
+    channel.o                 kernal/channel/channel.s(13)
+kbd_peek (ps2kbd.o):
+    monitor.o                 monitor/kernal_x16.i(13)
+kbd_put (ps2kbd.o):
+    monitor.o                 monitor/kernal_x16.i(13)
+    editor.o                  kernal/editor.s(68)
+kbd_scan (ps2kbd.o):
+    kernal.o                  kernal/kernal.s(8)
+kbdmeta (keymap.o):
+    ps2kbd.o                  kernal/drivers/ps2kbd.s(16)
+krn_ptr1 (zeropage.o):
+    main.o                    cbdos/main.asm(21)
+    fat32.o                   cbdos/fat32.asm(37)
+krn_ptr2 (zeropage.o):
+    util.o                    cbdos/util.asm(28)
+    fat32.o                   cbdos/fat32.asm(37)
+krn_ptr3 (zeropage.o):
+    main.o                    cbdos/main.asm(21)
+    util.o                    cbdos/util.asm(28)
+    fat32.o                   cbdos/fat32.asm(37)
+krn_tmp (main.o):
+    sdcard.o                  cbdos/sdcard.asm(57)
+    util.o                    cbdos/util.asm(39)
+    fat32.o                   cbdos/fat32.asm(77)
+krn_tmp2 (main.o):
+    util.o                    cbdos/util.asm(39)
+    fat32.o                   cbdos/fat32.asm(77)
+krn_tmp3 (main.o):
+    util.o                    cbdos/util.asm(39)
+    fat32.o                   cbdos/fat32.asm(77)
+kvswitch_tmp1 (kernal.o):
+    clock.o                   kernal/drivers/clock.s(42)
+    joystick.o                kernal/drivers/joystick.s(39)
+    ps2mouse.o                kernal/drivers/ps2mouse.s(36)
+    ps2kbd.o                  kernal/drivers/ps2kbd.s(44)
+kvswitch_tmp2 (kernal.o):
+    clock.o                   kernal/drivers/clock.s(42)
+    joystick.o                kernal/drivers/joystick.s(39)
+    ps2mouse.o                kernal/drivers/ps2mouse.s(36)
+    ps2kbd.o                  kernal/drivers/ps2kbd.s(44)
+la (channel.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+lba_addr (main.o):
+    sdcard.o                  cbdos/sdcard.asm(57)
+    fat32.o                   cbdos/fat32.asm(77)
+ldtb1 (editor.o):
+    monitor.o                 monitor/kernal_x16.i(5)
+leftMargin (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(89)
+    graph.o                   kernal/graph/graph.s(11)
+listn (ieee_switch.o):
+    channel.o                 kernal/channel/channel.s(27)
+    kernal.o                  kernal/kernal.s(60)
+lkupla (channel.o):
+    kernal.o                  kernal/kernal.s(34)
+lkupsa (channel.o):
+    kernal.o                  kernal/kernal.s(33)
+llen (editor.o):
+    screen.o                  kernal/drivers/screen.s(31)
+lnmx (editor.o):
+    channel.o                 kernal/channel/channel.s(43)
+loadsp (channel.o):
+    kernal.o                  kernal/kernal.s(27)
+loop4 (editor.o):
+    monitor.o                 monitor/kernal_x16.i(5)
+loop5 (editor.o):
+    channel.o                 kernal/channel/channel.s(44)
+lstp (editor.o):
+    channel.o                 kernal/channel/channel.s(45)
+lsxp (editor.o):
+    channel.o                 kernal/channel/channel.s(46)
+membot (kernal.o):
+    memory.o                  kernal/drivers/memory.s(13)
+memory_copy (memory.o):
+    kernal.o                  kernal/kernal.s(70)
+memory_crc (memory.o):
+    kernal.o                  kernal/kernal.s(71)
+memory_decompress (lzsa.o):
+    kernal.o                  kernal/kernal.s(72)
+memory_fill (memory.o):
+    kernal.o                  kernal/kernal.s(69)
+memtop (kernal.o):
+    memory.o                  kernal/drivers/memory.s(12)
+menuBottom (vars.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(22)
+    menu3.o                   geos/kernal/menu/menu3.s(20)
+    menu1.o                   geos/kernal/menu/menu1.s(28)
+menuLeft (vars.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(21)
+    menu3.o                   geos/kernal/menu/menu3.s(19)
+    menu1.o                   geos/kernal/menu/menu1.s(27)
+menuLimitTabH (vars.o):
+    menu3.o                   geos/kernal/menu/menu3.s(24)
+    menu1.o                   geos/kernal/menu/menu1.s(30)
+menuLimitTabL (vars.o):
+    menu3.o                   geos/kernal/menu/menu3.s(23)
+    menu1.o                   geos/kernal/menu/menu1.s(31)
+menuOptNumber (vars.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(17)
+    menu3.o                   geos/kernal/menu/menu3.s(25)
+    menu1.o                   geos/kernal/menu/menu1.s(32)
+    dlgbox1d.o                geos/kernal/dlgbox/dlgbox1d.s(19)
+menuOptionTab (vars.o):
+    menu3.o                   geos/kernal/menu/menu3.s(16)
+    menu1.o                   geos/kernal/menu/menu1.s(38)
+menuRight (vars.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(20)
+    menu3.o                   geos/kernal/menu/menu3.s(18)
+    menu1.o                   geos/kernal/menu/menu1.s(26)
+menuStackH (vars.o):
+    menu1.o                   geos/kernal/menu/menu1.s(36)
+menuStackL (vars.o):
+    menu1.o                   geos/kernal/menu/menu1.s(37)
+menuTop (vars.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(23)
+    menu3.o                   geos/kernal/menu/menu3.s(21)
+    menu1.o                   geos/kernal/menu/menu1.s(29)
+mhz (kernal.o):
+    ps2.o                     kernal/drivers/ps2.s(10)
+    editor.o                  kernal/editor.s(16)
+mjsrfar (kernsup_monitor.o):
+    monitor.o                 monitor/monitor.s(3767)
+mode (editor.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+    ps2kbd.o                  kernal/drivers/ps2kbd.s(13)
+monitor (monitor.o):
+    kernal.o                  kernal/vectors.s(1)
+mouse_config (ps2mouse.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(37)
+    kernal.o                  kernal/vectors.s(3)
+mouse_get (ps2mouse.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(37)
+    kernal.o                  kernal/vectors.s(3)
+mouse_scan (ps2mouse.o):
+    mouse2.o                  geos/kernal/mouse/mouse2.s(37)
+    kernal.o                  kernal/irqfile.s(4)
+nbasin (channel.o):
+    kernal.o                  kernal/kernal.s(43)
+nbsout (channel.o):
+    kernal.o                  kernal/kernal.s(42)
+nchkin (channel.o):
+    kernal.o                  kernal/kernal.s(46)
+nckout (channel.o):
+    kernal.o                  kernal/kernal.s(45)
+nclall (channel.o):
+    kernal.o                  kernal/kernal.s(39)
+nclose (channel.o):
+    kernal.o                  kernal/kernal.s(47)
+nclrch (channel.o):
+    kernal.o                  kernal/kernal.s(44)
+ngetin (channel.o):
+    kernal.o                  kernal/kernal.s(40)
+nlines (editor.o):
+    monitor.o                 monitor/kernal_x16.i(6)
+nlinesm1 (editor.o):
+    monitor.o                 monitor/kernal_x16.i(6)
+nload (channel.o):
+    kernal.o                  kernal/kernal.s(38)
+nopen (channel.o):
+    kernal.o                  kernal/kernal.s(48)
+nsave (channel.o):
+    kernal.o                  kernal/kernal.s(37)
+nstop (channel.o):
+    kernal.o                  kernal/kernal.s(41)
+opn232 (rs232.o):
+    channel.o                 kernal/channel/channel.s(21)
+panic (kernal.o):
+    editor.o                  kernal/editor.s(21)
+path_inverse (util.o):
+    fat32.o                   cbdos/fat32.asm(55)
+plot (editor.o):
+    kernal.o                  kernal/kernal.s(4)
+pnt (screen.o):
+    monitor.o                 monitor/kernal_x16.i(9)
+pntr (editor.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+    channel.o                 kernal/channel/channel.s(47)
+polypt (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+prt (editor.o):
+    channel.o                 kernal/channel/channel.s(48)
+ps2_init (ps2.o):
+    x16.o                     kernal/drivers/x16.s(14)
+ps2_receive_byte (ps2.o):
+    ps2mouse.o                kernal/drivers/ps2mouse.s(12)
+    ps2kbd.o                  kernal/drivers/ps2kbd.s(10)
+ptr_fg (kernal.o):
+    framebuffer.o             kernal/drivers/framebuffer.s(10)
+put_char (util.o):
+    fat32.o                   cbdos/fat32.asm(52)
+qtsw (editor.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+ramtas (memory.o):
+    kernal.o                  kernal/kernal.s(14)
+read_blkptr (zeropage.o):
+    main.o                    cbdos/main.asm(21)
+    sdcard.o                  cbdos/sdcard.asm(29)
+    fat32.o                   cbdos/fat32.asm(37)
+read_block (sdcard.o):
+    fat32.o                   cbdos/fat32.asm(47)
+readst (channel.o):
+    kernal.o                  kernal/kernal.s(30)
+resmo (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+restore_basic (memory.o):
+    kernal.o                  kernal/kernal.s(19)
+rightMargin (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(89)
+    graph.o                   kernal/graph/graph.s(11)
+rndx (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(9)
+rvs (editor.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+sa (channel.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+sah (channel.o):
+    screen.o                  kernal/drivers/screen.s(28)
+sal (channel.o):
+    screen.o                  kernal/drivers/screen.s(28)
+savesp (channel.o):
+    kernal.o                  kernal/kernal.s(26)
+scatn (serial.o):
+    channel.o                 kernal/channel/channel.s(28)
+scnsiz (editor.o):
+    screen.o                  kernal/drivers/screen.s(35)
+screen_clear_line (screen.o):
+    editor.o                  kernal/editor.s(60)
+screen_copy_line (screen.o):
+    editor.o                  kernal/editor.s(59)
+screen_get_char (screen.o):
+    monitor.o                 monitor/kernal_x16.i(5)
+    editor.o                  kernal/editor.s(54)
+screen_get_char_color (screen.o):
+    editor.o                  kernal/editor.s(57)
+screen_get_color (screen.o):
+    editor.o                  kernal/editor.s(52)
+screen_init (screen.o):
+    kernal.o                  kernal/irqfile.s(3)
+screen_restore_state (screen.o):
+    ps2mouse.o                kernal/drivers/ps2mouse.s(15)
+    editor.o                  kernal/editor.s(62)
+screen_save_state (screen.o):
+    ps2mouse.o                kernal/drivers/ps2mouse.s(14)
+    editor.o                  kernal/editor.s(61)
+screen_set_char (screen.o):
+    monitor.o                 monitor/kernal_x16.i(5)
+    editor.o                  kernal/editor.s(55)
+screen_set_char_color (screen.o):
+    editor.o                  kernal/editor.s(56)
+screen_set_charset (screen.o):
+    editor.o                  kernal/editor.s(51)
+    kernal.o                  kernal/kernal.s(11)
+screen_set_color (screen.o):
+    editor.o                  kernal/editor.s(53)
+screen_set_mode (screen.o):
+    start64.o                 geos/kernal/start/start64.s(80)
+    editor.o                  kernal/editor.s(50)
+    kernal.o                  kernal/kernal.s(10)
+screen_set_position (screen.o):
+    editor.o                  kernal/editor.s(58)
+scrorg (editor.o):
+    kernal.o                  kernal/kernal.s(5)
+sd_blktarget (main.o):
+    matcher.o                 cbdos/fat32.inc(25)
+    util.o                    cbdos/fat32.inc(25)
+    fat32.o                   cbdos/fat32.inc(25)
+sd_read_block_lower (sdcard.o):
+    main.o                    cbdos/main.asm(1109)
+sd_read_block_upper (sdcard.o):
+    main.o                    cbdos/main.asm(1109)
+sd_read_multiblock (sdcard.o):
+    fat32.o                   cbdos/fat32.asm(49)
+sd_tmp (main.o):
+    sdcard.o                  cbdos/sdcard.asm(57)
+sdcard_init (sdcard.o):
+    main.o                    cbdos/main.asm(3)
+secnd (ieee_switch.o):
+    channel.o                 kernal/channel/channel.s(29)
+    kernal.o                  kernal/kernal.s(66)
+serial_acptr (serial.o):
+    ieee_switch.o             kernal/ieee_switch.s(16)
+serial_ciout (serial.o):
+    ieee_switch.o             kernal/ieee_switch.s(17)
+serial_listn (serial.o):
+    ieee_switch.o             kernal/ieee_switch.s(20)
+serial_secnd (serial.o):
+    ieee_switch.o             kernal/ieee_switch.s(14)
+serial_talk (serial.o):
+    ieee_switch.o             kernal/ieee_switch.s(21)
+serial_tksa (serial.o):
+    ieee_switch.o             kernal/ieee_switch.s(15)
+serial_unlsn (serial.o):
+    ieee_switch.o             kernal/ieee_switch.s(19)
+serial_untlk (serial.o):
+    ieee_switch.o             kernal/ieee_switch.s(18)
+setlfs (channel.o):
+    kernal.o                  kernal/kernal.s(29)
+setmsg (channel.o):
+    kernal.o                  kernal/kernal.s(32)
+setnam (channel.o):
+    kernal.o                  kernal/kernal.s(28)
+settmo (channel.o):
+    kernal.o                  kernal/kernal.s(31)
+spi_deselect (spi_deselect.o):
+    sdcard.o                  cbdos/sdcard.asm(39)
+spi_r_byte (spi_rw_byte.o):
+    sdcard.o                  cbdos/sdcard.asm(39)
+spi_rw_byte (spi_rw_byte.o):
+    sdcard.o                  cbdos/sdcard.asm(39)
+sprite_set_image (sprites.o):
+    ps2mouse.o                kernal/drivers/ps2mouse.s(17)
+    kernal.o                  kernal/vectors.s(11)
+sprite_set_position (sprites.o):
+    ps2mouse.o                kernal/drivers/ps2mouse.s(17)
+    kernal.o                  kernal/vectors.s(11)
+stash (memory.o):
+    kernal.o                  kernal/kernal.s(16)
+status (channel.o):
+    main.o                    cbdos/main.asm(23)
+    monitor.o                 monitor/kernal_x16.i(10)
+    rs232.o                   kernal/drivers/rs232.s(11)
+    serial.o                  kernal/serial.s(5)
+    basic.o                   basic/x16additions.s(12)
+stavec (memory.o):
+    monitor.o                 monitor/kernal_x16.i(5)
+stringLen (vars.o):
+    conio4.o                  geos/kernal/conio/conio4.s(14)
+stringMargCtrl (vars.o):
+    conio4.o                  geos/kernal/conio/conio4.s(16)
+stringMaxLen (vars.o):
+    conio4.o                  geos/kernal/conio/conio4.s(15)
+string_fat_mask (util.o):
+    fat32.o                   cbdos/fat32.asm(53)
+string_fat_name (util.o):
+    fat32.o                   cbdos/fat32.asm(52)
+t1 (channel.o):
+    rs232.o                   kernal/drivers/rs232.s(11)
+talk (ieee_switch.o):
+    channel.o                 kernal/channel/channel.s(30)
+    kernal.o                  kernal/kernal.s(59)
+tansgn (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(9)
+tblx (editor.o):
+    monitor.o                 monitor/kernal_x16.i(10)
+    channel.o                 kernal/channel/channel.s(49)
+tempIRQAcc (vars.o):
+    irq.o                     geos/kernal/irq/irq.s(19)
+tempf1 (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+tempf2 (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+tempf3 (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+tenexp (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(3)
+tkatn (serial.o):
+    channel.o                 kernal/channel/channel.s(31)
+tksa (ieee_switch.o):
+    channel.o                 kernal/channel/channel.s(32)
+    kernal.o                  kernal/kernal.s(65)
+tmp2 (kernal.o):
+    screen.o                  kernal/drivers/screen.s(29)
+tmpKeyVector (vars.o):
+    conio4.o                  geos/kernal/conio/conio4.s(13)
+udst (channel.o):
+    serial.o                  kernal/serial.s(6)
+unlsn (ieee_switch.o):
+    channel.o                 kernal/channel/channel.s(33)
+    kernal.o                  kernal/kernal.s(61)
+untlk (ieee_switch.o):
+    channel.o                 kernal/channel/channel.s(34)
+    kernal.o                  kernal/kernal.s(62)
+verifyFlag (vars.o):
+    files1b.o                 geos/kernal/files/files1b.s(15)
+    files1a2b.o               geos/kernal/files/files1a2b.s(13)
+windowBottom (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(89)
+    graph.o                   kernal/graph/graph.s(11)
+windowTop (fonts.o):
+    conio3a.o                 geos/kernal/conio/conio3a.s(89)
+    graph.o                   kernal/graph/graph.s(11)
+write_blkptr (zeropage.o):
+    sdcard.o                  cbdos/sdcard.asm(29)
+    fat32.o                   cbdos/fat32.asm(37)
+write_block (sdcard.o):
+    fat32.o                   cbdos/fat32.asm(47)
+xmon1 (editor.o):
+    monitor.o                 monitor/kernal_x16.i(5)
+xmon2 (channel.o):
+    monitor.o                 monitor/kernal_x16.i(5)
+zero (fplib.o):
+    basic.o                   basic/../fplib/fplib.inc(13)
+
