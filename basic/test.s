@@ -34,8 +34,7 @@ test1:
 	bne :-
 	inc tmp+1
 	bra :-
-@end	;rts
-	jmp @1
+@end	jmp @1
 
 ATTR_UNDERLINE = $04
 ATTR_BOLD      = $06

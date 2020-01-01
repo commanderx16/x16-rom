@@ -6,8 +6,8 @@
 .import GRAPH_put_char
 .import GRAPH_move_rect
 .import GRAPH_draw_rect
-.import GRAPH_set_colors
 .import GRAPH_get_char_size
+.import col1, col2
 
 .export console_init
 .export console_print_char
@@ -91,10 +91,11 @@ SCROLL_AMOUNT=20
 	jsr GRAPH_move_rect
 	SubVW SCROLL_AMOUNT, py
 ; fill
+	PushB col1
+	PushB col2
 	lda #1
-	tax
-	tay
-	jsr GRAPH_set_colors
+	sta col1
+	sta col2
 	LoadW r0, 0
 	LoadW r1, 200-SCROLL_AMOUNT
 	LoadW r2, 320
@@ -102,10 +103,8 @@ SCROLL_AMOUNT=20
 	LoadW r4, 0
 	sec
 	jsr GRAPH_draw_rect
-	lda #0
-	tax
-	tay
-	jsr GRAPH_set_colors
+	PopB col2
+	PopB col1
 :
 
 	lda r7L
