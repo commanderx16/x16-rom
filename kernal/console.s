@@ -77,9 +77,7 @@ flush:
 	MoveW r0, px
 	MoveW r1, py
 
-:
-
-	CmpWI py, 200-9
+:	CmpWI py, 200-9
 	bcc :+
 
 ; scroll

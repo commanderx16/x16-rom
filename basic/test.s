@@ -19,7 +19,11 @@ test:
 @1:	LoadW r15, text
 :	lda (r15)
 	beq @end
+	tax
+	PushW r15
+	txa
 	jsr _console_print_char
+	PopW r15
 	inc r15L
 	bne :-
 	inc r15H

@@ -311,8 +311,6 @@ abs:
 ;            r2   x position of last pixel
 ;---------------------------------------------------------------
 HorizontalLine:
-	PushW r15
-
 	; make sure x2 > x1
 	lda r2L
 	sec
@@ -343,7 +341,6 @@ HorizontalLine:
 	jsr FB_fill_pixels
 	PopW r1
 	PopW r0
-	PopW r15
 	rts
 
 ;---------------------------------------------------------------
