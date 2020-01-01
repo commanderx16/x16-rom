@@ -14,19 +14,25 @@ _console_print_char:
 	.byte BANK_KERNAL
 	rts
 
+tmp = 0
+
 test:
+.if 0
+	beq @1
+	jsr getbyt
+	bne test1
+@1:	jmp test0
+.endif
+
+test1:
 	jsr _console_init
-@1:	LoadW r15, text
-:	lda (r15)
+@1:	LoadW tmp, text
+:	lda (tmp)
 	beq @end
-	tax
-	PushW r15
-	txa
 	jsr _console_print_char
-	PopW r15
-	inc r15L
+	inc tmp
 	bne :-
-	inc r15H
+	inc tmp+1
 	bra :-
 @end	;rts
 	jmp @1
@@ -37,32 +43,20 @@ ATTR_ITALICS   = $0B
 ATTR_OUTLINE   = $0C
 ATTR_RESET     = $92
 
+COLOR_BLACK    = $90
+COLOR_RED      = $1C
+COLOR_GREEN    = $1E
+COLOR_BLUE     = $1F
+
 text:
-;	.byte "Hello Welt",10,0
+	.byte ATTR_RESET,COLOR_BLACK,"Lorem ipsum ",ATTR_UNDERLINE,"dolor sit ",ATTR_RESET,ATTR_BOLD,"amet, consetetur ",ATTR_RESET,ATTR_ITALICS,"sadipscing elitr",ATTR_RESET,ATTR_OUTLINE,", sed diam"
+	.byte ATTR_RESET,COLOR_RED," nonumy eirmod",ATTR_UNDERLINE," tempor invidunt",ATTR_RESET,ATTR_BOLD," ut labore",ATTR_RESET,ATTR_ITALICS," et dolore",ATTR_RESET,ATTR_OUTLINE," magna aliquyam"
+	.byte ATTR_RESET,COLOR_GREEN," erat, sed",ATTR_UNDERLINE," diam voluptua",ATTR_RESET,ATTR_BOLD,". At vero",ATTR_RESET,ATTR_ITALICS," eos et",ATTR_RESET,ATTR_OUTLINE," accusam et"
+	.byte ATTR_RESET,COLOR_BLUE," justo duo",ATTR_UNDERLINE," dolores et",ATTR_RESET,ATTR_BOLD," ea rebum",ATTR_RESET,ATTR_ITALICS,". Stet clita",ATTR_RESET,ATTR_OUTLINE," kasd gubergren"
+	.byte ATTR_RESET,", no sea",ATTR_UNDERLINE," takimata sanctus",ATTR_RESET,ATTR_BOLD," est Lorem",ATTR_RESET,ATTR_ITALICS," ipsum dolor",ATTR_RESET,ATTR_OUTLINE," sit amet."
+	.byte 10,10,0
 
-	.byte 10,ATTR_BOLD,ATTR_OUTLINE,"Bee",ATTR_RESET,10
-
-	.byte ATTR_BOLD,"Bees",ATTR_RESET," are flying insects closely related to wasps and ants, known for their role in pollination and, in the case of the best-known bee species, the western honey bee, for producing honey and beeswax. Bees are a monophyletic lineage within the superfamily Apoidea and are presently considered a clade, called ",ATTR_BOLD,"Anthophila",ATTR_RESET,". There are over 16,000 known species of bees in seven recognized biological families.[1][2] They are found on every continent except Antarctica, in every habitat on the planet that contains insect-pollinated flowering plants.",10,10
-
-	.byte "Some species - including honey bees, bumblebees, and stingless bees - live socially in colonies. Bees are adapted for feeding on nectar and pollen, the former primarily as an energy source and the latter primarily for protein and other nutrients. Most pollen is used as food for larvae. Bee pollination is important both ecologically and commercially. The decline in wild bees has increased the value of pollination by commercially managed hives of honey bees.",10,10
-
-	.byte "Bees range in size from tiny stingless bee species whose workers are less than 2 millimetres (0.08 in) long, to Megachile pluto, the largest species of leafcutter bee, whose females can attain a length of 39 millimetres (1.54 in). The most common bees in the Northern Hemisphere are the Halictidae, or sweat bees, but they are small and often mistaken for wasps or flies. Vertebrate predators of bees include birds such as bee-eaters; insect predators include beewolves and dragonflies.",10,10
-
-	.byte "Human beekeeping or apiculture has been practised for millennia, since at least the times of Ancient Egypt and Ancient Greece. Apart from honey and pollination, honey bees produce beeswax, royal jelly and propolis. Bees have appeared in mythology and folklore, through all phases of art and literature, from ancient times to the present day, though primarily focused in the Northern Hemisphere, where beekeeping is far more common.",10,10
-
-	.byte "The analysis of 353 wild bee and hoverfly species across Britain from 1980 to 2010 found the insects have been lost from a quarter of the places they inhabited in 1980.[3]",10,10
-
-	.byte ATTR_BOLD,ATTR_UNDERLINE,"Evolution",ATTR_RESET,10
-
-	.byte "The ancestors of bees were wasps in the family Crabronidae, which were predators of other insects. The switch from insect prey to pollen may have resulted from the consumption of prey insects which were flower visitors and were partially covered with pollen when they were fed to the wasp larvae. This same evolutionary scenario may have occurred within the vespoid wasps, where the pollen wasps evolved from predatory ancestors. Until recently, the oldest non-compression bee fossil had been found in New Jersey amber, ",ATTR_ITALICS,"Cretotrigona prisca",ATTR_RESET," of Cretaceous age, a corbiculate bee.[4] A bee fossil from the early Cretaceous (~100 mya), ",ATTR_ITALICS,"Melittosphex burmensis",ATTR_RESET,", is considered ",ATTR_ITALICS,"an extinct lineage of pollen-collecting Apoidea sister to the modern bees",ATTR_RESET,".[5] Derived features of its morphology (apomorphies) place it clearly within the bees, but it retains two unmodified ancestral traits (plesiomorphies) of the legs (two mid-tibial spurs, and a slender hind basitarsus), showing its transitional status.[5] By the Eocene (~45 mya) there was already considerable diversity among eusocial bee lineages.[6][a]",10,10
-
-;		.byte "The highly eusocial corbiculate Apidae appeared roughly 87 Mya, and the Allodapini (within the Apidae) around 53 Mya.[9] The Colletidae appear as fossils only from the late Oligocene (~25 Mya) to early Miocene.[10] The Melittidae are known from ",ATTR_ITALICS,"Palaeomacropis eocenicus",ATTR_RESET," in the Early Eocene.[11] The Megachilidae are known from trace fossils (characteristic leaf cuttings) from the Middle Eocene.[12] The Andrenidae are known from the Eocene-Oligocene boundary, around 34 Mya, of the Florissant shale.[10] The Halictidae first appear in the Early Eocene[14] with species[15][16] found in amber. The Stenotritidae are known from fossil brood cells of Pleistocene age.[17]",10,10
-
-
-	.byte 0
-
-.if 0
-test:
+test0:
 	lda #$80
 	sec
 	jsr screen_set_mode
@@ -678,4 +672,3 @@ str_OK:
 str_BAD:
 	.byte "BAD", 0
 
-.endif
