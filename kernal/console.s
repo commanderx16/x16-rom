@@ -16,6 +16,7 @@
 
 px:	.res 2
 py:	.res 2
+style:	.res 1
 
 .segment "CONSOLE"
 
@@ -25,6 +26,8 @@ console_init:
 	lda #$05
 	sta r6H
 	stz r7L
+	
+	stz style
 
 	lda #$80
 	jsr screen_set_mode
@@ -51,13 +54,16 @@ flush:
 	ldy #0
 :	lda (r6),y
 	phy
-	ldx #0
-	jsr GRAPH_get_char_size
+	ldx style
+@aaaa1:	jsr GRAPH_get_char_size
 	ply
-	stx r2L
+	bcc @1    ; control character?
+@aaaa2:	stx style ; yes: update style
+	bra @2    ;      and don't add any width
+@1:	stx r2L
 	stz r2H
 	AddW r2, r3 ; add width to x pos
-	iny
+@2:	iny
 	cpy r7L
 	bne :-
 	
