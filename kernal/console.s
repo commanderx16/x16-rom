@@ -189,21 +189,24 @@ console_get_char:
 
 @input_line:
 
-; create sprite
-	; get height + baseline
+; get height + baseline
 	ldx #0
 	lda #' '
 	jsr GRAPH_get_char_size
 	sta baseline
-	tya     ; height
-	inc ; XXX
-	asl
-	sta r0L ; height * 2
 
+; create sprite
+	tya     ; character height
+	inc     ; cursor is 1 pixel higher
+	asl
+	sta r0L ; cursor height * 2
+
+	; color map
 	ldx #32
 :	stz inbuf,x     ; 0: black, 1: white
 	dex
 	bpl :-
+	; transparency map
 	ldx #0
 	lda #%10000000; 0: transparent, 1: opaque
 :	sta inbuf+32,x
@@ -212,19 +215,17 @@ console_get_char:
 	inx
 	cpx r0L
 	bne :-
-@l:	cpx #32
-	bcs :+
+@l1:	cpx #32
+	bcs @s2
 	stz inbuf+32,x
 	inx
-	bra @l
-	
-:
-	LoadW r0, inbuf
+	bra @l1
+@s2:	LoadW r0, inbuf
 	LoadW r1, inbuf+32
 	LoadB r2L, 1 ; 1 bpp
 	ldx #16      ; width
 	ldy #16      ; height
-	lda #1       ; sprite 0
+	lda #1       ; sprite 1
 	sec          ; apply mask
 	jsr sprite_set_image
 
@@ -232,6 +233,7 @@ console_get_char:
 	MoveW px, r0
 	MoveW py, r1
 
+; position cursor
 	PushW r0
 	PushW r1
 	IncW r0
@@ -247,14 +249,16 @@ console_get_char:
 	PopW r1
 	PopW r0
 
+; N.B.: We're accepting both PETSCII control codes (CR, DEL)
+;       and ASCII control codes (LF, BS), so this would work
+;       with both kinds of input drivers.
 @again:	jsr kbd_get
 	beq @again
 	cmp #8   ; ASCII BACKSPACE
-	beq @backspace2
+	beq @b2
 	cmp #$14 ; PETSCII DELETE
 	bne :+
-@backspace2:
-	jmp @backspace
+@b2:	jmp @backspace
 :	cmp #13
 	beq @input_end
 	cmp #$20
@@ -298,16 +302,14 @@ console_get_char:
 @end:	KVARS_END
 	rts
 
+; Tipp-Ex
 @backspace:
 	ldx inbufidx
 	bne :+
 	jmp @again ; empty buffer
-
-:	PushW r0
+:
+	PushW r0
 	PushW r1
-
-; Tipp-Ex:
-; rect(x - width, y, width, height)
 
 	; kill character
 	dex
