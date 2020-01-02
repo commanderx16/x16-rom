@@ -138,6 +138,49 @@ flush:
 	MoveW r1, py
 
 @no_x_overflow:
+	jsr scroll_maybe
+
+	lda r7L
+	beq @l1
+
+	MoveW px, r0
+	MoveW py, r1
+
+	ldy #0
+:	lda (r6),y
+	phy
+	jsr GRAPH_put_char
+	ply
+	iny
+	cpy r7L
+	bne :-
+
+	stz r7L
+
+@l1:	pla
+	pha
+	jsr GRAPH_put_char
+	bcc :+ ; did fit, skip
+
+; character wrapping
+	lda #13
+	jsr GRAPH_put_char
+	MoveW r0, px
+	MoveW r1, py
+	jsr scroll_maybe
+
+	pla
+	jsr GRAPH_put_char
+	jmp @l2
+
+:	pla
+@l2:	MoveW r0, px
+	MoveW r1, py
+
+	KVARS_END
+	rts
+
+scroll_maybe:
 	CmpWI py, 200-9
 	bcc :+
 
@@ -166,43 +209,7 @@ SCROLL_AMOUNT=20
 	jsr GRAPH_draw_rect
 	PopB col2
 	PopB col1
-
-:
-	lda r7L
-	beq @l1
-
-	MoveW px, r0
-	MoveW py, r1
-
-	ldy #0
-:	lda (r6),y
-	phy
-	jsr GRAPH_put_char
-	ply
-	iny
-	cpy r7L
-	bne :-
-
-	stz r7L
-
-@l1:	pla
-	pha
-	jsr GRAPH_put_char
-	bcc :+
-; character wrapping
-
-	lda #13
-	jsr GRAPH_put_char ; XXX scrolling
-	pla
-	jsr GRAPH_put_char
-	jmp @xxx
-
-:	pla
-@xxx:	MoveW r0, px
-	MoveW r1, py
-
-	KVARS_END
-	rts
+:	rts
 
 ;---------------------------------------------------------------
 ; console_get_char

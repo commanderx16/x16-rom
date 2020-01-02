@@ -27,16 +27,16 @@ testxx:
 @1:	LoadW tmp, text
 :	lda (tmp)
 	beq @end
-	clc;sec
+	sec
 	jsr console_put_char
 	inc tmp
 	bne :-
 	inc tmp+1
 	bra :-
-@end	;jmp @1
+@end	jmp @1
 
 	lda #$92 ; attribute reset
-	sec
+	clc
 	jsr console_put_char
 
 :	jsr console_get_char
