@@ -235,18 +235,35 @@ console_get_char:
 	ldx inbufptr
 	cpx #bufsize
 	beq :+
-	pha
+	cmp #13
+	beq @input_end
+	cmp #$20
+	bcc :+
+	cmp #$80
+	bcc @ok
+	cmp #$a0
+	bcc :+
+@ok:	pha
 	jsr GRAPH_put_char
 	MoveW r0, px
 	MoveW r1, py
 	pla
 	bcs :+ ; out of bounds, didn't print
+	ldx inbufptr
 	sta inbuf,x
 	inc inbufptr
-:	cmp #13
-	bne @input_loop
+	jmp @input_loop
 
+@input_end:
+	ldx inbufptr
+	sta inbuf,x
+	inx
+	stz inbuf,x
 	stz inbufptr
+
+	lda #13
+	sec
+	jsr console_put_char
 
 @return_char:
 	ldx inbufptr

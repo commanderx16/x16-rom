@@ -25,6 +25,8 @@ testxx:
 @end	;jmp @1
 
 :	jsr console_get_char
+	sec
+	jsr console_put_char
 	jmp :-
 
 ATTR_UNDERLINE = $04
