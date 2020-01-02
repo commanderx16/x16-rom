@@ -142,22 +142,14 @@ SCROLL_AMOUNT=20
 	jsr GRAPH_move_rect
 	SubVW SCROLL_AMOUNT, py
 ; fill
-	PushB col1
-	PushB col2
-	lda #1
-	sta col1
-	sta col2
 	LoadW r0, 0
 	LoadW r1, 200-SCROLL_AMOUNT
 	LoadW r2, 320
 	LoadW r3, SCROLL_AMOUNT
 	LoadW r4, 0
-	sec
-	jsr GRAPH_draw_rect
-	PopB col2
-	PopB col1
-:
+	jsr white_rect
 
+:
 	lda r7L
 	beq @l1
 
@@ -250,6 +242,9 @@ console_get_char:
 	sec
 	sbc baseline
 	sta r1L
+	lda r1H
+	sbc #0
+	sta r1H
 	lda #1
 	jsr sprite_set_position
 	PopW r1
@@ -257,7 +252,13 @@ console_get_char:
 
 @again:	jsr kbd_get
 	beq @again
-	cmp #13
+	cmp #8   ; ASCII BACKSPACE
+	beq @backspace2
+	cmp #$14 ; PETSCII DELETE
+	bne :+
+@backspace2:
+	jmp @backspace
+:	cmp #13
 	beq @input_end
 	cmp #$20
 	bcc @again
@@ -298,4 +299,72 @@ console_get_char:
 :	inc inbufidx
 
 @end:	KVARS_END
+	rts
+
+@backspace:
+	ldx inbufidx
+	bne :+
+	jmp @again ; empty buffer
+
+:	PushW r0
+	PushW r1
+
+; Tipp-Ex:
+; rect(x - width, y, width, height)
+
+	dex
+	stx inbufidx
+	
+	lda inbuf,x
+
+	; r2 = width
+	ldx #0
+	jsr GRAPH_get_char_size
+	stx r2L
+	stz r2H
+
+	; r3 = height
+	LoadW r3, 9 ; XXX height
+
+	; r0 = r0 - width
+	lda r0L
+	sec
+	sbc r2L
+	sta r0L
+	lda r0H
+	sbc #0
+	sta r0H
+	
+	; r1 = r1 - baseline
+	lda r1L
+	sec
+	sbc baseline
+	sta r1L
+	lda r1H
+	sbc #0
+	sta r1H
+
+	jsr white_rect
+
+	PopW r1
+	PopW r0
+	
+	; r0 = r0 - width
+	SubW r2, r0
+	
+	MoveW r0, px
+	MoveW r1, py
+
+	jmp @input_loop
+
+white_rect:
+	PushB col1
+	PushB col2
+	lda #1
+	sta col1
+	sta col2
+	sec
+	jsr GRAPH_draw_rect
+	PopB col2
+	PopB col1
 	rts
