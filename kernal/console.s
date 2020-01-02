@@ -1,6 +1,8 @@
 
 .include "../regs.inc"
 .include "../mac.inc"
+.include "../io.inc"
+.include "../banks.inc"
 
 .import screen_set_mode
 .import GRAPH_put_char
@@ -17,18 +19,22 @@ bsout = $ffd2
 
 .export console_init, console_put_char, console_get_char
 
-.segment "KVAR"
+.segment "KVARSB0"
+
+bufsize  = 80
+
+outbuf:	.res 80
+inbuf:	.res bufsize+1 ; (+ trailing CR)
+
+inbufidx:
+	.res 1
+style:
+	.res 1
+baseline:
+	.res 1
 
 px:	.res 2
 py:	.res 2
-style:	.res 1
-inbufptr:
-	.res 1
-
-outbuf   = $0500
-baseline = $0600
-inbuf    = $0700
-bufsize  = 255
 
 .segment "CONSOLE"
 
@@ -37,6 +43,8 @@ bufsize  = 255
 ;
 ;---------------------------------------------------------------
 console_init:
+	KVARS_START
+
 	lda #$0f ; ISO mode
 	jsr bsout
 
@@ -49,11 +57,17 @@ console_init:
 	stz style
 	stz inbuf
 	stz inbuf
-	stz inbufptr
+	stz inbufidx
 
 	lda #$80
 	jsr screen_set_mode
 	lda #147
+	sec
+	jsr console_put_char
+
+	KVARS_END
+	rts
+
 ; fallthrough
 
 ;---------------------------------------------------------------
@@ -63,6 +77,8 @@ console_init:
 ;            c   1: force flush
 ;---------------------------------------------------------------
 console_put_char:
+	KVARS_START
+
 	bcs flush
 	cmp #' '
 	beq flush
@@ -72,6 +88,8 @@ console_put_char:
 	ldy r7L
 	sta (r6),y
 	inc r7L
+
+	KVARS_END
 	rts
 	
 flush:
@@ -156,6 +174,8 @@ SCROLL_AMOUNT=20
 	jsr GRAPH_put_char
 	MoveW r0, px
 	MoveW r1, py
+
+	KVARS_END
 	rts
 
 ;---------------------------------------------------------------
@@ -164,6 +184,8 @@ SCROLL_AMOUNT=20
 ; Return:    a   ASCII character
 ;---------------------------------------------------------------
 console_get_char:
+	KVARS_START
+
 	lda inbuf
 	beq @input_line
 	jmp @return_char
@@ -220,53 +242,53 @@ console_get_char:
 	PushW r0
 	PushW r1
 	IncW r0
-	SubW baseline, r1 ; XXX baseline
+	SubW baseline, r1 
 	lda #1
 	jsr sprite_set_position
 	PopW r1
 	PopW r0
 
-:	jsr kbd_get
-	beq :-
-	ldx inbufptr
-	cpx #bufsize
-	beq :+
+@again:	jsr kbd_get
+	beq @again
 	cmp #13
 	beq @input_end
 	cmp #$20
-	bcc :+
+	bcc @again
 	cmp #$80
 	bcc @ok
 	cmp #$a0
-	bcc :+
-@ok:	pha
+	bcc @again
+@ok:	ldx inbufidx
+	cpx #bufsize
+	beq @again
+	pha
 	jsr GRAPH_put_char
 	MoveW r0, px
 	MoveW r1, py
 	pla
-	bcs :+ ; out of bounds, didn't print
-	ldx inbufptr
+	bcs @again ; out of bounds, didn't print
+	ldx inbufidx
 	sta inbuf,x
-	inc inbufptr
+	inc inbufidx
 	jmp @input_loop
 
 @input_end:
-	ldx inbufptr
-	sta inbuf,x
-	inx
-	stz inbuf,x
-	stz inbufptr
+	ldx inbufidx
+	sta inbuf,x ; store CR
+	stz inbufidx
 
-	lda #13
 	sec
-	jsr console_put_char
+	jsr console_put_char ; print CR
 
 @return_char:
-	ldx inbufptr
+	ldx inbufidx
 	lda inbuf,x
+	cmp #13
 	bne :+
-	stz inbufptr
+	stz inbufidx
 	stz inbuf
-	jmp @input_line
-:	inc inbufptr
+	bra @end
+:	inc inbufidx
+
+@end:	KVARS_END
 	rts
