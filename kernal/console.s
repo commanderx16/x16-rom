@@ -9,8 +9,7 @@
 .import GRAPH_get_char_size
 .import col1, col2
 
-.import kbd_get, buf
-.importzp bufsize
+.import kbd_get
 
 .import sprite_set_image, sprite_set_position
 
@@ -23,10 +22,13 @@ bsout = $ffd2
 px:	.res 2
 py:	.res 2
 style:	.res 1
-bufptr:	.res 1
+inbufptr:
+	.res 1
 
 outbuf   = $0500
 baseline = $0600
+inbuf    = $0700
+bufsize  = 255
 
 .segment "CONSOLE"
 
@@ -45,8 +47,9 @@ console_init:
 	stz r7L
 	
 	stz style
-	stz buf
-	stz bufptr
+	stz inbuf
+	stz inbuf
+	stz inbufptr
 
 	lda #$80
 	jsr screen_set_mode
@@ -162,7 +165,7 @@ SCROLL_AMOUNT=20
 ; Return:    a   ASCII character
 ;---------------------------------------------------------------
 console_get_char:
-	lda buf
+	lda inbuf
 	beq @input_line
 	jmp @return_char
 
@@ -184,27 +187,27 @@ console_get_char:
 	sta r0L ; height * 2
 
 	ldx #32
-:	stz buf,x     ; 0: black, 1: white
+:	stz inbuf,x     ; 0: black, 1: white
 	dex
 	bpl :-
 	ldx #0
 	lda #%10000000; 0: transparent, 1: opaque
-:	sta buf+32,x
+:	sta inbuf+32,x
 	inx
-	stz buf+32,x
+	stz inbuf+32,x
 	inx
 	cpx r0L
 	bne :-
 @l:	cpx #32
 	bcs :+
-	stz buf+32,x
+	stz inbuf+32,x
 	inx
 	bra @l
 	
 :
 
-	LoadW r0, buf
-	LoadW r1, buf+32
+	LoadW r0, inbuf
+	LoadW r1, inbuf+32
 	LoadB r2L, 1 ; 1 bpp
 	ldx #16      ; width
 	ldy #16      ; height
@@ -231,11 +234,11 @@ console_get_char:
 
 :	jsr kbd_get
 	beq :-
-	ldx bufptr
+	ldx inbufptr
 	cpx #bufsize
 	beq :+
-	sta buf,x
-	inc bufptr
+	sta inbuf,x
+	inc inbufptr
 	pha
 	sec
 	jsr console_put_char
@@ -243,14 +246,14 @@ console_get_char:
 :	cmp #13
 	bne @input_loop
 
-	stz bufptr
+	stz inbufptr
 
 @return_char:
-	ldx bufptr
-	lda buf,x
+	ldx inbufptr
+	lda inbuf,x
 	bne :+
-	stz bufptr
-	stz buf
+	stz inbufptr
+	stz inbuf
 	jmp @input_line
-:	inc bufptr
+:	inc inbufptr
 	rts
