@@ -203,7 +203,6 @@ console_get_char:
 	inc ; XXX
 ;	inc ; XXX
 	sta baseline
-	stz baseline+1
 	tya     ; height
 	asl
 	inc ; XXX
@@ -245,7 +244,10 @@ console_get_char:
 	PushW r0
 	PushW r1
 	IncW r0
-	SubW baseline, r1
+	lda r1L
+	sec
+	sbc baseline
+	sta r1L
 	lda #1
 	jsr sprite_set_position
 	PopW r1
