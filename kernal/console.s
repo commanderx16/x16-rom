@@ -74,7 +74,6 @@ console_put_char:
 	inc r7L
 	rts
 	
-	
 flush:
 	pha
 
@@ -205,7 +204,6 @@ console_get_char:
 	bra @l
 	
 :
-
 	LoadW r0, inbuf
 	LoadW r1, inbuf+32
 	LoadB r2L, 1 ; 1 bpp
@@ -237,12 +235,14 @@ console_get_char:
 	ldx inbufptr
 	cpx #bufsize
 	beq :+
+	pha
+	jsr GRAPH_put_char
+	MoveW r0, px
+	MoveW r1, py
+	pla
+	bcs :+ ; out of bounds, didn't print
 	sta inbuf,x
 	inc inbufptr
-	pha
-	sec
-	jsr console_put_char
-	pla
 :	cmp #13
 	bne @input_loop
 
