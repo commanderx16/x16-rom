@@ -1,4 +1,4 @@
-.export buf; [monitor]
+.export buf, bufsize; [monitor, console]
 .export tmp2; [cpychr]
 .export ckbtab; [ps2kbd]
 .export imparm; [jsrfar]
@@ -20,7 +20,8 @@ ptr_fg	.res 2
 
 ;                      C64 location
 ;                         VVV
-buf	.res 2*40+1      ;    basic/monitor buffer
+bufsize	=2*40+1
+buf	.res bufsize     ;    basic/monitor buffer
 .assert buf = $0200, error, "buf has to be at $0200"
 
 ; Memory

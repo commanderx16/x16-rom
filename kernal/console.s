@@ -10,8 +10,11 @@
 .import col1, col2
 
 .import kbd_get, buf
+.importzp bufsize
 
 .import sprite_set_image, sprite_set_position
+
+bsout = $ffd2
 
 .export console_init, console_put_char, console_get_char
 
@@ -32,6 +35,9 @@ baseline = $0600
 ;
 ;---------------------------------------------------------------
 console_init:
+	lda #$0f ; ISO mode
+	jsr bsout
+
 	lda #<outbuf
 	sta r6L
 	lda #>outbuf
@@ -226,17 +232,19 @@ console_get_char:
 :	jsr kbd_get
 	beq :-
 	ldx bufptr
+	cpx #bufsize
+	beq :+
 	sta buf,x
 	inc bufptr
 	pha
 	sec
 	jsr console_put_char
 	pla
-	cmp #13
+:	cmp #13
 	bne @input_loop
 
 	stz bufptr
-	
+
 @return_char:
 	ldx bufptr
 	lda buf,x
@@ -244,4 +252,5 @@ console_get_char:
 	stz bufptr
 	stz buf
 	jmp @input_line
-:	rts
+:	inc bufptr
+	rts
