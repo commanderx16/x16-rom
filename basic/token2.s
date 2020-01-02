@@ -58,7 +58,6 @@ gotk	=$cb
 
 ;**************************************
 reslst2	.byt "MO", 'N' + $80
-	.byt "CL", 'S' + $80
 	.byt "DO", 'S' + $80
 	.byt "OL", 'D' + $80
 	.byt "GEO", 'S' + $80
@@ -74,6 +73,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "COLO", 'R' + $80
 	.byt "TES", 'T' + $80
 	.byt "RESE", 'T' + $80
+	.byt "CL", 'S' + $80
 	.byt "VPEE", 'K' + $80
 	.byt "M", 'X' + $80
 	.byt "M", 'Y' + $80
