@@ -96,6 +96,8 @@ flush:
 	pha
 
 ; measure word
+	lda r7L
+	beq @no_x_overflow
 	MoveW px, r3 ; start with x pos
 	ldy #0
 :	lda (r6),y
@@ -114,7 +116,7 @@ flush:
 	bne :-
 	
 	CmpWI r3, 320
-	bcc :+
+	bcc @no_x_overflow
 
 	MoveW px, r0
 	MoveW py, r1
@@ -123,7 +125,8 @@ flush:
 	MoveW r0, px
 	MoveW r1, py
 
-:	CmpWI py, 200-9
+@no_x_overflow:
+	CmpWI py, 200-9
 	bcc :+
 
 ; scroll
@@ -242,7 +245,7 @@ console_get_char:
 	PushW r0
 	PushW r1
 	IncW r0
-	SubW baseline, r1 
+	SubW baseline, r1
 	lda #1
 	jsr sprite_set_position
 	PopW r1
