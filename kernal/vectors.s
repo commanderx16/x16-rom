@@ -15,6 +15,18 @@
 ; for now, these are private API, they have not been
 ; finalized
 
+	.byte 0,0,0            ; $FEC0
+	.byte 0,0,0            ; $FEC3
+	.byte 0,0,0            ; $FEC6
+	.byte 0,0,0            ; $FEC9
+	.byte 0,0,0            ; $FECC
+	.byte 0,0,0            ; $FECF
+	.byte 0,0,0            ; $FED2
+	.byte 0,0,0            ; $FED5
+	.byte 0,0,0            ; $FED8
+	.byte 0,0,0            ; $FEDB
+	.byte 0,0,0            ; $FEDE
+
 	.byte 0,0,0            ; $FEE1
 	jmp memory_fill        ; $FEE4
 	jmp memory_copy        ; $FEE7
