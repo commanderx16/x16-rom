@@ -301,8 +301,7 @@ reset_copy:
 
 cls:
 	lda #$93
-	jsr $ffd2
-	rts
+	jmp outch
 
 ; BASIC's entry into jsrfar
 .setcpu "65c02"

@@ -85,7 +85,6 @@ q=128-1
 ;**************************************
 stmdsp2	; statements
 	.word monitor-1
-	.word cls-1
 	.word dos-1
 	.word old-1
 	.word geos-1
@@ -101,6 +100,7 @@ stmdsp2	; statements
 	.word color-1
 	.word test-1
 	.word reset-1
+	.word cls-1
 	; functions
 	.word vpeek
 	.word mx
