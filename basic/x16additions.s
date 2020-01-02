@@ -299,6 +299,11 @@ reset_copy:
 	stz d1prb 
 	jmp ($fffc)
 
+cls:
+	lda #$93
+	jsr $ffd2
+	rts
+
 ; BASIC's entry into jsrfar
 .setcpu "65c02"
 via1	=$9f60                  ;VIA 6522 #1

@@ -58,6 +58,7 @@ gotk	=$cb
 
 ;**************************************
 reslst2	.byt "MO", 'N' + $80
+	.byt "CL", 'S' + $80
 	.byt "DO", 'S' + $80
 	.byt "OL", 'D' + $80
 	.byt "GEO", 'S' + $80
@@ -79,7 +80,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "M", 'B' + $80
 	.byt "JO", 'Y' + $80
 	.byt 0
-num_esc_statements = 16
+num_esc_statements = 17
 num_esc_functions = 5
 ;**************************************
 
