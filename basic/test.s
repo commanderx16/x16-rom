@@ -1,4 +1,15 @@
 
+ATTR_UNDERLINE = $04
+ATTR_BOLD      = $06
+ATTR_ITALICS   = $0B
+ATTR_OUTLINE   = $0C
+ATTR_RESET     = $92
+
+COLOR_BLACK    = $90
+COLOR_RED      = $1C
+COLOR_GREEN    = $1E
+COLOR_BLUE     = $1F
+
 tmp = 0
 
 test:
@@ -24,21 +35,14 @@ testxx:
 	bra :-
 @end	;jmp @1
 
+	lda #$92 ; attribute reset
+	sec
+	jsr console_put_char
+
 :	jsr console_get_char
 	sec
 	jsr console_put_char
 	jmp :-
-
-ATTR_UNDERLINE = $04
-ATTR_BOLD      = $06
-ATTR_ITALICS   = $0B
-ATTR_OUTLINE   = $0C
-ATTR_RESET     = $92
-
-COLOR_BLACK    = $90
-COLOR_RED      = $1C
-COLOR_GREEN    = $1E
-COLOR_BLUE     = $1F
 
 text:
 	.byte ATTR_RESET,COLOR_BLACK,"Lorem ipsum ",ATTR_UNDERLINE,"dolor sit ",ATTR_RESET,ATTR_BOLD,"amet, consetetur ",ATTR_RESET,ATTR_ITALICS,"sadipscing elitr",ATTR_RESET,ATTR_OUTLINE,", sed diam"

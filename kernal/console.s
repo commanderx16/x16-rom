@@ -213,10 +213,6 @@ console_get_char:
 	sec          ; apply mask
 	jsr sprite_set_image
 
-
-	lda #$92 ; attribute reset
-	jsr console_put_char
-
 @input_loop:
 	MoveW px, r0
 	MoveW py, r1
