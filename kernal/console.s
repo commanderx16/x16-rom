@@ -194,13 +194,10 @@ console_get_char:
 	ldx #0
 	lda #' '
 	jsr GRAPH_get_char_size
-	inc ; XXX
-;	inc ; XXX
 	sta baseline
 	tya     ; height
+	inc ; XXX
 	asl
-	inc ; XXX
-	inc ; XXX
 	sta r0L ; height * 2
 
 	ldx #32
@@ -312,9 +309,11 @@ console_get_char:
 ; Tipp-Ex:
 ; rect(x - width, y, width, height)
 
+	; kill character
 	dex
 	stx inbufidx
 	
+	; character to delete
 	lda inbuf,x
 
 	; r2 = width
@@ -324,7 +323,8 @@ console_get_char:
 	stz r2H
 
 	; r3 = height
-	LoadW r3, 9 ; XXX height
+	sty r3L
+	stz r3H
 
 	; r0 = r0 - width
 	lda r0L
