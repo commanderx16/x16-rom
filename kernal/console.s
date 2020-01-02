@@ -11,6 +11,8 @@
 
 .import kbd_get, buf
 
+.import sprite_set_image, sprite_set_position
+
 .export console_init, console_put_char, console_get_char
 
 .segment "KVAR"
@@ -155,10 +157,23 @@ console_get_char:
 	bne @return_char
 
 @input_line:
+	LoadW r0, cursor_sprite_col
+	LoadW r1, cursor_sprite_mask
+	LoadB r2L, 1 ; 1 bpp
+	ldx #16      ; width
+	ldy #16      ; height
+	lda #1       ; sprite 0
+	sec          ; apply mask
+	jsr sprite_set_image
+
 	MoveW px, r0
 	MoveW py, r1
 
-:	jsr kbd_get
+:
+	lda #1
+	jsr sprite_set_position
+
+	jsr kbd_get
 	ldx bufptr
 	sta buf,x
 	inc bufptr
@@ -181,3 +196,40 @@ console_get_char:
 	stz buf
 	bra @input_line
 :	rts
+
+
+cursor_sprite_col: ; 0: black, 1: white
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+.byte %00000000,%00000000
+cursor_sprite_mask: ; 0: transparent, 1: opaque
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+.byte %10000000,%00000000
+
