@@ -84,7 +84,9 @@ console_put_char:
 	beq flush
 	cmp #10
 	beq flush
-	
+	cmp #13
+	beq flush
+
 	ldy r7L
 	sta (r6),y
 	inc r7L
@@ -120,7 +122,7 @@ flush:
 
 	MoveW px, r0
 	MoveW py, r1
-	lda #10
+	lda #13
 	jsr GRAPH_put_char
 	MoveW r0, px
 	MoveW r1, py
