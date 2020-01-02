@@ -9,6 +9,8 @@
 .import GRAPH_get_char_size
 .import col1, col2
 
+.import kbd_get, buf
+
 .export console_init, console_put_char, console_get_char
 
 .segment "KVAR"
@@ -16,9 +18,14 @@
 px:	.res 2
 py:	.res 2
 style:	.res 1
+bufptr:	.res 1
 
 .segment "CONSOLE"
 
+;---------------------------------------------------------------
+; console_init
+;
+;---------------------------------------------------------------
 console_init:
 	lda #$00
 	sta r6L
@@ -27,13 +34,22 @@ console_init:
 	stz r7L
 	
 	stz style
+	stz buf
+	stz bufptr
 
 	lda #$80
 	jsr screen_set_mode
 	lda #147
 ; fallthrough
 
+;---------------------------------------------------------------
+; console_put_char
+;
+; Pass:      a   ASCII character
+;            c   1: force flush
+;---------------------------------------------------------------
 console_put_char:
+	bcs flush
 	cmp #' '
 	beq flush
 	cmp #10
@@ -129,5 +145,39 @@ SCROLL_AMOUNT=20
 	MoveW r1, py
 	rts
 
+;---------------------------------------------------------------
+; console_get_char
+;
+; Return:    a   ASCII character
+;---------------------------------------------------------------
 console_get_char:
-	brk
+	lda buf
+	bne @return_char
+
+@input_line:
+	MoveW px, r0
+	MoveW py, r1
+
+:	jsr kbd_get
+	ldx bufptr
+	sta buf,x
+	inc bufptr
+	pha
+	sec
+	jsr console_put_char
+	pla
+	cmp #13
+	bne :-
+
+	stz bufptr
+	MoveW r0, px
+	MoveW r1, py
+	
+@return_char:
+	ldx bufptr
+	lda buf,x
+	bne :+
+	stz bufptr
+	stz buf
+	bra @input_line
+:	rts

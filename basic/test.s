@@ -16,12 +16,16 @@ testxx:
 @1:	LoadW tmp, text
 :	lda (tmp)
 	beq @end
+	clc
 	jsr console_put_char
 	inc tmp
 	bne :-
 	inc tmp+1
 	bra :-
-@end	jmp @1
+@end	;jmp @1
+
+:	jsr console_get_char
+	jmp :-
 
 ATTR_UNDERLINE = $04
 ATTR_BOLD      = $06

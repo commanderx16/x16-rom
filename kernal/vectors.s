@@ -13,9 +13,11 @@
 .import console_init, console_put_char, console_get_char
 
 	.segment "JMPTBL"
+
 ; *** this is space for new X16 KERNAL vectors ***
-; for now, these are private API, they have not been
-; finalized
+;
+; !!! DO NOT RELY ON THEIR ADDRESSES JUST YET !!!
+;
 
 	.byte 0,0,0            ; $FEC0
 	.byte 0,0,0            ; $FEC3
