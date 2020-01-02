@@ -9,8 +9,7 @@
 .import GRAPH_get_char_size
 .import col1, col2
 
-.export console_init
-.export console_print_char
+.export console_init, console_put_char, console_get_char
 
 .segment "KVAR"
 
@@ -34,7 +33,7 @@ console_init:
 	lda #147
 ; fallthrough
 
-console_print_char:
+console_put_char:
 	cmp #' '
 	beq flush
 	cmp #10
@@ -129,3 +128,6 @@ SCROLL_AMOUNT=20
 	MoveW r0, px
 	MoveW r1, py
 	rts
+
+console_get_char:
+	brk

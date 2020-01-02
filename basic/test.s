@@ -1,19 +1,4 @@
 
-.import console_init
-.import console_print_char
-
-_console_init:
-	jsr jsrfar
-	.word console_init
-	.byte BANK_KERNAL
-	rts
-
-_console_print_char:
-	jsr jsrfar
-	.word console_print_char
-	.byte BANK_KERNAL
-	rts
-
 tmp = 0
 
 test:
@@ -25,11 +10,13 @@ test:
 .endif
 
 test1:
-	jsr _console_init
+	nop
+testxx:
+	jsr console_init
 @1:	LoadW tmp, text
 :	lda (tmp)
 	beq @end
-	jsr _console_print_char
+	jsr console_put_char
 	inc tmp
 	bne :-
 	inc tmp+1

@@ -7,10 +7,11 @@
 .byte 0,0,0            ; $FED2
 .byte 0,0,0            ; $FED5
 .byte 0,0,0            ; $FED8
-.byte 0,0,0            ; $FEDB
-.byte 0,0,0            ; $FEDE
 
-.byte 0,0,0            ; $FEE1
+bridge console_init       ; $FEDB
+bridge console_put_char   ; $FEDE
+bridge console_get_char   ; $FEE1
+
 bridge memory_fill        ; $FEE4
 bridge memory_copy        ; $FEE7
 bridge memory_crc         ; $FEEA
