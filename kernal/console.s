@@ -22,6 +22,9 @@ py:	.res 2
 style:	.res 1
 bufptr:	.res 1
 
+outbuf   = $0500
+baseline = $0600
+
 .segment "CONSOLE"
 
 ;---------------------------------------------------------------
@@ -29,9 +32,9 @@ bufptr:	.res 1
 ;
 ;---------------------------------------------------------------
 console_init:
-	lda #$00
+	lda #<outbuf
 	sta r6L
-	lda #$05
+	lda #>outbuf
 	sta r6H
 	stz r7L
 	
@@ -72,10 +75,10 @@ flush:
 :	lda (r6),y
 	phy
 	ldx style
-@aaaa1:	jsr GRAPH_get_char_size
+	jsr GRAPH_get_char_size
 	ply
 	bcc @1    ; control character?
-@aaaa2:	stx style ; yes: update style
+	stx style ; yes: update style
 	bra @2    ;      and don't add any width
 @1:	stx r2L
 	stz r2H
@@ -154,11 +157,48 @@ SCROLL_AMOUNT=20
 ;---------------------------------------------------------------
 console_get_char:
 	lda buf
-	bne @return_char
+	beq @input_line
+	jmp @return_char
 
 @input_line:
-	LoadW r0, cursor_sprite_col
-	LoadW r1, cursor_sprite_mask
+
+; create sprite
+	; get height + baseline
+	ldx #0
+	lda #' '
+	jsr GRAPH_get_char_size
+	inc ; XXX
+;	inc ; XXX
+	sta baseline
+	stz baseline+1
+	tya     ; height
+	asl
+	inc ; XXX
+	inc ; XXX
+	sta r0L ; height * 2
+
+	ldx #32
+:	stz buf,x     ; 0: black, 1: white
+	dex
+	bpl :-
+	ldx #0
+	lda #%10000000; 0: transparent, 1: opaque
+:	sta buf+32,x
+	inx
+	stz buf+32,x
+	inx
+	cpx r0L
+	bne :-
+@l:	cpx #32
+	bcs :+
+	stz buf+32,x
+	inx
+	bra @l
+	
+:
+
+	LoadW r0, buf
+	LoadW r1, buf+32
 	LoadB r2L, 1 ; 1 bpp
 	ldx #16      ; width
 	ldy #16      ; height
@@ -166,14 +206,25 @@ console_get_char:
 	sec          ; apply mask
 	jsr sprite_set_image
 
+
+	lda #$92 ; attribute reset
+	jsr console_put_char
+
+@input_loop:
 	MoveW px, r0
 	MoveW py, r1
 
-:
+	PushW r0
+	PushW r1
+	IncW r0
+	SubW baseline, r1 ; XXX baseline
 	lda #1
 	jsr sprite_set_position
+	PopW r1
+	PopW r0
 
-	jsr kbd_get
+:	jsr kbd_get
+	beq :-
 	ldx bufptr
 	sta buf,x
 	inc bufptr
@@ -182,11 +233,9 @@ console_get_char:
 	jsr console_put_char
 	pla
 	cmp #13
-	bne :-
+	bne @input_loop
 
 	stz bufptr
-	MoveW r0, px
-	MoveW r1, py
 	
 @return_char:
 	ldx bufptr
@@ -194,42 +243,5 @@ console_get_char:
 	bne :+
 	stz bufptr
 	stz buf
-	bra @input_line
+	jmp @input_line
 :	rts
-
-
-cursor_sprite_col: ; 0: black, 1: white
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-.byte %00000000,%00000000
-cursor_sprite_mask: ; 0: transparent, 1: opaque
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-.byte %10000000,%00000000
-
