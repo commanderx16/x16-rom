@@ -9,7 +9,7 @@
 .import GRAPH_move_rect
 .import GRAPH_draw_rect
 .import GRAPH_get_char_size
-.import col1, col2
+.import col1, col2, col_bg
 
 .import kbd_get
 
@@ -41,6 +41,7 @@ py:	.res 2
 ;---------------------------------------------------------------
 ; console_init
 ;
+; Function:  Initializes the console.
 ;---------------------------------------------------------------
 console_init:
 	KVARS_START
@@ -62,7 +63,7 @@ console_init:
 	lda #$80
 	jsr screen_set_mode
 	lda #147
-	sec
+	clc
 	jsr console_put_char
 
 	KVARS_END
@@ -73,13 +74,22 @@ console_init:
 ;---------------------------------------------------------------
 ; console_put_char
 ;
+; Function:  Prints a character to the console.
+;
 ; Pass:      a   ASCII character
-;            c   1: force flush
+;            c   0: character wrapping, 1: word wrapping
+;
+; Note:      If C is 1, the text will be word-wrapped. For this,
+;            characters will be buffered until a SPACE, CR or LF
+;            character is printed. So to flush the buffer at the
+;            end, make sure to print SPACE, CR or LF.
+;            If C is 0, character wrapping and therefore no
+;            buffering is performed.
 ;---------------------------------------------------------------
 console_put_char:
 	KVARS_START
 
-	bcs flush
+	bcc flush
 	cmp #' '
 	beq flush
 	cmp #10
@@ -147,7 +157,15 @@ SCROLL_AMOUNT=20
 	LoadW r2, 320
 	LoadW r3, SCROLL_AMOUNT
 	LoadW r4, 0
-	jsr white_rect
+	PushB col1
+	PushB col2
+	lda col_bg  ; draw with bg color
+	sta col1
+	sta col2
+	sec
+	jsr GRAPH_draw_rect
+	PopB col2
+	PopB col1
 
 :
 	lda r7L
@@ -168,8 +186,19 @@ SCROLL_AMOUNT=20
 	stz r7L
 
 @l1:	pla
+	pha
 	jsr GRAPH_put_char
-	MoveW r0, px
+	bcc :+
+; character wrapping
+
+	lda #13
+	jsr GRAPH_put_char ; XXX scrolling
+	pla
+	jsr GRAPH_put_char
+	jmp @xxx
+
+:	pla
+@xxx:	MoveW r0, px
 	MoveW r1, py
 
 	KVARS_END
@@ -179,6 +208,14 @@ SCROLL_AMOUNT=20
 ; console_get_char
 ;
 ; Return:    a   ASCII character
+;
+; Note: This function returns a character from the keyboard.
+;       It will buffer characters until a CR or LF is received
+;       and then return the buffer character by character.
+;       The last character to be sent is a CR code.
+;       Editing the buffer allows deleting the last character
+;       using BS/DEL, but no cursor movement or other control
+;       characters.
 ;---------------------------------------------------------------
 console_get_char:
 	KVARS_START
@@ -259,7 +296,9 @@ console_get_char:
 	cmp #$14 ; PETSCII DELETE
 	bne :+
 @b2:	jmp @backspace
-:	cmp #13
+:	cmp #10
+	beq @input_end
+	cmp #13
 	beq @input_end
 	cmp #$20
 	bcc @again
@@ -283,10 +322,11 @@ console_get_char:
 
 @input_end:
 	ldx inbufidx
+	lda #13
 	sta inbuf,x ; store CR
 	stz inbufidx
 
-	sec
+	clc
 	jsr console_put_char ; print CR
 
 @return_char:
@@ -308,25 +348,18 @@ console_get_char:
 	bne :+
 	jmp @again ; empty buffer
 :
-	PushW r0
-	PushW r1
-
 	; kill character
 	dex
 	stx inbufidx
 	
 	; character to delete
 	lda inbuf,x
+	pha
 
-	; r2 = width
+	; r2L = width
 	ldx #0
 	jsr GRAPH_get_char_size
 	stx r2L
-	stz r2H
-
-	; r3 = height
-	sty r3L
-	stz r3H
 
 	; r0 = r0 - width
 	lda r0L
@@ -337,36 +370,17 @@ console_get_char:
 	sbc #0
 	sta r0H
 	
-	; r1 = r1 - baseline
-	lda r1L
-	sec
-	sbc baseline
-	sta r1L
-	lda r1H
-	sbc #0
-	sta r1H
-
-	jsr white_rect
-
-	PopW r1
+	plx ; character
+	PushW r0
+	PushB col1
+	lda col_bg
+	sta col1
+	txa
+	jsr GRAPH_put_char
+	PopB col1
 	PopW r0
-	
-	; r0 = r0 - width
-	SubW r2, r0
-	
+
 	MoveW r0, px
 	MoveW r1, py
 
 	jmp @input_loop
-
-white_rect:
-	PushB col1
-	PushB col2
-	lda #1
-	sta col1
-	sta col2
-	sec
-	jsr GRAPH_draw_rect
-	PopB col2
-	PopB col1
-	rts
