@@ -47,8 +47,6 @@ ramtas:
 	lda #$ff
 	sta d1ddra
 	sta d1ddrb
-	lda #0
-	sta d1pra ; RAM bank
 
 ;
 ; clear kernal variables
@@ -87,8 +85,6 @@ ramtas:
 ;
 ; detect number of RAM banks
 ;
-	lda d1pra       ;RAM bank
-	pha
 	stz d1pra
 	ldx $a000
 	inx
@@ -107,8 +103,6 @@ ramtas:
 	stz d1pra
 	dex
 	stx $a000
-	pla
-	sta d1pra
 	
 	tya ; number of RAM banks
 ;
@@ -122,6 +116,12 @@ ramtas:
 	ldy #>mmbot
 	clc
 	jsr membot
+
+;
+; activate bank #1 as default
+;
+	lda #1
+	sta d1pra ; RAM bank
 
 	rts
 
