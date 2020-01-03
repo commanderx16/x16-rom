@@ -131,6 +131,7 @@ flush:
 	bne :-
 	
 	CmpWI r3, 320
+	beq @no_x_overflow
 	bcc @no_x_overflow
 
 	MoveW px, r0
