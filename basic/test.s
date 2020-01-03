@@ -10,8 +10,6 @@ COLOR_RED      = $1C
 COLOR_GREEN    = $1E
 COLOR_BLUE     = $1F
 
-tmp = 0
-
 test:
 	beq test0
 	jsr getbyt
@@ -669,6 +667,7 @@ test3:
 	jsr console_put_char
 	jmp :-
 
+tmp = 0
 print_lots_of_text:
 	php
 	LoadW tmp, text
