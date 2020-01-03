@@ -62,7 +62,10 @@ console_init:
 
 	lda #$80
 	jsr screen_set_mode
-	lda #147
+	lda #147 ; clear screen
+	clc
+	jsr console_put_char
+	lda #$92 ; attribute reset
 	clc
 	jsr console_put_char
 
@@ -233,6 +236,10 @@ console_get_char:
 	jmp @return_char
 
 @input_line:
+	lda #$92 ; attribute reset
+	clc
+	jsr console_put_char
+	stz style
 
 ; get height + baseline
 	ldx #0
