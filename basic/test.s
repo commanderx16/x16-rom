@@ -27,7 +27,7 @@ testxx:
 @1:	LoadW tmp, text
 :	lda (tmp)
 	beq @end
-	sec
+	clc
 	jsr console_put_char
 	inc tmp
 	bne :-

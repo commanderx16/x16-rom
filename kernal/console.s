@@ -160,6 +160,7 @@ flush:
 @l1:	pla
 	pha
 	jsr GRAPH_put_char
+@mmmmm:	nop
 	bcc :+ ; did fit, skip
 
 ; character wrapping

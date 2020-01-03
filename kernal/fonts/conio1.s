@@ -8,6 +8,7 @@
 
 set_color:
 	sta col1
+	clc ; C=0: OK
 	rts
 
 ;---------------------------------------------------------------
@@ -51,7 +52,9 @@ put_char:
 	lda PutCharTab00,y
 	ldx PutCharTab00+1,y
 	beq set_color
-	jmp @callroutine
+	jsr @callroutine
+	clc ; C=0: OK
+	rts
 @1:	cmp #$80
 	bcc @1a
 	cmp #$a0
