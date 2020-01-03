@@ -137,6 +137,51 @@ FAT32 and SD card drivers: Copyright (c) 2018 Thomas Woinke, Marko Lauke, [www.s
 Release Notes
 -------------
 
+### Release 36 ("Berlin")
+
+* API Features
+	* added console API for text-based interfaces with proportional font and styles support: console_init, console_put_char, console_get_char
+	* added memory API:
+		* memory_fill
+		* memory_copy
+		* memory_crc
+		* memory_decompress (LZSA2)
+	* added sprite API: sprite_set_image, sprite_set_position
+	* renamed GRAPH_LL to FB (framebuffer)
+	* GRAPH_init takes an FB graphics driver as an argument
+
+* KERNAL features
+	* detect SD card on TALK and LISTEN, properly fall back to serial
+	* joystick scanning is done automatically in VBLANK IRQ; no need to call it manually any more
+	* added VERA UART driver (device 2)
+	* bank 1 is now the default after startup; KERNAL won't touch it
+	* sprites and layer 0 are cleared on RESET
+	* changed F5 to LOAD":* (filename required for IEEE devices)
+	* GRAPH_move_rect supports overlapping [gaekwad]
+
+* BASIC
+	* default LOAD/SAVE device is now 8
+	* added RESET statement [Ingo Hinterding]
+	* added CLS statement [Ingo Hinterding]
+
+* CHARSET
+	* fixed capital Ö [Ingo Hinterding]
+	* Changed Û, î, ã to be more consistent [Ingo Hinterding]
+
+* bug fixes
+	* COLOR statement with two arguments
+	* PEEK for ROM addresses
+	* keyboard code no longer changes RAM bank
+	* fixed clock update
+	* fixed side effects of Ctrl+A and color control codes [codewar65]
+
+* misc
+	* added 3 more tests, start with "TEST1"/"TEST2"/"TEST3" in BASIC:
+	* TEST0: existing misc graphics test
+	* TEST1: console text rendering, character wrapping
+	* TEST2: console text rendering, word wrapping
+	* TEST3: console text input, echo
+
 ### Release 35
 
 * API Fetures
