@@ -55,29 +55,48 @@ screen_init:
 	lda #1
 	jsr screen_set_charset
 
+	lda #$1f
+	sta verahi
+
+	lda #$00        ;$F2000: layer 0 registers
+	sta veralo
+	lda #$20
+	sta veramid
+	stz veradat     ;disable layer 0
+
 	lda #$00        ;$F3000: layer 1 registers
 	sta veralo
 	lda #$30
 	sta veramid
-	lda #$1f
-	sta verahi
-
 	ldx #0
-px4:	lda tvera_layer1,x
+:	lda tvera_layer1,x
 	sta veradat
 	inx
 	cpx #tvera_layer1_end-tvera_layer1
-	bne px4
+	bne :-
 
 	lda #$00        ;$F0000: composer registers
 	sta veralo
 	sta veramid
 	ldx #0
-px5:	lda tvera_composer,x
+:	lda tvera_composer,x
 	sta veradat
 	inx
 	cpx #tvera_composer_end-tvera_composer
-	bne px5
+	bne :-
+
+	lda #$00        ;$F5000: sprite attributes
+	sta veralo
+	lda #$50
+	sta veramid
+	ldx #4
+	ldy #0
+:	stz veradat     ;clear 128*8 bytes
+	iny
+	bne :-
+	dex
+	bne :-
+
 	rts
 
 ;NTSC=1
