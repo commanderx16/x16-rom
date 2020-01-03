@@ -13,40 +13,20 @@ COLOR_BLUE     = $1F
 tmp = 0
 
 test:
-.if 0
-	beq @1
+	beq test0
 	jsr getbyt
-	bne test1
-@1:	jmp test0
-.endif
-
-test1:
-	nop
-testxx:
-	jsr console_init
-@1:	LoadW tmp, text
-:	lda (tmp)
-	beq @end
-	sec
-	jsr console_put_char
-	inc tmp
-	bne :-
-	inc tmp+1
-	bra :-
-@end	;jmp @1
-
-:	jsr console_get_char
-	sec
-	jsr console_put_char
-	jmp :-
-
-text:
-	.byte ATTR_RESET,COLOR_BLACK,"Lorem ipsum ",ATTR_UNDERLINE,"dolor sit ",ATTR_RESET,ATTR_BOLD,"amet, consetetur ",ATTR_RESET,ATTR_ITALICS,"sadipscing elitr",ATTR_RESET,ATTR_OUTLINE,", sed diam"
-	.byte ATTR_RESET,COLOR_RED," nonumy eirmod",ATTR_UNDERLINE," tempor invidunt",ATTR_RESET,ATTR_BOLD," ut labore",ATTR_RESET,ATTR_ITALICS," et dolore",ATTR_RESET,ATTR_OUTLINE," magna aliquyam"
-	.byte ATTR_RESET,COLOR_GREEN," erat, sed",ATTR_UNDERLINE," diam voluptua",ATTR_RESET,ATTR_BOLD,". At vero",ATTR_RESET,ATTR_ITALICS," eos et",ATTR_RESET,ATTR_OUTLINE," accusam et"
-	.byte ATTR_RESET,COLOR_BLUE," justo duo",ATTR_UNDERLINE," dolores et",ATTR_RESET,ATTR_BOLD," ea rebum",ATTR_RESET,ATTR_ITALICS,". Stet clita",ATTR_RESET,ATTR_OUTLINE," kasd gubergren"
-	.byte ATTR_RESET,", no sea",ATTR_UNDERLINE," takimata sanctus",ATTR_RESET,ATTR_BOLD," est Lorem",ATTR_RESET,ATTR_ITALICS," ipsum dolor",ATTR_RESET,ATTR_OUTLINE," sit amet."
-	.byte 10,10,0
+	txa
+	beq test0
+	cmp #1
+	bne :+
+	jmp test1
+:	cmp #2
+	bne :+
+	jmp test2
+:	cmp #3
+	bne :+
+	jmp test3
+:	jmp fcerr
 
 test0:
 	lda #$80
@@ -664,3 +644,50 @@ str_OK:
 str_BAD:
 	.byte "BAD", 0
 
+
+; print text, character wrapping
+test1:
+	jsr console_init
+	clc
+:	jsr print_lots_of_text
+	bra :-
+
+; print text, word wrapping
+test2:
+	jsr console_init
+	sec
+:	jsr print_lots_of_text
+	bra :-
+
+
+; input line, echo it, loop
+test3:
+	jsr console_init
+
+:	jsr console_get_char
+	sec
+	jsr console_put_char
+	jmp :-
+
+print_lots_of_text:
+	php
+	LoadW tmp, text
+:	lda (tmp)
+	beq @end
+	plp
+	php
+	jsr console_put_char
+	inc tmp
+	bne :-
+	inc tmp+1
+	bra :-
+@end	plp
+	rts
+
+text:
+	.byte ATTR_RESET,COLOR_BLACK,"Lorem ipsum ",ATTR_UNDERLINE,"dolor sit ",ATTR_RESET,ATTR_BOLD,"amet, consetetur ",ATTR_RESET,ATTR_ITALICS,"sadipscing elitr",ATTR_RESET,ATTR_OUTLINE,", sed diam"
+	.byte ATTR_RESET,COLOR_RED," nonumy eirmod",ATTR_UNDERLINE," tempor invidunt",ATTR_RESET,ATTR_BOLD," ut labore",ATTR_RESET,ATTR_ITALICS," et dolore",ATTR_RESET,ATTR_OUTLINE," magna aliquyam"
+	.byte ATTR_RESET,COLOR_GREEN," erat, sed",ATTR_UNDERLINE," diam voluptua",ATTR_RESET,ATTR_BOLD,". At vero",ATTR_RESET,ATTR_ITALICS," eos et",ATTR_RESET,ATTR_OUTLINE," accusam et"
+	.byte ATTR_RESET,COLOR_BLUE," justo duo",ATTR_UNDERLINE," dolores et",ATTR_RESET,ATTR_BOLD," ea rebum",ATTR_RESET,ATTR_ITALICS,". Stet clita",ATTR_RESET,ATTR_OUTLINE," kasd gubergren"
+	.byte ATTR_RESET,", no sea",ATTR_UNDERLINE," takimata sanctus",ATTR_RESET,ATTR_BOLD," est Lorem",ATTR_RESET,ATTR_ITALICS," ipsum dolor",ATTR_RESET,ATTR_OUTLINE," sit amet."
+	.byte 10,10,0
