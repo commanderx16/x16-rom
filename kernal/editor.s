@@ -773,16 +773,17 @@ dnline	ldx tblx
 dwnbye	rts
 
 chkcol
-        cmp #$01    ; check ctrl-a for invert.
+        cmp #1          ;check ctrl-a for invert.
         bne ntinv
-        lda color    ; get current text color.
-        asl a        ; swap msn/lsn.
+        lda color       ;get current text color.
+        asl a           ;swap msn/lsn.
         adc #$80
         rol a
         asl a
         adc #$80
         rol a
-        sta color    ; stash back.
+        sta color       ;stash back.
+        lda #1          ;restore .a
         rts
 ntinv
 	ldx #15         ;there's 15 colors
@@ -793,11 +794,13 @@ chk1a	cmp coltab,x
 	rts
 ;
 chk1b
+	pha
 	lda color
 	and #$f0        ;keep bg color
 	stx color
 	ora color
 	sta color       ;change the color
+	pla             ;restore .a
 	rts
 
 coltab
