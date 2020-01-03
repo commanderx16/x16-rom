@@ -508,13 +508,6 @@ GRAPH_draw_image:
 ;            r4   width
 ;            r5   height
 ;---------------------------------------------------------------
-_DecW:
-	lda 0,x
-	bne @1
-	dec 1,x
-@1:	dec 0,x
-	rts
-
 GRAPH_move_rect:
 	CmpW r3, r1
 	bcc @2
@@ -542,6 +535,13 @@ GRAPH_move_rect:
 	lda r5L
 	ora r5H
 	bne @2
+	rts
+
+_DecW:
+	lda 0,x
+	bne @1
+	dec 1,x
+@1:	dec 0,x
 	rts
 
 ;---------------------------------------------------------------
