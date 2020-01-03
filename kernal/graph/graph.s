@@ -518,18 +518,39 @@ GRAPH_draw_image:
 ;            r5   height
 ;---------------------------------------------------------------
 GRAPH_move_rect:
-; XXX overlaps
+	CmpW r3, r1
+	bcc @2
 
+	AddW r5, r1
+	AddW r5, r3
+	IncW r5
 @1:	jsr FB_move_pixels
-	IncW r1 ; sy
-	IncW r3 ; ty
-	lda r5L
-	bne @2
-	dec r5H
-@2:	dec r5L
+	ldx #r1
+	jsr _DecW
+	ldx #r3
+	jsr _DecW
+	ldx #r5
+	jsr _DecW
 	lda r5L
 	ora r5H
 	bne @1
+	rts
+
+@2:	jsr FB_move_pixels
+	IncW r1 ; sy
+	IncW r3 ; ty
+	ldx #r5
+	jsr _DecW
+	lda r5L
+	ora r5H
+	bne @2
+	rts
+
+_DecW:
+	lda 0,x
+	bne @1
+	dec 1,x
+@1:	dec 0,x
 	rts
 
 ;---------------------------------------------------------------

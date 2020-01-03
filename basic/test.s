@@ -66,7 +66,7 @@ test1_hline:
 	LoadW r2, 1
 	LoadW r3, 4
 	lda #0 ; set
-	jsr GRAPH_draw_line
+	jmp GRAPH_draw_line
 
 test2_vline:
 	; vertical line
@@ -128,7 +128,7 @@ test3_bresenham:
 	LoadW r2, 5
 	LoadW r3, 21
 	lda #0 ; set
-	jsr GRAPH_draw_line
+	jmp GRAPH_draw_line
 
 test4_set_get_pixels:
 	; set direct pixels
@@ -453,6 +453,14 @@ test13_move_rect:
 	LoadW r1, 100
 	LoadW r2, 320-40
 	LoadW r3, 10
+	LoadW r4, 40
+	LoadW r5, 50
+	jsr GRAPH_move_rect
+
+	LoadW r0, 320-40
+	LoadW r1, 10
+	LoadW r2, 320-40
+	LoadW r3, 35
 	LoadW r4, 40
 	LoadW r5, 50
 	jmp GRAPH_move_rect
