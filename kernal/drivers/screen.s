@@ -5,6 +5,8 @@
 
 .include "../../io.inc"
 .include "../../banks.inc"
+.include "../../mac.inc"
+.include "../../regs.inc"
 
 .export screen_init
 .export screen_set_mode
@@ -227,6 +229,7 @@ grphon:
 	lda #$0e ; light blue
 	sta color
 
+	LoadW r0, 0
 	jmp GRAPH_init
 
 grphoff:

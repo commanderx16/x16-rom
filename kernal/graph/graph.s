@@ -13,7 +13,6 @@
 .import I_FB_BASE, I_FB_END
 
 .import font_init
-.import graph_init
 
 .export GRAPH_init
 .export GRAPH_clear
@@ -37,15 +36,24 @@ col_bg:	.res 1
 ;---------------------------------------------------------------
 ; GRAPH_init
 ;
-; Function:  Switch to 320x200@256c graphics mode and
-;            enable low-level driver for this mdoe.
+; Function:  Enable a given low-level graphics mode driver,
+;            and switch to this mode.
+;
+; Pass:      r0     pointer to FB_* driver vectors
+;                   If 0, this enables the default driver
+;                   (320x200@256c).
 ;---------------------------------------------------------------
 GRAPH_init:
+	lda r0L
+	ora r0H
+	bne :+
+	LoadW r0, FB_VERA
+:
 	; copy VERA driver vectors
-	ldx #<(I_FB_END - I_FB_BASE - 1)
-:	lda FB_VERA,x
-	sta I_FB_BASE,x
-	dex
+	ldy #<(I_FB_END - I_FB_BASE - 1)
+:	lda (r0),y
+	sta I_FB_BASE,y
+	dey
 	bpl :-
 	
 	jsr FB_init
