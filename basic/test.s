@@ -653,6 +653,34 @@ str_BAD:
 
 ; print text, character wrapping
 test1:
+	lda #$80
+	jsr screen_set_mode
+
+	LoadW r0, 0
+	jsr GRAPH_init
+	
+	LoadW r0, 0
+	LoadW r1, 0
+	LoadW r2, 319
+	LoadW r3, 0
+:	lda r1L
+	jsr GRAPH_set_colors
+	jsr GRAPH_draw_line
+	IncW r1
+	IncW r3
+	CmpWI r1, 200
+	bne :-
+	
+	lda #0
+	ldx #15
+	ldy #1
+	jsr GRAPH_set_colors
+
+	INSET=20
+	LoadW r0, INSET
+	LoadW r1, INSET
+	LoadW r2, 320-2*INSET
+	LoadW r3, 200-2*INSET
 	jsr console_init
 	clc
 :	jsr print_lots_of_text
@@ -660,6 +688,10 @@ test1:
 
 ; print text, word wrapping
 test2:
+	lda #$80
+	jsr screen_set_mode
+
+	LoadW r2, 0
 	jsr console_init
 	sec
 :	jsr print_lots_of_text
@@ -668,6 +700,10 @@ test2:
 
 ; input line, echo it, loop
 test3:
+	lda #$80
+	jsr screen_set_mode
+
+	LoadW r2, 0
 	jsr console_init
 
 :	jsr console_get_char

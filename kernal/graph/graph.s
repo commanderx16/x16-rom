@@ -111,10 +111,11 @@ GRAPH_clear:
 ;            r2     width
 ;            r3     height
 ;---------------------------------------------------------------
+; XXX clip to screen size, so 0,0,-1,-1 is full screen?
 GRAPH_set_window:
 	MoveW r0, leftMargin
-	MoveB r1L, windowTop
-	
+	MoveW r1, windowTop
+
 	lda r0L
 	clc
 	adc r2L
@@ -130,8 +131,14 @@ GRAPH_set_window:
 	lda r1L
 	clc
 	adc r3L
-	dec
 	sta windowBottom
+	lda r1H
+	adc r3H
+	sta windowBottom+1
+	lda windowBottom
+	bne :+
+	dec windowBottom+1
+:	dec windowBottom
 	rts
 
 ;---------------------------------------------------------------
@@ -156,7 +163,7 @@ GRAPH_set_colors:
 ;            r3       y2
 ;---------------------------------------------------------------
 GRAPH_draw_line:
-	CmpB r1L, r3L      ; horizontal?
+	CmpW r1, r3        ; horizontal?
 	bne @0a            ; no
 	jmp HorizontalLine
 
