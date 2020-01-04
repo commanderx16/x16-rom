@@ -660,7 +660,10 @@ test1:
 	LoadW r0, 0
 	jsr GRAPH_init
 
-	LoadW r2, 0 ; full screen
+	LoadW r0, 0
+	LoadW r1, 0
+	LoadW r2, 0
+	LoadW r3, 0
 	jsr console_init
 
 :	clc ; char wrap
@@ -708,8 +711,8 @@ test2:
 	jsr print_lots_of_text
 	bra :-
 
+tmp = 0
 print_lots_of_text:
-	tmp = 0
 	php
 	LoadW tmp, text
 :	lda (tmp)
@@ -738,7 +741,10 @@ test3:
 	lda #$80
 	jsr screen_set_mode
 
+	LoadW r0, 0
+	LoadW r1, 0
 	LoadW r2, 0
+	LoadW r3, 0
 	jsr console_init
 
 :	jsr console_get_char

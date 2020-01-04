@@ -50,10 +50,7 @@ py:	.res 2
 console_init:
 	KVARS_START
 
-	PushW r0
-	PushW r1
-	PushW r2
-	PushW r3
+	jsr GRAPH_set_window
 
 	lda #$0f ; ISO mode
 	jsr bsout
@@ -69,18 +66,6 @@ console_init:
 	stz inbuf
 	stz inbufidx
 
-	PopW r3
-	PopW r2
-	PopW r1
-	PopW r0
-	lda r2L
-	ora r2H
-	beq :+
-	lda r3L
-	ora r3H
-	beq :+
-	jsr GRAPH_set_window
-:
 	lda #147 ; clear screen
 	clc
 	jsr console_put_char
