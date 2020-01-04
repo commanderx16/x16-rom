@@ -148,9 +148,8 @@ flush:
 @2:	iny
 	cpy r7L
 	bne :-
-	
-	CmpWI r3, 320
-	beq @no_x_overflow
+
+	CmpW r3, rightMargin
 	bcc @no_x_overflow
 
 	MoveW px, r0
@@ -262,7 +261,7 @@ SCROLL_AMOUNT=12 ; XXX should be font height + 2
 
 	SubVW SCROLL_AMOUNT, py
 	
-:	rts
+	rts
 
 ;---------------------------------------------------------------
 ; console_get_char
