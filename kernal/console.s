@@ -5,11 +5,13 @@
 .include "../banks.inc"
 
 .import screen_set_mode
+.import GRAPH_set_window
 .import GRAPH_put_char
 .import GRAPH_move_rect
 .import GRAPH_draw_rect
 .import GRAPH_get_char_size
 .import col1, col2, col_bg
+.import leftMargin, windowTop, rightMargin, windowBottom
 
 .import kbd_get
 
@@ -23,6 +25,8 @@ bsout = $ffd2
 
 bufsize  = 80
 
+; XXX outbuf may run into inbuf, but there is no check yet
+; XXX whether it overruns that one
 outbuf:	.res 80
 inbuf:	.res bufsize+1 ; (+ trailing CR)
 
@@ -46,6 +50,8 @@ py:	.res 2
 console_init:
 	KVARS_START
 
+	jsr GRAPH_set_window
+
 	lda #$0f ; ISO mode
 	jsr bsout
 
@@ -60,8 +66,6 @@ console_init:
 	stz inbuf
 	stz inbufidx
 
-	lda #$80
-	jsr screen_set_mode
 	lda #147 ; clear screen
 	clc
 	jsr console_put_char
@@ -129,14 +133,13 @@ flush:
 @2:	iny
 	cpy r7L
 	bne :-
-	
-	CmpWI r3, 320
-	beq @no_x_overflow
+
+	CmpW r3, rightMargin
 	bcc @no_x_overflow
 
 	MoveW px, r0
 	MoveW py, r1
-	lda #13
+	lda #10
 	jsr GRAPH_put_char
 	MoveW r0, px
 	MoveW r1, py
@@ -168,11 +171,13 @@ flush:
 	bcc :+ ; did fit, skip
 
 ; character wrapping
-	lda #13
+	lda #10
 	jsr GRAPH_put_char
 	MoveW r0, px
 	MoveW r1, py
 	jsr scroll_maybe
+	MoveW px, r0
+	MoveW py, r1
 
 	pla
 	jsr GRAPH_put_char
@@ -186,25 +191,49 @@ flush:
 	rts
 
 scroll_maybe:
-	CmpWI py, 200-9
-	bcc :+
-
+	MoveW windowBottom, r5
+	SubVW 10, r5 ; XXX should be font height + 1
+	CmpW py, r5
+	bcs :+
+	rts
+:
 ; scroll
-SCROLL_AMOUNT=20
-	LoadW r0, 0
-	LoadW r1, SCROLL_AMOUNT
-	LoadW r2, 0
-	LoadW r3, 0
-	LoadW r4, 320
-	LoadW r5, 200-SCROLL_AMOUNT
+SCROLL_AMOUNT=12 ; XXX should be font height + 2
+	; source x = leftMargin
+	MoveW leftMargin, r0
+	; source y = windowTop + SCROLL_AMOUNT
+	MoveW windowTop, r1
+	AddVW SCROLL_AMOUNT, r1
+	; target x = leftMargin
+	MoveW leftMargin, r2
+	; target y = windowTop
+	MoveW windowTop, r3
+	; width = rightMargin - leftMargin + 1
+	MoveW rightMargin, r4
+	SubW leftMargin, r4
+	IncW r4
+	PushW r4 ; we need it again later
+	; height = windowBottom - windowTop - SCROLL_AMOUNT + 1
+	MoveW windowBottom, r5
+	SubW windowTop, r5
+	SubVW SCROLL_AMOUNT, r5
+	IncW r5
 	jsr GRAPH_move_rect
-	SubVW SCROLL_AMOUNT, py
+
 ; fill
-	LoadW r0, 0
-	LoadW r1, 200-SCROLL_AMOUNT
-	LoadW r2, 320
+	; x = leftMargin
+	MoveW leftMargin, r0
+	; y = windowBottom - SCROLL_AMOUNT + 1
+	MoveW windowBottom, r1
+	SubVW SCROLL_AMOUNT, r1
+	IncW r1
+	; width = rightMargin - leftMargin + 1
+	PopW r2 ; take result from before
+	; height = SCROLL_AMOUNT
 	LoadW r3, SCROLL_AMOUNT
+	; corner radius
 	LoadW r4, 0
+
 	PushB col1
 	PushB col2
 	lda col_bg  ; draw with bg color
@@ -214,7 +243,10 @@ SCROLL_AMOUNT=20
 	jsr GRAPH_draw_rect
 	PopB col2
 	PopB col1
-:	rts
+
+	SubVW SCROLL_AMOUNT, py
+	
+	rts
 
 ;---------------------------------------------------------------
 ; console_get_char

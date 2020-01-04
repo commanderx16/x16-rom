@@ -58,15 +58,7 @@ GRAPH_init:
 	
 	jsr FB_init
 
-	jsr FB_get_info
-	MoveW r0, r2
-	MoveW r1, r3
-	lda #0
-	sta r0L
-	sta r0H
-	sta r1L
-	sta r1H
-	jsr GRAPH_set_window
+	jsr set_window_fullscreen
 
 	lda #0  ; primary:    black
 	ldx #10 ; secondary:  gray
@@ -103,6 +95,17 @@ GRAPH_clear:
 	PopB col1
 	rts
 
+set_window_fullscreen:
+	jsr FB_get_info
+	MoveW r0, r2
+	MoveW r1, r3
+	lda #0
+	sta r0L
+	sta r0H
+	sta r1L
+	sta r1H
+; fallthrough
+
 ;---------------------------------------------------------------
 ; GRAPH_set_window
 ;
@@ -110,11 +113,23 @@ GRAPH_clear:
 ;            r1     y
 ;            r2     width
 ;            r3     height
+;
+; Note: 0/0/0/0 will set the window to full screen.
 ;---------------------------------------------------------------
 GRAPH_set_window:
+	lda r0L
+	ora r0H
+	ora r1L
+	ora r1H
+	ora r2L
+	ora r2H
+	ora r3L
+	ora r3H
+	beq set_window_fullscreen
+
 	MoveW r0, leftMargin
-	MoveB r1L, windowTop
-	
+	MoveW r1, windowTop
+
 	lda r0L
 	clc
 	adc r2L
@@ -130,8 +145,14 @@ GRAPH_set_window:
 	lda r1L
 	clc
 	adc r3L
-	dec
 	sta windowBottom
+	lda r1H
+	adc r3H
+	sta windowBottom+1
+	lda windowBottom
+	bne :+
+	dec windowBottom+1
+:	dec windowBottom
 	rts
 
 ;---------------------------------------------------------------
@@ -156,7 +177,7 @@ GRAPH_set_colors:
 ;            r3       y2
 ;---------------------------------------------------------------
 GRAPH_draw_line:
-	CmpB r1L, r3L      ; horizontal?
+	CmpW r1, r3        ; horizontal?
 	bne @0a            ; no
 	jmp HorizontalLine
 

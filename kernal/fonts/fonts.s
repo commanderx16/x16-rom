@@ -23,8 +23,8 @@ curHeight:	.res 1
 cardDataPntr:	.res 2
 
 currentMode:	.res 1
-windowTop:	.res 1
-windowBottom:	.res 1
+windowTop:	.res 2
+windowBottom:	.res 2
 leftMargin:	.res 2
 rightMargin:	.res 2
 

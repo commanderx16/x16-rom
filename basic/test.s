@@ -651,29 +651,65 @@ str_BAD:
 	.byte "BAD", 0
 
 
-; print text, character wrapping
+; print text, alternating char/word wrap
+; full screen
 test1:
+	lda #$80
+	jsr screen_set_mode
+
+	LoadW r0, 0
+	jsr GRAPH_init
+
+	LoadW r0, 0
+	LoadW r1, 0
+	LoadW r2, 0
+	LoadW r3, 0
 	jsr console_init
-	clc
-:	jsr print_lots_of_text
+
+:	clc ; char wrap
+	jsr print_lots_of_text
+	sec ; word wrap
+	jsr print_lots_of_text
 	bra :-
 
-; print text, word wrapping
+; print text, alternating char/word wrap
+; window
 test2:
+	lda #$80
+	jsr screen_set_mode
+
+	LoadW r0, 0
+	jsr GRAPH_init
+	
+	LoadW r0, 0
+	LoadW r1, 0
+	LoadW r2, 319
+	LoadW r3, 0
+:	lda r1L
+	jsr GRAPH_set_colors
+	jsr GRAPH_draw_line
+	IncW r1
+	IncW r3
+	CmpWI r1, 200
+	bne :-
+	
+	lda #0
+	ldx #15
+	ldy #1
+	jsr GRAPH_set_colors
+
+	INSET=20
+	LoadW r0, INSET
+	LoadW r1, INSET
+	LoadW r2, 320-2*INSET
+	LoadW r3, 200-2*INSET
 	jsr console_init
-	sec
-:	jsr print_lots_of_text
+
+:	clc ; char wrap
+	jsr print_lots_of_text
+	sec ; word wrap
+	jsr print_lots_of_text
 	bra :-
-
-
-; input line, echo it, loop
-test3:
-	jsr console_init
-
-:	jsr console_get_char
-	sec
-	jsr console_put_char
-	jmp :-
 
 tmp = 0
 print_lots_of_text:
@@ -698,3 +734,21 @@ text:
 	.byte ATTR_RESET,COLOR_BLUE," justo duo",ATTR_UNDERLINE," dolores et",ATTR_RESET,ATTR_BOLD," ea rebum",ATTR_RESET,ATTR_ITALICS,". Stet clita",ATTR_RESET,ATTR_OUTLINE," kasd gubergren"
 	.byte ATTR_RESET,", no sea",ATTR_UNDERLINE," takimata sanctus",ATTR_RESET,ATTR_BOLD," est Lorem",ATTR_RESET,ATTR_ITALICS," ipsum dolor",ATTR_RESET,ATTR_OUTLINE," sit amet."
 	.byte 10,10,0
+
+
+; input line, echo it, loop
+test3:
+	lda #$80
+	jsr screen_set_mode
+
+	LoadW r0, 0
+	LoadW r1, 0
+	LoadW r2, 0
+	LoadW r3, 0
+	jsr console_init
+
+:	jsr console_get_char
+	sec
+	jsr console_put_char
+	jmp :-
+
