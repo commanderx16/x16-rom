@@ -496,20 +496,51 @@ FB_move_pixels:
 	PopW r1
 	PopW r0
 
-	lda r4H
-	beq @a
+	ldx r4H
+	beq @2
 
-	PushB r4H
-	ldx #0
-@c:	jsr @b
-	dec r4H
-	bne @c
-	PopB r4H
-
-@a:	ldx r4L
-@b:	lda veradat2
-	sta veradat
+; full blocks, 8 bytes at a time
+	ldy #$20
+@1:	jsr copy_y
 	dex
-	bne @b
+	bne @1
 
+; partial block, 8 bytes at a time
+@2:	lda r4L
+	lsr
+	lsr
+	lsr
+	beq @6
+	tay
+	jsr copy_y
+
+; remaining 0 to 7 bytes
+@6:	lda r4L
+	and #7
+	beq @4
+	tay
+@3:	lda veradat2
+	sta veradat
+	dey
+	bne @3
+@4:	rts
+
+copy_y:	lda veradat2
+	sta veradat
+	lda veradat2
+	sta veradat
+	lda veradat2
+	sta veradat
+	lda veradat2
+	sta veradat
+	lda veradat2
+	sta veradat
+	lda veradat2
+	sta veradat
+	lda veradat2
+	sta veradat
+	lda veradat2
+	sta veradat
+	dey
+	bne copy_y
 	rts
