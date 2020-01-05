@@ -505,7 +505,6 @@ image_data:
 .byte $c9,$e5,$2b,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2a,$2a,$c9
 .byte $c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9
 
-
 checksum_framebuffer:
 	lda #$ff
 	sta crclo
@@ -668,6 +667,9 @@ test1:
 
 :	clc ; char wrap
 	jsr print_lots_of_text
+	
+	jsr draw_smiley
+		
 	sec ; word wrap
 	jsr print_lots_of_text
 	bra :-
@@ -735,6 +737,41 @@ text:
 	.byte ATTR_RESET,", no sea",ATTR_UNDERLINE," takimata sanctus",ATTR_RESET,ATTR_BOLD," est Lorem",ATTR_RESET,ATTR_ITALICS," ipsum dolor",ATTR_RESET,ATTR_OUTLINE," sit amet."
 	.byte 10,10,0
 
+draw_smiley:
+.if 0
+	ldx #smiley_image_end-smiley_image-1
+:	lda smiley_image,x
+	sta $0400,x
+	dex
+	bpl :-
+
+	LoadW r0, $0400
+	LoadW r1, 10
+	LoadW r2, 10
+	jmp console_draw_image
+.else
+	ldx #0
+:	lda image_data,x
+	sta $0400,x
+	inx
+	bne :-
+
+	LoadW r0, $0400
+	LoadW r1, 16
+	LoadW r2, 16
+	jmp console_draw_image
+.endif
+
+
+smiley_image:
+	.byte $1f,$1f,$42,$49,$49,$49,$49,$42,$1f,$1f,$1f,$49,$42,$42,$42,$42
+	.byte $42,$42,$42,$1f,$42,$49,$07,$07,$42,$42,$07,$07,$49,$42,$08,$14
+	.byte $5c,$3f,$46,$46,$3f,$3f,$3d,$08,$57,$12,$13,$13,$4c,$4c,$13,$13
+	.byte $12,$57,$57,$56,$45,$45,$50,$50,$45,$4c,$56,$57,$50,$50,$50,$50
+	.byte $50,$50,$50,$50,$50,$08,$42,$57,$50,$4f,$54,$54,$4f,$50,$57,$42
+	.byte $1f,$49,$57,$57,$57,$57,$57,$57,$49,$1f,$1f,$1f,$42,$08,$56,$56
+	.byte $08,$42,$1f,$1f
+smiley_image_end:
 
 ; input line, echo it, loop
 test3:

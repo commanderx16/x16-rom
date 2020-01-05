@@ -14,6 +14,7 @@
 .import GRAPH_move_rect
 .import GRAPH_draw_rect
 .import GRAPH_get_char_size
+.import GRAPH_draw_image
 .import col1, col2, col_bg
 .import leftMargin, windowTop, rightMargin, windowBottom
 
@@ -23,7 +24,7 @@
 
 bsout = $ffd2
 
-.export console_init, console_put_char, console_get_char
+.export console_init, console_put_char, console_get_char, console_draw_image
 
 .segment "KVARSB0"
 
@@ -42,6 +43,8 @@ style:
 	.res 1
 baseline:
 	.res 1
+override_height:
+	.res 2
 
 px:	.res 2
 py:	.res 2
@@ -61,16 +64,13 @@ console_init:
 	lda #$0f ; ISO mode
 	jsr bsout
 
-	lda #<outbuf
-	sta r6L
-	lda #>outbuf
-	sta r6H
+	LoadW r6, outbuf
 	stz outbufidx
-	
 	stz style
 	stz inbuf
-	stz inbuf
 	stz inbufidx
+	stz override_height
+	stz override_height+1
 
 	lda #147 ; clear screen
 	clc
@@ -145,8 +145,7 @@ flush:
 
 	MoveW px, r0
 	MoveW py, r1
-	lda #10
-	jsr GRAPH_put_char
+	jsr new_line
 	MoveW r0, px
 	MoveW r1, py
 
@@ -176,8 +175,7 @@ flush:
 	bcc :+ ; did fit, skip
 
 ; character wrapping
-	lda #10
-	jsr GRAPH_put_char
+	jsr new_line
 	MoveW r0, px
 	MoveW r1, py
 	jsr scroll_maybe
@@ -442,3 +440,66 @@ console_get_char:
 	MoveW r1, py
 
 	jmp @input_loop
+
+;---------------------------------------------------------------
+; console_draw_image
+;
+; Function:  Draw an image in GRAPH_draw_image format at the
+;            current cursor position and advance the cursor.
+;
+; Pass:      r0   image pointer
+;            r1   width
+;            r2   height
+;---------------------------------------------------------------
+console_draw_image:
+	KVARS_START
+
+	; XXX first flush output
+
+	MoveW r2, override_height
+
+	MoveW r2, r4
+	MoveW r1, r3
+	MoveW r0, r2
+	MoveW px, r0
+	MoveW py, r1
+
+	; get baseline
+	ldx #0
+	lda #' '
+	jsr GRAPH_get_char_size
+	sta r5L
+
+	; subtract baseline
+	lda r1L
+	sec
+	sbc r5L
+	sta r1L
+	bcs :+
+	dec r1H
+:
+	jsr GRAPH_draw_image
+
+	AddW r3, px ; advance cursor by image width
+
+	KVARS_END
+	rts
+
+new_line:
+	lda override_height
+	ora override_height+1
+	beq @1
+
+@mmm1:	PushW r1 ; save cursor y
+	lda #10
+	jsr GRAPH_put_char
+@mmm2:	PopW r1
+	AddW override_height, r1
+	bra @2
+
+@1:	lda #10
+	jsr GRAPH_put_char
+	
+@2:	stz override_height
+	stz override_height+1
+	rts
