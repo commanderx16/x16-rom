@@ -195,12 +195,13 @@ console_put_char:
 	KVARS_END
 	rts
 
-SCROLL_AMOUNT=12 ; XXX should be font height + 2
 ; preserves r0, r1, r2
 scroll_maybe:
-	LoadW r2, 10 ; XXX should be font height + 1
-scroll_if_less_than_r2_pixels:
-	MoveW r2, r14
+	jsr get_font_size
+	sty r14L
+	inc r14L
+	stz r14H ; font height + 1
+scroll_if_less_than_r14_pixels:
 	MoveW windowBottom, r15
 	SubW r14, r15
 	CmpW py, r15
@@ -212,12 +213,12 @@ scroll_if_less_than_r2_pixels:
 	PushW r2
 	
 	MoveW r14, r6
-	AddVW 2, r6
-	
+	AddVW 2, r6 ; scrollAmount = font height + 2
+
 ; scroll
 	; source x = leftMargin
 	MoveW leftMargin, r0
-	; source y = windowTop + SCROLL_AMOUNT
+	; source y = windowTop + scrollAmount
 	MoveW windowTop, r1
 	AddW r6, r1
 	; target x = leftMargin
@@ -229,7 +230,7 @@ scroll_if_less_than_r2_pixels:
 	SubW leftMargin, r4
 	IncW r4
 	PushW r4 ; we need it again later
-	; height = windowBottom - windowTop - SCROLL_AMOUNT + 1
+	; height = windowBottom - windowTop - scrollAmount + 1
 	MoveW windowBottom, r5
 	SubW windowTop, r5
 	SubW r6, r5
@@ -239,13 +240,13 @@ scroll_if_less_than_r2_pixels:
 ; fill
 	; x = leftMargin
 	MoveW leftMargin, r0
-	; y = windowBottom - SCROLL_AMOUNT + 1
+	; y = windowBottom - scrollAmount + 1
 	MoveW windowBottom, r1
 	SubW r6, r1
 	IncW r1
 	; width = rightMargin - leftMargin + 1
 	PopW r2 ; take result from before
-	; height = SCROLL_AMOUNT
+	; height = scrollAmount
 	MoveW r6, r3
 	; corner radius
 	LoadW r4, 0
@@ -293,9 +294,10 @@ console_put_image:
 	PopW r1
 	PopW r0
 
-@mmm1:	jsr scroll_if_less_than_r2_pixels
+	MoveW r2, r14
+	jsr scroll_if_less_than_r14_pixels
 
-@mmm2:	MoveW r2, override_height
+	MoveW r2, override_height
 
 	MoveW r2, r4
 	MoveW r1, r3
@@ -304,9 +306,7 @@ console_put_image:
 	MoveW py, r1
 
 	; get baseline
-	ldx #0
-	lda #' '
-	jsr GRAPH_get_char_size
+	jsr get_font_size
 	sta r5L
 
 	; subtract baseline
@@ -344,6 +344,13 @@ new_line:
 @2:	stz override_height
 	stz override_height+1
 	rts
+
+get_font_size:
+	ldx #0
+	lda #' '
+	jsr GRAPH_get_char_size
+	rts
+
 ;---------------------------------------------------------------
 ; console_get_char
 ;
@@ -371,9 +378,7 @@ console_get_char:
 	stz style
 
 ; get height + baseline
-	ldx #0
-	lda #' '
-	jsr GRAPH_get_char_size
+	jsr get_font_size
 	sta baseline
 
 ; create sprite
