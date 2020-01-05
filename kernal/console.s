@@ -147,11 +147,11 @@ flush:
 @no_x_overflow:
 	jsr scroll_maybe
 
-	lda r7L
-	beq @l1
-
 	MoveW px, r0
 	MoveW py, r1
+
+	lda r7L
+	beq @l1
 
 	ldy #0
 :	lda (r6),y
