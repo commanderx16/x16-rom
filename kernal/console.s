@@ -49,6 +49,9 @@ override_height:
 px:	.res 2
 py:	.res 2
 
+height_counter:
+	.res 2
+
 .segment "CONSOLE"
 
 ;---------------------------------------------------------------
@@ -81,7 +84,15 @@ console_init:
 	KVARS_END
 	rts
 
-; fallthrough
+;---------------------------------------------------------------
+; console_mark_page
+;
+; Function:  Initializes the console.
+;---------------------------------------------------------------
+console_mark_page:
+	stz height_counter
+	stz height_counter+1
+	rts
 
 ;---------------------------------------------------------------
 ; console_put_char
@@ -325,33 +336,26 @@ console_put_image:
 	rts
 
 new_line:
-	lda override_height
-	ora override_height+1
-	beq @1
-
-	; check whether override_height > font height + 1
+	; override_height = MAX(override_height,  font height + 1)
 	jsr get_font_size
+	iny
 	tya
-	inc
 	sec
 	sbc override_height
 	lda #0
 	sbc override_height+1
-	bcs @1 ; font is higher -> regular newline
-
-	; newline, but advance override_height vertically
+	bcc @0 ; font is higher -> regular newline
+	sty override_height
+	stz override_height+1
+@0:
 	PushW r1
 	lda #10
 	jsr GRAPH_put_char
 	PopW r1
 	AddW override_height, r1
-	bra @2
+	AddW override_height, height_counter
 
-	; regular newline
-@1:	lda #10
-	jsr GRAPH_put_char
-	
-@2:	stz override_height
+	stz override_height
 	stz override_height+1
 	rts
 
