@@ -200,8 +200,9 @@ SCROLL_AMOUNT=12 ; XXX should be font height + 2
 scroll_maybe:
 	LoadW r2, 10 ; XXX should be font height + 1
 scroll_if_less_than_r2_pixels:
+	MoveW r2, r14
 	MoveW windowBottom, r15
-	SubW r2, r15
+	SubW r14, r15
 	CmpW py, r15
 	bcs :+
 	rts
@@ -209,12 +210,16 @@ scroll_if_less_than_r2_pixels:
 :	PushW r0
 	PushW r1
 	PushW r2
+	
+	MoveW r14, r6
+	AddVW 2, r6
+	
 ; scroll
 	; source x = leftMargin
 	MoveW leftMargin, r0
 	; source y = windowTop + SCROLL_AMOUNT
 	MoveW windowTop, r1
-	AddVW SCROLL_AMOUNT, r1
+	AddW r6, r1
 	; target x = leftMargin
 	MoveW leftMargin, r2
 	; target y = windowTop
@@ -227,7 +232,7 @@ scroll_if_less_than_r2_pixels:
 	; height = windowBottom - windowTop - SCROLL_AMOUNT + 1
 	MoveW windowBottom, r5
 	SubW windowTop, r5
-	SubVW SCROLL_AMOUNT, r5
+	SubW r6, r5
 	IncW r5
 	jsr GRAPH_move_rect
 
@@ -236,12 +241,12 @@ scroll_if_less_than_r2_pixels:
 	MoveW leftMargin, r0
 	; y = windowBottom - SCROLL_AMOUNT + 1
 	MoveW windowBottom, r1
-	SubVW SCROLL_AMOUNT, r1
+	SubW r6, r1
 	IncW r1
 	; width = rightMargin - leftMargin + 1
 	PopW r2 ; take result from before
 	; height = SCROLL_AMOUNT
-	LoadW r3, SCROLL_AMOUNT
+	MoveW r6, r3
 	; corner radius
 	LoadW r4, 0
 
@@ -255,7 +260,7 @@ scroll_if_less_than_r2_pixels:
 	PopB col2
 	PopB col1
 
-	SubVW SCROLL_AMOUNT, py
+	SubW r6, py
 	
 	PopW r2
 	PopW r1
