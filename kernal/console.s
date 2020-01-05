@@ -1,3 +1,7 @@
+;----------------------------------------------------------------------
+; VERA Console Library
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
 
 .include "../regs.inc"
 .include "../mac.inc"
@@ -167,7 +171,6 @@ flush:
 @l1:	pla
 	pha
 	jsr GRAPH_put_char
-@mmmmm:	nop
 	bcc :+ ; did fit, skip
 
 ; character wrapping
@@ -376,6 +379,11 @@ console_get_char:
 
 	clc
 	jsr console_put_char ; print CR
+
+	; disable cursor
+	LoadB r0H, $ff
+	lda #1
+	jsr sprite_set_position
 
 @return_char:
 	ldx inbufidx
