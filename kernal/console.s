@@ -64,7 +64,6 @@ console_init:
 	lda #$0f ; ISO mode
 	jsr bsout
 
-	LoadW r6, outbuf ; XXX must be private!
 	stz outbufidx
 	stz style
 	stz inbuf
@@ -114,7 +113,7 @@ console_put_char:
 	beq @flush
 
 	ldy outbufidx
-	sta (r6),y
+	sta outbuf,y
 	inc outbufidx
 
 	KVARS_END
@@ -128,7 +127,7 @@ console_put_char:
 	beq @no_x_overflow
 	MoveW px, r3 ; start with x pos
 	ldy #0
-:	lda (r6),y
+:	lda outbuf,y
 	phy
 	ldx style
 	jsr GRAPH_get_char_size
@@ -162,7 +161,7 @@ console_put_char:
 	beq @l1
 
 	ldy #0
-:	lda (r6),y
+:	lda outbuf,y
 	phy
 	jsr GRAPH_put_char
 	ply
