@@ -260,3 +260,18 @@
 	inc addr+1
 	@j:
 .endmacro
+
+.macro DecW_ addr
+	.local @j
+	lda addr
+	bne @j
+	dec addr+1
+@j:	dec addr
+.endmacro
+
+.macro DecW addr
+	DecW_ addr
+	lda addr
+	ora addr+1
+.endmacro
+

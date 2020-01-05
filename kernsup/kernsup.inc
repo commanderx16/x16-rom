@@ -5,19 +5,19 @@
 .byte 0,0,0            ; $FECC
 .byte 0,0,0            ; $FECF
 .byte 0,0,0            ; $FED2
-.byte 0,0,0            ; $FED5
 
-bridge console_put_image  ; $FED8
-bridge console_init       ; $FEDB
-bridge console_put_char   ; $FEDE
-bridge console_get_char   ; $FEE1
+bridge console_set_paging_message ; $FED5
+bridge console_put_image          ; $FED8
+bridge console_init               ; $FEDB
+bridge console_put_char           ; $FEDE
+bridge console_get_char           ; $FEE1
 
-bridge memory_fill        ; $FEE4
-bridge memory_copy        ; $FEE7
-bridge memory_crc         ; $FEEA
-bridge memory_decompress  ; $FEED
-bridge sprite_set_image   ; $FEF0
-bridge sprite_set_position; $FEF3
+bridge memory_fill                ; $FEE4
+bridge memory_copy                ; $FEE7
+bridge memory_crc                 ; $FEEA
+bridge memory_decompress          ; $FEED
+bridge sprite_set_image           ; $FEF0
+bridge sprite_set_position        ; $FEF3
 
 bridge FB_init                ; $FEF6
 bridge FB_get_info            ; $FEF9

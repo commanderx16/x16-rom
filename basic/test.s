@@ -647,6 +647,8 @@ test1:
 	LoadW r3, 0
 	jsr console_init
 
+	jsr set_pause_text
+
 :	clc ; char wrap
 	jsr print_lots_of_text
 	sec ; word wrap
@@ -686,52 +688,116 @@ test2:
 	LoadW r3, 200-2*INSET
 	jsr console_init
 
+	jsr set_pause_text
+
 :	clc ; char wrap
 	jsr print_lots_of_text
 	sec ; word wrap
 	jsr print_lots_of_text
 	bra :-
 
+set_pause_text:
+	ldx #0
+:	lda pause_text,x
+	sta $0500,x
+	beq :+
+	inx
+	bne :-
+:
+	LoadW r0, $0500
+	jmp console_set_paging_message
+
+pause_text:
+	.byte $92,$9B,$01,$90,$12,"Press any key to continue.",0
+
 tmp = 0
 print_lots_of_text:
-	LoadW tmp, text1
-	jsr print_text
-
-	jsr draw_logo
-
-	LoadW tmp, text2
-	jsr print_text
-
-	jsr draw_smiley
-	
-	lda #10
-	jsr console_put_char
-	lda #10
-	jmp console_put_char
+	LoadW tmp, text
+	jmp print_text
 
 print_text:
 	php
-:	lda (tmp)
+@loop:	lda (tmp)
 	beq @end
+	cmp #CODE_LOGO
+	bne @1
+	jsr draw_logo
+	bra @9
+@1:	cmp #CODE_SMILEY
+	bne @2
+	jsr draw_smiley
+	bra @9
+@2:
 	plp
 	php
 	jsr console_put_char
-	inc tmp
-	bne :-
+
+@9:	inc tmp
+	bne @loop
 	inc tmp+1
-	bra :-
+	bra @loop
 @end	plp
 	rts
 
-text1:
-	.byte ATTR_RESET,COLOR_BLACK,"Lorem ipsum ",ATTR_UNDERLINE,"dolor sit ",ATTR_RESET,ATTR_BOLD,"amet, consetetur ",ATTR_RESET,ATTR_ITALICS,"sadipscing elitr",ATTR_RESET,ATTR_OUTLINE,", sed diam"
-	.byte ATTR_RESET,COLOR_RED," nonumy eirmod",ATTR_UNDERLINE," tempor invidunt",ATTR_RESET,ATTR_BOLD," ut labore",ATTR_RESET,ATTR_ITALICS," et dolore",ATTR_RESET,ATTR_OUTLINE," magna aliquyam"
-	.byte ATTR_RESET,COLOR_GREEN," erat, sed",ATTR_UNDERLINE," diam voluptua. ",ATTR_RESET
-	.byte 0
-text2:
-	.byte ATTR_BOLD," At vero",ATTR_RESET,ATTR_ITALICS," eos et",ATTR_RESET,ATTR_OUTLINE," accusam et"
-	.byte ATTR_RESET,COLOR_BLUE," justo duo",ATTR_UNDERLINE," dolores et",ATTR_RESET,ATTR_BOLD," ea rebum",ATTR_RESET,ATTR_ITALICS,". Stet clita",ATTR_RESET,ATTR_OUTLINE," kasd gubergren"
-	.byte ATTR_RESET,", no sea",ATTR_UNDERLINE," takimata sanctus",ATTR_RESET,ATTR_BOLD," est Lorem",ATTR_RESET,ATTR_ITALICS," ipsum dolor",ATTR_RESET,ATTR_OUTLINE," sit amet."
+CODE_LOGO   = $fe
+CODE_SMILEY = $ff
+text:
+	.byte ATTR_RESET,COLOR_BLACK
+	.byte "Space is "
+	.byte ATTR_UNDERLINE
+	.byte "big."
+	.byte ATTR_RESET,ATTR_BOLD
+	.byte " Really big. "
+	.byte ATTR_RESET,ATTR_ITALICS
+	.byte "You "
+	.byte ATTR_RESET,ATTR_OUTLINE
+	.byte "just won't "
+	.byte ATTR_RESET,COLOR_RED
+	.byte "believe "
+	.byte ATTR_UNDERLINE
+	.byte "how vastly, "
+	.byte ATTR_RESET,ATTR_BOLD
+	.byte "hugely, "
+	.byte ATTR_RESET,ATTR_ITALICS
+	.byte "mindbogglingly big "
+	.byte ATTR_RESET,ATTR_OUTLINE
+	.byte "it is. I "
+	.byte ATTR_RESET,COLOR_GREEN
+	.byte "mean, "
+	.byte ATTR_UNDERLINE
+	.byte "you may"
+	.byte ATTR_RESET
+	.byte "   "
+	.byte CODE_LOGO
+	.byte ATTR_BOLD
+	.byte " think "
+	.byte ATTR_RESET,ATTR_ITALICS
+	.byte "it's a "
+	.byte ATTR_RESET,ATTR_OUTLINE
+	.byte "long "
+	.byte ATTR_RESET,COLOR_BLUE
+	.byte "way down "
+	.byte ATTR_UNDERLINE
+	.byte "the"
+	.byte ATTR_RESET,ATTR_BOLD
+	.byte " road to "
+	.byte ATTR_RESET,ATTR_ITALICS
+	.byte "the "
+	.byte ATTR_RESET,ATTR_OUTLINE
+	.byte "chemist, but "
+	.byte ATTR_RESET
+	.byte "that's "
+	.byte ATTR_UNDERLINE
+	.byte "just"
+	.byte ATTR_RESET,ATTR_BOLD
+	.byte " peanuts "
+	.byte ATTR_RESET,ATTR_ITALICS
+	.byte "to "
+	.byte ATTR_RESET,ATTR_OUTLINE
+	.byte "space."
+	.byte CODE_SMILEY
+;	.byte 10,10
+;	.byte CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,10
 	.byte 0
 
 draw_smiley:

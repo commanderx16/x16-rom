@@ -8,11 +8,11 @@ endif
 AS           = ca65
 LD           = ld65
 
-ARGS_KERNAL=-g --cpu 65SC02 
+ARGS_KERNAL=--cpu 65SC02 -g
 ARGS_BASIC=--cpu 65SC02 -g
-ARGS_MONITOR=-g --cpu 65SC02 
-#ARGS_DOS=-g
-#ARGS_GEOS=-g
+ARGS_MONITOR=--cpu 65SC02 -g
+ARGS_DOS=#-g
+ARGS_GEOS=#-g
 
 
 ASFLAGS      = -I geos/inc -I geos #-g
