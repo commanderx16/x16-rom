@@ -329,6 +329,16 @@ new_line:
 	ora override_height+1
 	beq @1
 
+	; check whether override_height > font height + 1
+	jsr get_font_size
+	tya
+	inc
+	sec
+	sbc override_height
+	lda #0
+	sbc override_height+1
+	bcs @1 ; font is higher -> regular newline
+
 	; newline, but advance override_height vertically
 	PushW r1
 	lda #10
