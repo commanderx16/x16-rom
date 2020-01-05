@@ -6,8 +6,8 @@
 .byte 0,0,0            ; $FECF
 .byte 0,0,0            ; $FED2
 .byte 0,0,0            ; $FED5
-.byte 0,0,0            ; $FED8
 
+bridge console_put_image  ; $FED8
 bridge console_init       ; $FEDB
 bridge console_put_char   ; $FEDE
 bridge console_get_char   ; $FEE1

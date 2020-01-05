@@ -14,6 +14,7 @@
 .import GRAPH_move_rect
 .import GRAPH_draw_rect
 .import GRAPH_get_char_size
+.import GRAPH_draw_image
 .import col1, col2, col_bg
 .import leftMargin, windowTop, rightMargin, windowBottom
 
@@ -23,7 +24,7 @@
 
 bsout = $ffd2
 
-.export console_init, console_put_char, console_get_char
+.export console_init, console_put_char, console_get_char, console_put_image
 
 .segment "KVARSB0"
 
@@ -42,6 +43,8 @@ style:
 	.res 1
 baseline:
 	.res 1
+override_height:
+	.res 2
 
 px:	.res 2
 py:	.res 2
@@ -61,16 +64,12 @@ console_init:
 	lda #$0f ; ISO mode
 	jsr bsout
 
-	lda #<outbuf
-	sta r6L
-	lda #>outbuf
-	sta r6H
 	stz outbufidx
-	
 	stz style
 	stz inbuf
-	stz inbuf
 	stz inbufidx
+	stz override_height
+	stz override_height+1
 
 	lda #147 ; clear screen
 	clc
@@ -99,25 +98,28 @@ console_init:
 ;            If C is 0, character wrapping and therefore no
 ;            buffering is performed.
 ;---------------------------------------------------------------
+; XXX * preserve r0-r3!
+; XXX * update override_height at least once every time the font
+; XXX   is changed
 console_put_char:
 	KVARS_START
 
-	bcc flush
+	bcc @flush
 	cmp #' '
-	beq flush
+	beq @flush
 	cmp #10
-	beq flush
+	beq @flush
 	cmp #13
-	beq flush
+	beq @flush
 
 	ldy outbufidx
-	sta (r6),y
+	sta outbuf,y
 	inc outbufidx
 
 	KVARS_END
 	rts
 	
-flush:
+@flush:
 	pha
 
 ; measure word
@@ -125,7 +127,7 @@ flush:
 	beq @no_x_overflow
 	MoveW px, r3 ; start with x pos
 	ldy #0
-:	lda (r6),y
+:	lda outbuf,y
 	phy
 	ldx style
 	jsr GRAPH_get_char_size
@@ -145,8 +147,7 @@ flush:
 
 	MoveW px, r0
 	MoveW py, r1
-	lda #10
-	jsr GRAPH_put_char
+	jsr new_line
 	MoveW r0, px
 	MoveW r1, py
 
@@ -160,7 +161,7 @@ flush:
 	beq @l1
 
 	ldy #0
-:	lda (r6),y
+:	lda outbuf,y
 	phy
 	jsr GRAPH_put_char
 	ply
@@ -176,8 +177,7 @@ flush:
 	bcc :+ ; did fit, skip
 
 ; character wrapping
-	lda #10
-	jsr GRAPH_put_char
+	jsr new_line
 	MoveW r0, px
 	MoveW r1, py
 	jsr scroll_maybe
@@ -195,20 +195,32 @@ flush:
 	KVARS_END
 	rts
 
+; preserves r0, r1, r2
 scroll_maybe:
-	MoveW windowBottom, r5
-	SubVW 10, r5 ; XXX should be font height + 1
-	CmpW py, r5
+	jsr get_font_size
+	sty r14L
+	inc r14L
+	stz r14H ; font height + 1
+scroll_if_less_than_r14_pixels:
+	MoveW windowBottom, r15
+	SubW r14, r15
+	CmpW py, r15
 	bcs :+
 	rts
-:
+
+:	PushW r0
+	PushW r1
+	PushW r2
+	
+	MoveW r14, r6
+	AddVW 2, r6 ; scrollAmount = font height + 2
+
 ; scroll
-SCROLL_AMOUNT=12 ; XXX should be font height + 2
 	; source x = leftMargin
 	MoveW leftMargin, r0
-	; source y = windowTop + SCROLL_AMOUNT
+	; source y = windowTop + scrollAmount
 	MoveW windowTop, r1
-	AddVW SCROLL_AMOUNT, r1
+	AddW r6, r1
 	; target x = leftMargin
 	MoveW leftMargin, r2
 	; target y = windowTop
@@ -218,24 +230,24 @@ SCROLL_AMOUNT=12 ; XXX should be font height + 2
 	SubW leftMargin, r4
 	IncW r4
 	PushW r4 ; we need it again later
-	; height = windowBottom - windowTop - SCROLL_AMOUNT + 1
+	; height = windowBottom - windowTop - scrollAmount + 1
 	MoveW windowBottom, r5
 	SubW windowTop, r5
-	SubVW SCROLL_AMOUNT, r5
+	SubW r6, r5
 	IncW r5
 	jsr GRAPH_move_rect
 
 ; fill
 	; x = leftMargin
 	MoveW leftMargin, r0
-	; y = windowBottom - SCROLL_AMOUNT + 1
+	; y = windowBottom - scrollAmount + 1
 	MoveW windowBottom, r1
-	SubVW SCROLL_AMOUNT, r1
+	SubW r6, r1
 	IncW r1
 	; width = rightMargin - leftMargin + 1
 	PopW r2 ; take result from before
-	; height = SCROLL_AMOUNT
-	LoadW r3, SCROLL_AMOUNT
+	; height = scrollAmount
+	MoveW r6, r3
 	; corner radius
 	LoadW r4, 0
 
@@ -249,8 +261,104 @@ SCROLL_AMOUNT=12 ; XXX should be font height + 2
 	PopB col2
 	PopB col1
 
-	SubVW SCROLL_AMOUNT, py
+	SubW r6, py
 	
+	PopW r2
+	PopW r1
+	PopW r0
+	
+	rts
+
+;---------------------------------------------------------------
+; console_put_image
+;
+; Function:  Draw an image in GRAPH_draw_image format at the
+;            current cursor position and advance the cursor.
+;
+; Pass:      r0   image pointer
+;            r1   width
+;            r2   height
+;---------------------------------------------------------------
+console_put_image:
+	KVARS_START
+
+	PushW r0
+	PushW r1
+	PushW r2
+
+	lda #0
+	clc
+	jsr console_put_char
+	
+	PopW r2
+	PopW r1
+	PopW r0
+
+	MoveW r2, r14
+	jsr scroll_if_less_than_r14_pixels
+
+	MoveW r2, override_height
+
+	MoveW r2, r4
+	MoveW r1, r3
+	MoveW r0, r2
+	MoveW px, r0
+	MoveW py, r1
+
+	; get baseline
+	jsr get_font_size
+	sta r5L
+
+	; subtract baseline
+	lda r1L
+	sec
+	sbc r5L
+	sta r1L
+	bcs :+
+	dec r1H
+:
+	jsr GRAPH_draw_image
+
+	AddW r3, px ; advance cursor by image width
+
+	KVARS_END
+	rts
+
+new_line:
+	lda override_height
+	ora override_height+1
+	beq @1
+
+	; check whether override_height > font height + 1
+	jsr get_font_size
+	tya
+	inc
+	sec
+	sbc override_height
+	lda #0
+	sbc override_height+1
+	bcs @1 ; font is higher -> regular newline
+
+	; newline, but advance override_height vertically
+	PushW r1
+	lda #10
+	jsr GRAPH_put_char
+	PopW r1
+	AddW override_height, r1
+	bra @2
+
+	; regular newline
+@1:	lda #10
+	jsr GRAPH_put_char
+	
+@2:	stz override_height
+	stz override_height+1
+	rts
+
+get_font_size:
+	ldx #0
+	lda #' '
+	jsr GRAPH_get_char_size
 	rts
 
 ;---------------------------------------------------------------
@@ -280,9 +388,7 @@ console_get_char:
 	stz style
 
 ; get height + baseline
-	ldx #0
-	lda #' '
-	jsr GRAPH_get_char_size
+	jsr get_font_size
 	sta baseline
 
 ; create sprite

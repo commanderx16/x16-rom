@@ -467,7 +467,7 @@ test13_move_rect:
 
 test14_image:
 	ldx #0
-:	lda image_data,x
+:	lda logo_image,x
 	sta $0400,x
 	inx
 	bne :-
@@ -486,25 +486,6 @@ test14_image:
 	dex
 	bne :-
 	rts
-
-image_data:
-.byte $14,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$91
-.byte $cb,$16,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$ca,$e8
-.byte $ae,$b1,$af,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$ae,$b0,$af
-.byte $91,$b8,$b8,$b6,$91,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$b6,$b8,$b8,$91
-.byte $c9,$b7,$b9,$b9,$b8,$91,$c9,$c9,$c9,$c9,$c9,$b7,$b9,$b9,$b8,$c9
-.byte $c9,$92,$9d,$9d,$9d,$9c,$ae,$c9,$c9,$b5,$b8,$9d,$9d,$9d,$9b,$c9
-.byte $c9,$91,$9c,$95,$9d,$9d,$9d,$ae,$c9,$9c,$9d,$9d,$95,$95,$b6,$c9
-.byte $c9,$c9,$91,$ae,$92,$9b,$9c,$9a,$91,$9c,$9b,$9a,$ae,$b5,$c9,$c9
-.byte $c9,$c9,$c9,$c9,$c9,$91,$80,$99,$91,$80,$99,$c9,$c9,$c9,$c9,$c9
-.byte $c9,$c9,$c9,$c9,$5a,$63,$64,$5a,$91,$64,$63,$3e,$91,$c9,$c9,$c9
-.byte $c9,$c9,$3e,$48,$48,$48,$48,$15,$c9,$47,$48,$48,$48,$46,$c9,$c9
-.byte $c9,$c9,$47,$49,$49,$48,$14,$c9,$c9,$91,$48,$49,$49,$48,$c9,$c9
-.byte $c9,$c9,$08,$50,$08,$15,$c9,$c9,$c9,$c9,$14,$47,$50,$50,$14,$c9
-.byte $c9,$e5,$08,$2c,$e5,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2b,$2d,$22,$c9
-.byte $c9,$e5,$2b,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2a,$2a,$c9
-.byte $c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9
-
 
 checksum_framebuffer:
 	lda #$ff
@@ -713,8 +694,23 @@ test2:
 
 tmp = 0
 print_lots_of_text:
+	LoadW tmp, text1
+	jsr print_text
+
+	jsr draw_logo
+
+	LoadW tmp, text2
+	jsr print_text
+
+	jsr draw_smiley
+	
+	lda #10
+	jsr console_put_char
+	lda #10
+	jmp console_put_char
+
+print_text:
 	php
-	LoadW tmp, text
 :	lda (tmp)
 	beq @end
 	plp
@@ -727,14 +723,40 @@ print_lots_of_text:
 @end	plp
 	rts
 
-text:
+text1:
 	.byte ATTR_RESET,COLOR_BLACK,"Lorem ipsum ",ATTR_UNDERLINE,"dolor sit ",ATTR_RESET,ATTR_BOLD,"amet, consetetur ",ATTR_RESET,ATTR_ITALICS,"sadipscing elitr",ATTR_RESET,ATTR_OUTLINE,", sed diam"
 	.byte ATTR_RESET,COLOR_RED," nonumy eirmod",ATTR_UNDERLINE," tempor invidunt",ATTR_RESET,ATTR_BOLD," ut labore",ATTR_RESET,ATTR_ITALICS," et dolore",ATTR_RESET,ATTR_OUTLINE," magna aliquyam"
-	.byte ATTR_RESET,COLOR_GREEN," erat, sed",ATTR_UNDERLINE," diam voluptua",ATTR_RESET,ATTR_BOLD,". At vero",ATTR_RESET,ATTR_ITALICS," eos et",ATTR_RESET,ATTR_OUTLINE," accusam et"
+	.byte ATTR_RESET,COLOR_GREEN," erat, sed",ATTR_UNDERLINE," diam voluptua. ",ATTR_RESET
+	.byte 0
+text2:
+	.byte ATTR_BOLD," At vero",ATTR_RESET,ATTR_ITALICS," eos et",ATTR_RESET,ATTR_OUTLINE," accusam et"
 	.byte ATTR_RESET,COLOR_BLUE," justo duo",ATTR_UNDERLINE," dolores et",ATTR_RESET,ATTR_BOLD," ea rebum",ATTR_RESET,ATTR_ITALICS,". Stet clita",ATTR_RESET,ATTR_OUTLINE," kasd gubergren"
 	.byte ATTR_RESET,", no sea",ATTR_UNDERLINE," takimata sanctus",ATTR_RESET,ATTR_BOLD," est Lorem",ATTR_RESET,ATTR_ITALICS," ipsum dolor",ATTR_RESET,ATTR_OUTLINE," sit amet."
-	.byte 10,10,0
+	.byte 0
 
+draw_smiley:
+	ldx #smiley_image_end-smiley_image-1
+:	lda smiley_image,x
+	sta $0400,x
+	dex
+	bpl :-
+
+	LoadW r0, $0400
+	LoadW r1, 10
+	LoadW r2, 10
+	jmp console_put_image
+
+draw_logo:
+	ldx #0
+:	lda logo_image,x
+	sta $0400,x
+	inx
+	bne :-
+
+	LoadW r0, $0400
+	LoadW r1, 16
+	LoadW r2, 16
+	jmp console_put_image
 
 ; input line, echo it, loop
 test3:
@@ -751,4 +773,32 @@ test3:
 	sec
 	jsr console_put_char
 	jmp :-
+
+smiley_image:
+	.byte $1f,$1f,$42,$49,$49,$49,$49,$42,$1f,$1f,$1f,$49,$42,$42,$42,$42
+	.byte $42,$42,$42,$1f,$42,$49,$07,$07,$42,$42,$07,$07,$49,$42,$08,$14
+	.byte $5c,$3f,$46,$46,$3f,$3f,$3d,$08,$57,$12,$13,$13,$4c,$4c,$13,$13
+	.byte $12,$57,$57,$56,$45,$45,$50,$50,$45,$4c,$56,$57,$50,$50,$50,$50
+	.byte $50,$50,$50,$50,$50,$08,$42,$57,$50,$4f,$54,$54,$4f,$50,$57,$42
+	.byte $1f,$49,$57,$57,$57,$57,$57,$57,$49,$1f,$1f,$1f,$42,$08,$56,$56
+	.byte $08,$42,$1f,$1f
+smiley_image_end:
+
+logo_image:
+	.byte $14,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$91
+	.byte $cb,$16,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$ca,$e8
+	.byte $ae,$b1,$af,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$ae,$b0,$af
+	.byte $91,$b8,$b8,$b6,$91,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$b6,$b8,$b8,$91
+	.byte $c9,$b7,$b9,$b9,$b8,$91,$c9,$c9,$c9,$c9,$c9,$b7,$b9,$b9,$b8,$c9
+	.byte $c9,$92,$9d,$9d,$9d,$9c,$ae,$c9,$c9,$b5,$b8,$9d,$9d,$9d,$9b,$c9
+	.byte $c9,$91,$9c,$95,$9d,$9d,$9d,$ae,$c9,$9c,$9d,$9d,$95,$95,$b6,$c9
+	.byte $c9,$c9,$91,$ae,$92,$9b,$9c,$9a,$91,$9c,$9b,$9a,$ae,$b5,$c9,$c9
+	.byte $c9,$c9,$c9,$c9,$c9,$91,$80,$99,$91,$80,$99,$c9,$c9,$c9,$c9,$c9
+	.byte $c9,$c9,$c9,$c9,$5a,$63,$64,$5a,$91,$64,$63,$3e,$91,$c9,$c9,$c9
+	.byte $c9,$c9,$3e,$48,$48,$48,$48,$15,$c9,$47,$48,$48,$48,$46,$c9,$c9
+	.byte $c9,$c9,$47,$49,$49,$48,$14,$c9,$c9,$91,$48,$49,$49,$48,$c9,$c9
+	.byte $c9,$c9,$08,$50,$08,$15,$c9,$c9,$c9,$c9,$14,$47,$50,$50,$14,$c9
+	.byte $c9,$e5,$08,$2c,$e5,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2b,$2d,$22,$c9
+	.byte $c9,$e5,$2b,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2a,$2a,$c9
+	.byte $c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9
 

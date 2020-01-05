@@ -10,7 +10,7 @@
 
 .import sprite_set_image, sprite_set_position
 
-.import console_init, console_put_char, console_get_char
+.import console_init, console_put_char, console_get_char, console_put_image
 
 	.segment "JMPTBL"
 
@@ -27,8 +27,8 @@
 	.byte 0,0,0            ; $FECF
 	.byte 0,0,0            ; $FED2
 	.byte 0,0,0            ; $FED5
-	.byte 0,0,0            ; $FED8
 
+	jmp console_put_image  ; $FED8
 	jmp console_init       ; $FEDB
 	jmp console_put_char   ; $FEDE
 	jmp console_get_char   ; $FEE1
