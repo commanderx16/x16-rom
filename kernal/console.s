@@ -24,7 +24,7 @@
 
 bsout = $ffd2
 
-.export console_init, console_put_char, console_get_char, console_draw_image
+.export console_init, console_put_char, console_get_char, console_put_image
 
 .segment "KVARSB0"
 
@@ -252,6 +252,70 @@ SCROLL_AMOUNT=12 ; XXX should be font height + 2
 	rts
 
 ;---------------------------------------------------------------
+; console_put_image
+;
+; Function:  Draw an image in GRAPH_draw_image format at the
+;            current cursor position and advance the cursor.
+;
+; Pass:      r0   image pointer
+;            r1   width
+;            r2   height
+;---------------------------------------------------------------
+console_put_image:
+	KVARS_START
+
+	; XXX first flush output
+
+	MoveW r2, override_height
+
+	MoveW r2, r4
+	MoveW r1, r3
+	MoveW r0, r2
+	MoveW px, r0
+	MoveW py, r1
+
+	; get baseline
+	ldx #0
+	lda #' '
+	jsr GRAPH_get_char_size
+	sta r5L
+
+	; subtract baseline
+	lda r1L
+	sec
+	sbc r5L
+	sta r1L
+	bcs :+
+	dec r1H
+:
+	jsr GRAPH_draw_image
+
+	AddW r3, px ; advance cursor by image width
+
+	KVARS_END
+	rts
+
+new_line:
+	lda override_height
+	ora override_height+1
+	beq @1
+
+	; newline, but advance override_height vertically
+	PushW r1
+	lda #10
+	jsr GRAPH_put_char
+	PopW r1
+	AddW override_height, r1
+	bra @2
+
+	; regular newline
+@1:	lda #10
+	jsr GRAPH_put_char
+	
+@2:	stz override_height
+	stz override_height+1
+	rts
+;---------------------------------------------------------------
 ; console_get_char
 ;
 ; Return:    a   ASCII character
@@ -440,66 +504,3 @@ console_get_char:
 	MoveW r1, py
 
 	jmp @input_loop
-
-;---------------------------------------------------------------
-; console_draw_image
-;
-; Function:  Draw an image in GRAPH_draw_image format at the
-;            current cursor position and advance the cursor.
-;
-; Pass:      r0   image pointer
-;            r1   width
-;            r2   height
-;---------------------------------------------------------------
-console_draw_image:
-	KVARS_START
-
-	; XXX first flush output
-
-	MoveW r2, override_height
-
-	MoveW r2, r4
-	MoveW r1, r3
-	MoveW r0, r2
-	MoveW px, r0
-	MoveW py, r1
-
-	; get baseline
-	ldx #0
-	lda #' '
-	jsr GRAPH_get_char_size
-	sta r5L
-
-	; subtract baseline
-	lda r1L
-	sec
-	sbc r5L
-	sta r1L
-	bcs :+
-	dec r1H
-:
-	jsr GRAPH_draw_image
-
-	AddW r3, px ; advance cursor by image width
-
-	KVARS_END
-	rts
-
-new_line:
-	lda override_height
-	ora override_height+1
-	beq @1
-
-@mmm1:	PushW r1 ; save cursor y
-	lda #10
-	jsr GRAPH_put_char
-@mmm2:	PopW r1
-	AddW override_height, r1
-	bra @2
-
-@1:	lda #10
-	jsr GRAPH_put_char
-	
-@2:	stz override_height
-	stz override_height+1
-	rts

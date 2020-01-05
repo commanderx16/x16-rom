@@ -748,7 +748,7 @@ draw_smiley:
 	LoadW r0, $0400
 	LoadW r1, 10
 	LoadW r2, 10
-	jmp console_draw_image
+	jmp console_put_image
 .else
 	ldx #0
 :	lda image_data,x
@@ -759,7 +759,7 @@ draw_smiley:
 	LoadW r0, $0400
 	LoadW r1, 16
 	LoadW r2, 16
-	jmp console_draw_image
+	jmp console_put_image
 .endif
 
 

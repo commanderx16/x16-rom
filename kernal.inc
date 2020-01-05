@@ -120,5 +120,5 @@ memory_decompress            = $feed
 console_init                 = $fedb
 console_put_char             = $fede
 console_get_char             = $fee1
-console_draw_image           = $fed8
+console_put_image            = $fed8
 
