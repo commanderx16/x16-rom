@@ -64,7 +64,7 @@ console_init:
 	lda #$0f ; ISO mode
 	jsr bsout
 
-	LoadW r6, outbuf
+	LoadW r6, outbuf ; XXX must be private!
 	stz outbufidx
 	stz style
 	stz inbuf
@@ -99,16 +99,17 @@ console_init:
 ;            If C is 0, character wrapping and therefore no
 ;            buffering is performed.
 ;---------------------------------------------------------------
+; XXX preserve r0-r3!
 console_put_char:
 	KVARS_START
 
-	bcc flush
+	bcc @flush
 	cmp #' '
-	beq flush
+	beq @flush
 	cmp #10
-	beq flush
+	beq @flush
 	cmp #13
-	beq flush
+	beq @flush
 
 	ldy outbufidx
 	sta (r6),y
@@ -117,7 +118,7 @@ console_put_char:
 	KVARS_END
 	rts
 	
-flush:
+@flush:
 	pha
 
 ; measure word
@@ -193,15 +194,21 @@ flush:
 	KVARS_END
 	rts
 
+SCROLL_AMOUNT=12 ; XXX should be font height + 2
+; preserves r0, r1, r2
 scroll_maybe:
-	MoveW windowBottom, r5
-	SubVW 10, r5 ; XXX should be font height + 1
-	CmpW py, r5
+	LoadW r2, 10 ; XXX should be font height + 1
+scroll_if_less_than_r2_pixels:
+	MoveW windowBottom, r15
+	SubW r2, r15
+	CmpW py, r15
 	bcs :+
 	rts
-:
+
+:	PushW r0
+	PushW r1
+	PushW r2
 ; scroll
-SCROLL_AMOUNT=12 ; XXX should be font height + 2
 	; source x = leftMargin
 	MoveW leftMargin, r0
 	; source y = windowTop + SCROLL_AMOUNT
@@ -249,6 +256,10 @@ SCROLL_AMOUNT=12 ; XXX should be font height + 2
 
 	SubVW SCROLL_AMOUNT, py
 	
+	PopW r2
+	PopW r1
+	PopW r0
+	
 	rts
 
 ;---------------------------------------------------------------
@@ -264,9 +275,21 @@ SCROLL_AMOUNT=12 ; XXX should be font height + 2
 console_put_image:
 	KVARS_START
 
-	; XXX first flush output
+	PushW r0
+	PushW r1
+	PushW r2
 
-	MoveW r2, override_height
+	lda #0
+	clc
+	jsr console_put_char
+	
+	PopW r2
+	PopW r1
+	PopW r0
+
+@mmm1:	jsr scroll_if_less_than_r2_pixels
+
+@mmm2:	MoveW r2, override_height
 
 	MoveW r2, r4
 	MoveW r1, r3
