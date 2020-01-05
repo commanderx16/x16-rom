@@ -34,6 +34,8 @@ bufsize  = 80
 outbuf:	.res 80
 inbuf:	.res bufsize+1 ; (+ trailing CR)
 
+outbufidx:
+	.res 1
 inbufidx:
 	.res 1
 style:
@@ -63,7 +65,7 @@ console_init:
 	sta r6L
 	lda #>outbuf
 	sta r6H
-	stz r7L
+	stz outbufidx
 	
 	stz style
 	stz inbuf
@@ -108,9 +110,9 @@ console_put_char:
 	cmp #13
 	beq flush
 
-	ldy r7L
+	ldy outbufidx
 	sta (r6),y
-	inc r7L
+	inc outbufidx
 
 	KVARS_END
 	rts
@@ -119,7 +121,7 @@ flush:
 	pha
 
 ; measure word
-	lda r7L
+	lda outbufidx
 	beq @no_x_overflow
 	MoveW px, r3 ; start with x pos
 	ldy #0
@@ -135,7 +137,7 @@ flush:
 	stz r2H
 	AddW r2, r3 ; add width to x pos
 @2:	iny
-	cpy r7L
+	cpy outbufidx
 	bne :-
 
 	CmpW r3, rightMargin
@@ -154,7 +156,7 @@ flush:
 	MoveW px, r0
 	MoveW py, r1
 
-	lda r7L
+	lda outbufidx
 	beq @l1
 
 	ldy #0
@@ -163,10 +165,10 @@ flush:
 	jsr GRAPH_put_char
 	ply
 	iny
-	cpy r7L
+	cpy outbufidx
 	bne :-
 
-	stz r7L
+	stz outbufidx
 
 @l1:	pla
 	pha
