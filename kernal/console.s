@@ -52,6 +52,9 @@ py:	.res 2
 height_counter:
 	.res 2
 
+page_flag:
+	.res 1
+
 .segment "CONSOLE"
 
 ;---------------------------------------------------------------
@@ -81,6 +84,8 @@ console_init:
 	clc
 	jsr console_put_char
 
+	jsr console_mark_page
+
 	KVARS_END
 	rts
 
@@ -90,8 +95,12 @@ console_init:
 ; Function:  Initializes the console.
 ;---------------------------------------------------------------
 console_mark_page:
+	KVARS_START
+
 	stz height_counter
 	stz height_counter+1
+
+	KVARS_END
 	rts
 
 ;---------------------------------------------------------------
@@ -126,6 +135,8 @@ console_put_char:
 	ldy outbufidx
 	sta outbuf,y
 	inc outbufidx
+
+	clc
 
 	KVARS_END
 	rts
@@ -184,8 +195,13 @@ console_put_char:
 
 @l1:	pla
 	pha
-	jsr GRAPH_put_char
-	bcc :+ ; did fit, skip
+	cmp #10
+	beq @l3
+	cmp #13
+	beq @l3
+
+@l4:	jsr GRAPH_put_char
+	bcc @l5 ; did fit, skip
 
 ; character wrapping
 	jsr new_line
@@ -199,9 +215,18 @@ console_put_char:
 	jsr GRAPH_put_char
 	jmp @l2
 
-:	pla
+@l3:	jsr new_line
+	MoveW r0, px
+	MoveW r1, py
+	jsr scroll_maybe
+	MoveW px, r0
+	MoveW py, r1
+
+@l5:	pla
 @l2:	MoveW r0, px
 	MoveW r1, py
+
+	asl page_flag ; -> .C
 
 	KVARS_END
 	rts
@@ -336,10 +361,11 @@ console_put_image:
 	rts
 
 new_line:
-	; override_height = MAX(override_height,  font height + 1)
+	; override_height = MAX(override_height, font_height+1)
 	jsr get_font_size
 	iny
 	tya
+	pha
 	sec
 	sbc override_height
 	lda #0
@@ -357,6 +383,28 @@ new_line:
 
 	stz override_height
 	stz override_height+1
+
+	; height_counter > windowBottom - windowTop - 4 * (font_height+1)
+	MoveW windowBottom, r13
+	SubW windowTop, r13
+	pla ; font_height+1
+	stz r12H
+	asl
+	rol r12H
+	asl
+	rol r12H
+	sta r12L ; *4
+	SubW r12, r13
+
+	CmpW height_counter, r13
+	bcc :+
+	stz height_counter
+	stz height_counter+1
+
+:	lda #0
+	ror
+	sta page_flag
+
 	rts
 
 get_font_size:

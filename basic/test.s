@@ -706,8 +706,10 @@ print_lots_of_text:
 	
 	lda #10
 	jsr console_put_char
+	jsr pager
 	lda #10
-	jmp console_put_char
+	jsr console_put_char
+	jmp pager
 
 print_text:
 	php
@@ -716,12 +718,20 @@ print_text:
 	plp
 	php
 	jsr console_put_char
+	jsr pager
 	inc tmp
 	bne :-
 	inc tmp+1
 	bra :-
 @end	plp
 	rts
+
+pager:
+	bcc @1
+@2:	jsr console_get_char
+	cmp #13
+	bne @2
+@1:	rts
 
 text1:
 	.byte ATTR_RESET,COLOR_BLACK,"Lorem ipsum ",ATTR_UNDERLINE,"dolor sit ",ATTR_RESET,ATTR_BOLD,"amet, consetetur ",ATTR_RESET,ATTR_ITALICS,"sadipscing elitr",ATTR_RESET,ATTR_OUTLINE,", sed diam"
