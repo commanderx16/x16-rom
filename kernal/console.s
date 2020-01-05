@@ -99,7 +99,9 @@ console_init:
 ;            If C is 0, character wrapping and therefore no
 ;            buffering is performed.
 ;---------------------------------------------------------------
-; XXX preserve r0-r3!
+; XXX * preserve r0-r3!
+; XXX * update override_height at least once every time the font
+; XXX   is changed
 console_put_char:
 	KVARS_START
 

@@ -667,9 +667,7 @@ test1:
 
 :	clc ; char wrap
 	jsr print_lots_of_text
-	
-	jsr draw_smiley
-		
+			
 	sec ; word wrap
 	jsr print_lots_of_text
 	bra :-
@@ -715,8 +713,23 @@ test2:
 
 tmp = 0
 print_lots_of_text:
+	LoadW tmp, text1
+	jsr print_text
+
+	jsr draw_logo
+
+	LoadW tmp, text2
+	jsr print_text
+
+	jsr draw_smiley
+	
+	lda #10
+	jsr console_put_char
+	lda #10
+	jmp console_put_char
+
+print_text:
 	php
-	LoadW tmp, text
 :	lda (tmp)
 	beq @end
 	plp
@@ -729,16 +742,18 @@ print_lots_of_text:
 @end	plp
 	rts
 
-text:
+text1:
 	.byte ATTR_RESET,COLOR_BLACK,"Lorem ipsum ",ATTR_UNDERLINE,"dolor sit ",ATTR_RESET,ATTR_BOLD,"amet, consetetur ",ATTR_RESET,ATTR_ITALICS,"sadipscing elitr",ATTR_RESET,ATTR_OUTLINE,", sed diam"
 	.byte ATTR_RESET,COLOR_RED," nonumy eirmod",ATTR_UNDERLINE," tempor invidunt",ATTR_RESET,ATTR_BOLD," ut labore",ATTR_RESET,ATTR_ITALICS," et dolore",ATTR_RESET,ATTR_OUTLINE," magna aliquyam"
-	.byte ATTR_RESET,COLOR_GREEN," erat, sed",ATTR_UNDERLINE," diam voluptua",ATTR_RESET,ATTR_BOLD,". At vero",ATTR_RESET,ATTR_ITALICS," eos et",ATTR_RESET,ATTR_OUTLINE," accusam et"
+	.byte ATTR_RESET,COLOR_GREEN," erat, sed",ATTR_UNDERLINE," diam voluptua. ",ATTR_RESET
+	.byte 0
+text2:
+	.byte ATTR_BOLD," At vero",ATTR_RESET,ATTR_ITALICS," eos et",ATTR_RESET,ATTR_OUTLINE," accusam et"
 	.byte ATTR_RESET,COLOR_BLUE," justo duo",ATTR_UNDERLINE," dolores et",ATTR_RESET,ATTR_BOLD," ea rebum",ATTR_RESET,ATTR_ITALICS,". Stet clita",ATTR_RESET,ATTR_OUTLINE," kasd gubergren"
 	.byte ATTR_RESET,", no sea",ATTR_UNDERLINE," takimata sanctus",ATTR_RESET,ATTR_BOLD," est Lorem",ATTR_RESET,ATTR_ITALICS," ipsum dolor",ATTR_RESET,ATTR_OUTLINE," sit amet."
-	.byte 10,10,0
+	.byte 0
 
 draw_smiley:
-.if 0
 	ldx #smiley_image_end-smiley_image-1
 :	lda smiley_image,x
 	sta $0400,x
@@ -749,7 +764,8 @@ draw_smiley:
 	LoadW r1, 10
 	LoadW r2, 10
 	jmp console_put_image
-.else
+
+draw_logo:
 	ldx #0
 :	lda image_data,x
 	sta $0400,x
@@ -760,7 +776,6 @@ draw_smiley:
 	LoadW r1, 16
 	LoadW r2, 16
 	jmp console_put_image
-.endif
 
 
 smiley_image:
