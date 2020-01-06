@@ -158,7 +158,7 @@ console_put_char:
 	MoveW px, r0 ; start with x pos
 	ldy #0
 :	lda outbuf,y
-	cmp #20
+	cmp #' '
 	beq @2       ; don't count space
 	phy
 	ldx style
@@ -217,6 +217,8 @@ console_put_char:
 
 put_char:
 	cmp #LF
+	beq new_line_scroll
+	cmp #CR
 	beq new_line_scroll
 	pha
 	jsr GRAPH_put_char
