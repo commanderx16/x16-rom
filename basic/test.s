@@ -759,6 +759,7 @@ text:
 	.byte ATTR_UNDERLINE
 	.byte "you may"
 	.byte ATTR_RESET
+	.byte "   "
 	.byte CODE_LOGO
 	.byte ATTR_BOLD
 	.byte " think "

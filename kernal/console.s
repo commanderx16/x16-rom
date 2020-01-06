@@ -24,6 +24,9 @@
 
 bsout = $ffd2
 
+LF=10
+CR=13
+
 .export console_init, console_put_char, console_get_char, console_put_image
 
 .segment "KVARSB0"
@@ -133,16 +136,21 @@ console_put_char:
 	bcc @flush ; .C=1 always flushes
 	cmp #' '   ; and so do SPACE/LF/CR
 	beq @flush
-	cmp #10
+	cmp #LF
 	beq @flush
-	cmp #13
-	beq @flush
+	cmp #CR
+	beq @cr
 
-	clc        ; did not reach page end
+:	clc        ; did not reach page end
 
 	KVARS_END
 	rts
-	
+
+; We convert CR into an "clear attributes" + LF here, so we
+; don't have to distinguish between CR and LF later.
+@cr:	lda #$92 ; clear attributes
+	jsr console_put_char
+	lda #LF
 @flush:
 	PushW r0
 	PushW r1
@@ -208,9 +216,7 @@ console_put_char:
 	rts
 
 put_char:
-	cmp #10
-	beq new_line_scroll
-	cmp #13
+	cmp #LF
 	beq new_line_scroll
 	pha
 	jsr GRAPH_put_char
@@ -239,7 +245,7 @@ new_line_scroll:
 	stz override_height+1
 @0:
 	PushW r1
-	lda #10
+	lda #LF
 	jsr GRAPH_put_char
 	PopW r1
 	AddW override_height, r1
@@ -358,6 +364,15 @@ scroll_if_necessary: ; required height in r14
 console_put_image:
 	KVARS_START
 
+	MoveW px, r15
+	AddW r1, r15
+	CmpW r15, rightMargin
+	bcc @l1
+
+	lda #LF
+	jsr console_put_char
+
+@l1:
 	lda #0
 	clc
 	jsr console_put_char ; force flush
@@ -496,9 +511,9 @@ console_get_char:
 	cmp #$14 ; PETSCII DELETE
 	bne :+
 @b2:	jmp @backspace
-:	cmp #10
+:	cmp #LF
 	beq @input_end
-	cmp #13
+	cmp #CR
 	beq @input_end
 	cmp #$20
 	bcc @again
@@ -522,7 +537,7 @@ console_get_char:
 
 @input_end:
 	ldx inbufidx
-	lda #13
+	lda #CR
 	sta inbuf,x ; store CR
 	stz inbufidx
 
@@ -537,7 +552,7 @@ console_get_char:
 @return_char:
 	ldx inbufidx
 	lda inbuf,x
-	cmp #13
+	cmp #CR
 	bne :+
 	stz inbufidx
 	stz inbuf
