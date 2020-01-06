@@ -174,6 +174,7 @@ console_put_char:
 	cpy outbufidx
 	bne :-
 
+	DecW_ r0
 	CmpW r0, rightMargin
 	bcc @no_x_overflow
 
@@ -273,9 +274,7 @@ new_line_scroll:
 	stz height_counter
 	stz height_counter+1
 
-:	lda #0
-	ror
-	sta page_flag
+:	ror page_flag
 
 	MoveW r0, px
 	MoveW r1, py

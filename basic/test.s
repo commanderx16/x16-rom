@@ -649,8 +649,8 @@ test1:
 
 :	clc ; char wrap
 	jsr print_lots_of_text
-	sec ; word wrap
-	jsr print_lots_of_text
+;	sec ; word wrap
+;	jsr print_lots_of_text
 	bra :-
 
 ; print text, alternating char/word wrap
@@ -744,7 +744,7 @@ text:
 	.byte ATTR_RESET,COLOR_RED
 	.byte "believe "
 	.byte ATTR_UNDERLINE
-	.byte "how vastly,"
+	.byte "how vastly, "
 	.byte ATTR_RESET,ATTR_BOLD
 	.byte "hugely, "
 	.byte ATTR_RESET,ATTR_ITALICS
@@ -785,7 +785,7 @@ text:
 	.byte ATTR_RESET,ATTR_OUTLINE
 	.byte "space."
 	.byte CODE_SMILEY
-	.byte 10,10
+;	.byte 10,10
 ;	.byte CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,10
 	.byte 0
 
