@@ -172,9 +172,9 @@ console_put_char:
 	jsr new_line
 	MoveW r0, px
 	MoveW r1, py
+	jsr scroll_maybe
 
 @no_x_overflow:
-	jsr scroll_maybe
 
 	MoveW px, r0
 	MoveW py, r1
@@ -185,7 +185,7 @@ console_put_char:
 	ldy #0
 :	lda outbuf,y
 	phy
-	jsr GRAPH_put_char
+	jsr put_char
 	ply
 	iny
 	cpy outbufidx
@@ -194,9 +194,6 @@ console_put_char:
 	stz outbufidx
 
 @l1:
-
-	jsr put_char
-
 	MoveW r0, px
 	MoveW r1, py
 
