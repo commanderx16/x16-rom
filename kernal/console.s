@@ -145,8 +145,11 @@ console_put_char:
 	rts
 	
 @flush:
+	PushW r0
+	PushW r1
+	PushW r2
 ; measure buffer
-	MoveW px, r3 ; start with x pos
+	MoveW px, r0 ; start with x pos
 	ldy #0
 :	lda outbuf,y
 	phy
@@ -156,14 +159,14 @@ console_put_char:
 	bcc @1    ; control character?
 	stx style ; yes: update style
 	bra @2    ;      and don't add any width
-@1:	stx r2L
-	stz r2H
-	AddW r2, r3 ; add width to x pos
+@1:	stx r1L
+	stz r1H
+	AddW r1, r0 ; add width to x pos
 @2:	iny
 	cpy outbufidx
 	bne :-
 
-	CmpW r3, rightMargin
+	CmpW r0, rightMargin
 	bcc @no_x_overflow
 
 	MoveW px, r0
@@ -197,6 +200,10 @@ console_put_char:
 	MoveW r1, py
 
 	asl page_flag ; -> .C
+
+	PopW r2
+	PopW r1
+	PopW r0
 
 	KVARS_END
 	rts
@@ -357,17 +364,9 @@ scroll_if_less_than_r14_pixels:
 console_put_image:
 	KVARS_START
 
-	PushW r0
-	PushW r1
-	PushW r2
-
 	lda #0
 	clc
-	jsr console_put_char
-	
-	PopW r2
-	PopW r1
-	PopW r0
+	jsr console_put_char ; force flush
 
 	MoveW r2, r14
 	jsr scroll_if_less_than_r14_pixels
