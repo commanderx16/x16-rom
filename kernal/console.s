@@ -128,6 +128,7 @@ console_mark_page:
 console_put_char:
 	KVARS_START
 
+	php
 	cmp #CR
 	bne :+
 ; We convert CR into an "clear attributes" + LF here, so we
@@ -135,8 +136,9 @@ console_put_char:
 	lda #$92 ; clear attributes
 	jsr console_put_char
 	lda #LF
+:	plp
 
-:	; store into buffer
+	; store into buffer
 	ldy outbufidx
 	sta outbuf,y
 	inc outbufidx
