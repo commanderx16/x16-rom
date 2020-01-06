@@ -187,8 +187,9 @@ console_put_char:
 	cpy outbufidx
 	bne :-
 
-	DecW_ r0
-	CmpW r0, rightMargin
+	MoveW rightMargin, r1
+	IncW r1
+	CmpW r0, r1
 	bcc @no_x_overflow
 
 	MoveW px, r0
