@@ -366,8 +366,10 @@ console_put_image:
 
 	MoveW px, r15
 	AddW r1, r15
+	DecW_ r15
 	CmpW r15, rightMargin
 	bcc @l1
+	beq @l1
 
 	lda #LF
 	jsr console_put_char
