@@ -43,8 +43,6 @@ outbufidx:
 	.res 1
 inbufidx:
 	.res 1
-style:
-	.res 1
 baseline:
 	.res 1
 override_height:
@@ -75,7 +73,6 @@ console_init:
 	jsr bsout
 
 	stz outbufidx
-	stz style
 	stz inbuf
 	stz inbufidx
 	stz override_height
@@ -200,11 +197,10 @@ console_put_char:
 	cmp #' '
 	beq @2       ; don't count space
 	phy
-	ldx style
+	ldx currentMode
 	jsr GRAPH_get_char_size
 	ply
 	bcc @1    ; control character?
-	stx style ; yes: update style
 	bra @2    ;      and don't add any width
 @1:	stx r1L
 	stz r1H
@@ -565,7 +561,6 @@ console_get_char:
 	lda #$92 ; attribute reset
 	clc
 	jsr console_put_char
-	stz style
 
 ; get height + baseline
 	jsr get_font_size

@@ -9,8 +9,8 @@ AS           = ca65
 LD           = ld65
 
 ARGS_KERNAL=--cpu 65SC02 -g
-ARGS_BASIC=--cpu 65SC02 #-g
-ARGS_MONITOR=--cpu 65SC02 #-g
+ARGS_BASIC=--cpu 65SC02 -g
+ARGS_MONITOR=--cpu 65SC02 -g
 ARGS_DOS=#-g
 ARGS_GEOS=#-g
 
