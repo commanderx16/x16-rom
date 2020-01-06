@@ -727,6 +727,8 @@ print_text:
 	rts
 
 pager:
+	rts
+	
 	bcc @1
 @2:	jsr console_get_char
 	cmp #13

@@ -126,6 +126,10 @@ console_mark_page:
 console_put_char:
 	KVARS_START
 
+	ldy outbufidx
+	sta outbuf,y
+	inc outbufidx
+
 	bcc @flush
 	cmp #' '
 	beq @flush
@@ -134,18 +138,12 @@ console_put_char:
 	cmp #13
 	beq @flush
 
-	ldy outbufidx
-	sta outbuf,y
-	inc outbufidx
-
 	clc ; did not reach page end
 
 	KVARS_END
 	rts
 	
 @flush:
-	pha
-
 ; measure word
 	lda outbufidx
 	beq @no_x_overflow
@@ -195,42 +193,41 @@ console_put_char:
 
 	stz outbufidx
 
-@l1:	pla
-	pha
-	cmp #10
-	beq @l3
-	cmp #13
-	beq @l3
+@l1:
 
-@l4:	jsr GRAPH_put_char
-	bcc @l5 ; did fit, skip
+	jsr put_char
 
-; character wrapping
-	jsr new_line
 	MoveW r0, px
-	MoveW r1, py
-	jsr scroll_maybe
-	MoveW px, r0
-	MoveW py, r1
-
-	pla
-	jsr GRAPH_put_char
-	jmp @l2
-
-@l3:	jsr new_line
-	MoveW r0, px
-	MoveW r1, py
-	jsr scroll_maybe
-	MoveW px, r0
-	MoveW py, r1
-
-@l5:	pla
-@l2:	MoveW r0, px
 	MoveW r1, py
 
 	asl page_flag ; -> .C
 
 	KVARS_END
+	rts
+
+put_char:
+	cmp #10
+	beq @nl
+	cmp #13
+	beq @nl
+	pha
+	jsr GRAPH_put_char
+	bcs @wrap          ; did not fit, new line!
+	pla
+	rts
+@wrap:
+; character wrapping
+	jsr @nl
+	pla
+	jmp GRAPH_put_char ; try again
+
+; new line and scroll if necessary
+@nl:	jsr new_line
+	MoveW r0, px
+	MoveW r1, py
+	jsr scroll_maybe
+	MoveW px, r0
+	MoveW py, r1
 	rts
 
 ; preserves r0, r1, r2
