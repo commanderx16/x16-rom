@@ -78,15 +78,15 @@ console_init:
 	stz override_height
 	stz override_height+1
 
+	LoadW r0, 0
+	jsr console_set_paging_message
+
 	lda #147 ; clear screen
 	clc
 	jsr console_put_char
 	lda #$92 ; attribute reset
 	clc
 	jsr console_put_char
-
-	LoadW r0, 0
-	jsr console_set_paging_message
 
 	KVARS_END
 	rts
@@ -112,13 +112,15 @@ console_set_paging_message:
 	rts
 
 ; The paging message API isn't as flexible as I wanted it
-; originally, but more a flexible API would have problems
-; that I couldn't find a solution for.
+; originally, but a more flexible API would have had
+; problems that I couldn't find a solution for.
+;
 ; The original idea was to return C=1 as soon as we're at
 ; the beginning of the new line that overflowed the page,
 ; so that the user can print a message, wait for a key etc.
-; But if word wraps and causes a newline that fills the
-; page, we can't print it yet, otherwise we would have a
+;
+; But if a word wraps and causes a newline that overflows
+; the page, we can't print it yet, otherwise we would have a
 ; new line (overflowing the page) with a single word. We
 ; have to keep the word in the buffer and return to the user.
 ; But then the user can't print anything, because there are
@@ -127,14 +129,17 @@ console_set_paging_message:
 ; is printing the "press any key" message - and we wouldn't
 ; know when this is finished, and new characters are actual
 ; text again.
+;
 ; We would know that if we didn't return a flag, but instead
 ; called the user back on a page overflow, but the problem
 ; with the non-empty buffer and lots of special casing would
 ; persist.
+;
 ; It becomes even more complicated if it's a line feed that
 ; is triggering the flush, and the flushed word causes another
 ; line break. That's two line breaks in one put_character
 ; call...
+;
 ; So I think the existing solution is okay. :)
 
 ;---------------------------------------------------------------
@@ -144,8 +149,6 @@ console_set_paging_message:
 ;
 ; Pass:      a   ASCII character
 ;            c   0: character wrapping, 1: word wrapping
-;
-; Return:    c   1: page end reached
 ;
 ; Note:      If C is 1, the text will be word-wrapped. For this,
 ;            characters will be buffered until a SPACE, CR or LF
