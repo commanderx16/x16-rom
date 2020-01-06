@@ -111,6 +111,8 @@ console_mark_page:
 ; Pass:      a   ASCII character
 ;            c   0: character wrapping, 1: word wrapping
 ;
+; Return:    c   1: page end reached
+;
 ; Note:      If C is 1, the text will be word-wrapped. For this,
 ;            characters will be buffered until a SPACE, CR or LF
 ;            character is printed. So to flush the buffer at the
@@ -136,7 +138,7 @@ console_put_char:
 	sta outbuf,y
 	inc outbufidx
 
-	clc
+	clc ; did not reach page end
 
 	KVARS_END
 	rts
