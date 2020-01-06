@@ -151,6 +151,8 @@ console_put_char:
 	MoveW px, r0 ; start with x pos
 	ldy #0
 :	lda outbuf,y
+	cmp #20
+	beq @2       ; don't count space
 	phy
 	ldx style
 	jsr GRAPH_get_char_size
