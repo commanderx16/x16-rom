@@ -648,8 +648,8 @@ test1:
 	jsr console_init
 
 :
-;	clc ; char wrap
-;	jsr print_lots_of_text
+	clc ; char wrap
+	jsr print_lots_of_text
 	sec ; word wrap
 	jsr print_lots_of_text
 	bra :-

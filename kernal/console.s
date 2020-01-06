@@ -428,7 +428,7 @@ paging_pause:
 	PopW r2
 	PopW r1
 	PopW r0
-	LoadW r0, leftMargin
+	MoveW leftMargin, r0
 
 	PopB col2
 	PopB col1
