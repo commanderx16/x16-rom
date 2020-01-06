@@ -120,7 +120,6 @@ console_mark_page:
 ;            If C is 0, character wrapping and therefore no
 ;            buffering is performed.
 ;---------------------------------------------------------------
-; XXX * preserve r0-r3!
 ; XXX * update override_height at least once every time the font
 ; XXX   is changed
 console_put_char:
@@ -283,16 +282,16 @@ scroll_maybe:
 	sty r14L
 	inc r14L
 	stz r14H ; font height + 1
-scroll_if_less_than_r14_pixels:
+	; fallthrough
+
+scroll_if_necessary:
 	MoveW windowBottom, r15
 	SubW r14, r15
 	CmpW py, r15
 	bcs :+
 	rts
 
-:	PushW r0
-	PushW r1
-	PushW r2
+:	PushW r2
 	
 	MoveW r14, r6
 	AddVW 2, r6 ; scrollAmount = font height + 2
@@ -346,9 +345,7 @@ scroll_if_less_than_r14_pixels:
 	SubW r6, py
 	
 	PopW r2
-	PopW r1
-	PopW r0
-	
+
 	rts
 
 ;---------------------------------------------------------------
@@ -369,7 +366,11 @@ console_put_image:
 	jsr console_put_char ; force flush
 
 	MoveW r2, r14
-	jsr scroll_if_less_than_r14_pixels
+	PushW r0
+	PushW r1
+	jsr scroll_if_necessary
+	PopW r1
+	PopW r0
 
 	MoveW r2, override_height
 
