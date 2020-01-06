@@ -128,7 +128,15 @@ console_mark_page:
 console_put_char:
 	KVARS_START
 
-	; store into buffer
+	cmp #CR
+	bne :+
+; We convert CR into an "clear attributes" + LF here, so we
+; don't have to distinguish between CR and LF later.
+	lda #$92 ; clear attributes
+	jsr console_put_char
+	lda #LF
+
+:	; store into buffer
 	ldy outbufidx
 	sta outbuf,y
 	inc outbufidx
@@ -139,18 +147,13 @@ console_put_char:
 	cmp #LF
 	beq @flush
 	cmp #CR
-	beq @cr
+	beq @flush
 
 :	clc        ; did not reach page end
 
 	KVARS_END
 	rts
 
-; We convert CR into an "clear attributes" + LF here, so we
-; don't have to distinguish between CR and LF later.
-@cr:	lda #$92 ; clear attributes
-	jsr console_put_char
-	lda #LF
 @flush:
 	PushW r0
 	PushW r1
@@ -182,7 +185,7 @@ console_put_char:
 	MoveW py, r1
 
 	jsr new_line_scroll
-	bra @3
+	bra @l1
 
 @no_x_overflow:
 
@@ -274,6 +277,7 @@ new_line_scroll:
 	stz height_counter
 	stz height_counter+1
 
+@mmmmm:
 :	ror page_flag
 
 	MoveW r0, px

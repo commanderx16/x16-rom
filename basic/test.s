@@ -647,10 +647,11 @@ test1:
 	LoadW r3, 0
 	jsr console_init
 
-:	clc ; char wrap
-	jsr print_lots_of_text
-;	sec ; word wrap
+:
+;	clc ; char wrap
 ;	jsr print_lots_of_text
+	sec ; word wrap
+	jsr print_lots_of_text
 	bra :-
 
 ; print text, alternating char/word wrap
