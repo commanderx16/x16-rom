@@ -126,27 +126,26 @@ console_mark_page:
 console_put_char:
 	KVARS_START
 
+	; store into buffer
 	ldy outbufidx
 	sta outbuf,y
 	inc outbufidx
 
-	bcc @flush
-	cmp #' '
+	bcc @flush ; .C=1 always flushes
+	cmp #' '   ; and so do SPACE/LF/CR
 	beq @flush
 	cmp #10
 	beq @flush
 	cmp #13
 	beq @flush
 
-	clc ; did not reach page end
+	clc        ; did not reach page end
 
 	KVARS_END
 	rts
 	
 @flush:
-; measure word
-	lda outbufidx
-	beq @no_x_overflow
+; measure buffer
 	MoveW px, r3 ; start with x pos
 	ldy #0
 :	lda outbuf,y
@@ -175,6 +174,7 @@ console_put_char:
 
 @no_x_overflow:
 
+; print buffer
 	MoveW px, r0
 	MoveW py, r1
 
@@ -219,7 +219,50 @@ put_char:
 
 ; new line and scroll if necessary
 new_line_scroll:
-	jsr new_line
+	; override_height = MAX(override_height, font_height+1)
+	jsr get_font_size
+	iny
+	tya
+	pha
+	sec
+	sbc override_height
+	lda #0
+	sbc override_height+1
+	bcc @0 ; font is higher -> regular newline
+	sty override_height
+	stz override_height+1
+@0:
+	PushW r1
+	lda #10
+	jsr GRAPH_put_char
+	PopW r1
+	AddW override_height, r1
+	AddW override_height, height_counter
+
+	stz override_height
+	stz override_height+1
+
+	; height_counter > windowBottom - windowTop - 4 * (font_height+1)
+	MoveW windowBottom, r13
+	SubW windowTop, r13
+	pla ; font_height+1
+	stz r12H
+	asl
+	rol r12H
+	asl
+	rol r12H
+	sta r12L ; *4
+	SubW r12, r13
+
+	CmpW height_counter, r13
+	bcc :+
+	stz height_counter
+	stz height_counter+1
+
+:	lda #0
+	ror
+	sta page_flag
+
 	MoveW r0, px
 	MoveW r1, py
 	jsr scroll_maybe
@@ -354,53 +397,6 @@ console_put_image:
 	AddW r3, px ; advance cursor by image width
 
 	KVARS_END
-	rts
-
-new_line:
-	; override_height = MAX(override_height, font_height+1)
-	jsr get_font_size
-	iny
-	tya
-	pha
-	sec
-	sbc override_height
-	lda #0
-	sbc override_height+1
-	bcc @0 ; font is higher -> regular newline
-	sty override_height
-	stz override_height+1
-@0:
-	PushW r1
-	lda #10
-	jsr GRAPH_put_char
-	PopW r1
-	AddW override_height, r1
-	AddW override_height, height_counter
-
-	stz override_height
-	stz override_height+1
-
-	; height_counter > windowBottom - windowTop - 4 * (font_height+1)
-	MoveW windowBottom, r13
-	SubW windowTop, r13
-	pla ; font_height+1
-	stz r12H
-	asl
-	rol r12H
-	asl
-	rol r12H
-	sta r12L ; *4
-	SubW r12, r13
-
-	CmpW height_counter, r13
-	bcc :+
-	stz height_counter
-	stz height_counter+1
-
-:	lda #0
-	ror
-	sta page_flag
-
 	rts
 
 get_font_size:
