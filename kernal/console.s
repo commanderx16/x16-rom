@@ -17,6 +17,7 @@
 .import GRAPH_draw_image
 .import col1, col2, col_bg
 .import leftMargin, windowTop, rightMargin, windowBottom
+.import currentMode
 
 .import kbd_get
 
@@ -136,13 +137,13 @@ console_put_char:
 	lda #$92 ; clear attributes
 	jsr console_put_char
 	lda #LF
-:	plp
-
+:
 	; store into buffer
 	ldy outbufidx
 	sta outbuf,y
 	inc outbufidx
 
+	plp
 	bcc @flush ; .C=1 always flushes
 	cmp #' '   ; and so do SPACE/LF/CR
 	beq @flush
@@ -187,7 +188,7 @@ console_put_char:
 	MoveW py, r1
 
 	jsr new_line_scroll
-	bra @l1
+	bra @3
 
 @no_x_overflow:
 
@@ -212,8 +213,6 @@ console_put_char:
 @l1:
 	MoveW r0, px
 	MoveW r1, py
-
-	asl page_flag ; -> .C
 
 	PopW r1
 	PopW r0
@@ -279,9 +278,9 @@ new_line_scroll:
 	stz height_counter
 	stz height_counter+1
 
-@mmmmm:
-:	ror page_flag
+	jsr paging_pause
 
+:
 	MoveW r0, px
 	MoveW r1, py
 	jsr @1
@@ -290,8 +289,8 @@ new_line_scroll:
 	rts
 @1:
 	jsr get_font_size
+	iny
 	sty r14L
-	inc r14L
 	stz r14H ; font height + 1
 	; fallthrough
 
@@ -357,6 +356,33 @@ scroll_if_necessary: ; required height in r14
 	
 	PopW r2
 	rts
+
+paging_pause:
+	PushB currentMode
+	PushB col1
+	PushB col2
+	LoadB currentMode, 0
+	ldy #0
+:	lda pause_text,y
+	beq :+
+	phy
+	jsr put_char
+	ply
+	iny
+	bne :-
+:	jsr $ffe4
+	beq :-
+	PopB col2
+	PopB col1
+	PopB currentMode
+
+	; clear text
+	LoadW r0, leftMargin
+
+	rts
+
+pause_text:
+	.byte $92,$9B,$01,$90,$12,"Press any key to continue.",0
 
 ;---------------------------------------------------------------
 ; console_put_image

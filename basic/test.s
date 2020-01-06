@@ -714,7 +714,6 @@ print_text:
 	plp
 	php
 	jsr console_put_char
-	jsr pager
 
 @9:	inc tmp
 	bne @loop
@@ -722,12 +721,6 @@ print_text:
 	bra @loop
 @end	plp
 	rts
-
-pager:
-	bcc @1
-@2:	jsr $ffe4
-	beq @2
-@1:	rts
 
 CODE_LOGO   = $fe
 CODE_SMILEY = $ff
