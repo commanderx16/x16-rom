@@ -147,7 +147,6 @@ console_put_char:
 @flush:
 	PushW r0
 	PushW r1
-	PushW r2
 ; measure buffer
 	MoveW px, r0 ; start with x pos
 	ldy #0
@@ -201,7 +200,6 @@ console_put_char:
 
 	asl page_flag ; -> .C
 
-	PopW r2
 	PopW r1
 	PopW r0
 
