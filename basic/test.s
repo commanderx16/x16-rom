@@ -694,35 +694,31 @@ test2:
 
 tmp = 0
 print_lots_of_text:
-	LoadW tmp, text1
-	jsr print_text
-
-	jsr draw_logo
-
-	LoadW tmp, text2
-	jsr print_text
-
-	jsr draw_smiley
-	
-	lda #10
-	jsr console_put_char
-	jsr pager
-	lda #10
-	jsr console_put_char
-	jmp pager
+	LoadW tmp, text
+	jmp print_text
 
 print_text:
 	php
-:	lda (tmp)
+@loop:	lda (tmp)
 	beq @end
+	cmp #CODE_LOGO
+	bne @1
+	jsr draw_logo
+	bra @9
+@1:	cmp #CODE_SMILEY
+	bne @2
+	jsr draw_smiley
+	bra @9
+@2:
 	plp
 	php
 	jsr console_put_char
 	jsr pager
-	inc tmp
-	bne :-
+
+@9:	inc tmp
+	bne @loop
 	inc tmp+1
-	bra :-
+	bra @loop
 @end	plp
 	rts
 
@@ -735,7 +731,9 @@ pager:
 	bne @2
 @1:	rts
 
-text1:
+CODE_LOGO   = $fe
+CODE_SMILEY = $ff
+text:
 	.byte ATTR_RESET,COLOR_BLACK
 	.byte "Space is "
 	.byte ATTR_UNDERLINE
@@ -761,8 +759,7 @@ text1:
 	.byte ATTR_UNDERLINE
 	.byte "you may"
 	.byte ATTR_RESET
-	.byte 0
-text2:
+	.byte CODE_LOGO
 	.byte ATTR_BOLD
 	.byte " think "
 	.byte ATTR_RESET,ATTR_ITALICS
@@ -789,6 +786,8 @@ text2:
 	.byte "to "
 	.byte ATTR_RESET,ATTR_OUTLINE
 	.byte "space."
+	.byte CODE_SMILEY
+	.byte 10,10
 	.byte 0
 
 draw_smiley:
