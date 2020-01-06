@@ -358,9 +358,10 @@ scroll_if_necessary: ; required height in r14
 	rts
 
 paging_pause:
-	PushB currentMode
 	PushB col1
 	PushB col2
+
+	PushB currentMode
 	LoadB currentMode, 0
 	ldy #0
 :	lda pause_text,y
@@ -370,19 +371,73 @@ paging_pause:
 	ply
 	iny
 	bne :-
-:	jsr $ffe4
-	beq :-
-	PopB col2
-	PopB col1
+:
 	PopB currentMode
 
+:	jsr $ffe4
+	beq :-
+
 	; clear text
+
+	PushW r0
+	PushW r1
+	PushW r2
+	PushW r3
+	PushW r4
+
+	; rect(leftMargin, py - baseline, px - leftMargin, font_height)
+
+	; width = px - leftMargin
+	MoveW r0, r2
+	SubW leftMargin, r2
+
+	; x = leftMargin
+	MoveW leftMargin, r0
+	IncW r0;XXX
+
+	; y = py - baseline
+	jsr get_font_size
+	sta baseline
+	lda r1L
+	sec
+	sbc baseline
+	sta r1L
+	bcs :+
+	dec baseline+1
+:
+	; height = font_height
+	iny
+	tya
+	sta r3L
+	stz r3H
+
+	; cornerRadius = 0
+	stz r4L
+	stz r4H
+
+	lda col_bg
+	sta col1
+	sta col2
+
+	sec
+	jsr GRAPH_draw_rect
+
+
+	PopW r4
+	PopW r3
+	PopW r2
+	PopW r1
+	PopW r0
 	LoadW r0, leftMargin
+
+	PopB col2
+	PopB col1
 
 	rts
 
 pause_text:
 	.byte $92,$9B,$01,$90,$12,"Press any key to continue.",0
+	;$0C
 
 ;---------------------------------------------------------------
 ; console_put_image
