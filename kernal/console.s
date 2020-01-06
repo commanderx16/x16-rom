@@ -271,20 +271,18 @@ new_line_scroll:
 
 	MoveW r0, px
 	MoveW r1, py
-	jsr scroll_maybe
+	jsr @1
 	MoveW px, r0
 	MoveW py, r1
 	rts
-
-; preserves r0, r1, r2
-scroll_maybe:
+@1:
 	jsr get_font_size
 	sty r14L
 	inc r14L
 	stz r14H ; font height + 1
 	; fallthrough
 
-scroll_if_necessary:
+scroll_if_necessary: ; required height in r14
 	MoveW windowBottom, r15
 	SubW r14, r15
 	CmpW py, r15
@@ -345,7 +343,6 @@ scroll_if_necessary:
 	SubW r6, py
 	
 	PopW r2
-
 	rts
 
 ;---------------------------------------------------------------

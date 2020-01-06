@@ -728,7 +728,7 @@ print_text:
 
 pager:
 	rts
-	
+
 	bcc @1
 @2:	jsr console_get_char
 	cmp #13
@@ -736,14 +736,59 @@ pager:
 @1:	rts
 
 text1:
-	.byte ATTR_RESET,COLOR_BLACK,"Lorem ipsum ",ATTR_UNDERLINE,"dolor sit ",ATTR_RESET,ATTR_BOLD,"amet, consetetur ",ATTR_RESET,ATTR_ITALICS,"sadipscing elitr",ATTR_RESET,ATTR_OUTLINE,", sed diam"
-	.byte ATTR_RESET,COLOR_RED," nonumy eirmod",ATTR_UNDERLINE," tempor invidunt",ATTR_RESET,ATTR_BOLD," ut labore",ATTR_RESET,ATTR_ITALICS," et dolore",ATTR_RESET,ATTR_OUTLINE," magna aliquyam"
-	.byte ATTR_RESET,COLOR_GREEN," erat, sed",ATTR_UNDERLINE," diam voluptua. ",ATTR_RESET
+	.byte ATTR_RESET,COLOR_BLACK
+	.byte "Space is "
+	.byte ATTR_UNDERLINE
+	.byte "big."
+	.byte ATTR_RESET,ATTR_BOLD
+	.byte " Really big. "
+	.byte ATTR_RESET,ATTR_ITALICS
+	.byte "You "
+	.byte ATTR_RESET,ATTR_OUTLINE
+	.byte "just won't "
+	.byte ATTR_RESET,COLOR_RED
+	.byte "believe "
+	.byte ATTR_UNDERLINE
+	.byte "how vastly,"
+	.byte ATTR_RESET,ATTR_BOLD
+	.byte "hugely, "
+	.byte ATTR_RESET,ATTR_ITALICS
+	.byte "mindbogglingly big "
+	.byte ATTR_RESET,ATTR_OUTLINE
+	.byte "it is. I "
+	.byte ATTR_RESET,COLOR_GREEN
+	.byte "mean, "
+	.byte ATTR_UNDERLINE
+	.byte "you may"
+	.byte ATTR_RESET
 	.byte 0
 text2:
-	.byte ATTR_BOLD," At vero",ATTR_RESET,ATTR_ITALICS," eos et",ATTR_RESET,ATTR_OUTLINE," accusam et"
-	.byte ATTR_RESET,COLOR_BLUE," justo duo",ATTR_UNDERLINE," dolores et",ATTR_RESET,ATTR_BOLD," ea rebum",ATTR_RESET,ATTR_ITALICS,". Stet clita",ATTR_RESET,ATTR_OUTLINE," kasd gubergren"
-	.byte ATTR_RESET,", no sea",ATTR_UNDERLINE," takimata sanctus",ATTR_RESET,ATTR_BOLD," est Lorem",ATTR_RESET,ATTR_ITALICS," ipsum dolor",ATTR_RESET,ATTR_OUTLINE," sit amet."
+	.byte ATTR_BOLD
+	.byte " think "
+	.byte ATTR_RESET,ATTR_ITALICS
+	.byte "it's a "
+	.byte ATTR_RESET,ATTR_OUTLINE
+	.byte "long "
+	.byte ATTR_RESET,COLOR_BLUE
+	.byte "way down "
+	.byte ATTR_UNDERLINE
+	.byte "the"
+	.byte ATTR_RESET,ATTR_BOLD
+	.byte " road to "
+	.byte ATTR_RESET,ATTR_ITALICS
+	.byte "the "
+	.byte ATTR_RESET,ATTR_OUTLINE
+	.byte "chemist, but "
+	.byte ATTR_RESET
+	.byte "that's "
+	.byte ATTR_UNDERLINE
+	.byte "just"
+	.byte ATTR_RESET,ATTR_BOLD
+	.byte " peanuts "
+	.byte ATTR_RESET,ATTR_ITALICS
+	.byte "to "
+	.byte ATTR_RESET,ATTR_OUTLINE
+	.byte "space."
 	.byte 0
 
 draw_smiley:
