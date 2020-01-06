@@ -723,12 +723,9 @@ print_text:
 	rts
 
 pager:
-	rts
-
 	bcc @1
-@2:	jsr console_get_char
-	cmp #13
-	bne @2
+@2:	jsr $ffe4
+	beq @2
 @1:	rts
 
 CODE_LOGO   = $fe
