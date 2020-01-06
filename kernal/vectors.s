@@ -10,7 +10,7 @@
 
 .import sprite_set_image, sprite_set_position
 
-.import console_init, console_put_char, console_get_char, console_put_image
+.import console_init, console_put_char, console_get_char, console_put_image, console_set_paging_message
 
 	.segment "JMPTBL"
 
@@ -26,20 +26,20 @@
 	.byte 0,0,0            ; $FECC
 	.byte 0,0,0            ; $FECF
 	.byte 0,0,0            ; $FED2
-	.byte 0,0,0            ; $FED5
 
-	jmp console_put_image  ; $FED8
-	jmp console_init       ; $FEDB
-	jmp console_put_char   ; $FEDE
-	jmp console_get_char   ; $FEE1
+	jmp console_set_paging_message ; $FED5
+	jmp console_put_image          ; $FED8
+	jmp console_init               ; $FEDB
+	jmp console_put_char           ; $FEDE
+	jmp console_get_char           ; $FEE1
 
-	jmp memory_fill        ; $FEE4
-	jmp memory_copy        ; $FEE7
-	jmp memory_crc         ; $FEEA
-	jmp memory_decompress  ; $FEED
+	jmp memory_fill                ; $FEE4
+	jmp memory_copy                ; $FEE7
+	jmp memory_crc                 ; $FEEA
+	jmp memory_decompress          ; $FEED
 
-	jmp sprite_set_image   ; $FEF0
-	jmp sprite_set_position; $FEF3
+	jmp sprite_set_image           ; $FEF0
+	jmp sprite_set_position        ; $FEF3
 
 	;
 	; framebuffer API

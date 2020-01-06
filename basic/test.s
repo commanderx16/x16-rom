@@ -647,8 +647,9 @@ test1:
 	LoadW r3, 0
 	jsr console_init
 
-:
-	clc ; char wrap
+	jsr set_pause_text
+
+:	clc ; char wrap
 	jsr print_lots_of_text
 	sec ; word wrap
 	jsr print_lots_of_text
@@ -687,11 +688,27 @@ test2:
 	LoadW r3, 200-2*INSET
 	jsr console_init
 
+	jsr set_pause_text
+
 :	clc ; char wrap
 	jsr print_lots_of_text
 	sec ; word wrap
 	jsr print_lots_of_text
 	bra :-
+
+set_pause_text:
+	ldx #0
+:	lda pause_text,x
+	sta $0500,x
+	beq :+
+	inx
+	bne :-
+:
+	LoadW r0, $0500
+	jmp console_set_paging_message
+
+pause_text:
+	.byte $92,$9B,$01,$90,$12,"Press any key to continue.",0
 
 tmp = 0
 print_lots_of_text:

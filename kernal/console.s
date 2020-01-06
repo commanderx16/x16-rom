@@ -28,7 +28,7 @@ bsout = $ffd2
 LF=10
 CR=13
 
-.export console_init, console_put_char, console_get_char, console_put_image
+.export console_init, console_put_char, console_get_char, console_put_image, console_set_paging_message
 
 .segment "KVARSB0"
 
@@ -366,39 +366,38 @@ scroll_if_necessary: ; required height in r14
 
 paging_pause:
 	lda pause_text_ptr
-	ora pause_text_ptr
+	ora pause_text_ptr+1
 	bne :+
 	rts
 :
-
 	PushB col1
 	PushB col2
 
 	PushW r0
-	MoveW pause_text_ptr, r0
+	PushW r1
+	PushW r2
+	PushW r3
+	PushW r4
+
+	MoveW pause_text_ptr, r15
 
 	PushB currentMode
 	LoadB currentMode, 0
 	ldy #0
-:	lda (r0),y
+:	lda (r15),y
 	beq :+
 	phy
 	jsr put_char
 	ply
 	iny
 	bne :-
-:
-	PopB currentMode
+:	PopB currentMode
 
 :	jsr kbd_get
 	beq :-
 
 	; clear text
 
-	PushW r1
-	PushW r2
-	PushW r3
-	PushW r4
 
 	; width = px - leftMargin
 	MoveW r0, r2
@@ -446,10 +445,6 @@ paging_pause:
 	PopB col1
 
 	rts
-
-pause_text:
-	.byte $92,$9B,$01,$90,$12,"Press any key to continue.",0
-	;$0C
 
 ;---------------------------------------------------------------
 ; console_put_image
