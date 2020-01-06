@@ -169,17 +169,16 @@ console_put_char:
 
 	MoveW px, r0
 	MoveW py, r1
-	jsr new_line
-	MoveW r0, px
-	MoveW r1, py
-	jsr scroll_maybe
+
+	jsr new_line_scroll
+	bra @3
 
 @no_x_overflow:
 
 	MoveW px, r0
 	MoveW py, r1
 
-	lda outbufidx
+@3:	lda outbufidx
 	beq @l1
 
 	ldy #0
@@ -204,9 +203,9 @@ console_put_char:
 
 put_char:
 	cmp #10
-	beq @nl
+	beq new_line_scroll
 	cmp #13
-	beq @nl
+	beq new_line_scroll
 	pha
 	jsr GRAPH_put_char
 	bcs @wrap          ; did not fit, new line!
@@ -214,12 +213,13 @@ put_char:
 	rts
 @wrap:
 ; character wrapping
-	jsr @nl
+	jsr new_line_scroll
 	pla
 	jmp GRAPH_put_char ; try again
 
 ; new line and scroll if necessary
-@nl:	jsr new_line
+new_line_scroll:
+	jsr new_line
 	MoveW r0, px
 	MoveW r1, py
 	jsr scroll_maybe
