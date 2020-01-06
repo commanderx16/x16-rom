@@ -56,8 +56,8 @@ py:	.res 2
 height_counter:
 	.res 2
 
-page_flag:
-	.res 1
+pause_text_ptr:
+	.res 2
 
 .segment "CONSOLE"
 
@@ -88,18 +88,25 @@ console_init:
 	clc
 	jsr console_put_char
 
-	jsr console_mark_page
+	LoadW r0, 0
+	jsr console_set_paging_message
 
 	KVARS_END
 	rts
 
 ;---------------------------------------------------------------
-; console_mark_page
+; console_set_paging_message
 ;
-; Function:  Initializes the console.
+; Function:  Sets the paging message or disables paging.
+;
+; Pass:      r0  pointer to pause text
+;
+; Note:      If r0 is NULL, paging will be disabled.
 ;---------------------------------------------------------------
-console_mark_page:
+console_set_paging_message:
 	KVARS_START
+
+	MoveW r0, pause_text_ptr
 
 	stz height_counter
 	stz height_counter+1
@@ -358,13 +365,22 @@ scroll_if_necessary: ; required height in r14
 	rts
 
 paging_pause:
+	lda pause_text_ptr
+	ora pause_text_ptr
+	bne :+
+	rts
+:
+
 	PushB col1
 	PushB col2
+
+	PushW r0
+	MoveW pause_text_ptr, r0
 
 	PushB currentMode
 	LoadB currentMode, 0
 	ldy #0
-:	lda pause_text,y
+:	lda (r0),y
 	beq :+
 	phy
 	jsr put_char
@@ -374,18 +390,15 @@ paging_pause:
 :
 	PopB currentMode
 
-:	jsr $ffe4
+:	jsr kbd_get
 	beq :-
 
 	; clear text
 
-	PushW r0
 	PushW r1
 	PushW r2
 	PushW r3
 	PushW r4
-
-	; rect(leftMargin, py - baseline, px - leftMargin, font_height)
 
 	; width = px - leftMargin
 	MoveW r0, r2
@@ -421,7 +434,6 @@ paging_pause:
 
 	sec
 	jsr GRAPH_draw_rect
-
 
 	PopW r4
 	PopW r3
