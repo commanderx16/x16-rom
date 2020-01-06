@@ -25,6 +25,7 @@ GRAPH_put_char:
 	; XXX change put_char code so that moving the x/y position
 	; XXX around is no longer necessary
 	tax
+	PushW r2
 	PushW r6
 	PushW r7
 	PushW r11
@@ -42,6 +43,7 @@ GRAPH_put_char:
 	PopW r11
 	PopW r7
 	PopW r6
+	PopW r2
 	rts
 		
 put_char:
