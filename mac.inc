@@ -1,17 +1,36 @@
-; GEOS macros
-; reassembled for 6502TASM/MMS by Maciej 'YTM/Alliance' Witkowiak
+;----------------------------------------------------------------------
+; Commander X16 KERNAL 16 Bit Macros
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
+; based on GEOS 64, edited by Maciej 'YTM/Alliance' Witkowiak
 
 .macro LoadB dest, value
-	lda #value
-	sta dest
+	.if .const(value) .and value=0
+		stz dest
+	.else
+		lda #value
+		sta dest
+	.endif
 .endmacro
 
 .macro LoadW dest, value
-	LoadB dest+0, <(value)
-	.if (.not .const(value)) .or (>(value))<>(<(value))
-	lda #>(value)
+	nop
+	nop
+	nop
+	.if .const(value) .and value=0
+		stz dest
+	.else
+		lda #<(value)
+		sta dest
 	.endif
-	sta dest+1
+	.if .const(value) .and value=0
+		stz dest+1
+	.else
+		.if (.not .const(value)) .or (>(value))<>(<(value))
+			lda #>(value)
+		.endif
+		sta dest+1
+	.endif
 .endmacro
 
 .macro MoveB source, dest
@@ -42,6 +61,16 @@
 	sta dest+1
 .endmacro
 
+.macro AddW3 source1, source2, dest
+	lda source1
+	clc
+	adc source2
+	sta dest
+	lda source1+1
+	adc source2+1
+	sta dest+1
+.endmacro
+
 .macro AddVB value, dest
 	lda dest
 	clc
@@ -56,13 +85,13 @@
 	adc #<(value)
 	sta dest
 	.if (>(value))=0
-	bcc j
-	inc dest+1
-	j:
+		bcc j
+		inc dest+1
+		j:
 	.else
-	lda #>(value)
-	adc dest + 1
-	sta dest + 1
+		lda dest+1
+		adc #>(value)
+		sta dest+1
 	.endif
 .endmacro
 
@@ -85,13 +114,21 @@
 .endmacro
 
 .macro SubVW value, dest
-	sec
+	.local j
 	lda dest+0
+	sec
 	sbc #<(value)
 	sta dest+0
-	lda dest+1
-	sbc #>(value)
-	sta dest+1
+
+	.if (>(value))=0
+		bcs j
+		dec dest+1
+		j:
+	.else
+		lda dest+1
+		sbc #>(value)
+		sta dest+1
+	.endif
 .endmacro
 
 .macro CmpB source, dest
@@ -126,8 +163,8 @@
 .endmacro
 
 .macro PushW source
-	PushB source+1
 	PushB source+0
+	PushB source+1
 .endmacro
 
 .macro PopB dest
@@ -136,8 +173,8 @@
 .endmacro
 
 .macro PopW dest
-	PopB dest+0
 	PopB dest+1
+	PopB dest+0
 .endmacro
 
 .macro smb bitN, dest
@@ -230,9 +267,6 @@
 	.endif
 .endmacro
 
-; not part of original macro set
-; by Maciej Witkowiak
-
 .macro addv value
 	clc
 	adc #value
@@ -274,4 +308,3 @@
 	lda addr
 	ora addr+1
 .endmacro
-

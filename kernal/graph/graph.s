@@ -546,12 +546,9 @@ GRAPH_move_rect:
 	AddW r5, r3
 	IncW r5
 @1:	jsr FB_move_pixels
-	ldx #r1
-	jsr _DecW
-	ldx #r3
-	jsr _DecW
-	ldx #r5
-	jsr _DecW
+	DecW_ r1
+	DecW_ r3
+	DecW_ r5
 	lda r5L
 	ora r5H
 	bne @1
@@ -560,18 +557,10 @@ GRAPH_move_rect:
 @2:	jsr FB_move_pixels
 	IncW r1 ; sy
 	IncW r3 ; ty
-	ldx #r5
-	jsr _DecW
+	DecW_ r5
 	lda r5L
 	ora r5H
 	bne @2
-	rts
-
-_DecW:
-	lda 0,x
-	bne @1
-	dec 1,x
-@1:	dec 0,x
 	rts
 
 ;---------------------------------------------------------------
