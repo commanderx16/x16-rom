@@ -343,8 +343,7 @@ scroll_if_necessary: ; required height in r14
 	; source x = leftMargin
 	MoveW leftMargin, r0
 	; source y = windowTop + scrollAmount
-	MoveW windowTop, r1
-	AddW r6, r1
+	AddW3 windowTop, r6, r1
 	; target x = leftMargin
 	MoveW leftMargin, r2
 	; target y = windowTop
@@ -485,8 +484,7 @@ paging_pause:
 console_put_image:
 	KVARS_START
 
-	MoveW px, r15
-	AddW r1, r15
+	AddW3 px, r1, r15
 	DecW_ r15
 	CmpW r15, rightMargin
 	bcc @l1

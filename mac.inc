@@ -1,17 +1,36 @@
-; GEOS macros
-; reassembled for 6502TASM/MMS by Maciej 'YTM/Alliance' Witkowiak
+;----------------------------------------------------------------------
+; Commander X16 KERNAL 16 Bit Macros
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
+; based on GEOS 64, edited by Maciej 'YTM/Alliance' Witkowiak
 
 .macro LoadB dest, value
-	lda #value
-	sta dest
+	.if .const(value) .and value=0
+		stz dest
+	.else
+		lda #value
+		sta dest
+	.endif
 .endmacro
 
 .macro LoadW dest, value
-	LoadB dest+0, <(value)
-	.if (.not .const(value)) .or (>(value))<>(<(value))
-	lda #>(value)
+	nop
+	nop
+	nop
+	.if .const(value) .and value=0
+		stz dest
+	.else
+		lda #<(value)
+		sta dest
 	.endif
-	sta dest+1
+	.if .const(value) .and value=0
+		stz dest+1
+	.else
+		.if (.not .const(value)) .or (>(value))<>(<(value))
+			lda #>(value)
+		.endif
+		sta dest+1
+	.endif
 .endmacro
 
 .macro MoveB source, dest
@@ -39,6 +58,16 @@
 	AddB source+0, dest+0
 	lda source+1
 	adc dest+1
+	sta dest+1
+.endmacro
+
+.macro AddW3 source1, source2, dest
+	lda source1
+	clc
+	adc source2
+	sta dest
+	lda source1+1
+	adc source2+1
 	sta dest+1
 .endmacro
 
