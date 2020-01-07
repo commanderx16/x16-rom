@@ -85,13 +85,13 @@
 	adc #<(value)
 	sta dest
 	.if (>(value))=0
-	bcc j
-	inc dest+1
-	j:
+		bcc j
+		inc dest+1
+		j:
 	.else
-	lda #>(value)
-	adc dest + 1
-	sta dest + 1
+		lda dest+1
+		adc #>(value)
+		sta dest+1
 	.endif
 .endmacro
 
@@ -114,13 +114,21 @@
 .endmacro
 
 .macro SubVW value, dest
-	sec
+	.local j
 	lda dest+0
+	sec
 	sbc #<(value)
 	sta dest+0
-	lda dest+1
-	sbc #>(value)
-	sta dest+1
+
+	.if (>(value))=0
+		bcs j
+		dec dest+1
+		j:
+	.else
+		lda dest+1
+		sbc #>(value)
+		sta dest+1
+	.endif
 .endmacro
 
 .macro CmpB source, dest
@@ -155,8 +163,8 @@
 .endmacro
 
 .macro PushW source
-	PushB source+1
 	PushB source+0
+	PushB source+1
 .endmacro
 
 .macro PopB dest
@@ -165,8 +173,8 @@
 .endmacro
 
 .macro PopW dest
-	PopB dest+0
 	PopB dest+1
+	PopB dest+0
 .endmacro
 
 .macro smb bitN, dest
@@ -259,9 +267,6 @@
 	.endif
 .endmacro
 
-; not part of original macro set
-; by Maciej Witkowiak
-
 .macro addv value
 	clc
 	adc #value
@@ -303,4 +308,3 @@
 	lda addr
 	ora addr+1
 .endmacro
-
