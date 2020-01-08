@@ -456,6 +456,7 @@ screen_clear_line:
 ;            called before and after any interrupt code that
 ;            calls any of the functions in this driver.
 ;---------------------------------------------------------------
+; XXX make this a machine API? "io_save_state"?
 screen_save_state:
 	plx
 	ply

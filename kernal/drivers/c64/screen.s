@@ -15,6 +15,18 @@ pntcol:	.res 2
 ;
 ;---------------------------------------------------------------
 screen_init:
+	ldx #vic_data_end-vic_data
+:	lda vic_data-1,x
+	sta $d000-1,x
+	dex
+	bne :-
+	rts
+
+vic_data:
+	.byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	.byte $1b,0,0,0,0,$08,0,$14,$0f,0,0,0,0,0,0
+	.byte 14,6,1,2,3,4,0,1,2,3,4,5,6,7
+vic_data_end:
 
 ;---------------------------------------------------------------
 ; Set screen mode
@@ -140,6 +152,7 @@ screen_get_char_color:
 ;   Out:  -
 ;---------------------------------------------------------------
 screen_copy_line:
+	rts ; XXX
 
 ;---------------------------------------------------------------
 ; Clear line
@@ -147,6 +160,16 @@ screen_copy_line:
 ;   In:   .x  line
 ;---------------------------------------------------------------
 screen_clear_line:
+	jsr screen_set_position
+	ldy #39
+	ldx color
+:	lda #' '
+	sta (pnt),y
+	txa
+	sta (pntcol),y
+	dey
+	bpl :-
+	rts
 
 ;---------------------------------------------------------------
 ; Save state of the video hardware
@@ -156,12 +179,14 @@ screen_clear_line:
 ;            calls any of the functions in this driver.
 ;---------------------------------------------------------------
 screen_save_state:
+	rts
 
 ;---------------------------------------------------------------
 ; Restore state of the video hardware
 ;
 ;---------------------------------------------------------------
 screen_restore_state:
+	rts
 
 ;---------------------------------------------------------------
 ; Set charset
@@ -176,3 +201,4 @@ screen_restore_state:
 ;         .x/.y  pointer to charset
 ;---------------------------------------------------------------
 screen_set_charset:
+	rts
