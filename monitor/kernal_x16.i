@@ -10,7 +10,7 @@
 .import status, fnlen, la, sa, fa, mode, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
 .import buf, rptflg
 
-.import kbd_clear, kbd_peek, kbd_put
+.import kbdbuf_clear, kbdbuf_put
 .import jsrfar
 
 

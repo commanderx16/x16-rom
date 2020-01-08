@@ -28,7 +28,7 @@ settmo	rts
 ngetin	lda dfltn       ;check device
 	bne gn10        ;not keyboard
 ;
-	jmp kbd_get     ;go remove a character
+	jmp kbdbuf_get  ;go remove a character
 ;
 gn10	cmp #2          ;is it rs-232
 	bne bn10        ;no...use basin

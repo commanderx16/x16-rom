@@ -16,7 +16,7 @@
 .import stash
 .import cmpare
 .import jsrfar
-.import restore_basic
+.import enter_basic
 
 ; from platform driver
 .import ioinit

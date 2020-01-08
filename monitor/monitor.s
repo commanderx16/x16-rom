@@ -411,7 +411,7 @@ fill_kbd_buffer_with_csr_right:
         ldx     #0
 :
 .ifdef MACHINE_X16
-	jsr _kbd_put
+	jsr _kbdbuf_put
 .else
 	sta     KEYD,x ; fill kbd buffer with 7 CSR RIGHT characters
 .endif
@@ -2153,16 +2153,16 @@ fill_kbd_buffer_singlequote
         lda     #$27 ; "'"
 :
 .ifdef MACHINE_X16
-	jsr _kbd_put
+	jsr _kbdbuf_put
 .else
         sta     KEYD
 .endif
         lda     zp1 + 1
         jsr     byte_to_hex_ascii
 .ifdef MACHINE_X16
-	jsr _kbd_put
+	jsr _kbdbuf_put
 	tya
-	jsr _kbd_put
+	jsr _kbdbuf_put
 .else
         sta     KEYD + 1
         sty     KEYD + 2
@@ -2170,16 +2170,16 @@ fill_kbd_buffer_singlequote
         lda     zp1
         jsr     byte_to_hex_ascii
 .ifdef MACHINE_X16
-	jsr _kbd_put
+	jsr _kbdbuf_put
 	tya
-	jsr _kbd_put
+	jsr _kbdbuf_put
 .else
         sta     KEYD + 3
         sty     KEYD + 4
 .endif
         lda     #' '
 .ifdef MACHINE_X16
-	jsr _kbd_put
+	jsr _kbdbuf_put
 .else
         sta     KEYD + 5
         lda     #6 ; number of characters
@@ -2250,7 +2250,7 @@ irq_handler:
 irqhandler2:
         lda     disable_f_keys
         bne     LB6FA
-	jsr _kbd_peek
+	jsr kbdbuf_peek
         bne     LB700
 LB6FA:	rts
 	
@@ -2261,23 +2261,23 @@ LB700:
 fk_2:   cmp     #KEY_F7
         bne     LB71C
 .ifdef MACHINE_X16
-	jsr _kbd_clear
+	jsr _kbdbuf_clear
 .endif
         lda     #'@'
 .ifdef MACHINE_X16
-	jsr _kbd_put
+	jsr _kbdbuf_put
 .else
         sta     KEYD
 .endif
         lda     #'$'
 .ifdef MACHINE_X16
-	jsr _kbd_put
+	jsr _kbdbuf_put
 .else
         sta     KEYD + 1
 .endif
         lda     #CR
 .ifdef MACHINE_X16
-	jsr _kbd_put
+	jsr _kbdbuf_put
 	bra     LB6FA
 .else
         sta     KEYD + 2 ; store "@$' + CR into keyboard buffer
@@ -2289,7 +2289,7 @@ fk_2:   cmp     #KEY_F7
 LB71C:  cmp     #KEY_F5
         bne     LB733
 .ifdef MACHINE_X16
-	jsr _kbd_clear
+	jsr _kbdbuf_clear
 .endif
 .ifdef MACHINE_X16
         ldx     nlinesm1
@@ -2303,14 +2303,14 @@ LB71C:  cmp     #KEY_F5
         jsr     LE50C ; KERNAL set cursor position
 LB72E:  lda     #CSR_DOWN
 .ifdef MACHINE_X16
-	jsr _kbd_put
+	jsr _kbdbuf_put
 .else
         sta     KEYD
 .endif
 LB733:  cmp     #KEY_F3
         bne     LB74A
 .ifdef MACHINE_X16
-	jsr _kbd_clear
+	jsr _kbdbuf_clear
 .endif
         ldx     #0
         cpx     TBLX
@@ -2320,7 +2320,7 @@ LB733:  cmp     #KEY_F3
         jsr     LE50C ; KERNAL set cursor position
 LB745:  lda     #CSR_UP
 .ifdef MACHINE_X16
-	jsr _kbd_put
+	jsr _kbdbuf_put
 .else
         sta     KEYD
 .endif
@@ -2391,7 +2391,7 @@ LB7CD:  lda     #CR
         ldx     #CSR_HOME
 LB7D1:  ldy     #0
 .ifdef MACHINE_X16
-	jsr _kbd_clear
+	jsr _kbdbuf_clear
 .else
         sty     NDX
 .endif
@@ -2463,7 +2463,7 @@ LB845:  ldy     #1 ; column 1
         dec     tmp13
         beq     LB889
 .ifdef MACHINE_X16
-	jsr _kbd_peek
+	jsr kbdbuf_peek
 .else
         lda     KEYD
 .endif
@@ -3550,7 +3550,7 @@ LBC11:  jsr     basin_cmp_cr
         bne     syn_err8
 LBC16:
 .ifdef MACHINE_X16
-	jsr _kbd_put
+	jsr _kbdbuf_put
 .else
 	sta     KEYD
 	inc     NDX
@@ -3575,7 +3575,7 @@ LBC39:  lda     LA
         lda     #8
         sta     FA
 .ifdef MACHINE_X16
-	jsr _kbd_clear
+	jsr _kbdbuf_clear
 .else
         lda     #0
         sta     NDX
@@ -3789,23 +3789,25 @@ LF646:
 	.byte BANK_KERNAL
 	rts
 
-_kbd_put:
+_kbdbuf_put:
 	jsr mjsrfar
-	.word kbd_put
+	.word kbdbuf_put
 	.byte BANK_KERNAL
 	rts
 
-_kbd_peek:
+_kbdbuf_clear:
 	jsr mjsrfar
-	.word kbd_peek
+	.word kbdbuf_clear
 	.byte BANK_KERNAL
 	rts
 
-_kbd_clear:
-	jsr mjsrfar
-	.word kbd_clear
-	.byte BANK_KERNAL
-	rts
+kbdbuf_peek:
+	jsr GETIN
+	beq :+
+	pha
+	jsr _kbdbuf_put
+	pla
+:	rts
 
 LF0BD:
     .byte "I/O ERROR"

@@ -287,6 +287,12 @@
 	beq addr
 .endmacro
 
+.ifp02
+	.macro bra addr
+		jmp addr
+	.endmacro
+.endif
+
 .macro IncW addr
 	.local @j
 	inc addr

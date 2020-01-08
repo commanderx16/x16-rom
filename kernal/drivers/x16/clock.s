@@ -3,9 +3,19 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../regs.inc"
-.include "../../banks.inc"
-.include "../../io.inc"
+; XXX split into
+; XXX * timer
+; XXX * time
+; XXX * date
+; XXX to maximuze code reuse between platforms
+; XXX On the X16, everything is software and based on
+; XXX the 60 Hz IRQ. On the C64, the timer should be
+; XXX done by a CIA, the time by the TOD, and the date
+; XXX in software.
+
+.include "../../../regs.inc"
+.include "../../../banks.inc"
+.include "../../../io.inc"
 
 ; KERNAL API
 .export clock_update
@@ -197,7 +207,7 @@ clock_get_date_time:
 	rts
 
 ;---------------------------------------------------------------
-; clock_get_date_time
+; clock_set_date_time
 ;
 ; Function:  Set the current date and time
 ;

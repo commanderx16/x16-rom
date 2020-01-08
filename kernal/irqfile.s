@@ -10,8 +10,16 @@
 ; puls - checks for real irq's or breaks
 ;
 puls	pha
+.ifp02
+	txa
+	pha
+	tya
+	pha
+	cld
+.else
 	phx
 	phy
+.endif
 	tsx
 	lda $104,x      ;get old p status
 	and #$10        ;break flag?
@@ -29,8 +37,15 @@ key
 	jsr kbd_scan
 
 	jsr irq_ack
-	ply             ;restore registers
+.ifp02
+	pla
+	tay
+	pla
+	tax
+.else
+	ply
 	plx
+.endif
 	pla
 	rti             ;exit from irq routines
 

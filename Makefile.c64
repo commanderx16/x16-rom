@@ -1,0 +1,72 @@
+ifdef RELEASE_VERSION
+	VERSION_DEFINE="-DRELEASE_VERSION=$(RELEASE_VERSION)"
+endif
+ifdef PRERELEASE_VERSION
+	VERSION_DEFINE="-DPRERELEASE_VERSION=$(PRERELEASE_VERSION)"
+endif
+
+AS           = ca65
+LD           = ld65
+
+ARGS_KERNAL=-g#--cpu 65SC02 -g
+ARGS_BASIC=--cpu 65SC02 -g
+ARGS_MONITOR=--cpu 65SC02 -g
+ARGS_DOS=#-g
+
+
+all:
+#	$(AS) -o kernsup/kernsup_basic.o kernsup/kernsup_basic.s
+#	$(AS) -o kernsup/kernsup_monitor.o kernsup/kernsup_monitor.s
+#	$(AS) -o kernsup/irqsup.o kernsup/irqsup.s
+
+	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o basic/basic.o basic/basic.s
+
+	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o fplib/fplib.o fplib/fplib.s
+
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/editor.o kernal/editor.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/kbdbuf.o kernal/kbdbuf.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/channel/channel.o kernal/channel/channel.s
+#	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/ieee_switch.o kernal/ieee_switch.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/serial.o kernal/serial.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/memory.o kernal/memory.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/lzsa.o kernal/lzsa.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/c64.o kernal/drivers/c64/c64.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/clock.o kernal/drivers/c64/clock.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/joystick.o kernal/drivers/c64/joystick.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/kbd.o kernal/drivers/c64/kbd.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/memory.o kernal/drivers/c64/memory.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/mouse.o kernal/drivers/c64/mouse.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/rs232.o kernal/drivers/c64/rs232.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/screen.o kernal/drivers/c64/screen.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/sprites.o kernal/drivers/c64/sprites.s
+
+	$(LD) -C c64-rom.cfg -o c64-rom.bin \
+		kernal/kernal.o \
+		kernal/editor.o \
+		kernal/kbdbuf.o \
+		kernal/channel/channel.o \
+		kernal/serial.o \
+		kernal/memory.o \
+		kernal/lzsa.o \
+		kernal/drivers/c64/c64.o \
+		kernal/drivers/c64/clock.o \
+		kernal/drivers/c64/joystick.o \
+		kernal/drivers/c64/kbd.o \
+		kernal/drivers/c64/memory.o \
+		kernal/drivers/c64/mouse.o \
+		kernal/drivers/c64/rs232.o \
+		kernal/drivers/c64/screen.o \
+		kernal/drivers/c64/sprites.o \
+		-Ln rom-c64.txt -m rom-c64.map
+
+clean:
+	rm -f kernsup/*.o
+	rm -f basic/basic.o fplib/fplib.o kernal/kernal.o rom-c64.bin
+	rm -f monitor/monitor.o monitor/monitor_support.o
+	rm -f cbdos/*.o
+	rm -f keymap/keymap.o
+	rm -f charset/petscii.o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
+	rm -f kernal/graph.*.o kernal/fonts/*.o
+	rm -f kernal/drivers/c64/*.o
+	rm -rf build

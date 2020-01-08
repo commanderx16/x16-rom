@@ -3,8 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../banks.inc"
-.include "../../io.inc"
+.include "../../../banks.inc"
+.include "../../../io.inc"
 
 ; code
 .import ps2_receive_byte; [ps2]
@@ -15,7 +15,10 @@
 .import fetch, fetvec; [routines]
 .import kbdmeta, ikbdmeta ; [keymap]
 
-.export kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_peek, kbd_remove, kbd_get_modifiers, kbd_get_stop
+.import kbdbuf_put
+.import shflag
+
+.export kbd_config, kbd_scan
 
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
@@ -25,21 +28,14 @@ MODIFIER_CAPS  = 16; C128: Caps
 
 .segment "KVARSB0"
 
-keyd:	.res 10          ;    irq keyboard buffer
-ndx:	.res 1           ;$C6 index to keyboard q
-shflag:	.res 1           ;    shift flag byte
-prefix:	.res 1           ;    X16: PS/2: prefix code (e0/e1)
-brkflg:	.res 1           ;    X16: PS/2: was key-up event
-stkey:	.res 1           ;$91 stop key flag: $ff = stop down
-curkbd:	.res 1           ;    X16: current keyboard layout index
+prefix:	.res 1           ;    PS/2: prefix code (e0/e1)
+brkflg:	.res 1           ;    PS/2: was key-up event
+curkbd:	.res 1           ;    current keyboard layout index
 kbdnam:	.res 6           ;    keyboard layout name
 kbdtab:	.res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
 
 .segment "PS2KBD"
 
-;
-; API
-;
 kbd_config:
 	KVARS_START
 	jsr _kbd_config
@@ -49,53 +45,6 @@ kbd_config:
 kbd_scan:
 	KVARS_START
 	jsr _kbd_scan
-	KVARS_END
-	rts
-
-kbd_clear:
-	KVARS_START
-	jsr _kbd_clear
-	KVARS_END
-	rts
-
-kbd_put:
-	KVARS_START
-	phx
-	jsr add_to_buf
-	plx
-	KVARS_END
-	rts
-
-kbd_get:
-	KVARS_START
-	jsr _kbd_get
-	KVARS_END
-	rts
-
-kbd_peek:
-	KVARS_START
-	lda ndx
-	beq :+
-	lda keyd
-:	KVARS_END
-	rts
-
-kbd_remove:
-	KVARS_START
-	jsr _kbd_remove
-	KVARS_END
-	rts
-
-kbd_get_modifiers:
-	KVARS_START
-	lda shflag
-	KVARS_END
-	rts
-
-kbd_get_stop:
-	KVARS_START
-	lda stkey	;
-	eor #$ff        ;set z if stkey is true
 	KVARS_END
 	rts
 
@@ -148,21 +97,17 @@ cycle_layout:
 	txa
 	jsr _kbd_config
 ; put name into keyboard buffer
-	ldy #$8d ; shift + cr
-	sty keyd
+	lda #$8d ; shift + cr
+	jsr kbdbuf_put
 	ldx #0
 :	lda kbdnam,x
 	beq :+
-	sta keyd + 1,x
+	jsr kbdbuf_put
 	inx
 	cpx #6
 	bne :-
-:	tya
-	sta keyd + 1,x
-	inx
-	inx
-	stx ndx
-	rts
+:	lda #$8d ; shift + cr
+	jmp kbdbuf_put
 
 _kbd_scan:
 	jsr receive_down_scancode_no_modifiers
@@ -214,7 +159,7 @@ bit_found:
 	sta fetvec
 	jsr fetch
 	beq drv_end
-	jmp add_to_buf
+	jmp kbdbuf_put
 
 down_ext:
 	cpx #$e1 ; prefix $E1 -> E1-14 = Pause/Break
@@ -222,7 +167,7 @@ down_ext:
 	cmp #$4a ; Numpad /
 	bne not_4a
 	lda #'/'
-	bne add_to_buf
+	bne kbdbuf_put2
 not_4a:	cmp #$5a ; Numpad Enter
 	beq is_enter
 	cpy #$6c ; special case shift+home = clr
@@ -232,7 +177,7 @@ not_5a: cmp #$68
 	cmp #$80
 	bcs drv_end
 nhome:	lda tab_extended-$68,y
-	bne add_to_buf
+	bne kbdbuf_put2
 drv_end:
 	rts
 
@@ -249,22 +194,8 @@ is_stop:
 	lsr ; shift -> C
 	txa
 	ror
-; passes into add_to_buf
-
-;****************************************
-; ADD CHAR TO KBD BUFFER
-;****************************************
-add_to_buf:
-	stz stkey
-	cmp #3 ; stop
-	bne :+
-	dec stkey
-:	ldx ndx ; length of keyboard buffer
-	cpx #10 ;maximum type ahead buffer size
-	bcs add2 ; full, ignore
-	sta keyd,x ; store
-	inc ndx
-add2:	rts
+kbdbuf_put2:
+	jmp kbdbuf_put
 
 ;****************************************
 ; RECEIVE SCANCODE:
@@ -381,27 +312,3 @@ tab_extended:
 	;             pgd         pgu brk
 	.byte $00,$00,$00,$00,$00,$00,$03,$00 ; @$78
 
-_kbd_clear:
-	stz ndx
-	rts
-
-_kbd_get:
-	lda ndx         ;queue index
-	beq lp0         ;nobody there...exit
-	sei
-;
-;remove character from queue
-;
-_kbd_remove:
-	ldy keyd
-	ldx #0
-:	lda keyd+1,x
-	sta keyd,x
-	inx
-	cpx ndx
-	bne :-
-	dec ndx
-	tya
-	cli
-lp0:	clc             ;good return
-	rts

@@ -65,11 +65,12 @@ nwrap=2 ;max number of physical lines per logical line
 .export color
 
 ; keyboard driver
-.import kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop
+.import kbd_config, kbd_scan, kbdbuf_clear, kbdbuf_put, kbdbuf_get, kbd_remove, kbdbuf_get_modifiers, kbdbuf_get_stop
 
 .import emulator_get_data
 
 .include "../banks.inc"
+.include "../mac.inc"
 
 .segment "KVAR2" ; more KERNAL vars
 ; XXX TODO only one bit per byte is used, this should be compressed!
@@ -151,6 +152,7 @@ cint	jsr iokeys
 ;
 	jsr panic       ;set up vic
 
+	; XXX this is too specific
 	lda #2          ;80x60
 	jsr screen_set_mode ;set screen mode to default
 ;
@@ -166,6 +168,7 @@ cint	jsr iokeys
 	lda #$c
 	sta blnct
 	sta blnsw
+
 clsr	lda #$80        ;fill end of line table
 	ldx #0
 lps1	sta ldtb1,x
@@ -201,7 +204,12 @@ fndstr	ldy ldtb1,x     ;find begining of line
 stok	jsr screen_set_position
 ;
 	lda llen
+.ifp02
+	clc
+	sbc #1
+.else
 	dec
+.endif
 	inx
 fndend	ldy ldtb1,x
 	bmi stdone
@@ -213,22 +221,15 @@ stdone
 	sta lnmx
 	rts
 
-; this is a patch for input logic 901227-03**********
-;   fixes input"xxxxxxx-40-xxxxx";a$ problem
-;
-finput	cpx lsxp        ;check if on same line
-	beq finpux      ;yes..return to send
-	jmp findst      ;check if we wrapped down...
-finpux	rts
-
 ;
 loop4	jsr prt
 loop3
-	jsr kbd_get
+	jsr kbdbuf_get
 	sta blnsw
 	sta autodn      ;turn on auto scroll down
 	beq loop3
 	pha
+	php
 	sei
 	lda blnon
 	beq lp21
@@ -237,15 +238,15 @@ loop3
 	ldy #0
 	sty blnon
 	jsr dspp
-lp21	cli
+lp21	plp             ;restore I
 	pla
 	cmp #$83        ;run key?
 	bne lp22
 ; put SHIFT+STOP text into keyboard buffer
-	jsr kbd_clear
+	jsr kbdbuf_clear
 	ldx #0
 :	lda runtb,x
-	jsr kbd_put
+	jsr kbdbuf_put
 	inx
 	cpx #runtb_end-runtb
 	bne :-
@@ -270,9 +271,9 @@ lp25	lda fkeytb,x     ;search for replacement
 lp26	inx
 	dey
 	bne lp25
-lp27	jsr kbd_clear
+lp27	jsr kbdbuf_clear
 lp24	lda fkeytb,x
-	jsr kbd_put
+	jsr kbdbuf_put
 	tay              ;set flags
 	beq lp28
 	inx
@@ -300,8 +301,10 @@ clp6	iny
 	lda lsxp
 	bmi lop5
 	ldx tblx
-	jsr finput      ;check for same line as start  901227-03**********
-	cpx lsxp
+	cpx lsxp        ;check if on same line
+	beq finpux      ;yes..return to send
+	jsr findst      ;check if we wrapped down...
+finpux	cpx lsxp
 	bne lop5
 	lda lstp
 	sta pntr
@@ -756,7 +759,12 @@ back	dec tblx
 ;
 chkdwn	ldx #nwrap
 	lda llen
+.ifp02
+	clc
+	sbc #1
+.else
 	dec
+.endif
 dwnchk	cmp pntr
 	beq dnline
 	clc
@@ -823,10 +831,20 @@ scr10	inx             ;goto next line
 	cpx nlinesm1    ;done?
 	bcs scr41       ;branch if so
 ;
+.ifp02
+	txa
+	pha
+.else
 	phx
+.endif
 	inx
 	jsr screen_copy_line ;scroll this line up1
+.ifp02
+	pla
+	tax
+.else
 	plx
+.endif
 	bra scr10
 ;
 scr41
@@ -852,7 +870,7 @@ scrl3	sta ldtb1,x
 ;
 	inc tblx
 	inc lintmp
-	jsr kbd_get_modifiers
+	jsr kbdbuf_get_modifiers
 	and #4
 	beq mlp42
 ;
@@ -866,7 +884,7 @@ mlp4	nop             ;delay
 	sec
 	sbc #1
 	bne mlp4
-	jsr kbd_clear   ;clear key queue buffer
+	jsr kbdbuf_clear
 ;
 mlp42	ldx tblx
 ;
@@ -893,10 +911,20 @@ scd10	dex
 	cpx lintmp
 	bcc scr40
 	beq scr40       ;branch if finished
+.ifp02
+	txa
+	pha
+.else
 	phx
+.endif
 	dex
 	jsr screen_copy_line ;scroll this line down
+.ifp02
+	pla
+	tax
+.else
 	plx
+.endif
 	bra scd10
 scr40
 	jsr screen_clear_line

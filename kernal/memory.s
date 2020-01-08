@@ -22,8 +22,15 @@
 ;            a    byte value
 ;---------------------------------------------------------------
 memory_fill:
+.ifp02
+	tax
+	lda r0H
+	pha
+	txa
+.else
 	ldx r0H
 	phx
+.endif
 	ldx r1H
 	beq @2
 	ldy #0
@@ -39,8 +46,16 @@ memory_fill:
 	sta (r0),y
 	cpy #0
 	bne @3
-@4:	plx
+@4:
+.ifp02
+	tax
+	pla
+	sta r0H
+	txa
+.else
+	plx
 	stx r0H
+.endif
 	rts
 
 ;---------------------------------------------------------------

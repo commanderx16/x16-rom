@@ -3,8 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../banks.inc"
-.include "../../io.inc"
+.include "../../../banks.inc"
+.include "../../../io.inc"
 
 ; KERNAL API
 .export joystick_scan

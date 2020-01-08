@@ -3,8 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../banks.inc"
-.include "../../io.inc"
+.include "../../../banks.inc"
+.include "../../../io.inc"
 
 .import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
 .import __KERNRAM2_LOAD__, __KERNRAM2_RUN__, __KERNRAM2_SIZE__
@@ -13,7 +13,7 @@
 .import membot
 
 .export ramtas
-.export restore_basic
+.export enter_basic, enter_basic
 
 .export fetch
 .export fetvec
@@ -39,7 +39,6 @@ mmtop   =$9f00
 ;              - MEMTOP
 ;              - MEMBOT
 ;---------------------------------------------------------------
-;
 ramtas:
 ;
 ; set up banking
@@ -106,7 +105,7 @@ ramtas:
 	
 	tya ; number of RAM banks
 ;
-; set top of memory
+; set bottom and top of memory
 ;
 	ldx #<mmtop
 	ldy #>mmtop
@@ -127,7 +126,7 @@ ramtas:
 
 .importzp imparm
 jsrfar:
-.include "../../jsrfar.inc"
+.include "../../../jsrfar.inc"
 
 ;/////////////////////   K E R N A L   R A M   C O D E  \\\\\\\\\\\\\\\\\\\\\\\
 
@@ -281,8 +280,16 @@ cmpare1:
 	plp
 	rts
 
-restore_basic:
+enter_basic:
+	bcc :+
+; cold
 	jsr jsrfar
+	.word $c000
+	.byte BANK_BASIC
+	;not reached
+
+; warm
+:	jsr jsrfar
 	.word $c000 + 3
 	.byte BANK_BASIC
 	;not reached

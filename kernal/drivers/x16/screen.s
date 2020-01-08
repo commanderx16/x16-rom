@@ -3,10 +3,10 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../io.inc"
-.include "../../banks.inc"
-.include "../../mac.inc"
-.include "../../regs.inc"
+.include "../../../io.inc"
+.include "../../../banks.inc"
+.include "../../../mac.inc"
+.include "../../../regs.inc"
 
 .export screen_init
 .export screen_set_mode
@@ -456,6 +456,7 @@ screen_clear_line:
 ;            called before and after any interrupt code that
 ;            calls any of the functions in this driver.
 ;---------------------------------------------------------------
+; XXX make this a machine API? "io_save_state"?
 screen_save_state:
 	plx
 	ply
