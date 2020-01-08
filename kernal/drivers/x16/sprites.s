@@ -5,9 +5,9 @@
 
 ; This code currently supports up to 8 sprites.
 
-.include "../../io.inc"
-.include "../../regs.inc"
-.include "../../mac.inc"
+.include "../../../io.inc"
+.include "../../../regs.inc"
+.include "../../../mac.inc"
 
 .export sprite_set_image
 .export sprite_set_position

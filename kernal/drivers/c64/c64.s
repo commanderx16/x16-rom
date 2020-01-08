@@ -1,12 +1,42 @@
+;----------------------------------------------------------------------
+; Commdore 64 Machine Driver
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
+
 .export emulator_get_data, ioinit,iokeys,irq_ack,restore_basic, monitor
 
 .segment "MACHINE"
 
 ; system driver
-emulator_get_data:
+;---------------------------------------------------------------
+; IOINIT - Initialize I/O Devices
+;
+; Function:  Init all devices.
+;            -- This is KERNAL API --
+;---------------------------------------------------------------
 ioinit:
+
+;---------------------------------------------------------------
+; Set up VBLANK IRQ
+;
+;---------------------------------------------------------------
 iokeys:
+
+;---------------------------------------------------------------
+; ACK VBLANK IRQ
+;
+;---------------------------------------------------------------
 irq_ack:
+
+;---------------------------------------------------------------
+; Get some data from the emulator
+;
+; Function:  Detect an emulator and get config information.
+;            For now, this is the keyboard layout.
+;---------------------------------------------------------------
+emulator_get_data:
+
+; misc
 restore_basic:
 	brk
 

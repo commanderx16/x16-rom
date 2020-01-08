@@ -3,8 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../banks.inc"
-.include "../../io.inc"
+.include "../../../banks.inc"
+.include "../../../io.inc"
 
 .import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
 .import __KERNRAM2_LOAD__, __KERNRAM2_RUN__, __KERNRAM2_SIZE__
@@ -127,7 +127,7 @@ ramtas:
 
 .importzp imparm
 jsrfar:
-.include "../../jsrfar.inc"
+.include "../../../jsrfar.inc"
 
 ;/////////////////////   K E R N A L   R A M   C O D E  \\\\\\\\\\\\\\\\\\\\\\\
 

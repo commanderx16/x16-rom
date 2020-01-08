@@ -161,17 +161,17 @@ all: $(PREFIXED_GEOS_OBJS)
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/serial.o kernal/serial.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/memory.o kernal/memory.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/lzsa.o kernal/lzsa.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16.o kernal/drivers/x16.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/memory.o kernal/drivers/memory.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/screen.o kernal/drivers/screen.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/ps2.o kernal/drivers/ps2.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/ps2kbd.o kernal/drivers/ps2kbd.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/ps2mouse.o kernal/drivers/ps2mouse.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/joystick.o kernal/drivers/joystick.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/clock.o kernal/drivers/clock.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/rs232.o kernal/drivers/rs232.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/framebuffer.o kernal/drivers/framebuffer.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/sprites.o kernal/drivers/sprites.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/x16.o kernal/drivers/x16/x16.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/memory.o kernal/drivers/x16/memory.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/screen.o kernal/drivers/x16/screen.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/ps2.o kernal/drivers/x16/ps2.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/ps2kbd.o kernal/drivers/x16/ps2kbd.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/ps2mouse.o kernal/drivers/x16/ps2mouse.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/joystick.o kernal/drivers/x16/joystick.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/clock.o kernal/drivers/x16/clock.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/rs232.o kernal/drivers/x16/rs232.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/framebuffer.o kernal/drivers/x16/framebuffer.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/sprites.o kernal/drivers/x16/sprites.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/graph/graph.o kernal/graph/graph.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/console.o kernal/console.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/fonts/fonts.o kernal/fonts/fonts.s
@@ -204,17 +204,17 @@ all: $(PREFIXED_GEOS_OBJS)
 		kernal/serial.o \
 		kernal/memory.o \
 		kernal/lzsa.o \
-		kernal/drivers/x16.o \
-		kernal/drivers/memory.o \
-		kernal/drivers/screen.o \
-		kernal/drivers/ps2.o \
-		kernal/drivers/ps2kbd.o \
-		kernal/drivers/ps2mouse.o \
-		kernal/drivers/joystick.o \
-		kernal/drivers/clock.o \
-		kernal/drivers/rs232.o \
-		kernal/drivers/framebuffer.o \
-		kernal/drivers/sprites.o \
+		kernal/drivers/x16/x16.o \
+		kernal/drivers/x16/memory.o \
+		kernal/drivers/x16/screen.o \
+		kernal/drivers/x16/ps2.o \
+		kernal/drivers/x16/ps2kbd.o \
+		kernal/drivers/x16/ps2mouse.o \
+		kernal/drivers/x16/joystick.o \
+		kernal/drivers/x16/clock.o \
+		kernal/drivers/x16/rs232.o \
+		kernal/drivers/x16/framebuffer.o \
+		kernal/drivers/x16/sprites.o \
 		kernal/graph/graph.o kernal/fonts/fonts.o \
 		kernal/console.o \
 		monitor/monitor.o \
@@ -241,4 +241,5 @@ clean:
 	rm -f keymap/keymap.o
 	rm -f charset/petscii.o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
 	rm -f kernal/graph.*.o kernal/fonts/*.o
+	rm -f kernal/drivers/x16/*.o
 	rm -rf build

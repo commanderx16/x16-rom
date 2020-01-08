@@ -3,9 +3,9 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../regs.inc"
-.include "../../banks.inc"
-.include "../../io.inc"
+.include "../../../regs.inc"
+.include "../../../banks.inc"
+.include "../../../io.inc"
 
 ; KERNAL API
 .export clock_update

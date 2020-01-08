@@ -3,7 +3,7 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../io.inc"
+.include "../../../io.inc"
 
 .export ioinit
 .export iokeys
@@ -35,6 +35,10 @@ iokeys:
 	sta veraien     ;VERA VBLANK IRQ for 60 Hz
 	rts
 	
+;---------------------------------------------------------------
+; ACK VBLANK IRQ
+;
+;---------------------------------------------------------------
 irq_ack:
 	lda #1
 	sta veraisr     ;ACK VERA VBLANK
