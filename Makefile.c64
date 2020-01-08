@@ -30,7 +30,15 @@ all:
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/serial.o kernal/serial.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/memory.o kernal/memory.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/lzsa.o kernal/lzsa.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64.o kernal/drivers/c64.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/c64.o kernal/drivers/c64/c64.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/clock.o kernal/drivers/c64/clock.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/joystick.o kernal/drivers/c64/joystick.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/kbd.o kernal/drivers/c64/kbd.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/memory.o kernal/drivers/c64/memory.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/mouse.o kernal/drivers/c64/mouse.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/rs232.o kernal/drivers/c64/rs232.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/screen.o kernal/drivers/c64/screen.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/c64/sprites.o kernal/drivers/c64/sprites.s
 
 	$(LD) -C c64-rom.cfg -o c64-rom.bin \
 		kernal/kernal.o \
@@ -40,7 +48,15 @@ all:
 		kernal/serial.o \
 		kernal/memory.o \
 		kernal/lzsa.o \
-		kernal/drivers/c64.o \
+		kernal/drivers/c64/c64.o \
+		kernal/drivers/c64/clock.o \
+		kernal/drivers/c64/joystick.o \
+		kernal/drivers/c64/kbd.o \
+		kernal/drivers/c64/memory.o \
+		kernal/drivers/c64/mouse.o \
+		kernal/drivers/c64/rs232.o \
+		kernal/drivers/c64/screen.o \
+		kernal/drivers/c64/sprites.o \
 		-Ln rom-c64.txt -m rom-c64.map
 
 clean:
@@ -51,4 +67,5 @@ clean:
 	rm -f keymap/keymap.o
 	rm -f charset/petscii.o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
 	rm -f kernal/graph.*.o kernal/fonts/*.o
+	rm -f kernal/drivers/c64/*.o
 	rm -rf build
