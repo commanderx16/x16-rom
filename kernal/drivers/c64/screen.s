@@ -1,5 +1,13 @@
 .export screen_clear_line, screen_copy_line, screen_get_char, screen_get_char_color, screen_get_color, screen_init, screen_restore_state, screen_save_state, screen_set_char, screen_set_char_color, screen_set_charset, screen_set_color, screen_set_mode, screen_set_position
 
+scrram = $0400
+colram = $d800
+
+.segment "ZPKERNAL" : zp
+
+pnt:	.res 2           ;$D1 pointer to row
+pntcol:	.res 2
+
 .segment "SCREEN"
 
 ;---------------------------------------------------------------
@@ -23,6 +31,31 @@ screen_set_mode:
 ;   Out:  pnt  line location
 ;---------------------------------------------------------------
 screen_set_position:
+	; * 40 = %101000
+	txa
+	stz pnt+1
+
+	asl       ; calc line * 8 (max 192 i.e. single byte)
+	asl
+	asl
+	sta pnt
+
+	asl       ; calc line * 32
+	rol pnt+1
+	asl
+	rol pnt+1
+
+	clc       ; add line * 8
+	adc pnt
+	sta pnt
+	sta pntcol
+	lda pnt+1
+	adc #>scrram
+	sta pnt+1
+	clc
+	adc #(>colram)-(>scrram)
+	sta pntcol+1
+	rts
 
 ;---------------------------------------------------------------
 ; Get single color
@@ -32,6 +65,8 @@ screen_set_position:
 ;   Out:  .a       PETSCII/ISO
 ;---------------------------------------------------------------
 screen_get_color:
+	lda (pntcol),y
+	rts
 
 ;---------------------------------------------------------------
 ; Get single character
@@ -41,6 +76,8 @@ screen_get_color:
 ;   Out:  .a       PETSCII/ISO
 ;---------------------------------------------------------------
 screen_get_char:
+	lda (pnt),y
+	rts
 
 ;---------------------------------------------------------------
 ; Set single color
@@ -51,6 +88,8 @@ screen_get_char:
 ;   Out:  -
 ;---------------------------------------------------------------
 screen_set_color:
+	sta (pntcol),y
+	rts
 
 ;---------------------------------------------------------------
 ; Set single character
@@ -61,6 +100,8 @@ screen_set_color:
 ;   Out:  -
 ;---------------------------------------------------------------
 screen_set_char:
+	sta (pnt),y
+	rts
 
 ;---------------------------------------------------------------
 ; Set single character and color
@@ -72,6 +113,10 @@ screen_set_char:
 ;   Out:  -
 ;---------------------------------------------------------------
 screen_set_char_color:
+	sta (pnt),y
+	txa
+	sta (pntcol),y
+	rts
 
 ;---------------------------------------------------------------
 ; Get single character and color
@@ -82,6 +127,10 @@ screen_set_char_color:
 ;         .x       color
 ;---------------------------------------------------------------
 screen_get_char_color:
+	lda (pntcol),y
+	tax
+	lda (pnt),y
+	rts
 
 ;---------------------------------------------------------------
 ; Copy line

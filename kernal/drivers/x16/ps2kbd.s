@@ -40,6 +40,9 @@ kbdtab:	.res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
 ;
 ; API
 ;
+; XXX move kbd_clear, kbd_put, kbd_get, kbd_peek, kbd_remove into
+; XXX generic code - all they do is queue handling!
+
 kbd_config:
 	KVARS_START
 	jsr _kbd_config
