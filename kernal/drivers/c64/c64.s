@@ -15,12 +15,31 @@
 ;            -- This is KERNAL API --
 ;---------------------------------------------------------------
 ioinit:
+	; memory banking
 	lda #$37
 	sta 1
 	lda #$2f
 	sta 0
+
+	; disable all CIA IRQs and NMIs
+	lda #$7f
+	sta $dc0d ; disable
+	sta $dd0d
+	bit $dc0d ; ack
+	bit $dd0d
+
+	; disable all VIC IRQs
+	lda #0
+	sta $d01a ; disble
+	lda #$0f
+	sta $d019 ; ack
+
+	; SID
 	stz $d418       ;mute SID
+
+	; Serial
 	jsr clklo       ;release the clock line
+	; XXX this should be "serial_init"
 ; fallthrough
 
 ;---------------------------------------------------------------
@@ -30,9 +49,9 @@ ioinit:
 iokeys:
 	lda #250
 	sta $d012
-	lda $d011
-	and #$7f
-	sta $d011
+	lda $d011    ; screen_init will keep overwriting the MSB
+	and #$7f     ; of $d011 with 0, so if the value changes,
+	sta $d011    ; it has to be changed there as well!
 	lda #1
 	sta $d01a
 	rts
