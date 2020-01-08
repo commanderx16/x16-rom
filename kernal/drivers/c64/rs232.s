@@ -9,5 +9,5 @@ cki232:
 cko232:
 cls232:
 opn232:
-	brk
+	rts ; XXX
 

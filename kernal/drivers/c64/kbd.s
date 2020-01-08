@@ -2,12 +2,27 @@
 
 .segment "PS2KBD" ; XXX rename
 
-; keyboard
-kbd_clear:
+; set kbd layout - do nothing
 kbd_config:
-kbd_get:
-kbd_get_modifiers:
-kbd_get_stop:
-kbd_put:
+	rts
+
 kbd_scan:
-	brk
+	rts ; XXX
+
+kbd_clear:
+	rts ; XXX
+
+kbd_put:
+	rts ; XXX
+
+kbd_get:
+	lda #0 ; XXX
+	rts
+
+kbd_get_modifiers:
+	lda #0 ; XXX
+	rts
+
+kbd_get_stop:
+	lda #0 ; XXX
+	rts

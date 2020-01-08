@@ -8,5 +8,5 @@ clock_get_timer:
 clock_set_date_time:
 clock_set_timer:
 clock_update:
-	brk
+	rts ; XXX
 
