@@ -39,7 +39,6 @@ mmtop   =$9f00
 ;              - MEMTOP
 ;              - MEMBOT
 ;---------------------------------------------------------------
-;
 ramtas:
 ;
 ; set up banking
@@ -106,7 +105,7 @@ ramtas:
 	
 	tya ; number of RAM banks
 ;
-; set top of memory
+; set bottom and top of memory
 ;
 	ldx #<mmtop
 	ldy #>mmtop

@@ -24,7 +24,8 @@
 ;---------------------------------------------------------------
 ioinit:
 	jsr ps2_init    ;inhibit ps/2 communcation
-	jsr clklo       ;release the clock line***901227-03***
+	jsr clklo       ;release the clock line
+	; fallthrough
 
 ;---------------------------------------------------------------
 ; Set up VBLANK IRQ

@@ -3,7 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.export emulator_get_data, ioinit,iokeys,irq_ack,restore_basic, monitor
+.import clklo
+.export emulator_get_data, ioinit,iokeys,irq_ack,monitor
 
 .segment "MACHINE"
 
@@ -15,32 +16,47 @@
 ;            -- This is KERNAL API --
 ;---------------------------------------------------------------
 ioinit:
+	lda #$37
+	sta 1
+	lda #$2f
+	sta 0
+	stz $d418       ;mute SID
+	jsr clklo       ;release the clock line
+; fallthrough
 
 ;---------------------------------------------------------------
 ; Set up VBLANK IRQ
 ;
 ;---------------------------------------------------------------
 iokeys:
+	lda #250
+	sta $d012
+	lda $d011
+	and #$7f
+	sta $d011
+	lda #1
+	sta $d01a
+	rts
 
 ;---------------------------------------------------------------
 ; ACK VBLANK IRQ
 ;
 ;---------------------------------------------------------------
 irq_ack:
+	lda #1
+	sta $d019
+	rts
 
 ;---------------------------------------------------------------
 ; Get some data from the emulator
 ;
 ; Function:  Detect an emulator and get config information.
-;            For now, this is the keyboard layout.
 ;---------------------------------------------------------------
 emulator_get_data:
+	lda #0
+	rts
 
 ; misc
-restore_basic:
-	brk
-
-; monitor
 monitor:
 	brk
 
