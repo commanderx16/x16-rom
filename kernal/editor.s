@@ -151,6 +151,7 @@ cint	jsr iokeys
 ;
 	jsr panic       ;set up vic
 
+	; XXX this is too specific
 	lda #2          ;80x60
 	jsr screen_set_mode ;set screen mode to default
 ;
@@ -166,6 +167,7 @@ cint	jsr iokeys
 	lda #$c
 	sta blnct
 	sta blnsw
+
 clsr	lda #$80        ;fill end of line table
 	ldx #0
 lps1	sta ldtb1,x

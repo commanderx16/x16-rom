@@ -16,7 +16,7 @@
 .import stash
 .import cmpare
 .import jsrfar
-.import restore_basic
+.import basic_warm
 
 ; from platform driver
 .import ioinit

@@ -6,7 +6,7 @@
 .import memtop, membot
 
 .export ramtas, jsrfar, indfet, cmpare, stash
-.export restore_basic
+.export basic_cold, basic_warm
 
 mmbot	=$0800
 mmtop   =$8000
@@ -28,9 +28,10 @@ ramtas:
 ; clear kernal variables
 ;
 	ldx #0          ;zero low memory
-:	stz $0002,x     ;zero page
-	stz $0200,x     ;user buffers and vars
-	stz $0300,x     ;system space and user space
+	txa
+:	sta a:$0002,x   ;zero page, excluding CPU I/O port
+	sta $0200,x     ;user buffers and vars
+	sta $0300,x     ;system space and user space
 	inx
 	bne :-
 
@@ -54,6 +55,8 @@ cmpare:
 stash:
 	brk
 
-restore_basic:
-	brk
+basic_cold:
+	jmp ($a000)
 
+basic_warm:
+	jmp ($a003)

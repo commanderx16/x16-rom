@@ -3,7 +3,7 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.import color
+.import scnsiz, color
 .export screen_clear_line, screen_copy_line, screen_get_char, screen_get_char_color, screen_get_color, screen_init, screen_restore_state, screen_save_state, screen_set_char, screen_set_char_color, screen_set_charset, screen_set_color, screen_set_mode, screen_set_position
 
 scrram = $0400
@@ -26,7 +26,10 @@ screen_init:
 	sta $d000-1,x
 	dex
 	bne :-
-	rts
+
+	ldx #40
+	ldy #25
+	jmp scnsiz
 
 vic_data:
 	.byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -168,10 +171,9 @@ screen_copy_line:
 screen_clear_line:
 	jsr screen_set_position
 	ldy #39
-	ldx color
 :	lda #' '
 	sta (pnt),y
-	txa
+	lda color
 	sta (pntcol),y
 	dey
 	bpl :-

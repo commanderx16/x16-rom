@@ -15,10 +15,7 @@ nnmi	pha
 timb	jsr restor      ;restore system indirects
 	jsr ioinit      ;restore i/o for basic
 	jsr cint        ;restore screen for basic
-	jsr jsrfar
-	.word $c000 + 3 ;basic warm start
-	.byte BANK_BASIC
-	;not reached
+	jmp basic_warm
 
 prend	ply             ;because of missing screen editor
 	plx

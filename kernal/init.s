@@ -1,4 +1,6 @@
 
+.import basic_cold
+
 .export membot
 .export memtop
 
@@ -15,10 +17,7 @@ start	ldx #$ff
 	jsr cint        ;go initilize screen
 	cli             ;interrupts okay now
 
-	jsr jsrfar
-	.word $c000     ;go to basic system
-	.byte BANK_BASIC
-	                ;not reached
+	jmp basic_cold
 
 ; restor - set kernal indirects and vectors (system)
 ;
