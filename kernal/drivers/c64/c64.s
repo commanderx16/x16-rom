@@ -8,7 +8,6 @@
 
 .segment "MACHINE"
 
-; system driver
 ;---------------------------------------------------------------
 ; IOINIT - Initialize I/O Devices
 ;

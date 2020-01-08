@@ -1,3 +1,8 @@
+;----------------------------------------------------------------------
+; C64 Joystick Driver
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
+
 .export joystick_get, joystick_scan
 
 .segment "JOYSTICK"
