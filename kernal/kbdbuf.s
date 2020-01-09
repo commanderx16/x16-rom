@@ -72,12 +72,14 @@ kbdbuf_put:
 	sta keyd,x ; store
 	inc ndx
 :	ldx stkey
+	pha
 	cmp #3 ; stop
 	bne @1
 	lda #$ff
 	bra @2
 @1:	lda #0
 @2:	sta stkey
+	pla
 	KVARS_END
 	rts
 
