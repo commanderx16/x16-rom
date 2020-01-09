@@ -221,14 +221,6 @@ stdone
 	sta lnmx
 	rts
 
-; this is a patch for input logic 901227-03**********
-;   fixes input"xxxxxxx-40-xxxxx";a$ problem
-;
-finput	cpx lsxp        ;check if on same line
-	beq finpux      ;yes..return to send
-	jmp findst      ;check if we wrapped down...
-finpux	rts
-
 ;
 loop4	jsr prt
 loop3
@@ -309,8 +301,10 @@ clp6	iny
 	lda lsxp
 	bmi lop5
 	ldx tblx
-	jsr finput      ;check for same line as start  901227-03**********
-	cpx lsxp
+	cpx lsxp        ;check if on same line
+	beq finpux      ;yes..return to send
+	jsr findst      ;check if we wrapped down...
+finpux	cpx lsxp
 	bne lop5
 	lda lstp
 	sta pntr
