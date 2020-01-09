@@ -15,7 +15,7 @@
 .import fetch, fetvec; [routines]
 .import kbdmeta, ikbdmeta ; [keymap]
 
-.import add_to_buf
+.import kbdbuf_put
 .import shflag
 
 .export kbd_config, kbd_scan
@@ -28,17 +28,13 @@ MODIFIER_CAPS  = 16; C128: Caps
 
 .segment "KVARSB0"
 
-prefix:	.res 1           ;    X16: PS/2: prefix code (e0/e1)
-brkflg:	.res 1           ;    X16: PS/2: was key-up event
-curkbd:	.res 1           ;    X16: current keyboard layout index
+prefix:	.res 1           ;    PS/2: prefix code (e0/e1)
+brkflg:	.res 1           ;    PS/2: was key-up event
+curkbd:	.res 1           ;    current keyboard layout index
 kbdnam:	.res 6           ;    keyboard layout name
 kbdtab:	.res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
 
 .segment "PS2KBD"
-
-;
-; API
-;
 
 kbd_config:
 	KVARS_START
@@ -102,18 +98,16 @@ cycle_layout:
 	jsr _kbd_config
 ; put name into keyboard buffer
 	lda #$8d ; shift + cr
-	jsr add_to_buf
+	jsr kbdbuf_put
 	ldx #0
 :	lda kbdnam,x
 	beq :+
-	phx
-	jsr add_to_buf
-	plx
+	jsr kbdbuf_put
 	inx
 	cpx #6
 	bne :-
 :	lda #$8d ; shift + cr
-	jmp add_to_buf
+	jmp kbdbuf_put
 
 _kbd_scan:
 	jsr receive_down_scancode_no_modifiers
@@ -165,7 +159,7 @@ bit_found:
 	sta fetvec
 	jsr fetch
 	beq drv_end
-	jmp add_to_buf
+	jmp kbdbuf_put
 
 down_ext:
 	cpx #$e1 ; prefix $E1 -> E1-14 = Pause/Break
@@ -173,7 +167,7 @@ down_ext:
 	cmp #$4a ; Numpad /
 	bne not_4a
 	lda #'/'
-	bne add_to_buf2
+	bne kbdbuf_put2
 not_4a:	cmp #$5a ; Numpad Enter
 	beq is_enter
 	cpy #$6c ; special case shift+home = clr
@@ -183,7 +177,7 @@ not_5a: cmp #$68
 	cmp #$80
 	bcs drv_end
 nhome:	lda tab_extended-$68,y
-	bne add_to_buf2
+	bne kbdbuf_put2
 drv_end:
 	rts
 
@@ -200,8 +194,8 @@ is_stop:
 	lsr ; shift -> C
 	txa
 	ror
-add_to_buf2:
-	jmp add_to_buf
+kbdbuf_put2:
+	jmp kbdbuf_put
 
 ;****************************************
 ; RECEIVE SCANCODE:
