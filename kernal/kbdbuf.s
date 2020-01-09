@@ -26,6 +26,7 @@ shflag:	.res 1           ;    shift flag byte
 
 .segment "KBDBUF"
 
+; XXX Remove! Users can just get characters until they get a 0
 kbdbuf_clear:
 	KVARS_START
 	lda #0
@@ -33,6 +34,7 @@ kbdbuf_clear:
 	KVARS_END
 	rts
 
+; XXX Remove! Users can get and put!
 kbdbuf_peek:
 	KVARS_START
 	lda ndx
@@ -60,6 +62,7 @@ kbdbuf_get:
 	KVARS_END
 	rts
 
+; XXX make API
 kbdbuf_put:
 	KVARS_START
 	stx stkey
@@ -78,6 +81,7 @@ kbdbuf_put:
 	KVARS_END
 	rts
 
+; XXX make API
 kbdbuf_get_stop:
 	KVARS_START
 	lda stkey
@@ -85,6 +89,7 @@ kbdbuf_get_stop:
 	KVARS_END
 	rts
 
+; XXX make API
 kbdbuf_get_modifiers:
 	KVARS_START
 	lda shflag
