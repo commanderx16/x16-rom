@@ -47,6 +47,7 @@ kbdbuf_get:
 	KVARS_START
 	lda ndx         ;queue index
 	beq @1          ;nobody there...exit
+	php
 	sei
 	ldy keyd
 	ldx #0
@@ -56,8 +57,8 @@ kbdbuf_get:
 	cpx ndx
 	bne :-
 	dec ndx
+	plp
 	tya
-	cli
 @1:	clc             ;good return
 	KVARS_END
 	rts

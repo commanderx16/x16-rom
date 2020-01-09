@@ -237,6 +237,7 @@ loop3
 	sta autodn      ;turn on auto scroll down
 	beq loop3
 	pha
+	php
 	sei
 	lda blnon
 	beq lp21
@@ -245,7 +246,7 @@ loop3
 	ldy #0
 	sty blnon
 	jsr dspp
-lp21	cli
+lp21	plp             ;restore I
 	pla
 	cmp #$83        ;run key?
 	bne lp22

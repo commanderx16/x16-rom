@@ -7,6 +7,7 @@ nnmi	pha
 	pha
 	tya
 	pha
+	cld
 .else
 	phx
 	phy
