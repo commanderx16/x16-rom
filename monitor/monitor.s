@@ -2250,7 +2250,7 @@ irq_handler:
 irqhandler2:
         lda     disable_f_keys
         bne     LB6FA
-	jsr _kbdbuf_peek
+	jsr kbdbuf_peek
         bne     LB700
 LB6FA:	rts
 	
@@ -2463,7 +2463,7 @@ LB845:  ldy     #1 ; column 1
         dec     tmp13
         beq     LB889
 .ifdef MACHINE_X16
-	jsr _kbdbuf_peek
+	jsr kbdbuf_peek
 .else
         lda     KEYD
 .endif
@@ -3795,17 +3795,19 @@ _kbdbuf_put:
 	.byte BANK_KERNAL
 	rts
 
-_kbdbuf_peek:
-	jsr mjsrfar
-	.word kbdbuf_peek
-	.byte BANK_KERNAL
-	rts
-
 _kbdbuf_clear:
 	jsr mjsrfar
 	.word kbdbuf_clear
 	.byte BANK_KERNAL
 	rts
+
+kbdbuf_peek:
+	jsr GETIN
+	beq :+
+	pha
+	jsr _kbdbuf_put
+	pla
+:	rts
 
 LF0BD:
     .byte "I/O ERROR"

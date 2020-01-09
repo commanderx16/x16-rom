@@ -10,7 +10,6 @@
 .export kbdbuf_clear
 .export kbdbuf_put
 .export kbdbuf_get
-.export kbdbuf_peek
 .export kbdbuf_get_stop
 .export kbdbuf_get_modifiers
 .export shflag
@@ -26,21 +25,11 @@ shflag:	.res 1           ;    shift flag byte
 
 .segment "KBDBUF"
 
-; XXX Remove! Users can just get characters until they get a 0
 kbdbuf_clear:
 	KVARS_START
 	lda #0
 	sta ndx
 	KVARS_END
-	rts
-
-; XXX Remove! Users can get and put!
-kbdbuf_peek:
-	KVARS_START
-	lda ndx
-	beq :+
-	lda keyd
-:	KVARS_END
 	rts
 
 kbdbuf_get:
@@ -84,7 +73,6 @@ kbdbuf_put:
 	KVARS_END
 	rts
 
-; XXX make API
 kbdbuf_get_stop:
 	KVARS_START
 	lda stkey
