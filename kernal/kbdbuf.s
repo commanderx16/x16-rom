@@ -5,6 +5,7 @@
 
 .include "../banks.inc"
 .include "../io.inc"
+.include "../mac.inc"
 
 .export kbdbuf_clear
 .export kbdbuf_put
@@ -27,7 +28,8 @@ shflag:	.res 1           ;    shift flag byte
 
 kbdbuf_clear:
 	KVARS_START
-	stz ndx
+	lda #0
+	sta ndx
 	KVARS_END
 	rts
 
@@ -60,17 +62,19 @@ kbdbuf_get:
 
 kbdbuf_put:
 	KVARS_START
-	phx
-	stz stkey
-	cmp #3 ; stop
-	bne :+
-	dec stkey
-:	ldx ndx    ; length of keyboard buffer
+	stx stkey
+	ldx ndx    ; length of keyboard buffer
 	cpx #KBDBUF_SIZE
 	bcs :+     ; full, ignore
 	sta keyd,x ; store
 	inc ndx
-:	plx
+:	ldx stkey
+	cmp #3 ; stop
+	bne @1
+	lda #$ff
+	bra @2
+@1:	lda #0
+@2:	sta stkey
 	KVARS_END
 	rts
 

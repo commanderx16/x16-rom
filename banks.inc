@@ -12,6 +12,8 @@ BANK_CHARSET = 6
 ; 1-9: GEOS BG SCREEN (320x200) [not currently enabled]
 ; 255: CBDOS
 
+.ifdef X16
+
 .macro KVARS_START
 .import kvswitch_tmp1, kvswitch_tmp2
 	php
@@ -41,3 +43,13 @@ BANK_CHARSET = 6
 	lda kvswitch_tmp1
 	plp
 .endmacro
+
+.else ; C64
+
+.macro KVARS_START
+.endmacro
+
+.macro KVARS_END
+.endmacro
+
+.endif

@@ -15,9 +15,9 @@ ARGS_DOS=#-g
 
 
 all:
-	$(AS) -o kernsup/kernsup_basic.o kernsup/kernsup_basic.s
-	$(AS) -o kernsup/kernsup_monitor.o kernsup/kernsup_monitor.s
-	$(AS) -o kernsup/irqsup.o kernsup/irqsup.s
+#	$(AS) -o kernsup/kernsup_basic.o kernsup/kernsup_basic.s
+#	$(AS) -o kernsup/kernsup_monitor.o kernsup/kernsup_monitor.s
+#	$(AS) -o kernsup/irqsup.o kernsup/irqsup.s
 
 	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o basic/basic.o basic/basic.s
 

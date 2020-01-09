@@ -8,11 +8,11 @@ endif
 AS           = ca65
 LD           = ld65
 
-ARGS_KERNAL=--cpu 65SC02 -g
-ARGS_BASIC=--cpu 65SC02 -g
-ARGS_MONITOR=--cpu 65SC02 -g
+ARGS_KERNAL=-DX16 --cpu 65SC02 -g
+ARGS_BASIC=-DX16 --cpu 65SC02 -g
+ARGS_MONITOR=-DX16 --cpu 65SC02 -g
 ARGS_DOS=#-g
-ARGS_GEOS=#-g
+ARGS_GEOS=-DX16 #-g
 
 
 ASFLAGS      = -I geos/inc -I geos #-g
@@ -146,9 +146,9 @@ $(GEOS_BUILD_DIR)/%.o: %.s
 	$(AS) $(ARGS_GEOS) -D bsw=1 -D drv1541=1 $(ASFLAGS) $< -o $@
 
 all: $(PREFIXED_GEOS_OBJS)
-	$(AS) -o kernsup/kernsup_basic.o kernsup/kernsup_basic.s
-	$(AS) -o kernsup/kernsup_monitor.o kernsup/kernsup_monitor.s
-	$(AS) -o kernsup/irqsup.o kernsup/irqsup.s
+	$(AS) -DX16 -o kernsup/kernsup_basic.o kernsup/kernsup_basic.s
+	$(AS) -DX16 -o kernsup/kernsup_monitor.o kernsup/kernsup_monitor.s
+	$(AS) -DX16 -o kernsup/irqsup.o kernsup/irqsup.s
 
 	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o basic/basic.o basic/basic.s
 
