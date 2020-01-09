@@ -47,7 +47,7 @@ bridge GRAPH_set_font      ; $FF3B
 bridge GRAPH_get_char_size ; $FF3E
 bridge GRAPH_put_char      ; $FF41
 bridge monitor             ; $FF44: monitor
-bridge restore_basic       ; $FF47: restore_basic
+bridge enter_basic         ; $FF47: enter_basic
 bridge close_all           ; $FF4A: CLOSE_ALL – close all files on a device
 bridge clock_set_date_time ; $FF4D: clock_set_date_time - set date and time
 bridge clock_get_date_time ; $FF50: clock_get_date_time - get date and time

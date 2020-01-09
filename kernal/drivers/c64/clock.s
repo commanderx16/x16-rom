@@ -1,7 +1,7 @@
 ;----------------------------------------------------------------------
 ; CIA TOD Clock Driver
 ;----------------------------------------------------------------------
-; (C)2019 Michael Steil, License: 2-clause BSD
+; (C)2020 Michael Steil, License: 2-clause BSD
 
 .include "../../../regs.inc"
 

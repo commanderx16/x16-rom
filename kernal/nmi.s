@@ -23,7 +23,8 @@ nnmi	pha
 timb	jsr restor      ;restore system indirects
 	jsr ioinit      ;restore i/o for basic
 	jsr cint        ;restore screen for basic
-	jmp basic_warm
+	clc
+	jmp enter_basic
 
 prend
 .ifp02

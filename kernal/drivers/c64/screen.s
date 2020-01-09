@@ -21,53 +21,48 @@ pntcol:	.res 2
 ;
 ;---------------------------------------------------------------
 screen_init:
-	ldx #vic_data_end-vic_data-1
-:	cpx #$12
-	beq @skip
-	cpx #$1a
-	beq @skip
-	lda vic_data,x
-	sta $d000,x
-@skip:	dex
+	lda #0
+	ldx #$10
+:	sta $d000,x ; clear sprite position registers
+	dex
+	bpl :-
+	sta $d015   ; sprite enable
+	sta $d017   ; sprite y expand
+	sta $d01b   ; sprite priority
+	ldx #3
+:	sta $d01c,x ; clear multicolor, x expand, collision
+	dex
+	bpl :-
+
+	; writing $d011 will force bit 8 of RSTCMP to 0;
+	; see iokeys for the RSTCMP setup
+	lda #$1b
+	sta $d011 ; CR1
+	lda #$08
+	sta $d016 ; CR2
+	lda #$14
+	sta $d018 ; VM/CB
+
+	lda #14
+	sta $d020 ; border color
+	lda #6
+	sta $d021 ; background color
+
+	ldx #4
+:	txa
+	sta $d022-1,x ; extra colors 1,2,3,4
+	dex
 	bne :-
+
+	ldx #7
+:	txa
+	sta $d027-1,x ; sprite colors 0,1,2,3,4,5,6,7
+	dex
+	bpl :-
 
 	ldx #40
 	ldy #25
 	jmp scnsiz
-
-vic_data:
-	; $d000: all sprite positions = 0/0
-	.byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	; $d011: writing will force bit 8 of RSTCMP to 0;
-	;        see iokeys for the RSTCMP setup
-	.byte $1b
-	; $d012: skipped
-	.byte 0
-	; $d013/$d014: read-only
-	.byte 0,0
-	; $d015: sprite enable
-	.byte 0
-	; $d016
-	.byte $08
-	; $d017
-	.byte 0
-	; $d018
-	.byte $14
-	; $d019
-	.byte 0
-	; $d01a: skipped
-	.byte 0
-	; $d01b: sprite config
-	.byte 0,0,0,0,0
-	; $d020: border color
-	.byte 14
-	; $d021: background color
-	.byte 6
-	; extra colors
-	.byte 1,2,3,4
-	; $d027: sprite colors
-	.byte 0,1,2,3,4,5,6,7
-vic_data_end:
 
 ;---------------------------------------------------------------
 ; Set screen mode
@@ -242,4 +237,4 @@ screen_restore_state:
 ;         .x/.y  pointer to charset
 ;---------------------------------------------------------------
 screen_set_charset:
-	rts
+	rts ; XXX TODO

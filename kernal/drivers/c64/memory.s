@@ -6,7 +6,7 @@
 .import memtop, membot
 
 .export ramtas, jsrfar, indfet, cmpare, stash
-.export basic_cold, basic_warm
+.export enter_basic
 
 mmbot	=$0800
 mmtop   =$8000
@@ -55,8 +55,7 @@ cmpare:
 stash:
 	brk
 
-basic_cold:
-	jmp ($a000)
-
-basic_warm:
-	jmp ($a003)
+enter_basic:
+	bcc :+
+	jmp ($a000) ; cold
+:	jmp ($a003) ; warm

@@ -9,5 +9,5 @@
 
 sprite_set_image:
 sprite_set_position:
-	brk
+	brk ; XXX TODO
 

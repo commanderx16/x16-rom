@@ -13,7 +13,7 @@
 .import membot
 
 .export ramtas
-.export basic_cold, basic_warm
+.export enter_basic, enter_basic
 
 .export fetch
 .export fetvec
@@ -280,14 +280,16 @@ cmpare1:
 	plp
 	rts
 
-basic_cold:
+enter_basic:
+	bcc :+
+; cold
 	jsr jsrfar
 	.word $c000
 	.byte BANK_BASIC
 	;not reached
 
-basic_warm:
-	jsr jsrfar
+; warm
+:	jsr jsrfar
 	.word $c000 + 3
 	.byte BANK_BASIC
 	;not reached
