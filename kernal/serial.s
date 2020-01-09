@@ -1,6 +1,7 @@
 .feature labels_without_colons
 
 .include "../io.inc"
+.include "../mac.inc"
 
 .import status
 .import udst

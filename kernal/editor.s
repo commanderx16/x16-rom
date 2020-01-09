@@ -70,6 +70,7 @@ nwrap=2 ;max number of physical lines per logical line
 .import emulator_get_data
 
 .include "../banks.inc"
+.include "../mac.inc"
 
 .segment "KVAR2" ; more KERNAL vars
 ; XXX TODO only one bit per byte is used, this should be compressed!
@@ -203,7 +204,12 @@ fndstr	ldy ldtb1,x     ;find begining of line
 stok	jsr screen_set_position
 ;
 	lda llen
+.ifp02
+	clc
+	sbc #1
+.else
 	dec
+.endif
 	inx
 fndend	ldy ldtb1,x
 	bmi stdone
@@ -758,7 +764,12 @@ back	dec tblx
 ;
 chkdwn	ldx #nwrap
 	lda llen
+.ifp02
+	clc
+	sbc #1
+.else
 	dec
+.endif
 dwnchk	cmp pntr
 	beq dnline
 	clc
@@ -825,10 +836,20 @@ scr10	inx             ;goto next line
 	cpx nlinesm1    ;done?
 	bcs scr41       ;branch if so
 ;
+.ifp02
+	txa
+	pha
+.else
 	phx
+.endif
 	inx
 	jsr screen_copy_line ;scroll this line up1
+.ifp02
+	pla
+	tax
+.else
 	plx
+.endif
 	bra scr10
 ;
 scr41
@@ -895,10 +916,20 @@ scd10	dex
 	cpx lintmp
 	bcc scr40
 	beq scr40       ;branch if finished
+.ifp02
+	txa
+	pha
+.else
 	phx
+.endif
 	dex
 	jsr screen_copy_line ;scroll this line down
+.ifp02
+	pla
+	tax
+.else
 	plx
+.endif
 	bra scd10
 scr40
 	jsr screen_clear_line

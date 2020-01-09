@@ -85,8 +85,9 @@ screen_set_mode:
 ;---------------------------------------------------------------
 screen_set_position:
 	; * 40 = %101000
+	lda #0
+	sta pnt+1
 	txa
-	stz pnt+1
 
 	asl       ; calc line * 8 (max 192 i.e. single byte)
 	asl

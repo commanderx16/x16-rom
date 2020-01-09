@@ -1,3 +1,6 @@
+
+.include "../../mac.inc"
+
 ;***************************************
 ;* close -- close logical file       *
 ;*                                   *

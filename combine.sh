@@ -17,4 +17,7 @@ dd if=c64-rom.bin bs=256 skip=5 count=27 >> scpu64
 dd if=/Users/mist/Library/Mobile\ Documents/com\~apple\~CloudDocs/Applications/xscpu64.app/Contents/Resources/ROM/SCPU64/scpu64 skip=97 bs=256 >> scpu64
 
 # activate
-mv scpu64 xscpu64.app/Contents/Resources/ROM/SCPU64
+mv scpu64 xscpu64.app/Contents/Resources/ROM/SCPU64/
+
+dd if=basic-orig.bin bs=256 skip=32         >  e000.bin
+dd if=c64-rom.bin    bs=256 skip=5 count=27 >> e000.bin

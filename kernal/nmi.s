@@ -2,8 +2,15 @@
 nmi	sei             ;no irq's allowed...
 	jmp (nminv)     ;...could mess up cassettes
 nnmi	pha
+.ifp02
+	txa
+	pha
+	tya
+	pha
+.else
 	phx
 	phy
+.endif
 ;
 ; check for stop key down
 ;
@@ -17,7 +24,15 @@ timb	jsr restor      ;restore system indirects
 	jsr cint        ;restore screen for basic
 	jmp basic_warm
 
-prend	ply             ;because of missing screen editor
+prend
+.ifp02
+	pla
+	tay
+	pla
+	tax
+.else
+	ply
 	plx
+.endif
 	pla
 	rti

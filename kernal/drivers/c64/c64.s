@@ -35,7 +35,8 @@ ioinit:
 	sta $d019 ; ack
 
 	; SID
-	stz $d418       ;mute SID
+	lda #0
+	sta $d418       ;mute SID
 
 	; Serial
 	jsr clklo       ;release the clock line
@@ -77,6 +78,36 @@ emulator_get_data:
 ; misc
 monitor:
 	brk
+
+
+; direct serial without the switch
+
+.import serial_secnd
+.import serial_tksa
+.import serial_acptr
+.import serial_ciout
+.import serial_untlk
+.import serial_unlsn
+.import serial_listn
+.import serial_talk
+.export secnd
+.export tksa
+.export acptr
+.export ciout
+.export untlk
+.export unlsn
+.export listn
+.export talk
+
+secnd = serial_secnd
+tksa = serial_tksa
+acptr = serial_acptr
+ciout = serial_ciout
+untlk = serial_untlk
+unlsn = serial_unlsn
+listn = serial_listn
+talk = serial_talk
+
 
 
 

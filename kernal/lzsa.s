@@ -17,6 +17,10 @@ nibbles:
 offslo:	.res 1
 offshi:	.res 1
 
+.ifp02
+save_y:	.res 1
+.endif
+
 .segment "LZSA"
 
 ;---------------------------------------------------------------
@@ -186,7 +190,14 @@ prepare_copy_match_y:
 	iny
 
 copy_match_loop:
+.ifp02
+	sty save_y
+	ldy #0
+	lda (r2),y                      ; get one byte of backreference
+	ldy save_y
+.else
 	lda (r2)                        ; get one byte of backreference
+.endif
 	jsr putdst                      ; copy to destination
 
 ; Forward decompression -- put backreference bytes forward
@@ -243,7 +254,14 @@ need_nibbles:
 getput:
 	jsr getsrc
 putdst:
+.ifp02
+	sty save_y
+	ldy #0
+	sta (r1),y
+	ldy save_y
+.else
 	sta (r1)
+.endif
 	inc r1L
 	beq putdst_adj_hi
 	rts
@@ -258,7 +276,14 @@ getlargesrc:
 					; fall through grab high 8 bits
 
 getsrc:
+.ifp02
+	sty save_y
+	ldy #0
+	lda (r0),y
+	ldy save_y
+.else
 	lda (r0)
+.endif
 	inc r0L
 	beq getsrc_adj_hi
 	rts
