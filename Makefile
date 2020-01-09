@@ -156,6 +156,7 @@ all: $(PREFIXED_GEOS_OBJS)
 
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/editor.o kernal/editor.s
+	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/kbdbuf.o kernal/kbdbuf.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/channel/channel.o kernal/channel/channel.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/ieee_switch.o kernal/ieee_switch.s
 	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/serial.o kernal/serial.s
@@ -199,6 +200,7 @@ all: $(PREFIXED_GEOS_OBJS)
 		fplib/fplib.o \
 		kernal/kernal.o \
 		kernal/editor.o \
+		kernal/kbdbuf.o \
 		kernal/channel/channel.o \
 		kernal/ieee_switch.o \
 		kernal/serial.o \

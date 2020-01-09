@@ -19,7 +19,7 @@
 .import leftMargin, windowTop, rightMargin, windowBottom
 .import currentMode
 
-.import kbd_get
+.import kbdbuf_get
 
 .import sprite_set_image, sprite_set_position
 
@@ -418,7 +418,7 @@ paging_pause:
 	bne :-
 :	PopB currentMode
 
-:	jsr kbd_get
+:	jsr kbdbuf_get
 	beq :-
 
 	; clear text
@@ -624,7 +624,7 @@ console_get_char:
 ; N.B.: We're accepting both PETSCII control codes (CR, DEL)
 ;       and ASCII control codes (LF, BS), so this would work
 ;       with both kinds of input drivers.
-@again:	jsr kbd_get
+@again:	jsr kbdbuf_get
 	beq @again
 	cmp #8   ; ASCII BACKSPACE
 	beq @b2

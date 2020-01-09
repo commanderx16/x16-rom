@@ -65,7 +65,7 @@ nwrap=2 ;max number of physical lines per logical line
 .export color
 
 ; keyboard driver
-.import kbd_config, kbd_scan, kbd_clear, kbd_put, kbd_get, kbd_remove, kbd_get_modifiers, kbd_get_stop
+.import kbd_config, kbd_scan, kbdbuf_clear, kbdbuf_put, kbdbuf_get, kbd_remove, kbdbuf_get_modifiers, kbdbuf_get_stop
 
 .import emulator_get_data
 
@@ -232,7 +232,7 @@ finpux	rts
 ;
 loop4	jsr prt
 loop3
-	jsr kbd_get
+	jsr kbdbuf_get
 	sta blnsw
 	sta autodn      ;turn on auto scroll down
 	beq loop3
@@ -250,10 +250,10 @@ lp21	cli
 	cmp #$83        ;run key?
 	bne lp22
 ; put SHIFT+STOP text into keyboard buffer
-	jsr kbd_clear
+	jsr kbdbuf_clear
 	ldx #0
 :	lda runtb,x
-	jsr kbd_put
+	jsr kbdbuf_put
 	inx
 	cpx #runtb_end-runtb
 	bne :-
@@ -278,9 +278,9 @@ lp25	lda fkeytb,x     ;search for replacement
 lp26	inx
 	dey
 	bne lp25
-lp27	jsr kbd_clear
+lp27	jsr kbdbuf_clear
 lp24	lda fkeytb,x
-	jsr kbd_put
+	jsr kbdbuf_put
 	tay              ;set flags
 	beq lp28
 	inx
@@ -875,7 +875,7 @@ scrl3	sta ldtb1,x
 ;
 	inc tblx
 	inc lintmp
-	jsr kbd_get_modifiers
+	jsr kbdbuf_get_modifiers
 	and #4
 	beq mlp42
 ;
@@ -889,7 +889,7 @@ mlp4	nop             ;delay
 	sec
 	sbc #1
 	bne mlp4
-	jsr kbd_clear   ;clear key queue buffer
+	jsr kbdbuf_clear
 ;
 mlp42	ldx tblx
 ;

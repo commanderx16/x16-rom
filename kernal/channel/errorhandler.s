@@ -7,11 +7,11 @@
 ;* also returns key downs from last    *
 ;* keyboard row in .a.                 *
 ;***************************************
-nstop	jsr kbd_get_stop;check stop key
+nstop	jsr kbdbuf_get_stop;check stop key
 	bne stop2       ;not down
 	php
 	jsr clrch       ;clear channels
-	jsr kbd_clear   ;flush queue
+	jsr kbdbuf_clear;flush queue
 	plp
 stop2	rts
 

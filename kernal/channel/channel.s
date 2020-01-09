@@ -8,9 +8,9 @@ clrch = $ffcc
 stop  = $ffe1
 
 ; keyboard
-.import kbd_clear
-.import kbd_get
-.import kbd_get_stop
+.import kbdbuf_clear
+.import kbdbuf_get
+.import kbdbuf_get_stop
 
 ; rs232
 .import bsi232
