@@ -20,5 +20,5 @@ dd if=scpu64-orig.bin skip=97 bs=256 >> scpu64
 # Create VICE C64 KERNAL ROM image
 # ***
 
-dd if=basic-orig.bin bs=256 skip=32         >  e000.bin
-dd if=c64-rom.bin    bs=256 skip=5 count=27 >> e000.bin
+dd if=basic-orig.bin     bs=256 skip=32         >  build/c64/e000-with_basic.bin
+dd if=build/c64/e000.bin bs=256 skip=5 count=27 >> build/c64/e000-with_basic.bin
