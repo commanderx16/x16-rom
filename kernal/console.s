@@ -185,7 +185,7 @@ console_put_char:
 	cmp #CR
 	beq @flush
 
-:	clc        ; did not reach page end
+	clc        ; did not reach page end
 
 	KVARS_END
 	rts

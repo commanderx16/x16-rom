@@ -1,3 +1,65 @@
+
+MACHINE     ?= x16
+
+AS           = ca65
+LD           = ld65
+
+ASFLAGS      = --cpu 65SC02 -g
+
+KERNAL_SOURCES = \
+	kernal/kernal.s \
+	kernal/editor.s \
+	kernal/kbdbuf.s \
+	kernal/channel/channel.s \
+	kernal/ieee_switch.s \
+	kernal/serial.s \
+	kernal/memory.s \
+	kernal/lzsa.s \
+	kernal/drivers/x16/x16.s \
+	kernal/drivers/x16/memory.s \
+	kernal/drivers/x16/screen.s \
+	kernal/drivers/x16/ps2.s \
+	kernal/drivers/x16/ps2kbd.s \
+	kernal/drivers/x16/ps2mouse.s \
+	kernal/drivers/x16/joystick.s \
+	kernal/drivers/x16/clock.s \
+	kernal/drivers/x16/rs232.s \
+	kernal/drivers/x16/framebuffer.s \
+	kernal/drivers/x16/sprites.s \
+	kernal/graph/graph.s \
+	kernal/console.s \
+	kernal/fonts/fonts.s
+
+KEYBD_SOURCES = \
+
+
+BUILD_DIR=build/$(MACHINE)
+
+KERNAL_OBJS = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
+
+all: $(BUILD_DIR)/kernal.bin
+
+clean:
+	rm -rf $(BUILD_DIR)
+
+$(BUILD_DIR)/%.o: %.s
+	@mkdir -p $$(dirname $@)
+	$(AS) $(ASFLAGS) $< -o $@
+
+
+$(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) kernal-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.txt
+
+
+
+
+
+
+
+
+
+
 ifdef RELEASE_VERSION
 	VERSION_DEFINE="-DRELEASE_VERSION=$(RELEASE_VERSION)"
 endif
@@ -15,7 +77,7 @@ ARGS_DOS=#-g
 ARGS_GEOS=-DX16 #-g
 
 
-ASFLAGS      = -I geos/inc -I geos #-g
+xASFLAGS      = -I geos/inc -I geos #-g
 
 GEOS_SOURCES= \
 	geos/kernal/bitmask/bitmask2.s \
@@ -141,11 +203,11 @@ GEOS_BUILD_DIR=build
 
 PREFIXED_GEOS_OBJS = $(addprefix $(GEOS_BUILD_DIR)/, $(GEOS_OBJS))
 
-$(GEOS_BUILD_DIR)/%.o: %.s
+x$(GEOS_BUILD_DIR)/%.o: %.s
 	@mkdir -p `dirname $@`
 	$(AS) $(ARGS_GEOS) -D bsw=1 -D drv1541=1 $(ASFLAGS) $< -o $@
 
-all: $(PREFIXED_GEOS_OBJS)
+xall: $(PREFIXED_GEOS_OBJS)
 	$(AS) -DX16 -o kernsup/kernsup_basic.o kernsup/kernsup_basic.s
 	$(AS) -DX16 -o kernsup/kernsup_monitor.o kernsup/kernsup_monitor.s
 	$(AS) -DX16 -o kernsup/irqsup.o kernsup/irqsup.s
@@ -235,7 +297,7 @@ all: $(PREFIXED_GEOS_OBJS)
 		$(PREFIXED_GEOS_OBJS) \
 		-Ln rom.txt -m rom.map
 
-clean:
+xclean:
 	rm -f kernsup/*.o
 	rm -f basic/basic.o fplib/fplib.o kernal/kernal.o rom.bin
 	rm -f monitor/monitor.o monitor/monitor_support.o

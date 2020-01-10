@@ -13,7 +13,12 @@
 .import mode; [declare]
 .importzp ckbtab; [declare]
 .import fetch, fetvec; [routines]
+.if 0
 .import kbdmeta, ikbdmeta ; [keymap]
+.else
+kbdmeta = $aaaa  ; XXX
+ikbdmeta = $aaaa ; XXX
+.endif
 
 .import kbdbuf_put
 .import shflag
