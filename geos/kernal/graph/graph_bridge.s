@@ -18,6 +18,10 @@
 .import _DMult
 .import g_col1
 
+GRAPH_draw_rect = $aaaa ; XXX
+GRAPH_draw_line = $aaaa ; XXX
+GRAPH_set_colors = $aaaa ; XXX
+
 .setcpu "65c02"
 
 ; The GetScanLine API is no longer supported. On C64
@@ -36,10 +40,6 @@ _GetScanLine:
 
 .include "../../banks.inc"
 .import gjsrfar
-.import GRAPH_draw_line
-.import GRAPH_draw_frame
-.import GRAPH_draw_rect
-.import GRAPH_set_colors
 
 .export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_pixel
 

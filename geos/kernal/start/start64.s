@@ -53,6 +53,7 @@
 .import LoadDeskTop
 .endif
 
+screen_set_mode = $aaaa ; XXXX
 
 .segment "start"
 
@@ -77,7 +78,6 @@ _ResetHandle:
 	.word __drvcbdos_RUN__
 	.word __drvcbdos_SIZE__
 
-.import screen_set_mode
 	lda #$80
 	jsr gjsrfar
 	.word screen_set_mode
@@ -192,8 +192,13 @@ stop:	.word _NMIHandler
 .segment "start"
 ; GEOS's entry into jsrfar
 .setcpu "65c02"
+.if 0
 .import jsrfar3
 .import jmpfr
+.else
+jsrfar3 = $aaaa; XXX
+jmpfr = $aaaa; XXX
+.endif
 .export gjsrfar
 gjsrfar:
 .include "../jsrfar.inc"

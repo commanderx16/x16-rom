@@ -33,8 +33,6 @@
 .endif
 
 .import gjsrfar
-; from KERNAL
-.import mouse_init, mouse_config, mouse_scan, mouse_get
 
 .global _MouseOff
 .global _StartMouseMode
@@ -45,6 +43,10 @@
 .ifdef wheels
 .global ResetMseRegion
 .endif
+
+mouse_config = $aaaa ; XXXX
+mouse_get = $aaaa ; XXXX
+mouse_scan = $aaaa ; XXXX
 
 .segment "mouse2"
 

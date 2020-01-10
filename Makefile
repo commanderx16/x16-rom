@@ -4,7 +4,7 @@ MACHINE     ?= x16
 AS           = ca65
 LD           = ld65
 
-ASFLAGS      = --cpu 65SC02 -g
+ASFLAGS      = --cpu 65SC02 -g -D bsw=1 -D drv1541=1 -I geos/inc -I geos
 
 KERNAL_SOURCES = \
 	kernal/kernal.s \
@@ -43,69 +43,6 @@ CBDOS_SOURCES = \
 	cbdos/spi_select_device.s \
 	cbdos/spi_deselect.s \
 	cbdos/main.s
-
-BUILD_DIR=build/$(MACHINE)
-
-KERNAL_OBJS = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
-KEYMAP_OBJS = $(addprefix $(BUILD_DIR)/, $(KEYMAP_SOURCES:.s=.o))
-CBDOS_OBJS  = $(addprefix $(BUILD_DIR)/, $(CBDOS_SOURCES:.s=.o))
-
-BANK_BINS = \
-	$(BUILD_DIR)/kernal.bin \
-	$(BUILD_DIR)/keymap.bin \
-	$(BUILD_DIR)/cbdos.bin
-
-all: $(BANK_BINS)
-
-clean:
-	rm -rf $(BUILD_DIR)
-
-$(BUILD_DIR)/%.o: %.s
-	@mkdir -p $$(dirname $@)
-	$(AS) $(ASFLAGS) $< -o $@
-
-
-# Bank 0 : KERNAL
-$(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) kernal-$(MACHINE).cfg
-	@mkdir -p $$(dirname $@)
-	$(LD) -C kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.txt
-
-# Bank 1 : KEYMAP
-$(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) keymap-$(MACHINE).cfg
-	@mkdir -p $$(dirname $@)
-	$(LD) -C keymap-$(MACHINE).cfg $(KEYMAP_OBJS) -o $@ -m $(BUILD_DIR)/keymap.map -Ln $(BUILD_DIR)/keymap.txt
-
-# Bank 2 : CBDOS
-$(BUILD_DIR)/cbdos.bin: $(CBDOS_OBJS) cbdos-$(MACHINE).cfg
-	@mkdir -p $$(dirname $@)
-	$(LD) -C cbdos-$(MACHINE).cfg $(CBDOS_OBJS) -o $@ -m $(BUILD_DIR)/cbdos.map -Ln $(BUILD_DIR)/cbdos.txt
-
-
-
-
-
-
-
-
-
-ifdef RELEASE_VERSION
-	VERSION_DEFINE="-DRELEASE_VERSION=$(RELEASE_VERSION)"
-endif
-ifdef PRERELEASE_VERSION
-	VERSION_DEFINE="-DPRERELEASE_VERSION=$(PRERELEASE_VERSION)"
-endif
-
-AS           = ca65
-LD           = ld65
-
-ARGS_KERNAL=-DX16 --cpu 65SC02 -g
-ARGS_BASIC=-DX16 --cpu 65SC02 -g
-ARGS_MONITOR=-DX16 --cpu 65SC02 -g
-ARGS_DOS=#-g
-ARGS_GEOS=-DX16 #-g
-
-
-xASFLAGS      = -I geos/inc -I geos #-g
 
 GEOS_SOURCES= \
 	geos/kernal/bitmask/bitmask2.s \
@@ -213,6 +150,76 @@ GEOS_SOURCES= \
 	geos/kernal/tobasic/tobasic1.s \
 	geos/kernal/drvcbdos.s
 
+BUILD_DIR=build/$(MACHINE)
+
+KERNAL_OBJS = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
+KEYMAP_OBJS = $(addprefix $(BUILD_DIR)/, $(KEYMAP_SOURCES:.s=.o))
+CBDOS_OBJS  = $(addprefix $(BUILD_DIR)/, $(CBDOS_SOURCES:.s=.o))
+GEOS_OBJS   = $(addprefix $(BUILD_DIR)/, $(GEOS_SOURCES:.s=.o))
+
+BANK_BINS = \
+	$(BUILD_DIR)/kernal.bin \
+	$(BUILD_DIR)/keymap.bin \
+	$(BUILD_DIR)/cbdos.bin \
+	$(BUILD_DIR)/geos.bin
+
+all: $(BANK_BINS)
+
+clean:
+	rm -rf $(BUILD_DIR)
+
+$(BUILD_DIR)/%.o: %.s
+	@mkdir -p $$(dirname $@)
+	$(AS) $(ASFLAGS) $< -o $@
+
+
+# Bank 0 : KERNAL
+$(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) kernal-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.txt
+
+# Bank 1 : KEYMAP
+$(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) keymap-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C keymap-$(MACHINE).cfg $(KEYMAP_OBJS) -o $@ -m $(BUILD_DIR)/keymap.map -Ln $(BUILD_DIR)/keymap.txt
+
+# Bank 2 : CBDOS
+$(BUILD_DIR)/cbdos.bin: $(CBDOS_OBJS) cbdos-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C cbdos-$(MACHINE).cfg $(CBDOS_OBJS) -o $@ -m $(BUILD_DIR)/cbdos.map -Ln $(BUILD_DIR)/cbdos.txt
+
+# Bank 3 : GEOS
+$(BUILD_DIR)/geos.bin: $(GEOS_OBJS) geos-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C geos-$(MACHINE).cfg $(GEOS_OBJS) -o $@ -m $(BUILD_DIR)/geos.map -Ln $(BUILD_DIR)/geos.txt
+
+
+
+
+
+
+
+
+
+ifdef RELEASE_VERSION
+	VERSION_DEFINE="-DRELEASE_VERSION=$(RELEASE_VERSION)"
+endif
+ifdef PRERELEASE_VERSION
+	VERSION_DEFINE="-DPRERELEASE_VERSION=$(PRERELEASE_VERSION)"
+endif
+
+AS           = ca65
+LD           = ld65
+
+ARGS_KERNAL=-DX16 --cpu 65SC02 -g
+ARGS_BASIC=-DX16 --cpu 65SC02 -g
+ARGS_MONITOR=-DX16 --cpu 65SC02 -g
+ARGS_DOS=#-g
+ARGS_GEOS=-DX16 #-g
+
+
+
+
 DEPS= \
 	geos/config.inc \
 	geos/inc/c64.inc \
@@ -225,9 +232,6 @@ DEPS= \
 	geos/inc/kernal.inc \
 	geos/inc/printdrv.inc
 
-GEOS_OBJS=$(GEOS_SOURCES:.s=.o)
-
-GEOS_BUILD_DIR=build
 
 PREFIXED_GEOS_OBJS = $(addprefix $(GEOS_BUILD_DIR)/, $(GEOS_OBJS))
 

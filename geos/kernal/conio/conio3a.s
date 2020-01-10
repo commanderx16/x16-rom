@@ -85,12 +85,35 @@ _PutString:
 
 
 ; FONT VARS
+.if 0
 .importzp curIndexTable
 .import baselineOffset, curSetWidth, curHeight, cardDataPntr, currentMode, windowTop, windowBottom, leftMargin, rightMargin
+.else
+curIndexTable = $aaaa; XXX
+baselineOffset = $aaaa; XXX
+curSetWidth = $aaaa; XXX
+curHeight = $aaaa; XXX
+cardDataPntr = $aaaa; XXX
+currentMode = $aaaa; XXX
+
+windowTop = $aaaa; XXX
+windowBottom = $aaaa; XXX
+leftMargin = $aaaa; XXX
+rightMargin = $aaaa; XXX
+.endif
 
 .import gjsrfar
 
+.if 0
 .import k_GetCharWidth, GRAPH_get_char_size, GRAPH_set_font, k_SmallPutChar, GRAPH_put_char, GRAPH_set_colors
+.else
+GRAPH_get_char_size = $aaaa ; XXX
+GRAPH_put_char = $aaaa ; XXX
+GRAPH_set_colors = $aaaa ; XXX
+GRAPH_set_font = $aaaa ; XXX
+
+jmpfr = $aaaa; XXX
+.endif
 
 .export _GetCharWidth, _GetRealSize, _LoadCharSet, _SmallPutChar, _UseSystemFont, _PutCharK
 
