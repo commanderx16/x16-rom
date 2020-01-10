@@ -30,14 +30,17 @@ KERNAL_SOURCES = \
 	kernal/console.s \
 	kernal/fonts/fonts.s
 
-KEYBD_SOURCES = \
+KEYMAP_SOURCES = \
+	keymap/keymap.s \
+	keymap/irq.s
 
 
 BUILD_DIR=build/$(MACHINE)
 
 KERNAL_OBJS = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
+KEYMAP_OBJS = $(addprefix $(BUILD_DIR)/, $(KEYMAP_SOURCES:.s=.o))
 
-all: $(BUILD_DIR)/kernal.bin
+all: $(BUILD_DIR)/kernal.bin $(BUILD_DIR)/keymap.bin
 
 clean:
 	rm -rf $(BUILD_DIR)
@@ -51,6 +54,9 @@ $(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) kernal-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.txt
 
+$(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) keymap-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C keymap-$(MACHINE).cfg $(KEYMAP_OBJS) -o $@ -m $(BUILD_DIR)/keymap.map -Ln $(BUILD_DIR)/keymap.txt
 
 
 
