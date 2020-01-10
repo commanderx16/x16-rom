@@ -3,10 +3,10 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.include "../regs.inc"
-.include "../mac.inc"
-.include "../io.inc"
-.include "../banks.inc"
+.include "regs.inc"
+.include "mac.inc"
+.include "io.inc"
+.include "banks.inc"
 
 .import screen_set_mode
 .import GRAPH_set_window
@@ -185,7 +185,7 @@ console_put_char:
 	cmp #CR
 	beq @flush
 
-:	clc        ; did not reach page end
+	clc        ; did not reach page end
 
 	KVARS_END
 	rts

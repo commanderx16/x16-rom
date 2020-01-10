@@ -61,7 +61,7 @@ bridge screen_set_charset  ; $FF62: activate 8x8 text mode charset
 bridge mouse_config        ; $FF68: mouse_config
 bridge mouse_get           ; $FF6B: mouse_get
 jmp xjsrfar                ; $FF6E: JSRFAR – gosub in another bank
-.byte 0,0,0                ; $FF71: JMPFAR – goto another bank
+bridge mouse_scan          ; $FF71: mouse_scan
 bridge indfet              ; $FF74: FETCH – LDA (fetvec),Y from any bank
 bridge stash               ; $FF77: STASH – STA (stavec),Y to any bank
 bridge cmpare              ; $FF7A: CMPARE – CMP (cmpvec),Y to any bank

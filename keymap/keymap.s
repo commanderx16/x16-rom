@@ -1,6 +1,7 @@
-.export kbdmeta, ikbdmeta
-
 .segment "KBDMETA"
+.word kbdmeta  ; $c000
+.word ikbdmeta ; $c002
+
 kbdmeta:
 
 ; PETSCII

@@ -7,9 +7,9 @@
 .include "geossym.inc"
 .include "geosmac.inc"
 .include "config.inc"
-.include "kernal.inc"
+.include "gkernal.inc"
 .include "c64.inc"
-.include "../../fb.inc"
+.include "kernal.inc"
 
 .global _GetScanLine
 
@@ -34,12 +34,8 @@ _GetScanLine:
 	LoadW r6, $ff00
 	rts
 
-.include "../../banks.inc"
+.include "banks.inc"
 .import gjsrfar
-.import GRAPH_draw_line
-.import GRAPH_draw_frame
-.import GRAPH_draw_rect
-.import GRAPH_set_colors
 
 .export _DrawLine, _DrawPoint, _FrameRectangle, _ImprintRectangle, _InvertRectangle, _RecoverRectangle, _Rectangle, _TestPoint, _HorizontalLine, _InvertLine, _RecoverLine, _VerticalLine, _GRAPH_start_direct, _GRAPH_set_pixel
 

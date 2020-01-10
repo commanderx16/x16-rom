@@ -3,8 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../regs.inc"
-.include "../mac.inc"
+.include "regs.inc"
+.include "mac.inc"
 
 .export memory_fill
 .export memory_copy

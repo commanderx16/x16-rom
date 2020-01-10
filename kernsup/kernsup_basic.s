@@ -1,6 +1,6 @@
-.include "../banks.inc"
+.include "banks.inc"
 
-.import bjsrfar, banked_irq
+.import bjsrfar
 
 .macro bridge symbol
 	.local address

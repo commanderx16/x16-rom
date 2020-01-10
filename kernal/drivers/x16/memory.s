@@ -3,8 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../../banks.inc"
-.include "../../../io.inc"
+.include "banks.inc"
+.include "io.inc"
 
 .import __KERNRAM_LOAD__, __KERNRAM_RUN__, __KERNRAM_SIZE__
 .import __KERNRAM2_LOAD__, __KERNRAM2_RUN__, __KERNRAM2_SIZE__
@@ -13,7 +13,8 @@
 .import membot
 
 .export ramtas
-.export enter_basic, enter_basic
+.export enter_basic
+.export monitor
 
 .export fetch
 .export fetvec
@@ -22,7 +23,7 @@
 .export stavec
 .export cmpare
 
-.export jsrfar, banked_irq
+.export jsrfar
 
 mmbot	=$0800
 mmtop   =$9f00
@@ -124,15 +125,15 @@ ramtas:
 
 	rts
 
-.importzp imparm
 jsrfar:
-.include "../../../jsrfar.inc"
+.include "jsrfar.inc"
 
 ;/////////////////////   K E R N A L   R A M   C O D E  \\\\\\\\\\\\\\\\\\\\\\\
 
 .segment "KERNRAM"
-.export jsrfar3, jmpfr
-jsrfar3:
+.export jmpfr
+.assert * = jsrfar3, error, "jsrfar3 must be at specific address"
+;jsrfar3:
 	sta d1prb       ;set ROM bank
 	pla
 	plp
@@ -150,13 +151,15 @@ jsrfar3:
 	plp
 	plp
 	rts
-jmpfr:	jmp $ffff
+.assert * = jmpfr, error, "jmpfr must be at specific address"
+;jmpfr:
+	jmp $ffff
 
-.assert * <= $0400, error, "jmpfar must fit below $0400"
 
 .segment "KERNRAM2"
 
-banked_irq:
+.assert * = banked_irq, error, "banked_irq must be at specific address"
+;banked_irq:
 	pha
 	phx
 	lda d1prb       ;save ROM bank
@@ -199,7 +202,10 @@ fetch:	lda d1pra       ;save current config (RAM)
 	sta d1pra       ;set RAM bank
 	plx             ;original ROM bank
 	and #$07
+	php
+	sei
 	jsr fetch2
+	plp
 	plx
 	stx d1pra       ;restore RAM bank
 	ora #0          ;set flags
@@ -292,4 +298,10 @@ enter_basic:
 :	jsr jsrfar
 	.word $c000 + 3
 	.byte BANK_BASIC
+	;not reached
+
+monitor:
+	jsr jsrfar
+	.word $c000
+	.byte BANK_MONITOR
 	;not reached

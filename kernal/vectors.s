@@ -1,6 +1,6 @@
-.import monitor
 
-.import mouse_config, mouse_get; [mouse]
+.import monitor
+.import mouse_config, mouse_scan, mouse_get; [mouse]
 .import joystick_scan; [joystick]
 .import mouse_config; [mouse]
 .import joystick_scan, joystick_get; [joystick]
@@ -93,7 +93,7 @@
 	jmp mouse_config       ; $FF68: mouse_config - configure mouse pointer         [unsupported C128: SETBNK – set bank for I/O operations]
 	jmp mouse_get          ; $FF6B: mouse_get - get state of mouse                 [unsupported C128: GETCFG – lookup MMU data for given bank]
 	jmp jsrfar             ; $FF6E: [C128] JSRFAR – gosub in another bank          [incompatible with C128]
-	.byte 0,0,0            ; $FF71: placeholder: get number of RAM banks           [NYI; unsupported C128: JMPFAR – goto another bank]
+	jmp mouse_scan         ; $FF71: mouse_scan - read mouse state                  [unsupported C128: JMPFAR – goto another bank]
 	jmp indfet             ; $FF74: [C128] FETCH – LDA (fetvec),Y from any bank
 	jmp stash              ; $FF77: [C128] STASH – STA (stavec),Y to any bank
 	jmp cmpare             ; $FF7A: [C128] CMPARE – CMP (cmpvec),Y to any bank

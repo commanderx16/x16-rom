@@ -69,8 +69,8 @@ nwrap=2 ;max number of physical lines per logical line
 
 .import emulator_get_data
 
-.include "../banks.inc"
-.include "../mac.inc"
+.include "banks.inc"
+.include "mac.inc"
 
 .segment "KVAR2" ; more KERNAL vars
 ; XXX TODO only one bit per byte is used, this should be compressed!

@@ -1,4 +1,4 @@
-.include "../banks.inc"
+.include "banks.inc"
 
 .import jsrfar
 

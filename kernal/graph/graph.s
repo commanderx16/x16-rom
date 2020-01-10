@@ -4,9 +4,9 @@
 ; (C)2019 Michael Steil, License: 2-clause BSD
 ; (Bresenham code based on GEOS by Berkeley Softworks)
 
-.include "../../mac.inc"
-.include "../../regs.inc"
-.include "../../fb.inc"
+.include "mac.inc"
+.include "regs.inc"
+.include "fb.inc"
 
 .import leftMargin, windowTop, rightMargin, windowBottom
 .import FB_VERA

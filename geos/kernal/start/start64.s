@@ -7,11 +7,11 @@
 .include "geossym.inc"
 .include "geosmac.inc"
 .include "config.inc"
-.include "kernal.inc"
+.include "gkernal.inc"
 .include "inputdrv.inc"
 .include "c64.inc"
-.include "../../banks.inc"
-.include "../../fb.inc"
+.include "banks.inc"
+.include "kernal.inc"
 
 ; main.s
 .import InitGEOEnv
@@ -53,7 +53,6 @@
 .import LoadDeskTop
 .endif
 
-
 .segment "start"
 
 _ResetHandle:
@@ -77,7 +76,6 @@ _ResetHandle:
 	.word __drvcbdos_RUN__
 	.word __drvcbdos_SIZE__
 
-.import screen_set_mode
 	lda #$80
 	jsr gjsrfar
 	.word screen_set_mode
@@ -182,6 +180,7 @@ OrigResetHandle:
 
 .segment "entry"
 entry:
+	.assert * = $C000, error, "GEOS entry must be at $C000"
 	jmp _ResetHandle
 
 .segment "vectors"
@@ -192,9 +191,7 @@ stop:	.word _NMIHandler
 .segment "start"
 ; GEOS's entry into jsrfar
 .setcpu "65c02"
-.import jsrfar3
-.import jmpfr
 .export gjsrfar
 gjsrfar:
-.include "../jsrfar.inc"
+.include "jsrfar.inc"
 

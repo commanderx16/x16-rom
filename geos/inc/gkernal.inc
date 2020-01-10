@@ -5,7 +5,7 @@
 
 ; GEOS Kernal internal zpage vectors (not for use by apps)
 ; unused        =       $3f ; (on C128, this is graphMode)
-imparm          =       $40 ; 2 bytes
+;imparm          =       $40 ; 2 bytes
 IconDescVec     =       $42 ; [icon]
 IconDescVecH    =       $43 ; [icon]
 CallRLo         =       $44 ; [CallRoutine]

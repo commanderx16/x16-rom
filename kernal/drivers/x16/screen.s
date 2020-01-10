@@ -3,10 +3,10 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../../io.inc"
-.include "../../../banks.inc"
-.include "../../../mac.inc"
-.include "../../../regs.inc"
+.include "io.inc"
+.include "banks.inc"
+.include "mac.inc"
+.include "regs.inc"
 
 .export screen_init
 .export screen_set_mode
@@ -36,6 +36,8 @@
 ; kernal call
 .import scnsiz
 .import jsrfar
+
+.import fetch, fetvec; [routines]
 
 .import GRAPH_init
 
@@ -505,18 +507,6 @@ screen_restore_state:
 ;         .x/.y  pointer to charset
 ;---------------------------------------------------------------
 screen_set_charset:
-	php
-	sei
-	jsr jsrfar
-	.word banked_cpychr
-	.byte BANK_CHARSET
-	plp
-	rts
-
-; this code lives on the same ROM bank as the character sets
-.segment "CPYCHR"
-
-banked_cpychr:
 	jsr inicpy
 	cmp #0
 	beq cpycustom
@@ -534,14 +524,19 @@ cpycustom:
 	sty tmp2+1
 	ldx #8
 copyv:	ldy #0
-:	lda (tmp2),y
+	lda #tmp2
+	sta fetvec
+@l1:	phx
+@l2:	ldx #BANK_CHARSET
+	jsr fetch
 	eor data
 	sta veradat
 	iny
-	bne :-
+	bne @l2
 	inc tmp2+1
+	plx
 	dex
-	bne :-
+	bne @l1
 	rts
 
 ; 1: ISO character set

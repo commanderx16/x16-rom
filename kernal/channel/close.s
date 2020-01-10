@@ -1,5 +1,5 @@
 
-.include "../../mac.inc"
+.include "mac.inc"
 
 ;***************************************
 ;* close -- close logical file       *

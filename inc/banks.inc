@@ -7,6 +7,21 @@ BANK_BASIC   = 4
 BANK_MONITOR = 5
 BANK_CHARSET = 6
 
+; XXX these constant RAM addresses are KERNAL
+; XXX implementation details and need to go away!
+.ifdef MACHINE_X16
+status     = $0286 ; channel: status byte
+fa         = $0290 ; channel: device address
+jsrfar3    = $02c4 ; jsrfar: RAM part
+jmpfr      = $02e1 ; jsrfar: core jmp instruction
+imparm     = $82   ; jsrfar: temporary byte
+banked_irq = $038b ; irq handler: RAM part
+.elseif .defined(MACHINE_C64)
+status     = $0295
+fa         = $029F
+imparm     = $E2
+.endif
+
 ; RAM banks
 ; 0:   KVARS
 ; 1-9: GEOS BG SCREEN (320x200) [not currently enabled]

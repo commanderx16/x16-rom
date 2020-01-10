@@ -71,8 +71,8 @@
 .import memory_crc
 .import memory_decompress
 
-.include "../banks.inc"
-.include "../io.inc"
+.include "banks.inc"
+.include "io.inc"
 
 .include "declare.s"
 .include "init.s"

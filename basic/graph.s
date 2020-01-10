@@ -1,7 +1,5 @@
-.include "../geos/inc/geosmac.inc"
-.include "../geos/inc/geossym.inc"
-.include "../geos/inc/const.inc"
-.include "../geos/inc/jumptab.inc"
+.include "mac.inc"
+.include "regs.inc"
 
 .setcpu "65c02"
 

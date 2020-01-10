@@ -3,9 +3,9 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.include "../banks.inc"
-.include "../io.inc"
-.include "../mac.inc"
+.include "banks.inc"
+.include "io.inc"
+.include "mac.inc"
 
 .export kbdbuf_clear
 .export kbdbuf_put

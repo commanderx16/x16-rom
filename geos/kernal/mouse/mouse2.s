@@ -8,10 +8,11 @@
 .include "geossym.inc"
 .include "geosmac.inc"
 .include "config.inc"
-.include "kernal.inc"
+.include "gkernal.inc"
 .include "c64.inc"
 .include "inputdrv.inc"
-.include "../banks.inc"
+.include "banks.inc"
+.include "kernal.inc"
 
 .import _DoPreviousMenu
 .import menuOptNumber
@@ -33,8 +34,6 @@
 .endif
 
 .import gjsrfar
-; from KERNAL
-.import mouse_init, mouse_config, mouse_scan, mouse_get
 
 .global _MouseOff
 .global _StartMouseMode

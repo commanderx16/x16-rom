@@ -2,9 +2,9 @@
 ;
 ; Font library
 
-.include "../../regs.inc"
-.include "../../mac.inc"
-.include "../../fb.inc"
+.include "regs.inc"
+.include "mac.inc"
+.include "fb.inc"
 .include "fonts.inc"
 
 .import col1, col2, col_bg
@@ -36,6 +36,19 @@ FontTVar1:	.res 1
 FontTVar2:	.res 2
 FontTVar3:	.res 1
 FontTVar4:	.res 1
+
+.include "font_internal.inc"
+
+.assert curIndexTable = k_curIndexTable, error, "update font_internal.inc!"
+.assert baselineOffset = k_baselineOffset, error, "update font_internal.inc!"
+.assert curSetWidth = k_curSetWidth, error, "update font_internal.inc!"
+.assert curHeight = k_curHeight, error, "update font_internal.inc!"
+.assert cardDataPntr = k_cardDataPntr, error, "update font_internal.inc!"
+.assert currentMode = k_currentMode, error, "update font_internal.inc!"
+.assert windowTop = k_windowTop, error, "update font_internal.inc!"
+.assert windowBottom = k_windowBottom, error, "update font_internal.inc!"
+.assert leftMargin = k_leftMargin, error, "update font_internal.inc!"
+.assert rightMargin = k_rightMargin, error, "update font_internal.inc!"
 
 .segment "GRAPH"
 
