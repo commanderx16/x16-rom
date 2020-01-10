@@ -33,12 +33,29 @@ KERNAL_SOURCES = \
 KEYMAP_SOURCES = \
 	keymap/keymap.s
 
+CBDOS_SOURCES = \
+	cbdos/zeropage.s \
+	cbdos/fat32.s \
+	cbdos/util.s \
+	cbdos/matcher.s \
+	cbdos/sdcard.s \
+	cbdos/spi_rw_byte.s \
+	cbdos/spi_select_device.s \
+	cbdos/spi_deselect.s \
+	cbdos/main.s
+
 BUILD_DIR=build/$(MACHINE)
 
 KERNAL_OBJS = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
 KEYMAP_OBJS = $(addprefix $(BUILD_DIR)/, $(KEYMAP_SOURCES:.s=.o))
+CBDOS_OBJS  = $(addprefix $(BUILD_DIR)/, $(CBDOS_SOURCES:.s=.o))
 
-all: $(BUILD_DIR)/kernal.bin $(BUILD_DIR)/keymap.bin
+BANK_BINS = \
+	$(BUILD_DIR)/kernal.bin \
+	$(BUILD_DIR)/keymap.bin \
+	$(BUILD_DIR)/cbdos.bin
+
+all: $(BANK_BINS)
 
 clean:
 	rm -rf $(BUILD_DIR)
@@ -48,13 +65,20 @@ $(BUILD_DIR)/%.o: %.s
 	$(AS) $(ASFLAGS) $< -o $@
 
 
+# Bank 0 : KERNAL
 $(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) kernal-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.txt
 
+# Bank 1 : KEYMAP
 $(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) keymap-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C keymap-$(MACHINE).cfg $(KEYMAP_OBJS) -o $@ -m $(BUILD_DIR)/keymap.map -Ln $(BUILD_DIR)/keymap.txt
+
+# Bank 2 : CBDOS
+$(BUILD_DIR)/cbdos.bin: $(CBDOS_OBJS) cbdos-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C cbdos-$(MACHINE).cfg $(CBDOS_OBJS) -o $@ -m $(BUILD_DIR)/cbdos.map -Ln $(BUILD_DIR)/cbdos.txt
 
 
 
@@ -220,42 +244,8 @@ xall: $(PREFIXED_GEOS_OBJS)
 
 	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o fplib/fplib.o fplib/fplib.s
 
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/kernal.o kernal/kernal.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/editor.o kernal/editor.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/kbdbuf.o kernal/kbdbuf.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/channel/channel.o kernal/channel/channel.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/ieee_switch.o kernal/ieee_switch.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/serial.o kernal/serial.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/memory.o kernal/memory.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/lzsa.o kernal/lzsa.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/x16.o kernal/drivers/x16/x16.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/memory.o kernal/drivers/x16/memory.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/screen.o kernal/drivers/x16/screen.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/ps2.o kernal/drivers/x16/ps2.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/ps2kbd.o kernal/drivers/x16/ps2kbd.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/ps2mouse.o kernal/drivers/x16/ps2mouse.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/joystick.o kernal/drivers/x16/joystick.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/clock.o kernal/drivers/x16/clock.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/rs232.o kernal/drivers/x16/rs232.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/framebuffer.o kernal/drivers/x16/framebuffer.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/drivers/x16/sprites.o kernal/drivers/x16/sprites.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/graph/graph.o kernal/graph/graph.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/console.o kernal/console.s
-	$(AS) $(ARGS_KERNAL) -DCBDOS $(VERSION_DEFINE) -o kernal/fonts/fonts.o kernal/fonts/fonts.s
 
 	$(AS) $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
-
-	$(AS) $(ARGS_DOS) -o cbdos/zeropage.o cbdos/zeropage.s
-	$(AS) $(ARGS_DOS) -o cbdos/fat32.o cbdos/fat32.asm
-	$(AS) $(ARGS_DOS) -o cbdos/util.o cbdos/util.asm
-	$(AS) $(ARGS_DOS) -o cbdos/matcher.o cbdos/matcher.asm
-	$(AS) $(ARGS_DOS) -o cbdos/sdcard.o cbdos/sdcard.asm
-	$(AS) $(ARGS_DOS) -o cbdos/spi_rw_byte.o cbdos/spi_rw_byte.s
-	$(AS) $(ARGS_DOS) -o cbdos/spi_select_device.o cbdos/spi_select_device.s
-	$(AS) $(ARGS_DOS) -o cbdos/spi_deselect.o cbdos/spi_deselect.s
-	$(AS) $(ARGS_DOS) -o cbdos/main.o cbdos/main.asm
-
-	$(AS) -o keymap/keymap.o keymap/keymap.s
 
 	(cd charset; bash convert.sh)
 	$(AS) -o charset/petscii.o charset/petscii.tmp.s

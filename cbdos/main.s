@@ -1,3 +1,9 @@
+.if 0
+.import banked_irq
+.else
+banked_irq = $aaaa; XXX
+.endif
+
 .export __rtc_systime_update
 
 .import sdcard_init
@@ -20,7 +26,11 @@
 
 .importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
 
+.if 0
 .import status
+.else
+status = $aaaa; XXX
+.endif
 
 .include "common.inc"
 IMPORTED_FROM_MAIN=1
@@ -1200,3 +1210,6 @@ get_dir_head:
 
 secpertrack:
 	.byte 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 19, 19, 19, 19, 19, 19, 19, 18, 18, 18, 18, 18, 18, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17
+
+.segment "IRQB"
+	.word banked_irq
