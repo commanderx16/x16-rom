@@ -31,9 +31,7 @@ KERNAL_SOURCES = \
 	kernal/fonts/fonts.s
 
 KEYMAP_SOURCES = \
-	keymap/keymap.s \
-	keymap/irq.s
-
+	keymap/keymap.s
 
 BUILD_DIR=build/$(MACHINE)
 
