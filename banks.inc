@@ -8,6 +8,7 @@ BANK_MONITOR = 5
 BANK_CHARSET = 6
 
 jsrfar3    = $02c4
+jmpfr      = $02e1
 banked_irq = $038b
 imparm     = $82
 

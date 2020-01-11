@@ -192,11 +192,6 @@ stop:	.word _NMIHandler
 .segment "start"
 ; GEOS's entry into jsrfar
 .setcpu "65c02"
-.if 0
-.import jmpfr
-.else
-jmpfr = $aaaa; XXX
-.endif
 .export gjsrfar
 gjsrfar:
 .include "../jsrfar.inc"

@@ -56,14 +56,8 @@ peek	lda poker+1
 	lda (poker),y   ;RAM
 	jmp peek2
 peek1	lda #poker
-.if 0
-.import fetvec
-.else
-fetvec = $aaaa ; XXX
-.endif
-	sta fetvec
 	ldx #BANK_KERNAL
-	jsr fetch       ;ROM
+	jsr fetch       ;ROM [XXX test!]
 peek2	tay
 dosgfl	pla
 	sta poker

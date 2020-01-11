@@ -317,7 +317,7 @@ d1pra	=via1+1
 .if 0
 .import jmpfr
 .else
-jmpfr = $aaaa ; XXX
+;jmpfr = $aaaa ; XXX
 .endif
 .export bjsrfar
 bjsrfar:

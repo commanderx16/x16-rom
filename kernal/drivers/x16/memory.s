@@ -150,7 +150,9 @@ jsrfar:
 	plp
 	plp
 	rts
-jmpfr:	jmp $ffff
+.assert * = jmpfr, error, "jsrfar3 must be at specific address"
+;jmpfr:
+	jmp $ffff
 
 
 .segment "KERNRAM2"

@@ -111,8 +111,6 @@ GRAPH_get_char_size = $aaaa ; XXX
 GRAPH_put_char = $aaaa ; XXX
 GRAPH_set_colors = $aaaa ; XXX
 GRAPH_set_font = $aaaa ; XXX
-
-jmpfr = $aaaa; XXX
 .endif
 
 .export _GetCharWidth, _GetRealSize, _LoadCharSet, _SmallPutChar, _UseSystemFont, _PutCharK
