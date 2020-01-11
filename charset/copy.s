@@ -1,3 +1,9 @@
+
+.include "../io.inc"
+
+data = $aaaa; XXX
+tmp2 = $aa; XXX
+
 ; this code lives on the same ROM bank as the character sets
 .segment "CPYCHR"
 

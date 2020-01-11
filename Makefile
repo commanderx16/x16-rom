@@ -6,6 +6,8 @@ LD           = ld65
 
 ASFLAGS      = --cpu 65SC02 -g -D bsw=1 -D drv1541=1 -I geos/inc -I geos -D CPU_65C02=1 -D MACHINE_X16=1
 
+BUILD_DIR=build/$(MACHINE)
+
 KERNAL_SOURCES = \
 	kernal/kernal.s \
 	kernal/editor.s \
@@ -159,7 +161,11 @@ MONITOR_SOURCES= \
 	kernsup/kernsup_monitor.s \
 	monitor/monitor.s
 
-BUILD_DIR=build/$(MACHINE)
+CHARSET_SOURCES= \
+	charset/petscii.s \
+	charset/iso-8859-15.s \
+	charset/copy.s
+
 
 KERNAL_OBJS  = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
 KEYMAP_OBJS  = $(addprefix $(BUILD_DIR)/, $(KEYMAP_SOURCES:.s=.o))
@@ -167,6 +173,7 @@ CBDOS_OBJS   = $(addprefix $(BUILD_DIR)/, $(CBDOS_SOURCES:.s=.o))
 GEOS_OBJS    = $(addprefix $(BUILD_DIR)/, $(GEOS_SOURCES:.s=.o))
 BASIC_OBJS   = $(addprefix $(BUILD_DIR)/, $(BASIC_SOURCES:.s=.o))
 MONITOR_OBJS = $(addprefix $(BUILD_DIR)/, $(MONITOR_SOURCES:.s=.o))
+CHARSET_OBJS = $(addprefix $(BUILD_DIR)/, $(CHARSET_SOURCES:.s=.o))
 
 BANK_BINS = \
 	$(BUILD_DIR)/kernal.bin \
@@ -174,12 +181,17 @@ BANK_BINS = \
 	$(BUILD_DIR)/cbdos.bin \
 	$(BUILD_DIR)/geos.bin \
 	$(BUILD_DIR)/basic.bin \
-	$(BUILD_DIR)/monitor.bin
+	$(BUILD_DIR)/monitor.bin \
+	$(BUILD_DIR)/charset.bin
 
 all: $(BANK_BINS)
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+$(BUILD_DIR)/%.s: %.stpl
+	@mkdir -p $$(dirname $@)
+	./convert_stpl.sh $< $@
 
 $(BUILD_DIR)/%.o: %.s
 	@mkdir -p $$(dirname $@)
@@ -215,6 +227,11 @@ $(BUILD_DIR)/basic.bin: $(BASIC_OBJS) basic-$(MACHINE).cfg
 $(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) monitor-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C monitor-$(MACHINE).cfg $(MONITOR_OBJS) -o $@ -m $(BUILD_DIR)/monitor.map -Ln $(BUILD_DIR)/monitor.txt
+
+# Bank 6 : CHARSET
+$(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) charset-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C charset-$(MACHINE).cfg $(CHARSET_OBJS) -o $@ -m $(BUILD_DIR)/charset.map -Ln $(BUILD_DIR)/charset.txt
 
 
 
