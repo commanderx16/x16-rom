@@ -7,6 +7,9 @@ BANK_BASIC   = 4
 BANK_MONITOR = 5
 BANK_CHARSET = 6
 
+jsrfar3    = $02c4
+banked_irq = $038b
+
 ; RAM banks
 ; 0:   KVARS
 ; 1-9: GEOS BG SCREEN (320x200) [not currently enabled]

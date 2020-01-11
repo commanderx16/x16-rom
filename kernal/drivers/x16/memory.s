@@ -22,7 +22,7 @@
 .export stavec
 .export cmpare
 
-.export jsrfar, banked_irq
+.export jsrfar
 
 mmbot	=$0800
 mmtop   =$9f00
@@ -131,8 +131,9 @@ jsrfar:
 ;/////////////////////   K E R N A L   R A M   C O D E  \\\\\\\\\\\\\\\\\\\\\\\
 
 .segment "KERNRAM"
-.export jsrfar3, jmpfr
-jsrfar3:
+.export jmpfr
+.assert * = jsrfar3, error, "jsrfar3 must fit below $0400"
+;jsrfar3:
 	sta d1prb       ;set ROM bank
 	pla
 	plp
@@ -152,11 +153,11 @@ jsrfar3:
 	rts
 jmpfr:	jmp $ffff
 
-.assert * <= $0400, error, "jmpfar must fit below $0400"
 
 .segment "KERNRAM2"
 
-banked_irq:
+.assert * = banked_irq, error, "jsrfar3 must fit below $0400"
+;banked_irq:
 	pha
 	phx
 	lda d1prb       ;save ROM bank

@@ -193,10 +193,8 @@ stop:	.word _NMIHandler
 ; GEOS's entry into jsrfar
 .setcpu "65c02"
 .if 0
-.import jsrfar3
 .import jmpfr
 .else
-jsrfar3 = $aaaa; XXX
 jmpfr = $aaaa; XXX
 .endif
 .export gjsrfar

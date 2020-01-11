@@ -244,7 +244,10 @@ BANK_BINS = \
 	$(BUILD_DIR)/monitor.bin \
 	$(BUILD_DIR)/charset.bin
 
-all: $(BANK_BINS)
+all: $(BUILD_DIR)/rom.bin
+
+$(BUILD_DIR)/rom.bin: $(BANK_BINS)
+	cat $(BANK_BINS) > $@
 
 clean:
 	rm -rf $(BUILD_DIR)
