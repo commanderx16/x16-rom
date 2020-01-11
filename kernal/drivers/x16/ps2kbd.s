@@ -12,13 +12,8 @@
 ; data
 .import mode; [declare]
 .importzp ckbtab; [declare]
-.import fetch, fetvec; [routines]
-.if 0
-.import kbdmeta, ikbdmeta ; [keymap]
-.else
-kbdmeta = $aaaa  ; XXX
-ikbdmeta = $aaaa ; XXX
-.endif
+.import fetch, fetvec; [memory]
+.importzp tmp2
 
 .import kbdbuf_put
 .import shflag
@@ -61,19 +56,29 @@ _kbd_config:
 	cmp #$ff
 	bne :+
 	lda curkbd
-:	tay
+:	pha
+
 	bit mode
 	bvs setkb0      ;ISO
-	lda #<kbdmeta
-	ldx #>kbdmeta
-	bne setkb3
-setkb0:	lda #<ikbdmeta
-	ldx #>ikbdmeta
-setkb3:	sta 2
-	stx 3
-	lda #2
+	ldy #0
+	bra setkb3
+setkb0:	ldy #2
+setkb3:	lda #<$c000
+	sta tmp2
+	lda #>$c000
+	sta tmp2+1
+	lda #tmp2
 	sta fetvec
-	tya
+	ldx #BANK_KEYBD
+	jsr fetch
+	pha
+	iny
+	jsr fetch
+	sta tmp2+1
+	pla
+	sta tmp2
+
+	pla
 setkb2:	sta curkbd
 	asl
 	asl

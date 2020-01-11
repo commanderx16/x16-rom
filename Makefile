@@ -170,8 +170,7 @@ MONITOR_SOURCES= \
 
 CHARSET_SOURCES= \
 	charset/petscii.s \
-	charset/iso-8859-15.s \
-	charset/copy.s
+	charset/iso-8859-15.s
 
 GENERIC_DEPS = \
 	kernal.inc \
@@ -249,6 +248,7 @@ all: $(BANK_BINS)
 
 clean:
 	rm -rf $(BUILD_DIR)
+
 
 $(BUILD_DIR)/%.o: %.s
 	@mkdir -p $$(dirname $@)

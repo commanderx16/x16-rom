@@ -205,6 +205,7 @@ fetch:	lda d1pra       ;save current config (RAM)
 	ora #0          ;set flags
 	rts
 .segment "KERNRAM2" ; *** RAM code ***
+; XXX sei?
 fetch2:	sta d1prb       ;set new ROM bank
 fetvec	=*+1
 	lda ($ff),y     ;get the byte ($ff here is a dummy address, 'FETVEC')

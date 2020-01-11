@@ -4,9 +4,9 @@
 banked_irq = $aaaa; XXX
 .endif
 
-.export kbdmeta, ikbdmeta
-
 .segment "KBDMETA"
+.word kbdmeta, ikbdmeta
+
 kbdmeta:
 
 ; PETSCII
