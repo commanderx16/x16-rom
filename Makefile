@@ -1,10 +1,17 @@
 
 MACHINE     ?= x16
 
+ifdef RELEASE_VERSION
+	VERSION_DEFINE="-DRELEASE_VERSION=$(RELEASE_VERSION)"
+endif
+ifdef PRERELEASE_VERSION
+	VERSION_DEFINE="-DPRERELEASE_VERSION=$(PRERELEASE_VERSION)"
+endif
+
 AS           = ca65
 LD           = ld65
 
-ASFLAGS      = --cpu 65SC02 -g -D bsw=1 -D drv1541=1 -I geos/inc -I geos -D CPU_65C02=1 -D MACHINE_X16=1
+ASFLAGS      = --cpu 65SC02 -g -D bsw=1 -D drv1541=1 -I geos/inc -I geos -D CPU_65C02=1 -D MACHINE_X16=1 $(VERSION_DEFINE)
 
 BUILD_DIR=build/$(MACHINE)
 
@@ -166,6 +173,60 @@ CHARSET_SOURCES= \
 	charset/iso-8859-15.s \
 	charset/copy.s
 
+GENERIC_DEPS = \
+	kernal.inc \
+	mac.inc \
+	io.inc \
+	fb.inc \
+	banks.inc \
+	jsrfar.inc \
+	regs.inc \
+	kernsup/kernsup.inc
+
+KERNAL_DEPS = \
+	$(GENERIC_DEPS) \
+	kernal/fonts/fonts.inc
+
+KEYMAP_DEPS = \
+	$(GENERIC_DEPS)
+
+CBDOS_DEPS = \
+	$(GENERIC_DEPS) \
+	cbdos/errno.inc \
+	cbdos/debug.inc \
+	cbdos/fat32.inc \
+	cbdos/rtc.inc \
+	cbdos/fcntl.inc \
+	cbdos/spi.inc \
+	cbdos/65c02.inc \
+	cbdos/common.inc \
+	cbdos/sdcard.inc \
+	cbdos/vera.inc
+
+GEOS_DEPS= \
+	$(GENERIC_DEPS) \
+	geos/config.inc \
+	geos/inc/printdrv.inc \
+	geos/inc/kernal.inc \
+	geos/inc/inputdrv.inc \
+	geos/inc/diskdrv.inc \
+	geos/inc/const.inc \
+	geos/inc/jumptab.inc \
+	geos/inc/geosmac.inc \
+	geos/inc/geossym.inc \
+	geos/inc/c64.inc
+
+BASIC_DEPS= \
+	$(GENERIC_DEPS) \
+	fplib/fplib.inc
+
+MONITOR_DEPS= \
+	$(GENERIC_DEPS) \
+	monitor/kernal_x16.i \
+	monitor/kernal.i
+
+CHARSET_DEPS= \
+	$(GENERIC_DEPS)
 
 KERNAL_OBJS  = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
 KEYMAP_OBJS  = $(addprefix $(BUILD_DIR)/, $(KEYMAP_SOURCES:.s=.o))
@@ -199,143 +260,36 @@ $(BUILD_DIR)/%.o: %.s
 
 
 # Bank 0 : KERNAL
-$(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) kernal-$(MACHINE).cfg
+$(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) $(KERNAL_DEPS) kernal-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.txt
 
 # Bank 1 : KEYMAP
-$(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) keymap-$(MACHINE).cfg
+$(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) $(KEYMAP_DEPS) keymap-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C keymap-$(MACHINE).cfg $(KEYMAP_OBJS) -o $@ -m $(BUILD_DIR)/keymap.map -Ln $(BUILD_DIR)/keymap.txt
 
 # Bank 2 : CBDOS
-$(BUILD_DIR)/cbdos.bin: $(CBDOS_OBJS) cbdos-$(MACHINE).cfg
+$(BUILD_DIR)/cbdos.bin: $(CBDOS_OBJS) $(CBDOS_DEPS) cbdos-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C cbdos-$(MACHINE).cfg $(CBDOS_OBJS) -o $@ -m $(BUILD_DIR)/cbdos.map -Ln $(BUILD_DIR)/cbdos.txt
 
 # Bank 3 : GEOS
-$(BUILD_DIR)/geos.bin: $(GEOS_OBJS) geos-$(MACHINE).cfg
+$(BUILD_DIR)/geos.bin: $(GEOS_OBJS) $(GEOS_DEPS) geos-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C geos-$(MACHINE).cfg $(GEOS_OBJS) -o $@ -m $(BUILD_DIR)/geos.map -Ln $(BUILD_DIR)/geos.txt
 
 # Bank 4 : BASIC
-$(BUILD_DIR)/basic.bin: $(BASIC_OBJS) basic-$(MACHINE).cfg
+$(BUILD_DIR)/basic.bin: $(BASIC_OBJS) $(BASIC_DEPS) basic-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.txt
 
 # Bank 5 : MONITOR
-$(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) monitor-$(MACHINE).cfg
+$(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) $(MONITOR_DEPS) monitor-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C monitor-$(MACHINE).cfg $(MONITOR_OBJS) -o $@ -m $(BUILD_DIR)/monitor.map -Ln $(BUILD_DIR)/monitor.txt
 
 # Bank 6 : CHARSET
-$(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) charset-$(MACHINE).cfg
+$(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) charset-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C charset-$(MACHINE).cfg $(CHARSET_OBJS) -o $@ -m $(BUILD_DIR)/charset.map -Ln $(BUILD_DIR)/charset.txt
-
-
-
-
-
-
-
-
-
-ifdef RELEASE_VERSION
-	VERSION_DEFINE="-DRELEASE_VERSION=$(RELEASE_VERSION)"
-endif
-ifdef PRERELEASE_VERSION
-	VERSION_DEFINE="-DPRERELEASE_VERSION=$(PRERELEASE_VERSION)"
-endif
-
-AS           = ca65
-LD           = ld65
-
-ARGS_KERNAL=-DX16 --cpu 65SC02 -g
-ARGS_BASIC=-DX16 --cpu 65SC02 -g
-ARGS_MONITOR=-DX16 --cpu 65SC02 -g
-ARGS_DOS=#-g
-ARGS_GEOS=-DX16 #-g
-
-
-
-
-DEPS= \
-	geos/config.inc \
-	geos/inc/c64.inc \
-	geos/inc/const.inc \
-	geos/inc/diskdrv.inc \
-	geos/inc/geosmac.inc \
-	geos/inc/geossym.inc \
-	geos/inc/inputdrv.inc \
-	geos/inc/jumptab.inc \
-	geos/inc/kernal.inc \
-	geos/inc/printdrv.inc
-
-
-PREFIXED_GEOS_OBJS = $(addprefix $(GEOS_BUILD_DIR)/, $(GEOS_OBJS))
-
-x$(GEOS_BUILD_DIR)/%.o: %.s
-	@mkdir -p `dirname $@`
-	$(AS) $(ARGS_GEOS) -D bsw=1 -D drv1541=1 $(ASFLAGS) $< -o $@
-
-xall: $(PREFIXED_GEOS_OBJS)
-	$(AS) -DX16 -o kernsup/irqsup.o kernsup/irqsup.s
-
-
-
-
-	(cd charset; bash convert.sh)
-	$(AS) -o charset/petscii.o charset/petscii.tmp.s
-	$(AS) -o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
-
-	$(LD) -C rom.cfg -o rom.bin \
-		basic/basic.o \
-		fplib/fplib.o \
-		kernal/kernal.o \
-		kernal/editor.o \
-		kernal/kbdbuf.o \
-		kernal/channel/channel.o \
-		kernal/ieee_switch.o \
-		kernal/serial.o \
-		kernal/memory.o \
-		kernal/lzsa.o \
-		kernal/drivers/x16/x16.o \
-		kernal/drivers/x16/memory.o \
-		kernal/drivers/x16/screen.o \
-		kernal/drivers/x16/ps2.o \
-		kernal/drivers/x16/ps2kbd.o \
-		kernal/drivers/x16/ps2mouse.o \
-		kernal/drivers/x16/joystick.o \
-		kernal/drivers/x16/clock.o \
-		kernal/drivers/x16/rs232.o \
-		kernal/drivers/x16/framebuffer.o \
-		kernal/drivers/x16/sprites.o \
-		kernal/graph/graph.o kernal/fonts/fonts.o \
-		kernal/console.o \
-		monitor/monitor.o \
-		cbdos/zeropage.o \
-		cbdos/fat32.o \
-		cbdos/util.o \
-		cbdos/matcher.o \
-		cbdos/sdcard.o \
-		cbdos/spi_rw_byte.o \
-		cbdos/spi_select_device.o \
-		cbdos/spi_deselect.o \
-		cbdos/main.o \
-		keymap/keymap.o \
-		charset/petscii.o charset/iso-8859-15.o \
-		kernsup/kernsup_basic.o kernsup/kernsup_monitor.o kernsup/irqsup.o \
-		$(PREFIXED_GEOS_OBJS) \
-		-Ln rom.txt -m rom.map
-
-xclean:
-	rm -f kernsup/*.o
-	rm -f basic/basic.o fplib/fplib.o kernal/kernal.o rom.bin
-	rm -f monitor/monitor.o monitor/monitor_support.o
-	rm -f cbdos/*.o
-	rm -f keymap/keymap.o
-	rm -f charset/petscii.o charset/iso-8859-15.o charset/iso-8859-15.tmp.s
-	rm -f kernal/graph.*.o kernal/fonts/*.o
-	rm -f kernal/drivers/x16/*.o
-	rm -rf build
