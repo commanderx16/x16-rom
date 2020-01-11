@@ -1,6 +1,11 @@
 .include "../banks.inc"
 
-.import bjsrfar, banked_irq
+.import bjsrfar
+.if 0
+.import banked_irq
+.else
+banked_irq = $aaaa ; XXX
+.endif
 
 .macro bridge symbol
 	.local address

@@ -150,18 +150,25 @@ GEOS_SOURCES= \
 	geos/kernal/tobasic/tobasic1.s \
 	geos/kernal/drvcbdos.s
 
+BASIC_SOURCES= \
+	kernsup/kernsup_basic.s \
+	basic/basic.s \
+	fplib/fplib.s
+
 BUILD_DIR=build/$(MACHINE)
 
 KERNAL_OBJS = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
 KEYMAP_OBJS = $(addprefix $(BUILD_DIR)/, $(KEYMAP_SOURCES:.s=.o))
 CBDOS_OBJS  = $(addprefix $(BUILD_DIR)/, $(CBDOS_SOURCES:.s=.o))
 GEOS_OBJS   = $(addprefix $(BUILD_DIR)/, $(GEOS_SOURCES:.s=.o))
+BASIC_OBJS  = $(addprefix $(BUILD_DIR)/, $(BASIC_SOURCES:.s=.o))
 
 BANK_BINS = \
 	$(BUILD_DIR)/kernal.bin \
 	$(BUILD_DIR)/keymap.bin \
 	$(BUILD_DIR)/cbdos.bin \
-	$(BUILD_DIR)/geos.bin
+	$(BUILD_DIR)/geos.bin \
+	$(BUILD_DIR)/basic.bin
 
 all: $(BANK_BINS)
 
@@ -192,6 +199,11 @@ $(BUILD_DIR)/cbdos.bin: $(CBDOS_OBJS) cbdos-$(MACHINE).cfg
 $(BUILD_DIR)/geos.bin: $(GEOS_OBJS) geos-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C geos-$(MACHINE).cfg $(GEOS_OBJS) -o $@ -m $(BUILD_DIR)/geos.map -Ln $(BUILD_DIR)/geos.txt
+
+# Bank 4 : BASIC
+$(BUILD_DIR)/basic.bin: $(BASIC_OBJS) basic-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.txt
 
 
 
@@ -240,13 +252,9 @@ x$(GEOS_BUILD_DIR)/%.o: %.s
 	$(AS) $(ARGS_GEOS) -D bsw=1 -D drv1541=1 $(ASFLAGS) $< -o $@
 
 xall: $(PREFIXED_GEOS_OBJS)
-	$(AS) -DX16 -o kernsup/kernsup_basic.o kernsup/kernsup_basic.s
 	$(AS) -DX16 -o kernsup/kernsup_monitor.o kernsup/kernsup_monitor.s
 	$(AS) -DX16 -o kernsup/irqsup.o kernsup/irqsup.s
 
-	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o basic/basic.o basic/basic.s
-
-	$(AS) $(ARGS_BASIC) $(VERSION_DEFINE) -o fplib/fplib.o fplib/fplib.s
 
 
 	$(AS) $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
