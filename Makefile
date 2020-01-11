@@ -250,10 +250,6 @@ all: $(BANK_BINS)
 clean:
 	rm -rf $(BUILD_DIR)
 
-$(BUILD_DIR)/%.s: %.stpl
-	@mkdir -p $$(dirname $@)
-	./convert_stpl.sh $< $@
-
 $(BUILD_DIR)/%.o: %.s
 	@mkdir -p $$(dirname $@)
 	$(AS) $(ASFLAGS) $< -o $@
