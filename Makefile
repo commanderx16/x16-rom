@@ -4,7 +4,7 @@ MACHINE     ?= x16
 AS           = ca65
 LD           = ld65
 
-ASFLAGS      = --cpu 65SC02 -g -D bsw=1 -D drv1541=1 -I geos/inc -I geos
+ASFLAGS      = --cpu 65SC02 -g -D bsw=1 -D drv1541=1 -I geos/inc -I geos -D CPU_65C02=1 -D MACHINE_X16=1
 
 KERNAL_SOURCES = \
 	kernal/kernal.s \
@@ -155,20 +155,26 @@ BASIC_SOURCES= \
 	basic/basic.s \
 	fplib/fplib.s
 
+MONITOR_SOURCES= \
+	kernsup/kernsup_monitor.s \
+	monitor/monitor.s
+
 BUILD_DIR=build/$(MACHINE)
 
-KERNAL_OBJS = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
-KEYMAP_OBJS = $(addprefix $(BUILD_DIR)/, $(KEYMAP_SOURCES:.s=.o))
-CBDOS_OBJS  = $(addprefix $(BUILD_DIR)/, $(CBDOS_SOURCES:.s=.o))
-GEOS_OBJS   = $(addprefix $(BUILD_DIR)/, $(GEOS_SOURCES:.s=.o))
-BASIC_OBJS  = $(addprefix $(BUILD_DIR)/, $(BASIC_SOURCES:.s=.o))
+KERNAL_OBJS  = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
+KEYMAP_OBJS  = $(addprefix $(BUILD_DIR)/, $(KEYMAP_SOURCES:.s=.o))
+CBDOS_OBJS   = $(addprefix $(BUILD_DIR)/, $(CBDOS_SOURCES:.s=.o))
+GEOS_OBJS    = $(addprefix $(BUILD_DIR)/, $(GEOS_SOURCES:.s=.o))
+BASIC_OBJS   = $(addprefix $(BUILD_DIR)/, $(BASIC_SOURCES:.s=.o))
+MONITOR_OBJS = $(addprefix $(BUILD_DIR)/, $(MONITOR_SOURCES:.s=.o))
 
 BANK_BINS = \
 	$(BUILD_DIR)/kernal.bin \
 	$(BUILD_DIR)/keymap.bin \
 	$(BUILD_DIR)/cbdos.bin \
 	$(BUILD_DIR)/geos.bin \
-	$(BUILD_DIR)/basic.bin
+	$(BUILD_DIR)/basic.bin \
+	$(BUILD_DIR)/monitor.bin
 
 all: $(BANK_BINS)
 
@@ -204,6 +210,11 @@ $(BUILD_DIR)/geos.bin: $(GEOS_OBJS) geos-$(MACHINE).cfg
 $(BUILD_DIR)/basic.bin: $(BASIC_OBJS) basic-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.txt
+
+# Bank 5 : MONITOR
+$(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) monitor-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C monitor-$(MACHINE).cfg $(MONITOR_OBJS) -o $@ -m $(BUILD_DIR)/monitor.map -Ln $(BUILD_DIR)/monitor.txt
 
 
 
@@ -252,12 +263,10 @@ x$(GEOS_BUILD_DIR)/%.o: %.s
 	$(AS) $(ARGS_GEOS) -D bsw=1 -D drv1541=1 $(ASFLAGS) $< -o $@
 
 xall: $(PREFIXED_GEOS_OBJS)
-	$(AS) -DX16 -o kernsup/kernsup_monitor.o kernsup/kernsup_monitor.s
 	$(AS) -DX16 -o kernsup/irqsup.o kernsup/irqsup.s
 
 
 
-	$(AS) $(ARGS_MONITOR) -DMACHINE_X16=1 -DCPU_65C02=1 monitor/monitor.s -o monitor/monitor.o
 
 	(cd charset; bash convert.sh)
 	$(AS) -o charset/petscii.o charset/petscii.tmp.s
