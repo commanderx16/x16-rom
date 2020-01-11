@@ -27,10 +27,8 @@ d1prb	=via1+0
 d1pra	=via1+1
 .if 0
 .import jmpfr
-.importzp imparm
 .else
 jmpfr = $aaaa; XXX
-imparm = $aa; XXX
 .endif
 .export mjsrfar
 mjsrfar:

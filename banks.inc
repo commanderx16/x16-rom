@@ -9,6 +9,7 @@ BANK_CHARSET = 6
 
 jsrfar3    = $02c4
 banked_irq = $038b
+imparm     = $82
 
 ; RAM banks
 ; 0:   KVARS

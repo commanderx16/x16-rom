@@ -526,17 +526,17 @@ cpycustom:
 copyv:	ldy #0
 	lda #tmp2
 	sta fetvec
-:	phx
-	ldx #BANK_CHARSET
+@l1:	phx
+@l2:	ldx #BANK_CHARSET
 	jsr fetch
-	plx
 	eor data
 	sta veradat
 	iny
-	bne :-
+	bne @l2
 	inc tmp2+1
+	plx
 	dex
-	bne :-
+	bne @l1
 	rts
 
 ; 1: ISO character set

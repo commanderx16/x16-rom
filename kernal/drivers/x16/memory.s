@@ -124,7 +124,6 @@ ramtas:
 
 	rts
 
-.importzp imparm
 jsrfar:
 .include "../../../jsrfar.inc"
 
@@ -132,7 +131,7 @@ jsrfar:
 
 .segment "KERNRAM"
 .export jmpfr
-.assert * = jsrfar3, error, "jsrfar3 must fit below $0400"
+.assert * = jsrfar3, error, "jsrfar3 must be at specific address"
 ;jsrfar3:
 	sta d1prb       ;set ROM bank
 	pla
@@ -156,7 +155,7 @@ jmpfr:	jmp $ffff
 
 .segment "KERNRAM2"
 
-.assert * = banked_irq, error, "jsrfar3 must fit below $0400"
+.assert * = banked_irq, error, "jsrfar3 must be at specific address"
 ;banked_irq:
 	pha
 	phx
