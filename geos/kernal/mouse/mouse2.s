@@ -12,6 +12,7 @@
 .include "c64.inc"
 .include "inputdrv.inc"
 .include "../banks.inc"
+.include "../kernal.inc"
 
 .import _DoPreviousMenu
 .import menuOptNumber
@@ -43,10 +44,6 @@
 .ifdef wheels
 .global ResetMseRegion
 .endif
-
-mouse_config = $aaaa ; XXXX
-mouse_get = $aaaa ; XXXX
-mouse_scan = $aaaa ; XXXX
 
 .segment "mouse2"
 

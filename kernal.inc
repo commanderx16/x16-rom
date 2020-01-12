@@ -66,6 +66,7 @@ restore_basic                = $ff47
 ;                            = $ff15
 mouse_config                 = $ff68
 mouse_get                    = $ff6b
+mouse_scan                   = $ff71
 ;
 joystick_scan                = $ff53
 joystick_get                 = $ff56

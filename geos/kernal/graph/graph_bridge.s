@@ -9,7 +9,7 @@
 .include "config.inc"
 .include "kernal.inc"
 .include "c64.inc"
-.include "../../fb.inc"
+.include "../../kernal.inc"
 
 .global _GetScanLine
 
@@ -17,10 +17,6 @@
 
 .import _DMult
 .import g_col1
-
-GRAPH_draw_rect = $aaaa ; XXX
-GRAPH_draw_line = $aaaa ; XXX
-GRAPH_set_colors = $aaaa ; XXX
 
 .setcpu "65c02"
 
