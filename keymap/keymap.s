@@ -1,11 +1,6 @@
-.if 0
-.import banked_irq
-.else
-banked_irq = $aaaa; XXX
-.endif
-
 .segment "KBDMETA"
-.word kbdmeta, ikbdmeta
+.word kbdmeta  ; $c000
+.word ikbdmeta ; $c002
 
 kbdmeta:
 
@@ -45,6 +40,3 @@ ikbdmeta:
 
 .segment "IKBDMETA"
 	.byte 0 ; terminator
-
-.segment "IRQA"
-	.word banked_irq

@@ -7,10 +7,12 @@ BANK_BASIC   = 4
 BANK_MONITOR = 5
 BANK_CHARSET = 6
 
-jsrfar3    = $02c4
-jmpfr      = $02e1
-banked_irq = $038b
-imparm     = $82
+; XXX these constant RAM addresses are KERNAL
+; XXX implementation details and need to go away!
+jsrfar3    = $02c4 ; jsrfar: RAM part
+jmpfr      = $02e1 ; jsrfar: core jmp instruction
+imparm     = $82   ; jsrfar: temporary byte
+banked_irq = $038b ; irq handler: RAM part
 
 ; RAM banks
 ; 0:   KVARS

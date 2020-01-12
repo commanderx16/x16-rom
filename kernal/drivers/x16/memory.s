@@ -150,14 +150,14 @@ jsrfar:
 	plp
 	plp
 	rts
-.assert * = jmpfr, error, "jsrfar3 must be at specific address"
+.assert * = jmpfr, error, "jmpfr must be at specific address"
 ;jmpfr:
 	jmp $ffff
 
 
 .segment "KERNRAM2"
 
-.assert * = banked_irq, error, "jsrfar3 must be at specific address"
+.assert * = banked_irq, error, "banked_irq must be at specific address"
 ;banked_irq:
 	pha
 	phx
@@ -201,13 +201,15 @@ fetch:	lda d1pra       ;save current config (RAM)
 	sta d1pra       ;set RAM bank
 	plx             ;original ROM bank
 	and #$07
+	php
+	sei
 	jsr fetch2
+	plp
 	plx
 	stx d1pra       ;restore RAM bank
 	ora #0          ;set flags
 	rts
 .segment "KERNRAM2" ; *** RAM code ***
-; XXX sei?
 fetch2:	sta d1prb       ;set new ROM bank
 fetvec	=*+1
 	lda ($ff),y     ;get the byte ($ff here is a dummy address, 'FETVEC')
