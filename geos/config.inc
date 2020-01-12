@@ -174,21 +174,3 @@ DRV_TYPE = 3; DRV_1581
 .endif
 
 .endif
-
-.if 0
-
-leftMargin = $aaaa ; XXXX
-rightMargin = $aaaa ; XXXX
-windowBottom = $aaaa ; XXXX
-windowTop = $aaaa ; XXXX
-
-baselineOffset = $aaaa ; XXXX
-cardDataPntr = $aaaa ; XXXX
-curHeight = $aaaa ; XXXX
-curIndexTable = $aaaa ; XXXX
-curSetWidth = $aaaa ; XXXX
-currentMode = $aaaa ; XXXX
-
-jmpfr = $aaaa ; XXXX
-jsrfar3 = $aaaa ; XXXX
-.endif

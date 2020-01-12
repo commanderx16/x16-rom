@@ -11,7 +11,7 @@
 .include "inputdrv.inc"
 .include "c64.inc"
 .include "../../banks.inc"
-.include "../../fb.inc"
+.include "../../kernal.inc"
 
 ; main.s
 .import InitGEOEnv
@@ -52,8 +52,6 @@
 .ifdef useRamExp
 .import LoadDeskTop
 .endif
-
-screen_set_mode = $aaaa ; XXXX
 
 .segment "start"
 
