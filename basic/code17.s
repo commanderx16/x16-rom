@@ -57,7 +57,7 @@ peek	lda poker+1
 	jmp peek2
 peek1	lda #poker
 	ldx #BANK_KERNAL
-	jsr fetch       ;ROM [XXX test!]
+	jsr fetch       ;ROM
 peek2	tay
 dosgfl	pla
 	sta poker
