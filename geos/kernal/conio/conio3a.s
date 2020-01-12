@@ -32,34 +32,36 @@ _PutString:
 
 ;-------
 
+.include "../../../kernal/fonts/font_internal.inc"
+
 .macro get_font_parameters
 	pha
-	MoveW curIndexTable, g_curIndexTable
-	MoveB baselineOffset, g_baselineOffset
-	MoveW curSetWidth, g_curSetWidth
-	MoveB curHeight, g_curHeight
-	MoveW cardDataPntr, g_cardDataPntr
+	MoveW k_curIndexTable, g_curIndexTable
+	MoveB k_baselineOffset, g_baselineOffset
+	MoveW k_curSetWidth, g_curSetWidth
+	MoveB k_curHeight, g_curHeight
+	MoveW k_cardDataPntr, g_cardDataPntr
 	pla
 .endmacro
 
 .macro set_mode
 	php
 	pha
-	MoveB g_currentMode, currentMode
+	MoveB g_currentMode, k_currentMode
 	pla
 	plp
 .endmacro
 
 .macro get_mode
 	pha
-	MoveB currentMode, g_currentMode
+	MoveB k_currentMode, g_currentMode
 	pla
 .endmacro
 
 .macro set_mode_and_colors
 	lda g_currentMode
 	ora #1
-	sta currentMode
+	sta k_currentMode
 	lda #0  ; fg: black
 	ldx #15
 	ldy #1  ; bg: white
@@ -70,10 +72,10 @@ _PutString:
 	php
 	pha
 	set_mode_and_colors
-	MoveB g_windowTop, windowTop
-	MoveB g_windowBottom, windowBottom
-	MoveW g_leftMargin, leftMargin
-	MoveW g_rightMargin, rightMargin
+	MoveB g_windowTop, k_windowTop
+	MoveB g_windowBottom, k_windowBottom
+	MoveW g_leftMargin, k_leftMargin
+	MoveW g_rightMargin, k_rightMargin
 	pla
 	plp
 .endmacro
@@ -83,25 +85,6 @@ _PutString:
 	.word addr
 	.byte BANK_KERNAL
 .endmacro
-
-
-; FONT VARS
-.if 0
-.importzp curIndexTable
-.import baselineOffset, curSetWidth, curHeight, cardDataPntr, currentMode, windowTop, windowBottom, leftMargin, rightMargin
-.else
-curIndexTable = $aaaa; XXX
-baselineOffset = $aaaa; XXX
-curSetWidth = $aaaa; XXX
-curHeight = $aaaa; XXX
-cardDataPntr = $aaaa; XXX
-currentMode = $aaaa; XXX
-
-windowTop = $aaaa; XXX
-windowBottom = $aaaa; XXX
-leftMargin = $aaaa; XXX
-rightMargin = $aaaa; XXX
-.endif
 
 .import gjsrfar
 
@@ -193,8 +176,8 @@ _SmallPutChar:
 	lda #$ff ; convert code $80 to $FF (GEOS compat. "logo" char)
 @3:	pha
 	set_mode_and_colors
-	LoadW leftMargin, 0
-	LoadW rightMargin, SC_PIX_WIDTH-1
+	LoadW k_leftMargin, 0
+	LoadW k_rightMargin, SC_PIX_WIDTH-1
 	pla
 ; fallthrough
 
