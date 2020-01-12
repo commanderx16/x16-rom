@@ -244,7 +244,7 @@ BANK_BINS = \
 	$(BUILD_DIR)/monitor.bin \
 	$(BUILD_DIR)/charset.bin
 
-all: $(BUILD_DIR)/rom.bin
+all: $(BUILD_DIR)/rom.bin $(BUILD_DIR)/rom_labels.h
 
 $(BUILD_DIR)/rom.bin: $(BANK_BINS)
 	cat $(BANK_BINS) > $@
@@ -292,3 +292,12 @@ $(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) $(MONITOR_DEPS) monitor-$(MACHINE).cfg
 $(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) charset-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C charset-$(MACHINE).cfg $(CHARSET_OBJS) -o $@ -m $(BUILD_DIR)/charset.map -Ln $(BUILD_DIR)/charset.txt
+
+$(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
+	./symbolize.sh 0 build/x16/kernal.txt   > $@
+	./symbolize.sh 1 build/x16/keymap.txt  >> $@
+	./symbolize.sh 2 build/x16/cbdos.txt   >> $@
+	./symbolize.sh 3 build/x16/geos.txt    >> $@
+	./symbolize.sh 4 build/x16/basic.txt   >> $@
+	./symbolize.sh 5 build/x16/monitor.txt >> $@
+	./symbolize.sh 6 build/x16/charset.txt >> $@

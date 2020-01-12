@@ -1,8 +1,3 @@
-.if 0
-.import banked_irq
-.else
-banked_irq = $aaaa; XXX
-.endif
 
 .export __rtc_systime_update
 
@@ -26,11 +21,7 @@ banked_irq = $aaaa; XXX
 
 .importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
 
-.if 0
-.import status
-.else
-status = $aaaa; XXX
-.endif
+.include "../banks.inc"
 
 .include "common.inc"
 IMPORTED_FROM_MAIN=1

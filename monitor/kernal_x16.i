@@ -8,7 +8,7 @@
 
 .importzp txtptr, fnadr
 .import pnt
-.import status, fnlen, la, sa, fa, mode, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
+.import fnlen, la, sa, fa, mode, rvs, blnsw, gdbln, blnon, pntr, qtsw, tblx, insrt
 .import buf, rptflg
 
 .import kbdbuf_clear, kbdbuf_put
@@ -28,7 +28,6 @@ stavec = $aaaa ; XXX
 nlines = $aaaa ; XXX
 nlinesm1 = $aaaa ; XXX
 pnt = $aaaa ; XXX
-status = $aaaa ; XXX
 fnlen = $aaaa ; XXX
 la = $aaaa ; XXX
 sa = $aaaa ; XXX

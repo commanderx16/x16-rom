@@ -10,14 +10,13 @@ veraisr =verareg+7
 
 .if 0
 ; XXX from KERNAL
-.import status, fnlen, la, sa, fa
+.import fnlen, la, sa, fa
 .import mousex, mousey, mousebt
 
 ; from GEOS
 .import _ResetHandle
 .else
 _ResetHandle = $aaaa; XXX
-status = $aaaa; XXX
 fnlen = $aaaa; XXX
 fa = $aaaa; XXX
 .endif
@@ -314,11 +313,6 @@ cls:
 via1	=$9f60                  ;VIA 6522 #1
 d1prb	=via1+0
 d1pra	=via1+1
-.if 0
-.import jmpfr
-.else
-;jmpfr = $aaaa ; XXX
-.endif
 .export bjsrfar
 bjsrfar:
 .include "../jsrfar.inc"

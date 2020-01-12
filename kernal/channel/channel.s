@@ -1,6 +1,7 @@
 .feature labels_without_colons
 
 .include "../../io.inc"
+.include "../../banks.inc"
 
 bsout = $ffd2
 close = $ffc3
@@ -103,7 +104,8 @@ memuss	.res 2           ;$C3 load temps
 lat	.res 10          ;    logical file numbers
 fat	.res 10          ;    primary device numbers
 sat	.res 10          ;    secondary addresses
-status	.res 1           ;$90 i/o operation status byte
+.assert * = status, error, "status must be at specific address"
+;status	.res 1           ;$90 i/o operation status byte
 verck	.res 1           ;$93 load or verify flag
 xsav	.res 1           ;$97 temp for basin
 ldtnd	.res 1           ;$98 index to logical file
