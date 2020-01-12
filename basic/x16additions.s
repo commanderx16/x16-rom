@@ -10,14 +10,8 @@ veraisr =verareg+7
 
 .if 0
 ; XXX from KERNAL
-.import fnlen, la, sa, fa
-.import mousex, mousey, mousebt
-
-; from GEOS
-.import _ResetHandle
+.import fa
 .else
-_ResetHandle = $aaaa; XXX
-fnlen = $aaaa; XXX
 fa = $aaaa; XXX
 .endif
 
@@ -30,7 +24,7 @@ monitor:
 ;***************
 geos:
 	jsr bjsrfar
-	.word _ResetHandle
+	.word $c000 ; entry
 	.byte BANK_GEOS
 
 ;***************
@@ -122,6 +116,7 @@ dos	beq ptstat      ;no argument: print status
 	jsr frmstr      ;length in .a
 	cmp #0
 	beq ptstat      ;no argument: print status
+	sta verck       ;save length
 	ldx index1
 	ldy index1+1
 	jsr setnam
@@ -140,11 +135,11 @@ dos	beq ptstat      ;no argument: print status
 ; DOS command
 	jsr listen_cmd
 	ldy #0
-dos9	lda (index1),y
+:	lda (index1),y
 	jsr iecout
 	iny
-	cpy fnlen
-	bne dos9
+	cpy verck       ;length?
+	bne :-
 	jmp unlstn
 
 listen_cmd:

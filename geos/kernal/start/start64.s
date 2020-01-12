@@ -182,6 +182,7 @@ OrigResetHandle:
 
 .segment "entry"
 entry:
+	.assert * = $C000, error, "GEOS entry must be at $C000"
 	jmp _ResetHandle
 
 .segment "vectors"
