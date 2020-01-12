@@ -261,43 +261,43 @@ $(BUILD_DIR)/%.o: %.s
 # Bank 0 : KERNAL
 $(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) $(KERNAL_DEPS) kernal-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.txt
+	$(LD) -C kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.sym
 
 # Bank 1 : KEYMAP
 $(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) $(KEYMAP_DEPS) keymap-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C keymap-$(MACHINE).cfg $(KEYMAP_OBJS) -o $@ -m $(BUILD_DIR)/keymap.map -Ln $(BUILD_DIR)/keymap.txt
+	$(LD) -C keymap-$(MACHINE).cfg $(KEYMAP_OBJS) -o $@ -m $(BUILD_DIR)/keymap.map -Ln $(BUILD_DIR)/keymap.sym
 
 # Bank 2 : CBDOS
 $(BUILD_DIR)/cbdos.bin: $(CBDOS_OBJS) $(CBDOS_DEPS) cbdos-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C cbdos-$(MACHINE).cfg $(CBDOS_OBJS) -o $@ -m $(BUILD_DIR)/cbdos.map -Ln $(BUILD_DIR)/cbdos.txt
+	$(LD) -C cbdos-$(MACHINE).cfg $(CBDOS_OBJS) -o $@ -m $(BUILD_DIR)/cbdos.map -Ln $(BUILD_DIR)/cbdos.sym
 
 # Bank 3 : GEOS
 $(BUILD_DIR)/geos.bin: $(GEOS_OBJS) $(GEOS_DEPS) geos-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C geos-$(MACHINE).cfg $(GEOS_OBJS) -o $@ -m $(BUILD_DIR)/geos.map -Ln $(BUILD_DIR)/geos.txt
+	$(LD) -C geos-$(MACHINE).cfg $(GEOS_OBJS) -o $@ -m $(BUILD_DIR)/geos.map -Ln $(BUILD_DIR)/geos.sym
 
 # Bank 4 : BASIC
 $(BUILD_DIR)/basic.bin: $(BASIC_OBJS) $(BASIC_DEPS) basic-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.txt
+	$(LD) -C basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.sym
 
 # Bank 5 : MONITOR
 $(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) $(MONITOR_DEPS) monitor-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C monitor-$(MACHINE).cfg $(MONITOR_OBJS) -o $@ -m $(BUILD_DIR)/monitor.map -Ln $(BUILD_DIR)/monitor.txt
+	$(LD) -C monitor-$(MACHINE).cfg $(MONITOR_OBJS) -o $@ -m $(BUILD_DIR)/monitor.map -Ln $(BUILD_DIR)/monitor.sym
 
 # Bank 6 : CHARSET
 $(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) charset-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C charset-$(MACHINE).cfg $(CHARSET_OBJS) -o $@ -m $(BUILD_DIR)/charset.map -Ln $(BUILD_DIR)/charset.txt
+	$(LD) -C charset-$(MACHINE).cfg $(CHARSET_OBJS) -o $@ -m $(BUILD_DIR)/charset.map -Ln $(BUILD_DIR)/charset.sym
 
 $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
-	./symbolize.sh 0 build/x16/kernal.txt   > $@
-	./symbolize.sh 1 build/x16/keymap.txt  >> $@
-	./symbolize.sh 2 build/x16/cbdos.txt   >> $@
-	./symbolize.sh 3 build/x16/geos.txt    >> $@
-	./symbolize.sh 4 build/x16/basic.txt   >> $@
-	./symbolize.sh 5 build/x16/monitor.txt >> $@
-	./symbolize.sh 6 build/x16/charset.txt >> $@
+	./symbolize.sh 0 build/x16/kernal.sym   > $@
+	./symbolize.sh 1 build/x16/keymap.sym  >> $@
+	./symbolize.sh 2 build/x16/cbdos.sym   >> $@
+	./symbolize.sh 3 build/x16/geos.sym    >> $@
+	./symbolize.sh 4 build/x16/basic.sym   >> $@
+	./symbolize.sh 5 build/x16/monitor.sym >> $@
+	./symbolize.sh 6 build/x16/charset.sym >> $@
