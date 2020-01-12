@@ -1,9 +1,5 @@
-.if 0
-.import monitor
-.else
-monitor = $aaaa ;XXX
-.endif
 
+.import monitor
 .import mouse_config, mouse_get; [mouse]
 .import joystick_scan; [joystick]
 .import mouse_config; [mouse]

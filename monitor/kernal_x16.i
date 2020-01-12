@@ -31,7 +31,6 @@ pnt = $aaaa ; XXX
 fnlen = $aaaa ; XXX
 la = $aaaa ; XXX
 sa = $aaaa ; XXX
-fa = $aaaa ; XXX
 mode = $aaaa ; XXX
 rvs = $aaaa ; XXX
 blnsw = $aaaa ; XXX

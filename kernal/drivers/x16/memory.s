@@ -13,7 +13,8 @@
 .import membot
 
 .export ramtas
-.export enter_basic, enter_basic
+.export enter_basic
+.export monitor
 
 .export fetch
 .export fetvec
@@ -297,4 +298,10 @@ enter_basic:
 :	jsr jsrfar
 	.word $c000 + 3
 	.byte BANK_BASIC
+	;not reached
+
+monitor:
+	jsr jsrfar
+	.word $c000
+	.byte BANK_MONITOR
 	;not reached

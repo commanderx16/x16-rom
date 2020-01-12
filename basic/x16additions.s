@@ -8,13 +8,6 @@ veractl =verareg+5
 veraien =verareg+6
 veraisr =verareg+7
 
-.if 0
-; XXX from KERNAL
-.import fa
-.else
-fa = $aaaa; XXX
-.endif
-
 ;***************
 monitor:
 	jsr bjsrfar
