@@ -11,11 +11,20 @@ endif
 AS           = ca65
 LD           = ld65
 
-ASFLAGS      = --cpu 65SC02 -g -D bsw=1 -D drv1541=1 -I geos/inc -I geos -D CPU_65C02=1 -D MACHINE_X16=1 $(VERSION_DEFINE)
+# all files are allowed to use 65SC02 features
+ASFLAGS      = --cpu 65SC02
+# put all symbols into .sym files
+ASFLAGS     += -g 
+# for GEOS
+ASFLAGS     += -D bsw=1 -D drv1541=1 -I geos/inc -I geos 
+# for monitor
+ASFLAGS     += -D CPU_65C02=1 -D MACHINE_X16=1 
+# KERNAL version number
+ASFLAGS     +=  $(VERSION_DEFINE) 
 
 BUILD_DIR=build/$(MACHINE)
 
-KERNAL_SOURCES = \
+KERNAL_CORE_SOURCES = \
 	kernal/kernal.s \
 	kernal/editor.s \
 	kernal/kbdbuf.s \
@@ -23,7 +32,14 @@ KERNAL_SOURCES = \
 	kernal/ieee_switch.s \
 	kernal/serial.s \
 	kernal/memory.s \
-	kernal/lzsa.s \
+	kernal/lzsa.s
+
+KERNAL_GRAPH_SOURCES = \
+	kernal/console.s \
+	kernal/graph/graph.s \
+	kernal/fonts/fonts.s
+
+KERNAL_DRIVER_SOURCES = \
 	kernal/drivers/x16/x16.s \
 	kernal/drivers/x16/memory.s \
 	kernal/drivers/x16/screen.s \
@@ -35,9 +51,11 @@ KERNAL_SOURCES = \
 	kernal/drivers/x16/rs232.s \
 	kernal/drivers/x16/framebuffer.s \
 	kernal/drivers/x16/sprites.s \
-	kernal/graph/graph.s \
-	kernal/console.s \
-	kernal/fonts/fonts.s
+
+KERNAL_SOURCES = \
+	$(KERNAL_CORE_SOURCES) \
+	$(KERNAL_GRAPH_SOURCES) \
+	$(KERNAL_DRIVER_SOURCES)
 
 KEYMAP_SOURCES = \
 	keymap/keymap.s
