@@ -44,8 +44,8 @@
 ; asm
 .import cmd_a
 .import LAE7C
-.import zp1_plus_a
 .import disassemble_line
+.export zp1_plus_a_2
 .export print_hex_16
 .export LAD4B
 .export basin_if_more
@@ -1434,6 +1434,19 @@ LBC7D:  dex
         beq     LBC56
         bpl     LBC58
         rts
+
+; adds signed A to 16 bit zp1
+zp1_plus_a:
+        sec
+zp1_plus_a_2:
+        ldy     zp1 + 1
+        tax
+        bpl     :+
+        dey
+:       adc     zp1
+        bcc     :+
+        iny
+:       rts
 
 pow10lo2:
         .byte <1, <10, <100, <1000, <10000

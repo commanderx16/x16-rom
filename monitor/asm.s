@@ -5,6 +5,7 @@
 .import __asmchars1_RUN__
 .import __asmchars2_RUN__
 
+.import zp1_plus_a_2
 .import print_hex_16
 .import LAD4B
 .import basin_if_more
@@ -40,7 +41,6 @@
 
 .export cmd_a
 .export LAE7C
-.export zp1_plus_a
 .export disassemble_line
 
 .segment "monitor"
@@ -290,19 +290,6 @@ print_zprel:
         sta zp1
         rts
 .endif
-
-; adds signed A to 16 bit zp1
-zp1_plus_a:
-        sec
-zp1_plus_a_2:
-        ldy     zp1 + 1
-        tax
-        bpl     :+
-        dey
-:       adc     zp1
-        bcc     :+
-        iny
-:       rts
 
 LB030:  ldx     #0
         stx     tmp17
