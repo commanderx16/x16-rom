@@ -341,10 +341,10 @@ $(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) cfg/charset-$(MACHINE)
 	$(LD) -C cfg/charset-$(MACHINE).cfg $(CHARSET_OBJS) -o $@ -m $(BUILD_DIR)/charset.map -Ln $(BUILD_DIR)/charset.sym
 
 $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
-	./symbolize.sh 0 build/x16/kernal.sym   > $@
-	./symbolize.sh 1 build/x16/keymap.sym  >> $@
-	./symbolize.sh 2 build/x16/cbdos.sym   >> $@
-	./symbolize.sh 3 build/x16/geos.sym    >> $@
-	./symbolize.sh 4 build/x16/basic.sym   >> $@
-	./symbolize.sh 5 build/x16/monitor.sym >> $@
-	./symbolize.sh 6 build/x16/charset.sym >> $@
+	./scripts/symbolize.sh 0 build/x16/kernal.sym   > $@
+	./scripts/symbolize.sh 1 build/x16/keymap.sym  >> $@
+	./scripts/symbolize.sh 2 build/x16/cbdos.sym   >> $@
+	./scripts/symbolize.sh 3 build/x16/geos.sym    >> $@
+	./scripts/symbolize.sh 4 build/x16/basic.sym   >> $@
+	./scripts/symbolize.sh 5 build/x16/monitor.sym >> $@
+	./scripts/symbolize.sh 6 build/x16/charset.sym >> $@
