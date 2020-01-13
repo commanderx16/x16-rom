@@ -1,5 +1,6 @@
 
-MACHINE     ?= x16
+#MACHINE     ?= x16
+MACHINE     ?= c64
 
 ifdef RELEASE_VERSION
 	VERSION_DEFINE="-DRELEASE_VERSION=$(RELEASE_VERSION)"
@@ -29,7 +30,6 @@ KERNAL_CORE_SOURCES = \
 	kernal/editor.s \
 	kernal/kbdbuf.s \
 	kernal/channel/channel.s \
-	kernal/ieee_switch.s \
 	kernal/serial.s \
 	kernal/memory.s \
 	kernal/lzsa.s
@@ -39,23 +39,41 @@ KERNAL_GRAPH_SOURCES = \
 	kernal/graph/graph.s \
 	kernal/fonts/fonts.s
 
-KERNAL_DRIVER_SOURCES = \
-	kernal/drivers/x16/x16.s \
-	kernal/drivers/x16/memory.s \
-	kernal/drivers/x16/screen.s \
-	kernal/drivers/x16/ps2.s \
-	kernal/drivers/x16/ps2kbd.s \
-	kernal/drivers/x16/ps2mouse.s \
-	kernal/drivers/x16/joystick.s \
-	kernal/drivers/x16/clock.s \
-	kernal/drivers/x16/rs232.s \
-	kernal/drivers/x16/framebuffer.s \
-	kernal/drivers/x16/sprites.s \
+ifeq ($(MACHINE),c64)
+	KERNAL_DRIVER_SOURCES = \
+		kernal/drivers/c64/c64.s \
+		kernal/drivers/c64/clock.s \
+		kernal/drivers/c64/joystick.s \
+		kernal/drivers/c64/kbd.s \
+		kernal/drivers/c64/memory.s \
+		kernal/drivers/c64/mouse.s \
+		kernal/drivers/c64/rs232.s \
+		kernal/drivers/c64/screen.s \
+		kernal/drivers/c64/sprites.s
+else
+	KERNAL_DRIVER_SOURCES = \
+		kernal/drivers/x16/x16.s \
+		kernal/drivers/x16/memory.s \
+		kernal/drivers/x16/screen.s \
+		kernal/drivers/x16/ps2.s \
+		kernal/drivers/x16/ps2kbd.s \
+		kernal/drivers/x16/ps2mouse.s \
+		kernal/drivers/x16/joystick.s \
+		kernal/drivers/x16/clock.s \
+		kernal/drivers/x16/rs232.s \
+		kernal/drivers/x16/framebuffer.s \
+		kernal/drivers/x16/sprites.s
+endif
 
 KERNAL_SOURCES = \
 	$(KERNAL_CORE_SOURCES) \
-	$(KERNAL_GRAPH_SOURCES) \
 	$(KERNAL_DRIVER_SOURCES)
+
+ifneq ($(MACHINE),c64)
+	KERNAL_SOURCES += \
+		$(KERNAL_GRAPH_SOURCES) \
+		kernal/ieee_switch.s
+endif
 
 KEYMAP_SOURCES = \
 	keymap/keymap.s
@@ -253,14 +271,18 @@ BASIC_OBJS   = $(addprefix $(BUILD_DIR)/, $(BASIC_SOURCES:.s=.o))
 MONITOR_OBJS = $(addprefix $(BUILD_DIR)/, $(MONITOR_SOURCES:.s=.o))
 CHARSET_OBJS = $(addprefix $(BUILD_DIR)/, $(CHARSET_SOURCES:.s=.o))
 
-BANK_BINS = \
-	$(BUILD_DIR)/kernal.bin \
-	$(BUILD_DIR)/keymap.bin \
-	$(BUILD_DIR)/cbdos.bin \
-	$(BUILD_DIR)/geos.bin \
-	$(BUILD_DIR)/basic.bin \
-	$(BUILD_DIR)/monitor.bin \
-	$(BUILD_DIR)/charset.bin
+ifeq ($(MACHINE),c64)
+	BANK_BINS = $(BUILD_DIR)/kernal.bin
+else
+	BANK_BINS = \
+		$(BUILD_DIR)/kernal.bin \
+		$(BUILD_DIR)/keymap.bin \
+		$(BUILD_DIR)/cbdos.bin \
+		$(BUILD_DIR)/geos.bin \
+		$(BUILD_DIR)/basic.bin \
+		$(BUILD_DIR)/monitor.bin \
+		$(BUILD_DIR)/charset.bin
+endif
 
 all: $(BUILD_DIR)/rom.bin $(BUILD_DIR)/rom_labels.h
 
