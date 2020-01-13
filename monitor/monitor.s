@@ -50,13 +50,10 @@
 
 .global monitor
 
-
-.ifdef MACHINE_X16
 zp1             := $C1
 zp2             := $C3
 zp3             := $FF
 DEFAULT_BANK    := 0
-.endif
 
 CINV   := $0314 ; IRQ vector
 CBINV  := $0316 ; BRK vector
@@ -99,9 +96,7 @@ bank            := ram_code_end + 16
 disable_f_keys  := ram_code_end + 17
 tmp1            := ram_code_end + 18
 tmp2            := ram_code_end + 19
-.ifdef MACHINE_X16
 video_bank_flag := ram_code_end + 20
-.endif
 
 .segment "monitor_a"
 
@@ -136,12 +131,10 @@ monitor:
 ram_code:
 
 goto_user:
-.ifdef MACHINE_X16
 	;XXX video?
 	sta d1pra       ;set RAM bank
 	and #$07
 	sta d1prb       ;set ROM bank
-.endif
         lda     reg_a
         rti
 
@@ -221,7 +214,6 @@ dump_registers2:
         lda     irq_lo
         jsr     print_hex_byte2 ; IRQ lo
         jsr     print_space
-.ifdef MACHINE_X16
 	lda     video_bank_flag
 	bpl     :+
         lda     #'V'
@@ -232,18 +224,7 @@ dump_registers2:
         jsr     BSOUT
         bne     LABEB
 :
-.endif
         lda     bank
-.ifndef MACHINE_X16
-        bpl     :+
-        lda     #'D'
-        jsr     BSOUT
-        lda     #'R'
-        jsr     BSOUT
-        bne     LABEB ; negative bank means drive ("DR")
-:
-        and     #$0F
-.endif
         jsr     print_hex_byte2 ; bank
 LABEB:  ldy     #0
 :       jsr     print_space
@@ -311,17 +292,10 @@ fill_kbd_buffer_with_csr_right:
         lda     #CSR_RIGHT
         ldx     #0
 :
-.ifdef MACHINE_X16
 	jsr _kbdbuf_put
-.else
-	sta     KEYD,x ; fill kbd buffer with 7 CSR RIGHT characters
-.endif
         inx
         cpx     #7
         bne     :-
-.ifndef MACHINE_X16
-        stx     NDX ; 7
-.endif
         jmp     input_loop2
 
 cmd_mid2:
@@ -667,10 +641,6 @@ cmd_g:
 
 LAF03:  jsr     copy_pc_to_zp2_and_zp1
 LAF06:
-.ifndef MACHINE_X16
-        lda     bank
-        bmi     LAF2B ; drive
-.endif
         jsr     set_irq_vector
         ldx     reg_s
         txs
@@ -1285,10 +1255,6 @@ LB2CB:  lda     #'W' ; send M-W to drive
 ; loads a byte at (zp1),y from RAM with the correct ROM config
 load_byte:
         sei
-.ifndef MACHINE_X16
-        lda     bank
-        bmi     LB2B4 ; drive
-.endif
 	lda video_bank_flag
 	bne :+
 	stx tmp1
@@ -1352,15 +1318,12 @@ syn_err3:
 ;       X16: * 00 to FF are set as both ROM and RAM bank
 ; ----------------------------------------------------------------
 cmd_o:
-.ifdef MACHINE_X16
 	lda     #0
 	sta     video_bank_flag
-.endif
 :       jsr     basin_cmp_cr
         beq     LB33F ; without arguments: bank 7
         cmp     #' '
         beq     :-
-.ifdef MACHINE_X16
         cmp     #'V'
         bne     not_video
 	dec     video_bank_flag
@@ -1377,7 +1340,6 @@ default_video_bank
 	jmp     store_bank
 
 not_video:
-.endif
         jsr     get_hex_byte2
         bra :+
 LB33F  lda     #DEFAULT_BANK
@@ -1723,14 +1685,12 @@ dump_8_ascii_characters:
 dump_ascii_characters:
         ldy     #0
 LB594:  jsr     load_byte
-.ifdef MACHINE_X16
         bit     MODE
 	bvc     :+
 	inc     QTSW
 	inc     QTSW
 	inc     INSRT
 	jmp     LB5AD
-.endif
 :       cmp     #$20
         bcs     LB59F
         inc     RVS
@@ -1759,20 +1719,14 @@ read_ascii:
         jsr     basin_if_more
 LB5C8:  sty     tmp9
         ldy     PNTR
-.ifdef MACHINE_X16
         jsr     screen_get_char
-.else
-        lda     (PNT),y
-.endif
         php
         jsr     basin_if_more
         ldy     tmp9
         plp
         bmi     :+
-.ifdef MACHINE_X16
         bit     MODE
         bvs     @l1
-.endif
         cmp     #$60
         bcs     :+
 @l1:    jsr     store_byte
@@ -1892,39 +1846,19 @@ fill_kbd_buffer_rightbracket
 fill_kbd_buffer_singlequote
         lda     #$27 ; "'"
 :
-.ifdef MACHINE_X16
 	jsr _kbdbuf_put
-.else
-        sta     KEYD
-.endif
         lda     zp1 + 1
         jsr     byte_to_hex_ascii
-.ifdef MACHINE_X16
 	jsr _kbdbuf_put
 	tya
 	jsr _kbdbuf_put
-.else
-        sta     KEYD + 1
-        sty     KEYD + 2
-.endif
         lda     zp1
         jsr     byte_to_hex_ascii
-.ifdef MACHINE_X16
 	jsr _kbdbuf_put
 	tya
 	jsr _kbdbuf_put
-.else
-        sta     KEYD + 3
-        sty     KEYD + 4
-.endif
         lda     #' '
-.ifdef MACHINE_X16
 	jsr _kbdbuf_put
-.else
-        sta     KEYD + 5
-        lda     #6 ; number of characters
-        sta     NDX
-.endif
         rts
 
 ; print 7x cursor right
@@ -1995,63 +1929,31 @@ irqhandler2:
 LB6FA:	rts
 	
 LB700:
-.ifndef MACHINE_X16
-        lda     KEYD
-.endif
 fk_2:   cmp     #KEY_F7
         bne     LB71C
-.ifdef MACHINE_X16
 	jsr _kbdbuf_clear
-.endif
         lda     #'@'
-.ifdef MACHINE_X16
 	jsr _kbdbuf_put
-.else
-        sta     KEYD
-.endif
         lda     #'$'
-.ifdef MACHINE_X16
 	jsr _kbdbuf_put
-.else
-        sta     KEYD + 1
-.endif
         lda     #CR
-.ifdef MACHINE_X16
 	jsr _kbdbuf_put
 	bra     LB6FA
-.else
-        sta     KEYD + 2 ; store "@$' + CR into keyboard buffer
-        lda     #3
-        sta     NDX
-        bne     LB6FA ; always
-.endif
 
 LB71C:  cmp     #KEY_F5
         bne     LB733
-.ifdef MACHINE_X16
 	jsr _kbdbuf_clear
-.endif
-.ifdef MACHINE_X16
         ldx     nlinesm1
-.else
-        ldx     #NUM_LINES-1
-.endif
         cpx     TBLX
         beq     LB72E ; already on last line
         jsr     clear_cursor
         ldy     PNTR
         jsr     LE50C ; KERNAL set cursor position
 LB72E:  lda     #CSR_DOWN
-.ifdef MACHINE_X16
 	jsr _kbdbuf_put
-.else
-        sta     KEYD
-.endif
 LB733:  cmp     #KEY_F3
         bne     LB74A
-.ifdef MACHINE_X16
 	jsr _kbdbuf_clear
-.endif
         ldx     #0
         cpx     TBLX
         beq     LB745
@@ -2059,11 +1961,7 @@ LB733:  cmp     #KEY_F3
         ldy     PNTR
         jsr     LE50C ; KERNAL set cursor position
 LB745:  lda     #CSR_UP
-.ifdef MACHINE_X16
 	jsr _kbdbuf_put
-.else
-        sta     KEYD
-.endif
 LB74A:  cmp     #CSR_DOWN
         beq     LB758
         cmp     #CSR_UP
@@ -2072,11 +1970,7 @@ LB74A:  cmp     #CSR_DOWN
         beq     LB75E ; top of screen
         bne     LB6FA
 LB758:  lda     TBLX
-.ifdef MACHINE_X16
         cmp     nlinesm1
-.else
-        cmp     #NUM_LINES-1
-.endif
         bne     LB6FA
 LB75E:  jsr     LB838
         bcc     LB6FA
@@ -2130,11 +2024,7 @@ LB7C7:  lda     #CSR_UP
 LB7CD:  lda     #CR
         ldx     #CSR_HOME
 LB7D1:  ldy     #0
-.ifdef MACHINE_X16
 	jsr _kbdbuf_clear
-.else
-        sty     NDX
-.endif
         sty     disable_f_keys
         jsr     print_a_x
         jsr     print_7_csr_right
@@ -2182,11 +2072,7 @@ LB838:  lda     PNT
         ldx     PNT + 1
         sta     zp2
         stx     zp2 + 1
-.ifdef MACHINE_X16
         lda     nlines
-.else
-        lda     #NUM_LINES
-.endif
         sta     tmp13
 LB845:  ldy     #1 ; column 1
         jsr     get_screen_char
@@ -2202,30 +2088,12 @@ LB845:  ldy     #1 ; column 1
         beq     LB884
         dec     tmp13
         beq     LB889
-.ifdef MACHINE_X16
 	jsr kbdbuf_peek
-.else
-        lda     KEYD
-.endif
         cmp     #CSR_DOWN
         bne     LB877
-.ifndef MACHINE_X16 ; one line up = decrement hi byte
-        sec
-        lda     zp2
-        sbc     #CHARS_PER_LINE
-        sta     zp2
-        bcs     LB845
-.endif
         dec     zp2 + 1
         bne     LB845
 LB877:
-.ifndef MACHINE_X16 ; one line down = increment hi byte
-        clc
-        lda     zp2
-        adc     #CHARS_PER_LINE
-        sta     zp2
-        bcc     LB845
-.endif
         inc     zp2 + 1
         bne     LB845
 LB884:  sec
@@ -2236,16 +2104,6 @@ LB889:  clc
         rts
 
 get_screen_char:
-.ifdef MACHINE_X16
-verareg =$9f20
-veralo  =verareg+0
-veramid =verareg+1
-verahi  =verareg+2
-veradat =verareg+3
-veradat2=verareg+4
-veractl =verareg+5
-veraien =verareg+6
-veraisr =verareg+7
 	tya
 	asl
 	clc
@@ -2257,9 +2115,6 @@ veraisr =verareg+7
 	lda #$10
 	sta verahi
 	lda veradat
-.else
-        lda     (zp2),y
-.endif
         iny
         and     #$7F
         cmp     #$20
@@ -3248,10 +3103,6 @@ syn_err8:
 ; "P" - set output to printer
 ; ----------------------------------------------------------------
 cmd_p:
-.ifndef MACHINE_X16
-        lda     bank
-        bmi     syn_err8 ; drive?
-.endif
         ldx     #$FF
         lda     FA
         cmp     #4
@@ -3265,12 +3116,7 @@ cmd_p:
 LBC11:  jsr     basin_cmp_cr
         bne     syn_err8
 LBC16:
-.ifdef MACHINE_X16
 	jsr _kbdbuf_put
-.else
-	sta     KEYD
-	inc     NDX
-.endif
         lda     #4
         cmp     FA
         beq     LBC39 ; printer
@@ -3290,12 +3136,7 @@ LBC39:  lda     LA
         jsr     CLRCH
         lda     #8
         sta     FA
-.ifdef MACHINE_X16
 	jsr _kbdbuf_clear
-.else
-        lda     #0
-        sta     NDX
-.endif
         jmp     input_loop
 
 LBC4C:  stx     zp1
