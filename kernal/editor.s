@@ -392,7 +392,6 @@ loop2
 	bne :+
 	stz qtsw        ;only valid for 1 char
 :
-
 	pla
 	tay
 	lda insrt
@@ -481,10 +480,8 @@ prt
 	jmp nxtx
 	ldx qtsw
 	cpx #2          ;"no exceptions" quote mode (used by monitor)
-	bne :+
-;	dec qtsw        ;only valid for 1 char
-	bra njt1
-:	cmp #$d
+	beq njt1
+	cmp #$d
 	bne njt1
 	jmp nxt1
 njt1	cmp #' '
@@ -639,6 +636,7 @@ keepit
 	bne :+
 	lda #2          ;.A was $80 -> enable literal mode
 	sta qtsw
+	inc insrt
 	jmp loop2
 :
 	bit mode
