@@ -79,6 +79,41 @@
 .export tmp_opcode
 .export zp1
 
+; io
+.export LBC4C
+.export LE716
+.export LF0BD
+.export LF646
+.export _kbdbuf_clear
+.export _kbdbuf_put
+.export basin_cmp_cr
+.export basin_if_more
+.export basin_skip_spaces_cmp_cr
+.export basin_skip_spaces_if_more
+.export command_index
+.export command_index_l
+.export command_index_s
+.export get_hex_byte
+.export get_hex_byte2
+.export get_hex_word3
+.export input_loop
+.export input_loop2
+.export load_byte
+.export print_cr
+.export print_cr_then_input_loop
+.export set_irq_vector
+.export store_byte
+.export swap_zp1_and_zp2
+.export syntax_error
+.export tmp16
+.export zp1
+.export zp2
+.export zp3
+.import cmd_p
+.import cmd_asterisk
+.import cmd_at
+.import cmd_ls
+
 zp1             := $C1
 zp2             := $C3
 zp3             := $FF
@@ -1501,15 +1536,15 @@ kbdbuf_peek:
 LF0BD:
     .byte "I/O ERROR"
 
-.if 1
-cmd_p:
-cmd_asterisk:
-cmd_at:
-cmd_ls:
-	brk
-.else
-.include "io.s"
-.endif
+;.if 1
+;cmd_p:
+;cmd_asterisk:
+;cmd_at:
+;cmd_ls:
+;	brk
+;.else
+;.include "io.s"
+;.endif
 
 .if 1
 set_irq_vector:

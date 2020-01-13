@@ -5,6 +5,45 @@ sa              := $aaaa  ; secondary address
 ;fa              := $aaaa  ; device number
 fnadr           := ($aa)  ; file name
 
+.include "kernal.i"
+
+.import LBC4C
+.import LE716
+.import LF0BD
+.import LF646
+.import _kbdbuf_clear
+.import _kbdbuf_put
+.import basin_cmp_cr
+.import basin_if_more
+.import basin_skip_spaces_cmp_cr
+.import basin_skip_spaces_if_more
+.import command_index
+.importzp command_index_l
+.importzp command_index_s
+.import get_hex_byte
+.import get_hex_byte2
+.import get_hex_word3
+.import input_loop
+.import input_loop2
+.import load_byte
+.import print_cr
+.import print_cr_then_input_loop
+.import set_irq_vector
+.import store_byte
+.import swap_zp1_and_zp2
+.import syntax_error
+.import tmp16
+.importzp zp1
+.importzp zp2
+.importzp zp3
+
+.export cmd_p
+.export cmd_asterisk
+.export cmd_at
+.export cmd_ls
+
+.segment "monitor"
+
 listen_command_channel:
 	lda     #$6F
 	jsr     init_and_listen
@@ -29,7 +68,7 @@ cmd_ls:
         jsr     basin_skip_spaces_cmp_cr
         bne     LB3B6
 LB388:  lda     command_index
-        cmp     #command_index_l
+        cmp     #<command_index_l
         bne     syn_err4
 LB38F:
         jsr     set_irq_vector
@@ -83,7 +122,7 @@ LB3F0:  bne     LB3D6
         jsr     basin_cmp_cr
         bne     LB408
         lda     command_index
-        cmp     #command_index_l
+        cmp     #<command_index_l
         bne     LB3F0
         dec     sa
         beq     LB38F
@@ -95,7 +134,7 @@ LB40A:  bne     LB3F0
         ldx     zp2
         ldy     zp2 + 1
         lda     command_index
-        cmp     #command_index_s
+        cmp     #<command_index_s
         bne     LB40A
         dec     sa
         jsr     LB438
