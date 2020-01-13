@@ -1151,6 +1151,7 @@ dump_8_hex_bytes:
         bne     :-
         rts
 
+;------- XXX
 dump_8_ascii_characters:
         ldx     #8
 dump_ascii_characters:
@@ -1205,6 +1206,7 @@ LB5C8:  sty     tmp9
         dex
         bne     LB5C8
         rts
+;------- XXX
 
 read_8_bytes:
         ldx     #8
@@ -1535,16 +1537,6 @@ kbdbuf_peek:
 
 LF0BD:
     .byte "I/O ERROR"
-
-;.if 1
-;cmd_p:
-;cmd_asterisk:
-;cmd_at:
-;cmd_ls:
-;	brk
-;.else
-;.include "io.s"
-;.endif
 
 .if 1
 set_irq_vector:

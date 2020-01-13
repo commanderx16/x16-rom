@@ -65,21 +65,11 @@ _basic_warm_start := $ff47
 FETCH  := $FF74
 STASH  := $FF77
 
-
+; for "dump_8_ascii_characters" and "read_ascii"
 PNTR            := pntr   ; cursor column
 RVS             := rvs    ; print reverse characters flag
 INSRT           := insrt  ; insert mode counter
 QTSW            := qtsw   ; quote mode flag
 MODE            := mode   ; bit6=1: ISO mode
-
-.if 0
-PNT             := pnt    ; current screen line address
-BLNSW           := blnsw  ; cursor blink enable
-GDBLN           := gdbln  ; character under cursor
-BLNON           := blnon  ; cursor blink phase
-TBLX            := tblx   ; cursor line
-LDTB1           := ldtb1  ; screen line link table
-screen_set_char = $aaaa ; XXX
-.endif
 
 BUF             := buf ; system input buffer
