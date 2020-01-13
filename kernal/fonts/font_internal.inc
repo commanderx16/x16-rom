@@ -1,7 +1,7 @@
 ; This exposes some font symbols from KERNAL to GEOS.
 ; No other code should use these symbols.
 
-k_curIndexTable = $90
+k_curIndexTable = $8E
 k_baselineOffset = $0292
 k_curSetWidth = $0293
 k_curHeight = $0295
