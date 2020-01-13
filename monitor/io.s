@@ -1,16 +1,16 @@
-;status          := $aaaa  ; kernal I/O status
-fnlen           := $aaaa  ; length of current file name
-la              := $aaaa  ; logical file number
-sa              := $aaaa  ; secondary address
-;fa              := $aaaa  ; device number
-fnadr           := ($aa)  ; file name
+;status          := $1111  ; kernal I/O status
+fnlen           := $1111  ; length of current file name
+la              := $1111  ; logical file number
+sa              := $1111  ; secondary address
+;fa              := $1111  ; device number
+fnadr           := ($11)  ; file name
+
+xmon2 = $1111 ; XXX
 
 .include "kernal.i"
 
 .import LBC4C
-.import LE716
 .import LF0BD
-.import LF646
 .import _kbdbuf_clear
 .import _kbdbuf_put
 .import basin_cmp_cr
@@ -36,6 +36,8 @@ fnadr           := ($aa)  ; file name
 .importzp zp1
 .importzp zp2
 .importzp zp3
+
+.import mjsrfar
 
 .export cmd_p
 .export cmd_asterisk
@@ -539,3 +541,15 @@ LAF2B:  lda     #'E' ; send M-E to drive
 	jsr     iecout
 	jsr     unlstn
 	jmp     print_cr_then_input_loop
+
+LF646:
+	jsr mjsrfar
+	.word xmon2 ; IEC close
+	.byte BANK_KERNAL
+	rts
+
+LE716:
+	jsr mjsrfar
+	.word loop4 ; screen CHROUT
+	.byte BANK_KERNAL
+	rts

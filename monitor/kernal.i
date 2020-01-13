@@ -28,31 +28,28 @@ KEY_F7          := $88
 .import kbdbuf_clear, kbdbuf_put
 .import jsrfar
 .else
-;txtptr = $aa ; XXX
 
-xmon2 = $aaaa ; XXX
-bmt2 = $aaaa ; XXX
-loop4 = $aaaa ; XXX
-xmon1 = $aaaa ; XXX
-screen_get_char = $aaaa ; XXX
-ldtb1 = $aaaa ; XXX
-stavec = $aaaa ; XXX
-nlines = $aaaa ; XXX
-nlinesm1 = $aaaa ; XXX
-pnt = $aaaa ; XXX
-mode = $aaaa ; XXX
-rvs = $aaaa ; XXX
-blnsw = $aaaa ; XXX
-gdbln = $aaaa ; XXX
-blnon = $aaaa ; XXX
-pntr = $aaaa ; XXX
-qtsw = $aaaa ; XXX
-tblx = $aaaa ; XXX
-insrt = $aaaa ; XXX
-buf = $aaaa ; XXX
-rptflg = $aaaa ; XXX
-kbdbuf_clear = $aaaa ; XXX
-kbdbuf_put = $aaaa ; XXX
+loop4 = $1111 ; XXX
+xmon1 = $1111 ; XXX
+screen_get_char = $1111 ; XXX
+ldtb1 = $1111 ; XXX
+stavec = $1111 ; XXX
+nlines = $1111 ; XXX
+nlinesm1 = $1111 ; XXX
+pnt = $1111 ; XXX
+mode = $1111 ; XXX
+rvs = $1111 ; XXX
+blnsw = $1111 ; XXX
+gdbln = $1111 ; XXX
+blnon = $1111 ; XXX
+pntr = $1111 ; XXX
+qtsw = $1111 ; XXX
+tblx = $1111 ; XXX
+insrt = $1111 ; XXX
+buf = $1111 ; XXX
+rptflg = $1111 ; XXX
+kbdbuf_clear = $1111 ; XXX
+kbdbuf_put = $1111 ; XXX
 .endif
 
 .include "banks.inc"

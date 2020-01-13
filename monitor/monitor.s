@@ -81,9 +81,7 @@
 
 ; io
 .export LBC4C
-.export LE716
 .export LF0BD
-.export LF646
 .export _kbdbuf_clear
 .export _kbdbuf_put
 .export basin_cmp_cr
@@ -1465,7 +1463,7 @@ LBC60  sta     zp1 + 1
         lda     zp2 + 1
         cmp     zp2
         beq     LBC7D
-        jsr     LE716 ; KERNAL: output character to screen
+        jsr     bsout
         dec     zp2
 LBC7D:  dex
         beq     LBC56
@@ -1497,34 +1495,19 @@ LE50C:
 	.byte BANK_KERNAL
 	rts
 
-LE716:
-	jsr mjsrfar
-	.word loop4 ; screen CHROUT
-	.byte BANK_KERNAL
-	rts
-
-LE96C:
-	jsr mjsrfar
-	.word bmt2  ; insert line at top of screen
-	.byte BANK_KERNAL
-	rts
-
-LF646:
-	jsr mjsrfar
-	.word xmon2 ; IEC close
-	.byte BANK_KERNAL
-	rts
-
 _kbdbuf_put:
+.if 0
 	jsr mjsrfar
 	.word kbdbuf_put
 	.byte BANK_KERNAL
 	rts
+.else
+	jmp bsout
+.endif
 
 _kbdbuf_clear:
-	jsr mjsrfar
-	.word kbdbuf_clear
-	.byte BANK_KERNAL
+	jsr getin
+	bne _kbdbuf_clear
 	rts
 
 kbdbuf_peek:

@@ -1,3 +1,6 @@
+
+bmt2 = $1111 ; XXX
+
 ; ----------------------------------------------------------------
 ; IRQ logic to handle F keys and scrolling
 ; ----------------------------------------------------------------
@@ -327,4 +330,10 @@ LB913:  sec
         dec     tmp13
         bne     LB913
 :       rts
+
+LE96C:
+	jsr mjsrfar
+	.word bmt2  ; insert line at top of screen
+	.byte BANK_KERNAL
+	rts
 
