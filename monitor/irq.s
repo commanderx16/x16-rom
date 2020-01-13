@@ -337,3 +337,9 @@ LE96C:
 	.byte BANK_KERNAL
 	rts
 
+LE50C:
+	jsr mjsrfar
+	.word xmon1 ; set cursor position
+	.byte BANK_KERNAL
+	rts
+

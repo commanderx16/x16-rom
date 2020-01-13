@@ -1489,12 +1489,6 @@ pow10hi2:
         .byte >1, >10, >100, >1000, >10000
 
 .import mjsrfar
-LE50C:
-	jsr mjsrfar
-	.word xmon1 ; set cursor position
-	.byte BANK_KERNAL
-	rts
-
 _kbdbuf_put:
 .if 0
 	jsr mjsrfar
