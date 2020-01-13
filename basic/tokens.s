@@ -18,7 +18,7 @@ stmdsp	.word end-1
 	.word gosub-1
 	.word return-1
 	.word rem-1
-	.word stop-1
+	.word cstop-1
 	.word ongoto-1
 	.word fnwait-1
 	.word cload-1

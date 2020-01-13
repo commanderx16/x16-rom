@@ -265,7 +265,7 @@ LAC3B:  dex
 ; "EC"/"ES"/"D" - dump character or sprite data
 ; ----------------------------------------------------------------
 cmd_e:
-        jsr     BASIN
+        jsr     basin
         cmp     #'C'
         beq     cmd_mid2
         cmp     #'S'
@@ -644,10 +644,10 @@ LAF06:
 LAF2B:  lda     #'E' ; send M-E to drive
         jsr     send_m_dash2
         lda     zp2
-        jsr     IECOUT
+        jsr     iecout
         lda     zp2 + 1
-        jsr     IECOUT
-        jsr     UNLSTN
+        jsr     iecout
+        jsr     unlstn
         jmp     print_cr_then_input_loop
 
 ; ----------------------------------------------------------------
@@ -912,7 +912,7 @@ LB04F:  lsr     a
 LB05B:  rts
 
 LB05C:  ldx     #2
-LB05E:  jsr     BASIN
+LB05E:  jsr     basin
         cmp     #CR
         beq     LB089
         cmp     #':'
@@ -1053,7 +1053,7 @@ LB16F:  and     #$0F
         sta     zp1
         bcc     LB17A
         inc     zp1 + 1
-LB17A:  jsr     BASIN
+LB17A:  jsr     basin
         cmp     #$30
         bcc     LB19B
         pha
@@ -1180,7 +1180,7 @@ LB25B:  jsr     load_byte
         cmp     command_index
         beq     LB274
         jsr     print_space_hex_16
-LB274:  jsr     STOP
+LB274:  jsr     stop
         beq     LB292
         lda     zp1 + 1
         cmp     tmp10
@@ -1309,151 +1309,12 @@ store_bank:
         sta     bank
         jmp     print_cr_then_input_loop
 
-listen_command_channel:
-        lda     #$6F
-        jsr     init_and_listen
-        lda     ST
-        bmi     LB3A6
-        rts
-
 ; ----------------------------------------------------------------
-; "L"/"S" - load/save file
-; ----------------------------------------------------------------
-cmd_ls:
-        ldy     #>tmp16
-        sty     FNADR + 1
-        dey
-        sty     SA  ; = 1
-        dey
-        sty     FNLEN  ; = 1
-        lda     #8
-        sta     FA
-        lda     #<tmp16
-        sta     FNADR
-        jsr     basin_skip_spaces_cmp_cr
-        bne     LB3B6
-LB388:  lda     command_index
-        cmp     #command_index_l
-        bne     syn_err4
-LB38F:
-        jsr     set_irq_vector
-        ldx     zp1
-        ldy     zp1 + 1
-        jsr     LB42D
-        php
-        jsr     set_irq_vector
-        plp
-LB3A4:  bcc     LB3B3
-LB3A6:  ldx     #0
-LB3A8:  lda     LF0BD,x ; "I/O ERROR"
-        jsr     bsout
-        inx
-        cpx     #10
-        bne     LB3A8
-LB3B3:  jmp     input_loop
-
-LB3B6:  cmp     #'"'
-        bne     syn_err4
-LB3BA:  jsr     basin_cmp_cr
-        beq     LB388
-        cmp     #'"'
-        beq     LB3CF
-        sta     (FNADR),y
-        inc     FNLEN
-        iny
-        cpy     #$10
-        bne     LB3BA
-syn_err4:
-        jmp     syntax_error
-
-LB3CF:  jsr     basin_cmp_cr
-        beq     LB388
-        cmp     #','
-LB3D6:  bne     syn_err4
-        jsr     get_hex_byte
-        and     #$0F
-        beq     syn_err4
-        cmp     #1 ; tape
-        beq     LB3E7
-        cmp     #4
-        bcc     syn_err4 ; illegal device number
-LB3E7:  sta     FA
-        jsr     basin_cmp_cr
-        beq     LB388
-        cmp     #','
-LB3F0:  bne     LB3D6
-        jsr     get_hex_word3
-        jsr     swap_zp1_and_zp2
-        jsr     basin_cmp_cr
-        bne     LB408
-        lda     command_index
-        cmp     #command_index_l
-        bne     LB3F0
-        dec     SA
-        beq     LB38F
-LB408:  cmp     #','
-LB40A:  bne     LB3F0
-        jsr     get_hex_word3
-        jsr     basin_skip_spaces_cmp_cr
-        bne     LB40A
-        ldx     zp2
-        ldy     zp2 + 1
-        lda     command_index
-        cmp     #command_index_s
-        bne     LB40A
-        dec     SA
-        jsr     LB438
-        jmp     LB3A4
-
-LB42D:
-        lda     #0
-        jmp     LOAD
-
-LB438:
-        lda     #zp1 ; pointer to ZP location with address
-        jmp     SAVE
-
-; ----------------------------------------------------------------
-; "@" - send drive command
-;       without arguments, this reads the drive status
-;       $ shows the directory
-;       F does a fast format
-; ----------------------------------------------------------------
-cmd_at: 
-        jsr     listen_command_channel
-        jsr     basin_cmp_cr
-        beq     print_drive_status
-        cmp     #'$'
-        beq     LB475
-LB458:  jsr     IECOUT
-        jsr     basin_cmp_cr
-        bne     LB458
-        jsr     UNLSTN
-        jmp     print_cr_then_input_loop
-
-; just print drive status
-print_drive_status:
-        jsr     print_cr
-        jsr     UNLSTN
-        jsr     talk_cmd_channel
-        jsr     cat_line_iec
-        jmp     input_loop
-
-; show directory
-LB475:  jsr     UNLSTN
-        jsr     print_cr
-        lda     #$F0 ; sec address
-        jsr     init_and_listen
-        lda     #'$'
-        jsr     IECOUT
-        jsr     UNLSTN
-        jsr     directory
-        jmp     input_loop
 
 LB48E:  jsr     print_space
-        lda     #'='
-        ldx     #' '
-        bne     print_a_x
+	lda     #'='
+	ldx     #' '
+	bne     print_a_x
 
 print_up:
         ldx     #CSR_UP
@@ -1501,14 +1362,14 @@ LB4C5:  bne     LB4CA ; rts
 LB4CA:  rts
 
 basin_skip_spaces_cmp_cr:
-        jsr     BASIN
+        jsr     basin
         cmp     #' '
         beq     basin_skip_spaces_cmp_cr ; skip spaces
         cmp     #CR
         rts
 
 basin_cmp_cr:
-        jsr     BASIN
+        jsr     basin
         cmp     #CR
         rts
 
@@ -1772,7 +1633,7 @@ LB64D:  lda     zp1 + 1
         rts
 
 check_end:
-        jsr     STOP
+        jsr     stop
         beq     :+
         lda     zp2
         ldy     zp2 + 1
@@ -1850,335 +1711,7 @@ add_a_to_zp1:
 LB8D3:  rts
 
 .else
-; ----------------------------------------------------------------
-; IRQ logic to handle F keys and scrolling
-; ----------------------------------------------------------------
-	set_irq_vector:
-        lda     CINV
-        cmp     #<irq_handler
-        bne     LB6C1
-        lda     CINV + 1
-        cmp     #>irq_handler
-        beq     LB6D3
-LB6C1:  lda     CINV
-        ldx     CINV + 1
-        sta     irq_lo
-        stx     irq_hi
-        lda     #<irq_handler
-        ldx     #>irq_handler
-        bne     LB6D9 ; always
-LB6D3:  lda     irq_lo
-        ldx     irq_hi
-LB6D9:  sei
-        sta     CINV
-        stx     CINV + 1
-        cli
-        rts
-
-.segment "monitor_ram_code"
-
-irq_handler:
-	lda d1prb
-	pha
-	lda #BANK_MONITOR
-	sta d1prb ; ROM bank
-	jsr irqhandler2
-	pla
-	sta d1prb
-	rts
-
-.segment "monitor_b"
-
-irqhandler2:
-        lda     disable_f_keys
-        bne     LB6FA
-	jsr kbdbuf_peek
-        bne     LB700
-LB6FA:	rts
-	
-LB700:
-fk_2:   cmp     #KEY_F7
-        bne     LB71C
-	jsr _kbdbuf_clear
-        lda     #'@'
-	jsr _kbdbuf_put
-        lda     #'$'
-	jsr _kbdbuf_put
-        lda     #CR
-	jsr _kbdbuf_put
-	bra     LB6FA
-
-LB71C:  cmp     #KEY_F5
-        bne     LB733
-	jsr _kbdbuf_clear
-        ldx     nlinesm1
-        cpx     TBLX
-        beq     LB72E ; already on last line
-        jsr     clear_cursor
-        ldy     PNTR
-        jsr     LE50C ; KERNAL set cursor position
-LB72E:  lda     #CSR_DOWN
-	jsr _kbdbuf_put
-LB733:  cmp     #KEY_F3
-        bne     LB74A
-	jsr _kbdbuf_clear
-        ldx     #0
-        cpx     TBLX
-        beq     LB745
-        jsr     clear_cursor
-        ldy     PNTR
-        jsr     LE50C ; KERNAL set cursor position
-LB745:  lda     #CSR_UP
-	jsr _kbdbuf_put
-LB74A:  cmp     #CSR_DOWN
-        beq     LB758
-        cmp     #CSR_UP
-        bne     LB6FA
-        lda     TBLX
-        beq     LB75E ; top of screen
-        bne     LB6FA
-LB758:  lda     TBLX
-        cmp     nlinesm1
-        bne     LB6FA
-LB75E:  jsr     LB838
-        bcc     LB6FA
-        jsr     read_hex_word_from_screen
-        php
-        jsr     LB8D4
-        plp
-        bcc	:+
-        jmp     LB6FA
-:       lda     TBLX
-        beq     LB7E1
-        lda     tmp12
-        cmp     #','
-        beq     LB790
-        cmp     #'['
-        beq     LB7A2
-        cmp     #']'
-        beq     LB7AE
-        cmp     #$27 ; "'"
-        beq     LB7BC
-        jsr     LB8C8
-        jsr     print_cr
-        jsr     dump_hex_line
-        jmp     LB7C7
-
-LB790:  jsr     decode_mnemo
-        lda     num_asm_bytes
-        jsr     sadd_a_to_zp1
-        jsr     print_cr
-        jsr     dump_assembly_line
-        jmp     LB7C7
-
-LB7A2:  jsr     inc_zp1
-        jsr     print_cr
-        jsr     dump_char_line
-        jmp     LB7C7
-
-LB7AE:  lda     #3
-        jsr     add_a_to_zp1
-        jsr     print_cr
-        jsr     dump_sprite_line
-        jmp     LB7C7
-
-LB7BC:  lda     #$20
-        jsr     add_a_to_zp1
-        jsr     print_cr
-        jsr     dump_ascii_line
-LB7C7:  lda     #CSR_UP
-        ldx     #CR
-        bne     LB7D1
-LB7CD:  lda     #CR
-        ldx     #CSR_HOME
-LB7D1:  ldy     #0
-	jsr _kbdbuf_clear
-        sty     disable_f_keys
-        jsr     print_a_x
-        jsr     print_7_csr_right
-        jmp     LB6FA
-
-LB7E1:  jsr     scroll_down
-        lda     tmp12
-        cmp     #','
-        beq     LB800
-        cmp     #'['
-        beq     LB817
-        cmp     #']'
-        beq     LB822
-        cmp     #$27 ; "'"
-        beq     LB82D
-        jsr     LB8EC
-        jsr     dump_hex_line
-        jmp     LB7CD
-
-LB800:  jsr     swap_zp1_and_zp2
-        jsr     LB90E
-        inc     num_asm_bytes
-        lda     num_asm_bytes
-        eor     #$FF
-        jsr     sadd_a_to_zp1
-        jsr     dump_assembly_line
-        clc
-        bcc     LB7CD
-LB817:  lda     #1
-        jsr     LB8EE
-        jsr     dump_char_line
-        jmp     LB7CD
-
-LB822:  lda     #3
-        jsr     LB8EE
-        jsr     dump_sprite_line
-        jmp     LB7CD
-
-LB82D:  lda     #$20
-        jsr     LB8EE
-        jsr     dump_ascii_line
-        jmp     LB7CD
-
-LB838:  lda     PNT
-        ldx     PNT + 1
-        sta     zp2
-        stx     zp2 + 1
-        lda     nlines
-        sta     tmp13
-LB845:  ldy     #1 ; column 1
-        jsr     get_screen_char
-        cmp     #':'
-        beq     LB884
-        cmp     #','
-        beq     LB884
-        cmp     #'['
-        beq     LB884
-        cmp     #']'
-        beq     LB884
-        cmp     #$27 ; "'"
-        beq     LB884
-        dec     tmp13
-        beq     LB889
-	jsr kbdbuf_peek
-        cmp     #CSR_DOWN
-        bne     LB877
-        dec     zp2 + 1
-        bne     LB845
-LB877:
-        inc     zp2 + 1
-        bne     LB845
-LB884:  sec
-        sta     tmp12
-        rts
-
-LB889:  clc
-        rts
-
-get_screen_char:
-	tya
-	asl
-	clc
-	adc zp2
-	sta veralo
-	lda zp2+1
-	adc #0
-	sta veramid
-	lda #$10
-	sta verahi
-	lda veradat
-        iny
-        and     #$7F
-        cmp     #$20
-        bcs     LB896
-        ora     #$40
-LB896:  rts
-
-read_hex_word_from_screen:
-        cpy     #$16
-        bne     :+
-        sec
-        rts
-:       jsr     get_screen_char
-        cmp     #$20
-        beq     read_hex_word_from_screen
-        dey
-        jsr     read_hex_byte_from_screen
-        sta     zp1 + 1
-        jsr     read_hex_byte_from_screen
-        sta     zp1
-        clc
-        rts
-
-read_hex_byte_from_screen:
-        jsr     get_screen_char
-        jsr     hex_digit_to_nybble
-        asl     a
-        asl     a
-        asl     a
-        asl     a
-        sta     tmp11
-        jsr     get_screen_char
-        jsr     hex_digit_to_nybble
-        ora     tmp11
-        rts
-
-LB8C8:  lda     #8
-add_a_to_zp1:
-        clc
-        adc     zp1
-        sta     zp1
-        bcc     LB8D3
-        inc     zp1 + 1
-LB8D3:  rts
-
-LB8D4:  lda     #$FF
-        sta     disable_f_keys
-clear_cursor:
-        lda     #$FF
-        sta     BLNSW
-        lda     BLNON
-        beq     LB8EB ; rts
-        lda     GDBLN
-        ldy     PNTR
-        jsr     screen_set_char
-        lda     #0
-        sta     BLNON
-LB8EB:  rts
-
-LB8EC:  lda     #8
-LB8EE:  sta     tmp14
-        sec
-        lda     zp1
-        sbc     tmp14
-        sta     zp1
-        bcs     LB8FD
-        dec     zp1 + 1
-LB8FD:  rts
-
-scroll_down:
-        ldx     #0
-        jsr     LE96C ; insert line at top of screen
-        lda     LDTB1
-        ora     #$80 ; first line is not an extension
-        sta     LDTB1
-        lda     #CSR_HOME
-        jmp     bsout
-
-LB90E:  lda     #16 ; number of bytes to scan backwards
-        sta     tmp13
-LB913:  sec
-        lda     zp2
-        sbc     tmp13
-        sta     zp1
-        lda     zp2 + 1
-        sbc     #0
-        sta     zp1 + 1 ; look this many bytes back
-:       jsr     decode_mnemo
-        lda     num_asm_bytes
-        jsr     sadd_a_to_zp1
-        jsr     check_end
-        beq     :+
-        bcs     :-
-        dec     tmp13
-        bne     LB913
-:       rts
+.include "irq.s"
 .endif
 
 ; ----------------------------------------------------------------
@@ -2884,289 +2417,6 @@ function_table:
 
 ; ----------------------------------------------------------------
 
-syn_err7:
-        jmp     syntax_error
-
-; ----------------------------------------------------------------
-; "*R"/"*W" - read/write sector
-; ----------------------------------------------------------------
-cmd_asterisk:
-        jsr     listen_command_channel
-        jsr     UNLSTN
-        jsr     BASIN
-        cmp     #'W'
-        beq     LBAA0
-        cmp     #'R'
-        bne     syn_err7
-LBAA0:  sta     zp2 ; save 'R'/'W' mode
-        jsr     basin_skip_spaces_if_more
-        jsr     get_hex_byte2
-        bcc     syn_err7
-        sta     zp1
-        jsr     basin_if_more
-        jsr     get_hex_byte
-        bcc     syn_err7
-        sta     zp1 + 1
-        jsr     basin_cmp_cr
-        bne     LBAC1
-        lda     #>$CF00 ; default address
-        sta     zp2 + 1
-        bne     LBACD
-LBAC1:  jsr     get_hex_byte
-        bcc     syn_err7
-        sta     zp2 + 1
-        jsr     basin_cmp_cr
-        bne     syn_err7
-LBACD:  jsr     LBB48
-        jsr     swap_zp1_and_zp2
-        lda     zp1
-        cmp     #'W'
-        beq     LBB25
-        lda     #'1' ; U1: read
-        jsr     read_write_block
-        jsr     talk_cmd_channel
-        jsr     IECIN
-        cmp     #'0'
-        beq     LBB00 ; no error
-        pha
-        jsr     print_cr
-        pla
-LBAED:  jsr     LE716 ; KERNAL: output character to screen
-        jsr     IECIN
-        cmp     #CR ; print drive status until CR (XXX redundant?)
-        bne     LBAED
-        jsr     UNTALK
-        jsr     close_2
-        jmp     input_loop
-
-LBB00:  jsr     IECIN
-        cmp     #CR ; receive all bytes (XXX not necessary?)
-        bne     LBB00
-        jsr     UNTALK
-        jsr     send_bp
-        ldx     #2
-        jsr     CHKIN
-        ldy     #0
-        sty     zp1
-LBB16:  jsr     IECIN
-        jsr     store_byte ; receive block
-        iny
-        bne     LBB16
-        jsr     CLRCH
-        jmp     LBB42 ; close 2 and print drive status
-
-LBB25:  jsr     send_bp
-        ldx     #2
-        jsr     CKOUT
-        ldy     #0
-        sty     zp1
-LBB31:  jsr     load_byte
-        jsr     IECOUT ; send block
-        iny
-        bne     LBB31
-        jsr     CLRCH
-        lda     #'2' ; U2: write
-        jsr     read_write_block
-LBB42:  jsr     close_2
-        jmp     print_drive_status
-
-LBB48:  lda     #2
-        tay
-        ldx     FA
-        jsr     SETLFS
-        lda     #1
-        ldx     #<s_hash
-        ldy     #>s_hash
-        jsr     SETNAM
-        jmp     OPEN
-
-close_2:
-        lda     #2
-        jmp     CLOSE
-
-to_dec:
-        ldx     #'0'
-        sec
-LBB64:  sbc     #10
-        bcc     LBB6B
-        inx
-        bcs     LBB64
-LBB6B:  adc     #'9' + 1
-        rts
-
-read_write_block:
-        pha
-        ldx     #0
-LBB71:  lda     s_u1,x
-        sta     BUF,x
-        inx
-        cpx     #s_u1_end - s_u1
-        bne     LBB71
-        pla
-        sta     BUF + 1
-        lda     zp2 ; track
-        jsr     to_dec
-        stx     BUF + s_u1_end - s_u1 + 0
-        sta     BUF + s_u1_end - s_u1 + 1
-        lda     #' '
-        sta     BUF + s_u1_end - s_u1 + 2
-        lda     zp2 + 1 ; sector
-        jsr     to_dec
-        stx     BUF + s_u1_end - s_u1 + 3
-        sta     BUF + s_u1_end - s_u1 + 4
-        jsr     listen_command_channel
-        ldx     #0
-LBBA0:  lda     BUF,x
-        jsr     IECOUT
-        inx
-        cpx     #s_u1_end - s_u1 + 5
-        bne     LBBA0
-        jmp     UNLSTN
-
-send_bp:
-        jsr     listen_command_channel
-        ldx     #0
-LBBB3:  lda     s_bp,x
-        jsr     IECOUT
-        inx
-        cpx     #s_bp_end - s_bp
-        bne     LBBB3
-        jmp     UNLSTN
-
-s_u1:
-        .byte   "U1:2 0 "
-s_u1_end:
-s_bp:
-        .byte   "B-P 2 0"
-s_bp_end:
-
-s_hash:
-        .byte   "#"
-
-send_m_dash2:
-        pha
-        lda     #$6F
-        jsr     init_and_listen
-        lda     #'M'
-        jsr     IECOUT
-        lda     #'-'
-        jsr     IECOUT
-        pla
-        jmp     IECOUT
-
-iec_send_zp1_plus_y:
-        tya
-        clc
-        adc     zp1
-        php
-        jsr     IECOUT
-        plp
-        lda     zp1 + 1
-        adc     #0
-        jmp     IECOUT
-
-syn_err8:
-        jmp     syntax_error
-
-; ----------------------------------------------------------------
-; "P" - set output to printer
-; ----------------------------------------------------------------
-cmd_p:
-        ldx     #$FF
-        lda     FA
-        cmp     #4
-        beq     LBC11 ; printer
-        jsr     basin_cmp_cr
-        beq     LBC16 ; no argument
-        cmp     #','
-        bne     syn_err8
-        jsr     get_hex_byte
-        tax
-LBC11:  jsr     basin_cmp_cr
-        bne     syn_err8
-LBC16:
-	jsr _kbdbuf_put
-        lda     #4
-        cmp     FA
-        beq     LBC39 ; printer
-        stx     SA
-        sta     FA ; set device 4
-        sta     LA
-        ldx     #0
-        stx     FNLEN
-        jsr     CLOSE
-        jsr     OPEN
-        ldx     LA
-        jsr     CKOUT
-        jmp     input_loop2
-
-LBC39:  lda     LA
-        jsr     CLOSE
-        jsr     CLRCH
-        lda     #8
-        sta     FA
-	jsr _kbdbuf_clear
-        jmp     input_loop
-
-LBC4C:  stx     zp1
-        sta     zp1 + 1
-LBC50:  lda     #$31
-        sta     zp2
-        ldx     #4
-LBC56:  dec     zp2
-LBC58:  lda     #$2F
-        sta     zp2 + 1
-        sec
-        ldy     zp1
-        bra     :+
-LBC60  sta     zp1 + 1
-:
-        sty     zp1
-        inc     zp2 + 1
-        tya
-        sbc     pow10lo2,x
-        tay
-        lda     zp1 + 1
-        sbc     pow10hi2,x
-        bcs     LBC60
-        lda     zp2 + 1
-        cmp     zp2
-        beq     LBC7D
-        jsr     LE716 ; KERNAL: output character to screen
-        dec     zp2
-LBC7D:  dex
-        beq     LBC56
-        bpl     LBC58
-        rts
-
-pow10lo2:
-        .byte <1, <10, <100, <1000, <10000
-pow10hi2:
-        .byte >1, >10, >100, >1000, >10000
-
-init_and_listen:
-        pha
-        jsr     init_drive
-        jsr     LISTEN
-        pla
-        jmp     SECOND
-
-talk_cmd_channel:
-        lda     #$6F
-init_and_talk:
-        pha
-        jsr     init_drive
-        jsr     TALK
-        pla
-        jmp     TKSA
-
-cat_line_iec:
-        jsr     IECIN
-        jsr     LE716 ; KERNAL: output character to screen
-        cmp     #CR
-        bne     cat_line_iec
-        jmp     UNTALK
-
 print_hex_byte:
         jsr     byte_to_hex_ascii
         jsr     bsout
@@ -3195,20 +2445,20 @@ directory:
         lda     #$60
         sta     SA
         jsr     init_and_talk
-        jsr     IECIN
-        jsr     IECIN ; skip load address
-LBCDF:  jsr     IECIN
-        jsr     IECIN ; skip link word
-        jsr     IECIN
+        jsr     iecin
+        jsr     iecin ; skip load address
+LBCDF:  jsr     iecin
+        jsr     iecin ; skip link word
+        jsr     iecin
         tax
-        jsr     IECIN ; line number (=blocks)
+        jsr     iecin ; line number (=blocks)
         ldy     ST
         bne     LBD2F ; error
         jsr     LBC4C ; print A/X decimal
         lda     #' '
         jsr     LE716 ; KERNAL: output character to screen
         ldx     #$18
-LBCFA:  jsr     IECIN
+LBCFA:  jsr     iecin
 LBCFD:  ldy     ST
         bne     LBD2F ; error
         cmp     #CR
@@ -3218,16 +2468,16 @@ LBCFD:  ldy     ST
 LBD09:  lda     #$1F ; ???BLUE
 LBD0B:  jsr     LE716 ; KERNAL: output character to screen
         inc     INSRT
-        jsr     GETIN
+        jsr     getin
         cmp     #KEY_STOP
         beq     LBD2F
         cmp     #' '
         bne     LBD20
-LBD1B:  jsr     GETIN
+LBD1B:  jsr     getin
         beq     LBD1B ; space pauses until the next key press
 LBD20:  dex
         bpl     LBCFA
-        jsr     IECIN
+        jsr     iecin
         bne     LBCFD
         lda     #CR
         jsr     LE716 ; KERNAL: output character to screen
@@ -3259,16 +2509,16 @@ LBD4B:  ldy     ST
 LBD57:  lda     #$1F
 LBD59:  jsr     LE716 ; KERNAL: output character to screen
         inc     INSRT
-        jsr     GETIN
+        jsr     getin
         cmp     #KEY_STOP
         beq     LBD7D
         cmp     #$20
         bne     LBD6E
-LBD69:  jsr     GETIN
+LBD69:  jsr     getin
         beq     LBD69
 LBD6E:  dex
         bpl     LBD47 + 1 ; ??? XXX
-        jsr     IECIN
+        jsr     iecin
         bne     LBD4B
         lda     #CR
         jsr     LE716 ; KERNAL: output character to screen
@@ -3328,7 +2578,7 @@ _kbdbuf_clear:
 	rts
 
 kbdbuf_peek:
-	jsr GETIN
+	jsr getin
 	beq :+
 	pha
 	jsr _kbdbuf_put
@@ -3337,3 +2587,5 @@ kbdbuf_peek:
 
 LF0BD:
     .byte "I/O ERROR"
+
+.include "io.s"
