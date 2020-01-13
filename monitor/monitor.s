@@ -1214,31 +1214,6 @@ LB2B3:  rts
 ; memory load/store
 ; ----------------------------------------------------------------
 
-; loads a byte at (zp1),y from drive RAM
-LB2B4:  lda     #'R' ; send M-R to drive
-        jsr     send_m_dash2
-        jsr     iec_send_zp1_plus_y
-        jsr     UNLSTN
-        jsr     talk_cmd_channel
-        jsr     IECIN ; read byte
-        pha
-        jsr     UNTALK
-        pla
-        rts
-
-; stores a byte at (zp1),y in drive RAM
-LB2CB:  lda     #'W' ; send M-W to drive
-        jsr     send_m_dash2
-        jsr     iec_send_zp1_plus_y
-        lda     #1 ; count
-        jsr     IECOUT
-        pla
-        pha
-        jsr     IECOUT
-        jsr     UNLSTN
-        pla
-        rts
-
 ; loads a byte at (zp1),y from RAM with the correct ROM config
 load_byte:
         sei
@@ -1292,9 +1267,6 @@ store_byte:
 	pla
 	sta veradat
 	rts
-
-syn_err3:
-        jmp     syntax_error
 
 ; ----------------------------------------------------------------
 ; "O" - set bank
