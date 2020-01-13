@@ -21,7 +21,7 @@
 
 .importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
 
-.include "../banks.inc"
+.include "banks.inc"
 
 .include "common.inc"
 IMPORTED_FROM_MAIN=1

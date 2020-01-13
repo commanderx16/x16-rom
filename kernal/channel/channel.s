@@ -1,7 +1,7 @@
 .feature labels_without_colons
 
-.include "../../io.inc"
-.include "../../banks.inc"
+.include "io.inc"
+.include "banks.inc"
 
 bsout = $ffd2
 close = $ffc3

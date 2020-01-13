@@ -8,11 +8,11 @@
 .include "geossym.inc"
 .include "geosmac.inc"
 .include "config.inc"
-.include "kernal.inc"
+.include "gkernal.inc"
 .include "c64.inc"
 .include "inputdrv.inc"
-.include "../banks.inc"
-.include "../kernal.inc"
+.include "banks.inc"
+.include "kernal.inc"
 
 .import _DoPreviousMenu
 .import menuOptNumber

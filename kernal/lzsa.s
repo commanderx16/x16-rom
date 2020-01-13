@@ -3,8 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Emmanuel Marty, Peter Ferrie, M. Steil; License: 3-clause BSD
 
-.include "../regs.inc"
-.include "../mac.inc"
+.include "regs.inc"
+.include "mac.inc"
 
 .export memory_decompress
 

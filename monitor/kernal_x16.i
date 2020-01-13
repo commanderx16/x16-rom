@@ -47,7 +47,7 @@ kbdbuf_put = $aaaa ; XXX
 jsrfar = $aaaa ; XXX
 .endif
 
-.include "../banks.inc"
+.include "banks.inc"
 
 via1	=$9f60                  ;VIA 6522 #1
 d1prb	=via1+0

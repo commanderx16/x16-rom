@@ -7,7 +7,7 @@
 .include "config.inc"
 .include "geossym.inc"
 .include "geosmac.inc"
-.include "kernal.inc"
+.include "gkernal.inc"
 .include "c64.inc"
 
 .segment "header"

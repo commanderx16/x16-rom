@@ -13,14 +13,16 @@ endif
 AS           = ca65
 LD           = ld65
 
-# put all symbols into .sym files
-ASFLAGS     += -g 
+# global includes
+ASFLAGS     += -I inc
 # for GEOS
 ASFLAGS     += -D bsw=1 -D drv1541=1 -I geos/inc -I geos 
 # for monitor
 ASFLAGS     += -D CPU_65C02=1
 # KERNAL version number
 ASFLAGS     +=  $(VERSION_DEFINE) 
+# put all symbols into .sym files
+ASFLAGS     += -g 
 
 ifeq ($(MACHINE),x16)
 ASFLAGS     += -D MACHINE_X16=1 
@@ -216,13 +218,13 @@ CHARSET_SOURCES= \
 	charset/iso-8859-15.s
 
 GENERIC_DEPS = \
-	kernal.inc \
-	mac.inc \
-	io.inc \
-	fb.inc \
-	banks.inc \
-	jsrfar.inc \
-	regs.inc \
+	inc/kernal.inc \
+	inc/mac.inc \
+	inc/io.inc \
+	inc/fb.inc \
+	inc/banks.inc \
+	inc/jsrfar.inc \
+	inc/regs.inc \
 	kernsup/kernsup.inc
 
 KERNAL_DEPS = \
@@ -249,7 +251,7 @@ GEOS_DEPS= \
 	$(GENERIC_DEPS) \
 	geos/config.inc \
 	geos/inc/printdrv.inc \
-	geos/inc/kernal.inc \
+	geos/inc/gkernal.inc \
 	geos/inc/inputdrv.inc \
 	geos/inc/diskdrv.inc \
 	geos/inc/const.inc \

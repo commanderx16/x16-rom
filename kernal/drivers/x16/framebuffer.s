@@ -3,9 +3,9 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../../mac.inc"
-.include "../../../regs.inc"
-.include "../../../io.inc"
+.include "mac.inc"
+.include "regs.inc"
+.include "io.inc"
 
 .importzp ptr_fg
 

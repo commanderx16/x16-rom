@@ -13,9 +13,9 @@
 ; XXX done by a CIA, the time by the TOD, and the date
 ; XXX in software.
 
-.include "../../../regs.inc"
-.include "../../../banks.inc"
-.include "../../../io.inc"
+.include "regs.inc"
+.include "banks.inc"
+.include "io.inc"
 
 ; KERNAL API
 .export clock_update

@@ -1,4 +1,4 @@
-.include "../banks.inc"
+.include "banks.inc"
 
 .import bjsrfar
 
@@ -27,7 +27,7 @@ d1prb	=via1+0
 d1pra	=via1+1
 .export mjsrfar
 mjsrfar:
-.include "../jsrfar.inc"
+.include "jsrfar.inc"
 
 
 	.segment "KSUP_VEC2"

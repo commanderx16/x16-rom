@@ -3,10 +3,10 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../../io.inc"
-.include "../../../banks.inc"
-.include "../../../mac.inc"
-.include "../../../regs.inc"
+.include "io.inc"
+.include "banks.inc"
+.include "mac.inc"
+.include "regs.inc"
 
 .export screen_init
 .export screen_set_mode

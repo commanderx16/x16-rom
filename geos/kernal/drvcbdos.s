@@ -6,10 +6,10 @@
 .include "geossym.inc"
 .include "geosmac.inc"
 .include "config.inc"
-.include "kernal.inc"
+.include "gkernal.inc"
 .include "jumptab.inc"
 
-.include "../banks.inc"
+.include "banks.inc"
 
 .segment "drvcbdos"
 

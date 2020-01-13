@@ -3,10 +3,10 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.include "../regs.inc"
-.include "../mac.inc"
-.include "../io.inc"
-.include "../banks.inc"
+.include "regs.inc"
+.include "mac.inc"
+.include "io.inc"
+.include "banks.inc"
 
 .import screen_set_mode
 .import GRAPH_set_window

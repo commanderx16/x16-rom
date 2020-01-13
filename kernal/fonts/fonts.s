@@ -2,9 +2,9 @@
 ;
 ; Font library
 
-.include "../../regs.inc"
-.include "../../mac.inc"
-.include "../../fb.inc"
+.include "regs.inc"
+.include "mac.inc"
+.include "fb.inc"
 .include "fonts.inc"
 
 .import col1, col2, col_bg

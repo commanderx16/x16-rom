@@ -7,10 +7,10 @@
 .include "geossym.inc"
 .include "geosmac.inc"
 .include "config.inc"
-.include "kernal.inc"
+.include "gkernal.inc"
 .include "c64.inc"
-.include "../../banks.inc"
-.include "../../kernal.inc"
+.include "banks.inc"
+.include "kernal.inc"
 
 .import _PutChar
 .global _PutString

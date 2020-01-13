@@ -3,7 +3,7 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
-.include "../../../io.inc"
+.include "io.inc"
 
 .export ioinit
 .export iokeys

@@ -6,7 +6,7 @@
 .include "geossym.inc"
 .include "geosmac.inc"
 .include "config.inc"
-.include "kernal.inc"
+.include "gkernal.inc"
 .include "c64.inc"
 
 .segment "ramexp1"

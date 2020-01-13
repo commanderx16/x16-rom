@@ -4,7 +4,7 @@
 ; (C)2019 Michael Steil, License: 2-clause BSD
 ; (based on "AT-Keyboard" by İlker Fıçıcılar)
 
-.include "../../../io.inc"
+.include "io.inc"
 
 ; data
 .importzp mhz ; [declare]

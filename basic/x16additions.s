@@ -303,4 +303,4 @@ d1prb	=via1+0
 d1pra	=via1+1
 .export bjsrfar
 bjsrfar:
-.include "../jsrfar.inc"
+.include "jsrfar.inc"

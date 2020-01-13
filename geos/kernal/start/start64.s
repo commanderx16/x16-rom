@@ -7,11 +7,11 @@
 .include "geossym.inc"
 .include "geosmac.inc"
 .include "config.inc"
-.include "kernal.inc"
+.include "gkernal.inc"
 .include "inputdrv.inc"
 .include "c64.inc"
-.include "../../banks.inc"
-.include "../../kernal.inc"
+.include "banks.inc"
+.include "kernal.inc"
 
 ; main.s
 .import InitGEOEnv
@@ -193,5 +193,5 @@ stop:	.word _NMIHandler
 .setcpu "65c02"
 .export gjsrfar
 gjsrfar:
-.include "../jsrfar.inc"
+.include "jsrfar.inc"
 
