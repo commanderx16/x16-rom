@@ -42,7 +42,6 @@
 .include "kernal.i"
 
 screen_get_char = $1111 ; XXX
-stavec = $1111 ; XXX
 mode = $1111 ; XXX
 rvs = $1111 ; XXX
 qtsw = $1111 ; XXX
