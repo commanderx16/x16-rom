@@ -16,20 +16,20 @@ LD           = ld65
 # global includes
 ASFLAGS     += -I inc
 # for GEOS
-ASFLAGS     += -D bsw=1 -D drv1541=1 -I geos/inc -I geos 
+ASFLAGS     += -D bsw=1 -D drv1541=1 -I geos/inc -I geos
 # for monitor
 ASFLAGS     += -D CPU_65C02=1
 # KERNAL version number
-ASFLAGS     +=  $(VERSION_DEFINE) 
+ASFLAGS     +=  $(VERSION_DEFINE)
 # put all symbols into .sym files
-ASFLAGS     += -g 
+ASFLAGS     += -g
 
 ifeq ($(MACHINE),x16)
-ASFLAGS     += -D MACHINE_X16=1 
+ASFLAGS     += -D MACHINE_X16=1
 # all files are allowed to use 65SC02 features
 ASFLAGS     += --cpu 65SC02
 else # c64
-ASFLAGS     += -D MACHINE_C64=1 
+ASFLAGS     += -D MACHINE_C64=1
 endif
 
 BUILD_DIR=build/$(MACHINE)

@@ -1,5 +1,2 @@
-*.o
-*.bin
-rom.txt
-*.tmp.s
 *.xcworkspace
+build
