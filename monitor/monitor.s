@@ -41,16 +41,12 @@
 
 .include "kernal.i"
 
-.ifdef CART_FC3
-.include "persistent.i"
-.else
 .ifdef MACHINE_C64
 _basic_warm_start := $E37B
 .elseif .defined(MACHINE_X16)
 _basic_warm_start := $ff47
 .elseif .defined(MACHINE_TED)
 _basic_warm_start := $800A
-.endif
 .endif
 
 ; from vectors
@@ -91,10 +87,6 @@ DEFAULT_BANK    := 0
 CINV   := $0314 ; IRQ vector
 CBINV  := $0316 ; BRK vector
 
-.ifdef CART_FC3
-FC3CFG := $DFFF ; Final Cartridge III banking config register
-.endif
-
 tmp3            := BUF + 3
 tmp4            := BUF + 4
 num_asm_bytes   := BUF + 5
@@ -133,9 +125,6 @@ bank            := ram_code_end + 16
 disable_f_keys  := ram_code_end + 17
 tmp1            := ram_code_end + 18
 tmp2            := ram_code_end + 19
-.ifdef CART_FC3
-cartridge_bank  := ram_code_end + 20
-.endif
 .ifdef MACHINE_X16
 video_bank_flag := ram_code_end + 20
 .endif
@@ -173,10 +162,6 @@ monitor:
         sta     entry_type
         lda     #DEFAULT_BANK
         sta     bank
-.ifdef CART_FC3
-        lda     #$70
-        sta     cartridge_bank ; by default, hide cartridge
-.endif
         ldx     #<(__monitor_ram_code_SIZE__ - 1)
 :       lda     __monitor_ram_code_LOAD__,x
         sta     __monitor_ram_code_RUN__,x
@@ -191,28 +176,17 @@ ram_code:
 .ifdef MACHINE_C64
 load_byte_ram:
 ; read from memory with a specific ROM and cartridge config
-.ifdef CART_FC3
-        sta     FC3CFG ; set cartridge config
-        pla
-.endif
         sta     R6510 ; set ROM config
         lda     (zp1),y ; read
 enable_all_roms:
         pha
         lda     #DEFAULT_BANK
         sta     R6510 ; restore ROM config
-.ifdef CART_FC3
-        lda     #$40
-        sta     FC3CFG ; resture cartridge config
-.endif
         pla
         rts
 .endif
 
 goto_user:
-.ifdef CART_FC3
-        jsr     _disable_rom
-.endif
 .ifdef MACHINE_C64
         sta     R6510
 .endif
@@ -265,9 +239,6 @@ brk_entry2:
         tsx
         stx     reg_s
         jsr     set_irq_vector
-.ifdef CART_FC3
-        jsr     set_io_vectors
-.endif
         jsr     print_cr
         lda     entry_type
         cmp     #'C'
@@ -774,9 +745,6 @@ LAF06:
         bmi     LAF2B ; drive
 .endif
         jsr     set_irq_vector
-.ifdef CART_FC3
-        jsr     set_io_vectors_with_hidden_rom
-.endif
         ldx     reg_s
         txs
         lda     zp2 + 1
@@ -1240,9 +1208,6 @@ LB19B:  jsr     print_up_dot
 ; ----------------------------------------------------------------
 cmd_x:
         jsr     set_irq_vector
-.ifdef CART_FC3
-        jsr     set_io_vectors_with_hidden_rom
-.endif
 .ifdef MACHINE_C64
         lda     #0
         sta     RPTFLG
@@ -1397,17 +1362,6 @@ LB2CB:  lda     #'W' ; send M-W to drive
         pla
         rts
 
-.ifdef CART_FC3
-; ??? unreferenced?
-        lda     (zp1),y
-        rts
-
-; ??? unreferenced?
-        pla
-        sta     (zp1),y
-        rts
-.endif
-
 ; loads a byte at (zp1),y from RAM with the correct ROM config
 load_byte:
         sei
@@ -1455,10 +1409,6 @@ load_byte:
 	rts
 .else
         clc
-.ifdef CART_FC3
-        pha
-        lda     cartridge_bank
-.endif
         jmp     load_byte_ram ; "lda (zp1),y" with ROM and cartridge config
 .endif
 
@@ -1510,28 +1460,6 @@ LB306:  pla
         sta     R6510 ; restore ROM config
         pla
         rts
-.endif
-
-.ifdef CART_FC3
-; ----------------------------------------------------------------
-; "B" - set cartridge bank (0-3) to be visible at $8000-$BFFF
-;       without arguments, this turns off cartridge visibility
-; ----------------------------------------------------------------
-cmd_b:  jsr     basin_cmp_cr
-        beq     LB326 ; without arguments, set $70
-        cmp     #' '
-        beq     cmd_b ; skip spaces
-        cmp     #'0'
-        bcc     syn_err3
-        cmp     #'4'
-        bcs     syn_err3
-        and     #$03 ; XXX no effect
-        ora     #$40 ; make $40 - $43
-        bra     :+
-LB326  lda     #$70 ; by default, hide cartridge
-:
-        sta     cartridge_bank
-        jmp     print_cr_then_input_loop
 .endif
 
 syn_err3:
@@ -1607,19 +1535,6 @@ listen_command_channel:
         bmi     LB3A6
         rts
 
-.ifdef CART_FC3
-restore_bsout_chrch: ; set_io_vectors in printer.s changes these; change them back
-        lda     #<LE716
-        sta     IBSOUT
-        lda     #>LE716
-        sta     IBSOUT + 1
-        lda     #<LF333
-        sta     ICLRCH
-        lda     #>LF333
-        sta     ICLRCH + 1
-        rts
-.endif
-
 ; ----------------------------------------------------------------
 ; "L"/"S" - load/save file
 ; ----------------------------------------------------------------
@@ -1640,17 +1555,11 @@ LB388:  lda     command_index
         cmp     #command_index_l
         bne     syn_err4
 LB38F:
-.ifdef CART_FC3
-        jsr     restore_bsout_chrch
-.endif
         jsr     set_irq_vector
         ldx     zp1
         ldy     zp1 + 1
         jsr     LB42D
         php
-.ifdef CART_FC3
-        jsr     set_io_vectors
-.endif
         jsr     set_irq_vector
         plp
 LB3A4:  bcc     LB3B3
@@ -1712,32 +1621,14 @@ LB40A:  bne     LB3F0
         cmp     #command_index_s
         bne     LB40A
         dec     SA
-.ifdef CART_FC3
-        jsr     restore_bsout_chrch
-.endif
         jsr     LB438
-.ifdef CART_FC3
-        jsr     set_io_vectors
-.endif
         jmp     LB3A4
 
 LB42D:
-.ifdef CART_FC3
-        lda     #>(_enable_rom - 1)
-        pha
-        lda     #<(_enable_rom - 1)
-        pha
-.endif
         lda     #0
         jmp     LOAD
 
 LB438:
-.ifdef CART_FC3
-        lda     #>(_enable_rom - 1)
-        pha
-        lda     #<(_enable_rom - 1)
-        pha
-.endif
         lda     #zp1 ; pointer to ZP location with address
         jmp     SAVE
 
@@ -1753,12 +1644,6 @@ cmd_at:
         beq     print_drive_status
         cmp     #'$'
         beq     LB475
-.ifdef CART_FC3
-        cmp     #'F'
-        bne     LB458
-        jsr     jfast_format
-        lda     #'F'
-.endif
 LB458:  jsr     IECOUT
         jsr     basin_cmp_cr
         bne     LB458
@@ -1905,11 +1790,6 @@ hex_digit_to_nybble:
         adc     #'A' - '9'
 LB530:  rts
 
-.ifdef CART_FC3
-; ??? unused?
-        clc
-        rts
-.endif
 
 ; get character and check for legal ASCII hex digit
 ; XXX this also allows ":;<=>?" (0x39-0x3F)!!!
@@ -3306,9 +3186,6 @@ command_index_i = * - command_names
         .byte   "I"
         .byte   "'"
         .byte   ";"
-.ifdef CART_FC3
-        .byte   "B"
-.endif
 command_names_end:
 
 function_table:
@@ -3338,9 +3215,6 @@ function_table:
         .word   cmd_mid-1
         .word   cmd_singlequote-1
         .word   cmd_semicolon-1
-.ifdef CART_FC3
-        .word   cmd_b-1
-.endif
 
 ; ----------------------------------------------------------------
 

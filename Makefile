@@ -266,7 +266,6 @@ BASIC_DEPS= \
 
 MONITOR_DEPS= \
 	$(GENERIC_DEPS) \
-	monitor/kernal_x16.i \
 	monitor/kernal.i
 
 CHARSET_DEPS= \
