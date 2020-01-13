@@ -363,42 +363,6 @@ LBC39:  lda     LA
 	jsr _kbdbuf_clear
         jmp     input_loop
 
-LBC4C:  stx     zp1
-        sta     zp1 + 1
-LBC50:  lda     #$31
-        sta     zp2
-        ldx     #4
-LBC56:  dec     zp2
-LBC58:  lda     #$2F
-        sta     zp2 + 1
-        sec
-        ldy     zp1
-        bra     :+
-LBC60  sta     zp1 + 1
-:
-        sty     zp1
-        inc     zp2 + 1
-        tya
-        sbc     pow10lo2,x
-        tay
-        lda     zp1 + 1
-        sbc     pow10hi2,x
-        bcs     LBC60
-        lda     zp2 + 1
-        cmp     zp2
-        beq     LBC7D
-        jsr     LE716 ; KERNAL: output character to screen
-        dec     zp2
-LBC7D:  dex
-        beq     LBC56
-        bpl     LBC58
-        rts
-
-pow10lo2:
-        .byte <1, <10, <100, <1000, <10000
-pow10hi2:
-        .byte >1, >10, >100, >1000, >10000
-
 init_and_listen:
         pha
         jsr     init_drive
@@ -422,3 +386,110 @@ cat_line_iec:
         bne     cat_line_iec
         jmp     untalk
 
+directory:
+        lda     #$60
+        sta     SA
+        jsr     init_and_talk
+        jsr     iecin
+        jsr     iecin ; skip load address
+LBCDF:  jsr     iecin
+        jsr     iecin ; skip link word
+        jsr     iecin
+        tax
+        jsr     iecin ; line number (=blocks)
+        ldy     ST
+        bne     LBD2F ; error
+        jsr     LBC4C ; print A/X decimal
+        lda     #' '
+        jsr     LE716 ; KERNAL: output character to screen
+        ldx     #$18
+LBCFA:  jsr     iecin
+LBCFD:  ldy     ST
+        bne     LBD2F ; error
+        cmp     #CR
+        beq     LBD09 ; convert $0D to $1F
+        cmp     #$8D
+        bne     LBD0B ; also convert $8D to $1F
+LBD09:  lda     #$1F ; ???BLUE
+LBD0B:  jsr     LE716 ; KERNAL: output character to screen
+        inc     INSRT
+        jsr     getin
+        cmp     #KEY_STOP
+        beq     LBD2F
+        cmp     #' '
+        bne     LBD20
+LBD1B:  jsr     getin
+        beq     LBD1B ; space pauses until the next key press
+LBD20:  dex
+        bpl     LBCFA
+        jsr     iecin
+        bne     LBCFD
+        lda     #CR
+        jsr     LE716 ; KERNAL: output character to screen
+LBD2D:  bne     LBCDF ; next line
+LBD2F:  jmp     LF646 ; CLOSE
+
+init_drive:
+        lda     #0
+        sta     ST ; clear status
+        lda     #8
+        cmp     FA ; drive 8 and above ok
+        bcc     LBD3F
+LBD3C:  sta     FA ; otherwise set drive 8
+LBD3E:  rts
+
+LBD3F:  lda     #9
+        cmp     FA
+        bcs     LBD3E
+        lda     #8
+LBD47:
+        bne     LBD3C
+        lda     zp3 ; XXX ???
+LBD4B:  ldy     ST
+        bne     LBD7D
+        cmp     #CR
+        beq     LBD57
+        cmp     #$8D
+        bne     LBD59
+LBD57:  lda     #$1F
+LBD59:  jsr     LE716 ; KERNAL: output character to screen
+        inc     INSRT
+        jsr     getin
+        cmp     #KEY_STOP
+        beq     LBD7D
+        cmp     #$20
+        bne     LBD6E
+LBD69:  jsr     getin
+        beq     LBD69
+LBD6E:  dex
+        bpl     LBD47 + 1 ; ??? XXX
+        jsr     iecin
+        bne     LBD4B
+        lda     #CR
+        jsr     LE716 ; KERNAL: output character to screen
+        bne     LBD2D
+LBD7D:  jmp     LF646 ; CLOSE
+
+        lda     #0
+        sta     ST
+        lda     #8
+        cmp     FA
+        bcc     LBD8D
+LBD8A:  sta     FA
+LBD8C:  rts
+
+LBD8D:  lda     #9
+        cmp     FA
+        bcs     LBD8C
+        lda     #8
+        bne     LBD8A ; always
+
+; XXX unused
+LAF2B:  lda     #'E' ; send M-E to drive
+	jsr     send_m_dash2
+	lda     zp2
+	jsr     iecout
+	lda     zp2 + 1
+	jsr     iecout
+	jsr     unlstn
+	jmp     print_cr_then_input_loop
