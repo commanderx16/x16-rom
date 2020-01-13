@@ -11,8 +11,6 @@ loop4 = $1111 ; XXX
 .include "kernal.i"
 
 .import LBC4C
-.import LF0BD
-.import _kbdbuf_clear
 .import _kbdbuf_put
 .import basin_cmp_cr
 .import basin_if_more
@@ -409,8 +407,13 @@ LBC39:  lda     la
         jsr     clrch
         lda     #8
         sta     fa
-	jsr _kbdbuf_clear
+	jsr kbdbuf_clear
         jmp     input_loop
+
+kbdbuf_clear:
+	jsr getin
+	bne kbdbuf_clear
+	rts
 
 init_and_listen:
         pha
@@ -554,3 +557,6 @@ LE716:
 	.word loop4 ; screen CHROUT
 	.byte BANK_KERNAL
 	rts
+
+LF0BD:
+	.byte "I/O ERROR"

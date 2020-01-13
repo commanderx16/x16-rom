@@ -9,18 +9,20 @@ gdbln = $1111 ; XXX
 blnon = $1111 ; XXX
 tblx = $1111 ; XXX
 
+cinv   := $0314 ; IRQ vector
+
 ; ----------------------------------------------------------------
 ; IRQ logic to handle F keys and scrolling
 ; ----------------------------------------------------------------
 	set_irq_vector:
-        lda     CINV
+        lda     cinv
         cmp     #<irq_handler
         bne     LB6C1
-        lda     CINV + 1
+        lda     cinv + 1
         cmp     #>irq_handler
         beq     LB6D3
-LB6C1:  lda     CINV
-        ldx     CINV + 1
+LB6C1:  lda     cinv
+        ldx     cinv + 1
         sta     irq_lo
         stx     irq_hi
         lda     #<irq_handler
@@ -29,8 +31,8 @@ LB6C1:  lda     CINV
 LB6D3:  lda     irq_lo
         ldx     irq_hi
 LB6D9:  sei
-        sta     CINV
-        stx     CINV + 1
+        sta     cinv
+        stx     cinv + 1
         cli
         rts
 

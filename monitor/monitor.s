@@ -47,6 +47,13 @@ mode = $1111 ; XXX
 rvs = $1111 ; XXX
 qtsw = $1111 ; XXX
 
+
+; common
+.export get_hex_byte
+.export get_hex_byte2
+.export load_byte
+.export tmp16
+
 ; asm
 .import cmd_a
 .import LAE7C
@@ -57,14 +64,11 @@ qtsw = $1111 ; XXX
 .export basin_if_more
 .export check_end
 .export fill_kbd_buffer_a
-.export get_hex_byte
-.export get_hex_byte2
 .export get_hex_byte3
 .export get_hex_word
 .export get_hex_word3
 .export input_loop
 .export input_loop2
-.export load_byte
 .export num_asm_bytes
 .export prefix_suffix_bitfield
 .export print_cr_dot
@@ -75,7 +79,6 @@ qtsw = $1111 ; XXX
 .export store_byte
 .export swap_zp1_and_zp2
 .export tmp10
-.export tmp16
 .export tmp17
 .export tmp3
 .export tmp4
@@ -87,8 +90,6 @@ qtsw = $1111 ; XXX
 
 ; io
 .export LBC4C
-.export LF0BD
-.export _kbdbuf_clear
 .export _kbdbuf_put
 .export basin_cmp_cr
 .export basin_if_more
@@ -97,19 +98,15 @@ qtsw = $1111 ; XXX
 .export command_index
 .export command_index_l
 .export command_index_s
-.export get_hex_byte
-.export get_hex_byte2
 .export get_hex_word3
 .export input_loop
 .export input_loop2
-.export load_byte
 .export print_cr
 .export print_cr_then_input_loop
 .export set_irq_vector
 .export store_byte
 .export swap_zp1_and_zp2
 .export syntax_error
-.export tmp16
 .export zp1
 .export zp2
 .export zp3
@@ -118,9 +115,9 @@ qtsw = $1111 ; XXX
 .import cmd_at
 .import cmd_ls
 
-zp1             := $C1
-zp2             := $C3
-zp3             := $FF
+zp1             := $C1 ; XXX
+zp2             := $C3 ; XXX
+zp3             := $FF ; XXX
 DEFAULT_BANK    := 0
 
 tmp3            := BUF + 3
@@ -172,9 +169,9 @@ video_bank_flag := ram_code_end + 20
 
 monitor:
         lda     #<brk_entry
-        sta     CBINV
+        sta     cbinv
         lda     #>brk_entry
-        sta     CBINV + 1 ; BRK vector
+        sta     cbinv + 1 ; BRK vector
         lda     #'C'
         sta     entry_type
         lda     #DEFAULT_BANK
@@ -189,7 +186,7 @@ monitor:
 .segment "monitor_ram_code"
 ; code that will be copied to $0220
 goto_user:
-	;XXX video?
+	;XXX what do we do if video bank is active?
 	sta d1pra       ;set RAM bank
 	and #$07
 	sta d1prb       ;set ROM bank
@@ -207,7 +204,9 @@ brk_entry:
 .segment "monitor"
 
 brk_entry2:
-        cld ; <- important :)
+.ifp02
+        cld
+.endif
         pla
         sta     reg_y
         pla
@@ -849,7 +848,8 @@ cmd_x:
         jsr     set_irq_vector
         ldx     reg_s
         txs
-        jmp     _basic_warm_start
+        clc ; warm start
+        jmp     enter_basic
 
 ; ----------------------------------------------------------------
 
@@ -878,7 +878,7 @@ load_byte:
 	ldx bank
 	lda #zp1
 	sei
-	jsr FETCH
+	jsr fetch
 	cli
 	ldx tmp1
 	rts
@@ -904,7 +904,7 @@ store_byte:
 	stx stavec
 	ldx bank
 	sei
-	jsr STASH
+	jsr stash
 	cli
         ldx tmp1
 	rts
@@ -1498,11 +1498,6 @@ pow10hi2:
 _kbdbuf_put:
 	jmp bsout
 
-_kbdbuf_clear:
-	jsr getin
-	bne _kbdbuf_clear
-	rts
-
 kbdbuf_peek:
 	jsr getin
 	beq :+
@@ -1510,9 +1505,6 @@ kbdbuf_peek:
 	jsr _kbdbuf_put
 	pla
 :	rts
-
-LF0BD:
-    .byte "I/O ERROR"
 
 .if 1
 set_irq_vector:
