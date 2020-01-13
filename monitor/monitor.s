@@ -58,15 +58,6 @@ zp3             := $FF
 DEFAULT_BANK    := 0
 .endif
 
-.ifdef MACHINE_TED
-zp1             := $60
-zp2             := $62
-zp3             := $64
-CHARS_PER_LINE  := 40
-NUM_LINES       := 25
-DEFAULT_BANK    := 0
-.endif
-
 CINV   := $0314 ; IRQ vector
 CBINV  := $0316 ; BRK vector
 
@@ -125,18 +116,6 @@ video_bank_flag := ram_code_end + 20
 .import __asmchars2_RUN__
 
 monitor:
-.ifdef MACHINE_TED
-; change F keys to return their code, like on the C64
-; http://plus4world.powweb.com/software/Club_Info_53
-        ldx #7
-:       lda #1
-        sta $055f,x ; set length of string to 1
-        lda $dc41,x ; table of F key codes
-        sta $0567,x ; set as strings
-        dex
-        bpl :-
-.endif
-
         lda     #<brk_entry
         sta     CBINV
         lda     #>brk_entry
@@ -162,12 +141,6 @@ goto_user:
 	sta d1pra       ;set RAM bank
 	and #$07
 	sta d1prb       ;set ROM bank
-.endif
-.ifdef MACHINE_TED
-        stx     tmp1
-        tax
-        sta     $fdd0,x
-        ldx     tmp1
 .endif
         lda     reg_a
         rti
@@ -1316,22 +1289,6 @@ load_byte:
         lda     bank
         bmi     LB2B4 ; drive
 .endif
-.ifdef MACHINE_TED
-        stx tmp1
-        sty tmp2
-        lda zp1
-        sta FETPTR
-        lda zp1 + 1
-        sta FETPTR + 1
-        lda #DEFAULT_BANK
-        ldx bank
-        sei
-        jsr FETCHL
-        cli
-        ldx tmp1
-        ldy tmp2
-        rts
-.elseif .defined(MACHINE_X16)
 	lda video_bank_flag
 	bne :+
 	stx tmp1
@@ -1354,17 +1311,9 @@ load_byte:
 	sta verahi
 	lda veradat
 	rts
-.else
-        clc
-        jmp     load_byte_ram ; "lda (zp1),y" with ROM and cartridge config
-.endif
 
 ; stores a byte at (zp1),y in RAM with the correct ROM config
 store_byte:
-.ifdef MACHINE_TED
-        sta     (zp1),y ; store
-        rts
-.elseif .defined(MACHINE_X16)
 	bit video_bank_flag
 	bmi :+
         stx tmp1
@@ -1391,24 +1340,6 @@ store_byte:
 	sta veradat
 	rts
 
-.else
-        sei
-        pha
-        lda     bank
-        bmi     LB2CB ; drive
-        cmp     #$35
-        bcs     LB306 ; I/O on
-        lda     #$33 ; ROM at $A000, $D000 and $E000
-        sta     R6510 ; ??? why?
-LB306:  pla
-        sta     (zp1),y ; store
-        pha
-        lda     #DEFAULT_BANK
-        sta     R6510 ; restore ROM config
-        pla
-        rts
-.endif
-
 syn_err3:
         jmp     syntax_error
 
@@ -1429,14 +1360,6 @@ cmd_o:
         beq     LB33F ; without arguments: bank 7
         cmp     #' '
         beq     :-
-.ifdef MACHINE_TED
-        tax
-        bmi     :+ ; shifted arg skips 'D' test
-.endif
-.ifndef MACHINE_X16
-        cmp     #'D'
-        beq     LB34A ; disk
-.endif
 .ifdef MACHINE_X16
         cmp     #'V'
         bne     not_video
@@ -1455,11 +1378,7 @@ default_video_bank
 
 not_video:
 .endif
-.ifdef MACHINE_TED
-:       jsr     hex_digit_to_nybble
-.elseif .defined(MACHINE_X16)
         jsr     get_hex_byte2
-.endif
         bra :+
 LB33F  lda     #DEFAULT_BANK
 :
@@ -2389,21 +2308,15 @@ LB8D3:  rts
 LB8D4:  lda     #$FF
         sta     disable_f_keys
 clear_cursor:
-.ifndef MACHINE_TED
         lda     #$FF
         sta     BLNSW
         lda     BLNON
         beq     LB8EB ; rts
         lda     GDBLN
         ldy     PNTR
-.ifdef MACHINE_X16
         jsr     screen_set_char
-.else
-        sta     (PNT),y
-.endif
         lda     #0
         sta     BLNON
-.endif
 LB8EB:  rts
 
 LB8EC:  lda     #8
