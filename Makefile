@@ -12,16 +12,22 @@ endif
 AS           = ca65
 LD           = ld65
 
-# all files are allowed to use 65SC02 features
-ASFLAGS      = --cpu 65SC02
 # put all symbols into .sym files
 ASFLAGS     += -g 
 # for GEOS
 ASFLAGS     += -D bsw=1 -D drv1541=1 -I geos/inc -I geos 
 # for monitor
-ASFLAGS     += -D CPU_65C02=1 -D MACHINE_X16=1 
+ASFLAGS     += -D CPU_65C02=1
 # KERNAL version number
 ASFLAGS     +=  $(VERSION_DEFINE) 
+
+ifeq ($(MACHINE),x16)
+ASFLAGS     += -D MACHINE_X16=1 
+# all files are allowed to use 65SC02 features
+ASFLAGS      = --cpu 65SC02
+else # c64
+ASFLAGS     += -D MACHINE_C64=1 
+endif
 
 BUILD_DIR=build/$(MACHINE)
 
