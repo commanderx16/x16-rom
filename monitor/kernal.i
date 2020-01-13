@@ -69,12 +69,12 @@ _basic_warm_start := $ff47
 FETCH  := $FF74
 STASH  := $FF77
 
-ST              := status ; kernal I/O status
-FNLEN           := fnlen  ; length of current file name
-LA              := la     ; logical file number
-SA              := sa     ; secondary address
-FA              := fa     ; device number
-FNADR           := fnadr  ; file name
+;ST              := status ; kernal I/O status
+;FNLEN           := fnlen  ; length of current file name
+;LA              := la     ; logical file number
+;SA              := sa     ; secondary address
+;FA              := fa     ; device number
+;FNADR           := fnadr  ; file name
 
 PNTR            := pntr   ; cursor column
 RVS             := rvs    ; print reverse characters flag
