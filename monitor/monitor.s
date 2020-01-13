@@ -41,14 +41,6 @@
 
 .include "kernal.i"
 
-.ifdef MACHINE_C64
-_basic_warm_start := $E37B
-.elseif .defined(MACHINE_X16)
-_basic_warm_start := $ff47
-.elseif .defined(MACHINE_TED)
-_basic_warm_start := $800A
-.endif
-
 ; from vectors
 .import jfast_format
 
@@ -58,15 +50,6 @@ _basic_warm_start := $800A
 
 .global monitor
 
-
-.ifdef MACHINE_C64
-zp1             := $C1
-zp2             := $C3
-zp3             := $FF
-CHARS_PER_LINE  := 40
-NUM_LINES       := 25
-DEFAULT_BANK    := $37
-.endif
 
 .ifdef MACHINE_X16
 zp1             := $C1
@@ -173,23 +156,7 @@ monitor:
 ; code that will be copied to $0220
 ram_code:
 
-.ifdef MACHINE_C64
-load_byte_ram:
-; read from memory with a specific ROM and cartridge config
-        sta     R6510 ; set ROM config
-        lda     (zp1),y ; read
-enable_all_roms:
-        pha
-        lda     #DEFAULT_BANK
-        sta     R6510 ; restore ROM config
-        pla
-        rts
-.endif
-
 goto_user:
-.ifdef MACHINE_C64
-        sta     R6510
-.endif
 .ifdef MACHINE_X16
 	;XXX video?
 	sta d1pra       ;set RAM bank
@@ -206,16 +173,10 @@ goto_user:
         rti
 
 brk_entry:
-.ifdef MACHINE_TED
-        sta $fdd0
-.elseif .defined(MACHINE_C64)
-        jsr     enable_all_roms
-.elseif .defined(MACHINE_X16)
 	pha
 	lda #BANK_MONITOR
 	sta d1prb ; ROM bank
 	pla
-.endif
         jmp     brk_entry2
 
 ; XXX ram_code is here - why put it between ROM code, so we have to jump over it?
@@ -259,10 +220,6 @@ brk_entry2:
         sta     FA
         lda     #'B'
         sta     entry_type
-.ifdef MACHINE_C64
-        lda     #$80
-        sta     RPTFLG ; enable key repeat for all keys
-.endif
         bne     dump_registers ; always
 
 ; ----------------------------------------------------------------
@@ -618,9 +575,6 @@ cmd_semicolon:
 LAE12:  jsr     get_hex_byte2
         cmp     #8
         bcs     syn_err1
-.ifdef MACHINE_C64
-        ora     #$30
-.endif
 LAE1B:  sta     bank
         ldx     #0
 LAE20:  jsr     basin_if_more
@@ -1208,13 +1162,6 @@ LB19B:  jsr     print_up_dot
 ; ----------------------------------------------------------------
 cmd_x:
         jsr     set_irq_vector
-.ifdef MACHINE_C64
-        lda     #0
-        sta     RPTFLG
-.endif
-.ifdef MACHINE_TED
-        jsr     $F39C; restore F keys
-.endif
         ldx     reg_s
         txs
         jmp     _basic_warm_start
@@ -1516,12 +1463,6 @@ not_video:
         bra :+
 LB33F  lda     #DEFAULT_BANK
 :
-.ifdef MACHINE_C64
-        cmp     #$38
-        bcs     syn_err3
-        cmp     #$30
-        bcc     syn_err3
-.endif
         bra store_bank
 LB34A:  lda     #$80 ; drive
 store_bank:
@@ -2478,21 +2419,9 @@ LB8FD:  rts
 scroll_down:
         ldx     #0
         jsr     LE96C ; insert line at top of screen
-.ifdef MACHINE_C64
-        lda     #$94
-        sta     LDTB1
-        sta     LDTB1 + 1
-.endif
-.ifdef MACHINE_X16
         lda     LDTB1
         ora     #$80 ; first line is not an extension
         sta     LDTB1
-.endif
-.ifdef MACHINE_TED
-        lda BITABL
-        and #$BF ; clear bit 6
-        sta BITABL
-.endif
         lda     #CSR_HOME
         jmp     BSOUT
 

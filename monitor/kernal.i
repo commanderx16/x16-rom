@@ -2,6 +2,7 @@
 ; KERNAL Symbols
 ; ----------------------------------------------------------------
 
+_basic_warm_start := $ff47
 CINT            := $FF81
 IOINIT          := $FF84
 RAMTAS          := $FF87
