@@ -168,9 +168,6 @@ brk_entry2:
         lda     reg_pc_hi
         adc     #$FF
         sta     reg_pc_hi ; decrement PC
-        lda     FA
-        and     #$FB
-        sta     FA
         lda     #'B'
         sta     entry_type
         bne     dump_registers ; always

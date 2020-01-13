@@ -1,7 +1,14 @@
+;status          := $aaaa  ; kernal I/O status
+fnlen           := $aaaa  ; length of current file name
+la              := $aaaa  ; logical file number
+sa              := $aaaa  ; secondary address
+;fa              := $aaaa  ; device number
+fnadr           := ($aa)  ; file name
+
 listen_command_channel:
 	lda     #$6F
 	jsr     init_and_listen
-	lda     ST
+	lda     status
 	bmi     LB3A6
 	rts
 
@@ -10,15 +17,15 @@ listen_command_channel:
 ; ----------------------------------------------------------------
 cmd_ls:
         ldy     #>tmp16
-        sty     FNADR + 1
+        sty     fnadr + 1
         dey
-        sty     SA  ; = 1
+        sty     sa  ; = 1
         dey
-        sty     FNLEN  ; = 1
+        sty     fnlen  ; = 1
         lda     #8
-        sta     FA
+        sta     fa
         lda     #<tmp16
-        sta     FNADR
+        sta     fnadr
         jsr     basin_skip_spaces_cmp_cr
         bne     LB3B6
 LB388:  lda     command_index
@@ -47,8 +54,8 @@ LB3BA:  jsr     basin_cmp_cr
         beq     LB388
         cmp     #'"'
         beq     LB3CF
-        sta     (FNADR),y
-        inc     FNLEN
+        sta     (fnadr),y
+        inc     fnlen
         iny
         cpy     #$10
         bne     LB3BA
@@ -66,7 +73,7 @@ LB3D6:  bne     syn_err4
         beq     LB3E7
         cmp     #4
         bcc     syn_err4 ; illegal device number
-LB3E7:  sta     FA
+LB3E7:  sta     fa
         jsr     basin_cmp_cr
         beq     LB388
         cmp     #','
@@ -78,7 +85,7 @@ LB3F0:  bne     LB3D6
         lda     command_index
         cmp     #command_index_l
         bne     LB3F0
-        dec     SA
+        dec     sa
         beq     LB38F
 LB408:  cmp     #','
 LB40A:  bne     LB3F0
@@ -90,7 +97,7 @@ LB40A:  bne     LB3F0
         lda     command_index
         cmp     #command_index_s
         bne     LB40A
-        dec     SA
+        dec     sa
         jsr     LB438
         jmp     LB3A4
 
@@ -227,7 +234,7 @@ LBB42:  jsr     close_2
 
 LBB48:  lda     #2
         tay
-        ldx     FA
+        ldx     fa
         jsr     setlfs
         lda     #1
         ldx     #<s_hash
@@ -328,7 +335,7 @@ syn_err8:
 ; ----------------------------------------------------------------
 cmd_p:
         ldx     #$FF
-        lda     FA
+        lda     fa
         cmp     #4
         beq     LBC11 ; printer
         jsr     basin_cmp_cr
@@ -342,24 +349,24 @@ LBC11:  jsr     basin_cmp_cr
 LBC16:
 	jsr _kbdbuf_put
         lda     #4
-        cmp     FA
+        cmp     fa
         beq     LBC39 ; printer
-        stx     SA
-        sta     FA ; set device 4
-        sta     LA
+        stx     sa
+        sta     fa ; set device 4
+        sta     la
         ldx     #0
-        stx     FNLEN
+        stx     fnlen
         jsr     close
         jsr     open
-        ldx     LA
+        ldx     la
         jsr     ckout
         jmp     input_loop2
 
-LBC39:  lda     LA
+LBC39:  lda     la
         jsr     close
         jsr     clrch
         lda     #8
-        sta     FA
+        sta     fa
 	jsr _kbdbuf_clear
         jmp     input_loop
 
@@ -388,7 +395,7 @@ cat_line_iec:
 
 directory:
         lda     #$60
-        sta     SA
+        sta     sa
         jsr     init_and_talk
         jsr     iecin
         jsr     iecin ; skip load address
@@ -397,14 +404,14 @@ LBCDF:  jsr     iecin
         jsr     iecin
         tax
         jsr     iecin ; line number (=blocks)
-        ldy     ST
+        ldy     status
         bne     LBD2F ; error
         jsr     LBC4C ; print A/X decimal
         lda     #' '
         jsr     LE716 ; KERNAL: output character to screen
         ldx     #$18
 LBCFA:  jsr     iecin
-LBCFD:  ldy     ST
+LBCFD:  ldy     status
         bne     LBD2F ; error
         cmp     #CR
         beq     LBD09 ; convert $0D to $1F
@@ -431,21 +438,21 @@ LBD2F:  jmp     LF646 ; CLOSE
 
 init_drive:
         lda     #0
-        sta     ST ; clear status
+        sta     status ; clear status
         lda     #8
-        cmp     FA ; drive 8 and above ok
+        cmp     fa ; drive 8 and above ok
         bcc     LBD3F
-LBD3C:  sta     FA ; otherwise set drive 8
+LBD3C:  sta     fa ; otherwise set drive 8
 LBD3E:  rts
 
 LBD3F:  lda     #9
-        cmp     FA
+        cmp     fa
         bcs     LBD3E
         lda     #8
 LBD47:
         bne     LBD3C
         lda     zp3 ; XXX ???
-LBD4B:  ldy     ST
+LBD4B:  ldy     status
         bne     LBD7D
         cmp     #CR
         beq     LBD57
@@ -471,15 +478,15 @@ LBD6E:  dex
 LBD7D:  jmp     LF646 ; CLOSE
 
         lda     #0
-        sta     ST
+        sta     status
         lda     #8
-        cmp     FA
+        cmp     fa
         bcc     LBD8D
-LBD8A:  sta     FA
+LBD8A:  sta     fa
 LBD8C:  rts
 
 LBD8D:  lda     #9
-        cmp     FA
+        cmp     fa
         bcs     LBD8C
         lda     #8
         bne     LBD8A ; always
