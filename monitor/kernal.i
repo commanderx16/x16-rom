@@ -2,7 +2,8 @@
 ; KERNAL Symbols
 ; ----------------------------------------------------------------
 
-_basic_warm_start := $ff47
+.include "kernal.inc"
+
 CINT            := $FF81
 IOINIT          := $FF84
 RAMTAS          := $FF87
@@ -30,7 +31,6 @@ CHKIN           := $FFC6
 CKOUT           := $FFC9
 CLRCH           := $FFCC
 BASIN           := $FFCF
-BSOUT           := $FFD2
 LOAD            := $FFD5
 SAVE            := $FFD8
 SETTIM          := $FFDB
@@ -100,7 +100,6 @@ buf = $aaaa ; XXX
 rptflg = $aaaa ; XXX
 kbdbuf_clear = $aaaa ; XXX
 kbdbuf_put = $aaaa ; XXX
-jsrfar = $aaaa ; XXX
 .endif
 
 .include "banks.inc"
@@ -109,6 +108,10 @@ via1	=$9f60                  ;VIA 6522 #1
 d1prb	=via1+0
 d1pra	=via1+1
 
+CINV   := $0314 ; IRQ vector
+CBINV  := $0316 ; BRK vector
+
+_basic_warm_start := $ff47
 FETCH  := $FF74
 STASH  := $FF77
 

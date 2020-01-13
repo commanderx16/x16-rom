@@ -41,22 +41,12 @@
 
 .include "kernal.i"
 
-; from vectors
-.import jfast_format
-
-; from printer
-.import set_io_vectors
-.import set_io_vectors_with_hidden_rom
-
 .global monitor
 
 zp1             := $C1
 zp2             := $C3
 zp3             := $FF
 DEFAULT_BANK    := 0
-
-CINV   := $0314 ; IRQ vector
-CBINV  := $0316 ; BRK vector
 
 tmp3            := BUF + 3
 tmp4            := BUF + 4
@@ -128,8 +118,6 @@ monitor:
 
 .segment "monitor_ram_code"
 ; code that will be copied to $0220
-ram_code:
-
 goto_user:
 	;XXX video?
 	sta d1pra       ;set RAM bank
@@ -140,12 +128,11 @@ goto_user:
 
 brk_entry:
 	pha
+	; XXX TODO save banks
 	lda #BANK_MONITOR
 	sta d1prb ; ROM bank
 	pla
         jmp     brk_entry2
-
-; XXX ram_code is here - why put it between ROM code, so we have to jump over it?
 
 .segment "monitor_b"
 
@@ -198,7 +185,7 @@ dump_registers:
         ldx     #0
 :       lda     s_regs,x ; "PC  IRQ  BK AC XR YR SP NV#BDIZC"
         beq     dump_registers2
-        jsr     BSOUT
+        jsr     bsout
         inx
         bne     :-
 dump_registers2:
@@ -217,11 +204,11 @@ dump_registers2:
 	lda     video_bank_flag
 	bpl     :+
         lda     #'V'
-        jsr     BSOUT
+        jsr     bsout
         lda     bank
         jsr     byte_to_hex_ascii
         tya
-        jsr     BSOUT
+        jsr     bsout
         bne     LABEB
 :
         lda     bank
@@ -244,7 +231,7 @@ syntax_error:
 print_cr_then_input_loop
         lda     #CR
 :
-        jsr     BSOUT
+        jsr     bsout
 
 input_loop:
         ldx     reg_s
@@ -786,7 +773,7 @@ LAFC2:  asl     tmp8
         dey
         bne     LAFC2
         adc     #$3F
-        jsr     BSOUT
+        jsr     bsout
         dex
         bne     LAFBE
 .ifdef CPU_65C02
@@ -802,7 +789,7 @@ LAFC2:  asl     tmp8
         lsr
         and     #$07
         ora     #'0'
-        jsr     BSOUT
+        jsr     bsout
 :
 .endif
         jmp     print_space
@@ -834,10 +821,10 @@ LAFD9:  cpx     #3
 LAFF4:  asl     prefix_suffix_bitfield
         bcc     :+ ; nothing to print
         lda     __asmchars1_RUN__ - 1,x
-        jsr     BSOUT
+        jsr     bsout
         lda     __asmchars2_RUN__ - 1,x
         beq     :+ ; no second character
-        jsr     BSOUT
+        jsr     bsout
 :       dex
         bne     LAFD9
         rts
@@ -859,9 +846,9 @@ print_zprel:
         jsr     load_byte
         jsr     print_hex_byte2
         lda     #','
-        jsr     BSOUT
+        jsr     bsout
         lda     #'$'
-        jsr     BSOUT
+        jsr     bsout
         iny
         jsr     load_byte
         tax
@@ -1387,7 +1374,7 @@ LB38F:
 LB3A4:  bcc     LB3B3
 LB3A6:  ldx     #0
 LB3A8:  lda     LF0BD,x ; "I/O ERROR"
-        jsr     BSOUT
+        jsr     bsout
         inx
         cpx     #10
         bne     LB3A8
@@ -1507,9 +1494,9 @@ print_cr_dot:
 print_dot_x:
         lda     #'.'
 print_a_x:
-        jsr     BSOUT
+        jsr     bsout
         txa
-        jmp     BSOUT
+        jmp     bsout
 
 print_up_dot:
         jsr     print_up
@@ -1527,7 +1514,7 @@ print_space
 print_cr
         lda     #CR
 :
-        jmp     BSOUT
+        jmp     bsout
 
 basin_skip_spaces_if_more:
         jsr     basin_skip_spaces_cmp_cr
@@ -1636,7 +1623,7 @@ print_dollar_hex_16:
 print_space_hex_16
         lda     #' '
 :
-        jsr     BSOUT
+        jsr     bsout
 print_hex_16:
         lda     zp1 + 1
         jsr     print_hex_byte2
@@ -1655,7 +1642,7 @@ LB565:  rol     a
         lda     #'*'
         bcs     :+
         lda     #'.'
-:       jsr     BSOUT
+:       jsr     bsout
         pla
         dex
         bne     LB565
@@ -1702,7 +1689,7 @@ LB59F:  cmp     #$80
         and     #$7F
         ora     #$60
         inc     RVS
-LB5AD:  jsr     BSOUT
+LB5AD:  jsr     bsout
         lda     #0
         sta     RVS
         sta     QTSW
@@ -1873,7 +1860,7 @@ print_7_csr_right:
 print_8_spaces:
         lda     #' '
         ldx     #8
-LB6AC:  jsr     BSOUT
+LB6AC:  jsr     bsout
         dex
         bne     LB6AC
         rts
@@ -2191,7 +2178,7 @@ scroll_down:
         ora     #$80 ; first line is not an extension
         sta     LDTB1
         lda     #CSR_HOME
-        jmp     BSOUT
+        jmp     bsout
 
 LB90E:  lda     #16 ; number of bytes to scan backwards
         sta     tmp13
@@ -3200,9 +3187,9 @@ cat_line_iec:
 
 print_hex_byte:
         jsr     byte_to_hex_ascii
-        jsr     BSOUT
+        jsr     bsout
         tya
-        jmp     BSOUT
+        jmp     bsout
 
 ; convert byte into hex ASCII in A/Y
 byte_to_hex_ascii:
