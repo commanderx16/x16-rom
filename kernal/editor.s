@@ -111,7 +111,6 @@ llen	.res 1           ;$D9 x resolution
 nlines	.res 1           ;$DA y resolution
 nlinesp1 .res 1          ;    y resolution + 1
 nlinesm1 .res 1          ;    y resolution - 1
-litmode	.res 1           ;    literal mode
 
 .segment "EDITOR"
 
@@ -387,7 +386,14 @@ nvs	ldx insrt
 nvs1	ldx color       ;put color on screen
 	jsr dspp
 	jsr wlogic      ;check for wraparound
-loop2	pla
+loop2
+	lda qtsw
+	cmp #2          ;"no exceptions" quote mode
+	bne :+
+	stz qtsw        ;only valid for 1 char
+:
+
+	pla
 	tay
 	lda insrt
 	beq lop2
@@ -448,8 +454,9 @@ bkln	ldx tblx
 	stx pntr
 	pla
 	pla
-	bne loop2
-;
+	beq :+
+	jmp loop2
+:
 bkln1	dex
 	stx tblx
 	jsr stupt
@@ -474,8 +481,10 @@ prt
 	jmp nxtx
 	ldx qtsw
 	cpx #2          ;"no exceptions" quote mode (used by monitor)
-	beq njt1
-	cmp #$d
+	bne :+
+;	dec qtsw        ;only valid for 1 char
+	bra njt1
+:	cmp #$d
 	bne njt1
 	jmp nxt1
 njt1	cmp #' '
@@ -627,6 +636,11 @@ isosto	sta mode
 nxtx
 keepit
 	and #$7f
+	bne :+
+	lda #2          ;.A was $80 -> enable literal mode
+	sta qtsw
+	jmp loop2
+:
 	bit mode
 	bvs nxtx1       ;ISO
 	cmp #$7f

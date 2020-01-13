@@ -18,6 +18,9 @@ KEY_STOP        := $03
 KEY_F3          := $86
 KEY_F5          := $87
 KEY_F7          := $88
+LITMODE         := $80
+REVERSE_ON      := $12
+REVERSE_OFF     := $92
 
 ; from KERNAL
 ; monitor
