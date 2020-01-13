@@ -44,11 +44,9 @@
 ; asm
 .import cmd_a
 .import LAE7C
-.import print_operand
-.import print_mnemo
-.import print_asm_bytes
-.import decode_mnemo
 .import zp1_plus_a
+.import disassemble_line
+.export print_hex_16
 .export LAD4B
 .export basin_if_more
 .export check_end
@@ -444,14 +442,6 @@ LAD4B:  jsr     print_dot_x
 	sta     zp1
 	sty     zp1 + 1
 	rts
-
-disassemble_line:
-        jsr     print_hex_16
-        jsr     print_space
-        jsr     decode_mnemo
-        jsr     print_asm_bytes
-        jsr     print_mnemo
-        jmp     print_operand
 
 ; ----------------------------------------------------------------
 

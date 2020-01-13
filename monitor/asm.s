@@ -5,6 +5,7 @@
 .import __asmchars1_RUN__
 .import __asmchars2_RUN__
 
+.import print_hex_16
 .import LAD4B
 .import basin_if_more
 .import check_end
@@ -39,11 +40,8 @@
 
 .export cmd_a
 .export LAE7C
-.export print_operand
-.export print_mnemo
-.export print_asm_bytes
-.export decode_mnemo
 .export zp1_plus_a
+.export disassemble_line
 
 .segment "monitor"
 
@@ -1081,3 +1079,10 @@ is_hex_character:
 :       sec
         rts
 
+disassemble_line:
+	jsr     print_hex_16
+	jsr     print_space
+	jsr     decode_mnemo
+	jsr     print_asm_bytes
+	jsr     print_mnemo
+	jmp     print_operand
