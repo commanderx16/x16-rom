@@ -29,10 +29,9 @@ pnt = $1111 ; XXX
 pntr = $1111 ; XXX
 
 ; monitor and io
-insrt = $1111 ; XXX
+insrt = $1111 ; insert mode counter XXX
 
 ; for "dump_8_ascii_characters" and "read_ascii"
 PNTR            := pntr   ; cursor column
-INSRT           := insrt  ; insert mode counter
 
 BUF             := $0200 ; system input buffer

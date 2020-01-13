@@ -1158,16 +1158,16 @@ dump_8_ascii_characters:
 dump_ascii_characters:
         ldy     #0
 LB594:  jsr     load_byte
-        bit     mode
-	bvc     :+
+        bit     mode         ; PET or ISO?
+	bvc     :+           ; branch of PET
 	inc     qtsw
-	inc     qtsw
-	inc     INSRT
-	jmp     LB5AD
+	inc     qtsw         ; "no exceptions quote mode"
+	inc     insrt
+	bra     LB5AD
 :       cmp     #$20
-        bcs     LB59F
-        inc     rvs
-        ora     #$40
+        bcs     LB59F        ; branch of printable
+        inc     rvs          ; turn reverse on
+        ora     #$40         ; 
 LB59F:  cmp     #$80
         bcc     LB5AD
         cmp     #$A0
