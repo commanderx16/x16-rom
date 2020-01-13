@@ -35,7 +35,7 @@ load                         = $ffd5
 save                         = $ffd8
 settim                       = $ffdb
 rdtim                        = $ffde
-;stop                         = $ffe1
+stop                         = $ffe1
 getin                        = $ffe4
 clall                        = $ffe7
 udtim                        = $ffea
@@ -62,7 +62,7 @@ primm                        = $ff7d
 ; X16 additions
 ;
 ;monitor                      = $ff44
-restore_basic                = $ff47
+enter_basic                  = $ff47
 ;                            = $ff15
 mouse_config                 = $ff68
 mouse_get                    = $ff6b
@@ -124,3 +124,4 @@ console_get_char             = $fee1
 console_put_image            = $fed8
 console_set_paging_message   = $fed5
 
+kbdbuf_put                   = $fed2

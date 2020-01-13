@@ -81,7 +81,7 @@ resfin	sta datptr
 	sty datptr+1
 iscrts	rts
 iscntc	jsr $ffe1
-stop	bcs stopc
+cstop	bcs stopc
 end	clc
 stopc	bne contrt
 	lda txtptr

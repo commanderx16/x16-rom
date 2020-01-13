@@ -184,7 +184,7 @@ entry:
 	jmp _ResetHandle
 
 .segment "vectors"
-stop:	.word _NMIHandler
+	.word _NMIHandler
 	.word entry
 	.word _IRQHandler
 

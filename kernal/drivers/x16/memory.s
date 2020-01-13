@@ -238,7 +238,8 @@ stash:	sta stash1
 stash0:
 stash1	=*+1
 	lda #$ff
-stavec	=*+1
+_stavec	=*+1
+.assert stavec = _stavec, error, "stavec must be at specific address"
 	sta ($ff),y     ;put the byte ($ff here is a dummy address, 'STAVEC')
 	pla
 	sta d1pra

@@ -222,7 +222,7 @@ disk_dir
 	bcc @d30        ;...loop always
 
 @d40	jsr crdo        ;start a new line
-	jsr stop
+	jsr cstop
 	beq disk_done   ;...branch if user hit STOP
 	ldy #2
 	bne @d20        ;...loop always

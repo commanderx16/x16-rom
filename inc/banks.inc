@@ -15,6 +15,7 @@ fa         = $0290 ; channel: device address
 jsrfar3    = $02c4 ; jsrfar: RAM part
 jmpfr      = $02e1 ; jsrfar: core jmp instruction
 imparm     = $82   ; jsrfar: temporary byte
+stavec     = $03b7 ; stash: argument
 banked_irq = $038b ; irq handler: RAM part
 .elseif .defined(MACHINE_C64)
 status     = $0295

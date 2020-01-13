@@ -211,7 +211,9 @@ BASIC_SOURCES= \
 
 MONITOR_SOURCES= \
 	kernsup/kernsup_monitor.s \
-	monitor/monitor.s
+	monitor/monitor.s \
+	monitor/io.s \
+	monitor/asm.s
 
 CHARSET_SOURCES= \
 	charset/petscii.s \
@@ -266,7 +268,6 @@ BASIC_DEPS= \
 
 MONITOR_DEPS= \
 	$(GENERIC_DEPS) \
-	monitor/kernal_x16.i \
 	monitor/kernal.i
 
 CHARSET_DEPS= \
