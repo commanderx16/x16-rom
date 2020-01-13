@@ -1837,13 +1837,23 @@ LB6AC:  jsr     bsout
         bne     LB6AC
         rts
 
+.if 1
+set_irq_vector:
+	rts
+
+add_a_to_zp1:
+        clc
+        adc     zp1
+        sta     zp1
+        bcc     LB8D3
+        inc     zp1 + 1
+LB8D3:  rts
+
+.else
 ; ----------------------------------------------------------------
 ; IRQ logic to handle F keys and scrolling
 ; ----------------------------------------------------------------
-set_irq_vector:
-.if 1
-	rts
-.else
+	set_irq_vector:
         lda     CINV
         cmp     #<irq_handler
         bne     LB6C1
@@ -1864,7 +1874,6 @@ LB6D9:  sei
         stx     CINV + 1
         cli
         rts
-.endif
 
 .segment "monitor_ram_code"
 
@@ -2170,6 +2179,7 @@ LB913:  sec
         dec     tmp13
         bne     LB913
 :       rts
+.endif
 
 ; ----------------------------------------------------------------
 ; assembler tables
