@@ -41,7 +41,45 @@
 
 .include "kernal.i"
 
-.global monitor
+; asm
+.import cmd_a
+.import LAE7C
+.import print_operand
+.import print_mnemo
+.import print_asm_bytes
+.import decode_mnemo
+.import zp1_plus_a
+.export LAD4B
+.export basin_if_more
+.export check_end
+.export fill_kbd_buffer_a
+.export get_hex_byte
+.export get_hex_byte2
+.export get_hex_byte3
+.export get_hex_word
+.export get_hex_word3
+.export input_loop
+.export input_loop2
+.export load_byte
+.export num_asm_bytes
+.export prefix_suffix_bitfield
+.export print_cr_dot
+.export print_hex_byte2
+.export print_space
+.export print_up
+.export reg_s
+.export store_byte
+.export swap_zp1_and_zp2
+.export tmp10
+.export tmp16
+.export tmp17
+.export tmp3
+.export tmp4
+.export tmp6
+.export tmp8
+.export tmp9
+.export tmp_opcode
+.export zp1
 
 zp1             := $C1
 zp2             := $C3
@@ -88,17 +126,12 @@ tmp1            := ram_code_end + 18
 tmp2            := ram_code_end + 19
 video_bank_flag := ram_code_end + 20
 
-.segment "monitor_a"
+.segment "monitor"
 
 .import __monitor_ram_code_LOAD__
 .import __monitor_ram_code_RUN__
 .import __monitor_ram_code_SIZE__
 
-.import __mnemos1_RUN__
-.import __mnemos2_RUN__
-
-.import __asmchars1_RUN__
-.import __asmchars2_RUN__
 
 monitor:
         lda     #<brk_entry
@@ -134,7 +167,7 @@ brk_entry:
 	pla
         jmp     brk_entry2
 
-.segment "monitor_b"
+.segment "monitor"
 
 brk_entry2:
         cld ; <- important :)
@@ -407,7 +440,10 @@ LAD4B:  jsr     print_dot_x
         jsr     disassemble_line; XXX why not inline?
         jsr     print_8_spaces
         lda     num_asm_bytes
-        jmp     sadd_a_to_zp1
+	jsr     zp1_plus_a
+	sta     zp1
+	sty     zp1 + 1
+	rts
 
 disassemble_line:
         jsr     print_hex_16
@@ -416,6 +452,160 @@ disassemble_line:
         jsr     print_asm_bytes
         jsr     print_mnemo
         jmp     print_operand
+
+; ----------------------------------------------------------------
+
+LAE88:  jsr     check_end
+        bcs     LAE90
+        jmp     syntax_error
+
+LAE90:  sty     tmp10
+        jsr     basin_if_more
+        jsr     get_hex_word3
+        lda     command_index
+        cmp     #command_index_c
+        beq     LAEA6
+        jsr     LB1CB
+        jmp     print_cr_then_input_loop
+
+LAEA6:  jsr     LB245
+        jmp     input_loop
+
+LAEAC:  jsr     basin_if_more
+        ldx     #0
+        stx     tmp11 ; XXX unused
+        jsr     basin_if_more
+        cmp     #$22
+        bne     LAECF
+LAEBB:  jsr     basin_cmp_cr
+        beq     LAEE7
+        cmp     #$22
+        beq     LAEE7
+        sta     BUF,x
+        inx
+        cpx     #$20
+        bne     LAEBB
+        jmp     syntax_error
+
+LAECF:  jsr     get_hex_byte2
+        bcs     LAEDC
+LAED4:  jsr     basin_cmp_cr
+        beq     LAEE7
+        jsr     get_hex_byte
+LAEDC:  sta     BUF,x
+        inx
+        cpx     #$20
+        bne     LAED4
+syn_err2:
+        jmp     syntax_error
+
+LAEE7:  stx     command_index
+        txa
+        beq     syn_err2
+        jsr     LB293
+        jmp     input_loop
+
+LB293:  jsr     print_cr
+LB296:  jsr     check_end
+        bcc     LB2B3
+        ldy     #0
+LB29D:  jsr     load_byte
+        cmp     BUF,y
+        bne     LB2AE
+        iny
+        cpy     command_index
+        bne     LB29D
+        jsr     print_space_hex_16
+LB2AE:  jsr     inc_zp1
+        bne     LB296
+LB2B3:  rts
+
+LB245:  jsr     print_cr
+        clc
+        lda     zp1
+        adc     tmp9
+        sta     tmp9
+        lda     zp1 + 1
+        adc     tmp10
+        sta     tmp10
+        ldy     #0
+LB25B:  jsr     load_byte
+        sta     command_index
+        jsr     swap_zp1_and_zp2
+        jsr     load_byte
+        pha
+        jsr     swap_zp1_and_zp2
+        pla
+        cmp     command_index
+        beq     LB274
+        jsr     print_space_hex_16
+LB274:  jsr     stop
+        beq     LB292
+        lda     zp1 + 1
+        cmp     tmp10
+        bne     LB287
+        lda     zp1
+        cmp     tmp9
+        beq     LB292
+LB287:  inc     zp2
+        bne     LB28D
+        inc     zp2 + 1
+LB28D:  jsr     inc_zp1
+        bne     LB25B
+LB292:  rts
+
+LB1CB:  lda     zp2
+        cmp     zp1
+        lda     zp2 + 1
+        sbc     zp1 + 1
+        bcs     LB1FC
+        ldy     #0
+        ldx     #0
+LB1D9:  jsr     load_byte
+        pha
+        jsr     swap_zp1_and_zp2
+        pla
+        jsr     store_byte
+        jsr     swap_zp1_and_zp2
+        cpx     tmp10
+        bne     LB1F1
+        cpy     tmp9
+        beq     LB1FB
+LB1F1:  iny
+        bne     LB1D9
+        inc     zp1 + 1
+        inc     zp2 + 1
+        inx
+        bne     LB1D9
+LB1FB:  rts
+
+LB1FC:  clc
+        ldx     tmp10
+        txa
+        adc     zp1 + 1
+        sta     zp1 + 1
+        clc
+        txa
+        adc     zp2 + 1
+        sta     zp2 + 1
+        ldy     tmp9
+LB20E:  jsr     load_byte
+        pha
+        jsr     swap_zp1_and_zp2
+        pla
+        jsr     store_byte
+        jsr     swap_zp1_and_zp2
+        cpy     #0
+        bne     LB229
+        cpx     #0
+        beq     LB22D
+        dec     zp1 + 1
+        dec     zp2 + 1
+        dex
+LB229:  dey
+        jmp     LB20E
+
+LB22D:  rts
 
 ; ----------------------------------------------------------------
 ; "[" - input character data
@@ -632,58 +822,7 @@ cmd_x:
         txs
         jmp     _basic_warm_start
 
-LB1CB:  lda     zp2
-        cmp     zp1
-        lda     zp2 + 1
-        sbc     zp1 + 1
-        bcs     LB1FC
-        ldy     #0
-        ldx     #0
-LB1D9:  jsr     load_byte
-        pha
-        jsr     swap_zp1_and_zp2
-        pla
-        jsr     store_byte
-        jsr     swap_zp1_and_zp2
-        cpx     tmp10
-        bne     LB1F1
-        cpy     tmp9
-        beq     LB1FB
-LB1F1:  iny
-        bne     LB1D9
-        inc     zp1 + 1
-        inc     zp2 + 1
-        inx
-        bne     LB1D9
-LB1FB:  rts
-
-LB1FC:  clc
-        ldx     tmp10
-        txa
-        adc     zp1 + 1
-        sta     zp1 + 1
-        clc
-        txa
-        adc     zp2 + 1
-        sta     zp2 + 1
-        ldy     tmp9
-LB20E:  jsr     load_byte
-        pha
-        jsr     swap_zp1_and_zp2
-        pla
-        jsr     store_byte
-        jsr     swap_zp1_and_zp2
-        cpy     #0
-        bne     LB229
-        cpx     #0
-        beq     LB22D
-        dec     zp1 + 1
-        dec     zp2 + 1
-        dex
-LB229:  dey
-        jmp     LB20E
-
-LB22D:  rts
+; ----------------------------------------------------------------
 
 LB22E:  ldy     #0
 LB230:  jsr     store_byte
@@ -696,55 +835,6 @@ LB230:  jsr     store_byte
 LB23F:  jsr     inc_zp1
         bne     LB230
 LB244:  rts
-
-LB245:  jsr     print_cr
-        clc
-        lda     zp1
-        adc     tmp9
-        sta     tmp9
-        lda     zp1 + 1
-        adc     tmp10
-        sta     tmp10
-        ldy     #0
-LB25B:  jsr     load_byte
-        sta     command_index
-        jsr     swap_zp1_and_zp2
-        jsr     load_byte
-        pha
-        jsr     swap_zp1_and_zp2
-        pla
-        cmp     command_index
-        beq     LB274
-        jsr     print_space_hex_16
-LB274:  jsr     stop
-        beq     LB292
-        lda     zp1 + 1
-        cmp     tmp10
-        bne     LB287
-        lda     zp1
-        cmp     tmp9
-        beq     LB292
-LB287:  inc     zp2
-        bne     LB28D
-        inc     zp2 + 1
-LB28D:  jsr     inc_zp1
-        bne     LB25B
-LB292:  rts
-
-LB293:  jsr     print_cr
-LB296:  jsr     check_end
-        bcc     LB2B3
-        ldy     #0
-LB29D:  jsr     load_byte
-        cmp     BUF,y
-        bne     LB2AE
-        iny
-        cpy     command_index
-        bne     LB29D
-        jsr     print_space_hex_16
-LB2AE:  jsr     inc_zp1
-        bne     LB296
-LB2B3:  rts
 
 ; ----------------------------------------------------------------
 ; memory load/store
@@ -1125,15 +1215,6 @@ basin_if_more_cmp_space:
 syn_err6:
         jmp     syntax_error
 
-; XXX this detects :;<=>?@ as hex characters, see also get_hex_digit
-is_hex_character:
-        cmp     #'0'
-        bcc     :+
-        cmp     #'F' + 1
-        rts
-:       sec
-        rts
-
 swap_zp1_and_zp2:
         lda     zp2 + 1
         pha
@@ -1234,7 +1315,7 @@ LB6AC:  jsr     bsout
         bne     LB6AC
         rts
 
-.segment "monitor_c"
+.segment "monitor"
 
 ; ----------------------------------------------------------------
 
@@ -1442,5 +1523,3 @@ LB8D3:  rts
 .else
 .include "irq.s"
 .endif
-
-.include "asm.s"

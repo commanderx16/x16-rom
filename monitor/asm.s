@@ -1,3 +1,51 @@
+.include "kernal.i"
+
+.import __mnemos1_RUN__
+.import __mnemos2_RUN__
+.import __asmchars1_RUN__
+.import __asmchars2_RUN__
+
+.import LAD4B
+.import basin_if_more
+.import check_end
+.import fill_kbd_buffer_a
+.import get_hex_byte
+.import get_hex_byte2
+.import get_hex_byte3
+.import get_hex_word
+.import get_hex_word3
+.import input_loop
+.import input_loop2
+.import load_byte
+.import num_asm_bytes
+.import prefix_suffix_bitfield
+.import print_cr_dot
+.import print_hex_byte2
+.import print_space
+.import print_up
+.import reg_s
+.import store_byte
+.import swap_zp1_and_zp2
+.import tmp10
+.import tmp16
+.import tmp17
+.import tmp3
+.import tmp4
+.import tmp6
+.import tmp8
+.import tmp9
+.import tmp_opcode
+.importzp zp1
+
+.export cmd_a
+.export LAE7C
+.export print_operand
+.export print_mnemo
+.export print_asm_bytes
+.export decode_mnemo
+.export zp1_plus_a
+
+.segment "monitor"
 
 ; ----------------------------------------------------------------
 ; "A" - assemble
@@ -25,56 +73,6 @@ LAE7C:  pha
         tax
         jsr     LAD4B
         jmp     print_cr_dot
-
-LAE88:  jsr     check_end
-        bcs     LAE90
-        jmp     syntax_error
-
-LAE90:  sty     tmp10
-        jsr     basin_if_more
-        jsr     get_hex_word3
-        lda     command_index
-        cmp     #command_index_c
-        beq     LAEA6
-        jsr     LB1CB
-        jmp     print_cr_then_input_loop
-
-LAEA6:  jsr     LB245
-        jmp     input_loop
-
-LAEAC:  jsr     basin_if_more
-        ldx     #0
-        stx     tmp11 ; XXX unused
-        jsr     basin_if_more
-        cmp     #$22
-        bne     LAECF
-LAEBB:  jsr     basin_cmp_cr
-        beq     LAEE7
-        cmp     #$22
-        beq     LAEE7
-        sta     BUF,x
-        inx
-        cpx     #$20
-        bne     LAEBB
-        jmp     syntax_error
-
-LAECF:  jsr     get_hex_byte2
-        bcs     LAEDC
-LAED4:  jsr     basin_cmp_cr
-        beq     LAEE7
-        jsr     get_hex_byte
-LAEDC:  sta     BUF,x
-        inx
-        cpx     #$20
-        bne     LAED4
-syn_err2:
-        jmp     syntax_error
-
-LAEE7:  stx     command_index
-        txa
-        beq     syn_err2
-        jsr     LB293
-        jmp     input_loop
 
 ; ----------------------------------------------------------------
 ; assembler/disassembler
@@ -307,12 +305,6 @@ zp1_plus_a_2:
         bcc     :+
         iny
 :       rts
-
-sadd_a_to_zp1:
-        jsr     zp1_plus_a
-        sta     zp1
-        sty     zp1 + 1
-        rts
 
 LB030:  ldx     #0
         stx     tmp17
@@ -1079,4 +1071,13 @@ addmode_detail_table:
 .else
 .error "No CPU type specified!"
 .endif
+
+; XXX this detects :;<=>?@ as hex characters, see also get_hex_digit
+is_hex_character:
+        cmp     #'0'
+        bcc     :+
+        cmp     #'F' + 1
+        rts
+:       sec
+        rts
 

@@ -211,7 +211,8 @@ BASIC_SOURCES= \
 
 MONITOR_SOURCES= \
 	kernsup/kernsup_monitor.s \
-	monitor/monitor.s
+	monitor/monitor.s \
+	monitor/asm.s
 
 CHARSET_SOURCES= \
 	charset/petscii.s \
