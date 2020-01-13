@@ -29,27 +29,17 @@ KEY_F7          := $88
 .import jsrfar
 .else
 
-loop4 = $1111 ; XXX
-xmon1 = $1111 ; XXX
-screen_get_char = $1111 ; XXX
-ldtb1 = $1111 ; XXX
-stavec = $1111 ; XXX
-nlines = $1111 ; XXX
-nlinesm1 = $1111 ; XXX
+; monitor
+
+; irq
+
+; monitor and irq
 pnt = $1111 ; XXX
-mode = $1111 ; XXX
-rvs = $1111 ; XXX
-blnsw = $1111 ; XXX
-gdbln = $1111 ; XXX
-blnon = $1111 ; XXX
 pntr = $1111 ; XXX
-qtsw = $1111 ; XXX
-tblx = $1111 ; XXX
+
+; monitor and io
 insrt = $1111 ; XXX
-buf = $1111 ; XXX
-rptflg = $1111 ; XXX
-kbdbuf_clear = $1111 ; XXX
-kbdbuf_put = $1111 ; XXX
+
 .endif
 
 .include "banks.inc"
@@ -64,9 +54,6 @@ STASH  := $FF77
 
 ; for "dump_8_ascii_characters" and "read_ascii"
 PNTR            := pntr   ; cursor column
-RVS             := rvs    ; print reverse characters flag
 INSRT           := insrt  ; insert mode counter
-QTSW            := qtsw   ; quote mode flag
-MODE            := mode   ; bit6=1: ISO mode
 
-BUF             := buf ; system input buffer
+BUF             := $0200 ; system input buffer

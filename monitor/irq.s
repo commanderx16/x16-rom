@@ -1,5 +1,13 @@
 
 bmt2 = $1111 ; XXX
+xmon1 = $1111 ; XXX
+ldtb1 = $1111 ; XXX
+nlines = $1111 ; XXX
+nlinesm1 = $1111 ; XXX
+blnsw = $1111 ; XXX
+gdbln = $1111 ; XXX
+blnon = $1111 ; XXX
+tblx = $1111 ; XXX
 
 ; ----------------------------------------------------------------
 ; IRQ logic to handle F keys and scrolling

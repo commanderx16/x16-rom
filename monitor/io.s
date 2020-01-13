@@ -6,6 +6,7 @@ sa              := $1111  ; secondary address
 fnadr           := ($11)  ; file name
 
 xmon2 = $1111 ; XXX
+loop4 = $1111 ; XXX
 
 .include "kernal.i"
 

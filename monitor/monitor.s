@@ -41,6 +41,12 @@
 
 .include "kernal.i"
 
+screen_get_char = $1111 ; XXX
+stavec = $1111 ; XXX
+mode = $1111 ; XXX
+rvs = $1111 ; XXX
+qtsw = $1111 ; XXX
+
 ; asm
 .import cmd_a
 .import LAE7C
@@ -1155,15 +1161,15 @@ dump_8_ascii_characters:
 dump_ascii_characters:
         ldy     #0
 LB594:  jsr     load_byte
-        bit     MODE
+        bit     mode
 	bvc     :+
-	inc     QTSW
-	inc     QTSW
+	inc     qtsw
+	inc     qtsw
 	inc     INSRT
 	jmp     LB5AD
 :       cmp     #$20
         bcs     LB59F
-        inc     RVS
+        inc     rvs
         ora     #$40
 LB59F:  cmp     #$80
         bcc     LB5AD
@@ -1171,11 +1177,11 @@ LB59F:  cmp     #$80
         bcs     LB5AD
         and     #$7F
         ora     #$60
-        inc     RVS
+        inc     rvs
 LB5AD:  jsr     bsout
         lda     #0
-        sta     RVS
-        sta     QTSW
+        sta     rvs
+        sta     qtsw
         iny
         dex
         bne     LB594
@@ -1195,7 +1201,7 @@ LB5C8:  sty     tmp9
         ldy     tmp9
         plp
         bmi     :+
-        bit     MODE
+        bit     mode
         bvs     @l1
         cmp     #$60
         bcs     :+
@@ -1490,14 +1496,7 @@ pow10hi2:
 
 .import mjsrfar
 _kbdbuf_put:
-.if 0
-	jsr mjsrfar
-	.word kbdbuf_put
-	.byte BANK_KERNAL
-	rts
-.else
 	jmp bsout
-.endif
 
 _kbdbuf_clear:
 	jsr getin
