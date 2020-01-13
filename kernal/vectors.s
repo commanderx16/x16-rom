@@ -12,6 +12,8 @@
 
 .import console_init, console_put_char, console_get_char, console_put_image, console_set_paging_message
 
+.import kbdbuf_put
+
 	.segment "JMPTBL"
 
 ; *** this is space for new X16 KERNAL vectors ***
@@ -25,7 +27,7 @@
 	.byte 0,0,0            ; $FEC9
 	.byte 0,0,0            ; $FECC
 	.byte 0,0,0            ; $FECF
-	.byte 0,0,0            ; $FED2
+	jmp kbdbuf_put         ; $FED2
 
 	jmp console_set_paging_message ; $FED5
 	jmp console_put_image          ; $FED8
