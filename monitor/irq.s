@@ -61,18 +61,18 @@ LB6FA:	rts
 LB700:
 fk_2:   cmp     #KEY_F7
         bne     LB71C
-	jsr _kbdbuf_clear
+	jsr kbdbuf_clear
         lda     #'@'
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
         lda     #'$'
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
         lda     #CR
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
 	bra     LB6FA
 
 LB71C:  cmp     #KEY_F5
         bne     LB733
-	jsr _kbdbuf_clear
+	jsr kbdbuf_clear
         ldx     nlinesm1
         cpx     TBLX
         beq     LB72E ; already on last line
@@ -80,10 +80,10 @@ LB71C:  cmp     #KEY_F5
         ldy     pntr
         jsr     LE50C ; KERNAL set cursor position
 LB72E:  lda     #CSR_DOWN
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
 LB733:  cmp     #KEY_F3
         bne     LB74A
-	jsr _kbdbuf_clear
+	jsr kbdbuf_clear
         ldx     #0
         cpx     TBLX
         beq     LB745
@@ -91,7 +91,7 @@ LB733:  cmp     #KEY_F3
         ldy     pntr
         jsr     LE50C ; KERNAL set cursor position
 LB745:  lda     #CSR_UP
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
 LB74A:  cmp     #CSR_DOWN
         beq     LB758
         cmp     #CSR_UP
@@ -154,7 +154,7 @@ LB7C7:  lda     #CSR_UP
 LB7CD:  lda     #CR
         ldx     #CSR_HOME
 LB7D1:  ldy     #0
-	jsr _kbdbuf_clear
+	jsr kbdbuf_clear
         sty     disable_f_keys
         jsr     print_a_x
         jsr     print_7_csr_right
@@ -354,3 +354,10 @@ LE50C:
 	.byte BANK_KERNAL
 	rts
 
+kbdbuf_peek:
+	jsr getin
+	beq :+
+	pha
+	jsr kbdbuf_put
+	pla
+:	rts

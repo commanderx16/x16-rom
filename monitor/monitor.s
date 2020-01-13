@@ -89,7 +89,6 @@ qtsw = $1111 ; XXX
 
 ; io
 .export LBC4C
-.export _kbdbuf_put
 .export basin_cmp_cr
 .export basin_if_more
 .export basin_skip_spaces_cmp_cr
@@ -344,7 +343,7 @@ fill_kbd_buffer_with_csr_right:
         lda     #CSR_RIGHT
         ldx     #0
 :
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
         inx
         cpx     #7
         bne     :-
@@ -1005,15 +1004,14 @@ print_cr
 
 basin_skip_spaces_if_more:
         jsr     basin_skip_spaces_cmp_cr
-        jmp     LB4C5
+        bra     LB4C5
 
 ; get a character; if it's CR, return to main input loop
 basin_if_more:
         jsr     basin_cmp_cr
-LB4C5:  bne     LB4CA ; rts
+LB4C5:  bne     :+
         jmp     input_loop
-
-LB4CA:  rts
+:	rts
 
 basin_skip_spaces_cmp_cr:
         jsr     basin
@@ -1170,22 +1168,22 @@ LB594:  lda #$80
         jmp     add_a_to_zp1
 
 read_ascii:
-        ldx     #$20
+        ldx     #32 ; number of characters
         ldy     #0
         jsr     copy_zp2_to_zp1
         jsr     basin_if_more
-LB5C8:  sty     tmp9
-        ldy     pntr
-        jsr     screen_get_char
-        php
+LB5C8:  ;sty     tmp9 ; save
+        ;ldy     pntr
+        ;jsr     screen_get_char
+        ;php
         jsr     basin_if_more
-        ldy     tmp9
-        plp
-        bmi     :+
-        bit     mode
-        bvs     @l1
-        cmp     #$60
-        bcs     :+
+        ;ldy     tmp9 ; restore
+        ;plp
+        ;bmi     :+
+        ;bit     mode
+        ;bvs     @l1
+        ;cmp     #$60
+        ;bcs     :+
 @l1:    jsr     store_byte
 :       iny
         dex
@@ -1295,19 +1293,19 @@ fill_kbd_buffer_rightbracket
 fill_kbd_buffer_singlequote
         lda     #$27 ; "'"
 :
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
         lda     zp1 + 1
         jsr     byte_to_hex_ascii
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
 	tya
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
         lda     zp1
         jsr     byte_to_hex_ascii
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
 	tya
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
         lda     #' '
-	jsr _kbdbuf_put
+	jsr kbdbuf_put
         rts
 
 ; print 7x cursor right
@@ -1474,18 +1472,6 @@ pow10lo2:
         .byte <1, <10, <100, <1000, <10000
 pow10hi2:
         .byte >1, >10, >100, >1000, >10000
-
-.import mjsrfar
-_kbdbuf_put:
-	jmp bsout
-
-kbdbuf_peek:
-	jsr getin
-	beq :+
-	pha
-	jsr _kbdbuf_put
-	pla
-:	rts
 
 .if 1
 set_irq_vector:
