@@ -1,15 +1,14 @@
 MEMORY {
-	# MONITOR
+	#include "x16.cfginc"
+
 	L0220:    start = $0220, size = $0039; # overlaps with top end of BASIC input line only
 
-	# Bank 5 (MONITOR)
 	BANK5:      start = $C000, size = $3B00, fill=yes, fillval=$AA;
 	KSUP_CODE2: start = $FB00, size = $03C0, fill=yes, fillval=$AA;
 	KSUP_VEC2:  start = $FEC0, size = $0140, fill=yes, fillval=$AA;
 }
 
 SEGMENTS {
-	# Bank 5 (MONITOR)
 	monitor:        load = BANK5, type = ro;
 	asmchars1:        load = BANK5, type = ro, define = yes;
 	asmchars2:        load = BANK5, type = ro, define = yes;
