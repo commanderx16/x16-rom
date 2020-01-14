@@ -3,8 +3,7 @@
 .byte 0,0,0            ; $FEC6
 .byte 0,0,0            ; $FEC9
 .byte 0,0,0            ; $FECC
-
-bridge ieee_read_status           ; $FECF
+.byte 0,0,0            ; $FECF
 
 bridge kbdbuf_put                 ; $FED2
 
