@@ -41,12 +41,6 @@
 
 .include "kernal.i"
 
-screen_get_char = $1111 ; XXX
-mode = $1111 ; XXX
-rvs = $1111 ; XXX
-qtsw = $1111 ; XXX
-
-
 ; common
 .export get_hex_byte
 .export get_hex_byte2
@@ -1152,12 +1146,11 @@ dump_8_hex_bytes:
         bne     :-
         rts
 
-;------- XXX
 dump_8_ascii_characters:
         ldx     #8
 dump_ascii_characters:
         ldy     #0
-LB594:  lda #$80
+LB594:  lda #$80 ; enable verbatim mode for 1 char
 	jsr bsout
 	jsr load_byte
 	jsr bsout
@@ -1172,24 +1165,16 @@ read_ascii:
         ldy     #0
         jsr     copy_zp2_to_zp1
         jsr     basin_if_more
-LB5C8:  ;sty     tmp9 ; save
-        ;ldy     pntr
-        ;jsr     screen_get_char
-        ;php
-        jsr     basin_if_more
-        ;ldy     tmp9 ; restore
-        ;plp
-        ;bmi     :+
-        ;bit     mode
-        ;bvs     @l1
-        ;cmp     #$60
-        ;bcs     :+
-@l1:    jsr     store_byte
-:       iny
+LB5C8:	lda #$80
+	jsr bsout
+	jsr     basin_if_more
+	cmp #0
+	beq :+ ; skip if non-ASCII
+        jsr     store_byte
+:	iny
         dex
         bne     LB5C8
         rts
-;------- XXX
 
 read_8_bytes:
         ldx     #8

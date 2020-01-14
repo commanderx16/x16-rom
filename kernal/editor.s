@@ -337,7 +337,25 @@ lop54	bcc lop52
 	bne lop53
 lop52	bvs lop53
 	ora #$40
-lop53	inc pntr
+lop53
+
+; verbatim mode:
+; if the character is reverse or >= $60, return 0
+	bit verbatim
+	stz verbatim
+	bpl @0
+	cmp #$60
+	bcs @2a
+@1:	pha
+	jsr screen_get_char ; again
+	bmi @2
+	pla
+	bra @0
+@2:	pla
+@2a:	lda #0
+@0:
+
+	inc pntr
 	jsr qtswc
 	cpy indx
 	bne clp1
