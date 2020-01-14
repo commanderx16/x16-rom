@@ -7,6 +7,7 @@ fnadr           := ($11)  ; file name
 
 xmon2 = $1111 ; XXX
 loop4 = $1111 ; XXX
+insrt = $1111 ; XXX
 
 .include "kernal.i"
 
@@ -464,7 +465,7 @@ LBCFD:  ldy     status
         bne     LBD0B ; also convert $8D to $1F
 LBD09:  lda     #$1F ; ???BLUE
 LBD0B:  jsr     LE716 ; KERNAL: output character to screen
-        inc     INSRT
+        inc     insrt
         jsr     getin
         cmp     #KEY_STOP
         beq     LBD2F
@@ -505,7 +506,7 @@ LBD4B:  ldy     status
         bne     LBD59
 LBD57:  lda     #$1F
 LBD59:  jsr     LE716 ; KERNAL: output character to screen
-        inc     INSRT
+        inc     insrt
         jsr     getin
         cmp     #KEY_STOP
         beq     LBD7D

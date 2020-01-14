@@ -8,6 +8,7 @@ blnsw = $1111 ; XXX
 gdbln = $1111 ; XXX
 blnon = $1111 ; XXX
 tblx = $1111 ; XXX
+pnt = $1111 ; XXX
 
 cinv   := $0314 ; IRQ vector
 
@@ -76,7 +77,7 @@ LB71C:  cmp     #KEY_F5
         cpx     TBLX
         beq     LB72E ; already on last line
         jsr     clear_cursor
-        ldy     PNTR
+        ldy     pntr
         jsr     LE50C ; KERNAL set cursor position
 LB72E:  lda     #CSR_DOWN
 	jsr _kbdbuf_put
@@ -87,7 +88,7 @@ LB733:  cmp     #KEY_F3
         cpx     TBLX
         beq     LB745
         jsr     clear_cursor
-        ldy     PNTR
+        ldy     pntr
         jsr     LE50C ; KERNAL set cursor position
 LB745:  lda     #CSR_UP
 	jsr _kbdbuf_put
@@ -197,8 +198,8 @@ LB82D:  lda     #$20
         jsr     dump_ascii_line
         jmp     LB7CD
 
-LB838:  lda     PNT
-        ldx     PNT + 1
+LB838:  lda     pnt
+        ldx     pnt + 1
         sta     zp2
         stx     zp2 + 1
         lda     nlines
@@ -297,7 +298,7 @@ clear_cursor:
         lda     BLNON
         beq     LB8EB ; rts
         lda     GDBLN
-        ldy     PNTR
+        ldy     pntr
         jsr     screen_set_char
         lda     #0
         sta     BLNON

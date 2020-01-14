@@ -111,6 +111,7 @@ llen	.res 1           ;$D9 x resolution
 nlines	.res 1           ;$DA y resolution
 nlinesp1 .res 1          ;    X16: y resolution + 1
 nlinesm1 .res 1          ;    X16: y resolution - 1
+verbatim .res 1
 
 .segment "EDITOR"
 
@@ -459,7 +460,45 @@ bkln1	dex
 ;print routine
 ;
 prt
+; verbatim mode
+	bit verbatim
+	bpl @prt0
+
+	bit mode
+	bvc :+          ;skip if PETSCII
+; ISO: "no exceptions" quote mode
 	pha
+	lda #2
+	sta qtsw
+	pla
+	inc insrt
+	bra @l2
+; PETSCII: handle ranges manually
+:	cmp #$20
+	bcs :+
+	inc rvs
+	ora #$40        ;$00-$1F: reverse, add $40
+:	cmp #$80
+	bcc @l2         ;$20-$7F: printable character
+	cmp #$A0
+	bcs @l2         ;$A0-$FF: printable character
+	inc rvs
+	and #$7F
+	ora #$60        ;$80-$9F: reverse, clear MSB, add $60
+@l2:	jsr @prt1
+	stz verbatim
+	stz rvs
+	stz qtsw
+	and #$ff        ;set flags
+	rts
+
+@prt0:	cmp #$80
+	bne @prt1
+	ror verbatim    ;C=1, enable
+	and #$ff        ;set flags
+	rts
+
+@prt1:	pha
 	sta data
 	txa
 	pha
@@ -469,10 +508,10 @@ prt
 	sta crsw
 	ldy pntr
 	lda data
-	bpl *+5
+	bpl :+
 	jmp nxtx
-	ldx qtsw
-	cpx #2          ;"no exceptions" quote mode (used by monitor)
+:	ldx qtsw
+	cpx #2          ;"no exceptions" quote mode?
 	beq njt1
 	cmp #$d
 	bne njt1
@@ -638,12 +677,12 @@ nxtxa
 	jmp nxt33
 uhuh
 	ldx qtsw
-	cpx #2
+	cpx #2          ;"no exceptions" quote mode?
 	beq up5
 	cmp #$d
 	bne up5
 	jmp nxt1
-up5	ldx  qtsw
+up5	ldx qtsw
 	bne up6
 	cmp #$14
 	bne up9

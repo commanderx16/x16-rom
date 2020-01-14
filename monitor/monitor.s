@@ -1159,28 +1159,10 @@ dump_8_ascii_characters:
         ldx     #8
 dump_ascii_characters:
         ldy     #0
-LB594:  jsr     load_byte
-        bit     mode
-	bvc     :+
-	inc     qtsw
-	inc     qtsw
-	inc     INSRT
-	jmp     LB5AD
-:       cmp     #$20
-        bcs     LB59F
-        inc     rvs
-        ora     #$40
-LB59F:  cmp     #$80
-        bcc     LB5AD
-        cmp     #$A0
-        bcs     LB5AD
-        and     #$7F
-        ora     #$60
-        inc     rvs
-LB5AD:  jsr     bsout
-        lda     #0
-        sta     rvs
-        sta     qtsw
+LB594:  lda #$80
+	jsr bsout
+	jsr load_byte
+	jsr bsout
         iny
         dex
         bne     LB594
@@ -1193,7 +1175,7 @@ read_ascii:
         jsr     copy_zp2_to_zp1
         jsr     basin_if_more
 LB5C8:  sty     tmp9
-        ldy     PNTR
+        ldy     pntr
         jsr     screen_get_char
         php
         jsr     basin_if_more
