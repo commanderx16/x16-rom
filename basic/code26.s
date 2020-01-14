@@ -183,7 +183,10 @@ plsv
 ;
 ;default device #
 ;
-	ldx #8          ;device #8
+	pha
+	jsr getfa
+	tax
+	pla
 	ldy #0          ;command 0
 	jsr $ffba
 ;

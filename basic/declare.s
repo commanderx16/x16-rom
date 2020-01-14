@@ -139,6 +139,8 @@ four6	.res 1           ;$53 variable constant used by garb collect
 
 jmper	.res 3           ;$54
 size	=jmper+1         ;$55
+;basic_fa .res 1          ;    default device address
+basic_fa = $0400 ; XXX
 
 ; reused vars from FPLIB
 charac	=integr          ;$07 a delimiting character

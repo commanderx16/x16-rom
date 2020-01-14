@@ -136,7 +136,7 @@ dos	beq ptstat      ;no argument: print status
 	jmp unlstn
 
 listen_cmd:
-	jsr getdev
+	jsr getfa
 	jsr listen
 	lda #$6f
 	jsr second
@@ -152,7 +152,7 @@ device_not_present:
 ; print status
 ptstat	jsr listen_cmd
 	jsr unlstn
-	jsr getdev
+	jsr getfa
 	jsr talk
 	lda #$6f
 	jsr tksa
@@ -165,14 +165,14 @@ dos11	jsr iecin
 ;***************
 ; switch default drive
 dossw	and #$0f
-	sta fa
+	sta basic_fa
 	rts
 
-getdev:
+getfa:
 	lda #8
-	cmp fa
+	cmp basic_fa
 	bcs :+
-	lda fa
+	lda basic_fa
 :	rts
 
 
@@ -182,8 +182,9 @@ getdev:
 LOGADD = 15
 
 disk_dir
+	jsr getfa
+	tax
 	lda #LOGADD     ;la
-	ldx #8          ;fa
 	ldy #$60        ;sa
 	jsr setlfs
 	jsr open        ;open directory channel
