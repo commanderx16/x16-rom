@@ -117,9 +117,7 @@ t1	.res 1           ;$9E temporary 1
 fnlen	.res 1           ;$B7 length current file n str
 la	.res 1           ;$B8 current file logical addr
 sa	.res 1           ;$B9 current file 2nd addr
-.assert * = fa, error, "fa must be at specific address"
-;fa
-	.res 1           ;$BA current file primary addr
+fa	.res 1           ;$BA current file primary addr
 stal	.res 1           ;$C1
 stah	.res 1           ;$C2
 
