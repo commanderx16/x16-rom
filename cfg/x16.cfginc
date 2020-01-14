@@ -1,0 +1,41 @@
+/*
+ * KERNAL, BASIC and CBDOS are built independently, yet the zero page
+ * and the $0200-$03FF variables/vetors area are split between them.
+ * Therefore, we have this global ld65 "MEMORY" defintion that gets
+ * included by all individual .cfg files.
+ *
+ * The cc65 preprocessor is used to combine the .cfg files. All comments
+ * have to be C-style: .cfg "#"-style would throw C preprocessor errors,
+ # and C-style comments, unsupported by ld65, get removed by the pre-
+ * processor.
+ *
+ */
+
+/* zero page */
+/*        start = $0000, size = $0080; # available to the user (or GEOS) */
+ZPKERNAL: start = $0080, size = $0012; # KERNAL
+ZPCBDOS:  start = $0092, size = $0011; # CBDOS
+/*        start = $00A3, size = $0006; # reserved for CBDOS or BASIC growth */
+ZPFPLIB:  start = $00A9, size = $002B; # FPLIB
+ZPBASIC:  start = $00D4, size = $002B; # BASIC (last byte used: $FE)
+
+/* $0200-$02FF: always-available variables and RAM code */
+KVAR:     start = $0200, size = $00BB; # KERNAL
+/*        start = $02BB, size = $0009; # reserved for KERNAL growth */
+KERNRAM:  start = $02C4, size = $0020; # KERNAL RAM code
+GDRVVEC:  start = $02E4, size = $001C; # framebuffer driver vectors
+
+/* $0300-$0333: vectors */
+BVECTORS: start = $0300, size = $0013; # BASIC vectors
+KVECTORS: start = $0314, size = $0020; # KERNAL vectors
+
+/* $0334-$03FF: variables and RAM code (not available for *legacy* GEOS apps) */
+KVAR2:    start = $0334, size = $0057; # KERNAL: screen editor table
+KERNRAM2: start = $038B, size = $003F; # KERNAL: banked IRQ, fetch, stash
+/*        start = $03CA, size = $0002; # reserved for KERNAL growth */
+FPVARS:   start = $03CB, size = $0009; # FPLIB
+BVARS:    start = $03D4, size = $002C; # BASIC
+
+/* KERNAL/CBDOS bank #0 vars */
+KVARSB0:  start = $A000, size = $0C00;
+CBDOSDAT: start = $AC00, size = $1400;

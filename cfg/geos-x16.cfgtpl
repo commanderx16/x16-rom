@@ -1,21 +1,20 @@
 MEMORY {
-	# GEOS
-	# disk driver, only contains JMPs, will be removed
+	#include "x16.cfginc"
+
+	/* GEOS */
+	/* disk driver, only contains JMPs, will be removed */
 	DRV:      start = $9000, size = $0D00;
-	# variables, only used by disk & UI, not by graphics and fonts
+	/* variables, only used by disk & UI, not by graphics and fonts */
 	VARS:     start = $9D00, size = $0200;
 
-	# Bank 3 (GEOS)
 	LOKERNAL:     start = $C000, size = $0100, fill=yes, fillval=$AA;
 	GKERNAL:      start = $C100, size = $3EFA, fill=yes, fillval=$AA;
 	GVECTORS:     start = $FFFA, size = $0006, fill=yes, fillval=$AA;
 }
 
 SEGMENTS {
-	# GEOS
 	vars:     load = VARS,     type = bss;
 	
-	# Bank 3 (GEOS)
 	entry:              load = LOKERNAL, type = ro;
 	header:             load = LOKERNAL, type = ro;
 	tobasic2:           load = LOKERNAL, type = ro;

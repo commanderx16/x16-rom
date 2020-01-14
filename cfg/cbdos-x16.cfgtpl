@@ -1,0 +1,14 @@
+MEMORY {
+	#include "x16.cfginc"
+
+	CBDOS:    start = $C000, size = $3FFE, fill=yes, fillval=$AA;
+	IRQB:     start = $FFFE, size = $0002, fill=yes, fillval=$AA;
+}
+
+SEGMENTS {
+	ZPCBDOS:    load = ZPCBDOS,  type = zp;
+	cbdos:      load = CBDOS,    type = ro;
+	CODE:       load = CBDOS,    type = ro;
+	cbdos_data: load = CBDOSDAT, type = bss;
+	IRQB:       load = IRQB,     type = ro;
+}

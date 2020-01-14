@@ -1,11 +1,10 @@
 MEMORY {
-	# Bank 6 (CHARSET)
+	#include "x16.cfginc"
+
 	BANK6:    start = $C000, size = $4000, fill=yes, fillval=$AA;
 }
 
 SEGMENTS {
-
-	# Bank 6 (CHARSET)
 	CHARSET:    load = BANK6,    type = ro;
 	CHARISO:    load = BANK6,    type = ro;
 }

@@ -136,11 +136,11 @@ dos	beq ptstat      ;no argument: print status
 	jmp unlstn
 
 listen_cmd:
-	jsr getdev
+	jsr getfa
 	jsr listen
 	lda #$6f
 	jsr second
-	lda status
+	jsr readst
 	bmi :+
 	rts
 device_not_present:
@@ -152,7 +152,7 @@ device_not_present:
 ; print status
 ptstat	jsr listen_cmd
 	jsr unlstn
-	jsr getdev
+	jsr getfa
 	jsr talk
 	lda #$6f
 	jsr tksa
@@ -165,14 +165,14 @@ dos11	jsr iecin
 ;***************
 ; switch default drive
 dossw	and #$0f
-	sta fa
+	sta basic_fa
 	rts
 
-getdev:
+getfa:
 	lda #8
-	cmp fa
+	cmp basic_fa
 	bcs :+
-	lda fa
+	lda basic_fa
 :	rts
 
 
@@ -182,8 +182,9 @@ getdev:
 LOGADD = 15
 
 disk_dir
+	jsr getfa
+	tax
 	lda #LOGADD     ;la
-	ldx #8          ;fa
 	ldy #$60        ;sa
 	jsr setlfs
 	jsr open        ;open directory channel
@@ -197,17 +198,25 @@ disk_dir
 
 @d20
 @d25	jsr basin
-	lda status
+	jsr readst
 	bne disk_done   ;...branch if error
 	dey
 	bne @d25        ;...loop until done
 
 	jsr basin       ;get # blocks low
-	ldy status
+	pha
+	jsr readst
+	tay
+	pla
+	cpy #0
 	bne disk_done   ;...branch if error
 	tax
 	jsr basin       ;get # blocks high
-	ldy status
+	pha
+	jsr readst
+	tay
+	pla
+	cpy #0
 	bne disk_done   ;...branch if error
 	jsr linprt      ;print # blocks
 
@@ -216,7 +225,11 @@ disk_dir
 
 @d30	jsr basin       ;read & print filename & filetype
 	beq @d40        ;...branch if eol
-	ldx status
+	pha
+	jsr readst
+	tax
+	pla
+	cpx #0
 	bne disk_done   ;...branch if error
 	jsr bsout
 	bcc @d30        ;...loop always

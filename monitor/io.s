@@ -2,7 +2,7 @@
 fnlen           := $1111  ; length of current file name
 la              := $1111  ; logical file number
 sa              := $1111  ; secondary address
-;fa              := $1111  ; device number
+fa              := $1111  ; device number
 fnadr           := ($11)  ; file name
 
 xmon2 = $1111 ; XXX

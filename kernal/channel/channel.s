@@ -105,7 +105,8 @@ lat	.res 10          ;    logical file numbers
 fat	.res 10          ;    primary device numbers
 sat	.res 10          ;    secondary addresses
 .assert * = status, error, "status must be at specific address"
-;status	.res 1           ;$90 i/o operation status byte
+;status
+	.res 1           ;$90 i/o operation status byte
 verck	.res 1           ;$93 load or verify flag
 xsav	.res 1           ;$97 temp for basin
 ldtnd	.res 1           ;$98 index to logical file
@@ -116,8 +117,7 @@ t1	.res 1           ;$9E temporary 1
 fnlen	.res 1           ;$B7 length current file n str
 la	.res 1           ;$B8 current file logical addr
 sa	.res 1           ;$B9 current file 2nd addr
-.assert * = fa, error, "fa must be at specific address"
-;fa	.res 1           ;$BA current file primary addr
+fa	.res 1           ;$BA current file primary addr
 stal	.res 1           ;$C1
 stah	.res 1           ;$C2
 

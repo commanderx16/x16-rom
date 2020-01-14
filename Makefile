@@ -10,6 +10,7 @@ ifdef PRERELEASE_VERSION
 	VERSION_DEFINE="-DPRERELEASE_VERSION=$(PRERELEASE_VERSION)"
 endif
 
+CC           = cc65
 AS           = ca65
 LD           = ld65
 
@@ -33,6 +34,8 @@ ASFLAGS     += -D MACHINE_C64=1
 endif
 
 BUILD_DIR=build/$(MACHINE)
+
+CFG_DIR=$(BUILD_DIR)/cfg
 
 KERNAL_CORE_SOURCES = \
 	kernal/kernal.s \
@@ -303,45 +306,49 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 
+$(BUILD_DIR)/%.cfg: %.cfgtpl
+	@mkdir -p $$(dirname $@)
+	$(CC) -E $< -o $@
+
 $(BUILD_DIR)/%.o: %.s
 	@mkdir -p $$(dirname $@)
 	$(AS) $(ASFLAGS) $< -o $@
 
 
 # Bank 0 : KERNAL
-$(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) $(KERNAL_DEPS) cfg/kernal-$(MACHINE).cfg
+$(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) $(KERNAL_DEPS) $(CFG_DIR)/kernal-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C cfg/kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.sym
+	$(LD) -C $(CFG_DIR)/kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.sym
 
 # Bank 1 : KEYMAP
-$(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) $(KEYMAP_DEPS) cfg/keymap-$(MACHINE).cfg
+$(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) $(KEYMAP_DEPS) $(CFG_DIR)/keymap-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C cfg/keymap-$(MACHINE).cfg $(KEYMAP_OBJS) -o $@ -m $(BUILD_DIR)/keymap.map -Ln $(BUILD_DIR)/keymap.sym
+	$(LD) -C $(CFG_DIR)/keymap-$(MACHINE).cfg $(KEYMAP_OBJS) -o $@ -m $(BUILD_DIR)/keymap.map -Ln $(BUILD_DIR)/keymap.sym
 
 # Bank 2 : CBDOS
-$(BUILD_DIR)/cbdos.bin: $(CBDOS_OBJS) $(CBDOS_DEPS) cfg/cbdos-$(MACHINE).cfg
+$(BUILD_DIR)/cbdos.bin: $(CBDOS_OBJS) $(CBDOS_DEPS) $(CFG_DIR)/cbdos-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C cfg/cbdos-$(MACHINE).cfg $(CBDOS_OBJS) -o $@ -m $(BUILD_DIR)/cbdos.map -Ln $(BUILD_DIR)/cbdos.sym
+	$(LD) -C $(CFG_DIR)/cbdos-$(MACHINE).cfg $(CBDOS_OBJS) -o $@ -m $(BUILD_DIR)/cbdos.map -Ln $(BUILD_DIR)/cbdos.sym
 
 # Bank 3 : GEOS
-$(BUILD_DIR)/geos.bin: $(GEOS_OBJS) $(GEOS_DEPS) cfg/geos-$(MACHINE).cfg
+$(BUILD_DIR)/geos.bin: $(GEOS_OBJS) $(GEOS_DEPS) $(CFG_DIR)/geos-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C cfg/geos-$(MACHINE).cfg $(GEOS_OBJS) -o $@ -m $(BUILD_DIR)/geos.map -Ln $(BUILD_DIR)/geos.sym
+	$(LD) -C $(CFG_DIR)/geos-$(MACHINE).cfg $(GEOS_OBJS) -o $@ -m $(BUILD_DIR)/geos.map -Ln $(BUILD_DIR)/geos.sym
 
 # Bank 4 : BASIC
-$(BUILD_DIR)/basic.bin: $(BASIC_OBJS) $(BASIC_DEPS) cfg/basic-$(MACHINE).cfg
+$(BUILD_DIR)/basic.bin: $(BASIC_OBJS) $(BASIC_DEPS) $(CFG_DIR)/basic-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C cfg/basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.sym
+	$(LD) -C $(CFG_DIR)/basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.sym
 
 # Bank 5 : MONITOR
-$(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) $(MONITOR_DEPS) cfg/monitor-$(MACHINE).cfg
+$(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) $(MONITOR_DEPS) $(CFG_DIR)/monitor-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C cfg/monitor-$(MACHINE).cfg $(MONITOR_OBJS) -o $@ -m $(BUILD_DIR)/monitor.map -Ln $(BUILD_DIR)/monitor.sym
+	$(LD) -C $(CFG_DIR)/monitor-$(MACHINE).cfg $(MONITOR_OBJS) -o $@ -m $(BUILD_DIR)/monitor.map -Ln $(BUILD_DIR)/monitor.sym
 
 # Bank 6 : CHARSET
-$(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) cfg/charset-$(MACHINE).cfg
+$(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) $(CFG_DIR)/charset-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C cfg/charset-$(MACHINE).cfg $(CHARSET_OBJS) -o $@ -m $(BUILD_DIR)/charset.map -Ln $(BUILD_DIR)/charset.sym
+	$(LD) -C $(CFG_DIR)/charset-$(MACHINE).cfg $(CHARSET_OBJS) -o $@ -m $(BUILD_DIR)/charset.map -Ln $(BUILD_DIR)/charset.sym
 
 $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
 	./scripts/symbolize.sh 0 build/x16/kernal.sym   > $@

@@ -78,5 +78,5 @@
 .include "init.s"
 .include "nmi.s"
 .include "irqfile.s"
-.include "primm.s"
+.include "util.s"
 .include "vectors.s"

@@ -1,10 +1,10 @@
 MEMORY {
-	# Bank 1 (KEYMAPS)
+	#include "x16.cfginc"
+
 	KEYMAPS:  start = $C000, size = $4000, fill=yes, fillval=$AA;
 }
 
 SEGMENTS {
-	# Bank 1 (KEYMAPS)
 	KBDMETA:    load = KEYMAPS,  type = ro;
 	KBDTABLES:  load = KEYMAPS,  type = ro;
 	IKBDMETA:   load = KEYMAPS,  type = ro;
