@@ -1453,15 +1453,6 @@ zp1_plus_a_2:
         iny
 :       rts
 
-pow10lo2:
-        .byte <1, <10, <100, <1000, <10000
-pow10hi2:
-        .byte >1, >10, >100, >1000, >10000
-
-.if 1
-set_irq_vector:
-	rts
-
 add_a_to_zp1:
         clc
         adc     zp1
@@ -1470,6 +1461,14 @@ add_a_to_zp1:
         inc     zp1 + 1
 LB8D3:  rts
 
+pow10lo2:
+        .byte <1, <10, <100, <1000, <10000
+pow10hi2:
+        .byte >1, >10, >100, >1000, >10000
+
+.if 1
+set_irq_vector:
+	rts
 .else
 .include "irq.s"
 .endif

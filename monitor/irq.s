@@ -121,7 +121,8 @@ LB75E:  jsr     LB838
         beq     LB7AE
         cmp     #$27 ; "'"
         beq     LB7BC
-        jsr     LB8C8
+	lda     #8
+	jsr add_a_to_zp1
         jsr     print_cr
         jsr     dump_hex_line
         jmp     LB7C7
@@ -280,15 +281,6 @@ read_hex_byte_from_screen:
         jsr     hex_digit_to_nybble
         ora     tmp11
         rts
-
-LB8C8:  lda     #8
-add_a_to_zp1:
-        clc
-        adc     zp1
-        sta     zp1
-        bcc     LB8D3
-        inc     zp1 + 1
-LB8D3:  rts
 
 LB8D4:  lda     #$FF
         sta     disable_f_keys
