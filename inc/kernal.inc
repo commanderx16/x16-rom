@@ -124,4 +124,3 @@ console_get_char             = $fee1
 console_put_image            = $fed8
 console_set_paging_message   = $fed5
 
-kbdbuf_put                   = $fed2

@@ -11,6 +11,7 @@ loop4 = $1111 ; XXX
 .include "kernal.i"
 
 .import LBC4C
+.import _kbdbuf_put
 .import basin_cmp_cr
 .import basin_if_more
 .import basin_skip_spaces_cmp_cr
@@ -386,7 +387,7 @@ cmd_p:
 LBC11:  jsr     basin_cmp_cr
         bne     syn_err8
 LBC16:
-	jsr kbdbuf_put
+	jsr _kbdbuf_put
         lda     #4
         cmp     fa
         beq     LBC39 ; printer
