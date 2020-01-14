@@ -43,6 +43,8 @@
 
 screen_get_char = $1111 ; XXX
 mode = $1111 ; XXX
+rvs = $1111 ; XXX
+qtsw = $1111 ; XXX
 
 
 ; common
@@ -1154,54 +1156,44 @@ dump_8_hex_bytes:
 dump_8_ascii_characters:
         ldx     #8
 dump_ascii_characters:
-	ldy #0
-@loop:	jsr load_byte
-	phx
-	ldx #0           ; flag: none
-	bit mode
-	bvc :+
-	ldx #$80         ; flag: litmode
-	bra @end         ; ISO mode, skip
-:
-; PET mode: convert into character & reverse flag
-	cmp #$20
-	bcs :+
-	ora #$40         ; $00-$1F: reverse, add $40
-	inx
-:	cmp #$80
-	bcc @end         ; $20-$7F: printable character
-	cmp #$A0
-	bcs @end         ; $A0-$FF: printable character
-	and #$7F
-	ora #$60         ; $80-$9F: reverse, clear MSB, add $60
-	inx
-@end:	pha
-	txa
-	bpl :+
+        ldy     #0
+LB594:	jsr     load_byte
+        bit     mode         ; PET or ISO?
+	bvc     :+           ; branch of PET
+	inc     qtsw
+	inc     qtsw         ; "no exceptions quote mode"
+	inc     insrt
+	bra     LB5AD
+:       cmp     #$20
+        bcs     LB59F
+        pha
+        lda #REVERSE_ON
+        jsr bsout
+	pla
+        ora     #$40
+LB59F:  cmp     #$80
+        bcc     LB5AD
+        cmp     #$A0
+        bcs     LB5AD
+        and     #$7F
+        ora     #$60
+        pha
+        lda #REVERSE_ON
+        jsr bsout
+	pla
+LB5AD:
+	pha
 	lda #LITMODE
 	jsr bsout
-	bra @l1
-:	and #$7f
-	beq @l1
-	lda #REVERSE_ON
-	jsr bsout
-@l1:	pla
-	jsr bsout
-
-	cmp #$22 ; quote
-	bne :+
-	jsr bsout ; disable quote mode
-	lda #$14
-	jsr bsout ; delete extra quote
-:
-	lda #REVERSE_OFF
-	jsr bsout
-	iny
-	plx
-	dex
-	bne @loop
-	tya ; number of bytes consumed
-	jmp add_a_to_zp1
+	pla
+	jsr     bsout
+        lda #REVERSE_OFF
+        jsr bsout
+        iny
+        dex
+        bne     LB594
+        tya ; number of bytes consumed
+        jmp     add_a_to_zp1
 
 read_ascii:
         ldx     #32 ; number of characters
