@@ -1157,7 +1157,7 @@ dump_8_ascii_characters:
         ldx     #8
 dump_ascii_characters:
         ldy     #0
-LB594:	jsr     load_byte
+LB594:  jsr     load_byte
         bit     mode         ; PET or ISO?
 	bvc     :+           ; branch of PET
 	inc     qtsw
@@ -1165,30 +1165,20 @@ LB594:	jsr     load_byte
 	inc     insrt
 	bra     LB5AD
 :       cmp     #$20
-        bcs     LB59F
-        pha
-        lda #REVERSE_ON
-        jsr bsout
-	pla
-        ora     #$40
+        bcs     LB59F        ; branch of printable
+        inc     rvs          ; turn reverse on
+        ora     #$40         ; 
 LB59F:  cmp     #$80
         bcc     LB5AD
         cmp     #$A0
         bcs     LB5AD
         and     #$7F
         ora     #$60
-        pha
-        lda #REVERSE_ON
-        jsr bsout
-	pla
-LB5AD:
-	pha
-	lda #LITMODE
-	jsr bsout
-	pla
-	jsr     bsout
-        lda #REVERSE_OFF
-        jsr bsout
+        inc     rvs
+LB5AD:  jsr     bsout
+        lda     #0
+        sta     rvs
+        sta     qtsw
         iny
         dex
         bne     LB594
