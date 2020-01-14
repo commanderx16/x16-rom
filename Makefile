@@ -10,6 +10,7 @@ ifdef PRERELEASE_VERSION
 	VERSION_DEFINE="-DPRERELEASE_VERSION=$(PRERELEASE_VERSION)"
 endif
 
+CC           = cc65
 AS           = ca65
 LD           = ld65
 
@@ -307,7 +308,7 @@ clean:
 
 $(BUILD_DIR)/%.cfg: %.cfgtpl
 	@mkdir -p $$(dirname $@)
-	cpp $< > $@
+	$(CC) -E $< -o $@
 
 $(BUILD_DIR)/%.o: %.s
 	@mkdir -p $$(dirname $@)

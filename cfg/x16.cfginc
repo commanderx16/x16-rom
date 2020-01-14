@@ -1,3 +1,16 @@
+/*
+ * KERNAL, BASIC and CBDOS are built independently, yet the zero page
+ * and the $0200-$03FF variables/vetors area are split between them.
+ * Therefore, we have this global ld65 "MEMORY" defintion that gets
+ * included by all individual .cfg files.
+ *
+ * The cc65 preprocessor is used to combine the .cfg files. All comments
+ * have to be C-style: .cfg "#"-style would throw C preprocessor errors,
+ # and C-style comments, unsupported by ld65, get removed by the pre-
+ * processor.
+ *
+ */
+
 /* zero page */
 /*        start = $0000, size = $0080; # available to the user (or GEOS) */
 ZPKERNAL: start = $0080, size = $0012; # KERNAL
@@ -20,8 +33,8 @@ KVECTORS: start = $0314, size = $0020; # KERNAL vectors
 KVAR2:    start = $0334, size = $0057; # KERNAL: screen editor table
 KERNRAM2: start = $038B, size = $003F; # KERNAL: banked IRQ, fetch, stash
 /*        start = $03CA, size = $0002; # reserved for KERNAL growth */
-FPVARS:   start = $03CC, size = $0009; # FPLIB
-BVARS:    start = $03D5, size = $002B; # BASIC
+FPVARS:   start = $03CB, size = $0009; # FPLIB
+BVARS:    start = $03D4, size = $002C; # BASIC
 
 /* KERNAL/CBDOS bank #0 vars */
 KVARSB0:  start = $A000, size = $0C00;
