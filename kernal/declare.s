@@ -13,7 +13,8 @@ mhz     =8
 ;                         VVV
 tmp2	.res 2           ;$C3
 .assert * = imparm, error, "imparm must be at specific address"
-;imparm	.res 2           ;    PRIMM utility string pointer
+;imparm
+	.res 2           ;    PRIMM utility string pointer
 ckbtab	.res 2           ;    used for keyboard lookup
 ptr_fg	.res 2
 
