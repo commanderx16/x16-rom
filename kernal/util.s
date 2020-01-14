@@ -41,7 +41,8 @@ primm
 ;
 ; Function:  Retrieve IEEE device status string.
 ;
-; Pass:      x/y  string address
+; Pass:      a    device number
+;            x/y  string address
 ;
 ; Return:    a    string length
 ;
@@ -51,7 +52,7 @@ primm
 ieee_read_status:
 	stx tmp2
 	sty tmp2+1
-	lda #8;fa
+	jsr getdev
 	jsr talk
 	lda #$6f
 	jsr tksa
@@ -66,4 +67,15 @@ ieee_read_status:
 	bne @loop
 :	jsr untlk
 	tya
+	rts
+
+getdev:
+	lda fa
+	cmp #$ff
+	bne :+
+	lda #8
+	cmp fa
+	bcs :+
+	lda fa
+:	sta fa
 	rts
