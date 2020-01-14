@@ -1,4 +1,5 @@
-	.segment "PRIMM"
+
+	.segment "UTIL"
 
 ; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ;     *** print immediate ***
@@ -34,3 +35,35 @@ primm
 	tax
 	pla
 	rts             ;return
+
+;---------------------------------------------------------------
+; ieee_read_status
+;
+; Function:  Retrieve IEEE device status string.
+;
+; Pass:      x/y  string address
+;
+; Return:    a    string length
+;
+; Notes:     The string is zero-terminated and does not contain
+;            the terminating CR sent by the device.
+;---------------------------------------------------------------
+ieee_read_status:
+	stx tmp2
+	sty tmp2+1
+	lda #8;fa
+	jsr talk
+	lda #$6f
+	jsr tksa
+	ldy #0
+@loop:	jsr acptr
+	cmp #13
+	bne :+
+	lda #0
+:	sta (tmp2),y
+	beq :+
+	iny
+	bne @loop
+:	jsr untlk
+	tya
+	rts

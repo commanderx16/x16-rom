@@ -26,7 +26,9 @@
 	.byte 0,0,0            ; $FEC6
 	.byte 0,0,0            ; $FEC9
 	.byte 0,0,0            ; $FECC
-	.byte 0,0,0            ; $FECF
+
+	jmp ieee_read_status   ; $FECF
+
 	jmp kbdbuf_put         ; $FED2
 
 	jmp console_set_paging_message ; $FED5
