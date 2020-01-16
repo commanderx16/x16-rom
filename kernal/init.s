@@ -44,7 +44,7 @@ vectss	.word key,timb,nnmi
 	.word nopen,nclose,nchkin
 	.word nckout,nclrch,nbasin
 	.word nbsout,nstop,ngetin
-	.word nclall,timb ;goto break on a usrcmd jmp
+	.word nclall,filter_keyboard_default
 	.word nload,nsave
 vectse
 

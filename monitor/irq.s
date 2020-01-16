@@ -1,4 +1,55 @@
+.if 1
+ifilter = $032e
 
+; ----------------------------------------------------------------
+; scrolling
+; ----------------------------------------------------------------
+set_irq_vector:
+        lda     ifilter
+        cmp     #<filter_kbd
+        bne     :+
+        lda     ifilter+1
+        cmp     #>filter_kbd
+        beq     @1
+:	lda     ifilter
+        ldx     ifilter+1
+        sta     irq_lo
+        stx     irq_hi
+        lda     #<filter_kbd
+        ldx     #>filter_kbd
+        bne     :+ ; always
+@1:	lda     irq_lo
+        ldx     irq_hi
+:	sei
+        sta     ifilter
+        stx     ifilter+1
+        cli
+        rts
+
+.segment "monitor_ram_code"
+
+filter_kbd:
+	ldx d1prb
+	phx
+	ldx #BANK_MONITOR
+	stx d1prb ; ROM bank
+	jsr filter_kbd2
+	plx
+	stx d1prb
+	and #$ff ; set flags
+	rts
+
+.segment "monitor"
+filter_kbd2:
+	cmp #CSR_UP
+	bne :+
+	lda #0
+:	rts
+
+
+
+
+.else
 bmt2 = $1111 ; XXX
 xmon1 = $1111 ; XXX
 ldtb1 = $1111 ; XXX
@@ -10,48 +61,10 @@ blnon = $1111 ; XXX
 tblx = $1111 ; XXX
 pnt = $1111 ; XXX
 
-cinv   := $0314 ; IRQ vector
-
-; ----------------------------------------------------------------
-; IRQ logic to handle F keys and scrolling
-; ----------------------------------------------------------------
-	set_irq_vector:
-        lda     cinv
-        cmp     #<irq_handler
-        bne     LB6C1
-        lda     cinv + 1
-        cmp     #>irq_handler
-        beq     LB6D3
-LB6C1:  lda     cinv
-        ldx     cinv + 1
-        sta     irq_lo
-        stx     irq_hi
-        lda     #<irq_handler
-        ldx     #>irq_handler
-        bne     LB6D9 ; always
-LB6D3:  lda     irq_lo
-        ldx     irq_hi
-LB6D9:  sei
-        sta     cinv
-        stx     cinv + 1
-        cli
-        rts
-
-.segment "monitor_ram_code"
-
-irq_handler:
-	lda d1prb
-	pha
-	lda #BANK_MONITOR
-	sta d1prb ; ROM bank
-	jsr irqhandler2
-	pla
-	sta d1prb
-	rts
 
 .segment "monitor_b"
 
-irqhandler2:
+filter_kbd2:
         lda     disable_f_keys
         bne     LB6FA
 	jsr kbdbuf_peek
@@ -353,3 +366,4 @@ kbdbuf_peek:
 	jsr kbdbuf_put
 	pla
 :	rts
+.endif

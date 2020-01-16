@@ -19,6 +19,7 @@ nwrap=2 ;max number of physical lines per logical line
 
 .import iokeys
 .import panic
+.import ifilter
 
 ; kernal
 .export crsw
@@ -27,6 +28,7 @@ nwrap=2 ;max number of physical lines per logical line
 .export lstp
 .export lsxp
 .export cursor_blink
+.export filter_keyboard_default
 
 ; monitor and kernal
 .export tblx
@@ -226,6 +228,7 @@ stdone
 loop4	jsr prt
 loop3
 	jsr kbdbuf_get
+	jsr filter_keyboard
 	sta blnsw
 	sta autodn      ;turn on auto scroll down
 	beq loop3
@@ -1045,6 +1048,10 @@ cursor_blink:
 
 @5	rts
 
+filter_keyboard:
+	jmp (ifilter)
+filter_keyboard_default:
+	rts
 
 runtb	.byt "LOAD",$d,"RUN",$d
 runtb_end:

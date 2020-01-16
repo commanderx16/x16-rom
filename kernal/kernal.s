@@ -4,6 +4,7 @@
 .import plot
 .import scrorg
 .import cint
+.import filter_keyboard_default
 
 .import kbd_scan
 
