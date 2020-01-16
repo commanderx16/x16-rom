@@ -1466,9 +1466,4 @@ pow10lo2:
 pow10hi2:
         .byte >1, >10, >100, >1000, >10000
 
-.if 1
-set_irq_vector:
-	rts
-.else
 .include "irq.s"
-.endif

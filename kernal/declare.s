@@ -11,6 +11,7 @@
 .export tmp2; [cpychr]
 .export kvswitch_tmp1, kvswitch_tmp2
 .export mhz
+.export ifilter
 
 mhz     =8
 
@@ -52,6 +53,6 @@ ibsout	.res 2
 istop	.res 2
 igetin	.res 2
 iclall	.res 2
-usrcmd	.res 2
+ifilter	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
