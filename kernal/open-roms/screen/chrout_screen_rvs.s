@@ -10,11 +10,11 @@
 chrout_screen_RVS_ON:
 
 	lda #$80
-	bne !+ ; branch always
+	bne l7 ; branch always
 
 chrout_screen_RVS_OFF:
 
 	lda #$00
-!:
+l7:
 	sta RVS
 	jmp chrout_screen_done

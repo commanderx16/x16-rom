@@ -39,7 +39,6 @@ __chrout_screen_jumptable_quote_guard:
 __chrout_screen_jumptable_codes_end:
 
 
-.if !HAS_OPCODES_65C02
 
 chrout_screen_jumptable_lo:
 
@@ -90,36 +89,3 @@ chrout_screen_jumptable_hi:
 	.byte >(chrout_screen_INS        - 1)
 	.byte >(chrout_screen_DEL        - 1)
 	.byte >(chrout_screen_RETURN     - 1)
-
-#else
-
-.if (mod(*, $2) == 1) { nop }          ; align code so that vector never crosses page boundary
-
-chrout_screen_jumptable:
-
-	.word chrout_screen_CLR
-	.word chrout_screen_HOME
-	.word chrout_screen_SHIFT_OFF
-	.word chrout_screen_SHIFT_ON
-	.word chrout_screen_TXT
-	.word chrout_screen_GFX
-	.word chrout_screen_RVS_OFF
-	.word chrout_screen_RVS_ON
-	.word chrout_screen_CRSR_RIGHT
-	.word chrout_screen_CRSR_LEFT
-	.word chrout_screen_CRSR_DOWN
-	.word chrout_screen_CRSR_UP
-.if CONFIG_EDIT_STOPQUOTE
-	.word chrout_screen_STOP
-.endif
-.if CONFIG_EDIT_TABULATORS
-	.word chrout_screen_TAB_BW
-	.word chrout_screen_TAB_FW
-.endif
-	.word chrout_screen_INS
-	.word chrout_screen_DEL
-	.word chrout_screen_RETURN
-
-.if (mod(*, $2) == 0) { nop }          ; make sure routine size is always the same, needed by build system
-
-.endif

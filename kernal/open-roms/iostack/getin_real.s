@@ -18,7 +18,7 @@ getin_real:
 	lda DFLTN
 
 	; Try $00 - keyboard
-	beq_16 getin_keyboard
+	beq_16 kbdbuf_get
 
 .if HAS_RS232
 

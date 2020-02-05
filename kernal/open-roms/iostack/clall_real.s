@@ -20,14 +20,14 @@ clall_real:
 	; Original routine probably just sets LDTND to 0, but this is not really safe,
 	; so we actually close all the channels; at least IDE64 does the same for
 	; its channels, see CLALL description in the IDE64 Users Guide
-!:
+:
 	ldy LDTND
-	beq !+
+	beq :+
 	dey
 	lda LAT, y
 	jsr JCLOSE
-	jmp !-
-!:
+	jmp :-
+:
 	; Restore .Y register
 	ply_trash_a
 

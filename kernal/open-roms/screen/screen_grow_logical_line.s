@@ -29,30 +29,27 @@ screen_grow_logical_line:
 	bpl screen_grow_logical_line_done_scroll
 
 	; If last line, scroll the screen up
-	cpy #24
+	cpy nlinesm1
 	beq screen_grow_logical_line_screen_up
 
 	; Do not grow line if already grown
 	lda LDTBL+1, y
 	bpl screen_grow_logical_line_done
 	
-	; Preserve SAL and EAL
-
-	jsr screen_preserve_sal_eal
-
 	; Scroll LDTBL down (start from the end)
-	ldy #23
-!:
+	ldy nlinesm1
+	dey
+:
 	cpy TBLX
-	beq !+
-	bcc !+
+	beq :+
+	bcc :+
 
 	lda LDTBL+0, y
 	sta LDTBL+1, y
 
 	dey
-	bne !-
-!:
+	bne :-
+:
 	; Mark current line as grown
 	ldy TBLX
 	lda #$00
@@ -64,76 +61,19 @@ screen_grow_logical_line:
 
 	; Work out how many physical lines to scroll down
 
-	lda #23
-	sec
+	lda nlinesm1
+	clc ; subtract one more
 	sbc TBLX
 	beq screen_grow_logical_line_copy_done       ; branch if no need to copyy
-	tax
 
-	; Prepare initial SAL/EAL/PNT/USER values
-
-	lda HIBASE
-	clc
-	adc #3
-	sta SAL+1
-	sta EAL+1
-
-	lda #>$DB00                        ; 3rd page of the color memory
-	sta PNT+1
-	sta USER+1
-
-	lda #<$03C0                        ; start of destination row
-	sta EAL+0
-	sta USER+0
-	lda #<$0398                        ; start of source row
-	sta SAL+0
-	sta PNT+0
-
-screen_grow_logical_line_loop:
-
-	; Scroll down one line each loop iteration
-
-	ldy #39
-!:
-	lda (SAL),  y
-	sta (EAL),  y
-	lda (PNT),  y
-	sta (USER), y
-	dey
-	bpl !-
-
-	; Decrement SAL/PNT pointers by 40 (optimized due to fact they share LSB)
-
-	lda SAL+0
-	sec
-	sbc #40
-	sta SAL+0
-	sta PNT+0
-	bcs !+
-	dec SAL+1
-	dec PNT+1
-!:
-	; Decrement EAL/USER pointers by 40 (optimized due to fact they share LSB)
-
-	lda EAL+0
-	sec
-	sbc #40
-	sta EAL+0
-	sta USER+0
-	bcs !+
-	dec EAL+1
-	dec USER+1
-!:
-	; Next loop iteration
-
+	ldx nlinesm1
+:	jsr screen_set_position
 	dex
-	bne screen_grow_logical_line_loop
+	jsr screen_copy_line
+	cpx TBLX
+	bne :-
 
 screen_grow_logical_line_copy_done:
-
-	; Restore SAL and EAL
-
-	jsr screen_restore_sal_eal
 
 	; Erase newly inserted line and quit
 

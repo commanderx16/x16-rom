@@ -9,11 +9,11 @@
 screen_get_clipped_PNTR:
 
 	ldy PNTR
-	cpy #40
-	bcc !+
+	cpy llen
+	bcc :+
 	tya
-	sbc #40
+	sbc llen
 	tay
-!:
+:
 	cpy #$00
 	rts

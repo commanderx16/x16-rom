@@ -14,11 +14,7 @@
 
 CLRCHN:
 
-.if CONFIG_IEC
 	jsr clrchn_iec
-#else
-	nop ; just to prevent double label
-.endif
 
 	; FALLTROUGH
 

@@ -16,18 +16,18 @@ clear_screen:
 	; continuation of the previous one
 
 	lda #$80
-	ldy #24	
-!:
+	ldy nlinesm1
+:
 	sta LDTBL,y
 	dey
-	bpl !-
+	bpl :-
 
 	; Clear all the rows
-	ldx #24
-!:
+	ldx nlinesm1
+:
 	jsr screen_clear_line
 	dex
-	bpl !-
+	bpl :-
 
 	; Fall to cursor home routine
 	jmp cursor_home

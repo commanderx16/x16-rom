@@ -10,11 +10,11 @@
 find_fls:
 
 	ldy LDTND
-!:
+:
 	dey
 	bmi find_fls_not_found ; no more entries
 	cmp LAT, y
-	bne !- ; does not match, try the next one
+	bne :- ; does not match, try the next one
 
 	clc
 	rts

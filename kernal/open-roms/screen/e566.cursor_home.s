@@ -16,3 +16,5 @@ cursor_home:
 	sta TBLX                           ; current row
 
 	; FALLTROUGH to the next routine
+
+.assert * = screen_calculate_pointers, error, "cursor_home must fall through to screen_calculate_pointers"

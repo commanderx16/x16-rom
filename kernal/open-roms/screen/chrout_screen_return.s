@@ -20,13 +20,13 @@ chrout_screen_RETURN:
 	; of first line of the extended logical line
 	
 	ldy TBLX
-	cpy #24
-	beq !+                             ; last line on screen - no need for a double line skip
+	cpy nlinesm1
+	beq :+                             ; last line on screen - no need for a double line skip
 
 	lda LDTBL+1, y
-	bmi !+                             ; current line is not continued
+	bmi :+                             ; current line is not continued
 
 	inc TBLX
 	jsr screen_calculate_PNT_USER
-!:
+:
 	jmp screen_advance_to_next_line

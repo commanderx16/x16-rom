@@ -9,9 +9,6 @@ default_brk_handler:
 
 	sei ; disable IRQs, to be sure they wont interfere
 
-	ldx #$00
-	sta VIC_SCROLX ; turn the display off - we want as little screen artifacts as possible
-
 	cld ; make sure this dangerous flag is disabled
 
 	jsr JRESTOR
@@ -25,4 +22,6 @@ default_brk_handler:
 
 	cli
 
-	jmp (IBASIC_WARM_START)
+	clc
+	jmp enter_basic
+

@@ -3,6 +3,11 @@ MACHINE     ?= x16
 # also supported:
 # * c64
 
+CORE_SOURCE_BASE ?= CBM
+SERIAL_SOURCE_BASE ?= CBM
+# for both also supported
+# * OPENROMS
+
 ifdef RELEASE_VERSION
 	VERSION_DEFINE="-DRELEASE_VERSION=$(RELEASE_VERSION)"
 endif
@@ -48,14 +53,31 @@ KERNAL_CORE_CBM_SOURCES = \
 KERNAL_SERIAL_CBM_SOURCES = \
 	kernal/cbm/serial.s
 
+KERNAL_SERIAL_OPENROMS_SOURCES = # TODO
+
+KERNAL_CORE_OPENROMS_SOURCES = \
+	kernal/open-roms/open-roms.s
+
 KERNAL_CORE_SOURCES = \
 	kernal/declare.s \
 	kernal/vectors.s \
 	kernal/kbdbuf.s \
 	kernal/memory.s \
-	kernal/lzsa.s \
-	$(KERNAL_CORE_CBM_SOURCES) \
-	$(KERNAL_SERIAL_CBM_SOURCES)
+	kernal/lzsa.s
+
+ifeq ($(CORE_SOURCE_BASE),CBM)
+	KERNAL_CORE_SOURCES += $(KERNAL_CORE_CBM_SOURCES)
+else ifeq ($(CORE_SOURCE_BASE),OPENROMS)
+	KERNAL_CORE_SOURCES += $(KERNAL_CORE_OPENROMS_SOURCES)
+else
+$(error Illegal value for CORE_SOURCE_BASE)
+endif
+
+ifeq ($(SERIAL_SOURCE_BASE),CBM)
+	KERNAL_CORE_SOURCES += $(KERNAL_SERIAL_CBM_SOURCES)
+else
+	KERNAL_CORE_SOURCES += $(KERNAL_SERIAL_OPENROMS_SOURCES)
+endif
 
 KERNAL_GRAPH_SOURCES = \
 	kernal/console.s \

@@ -1,4 +1,3 @@
-.if ROM_LAYOUT_STD || (ROM_LAYOUT_M65 && SEGMENT_KERNAL_0)
 
 ;
 ; Default values for Kernal vectors - described in:
@@ -27,4 +26,3 @@ vector_defaults:
 	.word SAVE                   ; ISAVE
 
 
-.endif ; ROM layout

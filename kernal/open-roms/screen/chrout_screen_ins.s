@@ -33,7 +33,7 @@ chrout_screen_ins_possible:
 
 	; Put space in the inserted gap
 	lda #$20
-	sta (PNT), y
+	jsr screen_set_char
 
 	; If line does not end with space now, try to grow the logical line
 	
@@ -53,7 +53,7 @@ chrout_screen_ins_second_line:
 	; Adapt PNTR for copying
 	lda PNTR
 	sec
-	sbc #40
+	sbc llen
 	sta PNTR
 
 	; Perform character copy
@@ -61,7 +61,7 @@ chrout_screen_ins_second_line:
 
 	; Put space in the inserted gap
 	lda #$20
-	sta (PNT), y
+	jsr screen_set_char
 
 	; End of processing
 	bne chrout_screen_ins_done         ; branch always
@@ -77,13 +77,13 @@ chrout_screen_ins_copy_loop:
 	; though we really do not believe that the routine can be copyrighted
 	; due to the lack of creativity.
 	dey
-	lda (USER),y
+	jsr screen_get_color
 	iny
-	sta (USER),y
+	jsr screen_set_color
 	dey
-	lda (PNT),y
+	jsr screen_get_char
 	iny
-	sta (PNT),y
+	jsr screen_set_char
 
 	dey
 	cpy PNTR

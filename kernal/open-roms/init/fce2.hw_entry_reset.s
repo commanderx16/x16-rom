@@ -24,6 +24,7 @@ hw_entry_reset:
 	; Also, https:;codebase64.org/doku.php?id=base:assembling_your_own_cart_rom_image was used
 	; as it shows example startup sequence, to be followe by cartridge creators
 
+.if 0
 	; C64 PRG p269
 	jsr cartridge_check
 	bne !+
@@ -32,6 +33,7 @@ hw_entry_reset:
 	; Disable the screen (and set 40 columns) to prevent visual glitches later
 	ldx #$28
 	stx VIC_SCROLX
+.endif
 
 	; Initialising IO is obviously required. Also indicated by c64 prg p269.
 	jsr JIOINIT
@@ -51,4 +53,5 @@ hw_entry_reset:
 	cli ; allow interrupts to happen
 
 	; c64 prg p269
-	jmp (IBASIC_COLD_START)
+	sec
+	jmp enter_basic

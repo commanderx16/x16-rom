@@ -6,6 +6,7 @@
 ; Keyboard part of the CHRIN routine
 ;
 
+.import kbdbuf_get
 
 chrin_keyboard:
 
@@ -54,7 +55,7 @@ not_end_of_input:
 	; Return next byte of waiting
 	tay
 chrin_keyboard_return_byte:
-	lda (LXSP),y
+	jsr screen_get_char
 	tax
 	ply_trash_a
 	txa
@@ -68,17 +69,15 @@ read_from_keyboard:
 	jsr cursor_enable
 
 	; Wait for a key
-	lda NDX
+	jsr kbdbuf_get
 	beq chrin_repeat
 
-	lda KEYD
 	cmp #$0D
 	bne not_enter
 
-chrin_enter:
+;chrin_enter:
 
 	jsr cursor_disable
-	jsr pop_keyboard_buffer
 	jsr cursor_hide_if_visible
 
 	; It was enter.
@@ -86,6 +85,7 @@ chrin_enter:
 	; after computing and storing its length.
 	; (Computes Mapping the 64, p96)
 
+.if 1
 	; Set pointer to line of input
 	lda PNT+0
 	sta LXSP+0
@@ -98,15 +98,16 @@ chrin_enter:
 	bmi chrin_enter_calc_length        ; branch if not continuation
 	lda LXSP+0
 	sec
-	sbc #40
+	sbc llen
 	sta LXSP+0
-	bcs !+
+	bcs :+
 	dec LXSP+1
-!:
+:
 	ldy #80
 	bne chrin_enter_loop               ; branch always
 
 chrin_enter_calc_length:
+.endif
 
 	; Calculate length
 	jsr screen_get_logical_line_end_ptr
@@ -117,7 +118,7 @@ chrin_enter_loop:
 	; Retrieve bytes
 	dey
 	bmi empty_line
-	lda (LXSP),y
+	jsr screen_get_char
 	cmp #$20
 	beq chrin_enter_loop
 	iny
@@ -130,46 +131,8 @@ chrin_enter_loop:
 	beq chrin_keyboard_return_byte ; branch always
 
 not_enter:
-
-	lda KEYD
-
-.if CONFIG_PROGRAMMABLE_KEYS
-
-	ldx #(__programmable_keys_codes_end - programmable_keys_codes - 1)
-
-chrin_programmable_loop:
-
-	cmp programmable_keys_codes, x
-	beq chrin_programmable_key
-	dex
-	bpl chrin_programmable_loop
-
-	; FALLTROUGH
-
-.endif ; CONFIG_PROGRAMMABLE_KEYS
-
-chrin_print_character:
-
 	jsr CHROUT
-	jsr pop_keyboard_buffer
 
 	; Keep looking for input from keyboard until carriage return
 	jmp chrin_repeat
 
-.if CONFIG_PROGRAMMABLE_KEYS
-
-chrin_programmable_key:
-
-	; .X contains index of the key code, we need offset to key string instead
-	lda programmable_keys_offsets, x
-	tax
-
-	; Print all the characters assigned to key
-!:
-	lda programmable_keys_strings, x
-	beq chrin_enter
-	jsr CHROUT ; our implementation preserves .X too
-	inx
-	bne !-     ; jumps always
-
-.endif ; CONFIG_PROGRAMMABLE_KEYS

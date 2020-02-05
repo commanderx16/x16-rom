@@ -31,22 +31,13 @@ hw_entry_irq:
 	; Not caused by BRK - call interrupt routine (only if initialised)
 	lda CINV
 	ora CINV+1
-	beq !+
+	beq :+
 	jmp (CINV)
-!:
+:
 	; Vector not initialized - call default interrupt routine
 	jmp default_irq_handler
 
 irq_handler_brk:
-
-	; Store BRK adddress, to be displayed
-	sec
-	lda $0105, x
-	sbc #$02
-	sta CMP0+0
-	lda $0106, x
-	sbc #$00
-	sta CMP0+1
 
 	; Interrupt caused by BRK
 	jmp (CBINV)

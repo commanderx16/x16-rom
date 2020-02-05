@@ -17,11 +17,6 @@ SAVE:
 	; Reset status
 	jsr kernalstatus_reset
 
-.if CONFIG_MEMORY_MODEL_60K
-	; We need our helpers to get to filenames under ROMs or IO area
-	jsr install_ram_routines
-.endif
-
 	; Check whether we support the requested device
 	lda FA
 

@@ -9,8 +9,10 @@
 
 clear_cia1_interrupt_flag_and_return_from_interrupt:
 
-	; We have free choice of LDA, LDX or LDY to achieve this goal
-	; in 3 bytes and minimum cycles. Thus we randomly choose LDY.
-	ldy CIA1_ICR
+	jsr irq_ack
 
 	; FALL THROUGH to $EA81
+
+.assert * = return_from_interrupt, error, "clear_cia1_interrupt_flag_and_return_from_interrupt must fall through to return_from_interrupt"
+
+

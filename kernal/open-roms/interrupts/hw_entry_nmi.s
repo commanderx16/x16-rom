@@ -15,10 +15,10 @@ hw_entry_nmi:
 	pha
 	lda NMINV
 	ora NMINV+1
-	beq !+
+	beq :+
 	pla
 	jmp (NMINV)
-!:
+:
 	; Vector not initialized - call default interrupt routine
 	pla
 	jmp default_nmi_handler

@@ -1,5 +1,3 @@
-.if ROM_LAYOUT_STD || (ROM_LAYOUT_M65 && SEGMENT_KERNAL_0)
-
 ;
 ; Official Kernal routine, described in:
 ;
@@ -24,6 +22,3 @@ membot_set:
 	stx MEMSTR+0
 	
 	rts
-
-
-.endif ; ROM layout
