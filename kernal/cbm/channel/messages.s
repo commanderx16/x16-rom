@@ -1,3 +1,9 @@
+;----------------------------------------------------------------------
+; Channel: Messages
+;----------------------------------------------------------------------
+; (C)1983 Commodore Business Machines (CBM)
+; additions: (C)2020 Michael Steil, License: 2-clause BSD
+
 ms1	.byt $d,"I/O ERROR ",$a3
 ms5	.byt $d,"SEARCHING",$a0
 ms6	.byt "FOR",$a0

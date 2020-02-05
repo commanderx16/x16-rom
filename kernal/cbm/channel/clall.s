@@ -1,3 +1,9 @@
+;----------------------------------------------------------------------
+; Channel: CLALL/CLRCH
+;----------------------------------------------------------------------
+; (C)1983 Commodore Business Machines (CBM)
+; additions: (C)2020 Michael Steil, License: 2-clause BSD
+
 ;***************************************
 ;* clall -- close all logical files  *
 ;*      deletes all table entries and*

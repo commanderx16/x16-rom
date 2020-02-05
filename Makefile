@@ -37,14 +37,25 @@ BUILD_DIR=build/$(MACHINE)
 
 CFG_DIR=$(BUILD_DIR)/cfg
 
+KERNAL_CORE_CBM_SOURCES = \
+	kernal/cbm/editor.s \
+	kernal/cbm/channel/channel.s \
+	kernal/cbm/init.s \
+	kernal/cbm/nmi.s \
+	kernal/cbm/irq.s \
+	kernal/cbm/util.s
+
+KERNAL_SERIAL_CBM_SOURCES = \
+	kernal/cbm/serial.s
+
 KERNAL_CORE_SOURCES = \
-	kernal/kernal.s \
-	kernal/editor.s \
+	kernal/declare.s \
+	kernal/vectors.s \
 	kernal/kbdbuf.s \
-	kernal/channel/channel.s \
-	kernal/serial.s \
 	kernal/memory.s \
-	kernal/lzsa.s
+	kernal/lzsa.s \
+	$(KERNAL_CORE_CBM_SOURCES) \
+	$(KERNAL_SERIAL_CBM_SOURCES)
 
 KERNAL_GRAPH_SOURCES = \
 	kernal/console.s \
@@ -62,7 +73,7 @@ ifeq ($(MACHINE),c64)
 		kernal/drivers/c64/rs232.s \
 		kernal/drivers/c64/screen.s \
 		kernal/drivers/c64/sprites.s
-else
+else ifeq ($(MACHINE),x16)
 	KERNAL_DRIVER_SOURCES = \
 		kernal/drivers/x16/x16.s \
 		kernal/drivers/x16/memory.s \
@@ -75,6 +86,8 @@ else
 		kernal/drivers/x16/rs232.s \
 		kernal/drivers/x16/framebuffer.s \
 		kernal/drivers/x16/sprites.s
+else
+$(error Illegal value for MACHINE)
 endif
 
 KERNAL_SOURCES = \

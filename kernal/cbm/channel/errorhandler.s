@@ -1,3 +1,9 @@
+;----------------------------------------------------------------------
+; Channel: Errors
+;----------------------------------------------------------------------
+; (C)1983 Commodore Business Machines (CBM)
+; additions: (C)2020 Michael Steil, License: 2-clause BSD
+
 
 ;***************************************
 ;* stop -- check stop key flag and     *

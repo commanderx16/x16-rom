@@ -11,7 +11,6 @@
 .import joystick_from_ps2; [joystick]
 ; data
 .import mode; [declare]
-.importzp ckbtab; [declare]
 .import fetch, fetvec; [memory]
 .importzp tmp2
 
@@ -25,6 +24,9 @@ MODIFIER_ALT   = 2 ; C64:  Commodore
 MODIFIER_CTRL  = 4 ; C64:  Ctrl
 MODIFIER_WIN   = 8 ; C128: Alt
 MODIFIER_CAPS  = 16; C128: Caps
+
+.segment "ZPKERNAL" : zeropage
+ckbtab:	.res 2           ;    used for keyboard lookup
 
 .segment "KVARSB0"
 
@@ -73,6 +75,7 @@ setkb3:	lda #<$c000
 	jsr fetch
 	pha
 	iny
+	ldx #BANK_KEYBD
 	jsr fetch
 	sta tmp2+1
 	pla

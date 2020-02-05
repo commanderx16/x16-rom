@@ -1,8 +1,22 @@
+;----------------------------------------------------------------------
+; Init, Vectors, Memory
+;----------------------------------------------------------------------
+; (C)1983 Commodore Business Machines (CBM)
+; additions: (C)2020 Michael Steil, License: 2-clause BSD
 
-.import enter_basic
+.feature labels_without_colons
 
-.export membot
-.export memtop
+.include "io.inc"
+
+.import nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv, cint, ramtas, ioinit, enter_basic
+.importzp tmp2
+
+.export iobase, membot, memtop, restor, start, vector
+
+.segment "KVAR"
+memstr	.res 2           ; start of memory
+memsiz	.res 2           ; top of memory
+rambks	.res 1           ; X16: number of ram banks (0 means 256)
 
 	.segment "INIT"
 ; start - system reset

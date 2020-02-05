@@ -56,7 +56,7 @@ screen_init:
 	lda #0
 	sta veractl     ;set ADDR1 active
 
-	lda #1
+	lda #2
 	jsr screen_set_charset
 
 	lda #$1f

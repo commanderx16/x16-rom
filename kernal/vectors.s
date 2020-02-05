@@ -1,4 +1,13 @@
+;----------------------------------------------------------------------
+; Jump Table
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
 
+.feature labels_without_colons
+
+.import plot, scrorg, iclall, igetin, istop, savesp, loadsp, ibsout, ibasin, iclrch, ickout, ichkin, iclose, iopen, setnam, setlfs, readst, talk, listn, unlsn, untlk, ciout, acptr, settmo, kbd_scan, tksa, secnd, setmsg, ramtas, ioinit, cint, cmpare, stash, indfet, jsrfar, screen_set_charset, screen_set_mode, lkupsa, lkupla, close_all, enter_basic
+.import I_FB_move_pixels, I_FB_filter_pixels, I_FB_fill_pixels, I_FB_set_8_pixels_opaque, I_FB_set_8_pixels, I_FB_set_pixels, I_FB_set_pixel, I_FB_get_pixels, I_FB_get_pixel, I_FB_cursor_next_line, I_FB_cursor_position, I_FB_set_palette, I_FB_get_info, I_FB_init
+.import memory_decompress, memory_crc, memory_copy, memory_fill
 .import monitor
 .import mouse_config, mouse_scan, mouse_get; [mouse]
 .import joystick_scan; [joystick]
@@ -13,6 +22,8 @@
 .import console_init, console_put_char, console_get_char, console_put_image, console_set_paging_message
 
 .import kbdbuf_put
+
+.import restor, memtop, membot, vector, puls, start, nmi, iobase, primm
 
 	.segment "JMPTBL"
 
