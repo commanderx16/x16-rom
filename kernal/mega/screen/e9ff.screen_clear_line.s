@@ -24,14 +24,14 @@ screen_clear_line:
 
 	; Now clear the line
 	ldy #39
-!:
+:
 	lda COLOR
 	sta (USER), y
 	lda #$20                           ; space character screen code
 	sta (PNT), y
 
 	dey
-	bpl !-
+	bpl :-
 
 	; Done
 	rts

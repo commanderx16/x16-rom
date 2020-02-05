@@ -12,7 +12,7 @@ chrout_screen_GFX:
 .if 0
 	lda VIC_YMCSB
 	and #$02 ; to upper case
-!:
+l5:
 	sta VIC_YMCSB
 .else
 	; MIST
@@ -23,4 +23,4 @@ chrout_screen_TXT:
 
 	lda VIC_YMCSB
 	ora #$02    ; to lower case
-	bne !-      ; branch always
+	bne l5      ; branch always

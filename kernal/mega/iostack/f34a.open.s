@@ -19,8 +19,8 @@ OPEN:
 
 	; Check if the logical file number is unique
 	ldy LDTND
-!:
-	beq !+
+l2:
+	beq l3
 	dey
 	lda LAT, y
 	cmp LA
@@ -29,14 +29,14 @@ OPEN:
 
 open_not_yet_open:
 	cpy #$00
-	jmp !-
-!:
+	jmp l2
+l3:
 	; Check if we have space in tables
 
 	ldy LDTND
 	cpy #$0A
 	bcc open_has_space
-!:
+
 	; Table is full
 	jmp kernalerror_TOO_MANY_OPEN_FILES
 

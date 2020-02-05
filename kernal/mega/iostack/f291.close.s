@@ -42,7 +42,7 @@ close_remove_from_table:
 	; Remove channel from the table
 	iny
 	cpy #$0A
-	bpl !+
+	bpl :+
 	lda LAT, y
 	sta LAT-1, y
 	lda FAT, y
@@ -50,7 +50,7 @@ close_remove_from_table:
 	lda SAT, y
 	sta SAT-1, y
 	jmp close_remove_from_table
-!:
+:
 	; Decrement the list size variable
 	dec LDTND
 

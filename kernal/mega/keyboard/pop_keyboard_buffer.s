@@ -14,11 +14,11 @@ pop_keyboard_buffer:
 	ldy #$01
 
 	sei
-!:	lda KEYD,y
+:	lda KEYD,y
 	sta KEYD-1,y
 	iny
 	cpy XMAX
-	bne !-
+	bne :-
 	dec NDX
 	cli
 

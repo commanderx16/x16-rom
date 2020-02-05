@@ -18,23 +18,23 @@ chrout_screen:
 	; ones are always printable characters; separate away control codes
 
 	and #$60
-	bne !+
+	bne :+
 	jmp chrout_screen_control
-!:
+:
 	txa
 
 	; Literals - first convert PETSCII to screen code
 
 	; Codes $C0-$DF become $40-$5F
 	cmp #$E0
-	bcs !+
+	bcs :+
 	cmp #$C0
-	bcc !+
+	bcc :+
 	
 	and #$7F
 	jmp chrout_screen_literal ; not high char
 
-!:
+:
 	; Range $20-$3F is unchanged
 	cmp #$40
 	bcc chrout_screen_literal ; not high char
@@ -79,19 +79,19 @@ chrout_screen_literal:
 	; Decrement number of chars waiting to be inserted
 
 	lda INSRT
-	beq !+
+	beq :+
 	dec INSRT
-!:	
+:
 	; Toggle quote flag if required
 
 	txa
 	cmp #$22
-	bne !+
+	bne :+
 
 	lda QTSW
 	eor #$80
 	sta QTSW
-!:
+:
 	; Set colour of the newly printed character
 
 	lda COLOR
@@ -106,11 +106,11 @@ chrout_screen_literal:
 	; Scroll down (extend logical line) if needed
 
 	cpy #40
-	bne !+
+	bne :+
 	jsr screen_grow_logical_line
 	inc TBLX
 	ldy PNTR
-!:
+:
 	; If not the 80th character of the logical row, we are done
 
 	cpy #80

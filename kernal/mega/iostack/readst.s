@@ -17,14 +17,14 @@ READST:
 
 	lda FA
 	cmp #$02
-	bne !+
+	bne :+
 	
 	; This is RS-232 device - according to 'Computes Mapping the Commodore 64' page 239
 	; it reads status from RSSTAT
 	; XXX 'lda RSSTAT' not possible due to extended scnkey, fix it!
 	lda #$FF
 	rts
-!:
+:
 	; According to 'Computes Mapping the Commodore 64' page 239, it usually retrieves
 	; status from IOSTATUS
 	

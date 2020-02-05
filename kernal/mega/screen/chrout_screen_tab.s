@@ -18,9 +18,9 @@ chrout_screen_TAB_FW:
 	tay
 	iny
 	cpy #40
-	bcc !+
+	bcc :+
 	ldy #39
-!:
+:
 	sty PNTR
 	
 	jmp chrout_screen_calc_lptr_done
@@ -29,13 +29,13 @@ chrout_screen_TAB_FW:
 chrout_screen_TAB_BW:
 
 	jsr screen_get_clipped_PNTR
-	beq !+                             ; column 0,  recalculating pointers is not necessary, but this is a rare case nevertheless
+	beq :+                             ; column 0,  recalculating pointers is not necessary, but this is a rare case nevertheless
 
 	dey
 	tya
 	and #%11111000
 	sta PNTR
-!:
+:
 	jmp chrout_screen_calc_lptr_done
 
 

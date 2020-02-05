@@ -11,9 +11,9 @@ chrout_screen_DEL:
 
 	; In insert mode it embeds control character
 	ldx INSRT
-	beq !+
+	beq :+
 	jmp chrout_screen_quote
-!:
+:
 	ldy PNTR
 	beq chrout_screen_del_column_0
 	cpy #40
@@ -26,10 +26,10 @@ chrout_screen_del_column_40:
 	; First column of the extended line - decrement USER/PNT for copying
 
 	lda USER+0
-	bne !+
+	bne :+
 	dec USER+1
 	dec PNT+1
-!:
+:
 	dec USER+0
 	dec PNT+0
 

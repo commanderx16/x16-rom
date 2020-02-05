@@ -13,13 +13,13 @@ getin_keyboard: ; XXX confirm that here is really a part of GETIN!
 
 	; Check for a key
 	lda NDX
-	bne !+
+	bne :+
 
 	; Nothing in keyboard buffer to read
 	sec
 	rts
 	
-!:
+:
 	lda KEYD
 	pha
 	phy_trash_a

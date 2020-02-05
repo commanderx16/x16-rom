@@ -51,9 +51,9 @@ lvs_advance_MEMUSS:
 	; Advance pointer
 
 	inc MEMUSS+0
-	bne !+
+	bne :+
 	inc MEMUSS+1
-!:
+:
 	rts
 
 
@@ -61,10 +61,10 @@ lvs_check_EAL:
 
 	lda MEMUSS+1
 	cmp EAL+1
-	bne !+
+	bne :+
 	lda MEMUSS+0
 	cmp EAL+0
-!:
+:
 	rts
 
 
@@ -77,7 +77,7 @@ lvs_display_searching_for:
 	jsr print_kernal_message
 
 	ldy #$00
-!:
+:
 	cpy FNLEN
 	beq lvs_display_end
 
@@ -85,7 +85,7 @@ lvs_display_searching_for:
 
 	jsr JCHROUT
 	iny
-	jmp !-
+	jmp :-
 
 lvs_display_end:
 	rts
@@ -99,9 +99,9 @@ lvs_display_loading_verifying:
 
 	ldx #__MSG_KERNAL_LOADING
 	lda VERCKK
-	beq !+
+	beq :+
 	ldx #__MSG_KERNAL_VERIFYING
-!:
+:
 	jsr print_kernal_message
 
 	; FALLTHROUGH
@@ -148,14 +148,14 @@ lvs_display_saving:
 	jsr print_kernal_message
 
 	ldy #$00
-!:	
+:
 	cpy FNLEN
-	beq !+
+	beq :+
 	lda (FNADDR), y
 	jsr JCHROUT
 	iny
-	bne !- ; jump always
-!:
+	bne :- ; jump always
+:
 	rts
 
 lvs_error_end:

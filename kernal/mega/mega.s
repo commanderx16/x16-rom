@@ -1,3 +1,16 @@
+.macro bcc_16 addr
+	bcc addr
+.endmacro
+
+.macro beq_16 addr
+	beq addr
+.endmacro
+
+.macro bne_16 addr
+	bne addr
+.endmacro
+
+
 .include ",stubs/e6b6.advance_cursor.s"
 .include ",stubs/e96c.insert_line_at_top.s"
 .include ",stubs/f3f6.unknown.s"

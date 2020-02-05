@@ -100,9 +100,9 @@ chrin_enter:
 	sec
 	sbc #40
 	sta LXSP+0
-	bcs !+
+	bcs :+
 	dec LXSP+1
-!:
+:
 	ldy #80
 	bne chrin_enter_loop               ; branch always
 

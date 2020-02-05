@@ -18,11 +18,11 @@ screen_scroll_up:
 	beq screen_scroll_up_delay_done
 
 	ldy #$09
-!:
+:
 	ldx #$FF
 	jsr wait_x_bars
 	dey
-	bne !-
+	bne :-
 
 	; FALLTROUGH
 
@@ -31,12 +31,12 @@ screen_scroll_up_delay_done: ; entry point for cursor move control codes
 	; Scroll the LDTBL (line link table)
 
 	ldy #$00
-!:
+:
 	lda LDTBL+1, y
 	sta LDTBL+0, y
 	iny
 	cpy #24
-	bne !-
+	bne :-
 
 	lda #$80
 	sta LDTBL+24
@@ -74,11 +74,11 @@ screen_scroll_up_loop:
 	; Check if this was the last byte (last destination byte for color copy is #DBBF)
 
 	cpy #$BF
-	bne !+                             ; definitely not the last byte
+	bne :+                             ; definitely not the last byte
 	lda USER+1
 	cmp #$DB
 	beq screen_scroll_up_loop_done
-!:
+:
 	; Increment .Y, possibly advance pointers
 
 	iny

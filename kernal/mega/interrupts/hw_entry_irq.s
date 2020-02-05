@@ -31,9 +31,9 @@ hw_entry_irq:
 	; Not caused by BRK - call interrupt routine (only if initialised)
 	lda CINV
 	ora CINV+1
-	beq !+
+	beq :+
 	jmp (CINV)
-!:
+:
 	; Vector not initialized - call default interrupt routine
 	jmp default_irq_handler
 

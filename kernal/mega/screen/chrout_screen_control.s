@@ -23,10 +23,10 @@ chrout_try_jumptable_loop:
 	tay
 	lda QTSW
 	ora INSRT
-	beq !+
+	beq :+
 	tya
 	jmp chrout_screen_quote
-!:
+:
 	tya
 
 	; FALLTROUGH
@@ -34,7 +34,7 @@ chrout_try_jumptable_loop:
 chrout_try_jumptable_loop_noquote:
 
 	cmp chrout_screen_jumptable_codes, x
-	bne !+
+	bne :+
 
 	; Found, perform a jump to subroutine
 .ifp02
@@ -49,7 +49,7 @@ chrout_try_jumptable_loop_noquote:
 	tax
 	jmp (chrout_screen_jumptable, x)
 .endif
-!:
+:
 	dex
 	bpl chrout_try_jumptable_loop
 
@@ -60,10 +60,10 @@ chrout_try_COLOR:
 chrout_try_color_loop:
 
 	cmp colour_codes,x
-	bne !+
+	bne :+
 	stx COLOR
 	jmp chrout_screen_done
-!:	
+:	
 	dex
 	bpl chrout_try_color_loop
 
