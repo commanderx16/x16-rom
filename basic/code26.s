@@ -31,15 +31,9 @@ coin	jsr $ffc6
 	bcs erexit
 	rts
 
-readst	=$ffb7
-
 cgetl	jsr $ffe4
 	bcs erexit
 	rts
-
-setmsg	=$ff90
-
-plot	=$fff0
 
 csys	jsr frmadr      ;get int. addr
 	lda #>csysrz    ;push return address

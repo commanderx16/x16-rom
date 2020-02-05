@@ -41,8 +41,35 @@ filter_kbd:
 
 .segment "monitor"
 filter_kbd2:
-	cmp #CSR_UP
 	bne :+
+	rts
+
+:	cmp #KEY_F7
+	bne :+
+	lda #'@'
+	jsr kbdbuf_put
+	lda #'$'
+	jsr kbdbuf_put
+	lda #CR
+	jsr kbdbuf_put
+	bra @return_0
+
+:	cmp #KEY_F5
+	bne :+
+	jsr screen ; get screen size
+	tya
+	tax
+	dex
+	ldy #0
+	clc
+	jsr plot
+	lda #CSR_DOWN
+	jsr bsout
+	bra @return_0
+
+:	cmp #CSR_UP
+	bne :+
+@return_0:
 	lda #0
 :	rts
 
@@ -64,24 +91,8 @@ pnt = $1111 ; XXX
 
 .segment "monitor_b"
 
-filter_kbd2:
-        lda     disable_f_keys
-        bne     LB6FA
-	jsr kbdbuf_peek
-        bne     LB700
 LB6FA:	rts
 
-LB700:
-fk_2:   cmp     #KEY_F7
-        bne     LB71C
-	jsr kbdbuf_clear
-        lda     #'@'
-	jsr kbdbuf_put
-        lda     #'$'
-	jsr kbdbuf_put
-        lda     #CR
-	jsr kbdbuf_put
-	bra     LB6FA
 
 LB71C:  cmp     #KEY_F5
         bne     LB733

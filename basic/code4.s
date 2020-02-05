@@ -71,7 +71,7 @@ snerrx	cmp #gotk-endtk
 	lda #totk
 	jsr synchr
 	jmp goto
-restor	sec
+crestor	sec
 	lda txttab
 	sbc #1
 	ldy txttab+1

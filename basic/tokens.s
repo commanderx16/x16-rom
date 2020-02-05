@@ -14,7 +14,7 @@ stmdsp	.word end-1
 	.word goto-1
 	.word run-1
 	.word if-1
-	.word restor-1
+	.word crestor-1
 	.word gosub-1
 	.word return-1
 	.word rem-1

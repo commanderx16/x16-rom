@@ -6,9 +6,9 @@
 cint                         = $ff81
 ioinit                       = $ff84
 ramtas                       = $ff87
-;restor                       = $ff8a
+restor                       = $ff8a
 vector                       = $ff8d
-;setmsg                       = $ff90
+setmsg                       = $ff90
 second                       = $ff93
 tksa                         = $ff96
 memtop                       = $ff99
@@ -21,7 +21,7 @@ untalk                       = $ffab
 unlstn                       = $ffae
 listen                       = $ffb1
 talk                         = $ffb4
-;readst                       = $ffb7
+readst                       = $ffb7
 setlfs                       = $ffba
 setnam                       = $ffbd
 open                         = $ffc0
@@ -40,7 +40,7 @@ getin                        = $ffe4
 clall                        = $ffe7
 udtim                        = $ffea
 screen                       = $ffed
-;plot                         = $fff0
+plot                         = $fff0
 iobase                       = $fff3
 
 ;
