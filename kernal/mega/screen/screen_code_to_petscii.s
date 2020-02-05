@@ -1,6 +1,6 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
 
 screen_code_to_petscii:
@@ -11,13 +11,13 @@ s2p_not_alpha:
 	cmp #$40
 	bcc s2p_end
 
-	// FALLTROUGH
+	; FALLTROUGH
 
 s2p_not_punctuation:
 	cmp #$5B
 	bcs s2p_not_shifted
 
-	// carry already clear here
+	; carry already clear here
 	adc #$80
 
 	rts
@@ -25,16 +25,16 @@ s2p_not_punctuation:
 s2p_not_shifted:
 
 	cmp #$80
-	bcs s2p_end // not vendor
+	bcs s2p_end ; not vendor
 
-	// $60-$7F -> $A0-$BF
+	; $60-$7F -> $A0-$BF
 
 s2p_adc_40:
 
 	clc
 	adc #$40
 	
-	// FALLTROUGH
+	; FALLTROUGH
 
 s2p_end:
 	rts

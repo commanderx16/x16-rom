@@ -1,19 +1,19 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Keyboard matrix, based on
-//
-// - [RG64] C64 Programmers Reference Guide        - pages 379-381
-// - [CM64] Computes Mapping the Commodore 64      - pages 38-39
-// - http://commodore128.mirkosoft.sk/keyboard.html (C128 extension)
-// - http://www.zimmers.net/cbmpics/cbm/c65/c65manual.txt
+;
+; Keyboard matrix, based on
+;
+; - [RG64] C64 Programmers Reference Guide        - pages 379-381
+; - [CM64] Computes Mapping the Commodore 64      - pages 38-39
+; - http:;commodore128.mirkosoft.sk/keyboard.html (C128 extension)
+; - http:;www.zimmers.net/cbmpics/cbm/c65/c65manual.txt
 
-// Values can be computed by running a program like:
-// 10 GET A$ : IF A$ = "" GOTO10
-// 20 PRINT ASC(A$) : GOTO10
-// and converting the values 
+; Values can be computed by running a program like:
+; 10 GET A$ : IF A$ = "" GOTO10
+; 20 PRINT ASC(A$) : GOTO10
+; and converting the values 
 
 
 kb_matrix:

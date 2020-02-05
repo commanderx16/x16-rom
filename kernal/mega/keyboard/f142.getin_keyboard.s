@@ -1,21 +1,21 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Well-known Kernal routine, described in:
-//
-// - http://sta.c64.org/cbm64kbdfunc.html
-//
+;
+; Well-known Kernal routine, described in:
+;
+; - http:;sta.c64.org/cbm64kbdfunc.html
+;
 
 
-getin_keyboard: // XXX confirm that here is really a part of GETIN!
+getin_keyboard: ; XXX confirm that here is really a part of GETIN!
 
-	// Check for a key
+	; Check for a key
 	lda NDX
 	bne !+
 
-	// Nothing in keyboard buffer to read
+	; Nothing in keyboard buffer to read
 	sec
 	rts
 	

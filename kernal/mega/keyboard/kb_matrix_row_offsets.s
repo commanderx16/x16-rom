@@ -1,10 +1,10 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Helper values to quickly determine row offset from the start of keyboard matrix
-//
+;
+; Helper values to quickly determine row offset from the start of keyboard matrix
+;
 
 
 #if !CONFIG_LEGACY_SCNKEY
@@ -12,7 +12,7 @@
 
 kb_matrix_row_offsets:
 
-	// - offsets (in bytes) to the first bytes of keyboard matrix rows
+	; - offsets (in bytes) to the first bytes of keyboard matrix rows
 
 	.byte 0*8
 	.byte 1*8
@@ -23,4 +23,4 @@ kb_matrix_row_offsets:
 	.byte 6*8
 	.byte 7*8
 
-#endif // no CONFIG_LEGACY_SCNKEY
+#endif ; no CONFIG_LEGACY_SCNKEY

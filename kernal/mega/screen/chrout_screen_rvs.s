@@ -1,16 +1,16 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// RVS ON/OFF handling within CHROUT
-//
+;
+; RVS ON/OFF handling within CHROUT
+;
 
 
 chrout_screen_RVS_ON:
 
 	lda #$80
-	bne !+ // branch always
+	bne !+ ; branch always
 
 chrout_screen_RVS_OFF:
 

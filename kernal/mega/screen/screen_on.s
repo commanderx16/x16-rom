@@ -1,10 +1,10 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Helper routine to show screen
-//
+;
+; Helper routine to show screen
+;
 
 
 #if CONFIG_TAPE_NORMAL || CONFIG_TAPE_TURBO

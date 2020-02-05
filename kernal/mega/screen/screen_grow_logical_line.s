@@ -1,13 +1,13 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
 
 screen_grow_logical_line_done_scroll:
 
 	inc TBLX
 
-	// FALLTROUGH
+	; FALLTROUGH
 
 screen_grow_logical_line_done:
 
@@ -18,29 +18,29 @@ screen_grow_logical_line_screen_up:
 
 	jsr screen_scroll_up
 
-	// FALLTROUGH
+	; FALLTROUGH
 
 
 screen_grow_logical_line:
 
-	// Do not grow line if previus one is grown
+	; Do not grow line if previus one is grown
 	ldy TBLX
 	lda LDTBL+0, y
 	bpl screen_grow_logical_line_done_scroll
 
-	// If last line, scroll the screen up
+	; If last line, scroll the screen up
 	cpy #24
 	beq screen_grow_logical_line_screen_up
 
-	// Do not grow line if already grown
+	; Do not grow line if already grown
 	lda LDTBL+1, y
 	bpl screen_grow_logical_line_done
 	
-	// Preserve SAL and EAL
+	; Preserve SAL and EAL
 
 	jsr screen_preserve_sal_eal
 
-	// Scroll LDTBL down (start from the end)
+	; Scroll LDTBL down (start from the end)
 	ldy #23
 !:
 	cpy TBLX
@@ -53,24 +53,24 @@ screen_grow_logical_line:
 	dey
 	bne !-
 !:
-	// Mark current line as grown
+	; Mark current line as grown
 	ldy TBLX
 	lda #$00
 	sta LDTBL+1, y
 
-	// Now we have to scroll lines downwards to make space. We start from the end,
-	// and work backwards. We cannot be as simple and efficient here as we are
-	// for scrolling up, because we do not know how much must be scrolled.
+	; Now we have to scroll lines downwards to make space. We start from the end,
+	; and work backwards. We cannot be as simple and efficient here as we are
+	; for scrolling up, because we do not know how much must be scrolled.
 
-	// Work out how many physical lines to scroll down
+	; Work out how many physical lines to scroll down
 
 	lda #23
 	sec
 	sbc TBLX
-	beq screen_grow_logical_line_copy_done       // branch if no need to copyy
+	beq screen_grow_logical_line_copy_done       ; branch if no need to copyy
 	tax
 
-	// Prepare initial SAL/EAL/PNT/USER values
+	; Prepare initial SAL/EAL/PNT/USER values
 
 	lda HIBASE
 	clc
@@ -78,20 +78,20 @@ screen_grow_logical_line:
 	sta SAL+1
 	sta EAL+1
 
-	lda #>$DB00                        // 3rd page of the color memory
+	lda #>$DB00                        ; 3rd page of the color memory
 	sta PNT+1
 	sta USER+1
 
-	lda #<$03C0                        // start of destination row
+	lda #<$03C0                        ; start of destination row
 	sta EAL+0
 	sta USER+0
-	lda #<$0398                        // start of source row
+	lda #<$0398                        ; start of source row
 	sta SAL+0
 	sta PNT+0
 
 screen_grow_logical_line_loop:
 
-	// Scroll down one line each loop iteration
+	; Scroll down one line each loop iteration
 
 	ldy #39
 !:
@@ -102,7 +102,7 @@ screen_grow_logical_line_loop:
 	dey
 	bpl !-
 
-	// Decrement SAL/PNT pointers by 40 (optimized due to fact they share LSB)
+	; Decrement SAL/PNT pointers by 40 (optimized due to fact they share LSB)
 
 	lda SAL+0
 	sec
@@ -113,7 +113,7 @@ screen_grow_logical_line_loop:
 	dec SAL+1
 	dec PNT+1
 !:
-	// Decrement EAL/USER pointers by 40 (optimized due to fact they share LSB)
+	; Decrement EAL/USER pointers by 40 (optimized due to fact they share LSB)
 
 	lda EAL+0
 	sec
@@ -124,18 +124,18 @@ screen_grow_logical_line_loop:
 	dec EAL+1
 	dec USER+1
 !:
-	// Next loop iteration
+	; Next loop iteration
 
 	dex
 	bne screen_grow_logical_line_loop
 
 screen_grow_logical_line_copy_done:
 
-	// Restore SAL and EAL
+	; Restore SAL and EAL
 
 	jsr screen_restore_sal_eal
 
-	// Erase newly inserted line and quit
+	; Erase newly inserted line and quit
 
 	ldx TBLX
 	inx

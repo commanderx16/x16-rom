@@ -1,10 +1,10 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Command string definitions for programmable keys
-//
+;
+; Command string definitions for programmable keys
+;
 
 
 #if CONFIG_PROGRAMMABLE_KEYS
@@ -125,4 +125,4 @@ programmable_keys_offsets:
 #endif
 
 
-#endif // CONFIG_PROGRAMMABLE_KEYS
+#endif ; CONFIG_PROGRAMMABLE_KEYS

@@ -1,10 +1,10 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Print configured features on startup banner
-//
+;
+; Print configured features on startup banner
+;
 
 #if CONFIG_SHOW_FEATURES
 
@@ -14,4 +14,4 @@ print_features:
 !:
 	jmp print_kernal_message
 
-#endif // CONFIG_SHOW_FEATURES
+#endif ; CONFIG_SHOW_FEATURES

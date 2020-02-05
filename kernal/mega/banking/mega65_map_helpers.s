@@ -1,13 +1,13 @@
-// #LAYOUT# M65 KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# M65 KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// ROM mapping routines for Mega65
-//
+;
+; ROM mapping routines for Mega65
+;
 
-// Available memory maps:
-// - NORMAL   - nothing mapped in
-// - KERNAL_1 - for calling KERNAL_1 segment code
+; Available memory maps:
+; - NORMAL   - nothing mapped in
+; - KERNAL_1 - for calling KERNAL_1 segment code
 
 
 map_NORMAL:
@@ -23,7 +23,7 @@ map_NORMAL:
 	tay
 	taz
 
-	// FALLTROUGH
+	; FALLTROUGH
 
 map_end:
 
@@ -51,6 +51,6 @@ map_KERNAL_1:
 	tay
 	taz
 
-	ldx #$42    // 0x4000 <- map 8KB from 0x20000
+	ldx #$42    ; 0x4000 <- map 8KB from 0x20000
 
 	bne map_end

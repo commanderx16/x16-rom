@@ -1,10 +1,10 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Helper functions for various LOAD/VERIFY/SAVE routine variants (IEC / U64 / etc.)
-//
+;
+; Helper functions for various LOAD/VERIFY/SAVE routine variants (IEC / U64 / etc.)
+;
 
 
 lvs_handle_byte_load_verify:
@@ -12,14 +12,14 @@ lvs_handle_byte_load_verify:
 	ldy VERCKK
 	bne lvs_handle_byte_verify
 
-	// As with our BASIC, we want to enable LOADing
-	// anywhere in memory, including over the IO space.
-	// Thus we have to use a helper routine in low memory
-	// to do the memory access
+	; As with our BASIC, we want to enable LOADing
+	; anywhere in memory, including over the IO space.
+	; Thus we have to use a helper routine in low memory
+	; to do the memory access
 
 #if CONFIG_MEMORY_MODEL_60K
 
-	// Save byte under ROMs and IO if required
+	; Save byte under ROMs and IO if required
 	php
 	sei
 	ldx #$33
@@ -37,7 +37,7 @@ lvs_handle_byte_load_verify:
 
 #endif
 
-	// FALLTROUGH
+	; FALLTROUGH
 
 lvs_handle_byte_load_verify_end:
 
@@ -49,10 +49,10 @@ lvs_handle_byte_verify:
 
 #if CONFIG_MEMORY_MODEL_60K
 
-	// Store byte for comparing
+	; Store byte for comparing
 	sta TBTCNT
 
-	// Retrieve byte from under ROMs and IO if required
+	; Retrieve byte from under ROMs and IO if required
 	php
 	sei
 	ldx #$33
@@ -63,7 +63,7 @@ lvs_handle_byte_verify:
 	stx $01
 	plp
 	
-	// Compare with stored byte
+	; Compare with stored byte
 	cmp TBTCNT
 
 #else
@@ -96,7 +96,7 @@ lvs_setup_MEMUSS:
 
 lvs_advance_MEMUSS:
 
-	// Advance pointer
+	; Advance pointer
 
 	inc MEMUSS+0
 	bne !+
@@ -134,7 +134,7 @@ lvs_display_searching_for:
 #if CONFIG_MEMORY_MODEL_60K
 	ldx #<FNADDR+0
 	jsr peek_under_roms
-#else // CONFIG_MEMORY_MODEL_38K
+#else ; CONFIG_MEMORY_MODEL_38K
 	lda (FNADDR),y
 #endif
 
@@ -148,7 +148,7 @@ lvs_display_end:
 
 lvs_display_loading_verifying:
 
-	// Display LOADING / VERIFYING and start address
+	; Display LOADING / VERIFYING and start address
 	lda MSGFLG
 	bpl lvs_display_end
 
@@ -159,7 +159,7 @@ lvs_display_loading_verifying:
 !:
 	jsr print_kernal_message
 
-	// FALLTHROUGH
+	; FALLTHROUGH
 
 lvs_display_start_addr:
 
@@ -181,7 +181,7 @@ lvs_display_start_addr:
 
 #endif
 
-	// FALLTROUGH
+	; FALLTROUGH
 
 lvs_display_addr_EAL:
 
@@ -199,7 +199,7 @@ lvs_display_addr_STAL:
 
 lvs_display_done:
 
-	// Display end address
+	; Display end address
 	lda MSGFLG
 	bpl lvs_display_end
 
@@ -209,7 +209,7 @@ lvs_display_done:
 
 lvs_display_saving:
 
-	// Display SAVING and file name
+	; Display SAVING and file name
 	lda MSGFLG
 	bpl lvs_display_end
 
@@ -223,7 +223,7 @@ lvs_display_saving:
 	lda (FNADDR), y
 	jsr JCHROUT
 	iny
-	bne !- // jump always
+	bne !- ; jump always
 !:
 	rts
 
@@ -234,11 +234,11 @@ lvs_error_end:
 
 lvs_return_last_address:
 
-	// Return last address - Computes Mapping the 64 says without the '+1',
-	// checked (short test program) on original ROMs that this is really the case
+	; Return last address - Computes Mapping the 64 says without the '+1',
+	; checked (short test program) on original ROMs that this is really the case
 	ldx EAL+0
 	ldy EAL+1
-	// FALLTHROUGH
+	; FALLTHROUGH
 
 lvs_success_end:
 
@@ -260,12 +260,12 @@ lvs_illegal_device_number:
 #if CONFIG_TAPE_NORMAL || CONFIG_TAPE_TURBO || CONFIG_IEC
 
 lvs_load_verify_error:
-	// XXX should we really return BASIC error code here?
+	; XXX should we really return BASIC error code here?
 	lda VERCKK
 	bne lvs_verify_error
 	lda #B_ERR_LOAD
 	bne lvs_error_end
-	// FALLTHROUGH
+	; FALLTHROUGH
 
 lvs_verify_error:
 	lda #B_ERR_VERIFY

@@ -1,23 +1,23 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Official Kernal routine, described in:
-//
-// - [RG64] C64 Programmers Reference Guide   - page 289
-// - [CM64] Computes Mapping the Commodore 64 - page 230/231
-//
-// CPU registers that has to be preserved (see [RG64]): none
-//
+;
+; Official Kernal routine, described in:
+;
+; - [RG64] C64 Programmers Reference Guide   - page 289
+; - [CM64] Computes Mapping the Commodore 64 - page 230/231
+;
+; CPU registers that has to be preserved (see [RG64]): none
+;
 
 
 OPEN:
 
-	// Reset status
+	; Reset status
 	jsr kernalstatus_reset
 
-	// Check if the logical file number is unique
+	; Check if the logical file number is unique
 	ldy LDTND
 !:
 	beq !+
@@ -31,21 +31,21 @@ open_not_yet_open:
 	cpy #$00
 	jmp !-
 !:
-	// Check if we have space in tables
+	; Check if we have space in tables
 
 	ldy LDTND
 	cpy #$0A
 	bcc open_has_space
 !:
-	// Table is full
+	; Table is full
 	jmp kernalerror_TOO_MANY_OPEN_FILES
 
 open_has_space:
 
-	// Update the tables
+	; Update the tables
 
-	// LAT / FAT / SAT support implemented according to
-	// 'Computes Mapping the Commodore 64', page 52
+	; LAT / FAT / SAT support implemented according to
+	; 'Computes Mapping the Commodore 64', page 52
 
 	lda LA
 	sta LAT, y
@@ -73,7 +73,7 @@ open_has_space:
 
 #endif
 	
-	// FALLTROUGH
+	; FALLTROUGH
 
 open_done_success:
 

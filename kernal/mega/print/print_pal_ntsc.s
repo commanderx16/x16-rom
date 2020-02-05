@@ -1,10 +1,10 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Print video system on startup banner
-//
+;
+; Print video system on startup banner
+;
 
 #if CONFIG_SHOW_PAL_NTSC
 
@@ -17,4 +17,4 @@ print_pal_ntsc:
 !:
 	jmp print_kernal_message
 
-#endif // CONFIG_SHOW_PAL_NTSC
+#endif ; CONFIG_SHOW_PAL_NTSC

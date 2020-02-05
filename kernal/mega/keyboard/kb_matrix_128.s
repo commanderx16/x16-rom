@@ -1,13 +1,13 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Extended keyboard matrix for Commodore 128 keyboards, based on
-//
-// - [CM128] Computes Mapping the Commodore 128 - page 290
-// - http://commodore128.mirkosoft.sk/keyboard.html
-//
+;
+; Extended keyboard matrix for Commodore 128 keyboards, based on
+;
+; - [CM128] Computes Mapping the Commodore 128 - page 290
+; - http:;commodore128.mirkosoft.sk/keyboard.html
+;
 
 
 #if CONFIG_KEYBOARD_C128 && !CONFIG_LEGACY_SCNKEY
@@ -22,12 +22,12 @@ kb_matrix_128:
 
 kb_matrix_128_bucky_filter:
 
-	// values for OR with CIA1_PRB content to filter out bucky keys
+	; values for OR with CIA1_PRB content to filter out bucky keys
 
 	.byte %00000000
 	.byte %00000000 
-	.byte %10000001 // ALT, NO_SCRL
+	.byte %10000001 ; ALT, NO_SCRL
 
 
 
-#endif // CONFIG_KEYBOARD_C128 and no CONFIG_LEGACY_SCNKEY
+#endif ; CONFIG_KEYBOARD_C128 and no CONFIG_LEGACY_SCNKEY

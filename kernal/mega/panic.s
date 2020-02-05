@@ -1,34 +1,34 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Something terrible happened - show the panic screen
-//
+;
+; Something terrible happened - show the panic screen
+;
 
 
 #if CONFIG_PANIC_SCREEN
 
 panic:
 
-	// Disable interrupts, store error code on stack
+	; Disable interrupts, store error code on stack
 
 	sei
 	pha
 
-	// Reinitialize the hardware
+	; Reinitialize the hardware
 
 	jsr IOINIT
 	jsr setup_vicii
 	jsr clear_screen
 
-	// Disable NMIs - our routine checks for NULL vector
+	; Disable NMIs - our routine checks for NULL vector
 
 	lda #$00
 	sta NMINV+0
 	sta NMINV+1
 
-	// Display KERNAL PANIC message
+	; Display KERNAL PANIC message
 
 	ldx #$14
 	ldy #$0E
@@ -37,7 +37,7 @@ panic:
 	ldx #__MSG_KERNAL_PANIC
 	jsr print_kernal_message
 
-	// Display error code and message (if known)
+	; Display error code and message (if known)
 
 	pla
 	beq kernal_panic_infinite_loop
@@ -58,7 +58,7 @@ panic:
 	ldx #__MSG_KERNAL_PANIC_ROM_MISMATCH
 	jsr print_kernal_message
 
-	// Display some raster effect in the infinitew loop
+	; Display some raster effect in the infinitew loop
 
 kernal_panic_infinite_loop:
 	ldx #$00
@@ -72,6 +72,6 @@ kernal_panic_infinite_loop:
 
 	nop
 
-	bne kernal_panic_infinite_loop // branch always
+	bne kernal_panic_infinite_loop ; branch always
 
-#endif // CONFIG_PANIC_SCREEN
+#endif ; CONFIG_PANIC_SCREEN

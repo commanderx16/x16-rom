@@ -1,10 +1,10 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Tabulation keys handling within CHROUT
-//
+;
+; Tabulation keys handling within CHROUT
+;
 
 
 #if CONFIG_EDIT_TABULATORS
@@ -29,7 +29,7 @@ chrout_screen_TAB_FW:
 chrout_screen_TAB_BW:
 
 	jsr screen_get_clipped_PNTR
-	beq !+                             // column 0,  recalculating pointers is not necessary, but this is a rare case nevertheless
+	beq !+                             ; column 0,  recalculating pointers is not necessary, but this is a rare case nevertheless
 
 	dey
 	tya
@@ -39,4 +39,4 @@ chrout_screen_TAB_BW:
 	jmp chrout_screen_calc_lptr_done
 
 
-#endif // CONFIG_EDIT_TABULATORS
+#endif ; CONFIG_EDIT_TABULATORS
