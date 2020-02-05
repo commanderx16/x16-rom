@@ -30,10 +30,10 @@ hw_entry_reset:
 	bne !+
 	jmp (ICART_COLD_START)
 !:
-.endif
 	; Disable the screen (and set 40 columns) to prevent visual glitches later
 	ldx #$28
 	stx VIC_SCROLX
+.endif
 
 	; Initialising IO is obviously required. Also indicated by c64 prg p269.
 	jsr JIOINIT

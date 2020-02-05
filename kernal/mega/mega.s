@@ -2,12 +2,40 @@
 	bcc addr
 .endmacro
 
+.macro bcs_16 addr
+	bcs addr
+.endmacro
+
 .macro beq_16 addr
 	beq addr
 .endmacro
 
 .macro bne_16 addr
 	bne addr
+.endmacro
+
+.macro phx_trash_a
+	txa
+	pla
+.endmacro
+
+.macro plx_trash_a
+	pla
+	tax
+.endmacro
+
+.macro phy_trash_a
+	tya
+	pla
+.endmacro
+
+.macro ply_trash_a
+	pla
+	tay
+.endmacro
+
+.macro skip_2_bytes_trash_nvz
+	.byte $2c
 .endmacro
 
 
@@ -102,7 +130,6 @@
 .include "screen/e50a.plot.s"
 .include "screen/screen_grow_logical_line.s"
 .include "screen/chrout_screen_stop.s"
-.include "mega.s"
 .include "assets/kernal_messages.s"
 .include "assets/e8da.colour_codes.s"
 .include "assets/fd30.vector_defaults.s"
