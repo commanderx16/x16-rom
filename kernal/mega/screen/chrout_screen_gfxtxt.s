@@ -14,9 +14,6 @@ chrout_screen_GFX:
 	and #$02 ; to upper case
 l5:
 	sta VIC_YMCSB
-.else
-	; MIST
-.endif
 	jmp chrout_screen_done
 
 chrout_screen_TXT:
@@ -24,3 +21,7 @@ chrout_screen_TXT:
 	lda VIC_YMCSB
 	ora #$02    ; to lower case
 	bne l5      ; branch always
+.else
+	; MIST
+	jmp chrout_screen_done
+.endif
