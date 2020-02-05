@@ -47,6 +47,12 @@ clrchn_iec:
 load_iec:
 open_iec:
 save_iec:
+ACPTR:
+LISTEN:
+SECOND:
+TKSA:
+UNLSN:
+UNTLK:
 	brk
 
 iec_check_devnum_lvs:
@@ -68,12 +74,42 @@ chrout_screen_TXT:
 wait_x_bars:
 	brk
 
-ACPTR = acptr
+IBASIC_COLD_START = $a000
+IBASIC_WARM_START = $a002
+
+IBASIN:
+IBSOUT:
+ICHKIN:
+ICKOUT:
+ICLALL:
+ICLOSE:
+ICLRCH:
+IGETIN:
+ILOAD:
+IOPEN:
+ISAVE:
+ISTOP:
+	brk
+
+JCHROUT:
+JCINT:
+JCLOSE:
+JIOINIT:
+JRAMTAS:
+JRESTOR:
+JSCNKEY:
+JSTOP:
+JUDTIM:
+	brk
+
+RAMTAS = ramtas
+
+.import blnct, blnon, blnsw, cbinv, cinv, ciout, cmp0, color, crsw, dfltn, dflto, eal, fa, fat, fnaddr, fnlen, gdbln, gdcol, hibase, indx, insrt, ioinit, iostatus, keyd, la, lat, ldtbl, ldtnd, lnmx, lxsp, memsizk, memstr, memuss, mode, msgflg, ndx, nminv, pnt, pntr, qtsw, ramtas, rvs, sa, sal, sat, schar, scnkey, shflag, stal, stkey, talk, tblx, time, timout, user, verckk, xmax, xsav
+
+; zp/var
 BLNCT = blnct
 BLNON = blnon
 BLNSW = blnsw
-B_ERR_LOAD = b_err_load
-B_ERR_VERIFY = b_err_verify
 CBINV = cbinv
 CINV = cinv
 CIOUT = ciout
@@ -90,39 +126,15 @@ FNLEN = fnlen
 GDBLN = gdbln
 GDCOL = gdcol
 HIBASE = hibase
-IBASIC_COLD_START = ibasic_cold_start
-IBASIC_WARM_START = ibasic_warm_start
-IBASIN = ibasin
-IBSOUT = ibsout
-ICHKIN = ichkin
-ICKOUT = ickout
-ICLALL = iclall
-ICLOSE = iclose
-ICLRCH = iclrch
-IGETIN = igetin
-ILOAD = iload
 INDX = indx
 INSRT = insrt
 IOINIT = ioinit
-IOPEN = iopen
 IOSTATUS = iostatus
-ISAVE = isave
-ISTOP = istop
-JCHROUT = jchrout
-JCINT = jcint
-JCLOSE = jclose
-JIOINIT = jioinit
-JRAMTAS = jramtas
-JRESTOR = jrestor
-JSCNKEY = jscnkey
-JSTOP = jstop
-JUDTIM = judtim
 KEYD = keyd
 LA = la
 LAT = lat
 LDTBL = ldtbl
 LDTND = ldtnd
-LISTEN = listen
 LNMX = lnmx
 LXSP = lxsp
 MEMSIZK = memsizk
@@ -135,14 +147,12 @@ NMINV = nminv
 PNT = pnt
 PNTR = pntr
 QTSW = qtsw
-RAMTAS = ramtas
 RVS = rvs
 SA = sa
 SAL = sal
 SAT = sat
 SCHAR = schar
 SCNKEY = scnkey
-SECOND = second
 SHFLAG = shflag
 STAL = stal
 STKEY = stkey
@@ -150,9 +160,6 @@ TALK = talk
 TBLX = tblx
 TIME = time
 TIMOUT = timout
-TKSA = tksa
-UNLSN = unlsn
-UNTLK = untlk
 USER = user
 VERCKK = verckk
 XMAX = xmax
@@ -174,6 +181,9 @@ K_STS_TIMEOUT_WRITE          = $01
 K_STS_TIMEOUT_READ           = $02
 K_STS_EOI                    = $40
 K_STS_DEVICE_NOT_FOUND       = $80
+
+B_ERR_VERIFY                 = $1C
+B_ERR_LOAD                   = $1D
 
 KEY_NA           = $00  ; to indicate that no key is presed
 KEY_TAB_FW       = $8F  ; CTRL+>, TAB       - Open ROMs unofficial, original TAB conflicts with C64 PETSCII
@@ -260,6 +270,8 @@ KEY_LT           = $3C
 KEY_EQ           = $3D
 KEY_GT           = $3E
 KEY_QUESTION     = $3F
+
+KEY_FLAG_CTRL    = %00000100
 
 .include ",stubs/e6b6.advance_cursor.s"
 .include ",stubs/e96c.insert_line_at_top.s"
