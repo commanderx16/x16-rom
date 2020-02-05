@@ -83,4 +83,4 @@
 
 ; mega
 .export cbinv, cinv, memstr, nminv
-
+.export keyd

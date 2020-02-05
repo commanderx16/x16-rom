@@ -561,3 +561,5 @@ hibase:	.res 2 ; XXX remove
 cmp0 = 0
 hibase = 0
 .endif
+
+.import keyd
