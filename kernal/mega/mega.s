@@ -1,17 +1,39 @@
-.macro bcc_16 addr
-	bcc addr
+.macro branch_16 target, opcode8, opcode16
+.if     .def(target) .and ((*+2)-(target) <= 127)
+.byte opcode8
+.byte (target - * - 2) & $ff
+.else
+.byte opcode16
+.word (target - * - 2) & $ffff
+.endif
 .endmacro
 
-.macro bcs_16 addr
-	bcs addr
+.macro bpl_16 target
+branch_16 target, $10, $13
 .endmacro
-
-.macro beq_16 addr
-	beq addr
+.macro bmi_16 target
+branch_16 target, $30, $33
 .endmacro
-
-.macro bne_16 addr
-	bne addr
+.macro bvc_16 target
+branch_16 target, $50, $53
+.endmacro
+.macro bvs_16 target
+branch_16 target, $70, $73
+.endmacro
+.macro bra_16 target
+branch_16 target, $80, $83
+.endmacro
+.macro bcc_16 target
+branch_16 target, $90, $93
+.endmacro
+.macro bcs_16 target
+branch_16 target, $b0, $b3
+.endmacro
+.macro bne_16 target
+branch_16 target, $d0, $d3
+.endmacro
+.macro beq_16 target
+branch_16 target, $f0, $f3
 .endmacro
 
 .macro phx_trash_a
@@ -104,7 +126,9 @@ JUDTIM:
 
 RAMTAS = ramtas
 
-.import blnct, blnon, blnsw, cbinv, cinv, ciout, cmp0, color, crsw, dfltn, dflto, eal, fa, fat, fnaddr, fnlen, gdbln, gdcol, hibase, indx, insrt, ioinit, iostatus, keyd, la, lat, ldtbl, ldtnd, lnmx, lxsp, memsizk, memstr, memuss, mode, msgflg, ndx, nminv, pnt, pntr, qtsw, ramtas, rvs, sa, sal, sat, schar, scnkey, shflag, stal, stkey, talk, tblx, time, timout, user, verckk, xmax, xsav
+.import cbinv, cinv, ciout, ioinit, keyd, ldtbl, memsizk, memstr, ndx, nminv, ramtas, schar, scnkey, shflag, stkey, talk, time, timout, verckk, xmax
+
+.importzp user, pnt, lxsp
 
 ; zp/var
 BLNCT = blnct
@@ -121,7 +145,7 @@ DFLTO = dflto
 EAL = eal
 FA = fa
 FAT = fat
-FNADDR = fnaddr
+FNADDR = fnadr
 FNLEN = fnlen
 GDBLN = gdbln
 GDCOL = gdcol
@@ -129,7 +153,7 @@ HIBASE = hibase
 INDX = indx
 INSRT = insrt
 IOINIT = ioinit
-IOSTATUS = iostatus
+IOSTATUS = status
 KEYD = keyd
 LA = la
 LAT = lat
@@ -164,6 +188,9 @@ USER = user
 VERCKK = verckk
 XMAX = xmax
 XSAV = xsav
+
+;.segment "EDITOR"
+
 
 K_ERR_ROUTINE_TERMINATED     = $00
 K_ERR_TOO_MANY_OPEN_FILES    = $01
@@ -412,3 +439,125 @@ KEY_FLAG_CTRL    = %00000100
 .include "keyboard/f6ed.stop.s"
 .include "keyboard/chrin_keyboard.s"
 
+cint = CINT
+
+.segment "KVAR2" ; more KERNAL vars
+; XXX TODO only one bit per byte is used, this should be compressed!
+ldtb1:	.res 61 +1       ;flags+endspace
+	;       ^^ XXX at label 'lps2', the code counts up to
+	;              numlines+1, THEN writes the end marker,
+	;              which seems like one too many. This was
+	;              worked around for now by adding one more
+	;              byte here, but we should have a look at
+	;              whether there's an off-by-one error over
+	;              at 'lps2'!
+
+; Screen
+;
+.export mode; [ps2kbd]
+.export data; [cpychr]
+mode:	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
+gdcol:	.res 1           ;    original color before cursor
+autodn:	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
+lintmp:	.res 1           ;    temporary for line index
+color:	.res 1           ;    activ color nybble
+rvs:	.res 1           ;$C7 rvs field on flag
+indx:	.res 1           ;$C8
+lsxp:	.res 1           ;$C9 x pos at start
+lstp:	.res 1           ;$CA
+blnsw:	.res 1           ;$CC cursor blink enab
+blnct:	.res 1           ;$CD count to toggle cur
+gdbln:	.res 1           ;$CE char before cursor
+blnon:	.res 1           ;$CF on/off blink flag
+crsw:	.res 1           ;$D0 input vs get flag
+pntr:	.res 1           ;$D3 pointer to column
+qtsw:	.res 1           ;$D4 quote switch
+lnmx:	.res 1           ;$D5 40/80 max positon
+tblx:	.res 1           ;$D6
+data:	.res 1           ;$D7
+insrt:	.res 1           ;$D8 insert mode flag
+llen:	.res 1           ;$D9 x resolution
+nlines:	.res 1           ;$DA y resolution
+nlinesp1: .res 1          ;    X16: y resolution + 1
+nlinesm1: .res 1          ;    X16: y resolution - 1
+verbatim: .res 1
+
+.segment "ZPCHANNEL" : zeropage
+;                      C64 location
+;                         VVV
+sal:	.res 1           ;$AC
+sah:	.res 1           ;$AD
+eal:	.res 1           ;$AE
+eah:	.res 1           ;$AF
+fnadr:	.res 2           ;$BB addr current file name str
+memuss:	.res 2           ;$C3 load temps
+
+.segment "VARCHANNEL"
+
+; Channel I/O
+;
+lat:	.res 10          ;    logical file numbers
+fat:	.res 10          ;    primary device numbers
+sat:	.res 10          ;    secondary addresses
+;.assert * = status, error, "status must be at specific address"
+status:
+	.res 1           ;$90 i/o operation status byte
+verck:	.res 1           ;$93 load or verify flag
+xsav:	.res 1           ;$97 temp for basin
+ldtnd:	.res 1           ;$98 index to logical file
+dfltn:	.res 1           ;$99 default input device #
+dflto:	.res 1           ;$9A default output device #
+msgflg:	.res 1           ;$9D os message flag
+t1:	.res 1           ;$9E temporary 1
+fnlen:	.res 1           ;$B7 length current file n str
+la:	.res 1           ;$B8 current file logical addr
+sa:	.res 1           ;$B9 current file 2nd addr
+fa:	.res 1           ;$BA current file primary addr
+stal:	.res 1           ;$C1
+stah:	.res 1           ;$C2
+
+.export cint, color, cursor_blink, dfltn, dflto, llen, sah, sal, status, t1
+
+.export close_all
+close_all:
+	brk
+
+
+
+
+; lkupla
+; lkupsa
+; loadsp
+; nbasin
+; nbsout
+; nchkin
+; nckout
+; nclall
+; nclose
+; nclrch
+; ngetin
+; nload
+; nopen
+; nsave
+; nstop
+; savesp
+; scnsiz
+; scrorg
+; setlfs
+; udst
+
+plot = PLOT
+readst = READST
+setmsg = SETMSG
+setnam = SETNAM
+settmo = SETTMO
+
+.if 0
+.segment "ZPCHANNEL" ; XXX other ZP
+cmp0:	.res 1
+.segment "KVAR2" ; XXX
+hibase:	.res 2 ; XXX remove
+.else
+cmp0 = 0
+hibase = 0
+.endif

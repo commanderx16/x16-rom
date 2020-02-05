@@ -80,3 +80,7 @@
 .include "irqfile.s"
 .include "util.s"
 .include "vectors.s"
+
+; mega
+.export cbinv, cinv, memstr, nminv
+
