@@ -15,10 +15,12 @@ cint_screen_keyboard:
 
 	; Setup KEYLOG vector
 
+.if 0
 	lda #<scnkey_set_keytab
 	sta KEYLOG+0
 	lda #>scnkey_set_keytab
 	sta KEYLOG+1
+.endif
 
 	; Initialise cursor blink flags (Computes Mapping the 64 p215)
 
@@ -28,15 +30,18 @@ cint_screen_keyboard:
 
 	; Enable cursor repeat - XXX make it configurable
 
+.if 0
 #if CONFIG_KEY_REPEAT_DEFAULT && !CONFIG_KEY_REPEAT_ALWAYS
 
 	lda #$80
 	sta RPTFLG
 
 #endif
+.endif
 
 	; Set keyboard decode vector  (Computes Mapping the 64 p215)
 
+.if 0
 #if CONFIG_LEGACY_SCNKEY
 
 	; Set initial variables for our improved keyboard scan routine
@@ -58,6 +63,7 @@ cint_screen_keyboard:
 	stx DELAY
 	
 #endif
+.endif
 
 	; Set current colour for text (Computes Mapping the 64 p215)
 	ldx #$01     ; default is light blue ($0E), but we use a different one

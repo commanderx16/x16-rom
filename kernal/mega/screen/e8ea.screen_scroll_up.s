@@ -11,24 +11,6 @@
 
 screen_scroll_up:
 
-	; First handle CTRL and NO_SCRL keys
-
-#if CONFIG_KEYBOARD_C128 || CONFIG_KEYBOARD_C65
-
-	; Do not scroll if NO_SCRL is pressed and interrupts are enabled
-!:
-	php
-	pla
-	and #%00000010
-	bne !+                             ; branch if IRQs disabled, we cannot detect NO_SCRL status
-
-	lda SHFLAG
-	and #KEY_FLAG_NO_SCRL
-	bne !-
-!:
-
-#endif
-
 	; Check if CTRL key pressed - if so, perform a delay
 
 	lda SHFLAG

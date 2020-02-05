@@ -7,7 +7,7 @@
 ;
 
 
-#if CONFIG_EDIT_TABULATORS
+;#if CONFIG_EDIT_TABULATORS
 
 
 chrout_screen_TAB_FW:
@@ -39,4 +39,4 @@ chrout_screen_TAB_BW:
 	jmp chrout_screen_calc_lptr_done
 
 
-#endif ; CONFIG_EDIT_TABULATORS
+;#endif ; CONFIG_EDIT_TABULATORS

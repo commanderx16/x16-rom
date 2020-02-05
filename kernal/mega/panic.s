@@ -19,7 +19,12 @@ panic:
 	; Reinitialize the hardware
 
 	jsr IOINIT
+.if 0
 	jsr setup_vicii
+.else
+	; MIST
+	jsr clrchn_reset
+.endif
 	jsr clear_screen
 
 	; Disable NMIs - our routine checks for NULL vector

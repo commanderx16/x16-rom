@@ -13,5 +13,4 @@
 
 CINT:
 
-	jsr cint_legacy
-	jmp setup_pal_ntsc
+	jmp cint_legacy

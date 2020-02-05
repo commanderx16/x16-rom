@@ -7,9 +7,9 @@ hw_entry_nmi:
 
 	sei ; do not allow IRQ to interfere, see https:;www.c64-wiki.com/wiki/Interrupt
 
-#if CONFIG_CPU_MOS_6502 && CONFIG_BCD_SAFE_INTERRUPTS
+;#if CONFIG_CPU_MOS_6502 && CONFIG_BCD_SAFE_INTERRUPTS
 	cld ; clear decimal flag to allow using it without disabling interrupts
-#endif
+;#endif
 
 	; Call interrupt routine (only if initialised)
 	pha

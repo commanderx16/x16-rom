@@ -24,11 +24,13 @@ hw_entry_reset:
 	; Also, https:;codebase64.org/doku.php?id=base:assembling_your_own_cart_rom_image was used
 	; as it shows example startup sequence, to be followe by cartridge creators
 
+.if 0
 	; C64 PRG p269
 	jsr cartridge_check
 	bne !+
 	jmp (ICART_COLD_START)
 !:
+.endif
 	; Disable the screen (and set 40 columns) to prevent visual glitches later
 	ldx #$28
 	stx VIC_SCROLX

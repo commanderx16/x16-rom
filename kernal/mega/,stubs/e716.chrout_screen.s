@@ -5,4 +5,4 @@
 
 ; Screen CHROUT
 
-	STUB_IMPLEMENTATION()
+	brk

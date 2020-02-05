@@ -37,19 +37,19 @@ CKOUT:
 
 	; Tape not supported here
 
-#if HAS_RS232
+;#if HAS_RS232
 
 	cmp #$02
 	beq_16 ckout_rs232
 
-#endif ; HAS_RS232
+;#endif ; HAS_RS232
 
-#if CONFIG_IEC
+;#if CONFIG_IEC
 
 	jsr iec_check_devnum_oc
 	bcc_16 ckout_iec
 
-#endif ; CONFIG_IEC
+;#endif ; CONFIG_IEC
 
 	cmp #$03 ; screen - only legal one left
 	bne_16 chkinout_device_not_present

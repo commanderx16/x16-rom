@@ -5,4 +5,4 @@
 
 ; IEC close
 
-	STUB_IMPLEMENTATION()
+	brk

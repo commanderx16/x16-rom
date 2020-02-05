@@ -25,15 +25,15 @@ CLOSE:
 
 	; Perform device-specific actions
 
-#if HAS_RS232
+;#if HAS_RS232
 	cmp #$02
 	beq_16 close_rs232
-#endif
+;#endif
 
-#if CONFIG_IEC
+;#if CONFIG_IEC
 	jsr iec_check_devnum_oc
 	bcc_16 close_iec
-#endif
+;#endif
 
 	; FALLTROUGH
 
