@@ -133,20 +133,6 @@ not_enter:
 
 	lda KEYD
 
-#if CONFIG_PROGRAMMABLE_KEYS
-
-	ldx #(__programmable_keys_codes_end - programmable_keys_codes - 1)
-
-chrin_programmable_loop:
-
-	cmp programmable_keys_codes, x
-	beq chrin_programmable_key
-	dex
-	bpl chrin_programmable_loop
-
-	; FALLTROUGH
-
-#endif ; CONFIG_PROGRAMMABLE_KEYS
 
 chrin_print_character:
 
@@ -156,20 +142,3 @@ chrin_print_character:
 	; Keep looking for input from keyboard until carriage return
 	jmp chrin_repeat
 
-#if CONFIG_PROGRAMMABLE_KEYS
-
-chrin_programmable_key:
-
-	; .X contains index of the key code, we need offset to key string instead
-	lda programmable_keys_offsets, x
-	tax
-
-	; Print all the characters assigned to key
-!:
-	lda programmable_keys_strings, x
-	beq chrin_enter
-	jsr CHROUT ; our implementation preserves .X too
-	inx
-	bne !-     ; jumps always
-
-#endif ; CONFIG_PROGRAMMABLE_KEYS
