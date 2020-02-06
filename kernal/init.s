@@ -1,8 +1,10 @@
 
 .import enter_basic
 
+.if 0
 .export membot
 .export memtop
+.endif
 
 	.segment "INIT"
 ; start - system reset
@@ -20,6 +22,7 @@ start	ldx #$ff
 	sec
 	jmp enter_basic
 
+.if 0
 ; restor - set kernal indirects and vectors (system)
 ;
 restor	ldx #<vectss
@@ -86,3 +89,4 @@ iobase
 	ldx #<via1
 	ldy #>via1
 	rts
+.endif

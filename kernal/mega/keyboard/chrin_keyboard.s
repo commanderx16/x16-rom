@@ -6,6 +6,7 @@
 ; Keyboard part of the CHRIN routine
 ;
 
+.import kbdbuf_get
 
 chrin_keyboard:
 

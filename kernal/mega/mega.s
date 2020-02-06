@@ -96,6 +96,10 @@ chrout_screen_TXT:
 wait_x_bars:
 	brk
 
+lkupla:
+lkupsa:
+	brk
+
 IBASIC_COLD_START = $a000
 IBASIC_WARM_START = $a002
 
@@ -558,3 +562,9 @@ hibase:	.res 2 ; XXX remove
 cmp0 = 0
 hibase = 0
 .endif
+
+.export restor, memtop, membot, iobase, vector
+restor = RESTOR
+memtop = MEMTOP
+membot = MEMBOT
+vector = VECTOR

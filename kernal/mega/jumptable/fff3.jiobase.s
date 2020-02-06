@@ -15,7 +15,7 @@
 
 ; As there is nothing between here and $FFFA, we can just hard code this in place.
 
-; iobase: - commented out to prevent label naming conflict
+iobase:
     ldy #$DC
     ldx #$00
     rts

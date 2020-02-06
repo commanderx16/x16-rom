@@ -14,6 +14,9 @@
 
 .import kbdbuf_put
 
+; mega
+.import restor, memtop, membot, iobase, vector
+
 	.segment "JMPTBL"
 
 ; *** this is space for new X16 KERNAL vectors ***
