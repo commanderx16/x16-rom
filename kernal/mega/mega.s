@@ -126,7 +126,7 @@ JUDTIM:
 
 RAMTAS = ramtas
 
-.import cbinv, cinv, ciout, ioinit, keyd, ldtbl, memsizk, memstr, ndx, nminv, ramtas, schar, scnkey, shflag, stkey, talk, time, timout, verckk, xmax
+.import cbinv, cinv, ciout, ioinit, ldtbl, memsizk, memstr, ndx, nminv, ramtas, schar, scnkey, shflag, stkey, talk, time, timout, verckk, xmax
 
 .importzp user, pnt, lxsp
 
@@ -154,7 +154,6 @@ INDX = indx
 INSRT = insrt
 IOINIT = ioinit
 IOSTATUS = status
-KEYD = keyd
 LA = la
 LAT = lat
 LDTBL = ldtbl
@@ -434,8 +433,6 @@ KEY_FLAG_CTRL    = %00000100
 .include "jumptable/ffc3.jclose.s"
 .include "jumptable/ff9f.jscnkey.s"
 .include "jumptable/ff93.jsecond.s"
-.include "keyboard/f142.getin_keyboard.s"
-.include "keyboard/pop_keyboard_buffer.s"
 .include "keyboard/f6ed.stop.s"
 .include "keyboard/chrin_keyboard.s"
 
@@ -561,5 +558,3 @@ hibase:	.res 2 ; XXX remove
 cmp0 = 0
 hibase = 0
 .endif
-
-.import keyd

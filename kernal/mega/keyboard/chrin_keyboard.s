@@ -71,14 +71,14 @@ read_from_keyboard:
 	lda NDX
 	beq chrin_repeat
 
-	lda KEYD
+	jsr kbdbuf_get
 	cmp #$0D
 	bne not_enter
 
 chrin_enter:
 
 	jsr cursor_disable
-	jsr pop_keyboard_buffer
+	jsr kbdbuf_get
 	jsr cursor_hide_if_visible
 
 	; It was enter.
@@ -130,14 +130,7 @@ chrin_enter_loop:
 	beq chrin_keyboard_return_byte ; branch always
 
 not_enter:
-
-	lda KEYD
-
-
-chrin_print_character:
-
 	jsr CHROUT
-	jsr pop_keyboard_buffer
 
 	; Keep looking for input from keyboard until carriage return
 	jmp chrin_repeat
