@@ -81,6 +81,7 @@ membot	bcc setbot
 setbot	stx memstr
 	sty memstr+1
 	rts
+.endif
 
 ;
 ;return address of first 6522
@@ -89,4 +90,3 @@ iobase
 	ldx #<via1
 	ldy #>via1
 	rts
-.endif

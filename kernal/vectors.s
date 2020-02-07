@@ -15,7 +15,7 @@
 .import kbdbuf_put
 
 ; mega
-.import restor, memtop, membot, iobase, vector
+.import restor, memtop, membot, vector
 
 	.segment "JMPTBL"
 

@@ -311,7 +311,6 @@ KEY_FLAG_CTRL    = %00000100
 .include ",stubs/e701.previous_line.s"
 .include ",stubs/e716.chrout_screen.s"
 .include ",stubs/fd90.unknown.s"
-.include "init/fffc.vector_reset.s"
 .include "init/cint_screen_keyboard.s"
 .include "init/ff5b.cint.s"
 .include "init/e518.cint_legacy.s"
@@ -320,7 +319,6 @@ KEY_FLAG_CTRL    = %00000100
 .include "memory/fe25.memtop.s"
 .include "memory/membot.s"
 .include "memory/fd15.restor.s"
-.include "rom_revision/ff80.kernal_revision.s"
 .include "errors.s"
 .include "print/print_kernal_message.s"
 .include "print/print_hex_byte.s"
@@ -354,9 +352,7 @@ KEY_FLAG_CTRL    = %00000100
 .include "interrupts/ea7e.ack_cia1_return_from_interrupt.s"
 .include "interrupts/ea31.default_irq_handler.s"
 .include "interrupts/ea81.return_from_interrupt.s"
-.include "interrupts/fffa.vector_nmi.s"
 .include "interrupts/fe66.default_brk_handler.s"
-.include "interrupts/fffe.vector_irq.s"
 .include "interrupts/hw_entry_irq.s"
 .include "screen/chrout_screen_shift_onoff.s"
 .include "screen/chrout_screen_gfxtxt.s"
@@ -396,7 +392,6 @@ KEY_FLAG_CTRL    = %00000100
 .include "assets/kernal_messages.s"
 .include "assets/e8da.colour_codes.s"
 .include "assets/fd30.vector_defaults.s"
-.include "jumptable/fff3.jiobase.s"
 .include "keyboard/f6ed.stop.s"
 .include "keyboard/chrin_keyboard.s"
 
@@ -526,7 +521,7 @@ hibase = 0
 user = 0
 .endif
 
-.export restor, memtop, membot, iobase, vector, readst, loadsp, savesp
+.export restor, memtop, membot, vector, readst, loadsp, savesp
 restor = RESTOR
 memtop = MEMTOP
 membot = MEMBOT
