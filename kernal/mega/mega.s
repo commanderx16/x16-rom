@@ -134,6 +134,20 @@ JUDTIM:
 scnsiz:
 	brk
 
+.export iobase
+iobase:
+	via1=$9f60
+	ldx #<via1
+	ldy #>via1
+	rts
+
+.export close_all
+close_all:
+	brk
+.export primm
+primm:
+	brk
+
 RAMTAS = ramtas
 
 .import cbinv, cinv, ciout, ioinit, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, talk, time, pnt
@@ -474,34 +488,6 @@ stah:	.res 1           ;$C2
 
 .export cint, color, cursor_blink, dfltn, dflto, llen, sah, sal, status, t1
 
-.export close_all
-close_all:
-	brk
-
-
-
-
-; lkupla
-; lkupsa
-; loadsp
-; nbasin
-; nbsout
-; nchkin
-; nckout
-; nclall
-; nclose
-; nclrch
-; ngetin
-; nload
-; nopen
-; nsave
-; nstop
-; savesp
-; scnsiz
-; scrorg
-; setlfs
-; udst
-
 .export plot, readst, setmsg, setnam, settmo
 
 plot = PLOT
@@ -538,3 +524,9 @@ setlfs = SETFLS
 .export udst
 
 .import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line
+
+.export puls, nmi, start
+puls = hw_entry_irq
+nmi = hw_entry_nmi
+start = hw_entry_reset
+

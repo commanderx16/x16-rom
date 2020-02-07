@@ -22,7 +22,6 @@ start	ldx #$ff
 	sec
 	jmp enter_basic
 
-.if 0
 ; restor - set kernal indirects and vectors (system)
 ;
 restor	ldx #<vectss
@@ -81,7 +80,6 @@ membot	bcc setbot
 setbot	stx memstr
 	sty memstr+1
 	rts
-.endif
 
 ;
 ;return address of first 6522
