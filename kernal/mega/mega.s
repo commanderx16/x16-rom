@@ -136,7 +136,7 @@ scnsiz:
 
 RAMTAS = ramtas
 
-.import cbinv, cinv, ciout, ioinit, ldtbl, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, talk, time
+.import cbinv, cinv, ciout, ioinit, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, talk, time
 
 .importzp pnt, lxsp
 
@@ -166,7 +166,7 @@ IOINIT = ioinit
 IOSTATUS = status
 LA = la
 LAT = lat
-LDTBL = ldtbl
+LDTBL = ldtb1 ; MIST typo
 LDTND = ldtnd
 LNMX = lnmx
 LXSP = lsxp ; MIST typo!
@@ -189,7 +189,6 @@ SHFLAG = shflag
 STAL = stal
 TALK = talk
 TBLX = tblx
-TIME = time
 USER = user
 VERCKK = verck ; typo
 XSAV = xsav
