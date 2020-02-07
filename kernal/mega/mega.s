@@ -169,7 +169,7 @@ LAT = lat
 LDTBL = ldtbl
 LDTND = ldtnd
 LNMX = lnmx
-LXSP = lsxp
+LXSP = lsxp ; MIST typo!
 MEMSIZK = memsiz
 MEMSTR = memstr
 MEMUSS = memuss
@@ -576,3 +576,8 @@ vector = VECTOR
 
 loadsp = LOAD
 savesp = SAVE
+
+.export scrorg
+scrorg = SCREEN
+.export setlfs
+setlfs = SETFLS
