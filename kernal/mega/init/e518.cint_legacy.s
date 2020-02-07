@@ -16,12 +16,10 @@ cint_legacy: ; $E518
 
 	; Setup video and I/O
 	; See here: https:;csdb.dk/forums/index.php?roomid=11&topicid=17048&firstpost=22
-.if 0
-	jsr setup_vicii
-.else
-	; MIST
+ 	jsr screen_init
+	lda #2          ;80x60
+	jsr screen_set_mode ;set screen mode to default
 	jsr clrchn_reset
-.endif
 
 	; Code below must be placed under $E51B, or some code will break - see here:
 	; - https:;csdb.dk/forums/index.php?roomid=11&topicid=17048&firstpost=2

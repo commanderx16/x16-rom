@@ -159,7 +159,14 @@ JIOBASE  = $FFF3
 
 .export scnsiz
 scnsiz:
-	brk
+	stx llen
+	sty nlines
+	iny
+	sty nlinesp1
+	dey
+	dey
+	sty nlinesm1
+	jmp clear_screen
 
 .export iobase
 iobase:
@@ -549,7 +556,7 @@ setlfs = SETFLS
 
 .export udst
 
-.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line, screen_clear_line
+.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line, screen_clear_line, screen_init, screen_set_mode
 
 .export puls, nmi, start
 puls = hw_entry_irq
