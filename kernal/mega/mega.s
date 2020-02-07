@@ -132,7 +132,7 @@ JUDTIM:
 
 RAMTAS = ramtas
 
-.import cbinv, cinv, ciout, ioinit, ldtbl, memsizk, memstr, ndx, nminv, ramtas, schar, scnkey, shflag, stkey, talk, time, timout, verckk, xmax
+.import cbinv, cinv, ciout, ioinit, ldtbl, memsiz, memstr, nminv, ramtas, scnkey, shflag, stkey, talk, time, timout, verckk, xmax
 
 .importzp user, pnt, lxsp
 
@@ -166,12 +166,11 @@ LDTBL = ldtbl
 LDTND = ldtnd
 LNMX = lnmx
 LXSP = lsxp
-MEMSIZK = memsizk
+MEMSIZK = memsiz
 MEMSTR = memstr
 MEMUSS = memuss
 MODE = mode
 MSGFLG = msgflg
-NDX = ndx
 NMINV = nminv
 PNT = pnt
 PNTR = pntr
@@ -180,7 +179,7 @@ RVS = rvs
 SA = sa
 SAL = sal
 SAT = sat
-SCHAR = schar
+SCHAR = data
 SCNKEY = scnkey
 SHFLAG = shflag
 STAL = stal
@@ -565,7 +564,7 @@ cmp0 = 0
 hibase = 0
 .endif
 
-.export restor, memtop, membot, iobase, vector
+.export restor, memtop, membot, iobase, vector, readst, loadsp, savesp
 restor = RESTOR
 memtop = MEMTOP
 membot = MEMBOT

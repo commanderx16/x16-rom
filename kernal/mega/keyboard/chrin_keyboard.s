@@ -69,10 +69,9 @@ read_from_keyboard:
 	jsr cursor_enable
 
 	; Wait for a key
-	lda NDX
+	jsr kbdbuf_get
 	beq chrin_repeat
 
-	jsr kbdbuf_get
 	cmp #$0D
 	bne not_enter
 
