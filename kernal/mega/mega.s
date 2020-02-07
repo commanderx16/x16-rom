@@ -136,7 +136,7 @@ scnsiz:
 
 RAMTAS = ramtas
 
-.import cbinv, cinv, ciout, ioinit, ldtbl, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, stkey, talk, time, timout, verckk, xmax
+.import cbinv, cinv, ciout, ioinit, ldtbl, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, talk, time, timout, verckk, xmax
 
 .importzp user, pnt, lxsp
 
@@ -187,7 +187,6 @@ SCHAR = data
 SCNKEY = kbd_scan
 SHFLAG = shflag
 STAL = stal
-STKEY = stkey
 TALK = talk
 TBLX = tblx
 TIME = time
@@ -330,9 +329,6 @@ KEY_FLAG_CTRL    = %00000100
 .include "print/print_hex_byte.s"
 .include "print/print_space.s"
 .include "print/print_return.s"
-.include "time/settim.s"
-.include "time/rdtim.s"
-.include "time/udtim.s"
 .include "iostack/f4a5.load.s"
 .include "iostack/f291.close.s"
 .include "iostack/setnam.s"
@@ -403,45 +399,7 @@ KEY_FLAG_CTRL    = %00000100
 .include "assets/kernal_messages.s"
 .include "assets/e8da.colour_codes.s"
 .include "assets/fd30.vector_defaults.s"
-.include "jumptable/ffc0.jopen.s"
-.include "jumptable/ffbd.jsetnam.s"
-.include "jumptable/ffa5.jacptr.s"
-.include "jumptable/ffc9.jckout.s"
-.include "jumptable/ffe1.jstop.s"
-.include "jumptable/ffea.judtim.s"
-.include "jumptable/ffba.jsetfls.s"
-.include "jumptable/ffd2.jchrout.s"
-.include "jumptable/ff9c.jmembot.s"
-.include "jumptable/ff8a.jrestor.s"
-.include "jumptable/ffe7.jclall.s"
-.include "jumptable/ffb1.jlisten.s"
-.include "jumptable/ffb4.jtalk.s"
-.include "jumptable/ffcc.jclrchn.s"
-.include "jumptable/ffb7.jreadst.s"
-.include "jumptable/ffa8.jciout.s"
-.include "jumptable/ff8d.jvector.s"
-.include "jumptable/ff99.jmemtop.s"
-.include "jumptable/ffae.junlsn.s"
-.include "jumptable/ffa2.jsettmo.s"
-.include "jumptable/ffd8.jsave.s"
 .include "jumptable/fff3.jiobase.s"
-.include "jumptable/ffdb.jsettim.s"
-.include "jumptable/ff90.jsetmsg.s"
-.include "jumptable/ffed.jscreen.s"
-.include "jumptable/ffc6.jchkin.s"
-.include "jumptable/ffcf.jchrin.s"
-.include "jumptable/ffd5.jload.s"
-.include "jumptable/fff0.jplot.s"
-.include "jumptable/ff84.jioinit.s"
-.include "jumptable/ff81.jcint.s"
-.include "jumptable/ffab.juntlk.s"
-.include "jumptable/ffde.jrdtim.s"
-.include "jumptable/ff96.jtksa.s"
-.include "jumptable/ffe4.jgetin.s"
-.include "jumptable/ff87.jramtas.s"
-.include "jumptable/ffc3.jclose.s"
-.include "jumptable/ff9f.jscnkey.s"
-.include "jumptable/ff93.jsecond.s"
 .include "keyboard/f6ed.stop.s"
 .include "keyboard/chrin_keyboard.s"
 
@@ -551,6 +509,8 @@ close_all:
 ; scrorg
 ; setlfs
 ; udst
+
+.export plot, readst, setmsg, setnam, settmo
 
 plot = PLOT
 readst = READST

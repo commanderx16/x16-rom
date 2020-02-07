@@ -2,6 +2,8 @@
 ; #LAYOUT# *   KERNAL_0 #TAKE
 ; #LAYOUT# *   *        #IGNORE
 
+.import kbdbuf_get_stop
+
 ;
 ; Official Kernal routine, described in:
 ;
@@ -16,8 +18,8 @@ STOP:
 	; (Computes Mapping the 64, p27)
 
 	; BASIC checks carry flag to indicate STOP or not
-	lda STKEY
-	bpl stop_pressed
+	jsr kbdbuf_get_stop
+	beq stop_pressed
 
 	; By trial and error, we know that Z + C = BREAK
 	; and that neither should be set otherwise
