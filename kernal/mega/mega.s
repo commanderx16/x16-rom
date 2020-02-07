@@ -304,6 +304,8 @@ KEY_QUESTION     = $3F
 
 KEY_FLAG_CTRL    = %00000100
 
+.segment "EDITOR"
+
 .include ",stubs/e6b6.advance_cursor.s"
 .include ",stubs/e96c.insert_line_at_top.s"
 .include ",stubs/f3f6.unknown.s"
