@@ -70,6 +70,7 @@ screen_grow_logical_line:
 	beq screen_grow_logical_line_copy_done       ; branch if no need to copyy
 	tax
 
+.if 0 ; MIST
 	; Prepare initial SAL/EAL/PNT/USER values
 
 	lda HIBASE
@@ -128,6 +129,10 @@ screen_grow_logical_line_loop:
 
 	dex
 	bne screen_grow_logical_line_loop
+.else
+	;MIST
+.endif
+
 
 screen_grow_logical_line_copy_done:
 

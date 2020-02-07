@@ -41,60 +41,12 @@ screen_scroll_up_delay_done: ; entry point for cursor move control codes
 	lda #$80
 	sta LDTBL+24
 
-	; Preserve SAL and EAL, prepare initial SAL/EAL/PNT/USER values
-
-	jsr screen_preserve_sal_eal
-
-	lda HIBASE
-	sta SAL+1
-	sta EAL+1
-
-	lda #>$D800
-	sta PNT+1
-	sta USER+1
-
-	lda #$00
-	sta EAL+0
-	sta USER+0
-	lda #40
-	sta SAL+0
-	sta PNT+0
-
-	; Now copy, SAL->EAL, PNT->USER, in a loop
-
-	ldy #$00
-
-screen_scroll_up_loop:
-
-	lda (SAL),  y
-	sta (EAL),  y
-	lda (PNT),  y
-	sta (USER), y
-
-	; Check if this was the last byte (last destination byte for color copy is #DBBF)
-
-	cpy #$BF
-	bne :+                             ; definitely not the last byte
-	lda USER+1
-	cmp #$DB
-	beq screen_scroll_up_loop_done
-:
-	; Increment .Y, possibly advance pointers
-
-	iny
-	bne screen_scroll_up_loop
-
-	inc SAL+1
-	inc EAL+1
-	inc USER+1
-	inc PNT+1
-	bne screen_scroll_up_loop          ; branch alwayys
-
-screen_scroll_up_loop_done:
-
-	; Restore SAL and EAL
-
-	jsr screen_restore_sal_eal
+	ldx #0
+:	jsr screen_set_position
+	inx
+	jsr screen_copy_line
+	cpx #24
+	bne :-
 
 	; Clear the newly introduced line
 

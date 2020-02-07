@@ -542,4 +542,4 @@ setlfs = SETFLS
 
 .export udst
 
-.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color
+.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line
