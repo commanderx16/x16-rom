@@ -130,9 +130,13 @@ JSTOP:
 JUDTIM:
 	brk
 
+.export scnsiz
+scnsiz:
+	brk
+
 RAMTAS = ramtas
 
-.import cbinv, cinv, ciout, ioinit, ldtbl, memsiz, memstr, nminv, ramtas, scnkey, shflag, stkey, talk, time, timout, verckk, xmax
+.import cbinv, cinv, ciout, ioinit, ldtbl, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, stkey, talk, time, timout, verckk, xmax
 
 .importzp user, pnt, lxsp
 
@@ -180,7 +184,7 @@ SA = sa
 SAL = sal
 SAT = sat
 SCHAR = data
-SCNKEY = scnkey
+SCNKEY = kbd_scan
 SHFLAG = shflag
 STAL = stal
 STKEY = stkey
