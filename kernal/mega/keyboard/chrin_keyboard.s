@@ -55,7 +55,7 @@ not_end_of_input:
 	; Return next byte of waiting
 	tay
 chrin_keyboard_return_byte:
-	lda (LXSP),y
+	;MIST lda (LXSP),y
 	tax
 	ply_trash_a
 	txa
@@ -118,7 +118,7 @@ chrin_enter_loop:
 	; Retrieve bytes
 	dey
 	bmi empty_line
-	lda (LXSP),y
+	;MIST lda (LXSP),y
 	cmp #$20
 	beq chrin_enter_loop
 	iny

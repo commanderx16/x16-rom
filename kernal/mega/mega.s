@@ -96,6 +96,8 @@ chrout_screen_TXT:
 wait_x_bars:
 	brk
 
+.export lkupla, lkupsa
+
 lkupla:
 lkupsa:
 	brk
@@ -163,7 +165,7 @@ LAT = lat
 LDTBL = ldtbl
 LDTND = ldtnd
 LNMX = lnmx
-LXSP = lxsp
+LXSP = lsxp
 MEMSIZK = memsizk
 MEMSTR = memstr
 MEMUSS = memuss
@@ -568,3 +570,6 @@ restor = RESTOR
 memtop = MEMTOP
 membot = MEMBOT
 vector = VECTOR
+
+loadsp = LOAD
+savesp = SAVE
