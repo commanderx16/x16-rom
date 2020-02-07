@@ -136,9 +136,9 @@ scnsiz:
 
 RAMTAS = ramtas
 
-.import cbinv, cinv, ciout, ioinit, ldtbl, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, talk, time, timout, verckk, xmax
+.import cbinv, cinv, ciout, ioinit, ldtbl, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, talk, time
 
-.importzp user, pnt, lxsp
+.importzp pnt, lxsp
 
 ; zp/var
 BLNCT = blnct
@@ -190,10 +190,8 @@ STAL = stal
 TALK = talk
 TBLX = tblx
 TIME = time
-TIMOUT = timout
 USER = user
-VERCKK = verckk
-XMAX = xmax
+VERCKK = verck ; typo
 XSAV = xsav
 
 ;.segment "EDITOR"
@@ -526,6 +524,7 @@ hibase:	.res 2 ; XXX remove
 .else
 cmp0 = 0
 hibase = 0
+user = 0
 .endif
 
 .export restor, memtop, membot, iobase, vector, readst, loadsp, savesp
@@ -541,3 +540,5 @@ savesp = SAVE
 scrorg = SCREEN
 .export setlfs
 setlfs = SETFLS
+
+.export udst

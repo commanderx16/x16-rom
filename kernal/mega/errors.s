@@ -93,3 +93,7 @@ kernalstatus_DEVICE_NOT_FOUND:
 	ora #K_STS_DEVICE_NOT_FOUND
 	sta IOSTATUS
 	rts
+
+udst:	ora status
+	sta status
+	rts

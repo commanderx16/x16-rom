@@ -70,8 +70,8 @@ cint_screen_keyboard:
 	stx COLOR
 
 	; Set maximum keyboard buffer size (Computes Mapping the 64 p215)
-	ldx #10
-	stx XMAX
+	;ldx #10
+	;stx XMAX
 	
 	; Put non-zero value in MODE to enable case switch
 	ldx #$00

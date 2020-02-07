@@ -14,5 +14,5 @@
 
 SETTMO:
 
-	sta TIMOUT
+	;sta TIMOUT
 	rts
