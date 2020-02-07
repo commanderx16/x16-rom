@@ -53,4 +53,5 @@ hw_entry_reset:
 	cli ; allow interrupts to happen
 
 	; c64 prg p269
-	jmp (IBASIC_COLD_START)
+	sec
+	jmp enter_basic

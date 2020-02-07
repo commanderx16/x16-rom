@@ -75,10 +75,12 @@
 .include "io.inc"
 
 .include "declare.s"
-;.include "cbm/init.s"
-;.include "cbm/nmi.s"
-;.include "cbm/irqfile.s"
-;.include "cbm/util.s"
+.if 0
+.include "cbm/init.s"
+.include "cbm/nmi.s"
+.include "cbm/irqfile.s"
+.include "cbm/util.s"
+.endif
 .include "vectors.s"
 
 ; mega

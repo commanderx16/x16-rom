@@ -79,7 +79,8 @@ UNTLK:
 
 iec_check_devnum_lvs:
 iec_check_devnum_oc:
-	brk
+	sec
+	rts
 
 chkin_rs232:
 chrin_rs232:
@@ -102,9 +103,6 @@ lkupla:
 lkupsa:
 	brk
 
-IBASIC_COLD_START = $a000
-IBASIC_WARM_START = $a002
-
 IBASIN:
 IBSOUT:
 ICHKIN:
@@ -119,16 +117,45 @@ ISAVE:
 ISTOP:
 	brk
 
-JCHROUT:
-JCINT:
-JCLOSE:
-JIOINIT:
-JRAMTAS:
-JRESTOR:
-JSCNKEY:
-JSTOP:
-JUDTIM:
-	brk
+JCINT    = $FF81
+JIOINIT  = $FF84
+JRAMTAS  = $FF87
+JRESTOR  = $FF8A
+JVECTOR  = $FF8D
+JSETMSG  = $FF90
+JSECOND  = $FF93
+JTKSA    = $FF96
+JMEMTOP  = $FF99
+JMEMBOT  = $FF9C
+JSCNKEY  = $FF9F
+JSETTMO  = $FFA2
+JACPTR   = $FFA5
+JCIOUT   = $FFA8
+JUNTLK   = $FFAB
+JUNLSN   = $FFAE
+JLISTEN  = $FFB1
+JTALK    = $FFB4
+JREADST  = $FFB7
+JSETFLS  = $FFBA
+JSETNAM  = $FFBD
+JOPEN    = $FFC0
+JCLOSE   = $FFC3
+JCHKIN   = $FFC6
+JCKOUT   = $FFC9
+JCLRCHN  = $FFCC
+JCHRIN   = $FFCF
+JCHROUT  = $FFD2
+JLOAD    = $FFD5
+JSAVE    = $FFD8
+JSETTIM  = $FFDB
+JRDTIM   = $FFDE
+JSTOP    = $FFE1
+JGETIN   = $FFE4
+JCLALL   = $FFE7
+JUDTIM   = $FFEA
+JSCREEN  = $FFED
+JPLOT    = $FFF0
+JIOBASE  = $FFF3
 
 .export scnsiz
 scnsiz:
@@ -370,7 +397,6 @@ KEY_FLAG_CTRL    = %00000100
 .include "interrupts/hw_entry_irq.s"
 .include "screen/chrout_screen_shift_onoff.s"
 .include "screen/chrout_screen_gfxtxt.s"
-.include "screen/e9ff.screen_clear_line.s"
 .include "screen/screen_get_logical_line_end_ptr.s"
 .include "screen/screen_calculate_pnt_user.s"
 .include "screen/e544.clear_screen.s"
@@ -523,10 +549,12 @@ setlfs = SETFLS
 
 .export udst
 
-.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line
+.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line, screen_clear_line
 
 .export puls, nmi, start
 puls = hw_entry_irq
 nmi = hw_entry_nmi
 start = hw_entry_reset
 
+
+.import enter_basic

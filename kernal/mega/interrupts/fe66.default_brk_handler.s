@@ -27,4 +27,6 @@ default_brk_handler:
 
 	cli
 
-	jmp (IBASIC_WARM_START)
+	clc
+	jmp enter_basic
+

@@ -37,12 +37,11 @@ BUILD_DIR=build/$(MACHINE)
 
 CFG_DIR=$(BUILD_DIR)/cfg
 
-KERNAL_COMMODORE_SOURCES = \
-	kernal/cbm/editor.s \
-	kernal/cbm/channel/channel.s
-	
-KERNAL_MEGA_SOURCES = \
-	kernal/mega/mega.s
+#KERNAL_COMMODORE_SOURCES = \
+#	kernal/cbm/editor.s \
+#	kernal/cbm/channel/channel.s
+#KERNAL_MEGA_SOURCES = \
+#	kernal/mega/mega.s
 
 KERNAL_CORE_SOURCES = \
 	kernal/kernal.s \
