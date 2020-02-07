@@ -74,7 +74,7 @@ chrout_screen_literal:
 
 	txa
 	ora RVS                            ; Computes Mapping the 64, page 38
-	sta (PNT),y
+	jsr screen_set_char
 
 	; Decrement number of chars waiting to be inserted
 
@@ -95,7 +95,7 @@ chrout_screen_literal:
 	; Set colour of the newly printed character
 
 	lda COLOR
-	sta (USER),y
+	jsr screen_set_color
 
 	; Advance the column
 

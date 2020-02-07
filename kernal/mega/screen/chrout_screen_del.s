@@ -75,13 +75,13 @@ chrout_screen_del_done:
 chrout_screen_del_copy_loop:
 
 	iny
-	lda (USER),y
+	jsr screen_get_color
 	dey
-	sta (USER),y
+	jsr screen_set_color
 	iny
-	lda (PNT),y
+	jsr screen_get_char
 	dey
-	sta (PNT),y
+	jsr screen_set_char
 	iny
 
 	dex
@@ -89,7 +89,7 @@ chrout_screen_del_copy_loop:
 
 	; Clear char at end of line (just the character - not color!)
 	lda #$20
-	sta (PNT),y
+	jsr screen_set_char
 
 	rts
 
@@ -109,7 +109,7 @@ chrout_screen_del_column_0:
 	; Put space character at the current cursor position (do not clear the color!)
 	ldy #39
 	lda #$20
-	sta (PNT),y
+	jsr screen_set_char
 
 	; Finish with recalculating all the variables
 	bne chrout_screen_del_done

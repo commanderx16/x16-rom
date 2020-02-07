@@ -33,15 +33,15 @@ cursor_blink:
 cursor_draw:
 
 	jsr screen_get_clipped_PNTR
-	lda (PNT),y
+	jsr screen_get_char
 	sta GDBLN
 	eor #$80
-	sta (PNT),y
+	jsr screen_set_char
 	; Also set cursor colour
-	lda (USER),y
+	jsr screen_get_color
 	sta GDCOL
 	lda COLOR
-	sta (USER),y
+	jsr screen_set_color
 
 	lda #1
 	sta BLNON
@@ -62,9 +62,9 @@ cursor_undraw:
 
 	jsr screen_get_clipped_PNTR
 	lda GDBLN
-	sta (PNT),y
+	jsr screen_set_char
 	lda GDCOL
-	sta (USER),y
+	jsr screen_set_color
 	
 	lda #0
 	sta BLNON

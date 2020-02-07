@@ -136,9 +136,9 @@ scnsiz:
 
 RAMTAS = ramtas
 
-.import cbinv, cinv, ciout, ioinit, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, talk, time
+.import cbinv, cinv, ciout, ioinit, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, talk, time, pnt
 
-.importzp pnt, lxsp
+.importzp lxsp
 
 ; zp/var
 BLNCT = blnct
@@ -303,8 +303,6 @@ KEY_GT           = $3E
 KEY_QUESTION     = $3F
 
 KEY_FLAG_CTRL    = %00000100
-
-.segment "EDITOR"
 
 .include ",stubs/e6b6.advance_cursor.s"
 .include ",stubs/e96c.insert_line_at_top.s"
@@ -543,3 +541,5 @@ scrorg = SCREEN
 setlfs = SETFLS
 
 .export udst
+
+.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color

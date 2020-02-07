@@ -19,16 +19,17 @@ screen_clear_line:
 
 	; First, calculate PNT and USER
 	phx_trash_a
-	jsr screen_calculate_PNT_USER_from_X
+	jsr screen_set_position
 	plx_trash_a
 
 	; Now clear the line
 	ldy #39
 :
-	lda COLOR
-	sta (USER), y
+	ldx COLOR
+	jsr screen_set_color
 	lda #$20                           ; space character screen code
-	sta (PNT), y
+	jsr screen_set_char
+	; MIST: could be optimized, but would break "leaves space screen code in .A"
 
 	dey
 	bpl :-
