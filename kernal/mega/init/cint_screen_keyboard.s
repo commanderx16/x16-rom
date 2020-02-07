@@ -63,6 +63,8 @@ cint_screen_keyboard:
 	stx DELAY
 	
 #endif
+.else
+	jsr kbd_config
 .endif
 
 	; Set current colour for text (Computes Mapping the 64 p215)

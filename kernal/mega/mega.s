@@ -398,8 +398,8 @@ KEY_FLAG_CTRL    = %00000100
 .include "interrupts/hw_entry_nmi.s"
 .include "interrupts/fe47.default_nmi_handler.s"
 .include "interrupts/ea7e.ack_cia1_return_from_interrupt.s"
-.include "interrupts/ea31.default_irq_handler.s"
 .include "interrupts/ea81.return_from_interrupt.s"
+.include "interrupts/ea31.default_irq_handler.s"
 .include "interrupts/fe66.default_brk_handler.s"
 .include "interrupts/hw_entry_irq.s"
 .include "screen/chrout_screen_shift_onoff.s"
@@ -563,5 +563,7 @@ puls = hw_entry_irq
 nmi = hw_entry_nmi
 start = hw_entry_reset
 
-
 .import enter_basic
+
+.import kbd_config
+.import irq_ack
