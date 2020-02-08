@@ -64,6 +64,7 @@ cint_screen_keyboard:
 	
 #endif
 .else
+	jsr emulator_get_data
 	jsr kbd_config
 .endif
 

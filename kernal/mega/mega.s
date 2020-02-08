@@ -38,7 +38,7 @@ branch_16 target, $f0, $f3
 
 .macro phx_trash_a
 	txa
-	pla
+	pha
 .endmacro
 
 .macro plx_trash_a
@@ -48,7 +48,7 @@ branch_16 target, $f0, $f3
 
 .macro phy_trash_a
 	tya
-	pla
+	pha
 .endmacro
 
 .macro ply_trash_a
@@ -567,3 +567,4 @@ start = hw_entry_reset
 
 .import kbd_config
 .import irq_ack
+.import emulator_get_data

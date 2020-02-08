@@ -73,6 +73,7 @@ setkb3:	lda #<$c000
 	jsr fetch
 	pha
 	iny
+	ldx #BANK_KEYBD
 	jsr fetch
 	sta tmp2+1
 	pla

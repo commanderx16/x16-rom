@@ -27,7 +27,7 @@ imparm     = $E2
 ; 1-9: GEOS BG SCREEN (320x200) [not currently enabled]
 ; 255: CBDOS
 
-.ifdef X16
+.ifdef MACHINE_X16
 
 .macro KVARS_START
 .import kvswitch_tmp1, kvswitch_tmp2
