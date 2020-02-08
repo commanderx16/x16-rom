@@ -1,39 +1,40 @@
-.macro branch_16 target, opcode8, opcode16
+.macro branch_16 target, opcode8
 .if     .def(target) .and ((*+2)-(target) <= 127)
 .byte opcode8
 .byte (target - * - 2) & $ff
 .else
-.byte opcode16
-.word (target - * - 2) & $ffff
+.byte opcode8 ^ $20
+.byte 3
+	jmp target
 .endif
 .endmacro
 
 .macro bpl_16 target
-branch_16 target, $10, $13
+branch_16 target, $10
 .endmacro
 .macro bmi_16 target
-branch_16 target, $30, $33
+branch_16 target, $30
 .endmacro
 .macro bvc_16 target
-branch_16 target, $50, $53
+branch_16 target, $50
 .endmacro
 .macro bvs_16 target
-branch_16 target, $70, $73
+branch_16 target, $70
 .endmacro
 .macro bra_16 target
-branch_16 target, $80, $83
+branch_16 target, $80
 .endmacro
 .macro bcc_16 target
-branch_16 target, $90, $93
+branch_16 target, $90
 .endmacro
 .macro bcs_16 target
-branch_16 target, $b0, $b3
+branch_16 target, $b0
 .endmacro
 .macro bne_16 target
-branch_16 target, $d0, $d3
+branch_16 target, $d0
 .endmacro
 .macro beq_16 target
-branch_16 target, $f0, $f3
+branch_16 target, $f0
 .endmacro
 
 .macro phx_trash_a
