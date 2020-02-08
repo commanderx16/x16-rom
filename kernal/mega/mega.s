@@ -61,12 +61,13 @@ branch_16 target, $f0
 	.byte $2c
 .endmacro
 
+clrchn_iec:
+	rts
 chkin_iec:
 chrin_iec:
 chrout_iec:
 ckout_iec:
 close_iec:
-clrchn_iec:
 load_iec:
 open_iec:
 save_iec:

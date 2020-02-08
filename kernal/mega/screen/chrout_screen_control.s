@@ -54,7 +54,11 @@ chrout_try_color_loop:
 
 	cmp colour_codes,x
 	bne :+
+	lda COLOR
+	and #$f0
 	stx COLOR
+	ora COLOR
+	sta COLOR
 	jmp chrout_screen_done
 :	
 	dex

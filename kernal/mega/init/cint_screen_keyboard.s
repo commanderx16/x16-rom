@@ -69,7 +69,7 @@ cint_screen_keyboard:
 .endif
 
 	; Set current colour for text (Computes Mapping the 64 p215)
-	ldx #$01     ; default is light blue ($0E), but we use a different one
+	ldx #$61     ; default is light blue ($0E), but we use a different one
 	stx COLOR
 
 	; Set maximum keyboard buffer size (Computes Mapping the 64 p215)
