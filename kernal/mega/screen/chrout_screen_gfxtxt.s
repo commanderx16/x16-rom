@@ -8,21 +8,11 @@
 
 
 chrout_screen_GFX:
-
-.if 0
-	lda VIC_YMCSB
-	and #$02 ; to upper case
-l5:
-	sta VIC_YMCSB
-	jmp chrout_screen_done
+	lda #2
+	bne chrout_screen_set_charset
 
 chrout_screen_TXT:
-
-	lda VIC_YMCSB
-	ora #$02    ; to lower case
-	bne l5      ; branch always
-.else
-chrout_screen_TXT:
-	; MIST
+	lda #3
+chrout_screen_set_charset:
+	jsr screen_set_charset
 	jmp chrout_screen_done
-.endif

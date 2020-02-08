@@ -546,7 +546,7 @@ setlfs = SETFLS
 
 .export udst
 
-.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line, screen_clear_line, screen_init, screen_set_mode
+.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line, screen_clear_line, screen_init, screen_set_mode, screen_set_charset
 
 .export puls, nmi, start
 puls = hw_entry_irq
