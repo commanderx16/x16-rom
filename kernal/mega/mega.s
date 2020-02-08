@@ -105,7 +105,7 @@ lkupla:
 lkupsa:
 	brk
 
-IBASIN:
+;IBASIN:
 IBSOUT:
 ICHKIN:
 ICKOUT:
