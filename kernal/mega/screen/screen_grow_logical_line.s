@@ -68,71 +68,13 @@ screen_grow_logical_line:
 	sec
 	sbc TBLX
 	beq screen_grow_logical_line_copy_done       ; branch if no need to copyy
-	tax
 
-.if 0 ; MIST
-	; Prepare initial SAL/EAL/PNT/USER values
-
-	lda HIBASE
-	clc
-	adc #3
-	sta SAL+1
-	sta EAL+1
-
-	lda #>$DB00                        ; 3rd page of the color memory
-	sta PNT+1
-	sta USER+1
-
-	lda #<$03C0                        ; start of destination row
-	sta EAL+0
-	sta USER+0
-	lda #<$0398                        ; start of source row
-	sta SAL+0
-	sta PNT+0
-
-screen_grow_logical_line_loop:
-
-	; Scroll down one line each loop iteration
-
-	ldy #39
-:
-	lda (SAL),  y
-	sta (EAL),  y
-	lda (PNT),  y
-	sta (USER), y
-	dey
-	bpl :-
-
-	; Decrement SAL/PNT pointers by 40 (optimized due to fact they share LSB)
-
-	lda SAL+0
-	sec
-	sbc #40
-	sta SAL+0
-	sta PNT+0
-	bcs :+
-	dec SAL+1
-	dec PNT+1
-:
-	; Decrement EAL/USER pointers by 40 (optimized due to fact they share LSB)
-
-	lda EAL+0
-	sec
-	sbc #40
-	sta EAL+0
-	sta USER+0
-	bcs :+
-	dec EAL+1
-	dec USER+1
-:
-	; Next loop iteration
-
+	ldx #24
+:	jsr screen_set_position
 	dex
-	bne screen_grow_logical_line_loop
-.else
-	;MIST
-.endif
-
+	jsr screen_copy_line
+	cpx TBLX
+	bne :-
 
 screen_grow_logical_line_copy_done:
 
