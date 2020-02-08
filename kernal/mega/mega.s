@@ -105,19 +105,9 @@ lkupla:
 lkupsa:
 	brk
 
-;IBASIN:
-IBSOUT:
-ICHKIN:
-ICKOUT:
-ICLALL:
-ICLOSE:
-ICLRCH:
-IGETIN:
-ILOAD:
-IOPEN:
-ISAVE:
-ISTOP:
-	brk
+.import iload, isave
+ILOAD = iload
+ISAVE = isave
 
 JCINT    = $FF81
 JIOINIT  = $FF84
