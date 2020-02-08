@@ -1,12 +1,12 @@
 .macro branch_16 target, opcode8
-.if     .def(target) .and ((*+2)-(target) <= 127)
-.byte opcode8
-.byte (target - * - 2) & $ff
-.else
+;.if     .def(target) .and ((*+2)-(target) <= 127)
+;.byte opcode8
+;.byte (target - * - 2) & $ff
+;.else
 .byte opcode8 ^ $20
 .byte 3
 	jmp target
-.endif
+;.endif
 .endmacro
 
 .macro bpl_16 target
@@ -89,14 +89,14 @@ iec_check_devnum_oc:
 	sec
 	rts
 
-chkin_rs232:
-chrin_rs232:
-chrout_rs232:
-ckout_rs232:
-close_rs232:
-getin_rs232:
-open_rs232:
-	brk
+.import opn232, cls232, cko232, cki232, bso232, bsi232
+chkin_rs232 = cki232
+chrin_rs232 = bsi232
+chrout_rs232 = bso232
+ckout_rs232 = cko232
+close_rs232 = cls232
+getin_rs232 = bsi232
+open_rs232 = opn232
 
 wait_x_bars:
 	brk
