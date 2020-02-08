@@ -22,6 +22,7 @@ chrout_screen_TXT:
 	ora #$02    ; to lower case
 	bne l5      ; branch always
 .else
+chrout_screen_TXT:
 	; MIST
 	jmp chrout_screen_done
 .endif

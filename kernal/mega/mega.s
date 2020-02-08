@@ -71,13 +71,18 @@ close_iec:
 load_iec:
 open_iec:
 save_iec:
-ACPTR:
-LISTEN:
-SECOND:
-TKSA:
-UNLSN:
-UNTLK:
 	brk
+
+.import secnd, tksa, acptr, ciout, untlk, unlsn, listn, talk
+
+SECND = secnd
+TKSA = tksa
+ACPTR = acptr
+CIOUT = ciout
+UNTLK = untlk
+UNLSN = unlsn
+LISTN = listn
+TALK = talk
 
 iec_check_devnum_lvs:
 iec_check_devnum_oc:
@@ -91,9 +96,6 @@ ckout_rs232:
 close_rs232:
 getin_rs232:
 open_rs232:
-	brk
-
-chrout_screen_TXT:
 	brk
 
 wait_x_bars:
@@ -176,7 +178,7 @@ primm:
 
 RAMTAS = ramtas
 
-.import cbinv, cinv, ciout, ioinit, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, talk, time, pnt
+.import cbinv, cinv, ioinit, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, time, pnt
 
 ; zp/var
 BLNCT = blnct
@@ -184,7 +186,6 @@ BLNON = blnon
 BLNSW = blnsw
 CBINV = cbinv
 CINV = cinv
-CIOUT = ciout
 CMP0 = cmp0
 COLOR = color
 CRSW = crsw
@@ -225,7 +226,6 @@ SCHAR = data
 SCNKEY = kbd_scan
 SHFLAG = shflag
 STAL = stal
-TALK = talk
 TBLX = tblx
 USER = user
 VERCKK = verck ; typo
