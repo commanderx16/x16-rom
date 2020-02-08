@@ -55,7 +55,7 @@ not_end_of_input:
 	; Return next byte of waiting
 	tay
 chrin_keyboard_return_byte:
-	;MIST lda (LXSP),y
+	jsr screen_get_char
 	tax
 	ply_trash_a
 	txa
@@ -75,10 +75,9 @@ read_from_keyboard:
 	cmp #$0D
 	bne not_enter
 
-chrin_enter:
+;chrin_enter:
 
 	jsr cursor_disable
-	jsr kbdbuf_get
 	jsr cursor_hide_if_visible
 
 	; It was enter.
@@ -86,6 +85,7 @@ chrin_enter:
 	; after computing and storing its length.
 	; (Computes Mapping the 64, p96)
 
+.if 1
 	; Set pointer to line of input
 	lda PNT+0
 	sta LXSP+0
@@ -107,6 +107,7 @@ chrin_enter:
 	bne chrin_enter_loop               ; branch always
 
 chrin_enter_calc_length:
+.endif
 
 	; Calculate length
 	jsr screen_get_logical_line_end_ptr
@@ -117,7 +118,7 @@ chrin_enter_loop:
 	; Retrieve bytes
 	dey
 	bmi empty_line
-	;MIST lda (LXSP),y
+	jsr screen_get_char
 	cmp #$20
 	beq chrin_enter_loop
 	iny

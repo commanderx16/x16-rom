@@ -188,8 +188,6 @@ RAMTAS = ramtas
 
 .import cbinv, cinv, ciout, ioinit, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, talk, time, pnt
 
-.importzp lxsp
-
 ; zp/var
 BLNCT = blnct
 BLNON = blnon
