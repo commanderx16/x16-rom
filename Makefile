@@ -40,8 +40,8 @@ CFG_DIR=$(BUILD_DIR)/cfg
 #KERNAL_COMMODORE_SOURCES = \
 #	kernal/cbm/editor.s \
 #	kernal/cbm/channel/channel.s
-#KERNAL_MEGA_SOURCES = \
-#	kernal/mega/mega.s
+#KERNAL_OPENROM_SOURCES = \
+#	kernal/open-rom/open-rom.s
 
 KERNAL_CORE_SOURCES = \
 	kernal/kernal.s \
@@ -49,7 +49,7 @@ KERNAL_CORE_SOURCES = \
 	kernal/cbm/serial.s \
 	kernal/memory.s \
 	kernal/lzsa.s \
-	kernal/mega/mega.s
+	kernal/open-rom/open-rom.s
 
 KERNAL_GRAPH_SOURCES = \
 	kernal/console.s \
