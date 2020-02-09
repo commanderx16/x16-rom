@@ -1,3 +1,8 @@
+;----------------------------------------------------------------------
+; KERNAL: Master file
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
+
 .feature labels_without_colons
 
 ; from editor
@@ -75,12 +80,6 @@
 .include "io.inc"
 
 .include "declare.s"
-.if 0
-.include "cbm/init.s"
-.include "cbm/nmi.s"
-.include "cbm/irqfile.s"
-.include "cbm/util.s"
-.endif
 .include "vectors.s"
 
 ; mega

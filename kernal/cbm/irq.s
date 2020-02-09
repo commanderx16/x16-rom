@@ -1,4 +1,16 @@
-	.segment "IRQFILE"
+;----------------------------------------------------------------------
+; IRQ
+;----------------------------------------------------------------------
+; (C)1983 Commodore Business Machines (CBM)
+; additions: (C)2020 Michael Steil, License: 2-clause BSD
+
+.feature labels_without_colons
+
+.import dfltn, dflto, kbd_scan, clock_update, cinv, cbinv
+
+.export puls, key
+
+	.segment "IRQ"
 
 .import screen_init
 .import mouse_scan

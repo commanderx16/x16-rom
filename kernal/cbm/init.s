@@ -1,10 +1,17 @@
+;----------------------------------------------------------------------
+; Init, Vectors, Memory
+;----------------------------------------------------------------------
+; (C)1983 Commodore Business Machines (CBM)
+; additions: (C)2020 Michael Steil, License: 2-clause BSD
 
-.import enter_basic
+.feature labels_without_colons
 
-.if 0
-.export membot
-.export memtop
-.endif
+.include "io.inc"
+
+.import memstr, rambks, memsiz, nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv, cint, ramtas, ioinit, enter_basic
+.importzp tmp2
+
+.export iobase, membot, memtop, restor, start, vector
 
 	.segment "INIT"
 ; start - system reset

@@ -1,3 +1,7 @@
+;----------------------------------------------------------------------
+; Jump Table
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
 
 .import monitor
 .import mouse_config, mouse_scan, mouse_get; [mouse]

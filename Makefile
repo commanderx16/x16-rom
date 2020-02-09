@@ -3,6 +3,10 @@ MACHINE     ?= x16
 # also supported:
 # * c64
 
+CORE_SOURCE_BASE ?= COMMODORE
+# also supported
+# * OPENROMS
+
 ifdef RELEASE_VERSION
 	VERSION_DEFINE="-DRELEASE_VERSION=$(RELEASE_VERSION)"
 endif
@@ -37,19 +41,29 @@ BUILD_DIR=build/$(MACHINE)
 
 CFG_DIR=$(BUILD_DIR)/cfg
 
-#KERNAL_COMMODORE_SOURCES = \
-#	kernal/cbm/editor.s \
-#	kernal/cbm/channel/channel.s
-#KERNAL_OPENROM_SOURCES = \
-#	kernal/open-rom/open-rom.s
+KERNAL_CORE_COMMODORE_SOURCES = \
+	kernal/cbm/editor.s \
+	kernal/cbm/channel/channel.s \
+	kernal/cbm/init.s \
+	kernal/cbm/nmi.s \
+	kernal/cbm/irq.s \
+	kernal/cbm/util.s
+
+KERNAL_CORE_OPENROMS_SOURCES = \
+	kernal/open-rom/open-rom.s
 
 KERNAL_CORE_SOURCES = \
 	kernal/kernal.s \
 	kernal/kbdbuf.s \
 	kernal/cbm/serial.s \
 	kernal/memory.s \
-	kernal/lzsa.s \
-	kernal/open-rom/open-rom.s
+	kernal/lzsa.s
+
+ifeq ($(CORE_SOURCE_BASE),COMMODORE)
+	KERNAL_CORE_SOURCES += $(KERNAL_CORE_COMMODORE_SOURCES)
+else
+	KERNAL_CORE_SOURCES += $(KERNAL_CORE_OPENROMS_SOURCES)
+endif
 
 KERNAL_GRAPH_SOURCES = \
 	kernal/console.s \

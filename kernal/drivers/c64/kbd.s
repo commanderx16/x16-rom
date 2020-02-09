@@ -1,7 +1,8 @@
 ;----------------------------------------------------------------------
 ; C64 Keyboard Driver
 ;----------------------------------------------------------------------
-; Based on code by Commodore Business Machines
+; (C)1983 Commodore Business Machines (CBM)
+; additions: (C)2020 Michael Steil, License: 2-clause BSD
 
 .feature labels_without_colons
 

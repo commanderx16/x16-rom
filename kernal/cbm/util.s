@@ -1,3 +1,15 @@
+;----------------------------------------------------------------------
+; PRIMM
+;----------------------------------------------------------------------
+; (C)1985 Commodore Business Machines (CBM)
+; additions: (C)2020 Michael Steil, License: 2-clause BSD
+
+.feature labels_without_colons
+
+bsout = $ffd2
+.importzp imparm
+
+.export primm
 
 	.segment "UTIL"
 

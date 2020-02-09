@@ -1,8 +1,14 @@
+;----------------------------------------------------------------------
+; KERNAL: zp/vars
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
+
 .export buf; [monitor]
 .export tmp2; [cpychr]
 .export ckbtab; [ps2kbd]
 .export imparm; [jsrfar]
 .export ptr_fg; [graph]
+.export rambks; [init]
 .export kvswitch_tmp1, kvswitch_tmp2
 .export mhz
 
