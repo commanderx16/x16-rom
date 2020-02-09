@@ -7,7 +7,7 @@
 ;
 
 
-;#if CONFIG_EDIT_STOPQUOTE
+.if CONFIG_EDIT_STOPQUOTE
 
 
 chrout_screen_STOP:
@@ -18,4 +18,4 @@ chrout_screen_STOP:
 	jmp chrout_screen_done
 
 
-;#endif
+.endif

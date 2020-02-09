@@ -1,3 +1,12 @@
+CONFIG_CPU_MOS_6502 = 0
+CONFIG_BCD_SAFE_INTERRUPTS = 0
+HAS_RS232 = 1
+CONFIG_IEC = 1
+CONFIG_EDIT_STOPQUOTE = 1
+CONFIG_EDIT_TABULATORS = 1
+
+
+
 .macro branch_16 target, opcode8
 ;.if     .def(target) .and ((*+2)-(target) <= 127)
 ;.byte opcode8

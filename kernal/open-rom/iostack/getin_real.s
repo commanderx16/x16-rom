@@ -20,12 +20,12 @@ getin_real:
 	; Try $00 - keyboard
 	beq_16 kbdbuf_get
 
-;#if HAS_RS232
+.if HAS_RS232
 
 	; Try $02 - RS-232
 	cmp #$02
 	beq_16 getin_rs232
 
-;#endif ; HAS_RS232
+.endif ; HAS_RS232
 
 	jmp chrin_getin

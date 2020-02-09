@@ -18,9 +18,9 @@ hw_entry_irq:
 	phx_trash_a
 	phy_trash_a
 
-;#if CONFIG_CPU_MOS_6502 && CONFIG_BCD_SAFE_INTERRUPTS
+.if CONFIG_CPU_MOS_6502 && CONFIG_BCD_SAFE_INTERRUPTS
 	cld ; clear decimal flag to allow using it without disabling interrupts
-;#endif
+.endif
 
 	; Check if caused by BRK
 	tsx

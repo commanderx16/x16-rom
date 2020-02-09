@@ -20,9 +20,9 @@ SAVE:
 	; Check whether we support the requested device
 	lda FA
 
-;#if CONFIG_IEC
+.if CONFIG_IEC
 	jsr iec_check_devnum_lvs
 	bcc_16 save_iec
-;#endif
+.endif
 
 	jmp lvs_illegal_device_number 
