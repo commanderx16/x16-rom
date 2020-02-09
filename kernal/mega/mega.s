@@ -342,13 +342,6 @@ KEY_QUESTION     = $3F
 
 KEY_FLAG_CTRL    = %00000100
 
-.include ",stubs/e6b6.advance_cursor.s"
-.include ",stubs/e96c.insert_line_at_top.s"
-.include ",stubs/f3f6.unknown.s"
-.include ",stubs/f646.iec_close.s"
-.include ",stubs/e701.previous_line.s"
-.include ",stubs/e716.chrout_screen.s"
-.include ",stubs/fd90.unknown.s"
 .include "init/cint_screen_keyboard.s"
 .include "init/ff5b.cint.s"
 .include "init/e518.cint_legacy.s"
