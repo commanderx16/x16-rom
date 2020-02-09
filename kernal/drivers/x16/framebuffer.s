@@ -7,9 +7,10 @@
 .include "regs.inc"
 .include "io.inc"
 
-.importzp ptr_fg
-
 .export FB_VERA
+
+.segment "ZPKERNAL" : zeropage
+ptr_fg:	.res 2
 
 .segment "VERA_DRV"
 

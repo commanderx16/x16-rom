@@ -9,8 +9,6 @@
 
 .export buf; [monitor]
 .export tmp2; [cpychr]
-.export ckbtab; [ps2kbd]
-.export ptr_fg; [graph]
 .export rambks; [init]
 .export kvswitch_tmp1, kvswitch_tmp2
 .export mhz
@@ -24,8 +22,6 @@ tmp2	.res 2           ;$C3
 .assert * = imparm, error, "imparm must be at specific address"
 ;imparm
 	.res 2           ;    PRIMM utility string pointer
-ckbtab	.res 2           ;    used for keyboard lookup
-ptr_fg	.res 2
 
 .segment "KVAR"
 
