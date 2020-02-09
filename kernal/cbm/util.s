@@ -6,8 +6,9 @@
 
 .feature labels_without_colons
 
+.include "banks.inc"
+
 bsout = $ffd2
-.importzp imparm
 
 .export primm
 

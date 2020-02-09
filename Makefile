@@ -59,7 +59,8 @@ KERNAL_CORE_OPENROMS_SOURCES = \
 	kernal/open-roms/open-roms.s
 
 KERNAL_CORE_SOURCES = \
-	kernal/kernal.s \
+	kernal/declare.s \
+	kernal/vectors.s \
 	kernal/kbdbuf.s \
 	kernal/memory.s \
 	kernal/lzsa.s

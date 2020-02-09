@@ -3,10 +3,13 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
+.feature labels_without_colons
+
+.include "banks.inc"
+
 .export buf; [monitor]
 .export tmp2; [cpychr]
 .export ckbtab; [ps2kbd]
-.export imparm; [jsrfar]
 .export ptr_fg; [graph]
 .export rambks; [init]
 .export kvswitch_tmp1, kvswitch_tmp2
@@ -32,6 +35,7 @@ buf	.res 2*40+1      ;    basic/monitor buffer
 .assert buf = $0200, error, "buf has to be at $0200"
 
 ; Memory
+.export memstr, memsiz; [init]
 memstr	.res 2           ;    start of memory
 memsiz	.res 2           ;    top of memory
 rambks	.res 1           ;    X16: number of ram banks (0 means 256)
@@ -40,41 +44,10 @@ kvswitch_tmp1
 kvswitch_tmp2
 	.res 1
 
-.segment "GDRVVEC"
-
-.export I_FB_BASE, I_FB_END; [graph]
-I_FB_BASE:
-I_FB_init:
-	.res 2
-I_FB_get_info:
-	.res 2
-I_FB_set_palette
-	.res 2
-I_FB_cursor_position:
-	.res 2
-I_FB_cursor_next_line:
-	.res 2
-I_FB_get_pixel:
-	.res 2
-I_FB_get_pixels:
-	.res 2
-I_FB_set_pixel:
-	.res 2
-I_FB_set_pixels:
-	.res 2
-I_FB_set_8_pixels:
-	.res 2
-I_FB_set_8_pixels_opaque:
-	.res 2
-I_FB_fill_pixels:
-	.res 2
-I_FB_filter_pixels:
-	.res 2
-I_FB_move_pixels:
-	.res 2
-I_FB_END:
-
 	.segment "KVECTORS";rem kernal/os indirects(20)
+
+.export cinv, cbinv, nminv, iopen, iclose, ichkin, ickout, iclrch, ibasin, ibsout, istop, igetin, iclall, usrcmd, iload, isave; [vectors]
+
 cinv	.res 2           ;irq ram vector
 cbinv	.res 2           ;brk instr ram vector
 nminv	.res 2           ;nmi ram vector
