@@ -36,10 +36,6 @@ screen_grow_logical_line:
 	lda LDTBL+1, y
 	bpl screen_grow_logical_line_done
 	
-	; Preserve SAL and EAL
-
-	jsr screen_preserve_sal_eal
-
 	; Scroll LDTBL down (start from the end)
 	ldy nlinesm1
 	dey
@@ -78,10 +74,6 @@ screen_grow_logical_line:
 	bne :-
 
 screen_grow_logical_line_copy_done:
-
-	; Restore SAL and EAL
-
-	jsr screen_restore_sal_eal
 
 	; Erase newly inserted line and quit
 

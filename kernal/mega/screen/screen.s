@@ -14,11 +14,8 @@
 
 SCREEN:
 
-	; There are only 2 sane ways to implement this routine,
-	; I hope this one is different than what Commodore picked :)
-
+	ldx llen   ; rows
 	ldy nlinesm1
 	iny        ; columns
-	ldx llen   ; rows
 
 	rts
