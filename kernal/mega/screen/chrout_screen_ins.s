@@ -53,7 +53,7 @@ chrout_screen_ins_second_line:
 	; Adapt PNTR for copying
 	lda PNTR
 	sec
-	sbc #40
+	sbc llen
 	sta PNTR
 
 	; Perform character copy

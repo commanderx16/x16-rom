@@ -16,7 +16,7 @@ chrout_screen_DEL:
 :
 	ldy PNTR
 	beq chrout_screen_del_column_0
-	cpy #40
+	cpy llen
 	bne chrout_screen_del_column_normal
 
 	; FALLTROUGH
@@ -34,7 +34,8 @@ chrout_screen_del_column_40:
 	dec PNT+0
 
 	; Copy characters
-	ldx #39
+	ldx llen
+	dex
 	ldy #0
 
 	jsr chrout_screen_del_copy_loop
@@ -100,14 +101,16 @@ chrout_screen_del_column_0:
 
 	; Move cursor to end of previous line
 	dec TBLX
-	lda #39
+	lda llen
 	sta PNTR
+	dec PNTR
 	
 	; Update PNT and USER pointers
 	jsr screen_calculate_PNT_USER
 
 	; Put space character at the current cursor position (do not clear the color!)
-	ldy #39
+	ldy llen
+	dey
 	lda #$20
 	jsr screen_set_char
 

@@ -154,10 +154,6 @@ JIOBASE  = $FFF3
 .export scnsiz
 scnsiz:
 	stx llen
-	sty nlines
-	iny
-	sty nlinesp1
-	dey
 	dey
 	sty nlinesm1
 	jmp clear_screen
@@ -463,9 +459,7 @@ tblx:	.res 1           ;$D6
 data:	.res 1           ;$D7
 insrt:	.res 1           ;$D8 insert mode flag
 llen:	.res 1           ;$D9 x resolution
-nlines:	.res 1           ;$DA y resolution
-nlinesp1: .res 1          ;    X16: y resolution + 1
-nlinesm1: .res 1          ;    X16: y resolution - 1
+nlinesm1: .res 1         ;    y resolution - 1
 verbatim: .res 1
 
 .segment "ZPCHANNEL" : zeropage

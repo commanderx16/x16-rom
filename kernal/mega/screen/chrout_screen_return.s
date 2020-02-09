@@ -20,7 +20,7 @@ chrout_screen_RETURN:
 	; of first line of the extended logical line
 	
 	ldy TBLX
-	cpy #24
+	cpy nlinesm1
 	beq :+                             ; last line on screen - no need for a double line skip
 
 	lda LDTBL+1, y

@@ -23,7 +23,7 @@ screen_calculate_PNTR_40_79:
 
 	tya
 	clc
-	adc #40
+	adc llen
 	tay
 
 	; FALLTROUGH
@@ -40,7 +40,7 @@ screen_calculate_LNMX:
 	lda LDTBL, y
 	bpl screen_calculate_lnmx_79       ; this line is a continuation
 
-	cpy #24
+	cpy nlinesm1
 	beq screen_calculate_lnmx_39       ; this is the last line, which is not a continuation
 
 	iny
@@ -51,13 +51,15 @@ screen_calculate_LNMX:
 
 screen_calculate_lnmx_39:
 
-	lda #39
-	skip_2_bytes_trash_nvz
+	lda llen
+	bne l9
 
 	; FALLTROUGH
 
 screen_calculate_lnmx_79:
 
-	lda #79
+	asl
+l9:
 	sta LNMX
+	dec LNMX
 	rts

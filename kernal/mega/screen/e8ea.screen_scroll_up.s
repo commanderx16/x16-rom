@@ -35,7 +35,7 @@ screen_scroll_up_delay_done: ; entry point for cursor move control codes
 	lda LDTBL+1, y
 	sta LDTBL+0, y
 	iny
-	cpy #24
+	cpy nlinesm1
 	bne :-
 
 	lda #$80
@@ -45,12 +45,12 @@ screen_scroll_up_delay_done: ; entry point for cursor move control codes
 :	jsr screen_set_position
 	inx
 	jsr screen_copy_line
-	cpx #24
+	cpx nlinesm1
 	bne :-
 
 	; Clear the newly introduced line
 
-	ldx #24
+	ldx nlinesm1
 	jsr screen_clear_line
 
 	; Decrement the current physical line number

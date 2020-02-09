@@ -105,7 +105,7 @@ chrout_screen_literal:
 
 	; Scroll down (extend logical line) if needed
 
-	cpy #40
+	cpy llen
 	bne :+
 	jsr screen_grow_logical_line
 	inc TBLX

@@ -29,7 +29,7 @@ screen_grow_logical_line:
 	bpl screen_grow_logical_line_done_scroll
 
 	; If last line, scroll the screen up
-	cpy #24
+	cpy nlinesm1
 	beq screen_grow_logical_line_screen_up
 
 	; Do not grow line if already grown
@@ -41,7 +41,8 @@ screen_grow_logical_line:
 	jsr screen_preserve_sal_eal
 
 	; Scroll LDTBL down (start from the end)
-	ldy #23
+	ldy nlinesm1
+	dey
 :
 	cpy TBLX
 	beq :+
@@ -64,12 +65,12 @@ screen_grow_logical_line:
 
 	; Work out how many physical lines to scroll down
 
-	lda #23
-	sec
+	lda nlinesm1
+	clc ; subtract one more
 	sbc TBLX
 	beq screen_grow_logical_line_copy_done       ; branch if no need to copyy
 
-	ldx #24
+	ldx nlinesm1
 :	jsr screen_set_position
 	dex
 	jsr screen_copy_line

@@ -17,9 +17,10 @@ chrout_screen_TAB_FW:
 	ora #%00000111
 	tay
 	iny
-	cpy #40
+	cpy llen
 	bcc :+
-	ldy #39
+	ldy llen
+	dey
 :
 	sty PNTR
 	
