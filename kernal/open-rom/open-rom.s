@@ -223,11 +223,10 @@ SCNKEY = kbd_scan
 SHFLAG = shflag
 STAL = stal
 TBLX = tblx
-USER = user
 VERCKK = verck ; typo
 XSAV = xsav
 
-;.segment "EDITOR"
+.segment "EDITOR"
 
 
 K_ERR_ROUTINE_TERMINATED     = $00
@@ -512,7 +511,6 @@ hibase:	.res 2 ; XXX remove
 .else
 cmp0 = 0
 hibase = 0
-user = 0
 .endif
 
 .export restor, memtop, membot, vector, readst, loadsp, savesp

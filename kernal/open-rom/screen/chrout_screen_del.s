@@ -25,6 +25,7 @@ chrout_screen_del_column_40:
 
 	; First column of the extended line - decrement USER/PNT for copying
 
+.if 0; MIST
 	lda USER+0
 	bne :+
 	dec USER+1
@@ -32,6 +33,7 @@ chrout_screen_del_column_40:
 :
 	dec USER+0
 	dec PNT+0
+.endif
 
 	; Copy characters
 	ldx llen
