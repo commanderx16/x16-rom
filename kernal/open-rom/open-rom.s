@@ -194,7 +194,6 @@ FNADDR = fnadr
 FNLEN = fnlen
 GDBLN = gdbln
 GDCOL = gdcol
-HIBASE = hibase
 INDX = indx
 INSRT = insrt
 IOINIT = ioinit
@@ -226,8 +225,46 @@ TBLX = tblx
 VERCKK = verck ; typo
 XSAV = xsav
 
-.segment "EDITOR"
+cint = CINT
 
+.export cint, color, cursor_blink, dfltn, dflto, llen, sah, sal, status, t1
+
+.export plot, readst, setmsg, setnam, settmo
+
+plot = PLOT
+readst = READST
+setmsg = SETMSG
+setnam = SETNAM
+settmo = SETTMO
+
+.export restor, memtop, membot, vector, readst, loadsp, savesp
+restor = RESTOR
+memtop = MEMTOP
+membot = MEMBOT
+vector = VECTOR
+
+loadsp = LOAD
+savesp = SAVE
+
+.export scrorg
+scrorg = SCREEN
+.export setlfs
+setlfs = SETFLS
+
+.export udst
+
+.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line, screen_clear_line, screen_init, screen_set_mode, screen_set_charset
+
+.export puls, nmi, start
+puls = hw_entry_irq
+nmi = hw_entry_nmi
+start = hw_entry_reset
+
+.import enter_basic
+
+.import kbd_config
+.import irq_ack
+.import emulator_get_data
 
 K_ERR_ROUTINE_TERMINATED     = $00
 K_ERR_TOO_MANY_OPEN_FILES    = $01
@@ -337,6 +374,90 @@ KEY_QUESTION     = $3F
 
 KEY_FLAG_CTRL    = %00000100
 
+.segment "KVAR2" ; more KERNAL vars
+; XXX TODO only one bit per byte is used, this should be compressed!
+ldtb1:	.res 61 +1       ;flags+endspace
+	;       ^^ XXX at label 'lps2', the code counts up to
+	;              numlines+1, THEN writes the end marker,
+	;              which seems like one too many. This was
+	;              worked around for now by adding one more
+	;              byte here, but we should have a look at
+	;              whether there's an off-by-one error over
+	;              at 'lps2'!
+
+; Screen
+;
+.export mode; [ps2kbd]
+.export data; [cpychr]
+mode:	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
+gdcol:	.res 1           ;    original color before cursor
+autodn:	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
+lintmp:	.res 1           ;    temporary for line index
+color:	.res 1           ;    activ color nybble
+rvs:	.res 1           ;$C7 rvs field on flag
+indx:	.res 1           ;$C8
+lsxp:	.res 1           ;$C9 x pos at start
+lstp:	.res 1           ;$CA
+blnsw:	.res 1           ;$CC cursor blink enab
+blnct:	.res 1           ;$CD count to toggle cur
+gdbln:	.res 1           ;$CE char before cursor
+blnon:	.res 1           ;$CF on/off blink flag
+crsw:	.res 1           ;$D0 input vs get flag
+pntr:	.res 1           ;$D3 pointer to column
+qtsw:	.res 1           ;$D4 quote switch
+lnmx:	.res 1           ;$D5 40/80 max positon
+tblx:	.res 1           ;$D6
+data:	.res 1           ;$D7
+insrt:	.res 1           ;$D8 insert mode flag
+llen:	.res 1           ;$D9 x resolution
+nlinesm1: .res 1         ;    y resolution - 1
+verbatim: .res 1
+
+.segment "ZPCHANNEL" : zeropage
+;                      C64 location
+;                         VVV
+sal:	.res 1           ;$AC
+sah:	.res 1           ;$AD
+eal:	.res 1           ;$AE
+eah:	.res 1           ;$AF
+fnadr:	.res 2           ;$BB addr current file name str
+memuss:	.res 2           ;$C3 load temps
+
+.segment "VARCHANNEL"
+
+; Channel I/O
+;
+lat:	.res 10          ;    logical file numbers
+fat:	.res 10          ;    primary device numbers
+sat:	.res 10          ;    secondary addresses
+;.assert * = status, error, "status must be at specific address"
+status:
+	.res 1           ;$90 i/o operation status byte
+verck:	.res 1           ;$93 load or verify flag
+xsav:	.res 1           ;$97 temp for basin
+ldtnd:	.res 1           ;$98 index to logical file
+dfltn:	.res 1           ;$99 default input device #
+dflto:	.res 1           ;$9A default output device #
+msgflg:	.res 1           ;$9D os message flag
+t1:	.res 1           ;$9E temporary 1
+fnlen:	.res 1           ;$B7 length current file n str
+la:	.res 1           ;$B8 current file logical addr
+sa:	.res 1           ;$B9 current file 2nd addr
+fa:	.res 1           ;$BA current file primary addr
+stal:	.res 1           ;$C1
+stah:	.res 1           ;$C2
+
+.if 0
+.segment "ZPCHANNEL" ; XXX other ZP
+cmp0:	.res 1
+.segment "KVAR2" ; XXX
+.else
+cmp0 = 0
+.endif
+
+
+.segment "EDITOR"
+
 .include "assets/e8da.colour_codes.s"
 .include "assets/fd30.vector_defaults.s"
 .include "assets/kernal_messages.s"
@@ -417,127 +538,3 @@ KEY_FLAG_CTRL    = %00000100
 .include "screen/screen_get_cliped_pntr.s"
 .include "screen/screen_get_logical_line_end_ptr.s"
 .include "screen/screen_grow_logical_line.s"
-
-cint = CINT
-
-.segment "KVAR2" ; more KERNAL vars
-; XXX TODO only one bit per byte is used, this should be compressed!
-ldtb1:	.res 61 +1       ;flags+endspace
-	;       ^^ XXX at label 'lps2', the code counts up to
-	;              numlines+1, THEN writes the end marker,
-	;              which seems like one too many. This was
-	;              worked around for now by adding one more
-	;              byte here, but we should have a look at
-	;              whether there's an off-by-one error over
-	;              at 'lps2'!
-
-; Screen
-;
-.export mode; [ps2kbd]
-.export data; [cpychr]
-mode:	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
-gdcol:	.res 1           ;    original color before cursor
-autodn:	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
-lintmp:	.res 1           ;    temporary for line index
-color:	.res 1           ;    activ color nybble
-rvs:	.res 1           ;$C7 rvs field on flag
-indx:	.res 1           ;$C8
-lsxp:	.res 1           ;$C9 x pos at start
-lstp:	.res 1           ;$CA
-blnsw:	.res 1           ;$CC cursor blink enab
-blnct:	.res 1           ;$CD count to toggle cur
-gdbln:	.res 1           ;$CE char before cursor
-blnon:	.res 1           ;$CF on/off blink flag
-crsw:	.res 1           ;$D0 input vs get flag
-pntr:	.res 1           ;$D3 pointer to column
-qtsw:	.res 1           ;$D4 quote switch
-lnmx:	.res 1           ;$D5 40/80 max positon
-tblx:	.res 1           ;$D6
-data:	.res 1           ;$D7
-insrt:	.res 1           ;$D8 insert mode flag
-llen:	.res 1           ;$D9 x resolution
-nlinesm1: .res 1         ;    y resolution - 1
-verbatim: .res 1
-
-.segment "ZPCHANNEL" : zeropage
-;                      C64 location
-;                         VVV
-sal:	.res 1           ;$AC
-sah:	.res 1           ;$AD
-eal:	.res 1           ;$AE
-eah:	.res 1           ;$AF
-fnadr:	.res 2           ;$BB addr current file name str
-memuss:	.res 2           ;$C3 load temps
-
-.segment "VARCHANNEL"
-
-; Channel I/O
-;
-lat:	.res 10          ;    logical file numbers
-fat:	.res 10          ;    primary device numbers
-sat:	.res 10          ;    secondary addresses
-;.assert * = status, error, "status must be at specific address"
-status:
-	.res 1           ;$90 i/o operation status byte
-verck:	.res 1           ;$93 load or verify flag
-xsav:	.res 1           ;$97 temp for basin
-ldtnd:	.res 1           ;$98 index to logical file
-dfltn:	.res 1           ;$99 default input device #
-dflto:	.res 1           ;$9A default output device #
-msgflg:	.res 1           ;$9D os message flag
-t1:	.res 1           ;$9E temporary 1
-fnlen:	.res 1           ;$B7 length current file n str
-la:	.res 1           ;$B8 current file logical addr
-sa:	.res 1           ;$B9 current file 2nd addr
-fa:	.res 1           ;$BA current file primary addr
-stal:	.res 1           ;$C1
-stah:	.res 1           ;$C2
-
-.export cint, color, cursor_blink, dfltn, dflto, llen, sah, sal, status, t1
-
-.export plot, readst, setmsg, setnam, settmo
-
-plot = PLOT
-readst = READST
-setmsg = SETMSG
-setnam = SETNAM
-settmo = SETTMO
-
-.if 0
-.segment "ZPCHANNEL" ; XXX other ZP
-cmp0:	.res 1
-.segment "KVAR2" ; XXX
-hibase:	.res 2 ; XXX remove
-.else
-cmp0 = 0
-hibase = 0
-.endif
-
-.export restor, memtop, membot, vector, readst, loadsp, savesp
-restor = RESTOR
-memtop = MEMTOP
-membot = MEMBOT
-vector = VECTOR
-
-loadsp = LOAD
-savesp = SAVE
-
-.export scrorg
-scrorg = SCREEN
-.export setlfs
-setlfs = SETFLS
-
-.export udst
-
-.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line, screen_clear_line, screen_init, screen_set_mode, screen_set_charset
-
-.export puls, nmi, start
-puls = hw_entry_irq
-nmi = hw_entry_nmi
-start = hw_entry_reset
-
-.import enter_basic
-
-.import kbd_config
-.import irq_ack
-.import emulator_get_data
