@@ -4,7 +4,8 @@ MACHINE     ?= x16
 # * c64
 
 CORE_SOURCE_BASE ?= COMMODORE
-# also supported
+SERIAL_SOURCE_BASE ?= COMMODORE
+# for both also supported
 # * OPENROMS
 
 ifdef RELEASE_VERSION
@@ -49,13 +50,17 @@ KERNAL_CORE_COMMODORE_SOURCES = \
 	kernal/cbm/irq.s \
 	kernal/cbm/util.s
 
+KERNAL_SERIAL_COMMODORE_SOURCES = \
+	kernal/cbm/serial.s
+
+KERNAL_SERIAL_OPENROMS_SOURCES = # TODO
+
 KERNAL_CORE_OPENROMS_SOURCES = \
-	kernal/open-rom/open-rom.s
+	kernal/open-roms/open-roms.s
 
 KERNAL_CORE_SOURCES = \
 	kernal/kernal.s \
 	kernal/kbdbuf.s \
-	kernal/cbm/serial.s \
 	kernal/memory.s \
 	kernal/lzsa.s
 
@@ -63,6 +68,12 @@ ifeq ($(CORE_SOURCE_BASE),COMMODORE)
 	KERNAL_CORE_SOURCES += $(KERNAL_CORE_COMMODORE_SOURCES)
 else
 	KERNAL_CORE_SOURCES += $(KERNAL_CORE_OPENROMS_SOURCES)
+endif
+
+ifeq ($(SERIAL_SOURCE_BASE),COMMODORE)
+	KERNAL_CORE_SOURCES += $(KERNAL_SERIAL_COMMODORE_SOURCES)
+else
+	KERNAL_CORE_SOURCES += $(KERNAL_SERIAL_OPENROMS_SOURCES)
 endif
 
 KERNAL_GRAPH_SOURCES = \
