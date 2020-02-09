@@ -18,7 +18,6 @@
 
 .import kbdbuf_put
 
-; mega
 .import restor, memtop, membot, vector, puls, start, nmi, iobase, primm
 
 	.segment "JMPTBL"

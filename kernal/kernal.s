@@ -82,5 +82,4 @@
 .include "declare.s"
 .include "vectors.s"
 
-; mega
 .export cbinv, cinv, memstr, nminv, memsiz
