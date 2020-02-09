@@ -1,3 +1,7 @@
+;
+; Config
+;
+
 CONFIG_CPU_MOS_6502 = 0
 CONFIG_BCD_SAFE_INTERRUPTS = 0
 HAS_RS232 = 1
@@ -5,7 +9,9 @@ CONFIG_IEC = 1
 CONFIG_EDIT_STOPQUOTE = 1
 CONFIG_EDIT_TABULATORS = 1
 
-
+;
+; Macros
+;
 
 .macro branch_16 target, opcode8
 ;.if     .def(target) .and ((*+2)-(target) <= 127)
@@ -70,20 +76,11 @@ branch_16 target, $f0
 	.byte $2c
 .endmacro
 
-clrchn_iec:
-	rts
-chkin_iec:
-chrin_iec:
-chrout_iec:
-ckout_iec:
-close_iec:
-load_iec:
-open_iec:
-save_iec:
-	brk
+;
+; Serial
+;
 
 .import secnd, tksa, acptr, ciout, untlk, unlsn, listn, talk
-
 SECND = secnd
 TKSA = tksa
 ACPTR = acptr
@@ -93,10 +90,9 @@ UNLSN = unlsn
 LISTN = listn
 TALK = talk
 
-iec_check_devnum_lvs:
-iec_check_devnum_oc:
-	sec
-	rts
+;
+; RS232
+;
 
 .import opn232, cls232, cko232, cki232, bso232, bsi232
 chkin_rs232 = cki232
@@ -107,19 +103,13 @@ close_rs232 = cls232
 getin_rs232 = bsi232
 open_rs232 = opn232
 
-wait_x_bars:
-	; TODO
-	rts
-
-.export lkupla, lkupsa
-
-lkupla:
-lkupsa:
-	brk
-
 .import iload, isave
 ILOAD = iload
 ISAVE = isave
+
+;
+; Jump table
+;
 
 JCINT    = $FF81
 JIOINIT  = $FF84
@@ -161,32 +151,12 @@ JSCREEN  = $FFED
 JPLOT    = $FFF0
 JIOBASE  = $FFF3
 
-.export scnsiz
-scnsiz:
-	stx llen
-	dey
-	sty nlinesm1
-	jmp clear_screen
-
-.export iobase
-iobase:
-	via1=$9f60
-	ldx #<via1
-	ldy #>via1
-	rts
-
-.export close_all
-close_all:
-	brk
-.export primm
-primm:
-	brk
-
-RAMTAS = ramtas
+;
+; Externally declared zp/var sybols
+;
 
 .import cbinv, cinv, ioinit, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, time, pnt
 
-; zp/var
 BLNCT = blnct
 BLNON = blnon
 BLNSW = blnsw
@@ -222,6 +192,7 @@ NMINV = nminv
 PNT = pnt
 PNTR = pntr
 QTSW = qtsw
+RAMTAS = ramtas
 RVS = rvs
 SA = sa
 SAL = sal
@@ -234,46 +205,52 @@ TBLX = tblx
 VERCKK = verck ; typo
 XSAV = xsav
 
-cint = CINT
+;
+; Exported code symbols
+;
 
 .export cint, color, cursor_blink, dfltn, dflto, llen, sah, sal, status, t1
-
 .export plot, readst, setmsg, setnam, settmo
+.export restor, memtop, membot, vector, readst, loadsp, savesp
+.export scrorg
+.export setlfs
+.export udst
 
+cint = CINT
 plot = PLOT
 readst = READST
 setmsg = SETMSG
 setnam = SETNAM
 settmo = SETTMO
-
-.export restor, memtop, membot, vector, readst, loadsp, savesp
 restor = RESTOR
 memtop = MEMTOP
 membot = MEMBOT
 vector = VECTOR
-
 loadsp = LOAD
 savesp = SAVE
-
-.export scrorg
 scrorg = SCREEN
-.export setlfs
 setlfs = SETFLS
-
-.export udst
-
-.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line, screen_clear_line, screen_init, screen_set_mode, screen_set_charset
+udst = UDST
 
 .export puls, nmi, start
+
 puls = hw_entry_irq
 nmi = hw_entry_nmi
 start = hw_entry_reset
 
-.import enter_basic
+;
+; Imported driver symbols
+;
 
+.import screen_set_char, screen_set_color, screen_set_position, screen_get_char, screen_get_color, screen_copy_line, screen_clear_line, screen_init, screen_set_mode, screen_set_charset
+.import enter_basic
 .import kbd_config
 .import irq_ack
 .import emulator_get_data
+
+;
+; Internal constants
+;
 
 K_ERR_ROUTINE_TERMINATED     = $00
 K_ERR_TOO_MANY_OPEN_FILES    = $01
@@ -383,9 +360,13 @@ KEY_QUESTION     = $3F
 
 KEY_FLAG_CTRL    = %00000100
 
+;
+; Internal variables
+;
+
 .segment "KVAR2" ; more KERNAL vars
 ; XXX TODO only one bit per byte is used, this should be compressed!
-ldtb1:	.res 61 +1       ;flags+endspace
+ldtb1:	.res 61 +1
 	;       ^^ XXX at label 'lps2', the code counts up to
 	;              numlines+1, THEN writes the end marker,
 	;              which seems like one too many. This was
@@ -398,26 +379,26 @@ ldtb1:	.res 61 +1       ;flags+endspace
 ;
 .export mode; [ps2kbd]
 .export data; [cpychr]
-mode:	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
-gdcol:	.res 1           ;    original color before cursor
-autodn:	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
-lintmp:	.res 1           ;    temporary for line index
-color:	.res 1           ;    activ color nybble
-rvs:	.res 1           ;$C7 rvs field on flag
+mode:	.res 1
+gdcol:	.res 1
+autodn:	.res 1
+lintmp:	.res 1
+color:	.res 1
+rvs:	.res 1           ;$C7
 indx:	.res 1           ;$C8
-lsxp:	.res 1           ;$C9 x pos at start
+lsxp:	.res 1           ;$C9
 lstp:	.res 1           ;$CA
-blnsw:	.res 1           ;$CC cursor blink enab
-blnct:	.res 1           ;$CD count to toggle cur
-gdbln:	.res 1           ;$CE char before cursor
-blnon:	.res 1           ;$CF on/off blink flag
-crsw:	.res 1           ;$D0 input vs get flag
-pntr:	.res 1           ;$D3 pointer to column
-qtsw:	.res 1           ;$D4 quote switch
-lnmx:	.res 1           ;$D5 40/80 max positon
+blnsw:	.res 1           ;$CC
+blnct:	.res 1           ;$CD
+gdbln:	.res 1           ;$CE
+blnon:	.res 1           ;$CF
+crsw:	.res 1           ;$D0
+pntr:	.res 1           ;$D3
+qtsw:	.res 1           ;$D4
+lnmx:	.res 1           ;$D5
 tblx:	.res 1           ;$D6
 data:	.res 1           ;$D7
-insrt:	.res 1           ;$D8 insert mode flag
+insrt:	.res 1           ;$D8
 llen:	.res 1           ;$D9 x resolution
 nlinesm1: .res 1         ;    y resolution - 1
 verbatim: .res 1
@@ -429,30 +410,30 @@ sal:	.res 1           ;$AC
 sah:	.res 1           ;$AD
 eal:	.res 1           ;$AE
 eah:	.res 1           ;$AF
-fnadr:	.res 2           ;$BB addr current file name str
-memuss:	.res 2           ;$C3 load temps
+fnadr:	.res 2           ;$BB
+memuss:	.res 2           ;$C3
 
 .segment "VARCHANNEL"
 
 ; Channel I/O
 ;
-lat:	.res 10          ;    logical file numbers
-fat:	.res 10          ;    primary device numbers
-sat:	.res 10          ;    secondary addresses
+lat:	.res 10          ;
+fat:	.res 10          ;
+sat:	.res 10          ;
 ;.assert * = status, error, "status must be at specific address"
 status:
-	.res 1           ;$90 i/o operation status byte
-verck:	.res 1           ;$93 load or verify flag
-xsav:	.res 1           ;$97 temp for basin
-ldtnd:	.res 1           ;$98 index to logical file
-dfltn:	.res 1           ;$99 default input device #
-dflto:	.res 1           ;$9A default output device #
-msgflg:	.res 1           ;$9D os message flag
-t1:	.res 1           ;$9E temporary 1
-fnlen:	.res 1           ;$B7 length current file n str
-la:	.res 1           ;$B8 current file logical addr
-sa:	.res 1           ;$B9 current file 2nd addr
-fa:	.res 1           ;$BA current file primary addr
+	.res 1           ;$90
+verck:	.res 1           ;$93
+xsav:	.res 1           ;$97
+ldtnd:	.res 1           ;$98
+dfltn:	.res 1           ;$99
+dflto:	.res 1           ;$9A
+msgflg:	.res 1           ;$9D
+t1:	.res 1           ;$9E
+fnlen:	.res 1           ;$B7
+la:	.res 1           ;$B8
+sa:	.res 1           ;$B9
+fa:	.res 1           ;$BA
 stal:	.res 1           ;$C1
 stah:	.res 1           ;$C2
 
@@ -538,3 +519,59 @@ stah:	.res 1           ;$C2
 .include "screen/screen_get_cliped_pntr.s"
 .include "screen/screen_get_logical_line_end_ptr.s"
 .include "screen/screen_grow_logical_line.s"
+
+.segment "CHANNEL"
+
+.export lkupla, lkupsa
+.export close_all
+.export primm
+
+; XXX TODO
+lkupla:
+lkupsa:
+close_all:
+primm:
+	brk
+
+.segment "SERIAL"
+
+; XXX TODO
+clrchn_iec:
+	rts
+chkin_iec:
+chrin_iec:
+chrout_iec:
+ckout_iec:
+close_iec:
+load_iec:
+open_iec:
+save_iec:
+	brk
+iec_check_devnum_lvs:
+iec_check_devnum_oc:
+	sec
+	rts
+
+;
+; Misc
+;
+
+wait_x_bars:
+	; TODO
+	rts
+
+.export scnsiz
+scnsiz:
+	stx llen
+	dey
+	sty nlinesm1
+	jmp clear_screen
+
+.export iobase
+iobase:
+	via1=$9f60
+	ldx #<via1
+	ldy #>via1
+	rts
+
+

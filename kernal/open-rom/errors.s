@@ -94,6 +94,6 @@ kernalstatus_DEVICE_NOT_FOUND:
 	sta IOSTATUS
 	rts
 
-udst:	ora status
+UDST:	ora status
 	sta status
 	rts
