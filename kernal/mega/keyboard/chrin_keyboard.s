@@ -98,7 +98,7 @@ read_from_keyboard:
 	bmi chrin_enter_calc_length        ; branch if not continuation
 	lda LXSP+0
 	sec
-	sbc #40
+	sbc llen
 	sta LXSP+0
 	bcs :+
 	dec LXSP+1
