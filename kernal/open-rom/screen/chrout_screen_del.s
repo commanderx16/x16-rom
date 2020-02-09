@@ -25,7 +25,7 @@ chrout_screen_del_column_40:
 
 	; First column of the extended line - decrement USER/PNT for copying
 
-.if 0; MIST
+.if 0; XXX TODO
 	lda USER+0
 	bne :+
 	dec USER+1

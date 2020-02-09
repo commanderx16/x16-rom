@@ -99,7 +99,8 @@ getin_rs232 = bsi232
 open_rs232 = opn232
 
 wait_x_bars:
-	brk
+	; TODO
+	rts
 
 .export lkupla, lkupsa
 
@@ -182,7 +183,6 @@ BLNON = blnon
 BLNSW = blnsw
 CBINV = cbinv
 CINV = cinv
-CMP0 = cmp0
 COLOR = color
 CRSW = crsw
 DFLTN = dfltn
@@ -200,10 +200,10 @@ IOINIT = ioinit
 IOSTATUS = status
 LA = la
 LAT = lat
-LDTBL = ldtb1 ; MIST typo
+LDTBL = ldtb1 ; XXX TODO typo
 LDTND = ldtnd
 LNMX = lnmx
-LXSP = lsxp ; MIST typo!
+LXSP = lsxp ; XXX TODO typo!
 MEMSIZK = memsiz
 MEMSTR = memstr
 MEMUSS = memuss
@@ -446,15 +446,6 @@ sa:	.res 1           ;$B9 current file 2nd addr
 fa:	.res 1           ;$BA current file primary addr
 stal:	.res 1           ;$C1
 stah:	.res 1           ;$C2
-
-.if 0
-.segment "ZPCHANNEL" ; XXX other ZP
-cmp0:	.res 1
-.segment "KVAR2" ; XXX
-.else
-cmp0 = 0
-.endif
-
 
 .segment "EDITOR"
 

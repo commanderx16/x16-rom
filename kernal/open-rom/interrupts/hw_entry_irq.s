@@ -39,14 +39,5 @@ hw_entry_irq:
 
 irq_handler_brk:
 
-	; Store BRK adddress, to be displayed
-	sec
-	lda $0105, x
-	sbc #$02
-	sta CMP0+0
-	lda $0106, x
-	sbc #$00
-	sta CMP0+1
-
 	; Interrupt caused by BRK
 	jmp (CBINV)
