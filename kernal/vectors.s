@@ -57,6 +57,9 @@
 	;
 	; framebuffer API
 	;
+.ifdef MACHINE_C64
+	.res 14*3
+.else
 	jmp (I_FB_init)                ; $FEF6: FB_init
 	jmp (I_FB_get_info)            ; $FEF9: FB_get_info
 	jmp (I_FB_set_palette)         ; $FEFC: FB_set_palette
@@ -71,6 +74,7 @@
 	jmp (I_FB_fill_pixels)         ; $FF17: FB_fill_pixels
 	jmp (I_FB_filter_pixels)       ; $FF1A: FB_filter_pixels
 	jmp (I_FB_move_pixels)         ; $FF1D: FB_move_pixels
+.endif
 
 	;
 	; graph high-level API

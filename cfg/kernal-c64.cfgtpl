@@ -1,26 +1,26 @@
 MEMORY {
-	# zero page
-	#         start = $0000, size = $0080; # available to the user (or GEOS)
-	ZPKERNAL: start = $00E0, size = $0016; # KERNAL
+	// zero page
+	//        start = $0000, size = $0080; // available to the user (or GEOS)
+	ZPKERNAL: start = $00E0, size = $0016; // KERNAL
 
-	# $0200-$02FF: always-available variables and RAM code
-	KVAR:     start = $0200, size = $00BA; # KERNAL
-	#         start = $02BA, size = $000A; # reserved for KERNAL growth
-	KERNRAM:  start = $02C4, size = $0020; # KERNAL RAM code
-	GDRVVEC:  start = $02E4, size = $001C; # framebuffer driver vectors
+	// $0200-$02FF: always-available variables and RAM code
+	KVAR:     start = $0200, size = $00BA; //KERNAL
+	//        start = $02BA, size = $000A; // reserved for KERNAL growth
+	KERNRAM:  start = $02C4, size = $0020; // KERNAL RAM code
+	GDRVVEC:  start = $02E4, size = $001C; // framebuffer driver vectors
 
-	# $0300-$0333: vectors
-	KVECTORS: start = $0314, size = $0020; # KERNAL vectors
+	// $0300-$0333: vectors
+	KVECTORS: start = $0314, size = $0020; // KERNAL vectors
 	
-	# $0334-$03FF: variables and RAM code (not available for *legacy* GEOS apps)
-	KVAR2:    start = $0334, size = $0057; # KERNAL: screen editor table
-	KERNRAM2: start = $038B, size = $003F; # KERNAL: banked IRQ, fetch, stash
-	#         start = $03CA, size = $0002; # reserved for KERNAL growth
+	// $0334-$03FF: variables and RAM code (not available for *legacy* GEOS apps)
+	KVAR2:    start = $0334, size = $0057; // KERNAL: screen editor table
+	KERNRAM2: start = $038B, size = $003F; // KERNAL: banked IRQ, fetch, stash
+	//        start = $03CA, size = $0002; // reserved for KERNAL growth
 
-	# KERNAL/CBDOS bank #0 vars
-#	KVARSB0:  start = $A000, size = $0C00;
+	//KERNAL/CBDOS bank #0 vars
+//	KVARSB0:  start = $A000, size = $0C00;
 
-	# Bank 0 (KERNAL)
+	// Bank 0 (KERNAL)
 	BASIC2:   start = $E000, size = $0500, fill=yes, fillval=$AA;
 	KERNAL:   start = $E500, size = $19C0, fill=yes, fillval=$AA;
 	JMPTBL:   start = $FEC0, size = $013A, fill=yes, fillval=$AA;
@@ -28,7 +28,7 @@ MEMORY {
 }
 
 SEGMENTS {
-	# KERNAL
+	// KERNAL
 	ZPKERNAL:   load = ZPKERNAL, type = zp;
 	ZPCHANNEL:  load = ZPKERNAL, type = zp;
 
@@ -39,17 +39,17 @@ SEGMENTS {
 
 	GDRVVEC:    load = GDRVVEC,  type = bss;
 	KVECTORS:   load = KVECTORS, type = bss;
-#	KVARSB0:    load = KVARSB0,  type = bss, define=yes;
+//	KVARSB0:    load = KVARSB0,  type = bss, define=yes;
 	
-	# Bank 0 (KERNAL)
-	# KERNAL
+	// Bank 0 (KERNAL)
+	// KERNAL
 	EDITOR:   load = KERNAL,   type = ro;
 	SCREEN:   load = KERNAL,   type = ro;
 	KBDBUF:   load = KERNAL,   type = ro;
 	PS2KBD:   load = KERNAL,   type = ro;
 	PS2MOUSE: load = KERNAL,   type = ro;
 	JOYSTICK: load = KERNAL,   type = ro;
-#	IEEESWTCH:load = KERNAL,   type = ro;
+//	IEEESWTCH:load = KERNAL,   type = ro;
 	SERIAL:   load = KERNAL,   type = ro;
 	MEMORY:   load = KERNAL,   type = ro;
 	LZSA:     load = KERNAL,   type = ro;
@@ -65,9 +65,9 @@ SEGMENTS {
 	GRAPH:    load = KERNAL,   type = ro;
 	CONSOLE:  load = KERNAL,   type = ro;
 	SPRITES:  load = KERNAL,   type = ro;
-#	VERA_DRV: load = KERNAL,   type = ro;
-#	KERNRAM:  load = KERNAL,   run = KERNRAM,  type = ro, define = yes;
-#	KERNRAM2: load = KERNAL,   run = KERNRAM2, type = ro, define = yes;
+//	VERA_DRV: load = KERNAL,   type = ro;
+//	KERNRAM:  load = KERNAL,   run = KERNRAM,  type = ro, define = yes;
+//	KERNRAM2: load = KERNAL,   run = KERNRAM2, type = ro, define = yes;
 	JMPTBL:   load = JMPTBL,   type = ro;
 	VECTORS:  load = VECTORS,  type = ro;
 }

@@ -6,6 +6,17 @@
 
 .feature labels_without_colons
 
+.ifp02
+.macro stz addr
+	php
+	pha
+	lda #0
+	sta addr
+	pla
+	plp
+.endmacro
+.endif
+
 ;screen editor constants
 ;
 white	=$01            ;white char color
