@@ -97,7 +97,7 @@ Big TODOs
 
 * DOS needs more features.
 * BASIC needs more features.
-* RS232 and IEC are not working.
+* IEC is not working.
 * PS/2 and SD have issues on real hardware.
 
 
@@ -129,9 +129,13 @@ RAM Map
 Credits
 -------
 
-KERNAL, BASIC and GEOS additions, DOS: Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
+* All new code, and additions to legacy code: &copy;2020 Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
+* FAT32 and SD card drivers: &copy;2018 Thomas Woinke, Marko Lauke, [www.steckschein.de](https://steckschwein.de); MIT License
+* `kernal/open-roms`: &copy;2019 Paul Gardner-Stephen, 2019; GPLv3 license
+* `kernal/cbm`: &copy;1983 Commodore Business Machines (CBM)
+* `basic`: &copy;1977 Microsoft Corp.
+* `geos`: &copy;1985 Berlekey Softworks
 
-FAT32 and SD card drivers: Copyright (c) 2018 Thomas Woinke, Marko Lauke, [www.steckschein.de](https://steckschwein.de); MIT License
 
 
 Release Notes
