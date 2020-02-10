@@ -3,8 +3,8 @@ MACHINE     ?= x16
 # also supported:
 # * c64
 
-CORE_SOURCE_BASE ?= COMMODORE
-SERIAL_SOURCE_BASE ?= COMMODORE
+CORE_SOURCE_BASE ?= CBM
+SERIAL_SOURCE_BASE ?= CBM
 # for both also supported
 # * OPENROMS
 
@@ -42,7 +42,7 @@ BUILD_DIR=build/$(MACHINE)
 
 CFG_DIR=$(BUILD_DIR)/cfg
 
-KERNAL_CORE_COMMODORE_SOURCES = \
+KERNAL_CORE_CBM_SOURCES = \
 	kernal/cbm/editor.s \
 	kernal/cbm/channel/channel.s \
 	kernal/cbm/init.s \
@@ -50,7 +50,7 @@ KERNAL_CORE_COMMODORE_SOURCES = \
 	kernal/cbm/irq.s \
 	kernal/cbm/util.s
 
-KERNAL_SERIAL_COMMODORE_SOURCES = \
+KERNAL_SERIAL_CBM_SOURCES = \
 	kernal/cbm/serial.s
 
 KERNAL_SERIAL_OPENROMS_SOURCES = # TODO
@@ -65,14 +65,16 @@ KERNAL_CORE_SOURCES = \
 	kernal/memory.s \
 	kernal/lzsa.s
 
-ifeq ($(CORE_SOURCE_BASE),COMMODORE)
-	KERNAL_CORE_SOURCES += $(KERNAL_CORE_COMMODORE_SOURCES)
-else
+ifeq ($(CORE_SOURCE_BASE),CBM)
+	KERNAL_CORE_SOURCES += $(KERNAL_CORE_CBM_SOURCES)
+else ifeq ($(CORE_SOURCE_BASE),OPENROMS)
 	KERNAL_CORE_SOURCES += $(KERNAL_CORE_OPENROMS_SOURCES)
+else
+$(error Illegal value for CORE_SOURCE_BASE)
 endif
 
-ifeq ($(SERIAL_SOURCE_BASE),COMMODORE)
-	KERNAL_CORE_SOURCES += $(KERNAL_SERIAL_COMMODORE_SOURCES)
+ifeq ($(SERIAL_SOURCE_BASE),CBM)
+	KERNAL_CORE_SOURCES += $(KERNAL_SERIAL_CBM_SOURCES)
 else
 	KERNAL_CORE_SOURCES += $(KERNAL_SERIAL_OPENROMS_SOURCES)
 endif
@@ -93,7 +95,7 @@ ifeq ($(MACHINE),c64)
 		kernal/drivers/c64/rs232.s \
 		kernal/drivers/c64/screen.s \
 		kernal/drivers/c64/sprites.s
-else
+else ifeq ($(MACHINE),x16)
 	KERNAL_DRIVER_SOURCES = \
 		kernal/drivers/x16/x16.s \
 		kernal/drivers/x16/memory.s \
@@ -106,6 +108,8 @@ else
 		kernal/drivers/x16/rs232.s \
 		kernal/drivers/x16/framebuffer.s \
 		kernal/drivers/x16/sprites.s
+else
+$(error Illegal value for MACHINE)
 endif
 
 KERNAL_SOURCES = \

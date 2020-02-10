@@ -8,10 +8,15 @@
 
 .include "io.inc"
 
-.import memstr, rambks, memsiz, nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv, cint, ramtas, ioinit, enter_basic
+.import nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv, cint, ramtas, ioinit, enter_basic
 .importzp tmp2
 
 .export iobase, membot, memtop, restor, start, vector
+
+.segment "KVAR"
+memstr	.res 2           ; start of memory
+memsiz	.res 2           ; top of memory
+rambks	.res 1           ; X16: number of ram banks (0 means 256)
 
 	.segment "INIT"
 ; start - system reset

@@ -9,7 +9,6 @@
 
 .export buf; [monitor]
 .export tmp2; [cpychr]
-.export rambks; [init]
 .export kvswitch_tmp1, kvswitch_tmp2
 .export mhz
 
@@ -31,10 +30,6 @@ buf	.res 2*40+1      ;    basic/monitor buffer
 .assert buf = $0200, error, "buf has to be at $0200"
 
 ; Memory
-.export memstr, memsiz; [init]
-memstr	.res 2           ;    start of memory
-memsiz	.res 2           ;    top of memory
-rambks	.res 1           ;    X16: number of ram banks (0 means 256)
 kvswitch_tmp1
 	.res 1
 kvswitch_tmp2

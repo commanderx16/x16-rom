@@ -155,7 +155,7 @@ JIOBASE  = $FFF3
 ; Externally declared zp/var sybols
 ;
 
-.import cbinv, cinv, ioinit, memsiz, memstr, nminv, ramtas, kbd_scan, shflag, time, pnt
+.import cbinv, cinv, ioinit, nminv, ramtas, kbd_scan, shflag, time, pnt
 
 BLNCT = blnct
 BLNON = blnon
@@ -363,6 +363,11 @@ KEY_FLAG_CTRL    = %00000100
 ;
 ; Internal variables
 ;
+
+.segment "KVAR"
+; memory
+memstr:	.res 2           ; start of memory
+memsiz:	.res 2           ; top of memory
 
 .segment "KVAR2" ; more KERNAL vars
 ; XXX TODO only one bit per byte is used, this should be compressed!

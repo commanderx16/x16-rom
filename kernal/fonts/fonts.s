@@ -39,6 +39,7 @@ FontTVar4:	.res 1
 
 .include "font_internal.inc"
 
+.if 0
 .assert curIndexTable = k_curIndexTable, error, "update font_internal.inc!"
 .assert baselineOffset = k_baselineOffset, error, "update font_internal.inc!"
 .assert curSetWidth = k_curSetWidth, error, "update font_internal.inc!"
@@ -49,6 +50,7 @@ FontTVar4:	.res 1
 .assert windowBottom = k_windowBottom, error, "update font_internal.inc!"
 .assert leftMargin = k_leftMargin, error, "update font_internal.inc!"
 .assert rightMargin = k_rightMargin, error, "update font_internal.inc!"
+.endif
 
 .segment "GRAPH"
 
