@@ -1,35 +1,35 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Scroll the whole screen up by 1 logical line, described in:
-//
-// - [CM64] Computes Mapping the Commodore 64 - page 218
-//
+;
+; Scroll the whole screen up by 1 logical line, described in:
+;
+; - [CM64] Computes Mapping the Commodore 64 - page 218
+;
 
 
 screen_scroll_up:
 
-	// First handle CTRL and NO_SCRL keys
+	; First handle CTRL and NO_SCRL keys
 
-#if CONFIG_KEYBOARD_C128 || CONFIG_KEYBOARD_C65
+.if CONFIG_KEYBOARD_C128 || CONFIG_KEYBOARD_C65
 
-	// Do not scroll if NO_SCRL is pressed and interrupts are enabled
+	; Do not scroll if NO_SCRL is pressed and interrupts are enabled
 !:
 	php
 	pla
 	and #%00000010
-	bne !+                             // branch if IRQs disabled, we cannot detect NO_SCRL status
+	bne !+                             ; branch if IRQs disabled, we cannot detect NO_SCRL status
 
 	lda SHFLAG
 	and #KEY_FLAG_NO_SCRL
 	bne !-
 !:
 
-#endif
+.endif
 
-	// Check if CTRL key pressed - if so, perform a delay
+	; Check if CTRL key pressed - if so, perform a delay
 
 	lda SHFLAG
 	and #KEY_FLAG_CTRL
@@ -42,11 +42,11 @@ screen_scroll_up:
 	dey
 	bne !-
 
-	// FALLTROUGH
+	; FALLTROUGH
 
-screen_scroll_up_delay_done: // entry point for cursor move control codes
+screen_scroll_up_delay_done: ; entry point for cursor move control codes
 
-	// Scroll the LDTBL (line link table)
+	; Scroll the LDTBL (line link table)
 
 	ldy #$00
 !:
@@ -59,7 +59,7 @@ screen_scroll_up_delay_done: // entry point for cursor move control codes
 	lda #$80
 	sta LDTBL+24
 
-	// Preserve SAL and EAL, prepare initial SAL/EAL/PNT/USER values
+	; Preserve SAL and EAL, prepare initial SAL/EAL/PNT/USER values
 
 	jsr screen_preserve_sal_eal
 
@@ -78,7 +78,7 @@ screen_scroll_up_delay_done: // entry point for cursor move control codes
 	sta SAL+0
 	sta PNT+0
 
-	// Now copy, SAL->EAL, PNT->USER, in a loop
+	; Now copy, SAL->EAL, PNT->USER, in a loop
 
 	ldy #$00
 
@@ -89,15 +89,15 @@ screen_scroll_up_loop:
 	lda (PNT),  y
 	sta (USER), y
 
-	// Check if this was the last byte (last destination byte for color copy is #DBBF)
+	; Check if this was the last byte (last destination byte for color copy is #DBBF)
 
 	cpy #$BF
-	bne !+                             // definitely not the last byte
+	bne !+                             ; definitely not the last byte
 	lda USER+1
 	cmp #$DB
 	beq screen_scroll_up_loop_done
 !:
-	// Increment .Y, possibly advance pointers
+	; Increment .Y, possibly advance pointers
 
 	iny
 	bne screen_scroll_up_loop
@@ -106,28 +106,28 @@ screen_scroll_up_loop:
 	inc EAL+1
 	inc USER+1
 	inc PNT+1
-	bne screen_scroll_up_loop          // branch alwayys
+	bne screen_scroll_up_loop          ; branch alwayys
 
 screen_scroll_up_loop_done:
 
-	// Restore SAL and EAL
+	; Restore SAL and EAL
 
 	jsr screen_restore_sal_eal
 
-	// Clear the newly introduced line
+	; Clear the newly introduced line
 
 	ldx #24
 	jsr screen_clear_line
 
-	// Decrement the current physical line number
+	; Decrement the current physical line number
 
 	dec TBLX
 
-	// If the first line is linked, scroll once more
+	; If the first line is linked, scroll once more
 
 	bit LDTBL+0
 	bpl screen_scroll_up
 
- 	// Recalculate PNT and USER
+ 	; Recalculate PNT and USER
 
 	jmp screen_calculate_PNT_USER

@@ -1,10 +1,10 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Common part of CHKIN and CKOUT
-//
+;
+; Common part of CHKIN and CKOUT
+;
 
 
 chkinout_device_not_present:

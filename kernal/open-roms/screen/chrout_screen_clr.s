@@ -1,10 +1,10 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// CLR key handling within CHROUT
-//
+;
+; CLR key handling within CHROUT
+;
 
 
 chrout_screen_CLR:

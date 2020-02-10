@@ -1,16 +1,16 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Print the hex value in .A as two digits
-//
+;
+; Print the hex value in .A as two digits
+;
 
 print_hex_byte:
 
-#if HAS_BCD_SAFE_INTERRUPTS
+.if HAS_BCD_SAFE_INTERRUPTS
 
-	// Idea by Haubitze
+	; Idea by Haubitze
 
 	sed
 	pha
@@ -50,4 +50,4 @@ print_hex_byte:
 	adc #6
 !:	jmp JCHROUT
 
-#endif
+.endif

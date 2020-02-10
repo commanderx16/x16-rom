@@ -1,11 +1,11 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// Variables used:
-// - BLNSW (cursor blink switch)
-//
+;
+; Variables used:
+; - BLNSW (cursor blink switch)
+;
 
 
 cursor_enable:

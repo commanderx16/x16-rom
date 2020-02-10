@@ -1,13 +1,13 @@
-// #LAYOUT# STD *        #TAKE
-// #LAYOUT# *   KERNAL_0 #TAKE
-// #LAYOUT# *   *        #IGNORE
+; #LAYOUT# STD *        #TAKE
+; #LAYOUT# *   KERNAL_0 #TAKE
+; #LAYOUT# *   *        #IGNORE
 
-//
-// STOP key handling within CHROUT
-//
+;
+; STOP key handling within CHROUT
+;
 
 
-#if CONFIG_EDIT_STOPQUOTE
+.if CONFIG_EDIT_STOPQUOTE
 
 
 chrout_screen_STOP:
@@ -18,4 +18,4 @@ chrout_screen_STOP:
 	jmp chrout_screen_done
 
 
-#endif
+.endif
