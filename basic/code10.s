@@ -26,6 +26,7 @@ isvret	sta facmo
 	bne tstr10
 	cpy #'I'+$80
 	bne tstr10
+.if 0
 	jsr gettim
 	sty tenexp
 	dey
@@ -35,6 +36,70 @@ isvret	sta facmo
 	ldy #<(fdcend-foutbl) ; "<" necessary to make ca65 happy
 	jsr foutim
 	jmp timstr
+.else
+
+;        012345678
+;       " 1HHMMSS\0"
+
+	jsr clock_get_date_time
+
+	; seconds
+	lda r2H
+	clc
+	adc #100
+	tay
+	lda #0
+	jsr givayf2
+	ldy #0
+	jsr foutc
+
+	lda lofbuf+3
+	pha
+	lda lofbuf+2
+	pha
+
+	; minutes
+	lda r2L
+	clc
+	adc #100
+	tay
+	lda #0
+	jsr givayf2
+	ldy #0; XXX #2
+	jsr foutc
+
+	lda lofbuf+3
+	pha
+	lda lofbuf+2
+	pha
+
+	; hours
+	lda r1H
+	clc
+	adc #100
+	tay
+	lda #0
+	jsr givayf2
+	ldy #0
+	jsr foutc
+
+	pla
+	sta lofbuf+4
+	pla
+	sta lofbuf+5
+	pla
+	sta lofbuf+6
+	pla
+	sta lofbuf+7
+
+	lda #0
+	sta lofbuf+8
+
+	lda #<(lofbuf+2)
+	ldy #>(lofbuf+2)
+	jmp strlit
+
+.endif
 gooo	bit intflg
 	bpl gooooo
 	ldy #0
@@ -55,6 +120,7 @@ gooooo	jsr tstrom      ;see if array
 	tya
 	ldx #160
 	jmp floatb
+
 gettim	jsr rdtim
 	stx facmo
 	sty facmoh
@@ -62,6 +128,7 @@ gettim	jsr rdtim
 	ldy #0
 	sty facho
 	rts
+
 qstatv	cpx #'S'
 	bne gomovf
 	cpy #'T'

@@ -83,7 +83,10 @@ strd	jsr chknum
 	jsr foutc
 	pla
 	pla
-timstr	lda #<lofbuf
+.if 0
+timstr
+.endif
+	lda #<lofbuf
 	ldy #>lofbuf
 	beq strlit
 strini	ldx facmo
