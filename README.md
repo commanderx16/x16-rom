@@ -119,11 +119,12 @@ RAM Map
 
 * fixed RAM:
 	* $0000-$0400 KERNAL/BASIC/DOS system variables
-	* $0400-$0800 currently unused
+	* $0400-$0800 Reserved space for user storage or machine code
 	* $0800-$9F00 BASIC RAM
 * banked RAM:
-	* banks 0-254: free for applications
-	* bank 255: DOS buffers and variables
+	* bank 0: KERNAL/DOS variables and buffers
+	* banks 1-64 (512KB RAM model) or banks 1-255 (2MB RAM model): free for applications
+	* bank 1 is selected by default at power on
 
 
 Credits
