@@ -81,9 +81,9 @@ else
 endif
 
 KERNAL_GRAPH_SOURCES = \
-	kernal/console.s \
 	kernal/graph/graph.s \
-	kernal/fonts/fonts.s
+	kernal/fonts/fonts.s \
+	kernal/graph/console.s
 
 ifeq ($(MACHINE),c64)
 	KERNAL_DRIVER_SOURCES = \
