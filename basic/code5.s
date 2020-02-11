@@ -136,13 +136,3 @@ qintgr	bpl copflt
 	rts
 copflt	jmp movvf
 copstr	pla
-inpcom	ldy forpnt+1
-	cpy #>zero
-	bne getspt
-	jsr frefac
-	cmp #6
-	bne fcerr2
-	ldy #0
-	sty facexp
-	sty facsgn
-

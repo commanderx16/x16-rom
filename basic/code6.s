@@ -1,3 +1,19 @@
+inpcom
+
+
+	ldy forpnt+1
+	cpy #>zero
+	bne getspt
+
+	jsr frefac
+	cmp #6
+	bne fcerr2
+
+	ldy #0
+	sty facexp
+	sty facsgn
+
+.if 0
 timelp	sty fbufpt
 	jsr timnum
 	jsr mul10
@@ -20,12 +36,46 @@ noml6	ldy fbufpt
 	ldy facmoh
 	lda faclo
 	jmp settim
+.else
+	; hours
+	ldy #0
+	jsr timnum
+	jsr mul10
+	ldy #1
+	jsr timnum
+	jsr getadr2
+	sty r1H
+
+	; minutes
+	ldy #2
+	jsr timnum
+	jsr mul10
+	ldy #3
+	jsr timnum
+	jsr getadr2
+	sty r2L
+
+	; seconds
+	ldy #4
+	jsr timnum
+	jsr mul10
+	ldy #5
+	jsr timnum
+	jsr getadr2
+	sty r2H
+	jmp clock_set_date_time
+.endif
+
 timnum	lda (index),y
 	jsr qnum
 	bcc gotnum
 fcerr2	jmp fcerr
 gotnum	sbc #$2f
 	jmp finlog
+
+
+
+
 getspt	ldy #2
 	lda (facmo),y
 	cmp fretop+1

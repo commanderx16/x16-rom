@@ -99,7 +99,7 @@
 
 	; FAC = 2 * (FAC + ARG)
 	; [used by BASIC]
-	jmp finml6 ; $BAED
+	jmp finml6 ; $BAED ***** XXX REMOVE XXX *****
 
 	; FAC /= 10
 	; ["Note: This routine treats FAC1 as positive even if it is not."]
@@ -189,7 +189,7 @@
 
 	; convert TI to TI$
 	; [used by BASIC]
-	jmp foutim ; $BE68
+	jmp foutim ; $BE68 ***** XXX REMOVE XXX ***** 
 
 	; FAC = sqr(FAC)
 	jmp sqr    ; $BF71
