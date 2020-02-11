@@ -103,15 +103,18 @@ notevl	lda varnam
 	cmp #'T'
 	bne qstavr
 	cpy #'I'+$80
-	beq ldzr
+	beq ldzr ; mark var as special
 	cpy #'I'
-	bne qstavr
-gobadv	jmp snerr
-qstavr
-	cmp #'S'
+	beq ldzr ; mark var as special
+qstavr	cmp #'D'
+	bne ndat1
+	cpy #'A'+$80
+	beq ldzr ; mark var as special
+ndat1	cmp #'S'
 	bne varok
 	cpy #'T'
-	beq gobadv
+	bne varok
+	jmp snerr
 varok	lda arytab
 	ldy arytab+1
 	sta lowtr

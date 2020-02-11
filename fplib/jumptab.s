@@ -97,9 +97,10 @@
 	; FAC *= 10
 	jmp mul10  ; $BAE2
 
-	; FAC = 2 * (FAC + ARG)
-	; [used by BASIC]
-	jmp finml6 ; $BAED
+	; [removed]
+	brk
+	brk
+	brk
 
 	; FAC /= 10
 	; ["Note: This routine treats FAC1 as positive even if it is not."]
@@ -163,7 +164,7 @@
 	; [used by BASIC]
 	jmp fcompn ; $BC5D
 
-	; facho:facho+1:facho+2:facho+2 = u32(FAC)
+	; facho:facho+1:facho+2:facho+3 = u32(FAC)
 	jmp qint   ; $BC9B
 
 	; FAC = int(FAC)
@@ -187,9 +188,10 @@
 	; [used by BASIC]
 	jmp foutc  ; $BDDF
 
-	; convert TI to TI$
-	; [used by BASIC]
-	jmp foutim ; $BE68
+	; [removed]
+	brk
+	brk
+	brk
 
 	; FAC = sqr(FAC)
 	jmp sqr    ; $BF71

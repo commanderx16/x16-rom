@@ -69,7 +69,7 @@ fout39	ldy fbufpt
 	sta fbuffr-1,y
 fout16	sty fbufpt
 fout8	ldy #0
-foutim	ldx #$80
+	ldx #$80
 fout2	lda faclo
 	clc
 	adc foutbl+2+addprc,y
@@ -115,8 +115,6 @@ stxbuf	sty fbufpt
 	and #$80
 	tax
 	cpy #fdcend-foutbl
-	beq fouldy
-	cpy #timend-foutbl
 	bne fout2
 fouldy	ldy fbufpt
 fout11	lda fbuffr-1,y

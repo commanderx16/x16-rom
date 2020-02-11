@@ -31,16 +31,8 @@ foutbl	.byt $fa,$0a,$1f,$00,$00
 	.byt $03,$e8,$ff,$ff
 	.byt $ff,$9c,$00,$00,$00,$0a
 	.byt $ff,$ff,$ff,$ff
-fdcend	.byt $ff,$df,$0a,$80
-	.byt $00,$03,$4b,$c0,$ff
-	.byt $ff,$73,$60,$00,$00
-	.byt $0e,$10,$ff,$ff
-	.byt $fd,$a8,$00,$00,$00,$3c
-timend
-;
-cksma0	.byt $00        ;$a000 8k room check sum adj
-patchs	.res 30          ; patch area
-;
+fdcend
+
 sqr	jsr movaf
 	lda #<fhalf
 	ldy #>fhalf

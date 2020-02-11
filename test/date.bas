@@ -1,0 +1,22 @@
+0 REM---------------------------------------------------------------
+1 REM UNIT TEST FOR BASIC:
+2 REM   * TI$ ASSIGNMENT
+3 REM   * TI$ READING
+4 REM   * DA$ ASSIGNMENT
+5 REM   * DA$ READING
+6 REM IN ADDITION, THIS CALCULATES THE DAY OF WEEK :)
+7 REM---------------------------------------------------------------
+8 REM (C)2020 Michael Steil, License: 2-clause BSD
+
+10 DA$="20191231":TI$="235955"
+20 GOSUB1000
+30 GOSUB1010:GOTO30
+
+1000 DIMT(11):RESTORE:FORI=0TO11:READT(I):NEXT:DATA,3,2,5,,3,5,1,4,6,2,4:RETURN
+
+1010 D$=DA$:Y=VAL(MID$(D$,1,4)):M=VAL(MID$(D$,5,2)):D=VAL(MID$(D$,7,2))
+1020 Y=Y+(M<3):T=Y+INT(Y/4)-INT(Y/100)+INT(Y/400)+T(M-1)+D:DW=T-INT(T/7)*7
+1030 PRINTDW,DA$,TI$
+1040 RETURN
+
+RUN

@@ -134,15 +134,21 @@ qintgr	bpl copflt
 	lda faclo
 	sta (forpnt),y
 	rts
-copflt	jmp movvf
-copstr	pla
-inpcom	ldy forpnt+1
-	cpy #>zero
-	bne getspt
-	jsr frefac
-	cmp #6
-	bne fcerr2
-	ldy #0
-	sty facexp
-	sty facsgn
 
+copflt
+	ldy forpnt+1
+	cpy #>zero
+	beq :+
+	jmp movvf ; no
+:
+	; TI assignment
+	jsr qint
+	lda facho
+	beq :+
+	jmp fcerr    ; > 24 bits
+:	lda facho+3
+	ldx facho+2
+	ldy facho+1
+	jmp settim
+
+copstr	pla
