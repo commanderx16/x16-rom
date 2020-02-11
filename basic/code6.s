@@ -44,6 +44,8 @@ noml6	ldy fbufpt
 	ldy #1
 	jsr timnum
 	jsr getadr2
+	cpy #24
+	bcs fcerr2
 	sty r1H
 
 	; minutes
@@ -53,6 +55,8 @@ noml6	ldy fbufpt
 	ldy #3
 	jsr timnum
 	jsr getadr2
+	cpy #60
+	bcs fcerr2
 	sty r2L
 
 	; seconds
@@ -62,6 +66,8 @@ noml6	ldy fbufpt
 	ldy #5
 	jsr timnum
 	jsr getadr2
+	cpy #60
+	bcs fcerr2
 	sty r2H
 	jmp clock_set_date_time
 .endif
