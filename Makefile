@@ -46,6 +46,7 @@ KERNAL_CORE_CBM_SOURCES = \
 	kernal/cbm/editor.s \
 	kernal/cbm/channel/channel.s \
 	kernal/cbm/init.s \
+	kernal/cbm/memory.s \
 	kernal/cbm/nmi.s \
 	kernal/cbm/irq.s \
 	kernal/cbm/util.s
