@@ -1,18 +1,28 @@
 ;----------------------------------------------------------------------
-; CIA TOD Clock Driver
+; C64 Clock Driver
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
 .include "regs.inc"
 
-.export clock_get_date_time, clock_get_timer, clock_set_date_time, clock_set_timer, clock_update
+.import softclock_timer_update, softclock_timer_get, softclock_timer_set
+.import softclock_time_update, softclock_time_get, softclock_time_set
+.import softclock_date_update, softclock_date_get, softclock_date_set
 
-.segment "TIME" ; XXX rename
+; KERNAL API
+.export clock_update
+.export clock_get_timer
+.export clock_set_timer
+.export clock_get_date_time
+.export clock_set_date_time
 
-;
-; Strategy:
+.segment "CLOCK"
+
+; Currently, this is a copy of the X16 code, which does everything
+; in software.
+; Instead, we should do this:
 ; * Timer
-;   * CIA timer 1 counts to MHZ/60
+;   * CIA timer 1 counts to MHZ*1000000/60
 ;   * CIA timer 2 is cascaded, provides bits 0-15 of timer
 ;   * CIA timer 2 overflow causes IRQ, increments bits 16-23
 ; * Time
@@ -30,7 +40,12 @@
 ; Note:     The original symbol is UDTIM.
 ;---------------------------------------------------------------
 clock_update:
-	rts ; XXX
+	jsr softclock_timer_update
+	lda #60
+	jsr softclock_time_update
+	bne :+
+	jmp softclock_date_update
+:	rts
 
 ;---------------------------------------------------------------
 ; clock_get_timer
@@ -42,13 +57,8 @@ clock_update:
 ;            y    bits 16-23
 ;
 ; Note:     The original symbol is RDTIM.
-;
 ;---------------------------------------------------------------
-clock_get_timer:
-	lda #0 ; XXX
-	tax
-	tay
-	rts
+clock_get_timer = softclock_timer_get
 
 ;---------------------------------------------------------------
 ; clock_set_timer
@@ -60,10 +70,8 @@ clock_get_timer:
 ;            y    bits 16-23
 ;
 ; Note:     The original symbol is SETTIM.
-;
 ;---------------------------------------------------------------
-clock_set_timer:
-	rts ; XXX
+clock_set_timer = softclock_timer_set
 
 ;---------------------------------------------------------------
 ; clock_get_date_time
@@ -76,17 +84,14 @@ clock_set_timer:
 ;            r1H  hours
 ;            r2L  minutes
 ;            r2H  seconds
-;            r3L  jiffies (1/60s)
+;            r3L  jiffies
 ;---------------------------------------------------------------
 clock_get_date_time:
-	lda #0  ; XXX
-	sta r0L
-	sta r0H
-	sta r1L
-	sta r1H
-	sta r2L
-	sta r2H
-	sta r3L
+	php
+	sei             ;keep date from rolling
+	jsr softclock_date_get
+	jsr softclock_time_get
+	plp
 	rts
 
 ;---------------------------------------------------------------
@@ -100,8 +105,13 @@ clock_get_date_time:
 ;            r1H  hours
 ;            r2L  minutes
 ;            r2H  seconds
-;            r3L  jiffies (1/60s)
+;            r3L  jiffies
 ;---------------------------------------------------------------
 clock_set_date_time:
-	rts ; XXX
+	php
+	sei             ;keep date from rolling
+	jsr softclock_date_set
+	jsr softclock_time_set
+	plp
+	rts
 

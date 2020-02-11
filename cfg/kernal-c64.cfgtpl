@@ -55,7 +55,7 @@ SEGMENTS {
 	LZSA:     load = KERNAL,   type = ro;
 	RS232:    load = KERNAL,   type = ro;
 	CHANNEL:  load = KERNAL,   type = ro;
-	TIME:     load = KERNAL,   type = ro;
+	CLOCK:    load = KERNAL,   type = ro;
 	INIT:     load = KERNAL,   type = ro;
 	MACHINE:  load = KERNAL,   type = ro;
 	MEMDRV:   load = KERNAL,   type = ro;

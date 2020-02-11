@@ -17,7 +17,7 @@ imparm     = $82   ; jsrfar: temporary byte
 stavec     = $03b7 ; stash: argument
 banked_irq = $038b ; irq handler: RAM part
 .elseif .defined(MACHINE_C64)
-status     = $0295
+status     = $029F
 ;fa         = $029F
 imparm     = $E2
 .endif

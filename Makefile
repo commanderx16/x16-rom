@@ -95,7 +95,10 @@ ifeq ($(MACHINE),c64)
 		kernal/drivers/c64/mouse.s \
 		kernal/drivers/c64/rs232.s \
 		kernal/drivers/c64/screen.s \
-		kernal/drivers/c64/sprites.s
+		kernal/drivers/c64/sprites.s \
+		kernal/drivers/generic/softclock_timer.s \
+		kernal/drivers/generic/softclock_time.s \
+		kernal/drivers/generic/softclock_date.s
 else ifeq ($(MACHINE),x16)
 	KERNAL_DRIVER_SOURCES = \
 		kernal/drivers/x16/x16.s \
@@ -108,7 +111,10 @@ else ifeq ($(MACHINE),x16)
 		kernal/drivers/x16/clock.s \
 		kernal/drivers/x16/rs232.s \
 		kernal/drivers/x16/framebuffer.s \
-		kernal/drivers/x16/sprites.s
+		kernal/drivers/x16/sprites.s \
+		kernal/drivers/generic/softclock_timer.s \
+		kernal/drivers/generic/softclock_time.s \
+		kernal/drivers/generic/softclock_date.s
 else
 $(error Illegal value for MACHINE)
 endif
