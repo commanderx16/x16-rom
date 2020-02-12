@@ -27,9 +27,14 @@ isvret	sta facmo
 	cpy #'I'+$80
 	bne tstr10
 
-	; read TI$
-	; 012345678
-	; " 1HHMMSS\0"
+	; read TI$: We convert each component
+	; (seconds, minutes, hours) to a two-digit ASCIIZ
+	; string. This is done by adding 100 to the value
+	; and printing it. The first two characters of the
+	; result will be a SPACE and the leading '1', so
+	; the two digits will be at offsets 2 and 3.
+	; We do this for all components and collect them
+	; on the stack, then put them together at the end.
 
 	jsr clock_get_date_time
 
@@ -55,7 +60,7 @@ isvret	sta facmo
 	tay
 	lda #0
 	jsr givayf2
-	ldy #0; XXX #2
+	ldy #0
 	jsr foutc
 
 	lda lofbuf+3
@@ -74,19 +79,18 @@ isvret	sta facmo
 	jsr foutc
 
 	pla
-	sta lofbuf+4
+	sta lofbuf+4 ; MM
 	pla
-	sta lofbuf+5
+	sta lofbuf+5 ; MM
 	pla
-	sta lofbuf+6
+	sta lofbuf+6 ; SS
 	pla
-	sta lofbuf+7
-
+	sta lofbuf+7 ; SS
 	lda #0
-	sta lofbuf+8
+	sta lofbuf+8 ; Z
 
-	lda #<(lofbuf+2)
-	ldy #>(lofbuf+2)
+	lda #<(lofbuf+2) ; skip first two characters
+	ldy #>(lofbuf+2) ; (SPACE, '1')
 	jmp strlit
 
 gooo	bit intflg
