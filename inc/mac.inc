@@ -14,9 +14,6 @@
 .endmacro
 
 .macro LoadW dest, value
-	nop
-	nop
-	nop
 	.if .const(value) .and value=0
 		stz dest
 	.else

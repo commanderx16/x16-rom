@@ -11,9 +11,6 @@ COLOR_GREEN    = $1E
 COLOR_BLUE     = $1F
 
 test:
-.if 1
-	rts
-.else
 	beq test0
 	jsr getbyt
 	txa
@@ -544,14 +541,12 @@ checksum_framebuffer:
 	lsr
 	tax
 	lda hextab,x
-	nop
 	jsr GRAPH_put_char
 
 	lda crchi
 	and #15
 	tax
 	lda hextab,x
-	nop
 	jsr GRAPH_put_char
 
 	lda crclo
@@ -561,14 +556,12 @@ checksum_framebuffer:
 	lsr
 	tax
 	lda hextab,x
-	nop
 	jsr GRAPH_put_char
 
 	lda crclo
 	and #15
 	tax
 	lda hextab,x
-	nop
 	jsr GRAPH_put_char
 
 	rts
@@ -746,61 +739,41 @@ CODE_LOGO   = $fe
 CODE_SMILEY = $ff
 text:
 	.byte ATTR_RESET,COLOR_BLACK
-	.byte "Space is "
+	.byte "Space "
 	.byte ATTR_UNDERLINE
-	.byte "big."
+	.byte "is"
 	.byte ATTR_RESET,ATTR_BOLD
-	.byte " Really big. "
+	.byte "big. "
 	.byte ATTR_RESET,ATTR_ITALICS
-	.byte "You "
+	.byte "Really "
 	.byte ATTR_RESET,ATTR_OUTLINE
-	.byte "just won't "
+	.byte "big. "
 	.byte ATTR_RESET,COLOR_RED
-	.byte "believe "
+	.byte "You "
 	.byte ATTR_UNDERLINE
-	.byte "how vastly, "
+	.byte "just "
 	.byte ATTR_RESET,ATTR_BOLD
-	.byte "hugely, "
+	.byte "won't "
 	.byte ATTR_RESET,ATTR_ITALICS
-	.byte "mindbogglingly big "
+	.byte "believe "
 	.byte ATTR_RESET,ATTR_OUTLINE
-	.byte "it is. I "
+	.byte "how "
 	.byte ATTR_RESET,COLOR_GREEN
-	.byte "mean, "
+	.byte "vastly, "
 	.byte ATTR_UNDERLINE
-	.byte "you may"
+	.byte "hugely,"
 	.byte ATTR_RESET
 	.byte "   "
 	.byte CODE_LOGO
 	.byte ATTR_BOLD
-	.byte " think "
+	.byte "mindbogglingly "
 	.byte ATTR_RESET,ATTR_ITALICS
-	.byte "it's a "
+	.byte "big "
 	.byte ATTR_RESET,ATTR_OUTLINE
-	.byte "long "
+	.byte "it "
 	.byte ATTR_RESET,COLOR_BLUE
-	.byte "way down "
-	.byte ATTR_UNDERLINE
-	.byte "the"
-	.byte ATTR_RESET,ATTR_BOLD
-	.byte " road to "
-	.byte ATTR_RESET,ATTR_ITALICS
-	.byte "the "
-	.byte ATTR_RESET,ATTR_OUTLINE
-	.byte "chemist, but "
-	.byte ATTR_RESET
-	.byte "that's "
-	.byte ATTR_UNDERLINE
-	.byte "just"
-	.byte ATTR_RESET,ATTR_BOLD
-	.byte " peanuts "
-	.byte ATTR_RESET,ATTR_ITALICS
-	.byte "to "
-	.byte ATTR_RESET,ATTR_OUTLINE
-	.byte "space."
+	.byte "is. "
 	.byte CODE_SMILEY
-;	.byte 10,10
-;	.byte CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,CODE_LOGO,10
 	.byte 0
 
 draw_smiley:
@@ -870,5 +843,3 @@ logo_image:
 	.byte $c9,$e5,$08,$2c,$e5,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2b,$2d,$22,$c9
 	.byte $c9,$e5,$2b,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2a,$2a,$c9
 	.byte $c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9
-
-.endif
