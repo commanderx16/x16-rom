@@ -107,15 +107,11 @@ notevl	lda varnam
 	cpy #'I'
 	bne qstavr
 gobadv	jmp snerr
-qstavr
-	cmp #'D'
+qstavr	cmp #'D'
 	bne ndat1
 	cpy #'A'+$80
 	beq ldzr
-	bne gobadv
-
-ndat1
-	cmp #'S'
+ndat1	cmp #'S'
 	bne varok
 	cpy #'T'
 	beq gobadv
