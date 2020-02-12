@@ -83,9 +83,6 @@ strd	jsr chknum
 	jsr foutc
 	pla
 	pla
-.if 0
-timstr
-.endif
 	lda #<lofbuf
 	ldy #>lofbuf
 	beq strlit

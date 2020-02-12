@@ -26,20 +26,10 @@ isvret	sta facmo
 	bne tstr10
 	cpy #'I'+$80
 	bne tstr10
-.if 0
-	jsr gettim
-	sty tenexp
-	dey
-	sty fbufpt
-	ldy #6
-	sty deccnt
-	ldy #<(fdcend-foutbl) ; "<" necessary to make ca65 happy
-	jsr foutim
-	jmp timstr
-.else
 
-;        012345678
-;       " 1HHMMSS\0"
+	; read TI$
+	; 012345678
+	; " 1HHMMSS\0"
 
 	jsr clock_get_date_time
 
@@ -99,7 +89,6 @@ isvret	sta facmo
 	ldy #>(lofbuf+2)
 	jmp strlit
 
-.endif
 gooo	bit intflg
 	bpl gooooo
 	ldy #0

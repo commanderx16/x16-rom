@@ -115,8 +115,6 @@ stxbuf	sty fbufpt
 	and #$80
 	tax
 	cpy #fdcend-foutbl
-	beq fouldy
-	cpy #timend-foutbl
 	bne fout2
 fouldy	ldy fbufpt
 fout11	lda fbuffr-1,y

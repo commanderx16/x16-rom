@@ -1,42 +1,18 @@
 inpcom
-
-
+	; check for TI$ assignment
 	ldy forpnt+1
 	cpy #>zero
-	bne getspt
+	bne getspt ; no
 
 	jsr frefac
 	cmp #6
-	bne fcerr2
+	bne fcerr2 ; wrong length
 
+	; clear FAC
 	ldy #0
 	sty facexp
 	sty facsgn
 
-.if 0
-timelp	sty fbufpt
-	jsr timnum
-	jsr mul10
-	inc fbufpt
-	ldy fbufpt
-	jsr timnum
-	jsr movaf
-	tax
-	beq noml6
-	inx
-	txa
-	jsr finml6
-noml6	ldy fbufpt
-	iny
-	cpy #6
-	bne timelp
-	jsr mul10
-	jsr qint
-	ldx facmo
-	ldy facmoh
-	lda faclo
-	jmp settim
-.else
 	; hours
 	ldy #0
 	jsr timnum
@@ -70,17 +46,14 @@ noml6	ldy fbufpt
 	bcs fcerr2
 	sty r2H
 	jmp clock_set_date_time
-.endif
 
+	; get a digit and add it to FAC
 timnum	lda (index),y
 	jsr qnum
 	bcc gotnum
 fcerr2	jmp fcerr
 gotnum	sbc #$2f
 	jmp finlog
-
-
-
 
 getspt	ldy #2
 	lda (facmo),y

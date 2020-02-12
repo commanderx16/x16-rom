@@ -127,7 +127,7 @@ mul10	jsr movaf
 	clc
 	adc #2
 	bcs goover
-finml6	ldx #0
+	ldx #0
 	stx arisgn
 	jsr faddc
 	inc facexp

@@ -36,7 +36,7 @@ fmultt	= $fc2d ; BASIC ONLY, DO NOT USE
 mltply	= $fc30	; FAC += .A * ARG
 conupk	= $fc33	; ARG = mem(.Y:.A) (5 bytes)
 mul10	= $fc36	; FAC *= 10
-finml6	= $fc39	; FAC = 2 * (FAC + ARG)
+;	= $fc39	; [removed]
 div10	= $fc3c	; FAC /= 10
 fdiv	= $fc3f	; FAC = mem(.Y:.A) / FAC
 fdivt2	= $fc42	; FAC /= ARG
@@ -62,7 +62,7 @@ int	= $fc78	; FAC = int(FAC)
 finlog	= $fc7e	; FAC += (s8).A
 fout	= $fc81	; Convert FAC to ASCIIZ string at fbuffr
 foutc	= $fc84	; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
-foutim	= $fc87	; convert TI to TI$
+;	= $fc87	; [removed]
 sqr	= $fc8a	; FAC = sqr(FAC)
 fpwrt2	= $fc8d	; FAC = ARG^FAC
 fpwrt	= $fc90 ; BASIC ONLY, DO NOT USE
