@@ -1,12 +1,12 @@
 inpcom
-	; check for TI$ assignment
+	; check for TI$/DA$ assignment
 	ldy forpnt+1
 	cpy #>zero
 	beq :+
 	jmp getspt ; no
 :
 	lda varnam
-	cmp #'D'
+	cmp #'D' ; DA$?
 	beq asgndt
 
 	; TI$ assignment
