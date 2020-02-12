@@ -1,5 +1,5 @@
 inpcom
-	; check for TI$/DA$ assignment
+	; check for TI/TI$/DA$ assignment
 	ldy forpnt+1
 	cpy #>zero
 	beq :+

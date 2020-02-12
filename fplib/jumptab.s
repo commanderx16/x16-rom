@@ -164,7 +164,7 @@
 	; [used by BASIC]
 	jmp fcompn ; $BC5D
 
-	; facho:facho+1:facho+2:facho+2 = u32(FAC)
+	; facho:facho+1:facho+2:facho+3 = u32(FAC)
 	jmp qint   ; $BC9B
 
 	; FAC = int(FAC)

@@ -10,8 +10,7 @@
 
 ; data
 ; BASIC ONLY, DO NOT USE
-.import foutbl, fdcend, zero, fone
-
+.import zero, fone
 ; XXX ideally, the FB library should be abstracted
 ; XXX enough so that none of the symbols above
 ; XXX need to be exported
