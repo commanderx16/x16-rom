@@ -9,7 +9,7 @@ tstrom	sec
 	sbc #<romloc
 	lda faclo
 	sbc #>romloc
-tstr10	rts
+	rts
 
 isvar	jsr ptrget
 isvret	sta facmo
@@ -17,8 +17,9 @@ isvret	sta facmo
 	ldx varnam
 	ldy varnam+1
 	lda valtyp
-	beq gooo
-	lda #0
+	bne :+
+	jmp gooo
+:	lda #0
 	sta facov
 	jsr tstrom      ;see if an array
 	bcc tstr10      ;don't test st(i),ti(i)
@@ -40,13 +41,7 @@ isvret	sta facmo
 
 	; seconds
 	lda r2H
-	clc
-	adc #100
-	tay
-	lda #0
-	jsr givayf2
-	ldy #0
-	jsr foutc
+	jsr component2ascii
 
 	lda lofbuf+3
 	pha
@@ -55,13 +50,7 @@ isvret	sta facmo
 
 	; minutes
 	lda r2L
-	clc
-	adc #100
-	tay
-	lda #0
-	jsr givayf2
-	ldy #0
-	jsr foutc
+	jsr component2ascii
 
 	lda lofbuf+3
 	pha
@@ -70,13 +59,7 @@ isvret	sta facmo
 
 	; hours
 	lda r1H
-	clc
-	adc #100
-	tay
-	lda #0
-	jsr givayf2
-	ldy #0
-	jsr foutc
+	jsr component2ascii
 
 	pla
 	sta lofbuf+4 ; MM
@@ -92,6 +75,74 @@ isvret	sta facmo
 	lda #<(lofbuf+2) ; skip first two characters
 	ldy #>(lofbuf+2) ; (SPACE, '1')
 	jmp strlit
+
+tstr10	cpx #'D'
+	bne tstr11
+	cpy #'A'+$80
+	bne tstr11
+
+	jsr clock_get_date_time
+	lda r1L
+	ora r0H
+	ora r0L
+	bne :+
+	sta lofbuf+1
+	bra strlit1
+:
+	; day
+	lda r1L
+	jsr component2ascii
+
+	lda lofbuf+3
+	pha
+	lda lofbuf+2
+	pha
+
+	; month
+	lda r0H
+	jsr component2ascii
+
+	lda lofbuf+3
+	pha
+	lda lofbuf+2
+	pha
+
+	; year
+	lda r0L
+	clc
+	adc #<1900
+	tay
+	lda #>1900
+	jsr component2ascii2
+
+	pla
+	sta lofbuf+5 ; MM
+	pla
+	sta lofbuf+6 ; MM
+	pla
+	sta lofbuf+7 ; DD
+	pla
+	sta lofbuf+8 ; DD
+	lda #0
+	sta lofbuf+9 ; Z
+
+strlit1	lda #<(lofbuf+1) ; skip first character (SPACE)
+	ldy #>(lofbuf+1)
+	jmp strlit
+
+component2ascii:
+	clc
+	adc #100
+	tay
+	lda #0
+component2ascii2:
+	jsr givayf2
+	ldy #0
+	jmp foutc
+
+
+tstr11	rts
+
 
 gooo	bit intflg
 	bpl gooooo

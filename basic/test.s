@@ -11,6 +11,9 @@ COLOR_GREEN    = $1E
 COLOR_BLUE     = $1F
 
 test:
+.if 1
+	rts
+.else
 	beq test0
 	jsr getbyt
 	txa
@@ -868,3 +871,4 @@ logo_image:
 	.byte $c9,$e5,$2b,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2a,$2a,$c9
 	.byte $c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9
 
+.endif

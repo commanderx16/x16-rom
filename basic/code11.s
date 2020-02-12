@@ -108,6 +108,13 @@ notevl	lda varnam
 	bne qstavr
 gobadv	jmp snerr
 qstavr
+	cmp #'D'
+	bne ndat1
+	cpy #'A'+$80
+	beq ldzr
+	bne gobadv
+
+ndat1
 	cmp #'S'
 	bne varok
 	cpy #'T'
