@@ -8,7 +8,7 @@
 
 .include "io.inc"
 
-.import nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv
+.import nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv, filter_keyboard_default
 .importzp tmp2
 .export iobase, membot, memtop, restor, vector
 

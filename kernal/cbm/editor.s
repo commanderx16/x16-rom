@@ -1068,7 +1068,7 @@ cursor_blink:
 filter_keyboard:
 	jmp (ifilter)
 filter_keyboard_default:
-	rts
+	rts ; do nothing
 
 runtb	.byt "LOAD",$d,"RUN",$d
 runtb_end:
