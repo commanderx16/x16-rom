@@ -44,7 +44,7 @@ usrloc	.word usrpok
 	.word fre
 	.word pos
 	.word sqr
-	.word rnd
+	.word crnd
 	.word log
 	.word exp
 	.word cos

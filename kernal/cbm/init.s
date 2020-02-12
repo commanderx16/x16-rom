@@ -6,7 +6,7 @@
 
 .feature labels_without_colons
 
-.import cint, ramtas, ioinit, enter_basic, restor
+.import cint, ramtas, ioinit, enter_basic, restor, entropy_init
 
 .export start
 
@@ -17,6 +17,7 @@ start	ldx #$ff
 	sei
 	txs
 	jsr ioinit      ;go initilize i/o devices
+	jsr entropy_init
 	jsr ramtas      ;go ram test and set
 	jsr restor      ;go set up os vectors
 ;

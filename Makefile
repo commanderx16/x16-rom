@@ -89,6 +89,7 @@ ifeq ($(MACHINE),c64)
 	KERNAL_DRIVER_SOURCES = \
 		kernal/drivers/c64/c64.s \
 		kernal/drivers/c64/clock.s \
+		kernal/drivers/c64/entropy.s \
 		kernal/drivers/c64/joystick.s \
 		kernal/drivers/c64/kbd.s \
 		kernal/drivers/c64/memory.s \
@@ -112,6 +113,7 @@ else ifeq ($(MACHINE),x16)
 		kernal/drivers/x16/rs232.s \
 		kernal/drivers/x16/framebuffer.s \
 		kernal/drivers/x16/sprites.s \
+		kernal/drivers/x16/entropy.s \
 		kernal/drivers/generic/softclock_timer.s \
 		kernal/drivers/generic/softclock_time.s \
 		kernal/drivers/generic/softclock_date.s

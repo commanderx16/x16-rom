@@ -69,31 +69,24 @@ poly4	sta polypt
 	dec degree
 	bne poly2
 	rts
+
 rmulc	.byt $98,$35,$44,$7a,$00
 raddc	.byt $68,$28,$b1,$46,$00
-rnd	jsr sign
-rnd_0	bmi rnd1
-	bne qsetnr
-; XXX Initializing the RNG seed should be moved
-; XXX out of FPLIB to remove the dependency on
-; XXX KERNAL. In fact, generating a seed should
-; XXX be done by KERNAL, combining all sources
-; XXX on entropy.
-	jsr rdbas
-	stx index1
-	sty index1+1
-	ldy #4
-	lda (index1),y
+
+rnd	pha
+	jsr sign        ;preserves .X and .Y
+rnd_0	bpl :+
+	pla
+	bra rnd1        ;<0: take argument as input for next random number
+:	beq :+
+	pla
+	bra qsetnr      ;>0: take last random number as input
+:                       ;=0: take entropy as input
+	pla
 	sta facho
-	iny
-	lda (index1),y
-	sta facmo
-	ldy #8
-	lda (index1),y
-	sta facmoh
-	iny
-	lda (index1),y
-	sta faclo
+	stx facmoh
+	sty facmo
+	sta faclo       ;least important bits: reuse
 	jmp strnex
 qsetnr	lda #<rndx
 	ldy #>rndx
@@ -174,5 +167,3 @@ prepare	lda argsgn
 	ldx facexp      ;set signs
 	rts
 
-rnd2	ora #0          ;set flags
-	jmp rnd_0

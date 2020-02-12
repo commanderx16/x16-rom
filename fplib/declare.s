@@ -1,4 +1,3 @@
-rdbas	=$fff3   ; KERNAL [XXX see comment where used]
 addprc	=1
 fbuffr	=$100    ; buffer for "fout".
                  ; on page 1 so that string is not copied

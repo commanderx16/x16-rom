@@ -123,6 +123,10 @@ pos	sec
 	jsr plot        ;get tab pos in .y
 sngflt	lda #0
 	beq givayf
+
+crnd	jsr entropy_get
+	jmp rnd
+
 errdir	ldx curlin+1
 	inx
 	bne dimrts

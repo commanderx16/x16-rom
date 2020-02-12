@@ -216,11 +216,13 @@
 	; Polynomial Evaluation 2 (EXP)
 	jmp poly   ; $E059 [-mapping-]
 
-	; FAC = rnd(A)
-	; [convenience version of the routine below]
-	jmp rnd2
+	; [removed]
+	brk
+	brk
+	brk
 
 	; FAC = rnd(FAC)
+	; for FAC == 0, the entropy in .A/.X/.Y is used
 	jmp rnd    ; $E097
 
 	; FAC = cos(FAC)
