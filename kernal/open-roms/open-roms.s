@@ -194,7 +194,6 @@ MEMUSS = memuss
 MODE = mode
 MSGFLG = msgflg
 NMINV = nminv
-PNT = pnt
 PNTR = pntr
 QTSW = qtsw
 RAMTAS = ramtas

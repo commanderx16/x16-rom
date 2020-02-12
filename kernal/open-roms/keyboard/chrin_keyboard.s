@@ -85,7 +85,7 @@ read_from_keyboard:
 	; after computing and storing its length.
 	; (Computes Mapping the 64, p96)
 
-.if 1
+.if 0
 	; Set pointer to line of input
 	lda PNT+0
 	sta LXSP+0

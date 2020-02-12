@@ -341,7 +341,13 @@ else
 		$(BUILD_DIR)/charset.bin
 endif
 
-all: $(BUILD_DIR)/rom.bin $(BUILD_DIR)/rom_labels.h
+ifeq ($(MACHINE),x16)
+	ROM_LABELS=$(BUILD_DIR)/rom_labels.h
+else
+	ROM_LABELS=
+endif
+
+all: $(BUILD_DIR)/rom.bin $(ROM_LABELS)
 
 $(BUILD_DIR)/rom.bin: $(BANK_BINS)
 	cat $(BANK_BINS) > $@
