@@ -17,7 +17,7 @@
 .import fat_name_string
 
 .export tmp1, krn_tmp, krn_tmp2, krn_tmp3, sd_tmp, lba_addr, blocks
-.export fd_area, sd_blktarget, block_data, block_fat
+.export fd_area, fd_area_end, sd_blktarget, block_data, block_fat
 
 .importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
 
@@ -73,13 +73,14 @@ statusbuffer:
 	.res 512, 0
 
 ; SD/FAT32 buffers/variables
-fd_area: ; File descriptor area
-	.res 128, 0
 sd_blktarget:
 block_data:
 	.res 512, 0
 block_fat:
 	.res 512, 0
+fd_area: ; File descriptor area
+	.res 128, 0
+fd_area_end:
 tmp1:
 	.byte 0
 krn_tmp:

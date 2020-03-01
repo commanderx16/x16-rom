@@ -22,7 +22,7 @@
 ; SOFTWARE.
 
 .ifndef IMPORTED_FROM_MAIN
-.import fd_area, sd_blktarget
+.import fd_area, fd_area_end
 .endif
 
 ; TODO FIXME replace with errno.inc from cc65 api
@@ -194,7 +194,7 @@ DIR_Entry_Deleted            = $e5
 .endstruct
 
 FD_Entry_Size         = .sizeof(F32_fd)
-FD_Entries_Max        = <((sd_blktarget - fd_area) / FD_Entry_Size)
+FD_Entries_Max        = <((fd_area_end - fd_area) / FD_Entry_Size)
 FD_INDEX_CURRENT_DIR  = 0*FD_Entry_Size    ; current dir always go to fd #0
 FD_INDEX_TEMP_DIR     = 1*FD_Entry_Size   ; temp dir always go to fd #1
 
