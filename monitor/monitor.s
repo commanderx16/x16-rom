@@ -878,13 +878,13 @@ load_byte:
 :	tya
 	clc
 	adc zp1
-	sta veralo
+	sta VERA_ADDR_L
 	lda zp1 + 1
 	adc #0
-	sta veramid
+	sta VERA_ADDR_M
 	lda bank
-	sta verahi
-	lda veradat
+	sta VERA_ADDR_H
+	lda VERA_DATA0
 	rts
 
 ; stores a byte at (zp1),y in RAM with the correct ROM config
@@ -905,14 +905,14 @@ store_byte:
 	tya
 	clc
 	adc zp1
-	sta veralo
+	sta VERA_ADDR_L
 	lda zp1 + 1
 	adc #0
-	sta veramid
+	sta VERA_ADDR_M
 	lda bank
-	sta verahi
+	sta VERA_ADDR_H
 	pla
-	sta veradat
+	sta VERA_DATA0
 	rts
 
 ; ----------------------------------------------------------------

@@ -88,13 +88,13 @@ ld30	jsr loding      ;tell user loading
 ;
 	dey
 	tya
-	and #$0f        ;mask the bank number
+	and #$01        ;mask the bank number
 	ora #$10        ;set vera increment = 1
-	sta verahi      ;set the bank and increment
+	sta VERA_ADDR_H ;set the bank and increment
 	lda eal
-	sta veralo      ;set address bits 7:0
+	sta VERA_ADDR_L ;set address bits 7:0
 	lda eah
-	sta veramid     ;set address bits 15:8
+	sta VERA_ADDR_M ;set address bits 15:8
 ;
 ld40	lda #$fd        ;mask off timeout
 	and status
@@ -116,7 +116,7 @@ ld45	jsr acptr       ;get byte off ieee
 	bmi ld50        ;load into ram
 	beq ld47        ;verify
 ;
-	sta veradat     ;write into vram
+	sta VERA_DATA0  ;write into vram
 	bne ld60        ;branch always
 ;
 ld47	cmp (eal),y     ;verify it
@@ -155,10 +155,10 @@ ld64	bit status      ;eoi?
 	clc
 	bmi ld80
 	beq ld80
-	ldx veralo
-	ldy veramid
-	lda verahi
-	and #$0f
+	ldx VERA_ADDR_L
+	ldy VERA_ADDR_M
+	lda VERA_ADDR_H
+	and #$01
 	rts
 ld80	ldx eal
 	ldy eah

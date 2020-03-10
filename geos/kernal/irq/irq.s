@@ -57,15 +57,14 @@ _IRQHandler:
 .endif
 
 	; switch VERA
-	PushB veractl
-	PushB veralo
-	PushB veramid
-	PushB verahi
-	lda #0
-	sta veractl
+	PushB VERA_CTRL
+	PushB VERA_ADDR_L
+	PushB VERA_ADDR_M
+	PushB VERA_ADDR_H
+	stz VERA_CTRL
 
 	lda #1
-	sta veraisr
+	sta VERA_ISR
 
 	PushW CallRLo
 	PushW returnAddress
@@ -108,10 +107,10 @@ _IRQHandler:
 	PopW CallRLo
 
 	; switch VERA back
-	PopB verahi
-	PopB veramid
-	PopB veralo
-	PopB veractl
+	PopB VERA_ADDR_H
+	PopB VERA_ADDR_M
+	PopB VERA_ADDR_L
+	PopB VERA_CTRL
 
 .ifdef bsw128
 	pla

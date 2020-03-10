@@ -33,7 +33,7 @@ ioinit:
 ;---------------------------------------------------------------
 iokeys:
 	lda #1
-	sta veraien     ;VERA VBLANK IRQ for 60 Hz
+	sta VERA_IEN    ;VERA VBLANK IRQ for 60 Hz
 	rts
 	
 ;---------------------------------------------------------------
@@ -42,7 +42,7 @@ iokeys:
 ;---------------------------------------------------------------
 irq_ack:
 	lda #1
-	sta veraisr     ;ACK VERA VBLANK
+	sta VERA_ISR    ;ACK VERA VBLANK
 	rts
 
 ;---------------------------------------------------------------

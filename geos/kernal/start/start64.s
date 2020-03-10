@@ -85,18 +85,18 @@ _ResetHandle:
 	.word FB_init
 	.byte BANK_KERNAL
 
-	lda #$00 ; layer1
-	sta veralo
-	lda #$30
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #0 ; disable
-	sta veradat
+	; lda #$00 ; layer1
+	; sta veralo
+	; lda #$30
+	; sta veramid
+	; lda #$1F
+	; sta verahi
+	; lda #0 ; disable
+	; sta veradat
 
-	; IRQ
-	lda #1
-	sta veraien
+	; ; IRQ
+	; lda #1
+	; sta veraien
 
 	jsr _DoUpdateTime
 

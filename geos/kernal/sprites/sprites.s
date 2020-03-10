@@ -60,20 +60,20 @@ _EnablSprite:
 ; Destroyed: a, x, y, r6
 ;---------------------------------------------------------------
 _PosSprite:
-	lda #$02
-	sta veralo
-	lda #$50
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda r4L
-	sta veradat
-	lda r4H
-	sta veradat
-	lda r5L
-	sta veradat
-	lda #0
-	sta veradat
-	lda #3 << 2 ; z-depth
-	sta veradat
+	; lda #$02
+	; sta veralo
+	; lda #$50
+	; sta veramid
+	; lda #$1F
+	; sta verahi
+	; lda r4L
+	; sta veradat
+	; lda r4H
+	; sta veradat
+	; lda r5L
+	; sta veradat
+	; lda #0
+	; sta veradat
+	; lda #3 << 2 ; z-depth
+	; sta veradat
 	rts
