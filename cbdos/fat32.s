@@ -1355,9 +1355,11 @@ fat_mount:
 		@part0 = sd_blktarget + BootSector::Partitions + PartTable::Partition_0
 
 		lda @part0 + PartitionEntry::TypeCode
+		cmp #PartType_FAT32
+		beq @l2
 		cmp #PartType_FAT32_LBA
 		beq @l2
-		lda #fat_invalid_partition_type	; type code not  PartType_FAT32_LBA ($0C)
+		lda #fat_invalid_partition_type	; type code not $0b or $0c
 		bra @l_exit
 @l2:
 		m_memcpy @part0 + PartitionEntry::LBABegin, lba_addr, 4
