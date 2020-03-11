@@ -35,6 +35,15 @@
 .endmacro
 .macro debug32 arg1, arg2
 .endmacro
+
+.segment "sdcard_data"
+
+; SD Card command parameter/result buffer
+sd_cmd_param:
+	.res 4
+sd_cmd_chksum:
+	.res 1
+
 .code
 .import spi_rw_byte, spi_r_byte, spi_select_device, spi_deselect
 

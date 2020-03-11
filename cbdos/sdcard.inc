@@ -40,9 +40,6 @@ acmd41	= $40 + 41	; APP_SEND_OP_COND
 acmd23	= $40 + 23	; SET_WR_BLOCK_ERASE_COUNT - Define number of blocks to pre-erase with next multi-block write command.
 
 sd_data_token = $fe
-; SD CArd command parameter/result buffer
-sd_cmd_param 		= $02a0
-sd_cmd_chksum		= sd_cmd_param+4
 
 sd_cmd_response_retries = $08
 sd_data_token_retries = $0f ; increase, card specific and must be larger for "huge" cards
