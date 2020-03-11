@@ -9,6 +9,7 @@
 .export iokeys
 .export irq_ack
 .export emulator_get_data
+.export vera_wait_ready
 
 .import mouse_init
 .import ps2_init
@@ -62,3 +63,12 @@ emulator_get_data:
 	bra @2
 @1:	lda #0          ;fall back to US layout
 @2:	rts
+
+
+vera_wait_ready:
+	lda #42
+	sta VERA_ADDR_L
+	lda VERA_ADDR_L
+	cmp #42
+	bne vera_wait_ready
+	rts
