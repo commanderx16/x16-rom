@@ -38,6 +38,8 @@
 
 .import krn_tmp, krn_tmp2, krn_tmp3
 
+.import fat_tmp_dw
+
 		; in:
 		;	dirptr - pointer to dir entry (F32DirEntry)
 cluster_nr_matcher:

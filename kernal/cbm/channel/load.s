@@ -125,7 +125,8 @@ ld47	cmp (eal),y     ;verify it
 	jsr udst        ;update status
 	bra ld60
 ;
-ld50	sta (eal),y
+ld50	ldy #0
+	sta (eal),y
 ld60	inc eal         ;increment store addr
 	bne ld64
 	inc eah
