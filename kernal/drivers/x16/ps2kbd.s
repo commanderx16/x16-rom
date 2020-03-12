@@ -50,6 +50,23 @@ kbd_scan:
 	KVARS_END
 	rts
 
+.export irq_handler_start, irq_handler_end
+.import ps2dis_all, ps2ena_all
+
+irq_handler_start:
+	lda d2ifr
+	and #2
+	bne :+
+	jsr ps2dis_all
+	lda #1 ; Z=0: not handled
+	rts
+:	jsr kbd_scan
+	lda #0 ; Z=1: handled
+	rts
+
+irq_handler_end:
+	jmp ps2ena_all
+
 ;
 ; set keyboard layout .a
 ;  $ff: reload current layout (PETSCII vs. ISO might have changed)

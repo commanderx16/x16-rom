@@ -23,8 +23,32 @@ ps2byte:
 
 .segment "PS2"
 
+.export ps2dis_all, ps2ena_all
+
 ; inhibit PS/2 communication on both ports
 ps2_init:
+	; VIA#2 CA1/CB1 IRQ: trigger on negative edge
+	lda d2pcr
+	and #%11101110
+	sta d2pcr
+	; VIA#2 CA1/CB1 IRQ: enable
+	lda #%10010010
+	sta d2ier
+
+; FALL THROUGH
+
+;****************************************
+ps2ena_all:
+	ldx #1 ; PA: keyboard
+	jsr ps2ena
+	dex    ; PB: mouse
+ps2ena:	lda port_ddr,x ; set CLK and DATA as input
+	and #$ff-bit_clk-bit_data
+	sta port_ddr,x ; -> bus is idle, device can start sending
+	rts
+
+;****************************************
+ps2dis_all:
 	ldx #1 ; PA: keyboard
 	jsr ps2dis
 	dex    ; PB: mouse
@@ -79,8 +103,7 @@ lc061:	bit port_data,x
 	bne lc061 ; wait for CLK=0 (ready)
 lc065:	bit port_data,x
 	beq lc065 ; wait for CLK=1 (not ready)
-lc069:	jsr ps2dis
-	lda ps2byte
+lc069:	lda ps2byte
 	php ; save parity
 lc07c:	lsr a ; calculate parity
 	bcc lc080
@@ -95,7 +118,6 @@ lc080:	cmp #0
 	ldy #1 ; Z=0
 	rts
 
-lc08c:	jsr ps2dis
-	clc
+lc08c:	clc
 	lda #0 ; Z=1
 	rts
