@@ -22,6 +22,8 @@
 .importzp dirptr
 .include	"fat32.inc"
 
+.import fat_dirname_mask
+
 .export dirname_mask_matcher
 
 .code
