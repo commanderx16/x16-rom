@@ -52,7 +52,9 @@ _mouse_init:
 	sta mouseb
 	lda #>480
 	sta mouseb+1
-	rts
+
+	ldx #0
+	jmp ps2dis
 
 ; "MOUSE" KERNAL call
 ; A: $00 hide mouse
@@ -133,8 +135,6 @@ mouse_scan:
 	rts
 
 _mouse_scan:
-;	bit msepar ; do nothing if mouse is off
-;	bpl @a
 	ldx #0
 	jsr ps2_receive_byte
 	bcs @a ; parity error

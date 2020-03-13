@@ -34,7 +34,10 @@ ps2_init:
 	lda #%10010010
 	sta d2ier
 
-; FALL THROUGH
+	ldx #1 ; keyboard
+	jsr ps2ena
+	ldx #0 ; mouse
+	jmp ps2dis
 
 ;****************************************
 ps2ena_all:
