@@ -10,6 +10,7 @@
 
 ; code
 .import ps2_receive_byte; [ps2]
+.import ps2ena, ps2dis
 
 .import screen_save_state
 .import screen_restore_state
@@ -87,6 +88,9 @@ mous1:	cmp #0
 	and #$7f
 	sta msepar
 
+	ldx #0 ; PB: mouse
+	jsr ps2dis
+
 	PushW r0H
 	lda #$ff
 	sta r0H
@@ -117,6 +121,9 @@ mous3:	lda msepar
 	ora #$80 ; flag: mouse on
 	sta msepar
 
+	ldx #0 ; PB: mouse
+	jsr ps2ena
+
 	jmp mouse_update_position
 
 mouse_scan:
@@ -126,8 +133,8 @@ mouse_scan:
 	rts
 
 _mouse_scan:
-	bit msepar ; do nothing if mouse is off
-	bpl @a
+;	bit msepar ; do nothing if mouse is off
+;	bpl @a
 	ldx #0
 	jsr ps2_receive_byte
 	bcs @a ; parity error

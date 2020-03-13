@@ -50,21 +50,6 @@ kbd_scan:
 	KVARS_END
 	rts
 
-.export irq_handler_start, irq_handler_end
-
-irq_handler_start:
-	lda d2ifr
-	and #2
-	bne :+
-	lda #1 ; Z=0: not handled
-	rts
-:	jsr kbd_scan
-	lda #0 ; Z=1: handled
-	rts
-
-irq_handler_end:
-	rts
-
 ;
 ; set keyboard layout .a
 ;  $ff: reload current layout (PETSCII vs. ISO might have changed)

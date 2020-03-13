@@ -10,6 +10,7 @@
 .importzp mhz ; [declare]
 
 .export ps2_init, ps2_receive_byte
+.export ps2ena, ps2dis
 
 port_ddr  =d2ddrb
 port_data =d2prb
@@ -45,7 +46,6 @@ ps2ena:	lda port_ddr,x ; set CLK and DATA as input
 	sta port_ddr,x ; -> bus is idle, device can start sending
 	rts
 
-.if 0
 ;****************************************
 ps2dis_all:
 	ldx #1 ; PA: keyboard
@@ -59,7 +59,28 @@ ps2dis:	lda port_ddr,x
 	ora #bit_data ; DATA=1
 	sta port_data,x
 	rts
-.endif
+
+.export irq_handler_start, irq_handler_end
+.import kbd_scan, mouse_scan
+
+irq_handler_start:
+	lda d2ifr
+	tax
+	and #2
+	bne @kbd
+	txa
+	and #$10
+	bne @mouse
+	lda #1 ; Z=0: not handled
+	rts
+@mouse:	jsr mouse_scan
+	bra @end
+@kbd:	jsr kbd_scan
+@end:	lda #0 ; Z=1: handled
+	rts
+
+irq_handler_end:
+	rts
 
 ;****************************************
 ; RECEIVE BYTE
