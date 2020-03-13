@@ -384,10 +384,7 @@ screen_copy_line:
 	sta sal
 	stx sal+1
 
-	; Destination into ADDR1
-	lda #1
-	sta VERA_CTRL
-
+	;destination into addr1
 	lda #$10
 	sta VERA_ADDR_H
 	lda pnt
@@ -395,9 +392,10 @@ screen_copy_line:
 	lda pnt+1
 	sta VERA_ADDR_M
 
-	; Source into ADDR0
-	stz VERA_CTRL
+	lda #1
+	sta VERA_CTRL
 
+	;source into addr2
 	lda #$10
 	sta VERA_ADDR_H
 	lda sal
@@ -405,13 +403,15 @@ screen_copy_line:
 	lda sal+1
 	sta VERA_ADDR_M
 
-	; Copy line
+	lda #0
+	sta VERA_CTRL
+
 	ldy llen
 	dey
-:	lda VERA_DATA0    ;character
-	sta VERA_DATA1
-	lda VERA_DATA0    ;color
-	sta VERA_DATA1
+:	lda VERA_DATA1    ;character
+	sta VERA_DATA0
+	lda VERA_DATA1    ;color
+	sta VERA_DATA0
 	dey
 	bpl :-
 
