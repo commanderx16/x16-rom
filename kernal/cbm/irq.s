@@ -48,13 +48,14 @@ key
 	beq irq_end ; handled -> end
 
 	; VBLANK
+	jsr irq_ack
+	cli
+
 	jsr mouse_scan  ;scan mouse (do this first to avoid sprite tearing)
 	jsr joystick_scan
 	jsr clock_update
 	jsr cursor_blink
 	jsr kbd_scan
-
-	jsr irq_ack
 
 	jsr irq_handler_end
 irq_end:

@@ -23,8 +23,6 @@ ps2byte:
 
 .segment "PS2"
 
-.export ps2dis_all, ps2ena_all
-
 ; inhibit PS/2 communication on both ports
 ps2_init:
 	; VIA#2 CA1/CB1 IRQ: trigger on negative edge
@@ -47,6 +45,7 @@ ps2ena:	lda port_ddr,x ; set CLK and DATA as input
 	sta port_ddr,x ; -> bus is idle, device can start sending
 	rts
 
+.if 0
 ;****************************************
 ps2dis_all:
 	ldx #1 ; PA: keyboard
@@ -60,6 +59,7 @@ ps2dis:	lda port_ddr,x
 	ora #bit_data ; DATA=1
 	sta port_data,x
 	rts
+.endif
 
 ;****************************************
 ; RECEIVE BYTE

@@ -51,13 +51,11 @@ kbd_scan:
 	rts
 
 .export irq_handler_start, irq_handler_end
-.import ps2dis_all, ps2ena_all
 
 irq_handler_start:
 	lda d2ifr
 	and #2
 	bne :+
-	jsr ps2dis_all
 	lda #1 ; Z=0: not handled
 	rts
 :	jsr kbd_scan
@@ -65,7 +63,7 @@ irq_handler_start:
 	rts
 
 irq_handler_end:
-	jmp ps2ena_all
+	rts
 
 ;
 ; set keyboard layout .a
