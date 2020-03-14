@@ -45,6 +45,10 @@ VERA_AUDIO_DATA   = (VERA_BASE + $1D)
 VERA_SPI_DATA     = (VERA_BASE + $1E)
 VERA_SPI_CTRL     = (VERA_BASE + $1F)
 
+VERA_PSG_BASE     = $1F9C0
+VERA_PALETTE_BASE = $1FA00
+VERA_SPRITES_BASE = $1FC00
+
 ;***************
 monitor:
 	jsr bjsrfar

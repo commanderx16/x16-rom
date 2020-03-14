@@ -36,50 +36,26 @@ FB_VERA:
 ; Pass:      -
 ;---------------------------------------------------------------
 FB_init:
-; 	lda #$00 ; layer0
-; 	sta veralo
-; 	lda #$20
-; 	sta veramid
-; 	lda #$1F
-; 	sta verahi
-; 	lda #7 << 5 | 1; 256c bitmap
-; 	sta veradat
-; 	lda #0
-; 	sta veradat; tile_w=320px
-; 	sta veradat; map_base_lo: ignore
-; 	sta veradat; map_base_hi: ignore
-; 	lda #<(tile_base >> 2)
-; 	sta veradat; tile_base_lo
-; 	lda #>(tile_base >> 2)
-; 	sta veradat; tile_base_hi
+	; Layer 0, 256c bitmap
+	lda #$07
+	sta VERA_L0_CONFIG
+	stz VERA_L0_HSCROLL_H  ; Clear palette offset
+	lda #((tile_base >> 9) & $FC)
+	sta VERA_L0_TILEBASE
 
-; 	lda #$00        ;$F0000: composer registers
-; 	sta veralo
-; 	sta veramid
-; 	ldx #0
-; px5a:	lda tvera_composer_g,x
-; 	sta veradat
-; 	inx
-; 	cpx #tvera_composer_g_end-tvera_composer_g
-; 	bne px5a
+	; Enable layer 0
+	lda VERA_DC_VIDEO
+	ora #$10
+	sta VERA_DC_VIDEO
+
+	; Display composer: scale for 320x240
+	stz VERA_CTRL
+	lda #64
+	sta VERA_DC_HSCALE
+	sta VERA_DC_VSCALE
 	rts
 
 tile_base = $10000
-hstart  =0
-hstop   =640
-vstart  =0
-vstop   =480
-
-tvera_composer_g:
-	.byte 7 << 5 | 1  ;256c bitmap, VGA
-	.byte 64, 64      ;hscale, vscale
-	.byte 0           ;border color
-	.byte <hstart
-	.byte <hstop
-	.byte <vstart
-	.byte <vstop
-	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
-tvera_composer_g_end:
 
 ;---------------------------------------------------------------
 ; FB_get_info
@@ -113,40 +89,40 @@ FB_set_palette:
 ;            r1     y pos
 ;---------------------------------------------------------------
 FB_cursor_position:
-; ; ptr_fg = y * 320
-; 	stz ptr_fg+1
-; 	lda r1L
-; 	asl
-; 	rol ptr_fg+1
-; 	asl
-; 	rol ptr_fg+1
-; 	asl
-; 	rol ptr_fg+1
-; 	asl
-; 	rol ptr_fg+1
-; 	asl
-; 	rol ptr_fg+1
-; 	asl
-; 	rol ptr_fg+1
-; 	sta ptr_fg
-; 	lda r1L
-; 	clc
-; 	adc ptr_fg+1
-; 	sta ptr_fg+1
+; ptr_fg = y * 320
+	stz ptr_fg+1
+	lda r1L
+	asl
+	rol ptr_fg+1
+	asl
+	rol ptr_fg+1
+	asl
+	rol ptr_fg+1
+	asl
+	rol ptr_fg+1
+	asl
+	rol ptr_fg+1
+	asl
+	rol ptr_fg+1
+	sta ptr_fg
+	lda r1L
+	clc
+	adc ptr_fg+1
+	sta ptr_fg+1
 
-; 	lda #$11
-; 	sta verahi
+	lda #$11
+	sta VERA_ADDR_H
 
-; ; ptr_fg += x
-; 	lda r0L
-; 	clc
-; 	adc ptr_fg
-; 	sta ptr_fg
-; 	sta veralo
-; 	lda r0H
-; 	adc ptr_fg+1
-; 	sta ptr_fg+1
-; 	sta veramid
+; ptr_fg += x
+	lda r0L
+	clc
+	adc ptr_fg
+	sta ptr_fg
+	sta VERA_ADDR_L
+	lda r0H
+	adc ptr_fg+1
+	sta ptr_fg+1
+	sta VERA_ADDR_M
 
 	rts
 
@@ -157,15 +133,15 @@ FB_cursor_position:
 ; Pass:      r0     additional x pos
 ;---------------------------------------------------------------
 FB_cursor_next_line:
-	; lda #<320
-	; clc
-	; adc ptr_fg
-	; sta ptr_fg
-	; sta veralo
-	; lda #>320
-	; adc ptr_fg+1
-	; sta ptr_fg+1
-	; sta veramid
+	lda #<320
+	clc
+	adc ptr_fg
+	sta ptr_fg
+	sta VERA_ADDR_L
+	lda #>320
+	adc ptr_fg+1
+	sta ptr_fg+1
+	sta VERA_ADDR_M
 	rts
 
 ;---------------------------------------------------------------
@@ -175,7 +151,7 @@ FB_cursor_next_line:
 ; Pass:      a   color
 ;---------------------------------------------------------------
 FB_set_pixel:
-	; sta veradat
+	sta VERA_DATA0
 	rts
 
 ;---------------------------------------------------------------
@@ -186,7 +162,7 @@ FB_set_pixel:
 ; Return:    a    color of pixel
 ;---------------------------------------------------------------
 FB_get_pixel:
-	; lda veradat
+	lda VERA_DATA0
 	rts
 
 ;---------------------------------------------------------------
@@ -198,27 +174,27 @@ FB_get_pixel:
 ;            r1  count
 ;---------------------------------------------------------------
 FB_set_pixels:
-; 	PushB r0H
-; 	PushB r1H
+	PushB r0H
+	PushB r1H
 
-; 	lda r1H
-; 	beq @a
+	lda r1H
+	beq @a
 
-; 	ldx #0
-; @c:	jsr @b
-; 	inc r0H
-; 	dec r1H
-; 	bne @c
+	ldx #0
+@c:	jsr @b
+	inc r0H
+	dec r1H
+	bne @c
 
-; @a:	ldx r1L
-; @b:	ldy #0
-; :	lda (r0),y
-; 	sta veradat
-; 	iny
-; 	dex
-; 	bne :-
-; 	PopB r1H
-; 	PopB r0H
+@a:	ldx r1L
+@b:	ldy #0
+:	lda (r0),y
+	sta VERA_DATA0
+	iny
+	dex
+	bne :-
+	PopB r1H
+	PopB r0H
 	rts
 
 ;---------------------------------------------------------------
@@ -230,30 +206,30 @@ FB_set_pixels:
 ;            r1  count
 ;---------------------------------------------------------------
 FB_get_pixels:
-; 	PushB r0H
-; 	PushB r1H
-; 	jsr get_pixels_FG
-; 	PopB r1H
-; 	PopB r0H
-; 	rts
+	PushB r0H
+	PushB r1H
+	jsr get_pixels_FG
+	PopB r1H
+	PopB r0H
+	rts
 
-; get_pixels_FG:
-; 	lda r1H
-; 	beq @a
+get_pixels_FG:
+	lda r1H
+	beq @a
 
-; 	ldx #0
-; @c:	jsr @b
-; 	inc r0H
-; 	dec r1H
-; 	bne @c
+	ldx #0
+@c:	jsr @b
+	inc r0H
+	dec r1H
+	bne @c
 
-; @a:	ldx r1L
-; @b:	ldy #0
-; :	lda veradat
-; 	sta (r0),y
-; 	iny
-; 	dex
-; 	bne :-
+@a:	ldx r1L
+@b:	ldy #0
+:	lda VERA_DATA0
+	sta (r0),y
+	iny
+	dex
+	bne :-
 	rts
 
 ;---------------------------------------------------------------
@@ -265,22 +241,22 @@ FB_get_pixels:
 ;            x        color
 ;---------------------------------------------------------------
 FB_set_8_pixels:
-; ; this takes about 120 cycles, independently of the pattern
-; 	sec
-; 	rol
-; 	bcs @2
-; 	inc veralo
-; 	bne @1
-; 	inc veramid
-; @1:	asl
-; 	bcs @2
-; 	inc veralo
-; 	bne @1
-; 	inc veramid
-; 	bra @1
-; @2:	beq @3
-; 	stx veradat
-; 	bra @1
+; this takes about 120 cycles, independently of the pattern
+	sec
+	rol
+	bcs @2
+	inc VERA_ADDR_L
+	bne @1
+	inc VERA_ADDR_M
+@1:	asl
+	bcs @2
+	inc VERA_ADDR_L
+	bne @1
+	inc VERA_ADDR_M
+	bra @1
+@2:	beq @3
+	stx VERA_DATA0
+	bra @1
 @3:	rts
 
 ;---------------------------------------------------------------
@@ -294,28 +270,28 @@ FB_set_8_pixels:
 ;            y        color
 ;---------------------------------------------------------------
 FB_set_8_pixels_opaque:
-; ; opaque drawing with fg color .x and bg color .y
-; 	sec
-; 	rol
-; 	bcc @3
-; 	beq @4
-; 	asl r0L
-; 	bcs @2
-; 	sty veradat
-; @1:	asl
-; 	bcc @3
-; 	beq @4
-; 	asl r0L
-; 	bcs @2
-; 	sty veradat
-; 	bra @1
-; @2:	stx veradat
-; 	bra @1
-; @3:	asl r0L
-; 	inc veralo
-; 	bne @1
-; 	inc veramid
-; 	bra @1
+; opaque drawing with fg color .x and bg color .y
+	sec
+	rol
+	bcc @3
+	beq @4
+	asl r0L
+	bcs @2
+	sty VERA_DATA0
+@1:	asl
+	bcc @3
+	beq @4
+	asl r0L
+	bcs @2
+	sty VERA_DATA0
+	bra @1
+@2:	stx VERA_DATA0
+	bra @1
+@3:	asl r0L
+	inc VERA_ADDR_L
+	bne @1
+	inc VERA_ADDR_M
+	bra @1
 @4:	rts
 
 ;---------------------------------------------------------------
@@ -326,69 +302,69 @@ FB_set_8_pixels_opaque:
 ;            a    color
 ;---------------------------------------------------------------
 FB_fill_pixels:
-; 	ldx r1H
-; 	bne fill_pixels_with_step
-; 	ldx r1L
-; 	cpx #2
-; 	bcs fill_pixels_with_step
+	ldx r1H
+	bne fill_pixels_with_step
+	ldx r1L
+	cpx #2
+	bcs fill_pixels_with_step
 
-; ; step 1
-; 	ldx r0H
-; 	beq @2
+; step 1
+	ldx r0H
+	beq @2
 
-; ; full blocks, 8 bytes at a time
-; 	ldy #$20
-; @1:	jsr fill_y
-; 	dex
-; 	bne @1
+; full blocks, 8 bytes at a time
+	ldy #$20
+@1:	jsr fill_y
+	dex
+	bne @1
 
-; ; partial block, 8 bytes at a time
-; @2:	pha
-; 	lda r0L
-; 	lsr
-; 	lsr
-; 	lsr
-; 	beq @6
-; 	tay
-; 	pla
-; 	jsr fill_y
+; partial block, 8 bytes at a time
+@2:	pha
+	lda r0L
+	lsr
+	lsr
+	lsr
+	beq @6
+	tay
+	pla
+	jsr fill_y
 
-; ; remaining 0 to 7 bytes
-; 	pha
-; @6:	lda r0L
-; 	and #7
-; 	beq @5
-; 	tay
-; 	pla
-; @3:	sta veradat
-; 	dey
-; 	bne @3
-; @4:	rts
+; remaining 0 to 7 bytes
+	pha
+@6:	lda r0L
+	and #7
+	beq @5
+	tay
+	pla
+@3:	sta VERA_DATA0
+	dey
+	bne @3
+@4:	rts
 
-; @5:	pla
-; 	rts
+@5:	pla
+	rts
 
-; fill_y:	sta veradat
-; 	sta veradat
-; 	sta veradat
-; 	sta veradat
-; 	sta veradat
-; 	sta veradat
-; 	sta veradat
-; 	sta veradat
-; 	dey
-; 	bne fill_y
+fill_y:	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
+	dey
+	bne fill_y
 	rts
 
 ; XXX TODO support other step sizes
 fill_pixels_with_step:
-; 	ldx #$71    ; increment in steps of $40
-; 	stx verahi
-; 	ldx r0L
-; :	sta veradat
-; 	inc veramid ; increment hi -> add $140 = 320
-; 	dex
-; 	bne :-
+	ldx #$71    ; increment in steps of $40
+	stx VERA_ADDR_H
+	ldx r0L
+:	sta VERA_DATA0
+	inc VERA_ADDR_M ; increment hi -> add $140 = 320
+	dex
+	bne :-
 	rts
 
 ;---------------------------------------------------------------
@@ -400,77 +376,77 @@ fill_pixels_with_step:
 ;                 Return:  a  color
 ;---------------------------------------------------------------
 FB_filter_pixels:
-; 	; build a JMP instruction
-; 	LoadB r14H, $4c
-; 	MoveW r1, r15
+	; build a JMP instruction
+	LoadB r14H, $4c
+	MoveW r1, r15
 
-; 	lda veralo
-; 	ldx veramid
-; 	inc veractl ; 1
-; 	sta veralo
-; 	stx veramid
-; 	lda #$11
-; 	sta verahi
-; 	stz veractl ; 0
-; 	sta verahi
+	lda VERA_ADDR_L
+	ldx VERA_ADDR_M
+	inc VERA_CTRL ; 1
+	sta VERA_ADDR_L
+	stx VERA_ADDR_M
+	lda #$11
+	sta VERA_ADDR_H
+	stz VERA_CTRL ; 0
+	sta VERA_ADDR_H
 
-; 	ldx r0H
-; 	beq @2
+	ldx r0H
+	beq @2
 
-; ; full blocks, 8 bytes at a time
-; 	ldy #$20
-; @1:	jsr filter_y
-; 	dex
-; 	bne @1
+; full blocks, 8 bytes at a time
+	ldy #$20
+@1:	jsr filter_y
+	dex
+	bne @1
 
-; ; partial block, 8 bytes at a time
-; @2:	lda r0L
-; 	lsr
-; 	lsr
-; 	lsr
-; 	beq @6
-; 	tay
-; 	jsr filter_y
+; partial block, 8 bytes at a time
+@2:	lda r0L
+	lsr
+	lsr
+	lsr
+	beq @6
+	tay
+	jsr filter_y
 
-; ; remaining 0 to 7 bytes
-; @6:	lda r0L
-; 	and #7
-; 	beq @4
-; 	tay
-; @3:	lda veradat
-; 	jsr r14H
-; 	sta veradat2
-; 	dey
-; 	bne @3
-; @4:	rts
+; remaining 0 to 7 bytes
+@6:	lda r0L
+	and #7
+	beq @4
+	tay
+@3:	lda VERA_DATA0
+	jsr r14H
+	sta VERA_DATA1
+	dey
+	bne @3
+@4:	rts
 
-; filter_y:
-; 	lda veradat
-; 	jsr r14H
-; 	sta veradat2
-; 	lda veradat
-; 	jsr r14H
-; 	sta veradat2
-; 	lda veradat
-; 	jsr r14H
-; 	sta veradat2
-; 	lda veradat
-; 	jsr r14H
-; 	sta veradat2
-; 	lda veradat
-; 	jsr r14H
-; 	sta veradat2
-; 	lda veradat
-; 	jsr r14H
-; 	sta veradat2
-; 	lda veradat
-; 	jsr r14H
-; 	sta veradat2
-; 	lda veradat
-; 	jsr r14H
-; 	sta veradat2
-; 	dey
-; 	bne filter_y
+filter_y:
+	lda VERA_DATA0
+	jsr r14H
+	sta VERA_DATA1
+	lda VERA_DATA0
+	jsr r14H
+	sta VERA_DATA1
+	lda VERA_DATA0
+	jsr r14H
+	sta VERA_DATA1
+	lda VERA_DATA0
+	jsr r14H
+	sta VERA_DATA1
+	lda VERA_DATA0
+	jsr r14H
+	sta VERA_DATA1
+	lda VERA_DATA0
+	jsr r14H
+	sta VERA_DATA1
+	lda VERA_DATA0
+	jsr r14H
+	sta VERA_DATA1
+	lda VERA_DATA0
+	jsr r14H
+	sta VERA_DATA1
+	dey
+	bne filter_y
 	rts
 
 ;---------------------------------------------------------------
@@ -485,63 +461,63 @@ FB_filter_pixels:
 FB_move_pixels:
 ; XXX sy == ty && sx < tx && sx + c > tx -> backwards!
 
-; 	lda #1
-; 	sta veractl
-; 	jsr FB_cursor_position
-; 	stz veractl
-; 	PushW r0
-; 	PushW r1
-; 	MoveW r2, r0
-; 	MoveW r3, r1
-; 	jsr FB_cursor_position
-; 	PopW r1
-; 	PopW r0
+	lda #1
+	sta VERA_CTRL
+	jsr FB_cursor_position
+	stz VERA_CTRL
+	PushW r0
+	PushW r1
+	MoveW r2, r0
+	MoveW r3, r1
+	jsr FB_cursor_position
+	PopW r1
+	PopW r0
 
-; 	ldx r4H
-; 	beq @2
+	ldx r4H
+	beq @2
 
-; ; full blocks, 8 bytes at a time
-; 	ldy #$20
-; @1:	jsr copy_y
-; 	dex
-; 	bne @1
+; full blocks, 8 bytes at a time
+	ldy #$20
+@1:	jsr copy_y
+	dex
+	bne @1
 
-; ; partial block, 8 bytes at a time
-; @2:	lda r4L
-; 	lsr
-; 	lsr
-; 	lsr
-; 	beq @6
-; 	tay
-; 	jsr copy_y
+; partial block, 8 bytes at a time
+@2:	lda r4L
+	lsr
+	lsr
+	lsr
+	beq @6
+	tay
+	jsr copy_y
 
-; ; remaining 0 to 7 bytes
-; @6:	lda r4L
-; 	and #7
-; 	beq @4
-; 	tay
-; @3:	lda veradat2
-; 	sta veradat
-; 	dey
-; 	bne @3
-; @4:	rts
+; remaining 0 to 7 bytes
+@6:	lda r4L
+	and #7
+	beq @4
+	tay
+@3:	lda VERA_DATA1
+	sta VERA_DATA0
+	dey
+	bne @3
+@4:	rts
 
-; copy_y:	lda veradat2
-; 	sta veradat
-; 	lda veradat2
-; 	sta veradat
-; 	lda veradat2
-; 	sta veradat
-; 	lda veradat2
-; 	sta veradat
-; 	lda veradat2
-; 	sta veradat
-; 	lda veradat2
-; 	sta veradat
-; 	lda veradat2
-; 	sta veradat
-; 	lda veradat2
-; 	sta veradat
-; 	dey
-; 	bne copy_y
+copy_y:	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	dey
+	bne copy_y
 	rts
