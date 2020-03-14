@@ -24,6 +24,7 @@
 ;            -- This is KERNAL API --
 ;---------------------------------------------------------------
 ioinit:
+	jsr vera_wait_ready
 	jsr ps2_init    ;inhibit ps/2 communcation
 	jsr clklo       ;release the clock line
 	; fallthrough
@@ -65,6 +66,13 @@ emulator_get_data:
 @2:	rts
 
 
+;---------------------------------------------------------------
+; Wait for VERA to be ready
+;
+; VERA's FPGA needs some time to configure itself. This function
+; will see if the configuration is done by writing a VERA
+; register and checking if the value is correctly written.
+;---------------------------------------------------------------
 vera_wait_ready:
 	lda #42
 	sta VERA_ADDR_L

@@ -17,8 +17,6 @@ start	ldx #$ff
 	sei
 	txs
 
-	jsr vera_wait_ready
-
 	jsr ioinit      ;go initilize i/o devices
 	jsr entropy_init
 	jsr ramtas      ;go ram test and set
