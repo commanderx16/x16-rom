@@ -16,18 +16,8 @@ spi_r_byte:
 ; Destructive: A,X
 ;----------------------------------------------------------------------------------------------
 spi_rw_byte:
-	ldx #>VERA_SPI
-	stx veramid
-	ldx #VERA_SPI >> 16
-	stx verahi
-	ldx #0
-	stx veralo  ; data reg
-	sta veradat ; send data
-	inx
-	stx veralo  ; ctrl reg
-:	bit veradat
+	sta VERA_SPI_DATA
+:	bit VERA_SPI_CTRL
 	bmi :-
-	dex
-	stx veralo  ; data reg
-	lda veradat ; get data
+	lda VERA_SPI_DATA ; get data
 	rts

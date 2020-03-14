@@ -36,50 +36,26 @@ FB_VERA:
 ; Pass:      -
 ;---------------------------------------------------------------
 FB_init:
-	lda #$00 ; layer0
-	sta veralo
-	lda #$20
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #7 << 5 | 1; 256c bitmap
-	sta veradat
-	lda #0
-	sta veradat; tile_w=320px
-	sta veradat; map_base_lo: ignore
-	sta veradat; map_base_hi: ignore
-	lda #<(tile_base >> 2)
-	sta veradat; tile_base_lo
-	lda #>(tile_base >> 2)
-	sta veradat; tile_base_hi
+	; Layer 0, 256c bitmap
+	lda #$07
+	sta VERA_L0_CONFIG
+	stz VERA_L0_HSCROLL_H  ; Clear palette offset
+	lda #((tile_base >> 9) & $FC)
+	sta VERA_L0_TILEBASE
 
-	lda #$00        ;$F0000: composer registers
-	sta veralo
-	sta veramid
-	ldx #0
-px5a:	lda tvera_composer_g,x
-	sta veradat
-	inx
-	cpx #tvera_composer_g_end-tvera_composer_g
-	bne px5a
+	; Enable layer 0
+	lda VERA_DC_VIDEO
+	ora #$10
+	sta VERA_DC_VIDEO
+
+	; Display composer: scale for 320x240
+	stz VERA_CTRL
+	lda #64
+	sta VERA_DC_HSCALE
+	sta VERA_DC_VSCALE
 	rts
 
 tile_base = $10000
-hstart  =0
-hstop   =640
-vstart  =0
-vstop   =480
-
-tvera_composer_g:
-	.byte 7 << 5 | 1  ;256c bitmap, VGA
-	.byte 64, 64      ;hscale, vscale
-	.byte 0           ;border color
-	.byte <hstart
-	.byte <hstop
-	.byte <vstart
-	.byte <vstop
-	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
-tvera_composer_g_end:
 
 ;---------------------------------------------------------------
 ; FB_get_info
@@ -135,18 +111,18 @@ FB_cursor_position:
 	sta ptr_fg+1
 
 	lda #$11
-	sta verahi
+	sta VERA_ADDR_H
 
 ; ptr_fg += x
 	lda r0L
 	clc
 	adc ptr_fg
 	sta ptr_fg
-	sta veralo
+	sta VERA_ADDR_L
 	lda r0H
 	adc ptr_fg+1
 	sta ptr_fg+1
-	sta veramid
+	sta VERA_ADDR_M
 
 	rts
 
@@ -161,11 +137,11 @@ FB_cursor_next_line:
 	clc
 	adc ptr_fg
 	sta ptr_fg
-	sta veralo
+	sta VERA_ADDR_L
 	lda #>320
 	adc ptr_fg+1
 	sta ptr_fg+1
-	sta veramid
+	sta VERA_ADDR_M
 	rts
 
 ;---------------------------------------------------------------
@@ -175,7 +151,7 @@ FB_cursor_next_line:
 ; Pass:      a   color
 ;---------------------------------------------------------------
 FB_set_pixel:
-	sta veradat
+	sta VERA_DATA0
 	rts
 
 ;---------------------------------------------------------------
@@ -186,7 +162,7 @@ FB_set_pixel:
 ; Return:    a    color of pixel
 ;---------------------------------------------------------------
 FB_get_pixel:
-	lda veradat
+	lda VERA_DATA0
 	rts
 
 ;---------------------------------------------------------------
@@ -213,7 +189,7 @@ FB_set_pixels:
 @a:	ldx r1L
 @b:	ldy #0
 :	lda (r0),y
-	sta veradat
+	sta VERA_DATA0
 	iny
 	dex
 	bne :-
@@ -249,7 +225,7 @@ get_pixels_FG:
 
 @a:	ldx r1L
 @b:	ldy #0
-:	lda veradat
+:	lda VERA_DATA0
 	sta (r0),y
 	iny
 	dex
@@ -269,17 +245,17 @@ FB_set_8_pixels:
 	sec
 	rol
 	bcs @2
-	inc veralo
+	inc VERA_ADDR_L
 	bne @1
-	inc veramid
+	inc VERA_ADDR_M
 @1:	asl
 	bcs @2
-	inc veralo
+	inc VERA_ADDR_L
 	bne @1
-	inc veramid
+	inc VERA_ADDR_M
 	bra @1
 @2:	beq @3
-	stx veradat
+	stx VERA_DATA0
 	bra @1
 @3:	rts
 
@@ -301,20 +277,20 @@ FB_set_8_pixels_opaque:
 	beq @4
 	asl r0L
 	bcs @2
-	sty veradat
+	sty VERA_DATA0
 @1:	asl
 	bcc @3
 	beq @4
 	asl r0L
 	bcs @2
-	sty veradat
+	sty VERA_DATA0
 	bra @1
-@2:	stx veradat
+@2:	stx VERA_DATA0
 	bra @1
 @3:	asl r0L
-	inc veralo
+	inc VERA_ADDR_L
 	bne @1
-	inc veramid
+	inc VERA_ADDR_M
 	bra @1
 @4:	rts
 
@@ -360,7 +336,7 @@ FB_fill_pixels:
 	beq @5
 	tay
 	pla
-@3:	sta veradat
+@3:	sta VERA_DATA0
 	dey
 	bne @3
 @4:	rts
@@ -368,14 +344,14 @@ FB_fill_pixels:
 @5:	pla
 	rts
 
-fill_y:	sta veradat
-	sta veradat
-	sta veradat
-	sta veradat
-	sta veradat
-	sta veradat
-	sta veradat
-	sta veradat
+fill_y:	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
+	sta VERA_DATA0
 	dey
 	bne fill_y
 	rts
@@ -383,10 +359,10 @@ fill_y:	sta veradat
 ; XXX TODO support other step sizes
 fill_pixels_with_step:
 	ldx #$71    ; increment in steps of $40
-	stx verahi
+	stx VERA_ADDR_H
 	ldx r0L
-:	sta veradat
-	inc veramid ; increment hi -> add $140 = 320
+:	sta VERA_DATA0
+	inc VERA_ADDR_M ; increment hi -> add $140 = 320
 	dex
 	bne :-
 	rts
@@ -404,15 +380,15 @@ FB_filter_pixels:
 	LoadB r14H, $4c
 	MoveW r1, r15
 
-	lda veralo
-	ldx veramid
-	inc veractl ; 1
-	sta veralo
-	stx veramid
+	lda VERA_ADDR_L
+	ldx VERA_ADDR_M
+	inc VERA_CTRL ; 1
+	sta VERA_ADDR_L
+	stx VERA_ADDR_M
 	lda #$11
-	sta verahi
-	stz veractl ; 0
-	sta verahi
+	sta VERA_ADDR_H
+	stz VERA_CTRL ; 0
+	sta VERA_ADDR_H
 
 	ldx r0H
 	beq @2
@@ -437,38 +413,38 @@ FB_filter_pixels:
 	and #7
 	beq @4
 	tay
-@3:	lda veradat
+@3:	lda VERA_DATA0
 	jsr r14H
-	sta veradat2
+	sta VERA_DATA1
 	dey
 	bne @3
 @4:	rts
 
 filter_y:
-	lda veradat
+	lda VERA_DATA0
 	jsr r14H
-	sta veradat2
-	lda veradat
+	sta VERA_DATA1
+	lda VERA_DATA0
 	jsr r14H
-	sta veradat2
-	lda veradat
+	sta VERA_DATA1
+	lda VERA_DATA0
 	jsr r14H
-	sta veradat2
-	lda veradat
+	sta VERA_DATA1
+	lda VERA_DATA0
 	jsr r14H
-	sta veradat2
-	lda veradat
+	sta VERA_DATA1
+	lda VERA_DATA0
 	jsr r14H
-	sta veradat2
-	lda veradat
+	sta VERA_DATA1
+	lda VERA_DATA0
 	jsr r14H
-	sta veradat2
-	lda veradat
+	sta VERA_DATA1
+	lda VERA_DATA0
 	jsr r14H
-	sta veradat2
-	lda veradat
+	sta VERA_DATA1
+	lda VERA_DATA0
 	jsr r14H
-	sta veradat2
+	sta VERA_DATA1
 	dey
 	bne filter_y
 	rts
@@ -486,9 +462,9 @@ FB_move_pixels:
 ; XXX sy == ty && sx < tx && sx + c > tx -> backwards!
 
 	lda #1
-	sta veractl
+	sta VERA_CTRL
 	jsr FB_cursor_position
-	stz veractl
+	stz VERA_CTRL
 	PushW r0
 	PushW r1
 	MoveW r2, r0
@@ -520,28 +496,28 @@ FB_move_pixels:
 	and #7
 	beq @4
 	tay
-@3:	lda veradat2
-	sta veradat
+@3:	lda VERA_DATA1
+	sta VERA_DATA0
 	dey
 	bne @3
 @4:	rts
 
-copy_y:	lda veradat2
-	sta veradat
-	lda veradat2
-	sta veradat
-	lda veradat2
-	sta veradat
-	lda veradat2
-	sta veradat
-	lda veradat2
-	sta veradat
-	lda veradat2
-	sta veradat
-	lda veradat2
-	sta veradat
-	lda veradat2
-	sta veradat
+copy_y:	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
+	lda VERA_DATA1
+	sta VERA_DATA0
 	dey
 	bne copy_y
 	rts

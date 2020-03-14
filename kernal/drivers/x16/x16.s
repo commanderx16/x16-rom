@@ -9,6 +9,7 @@
 .export iokeys
 .export irq_ack
 .export emulator_get_data
+.export vera_wait_ready
 
 .import mouse_init
 .import ps2_init
@@ -23,6 +24,7 @@
 ;            -- This is KERNAL API --
 ;---------------------------------------------------------------
 ioinit:
+	jsr vera_wait_ready
 	jsr ps2_init    ;inhibit ps/2 communcation
 	jsr clklo       ;release the clock line
 	; fallthrough
@@ -33,7 +35,7 @@ ioinit:
 ;---------------------------------------------------------------
 iokeys:
 	lda #1
-	sta veraien     ;VERA VBLANK IRQ for 60 Hz
+	sta VERA_IEN    ;VERA VBLANK IRQ for 60 Hz
 	rts
 	
 ;---------------------------------------------------------------
@@ -42,7 +44,7 @@ iokeys:
 ;---------------------------------------------------------------
 irq_ack:
 	lda #1
-	sta veraisr     ;ACK VERA VBLANK
+	sta VERA_ISR    ;ACK VERA VBLANK
 	rts
 
 ;---------------------------------------------------------------
@@ -62,3 +64,19 @@ emulator_get_data:
 	bra @2
 @1:	lda #0          ;fall back to US layout
 @2:	rts
+
+
+;---------------------------------------------------------------
+; Wait for VERA to be ready
+;
+; VERA's FPGA needs some time to configure itself. This function
+; will see if the configuration is done by writing a VERA
+; register and checking if the value is correctly written.
+;---------------------------------------------------------------
+vera_wait_ready:
+	lda #42
+	sta VERA_ADDR_L
+	lda VERA_ADDR_L
+	cmp #42
+	bne vera_wait_ready
+	rts
