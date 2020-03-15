@@ -38,9 +38,11 @@ joy2:	.res 3           ;    joystick 2 status
 joystick_scan:
 	KVARS_START
 
-	lda #$ff-bit_data1-bit_data2
+	lda nes_ddr
+	and #$ff-bit_data1-bit_data2
 	sta nes_ddr
-	lda #$00
+	lda nes_data
+	and #$ff-bit_latch-bit_data1-bit_jclk-bit_data2
 	sta nes_data
 
 	; pulse latch

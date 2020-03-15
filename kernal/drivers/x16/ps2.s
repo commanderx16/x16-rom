@@ -47,6 +47,9 @@ ps2ena_all:
 ps2ena:	lda port_ddr,x ; set CLK and DATA as input
 	and #$ff-bit_clk-bit_data
 	sta port_ddr,x ; -> bus is idle, device can start sending
+;	lda port_data,x
+;	ora #bit_clk+bit_data ; CLK=1, DATA=1
+;	sta port_data,x
 	rts
 
 ;****************************************
@@ -139,6 +142,7 @@ lc080:	cmp #0
 	adc #1
 	lsr a ; C=0: parity OK
 	lda ps2byte
+	sta debug_port
 	ldy #1 ; Z=0
 	rts
 
