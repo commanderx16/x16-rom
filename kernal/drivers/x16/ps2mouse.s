@@ -17,7 +17,7 @@
 
 .import sprite_set_image, sprite_set_position
 
-.export mouse_init, mouse_config, mouse_scan, mouse_get
+.export mouse_init, mouse_config, mouse_scan, mouse_get, mouse_update_position
 
 .segment "KVARSB0"
 
@@ -189,6 +189,13 @@ _mouse_scan:
 	and #7
 	sta mousebt
 
+	; we can't hold IRQs off for too long, otherwise we'll miss more
+	; PS/2 IRQs (e.g. keyboard), so let's give the IRQ a chance
+	; XXX if events keep coming at this rate, the stack could overflow
+	php
+	cli
+	plp
+
 ; check bounds
 	ldy mousel
 	ldx mousel+1
@@ -228,11 +235,10 @@ _mouse_scan:
 @4a:	bcs @5a
 	sty mousey
 	stx mousey+1
-@5a:
-
-	cli
+@5a:	rts
 
 mouse_update_position:
+	KVARS_START
 	jsr screen_save_state
 	
 	PushW r0
@@ -272,7 +278,8 @@ mouse_update_position:
 	PopW r0
 
 	jsr screen_restore_state
-	rts ; NB: call above does not support tail call optimization
+	KVARS_END
+	rts
 
 mouse_get:
 	KVARS_START
