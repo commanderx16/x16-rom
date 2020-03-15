@@ -230,6 +230,8 @@ _mouse_scan:
 	stx mousey+1
 @5a:
 
+	cli
+
 mouse_update_position:
 	jsr screen_save_state
 	

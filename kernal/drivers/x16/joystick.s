@@ -46,9 +46,10 @@ joystick_scan:
 	sta nes_data
 
 	; pulse latch
-	lda #bit_latch
+	lda nes_data
+	ora #bit_latch
 	sta nes_data
-	lda #0
+	and #$ff-bit_latch
 	sta nes_data
 
 	; read 3x 8 bits
@@ -61,9 +62,10 @@ l1:	lda nes_data
 	and #bit_data1
 	cmp #bit_data1
 	rol joy1,x
-	lda #bit_jclk
+	lda nes_data
+	ora #bit_jclk
 	sta nes_data
-	lda #0
+	and #$ff-bit_jclk
 	sta nes_data
 	dey
 	bne l1
