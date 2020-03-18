@@ -60,20 +60,20 @@ _EnablSprite:
 ; Destroyed: a, x, y, r6
 ;---------------------------------------------------------------
 _PosSprite:
-	lda #$02
-	sta veralo
-	lda #$50
-	sta veramid
-	lda #$1F
-	sta verahi
+	lda #<(VERA_SPRITES_BASE + 2)
+	sta VERA_ADDR_L
+	lda #>(VERA_SPRITES_BASE + 2)
+	sta VERA_ADDR_M
+	lda #((^(VERA_SPRITES_BASE + 2)) | $10)
+	sta VERA_ADDR_H
 	lda r4L
-	sta veradat
+	sta VERA_DATA0
 	lda r4H
-	sta veradat
+	sta VERA_DATA0
 	lda r5L
-	sta veradat
+	sta VERA_DATA0
 	lda #0
-	sta veradat
+	sta VERA_DATA0
 	lda #3 << 2 ; z-depth
-	sta veradat
+	sta VERA_DATA0
 	rts

@@ -46,39 +46,39 @@ cki232:
 ;BSOUT
 ;
 bso232:
-	lda #$01
-	sta veralo
-	lda #$80
-	sta veramid
-	lda #$0F
-	sta verahi
-	lda #2
-:	bit veradat
-	bne :-
-	dec veralo
-	lda t1
-	sta veradat
+; 	lda #$01
+; 	sta veralo
+; 	lda #$80
+; 	sta veramid
+; 	lda #$0F
+; 	sta verahi
+; 	lda #2
+; :	bit veradat
+; 	bne :-
+; 	dec veralo
+; 	lda t1
+; 	sta veradat
 	rts
 
 ;BASIN
 ;
 bsi232:
-	lda #$01
-	sta veralo
-	lda #$80
-	sta veramid
-	lda #$0F
-	sta verahi
-	lda #1
-	bit veradat
-	bne :+
-	lda #8 ; EMPTY
-	sta status
-	lda #0
-	rts
+; 	lda #$01
+; 	sta veralo
+; 	lda #$80
+; 	sta veramid
+; 	lda #$0F
+; 	sta verahi
+; 	lda #1
+; 	bit veradat
+; 	bne :+
+; 	lda #8 ; EMPTY
+; 	sta status
+; 	lda #0
+; 	rts
 
-:	lda #0 ; OK
-	sta status
-	dec veralo
-	lda veradat
+; :	lda #0 ; OK
+; 	sta status
+; 	dec veralo
+; 	lda veradat
 	rts

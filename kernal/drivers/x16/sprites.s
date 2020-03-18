@@ -41,11 +41,11 @@ sprite_set_image:
 	asl ; add $1000 per sprite ; see memory layout in io.inc
 	clc
 	adc #>sprite_addr
-	sta veramid
+	sta VERA_ADDR_M
 	lda #<sprite_addr
-	sta veralo
+	sta VERA_ADDR_L
 	lda #$10 | (sprite_addr >> 16)
-	sta verahi
+	sta VERA_ADDR_H
 
 	plp
 	bcc @a
@@ -73,11 +73,11 @@ sprite_set_image:
 	asl
 	asl
 	asl ; *8
-	sta veralo
-	lda #$50
-	sta veramid
-	lda #$1F
-	sta verahi
+	sta VERA_ADDR_L
+	lda #>VERA_SPRITES_BASE
+	sta VERA_ADDR_M
+	lda #((^VERA_SPRITES_BASE) | $10)
+	sta VERA_ADDR_H
 	pla ; sprite number
 	lsr
 	pha
@@ -85,18 +85,18 @@ sprite_set_image:
 	ror ; LSB will be bit #12 of address
 	clc
 	adc #<(sprite_addr >> 5)
-	sta veradat
+	sta VERA_DATA0
 	pla ; remaining bits
 	adc #1 << 7 | >(sprite_addr >> 5) ; 8 bpp
-	sta veradat
+	sta VERA_DATA0
 
 ; set size
-	lda veralo
+	lda VERA_ADDR_L
 	clc
 	adc #5 ; skip to offset #7
-	sta veralo
+	sta VERA_ADDR_L
 	lda #1 << 6 | 1 << 4 ;  16x16 px
-	sta veradat
+	sta VERA_DATA0
 
 	clc ; OK
 	rts
@@ -117,7 +117,7 @@ convert_16x16x1_mask:
 	lda (r1),y ; mask
 @2:	asl
 	bcs @3
-	stz veradat ; mask = 0 -> color 0 (translucent)
+	stz VERA_DATA0 ; mask = 0 -> color 0 (translucent)
 	pha
 	txa
 	asl         ; skip color
@@ -132,7 +132,7 @@ convert_16x16x1_mask:
 @0xxx:	lda #1  ; white
 	bra @6
 @5:	lda #16 ; black
-@6:	sta veradat
+@6:	sta VERA_DATA0
 	pla
 @4:	dec r2H
 	bne @2
@@ -153,11 +153,10 @@ convert_16x16x1_mask:
 ; Note: A negative x coordinate turns the sprite off.
 ;---------------------------------------------------------------
 sprite_set_position:
-	; VERA: sprites @$1F5000
-	ldx #$50
-	stx veramid
-	ldx #$1F
-	stx verahi
+	ldx #>VERA_SPRITES_BASE
+	stx VERA_ADDR_M
+	ldx #((^VERA_SPRITES_BASE) | $10)
+	stx VERA_ADDR_H
 	
 	and #7 ; mask sprites 0-7
 	asl
@@ -170,29 +169,25 @@ sprite_set_position:
 
 ; disable sprite
 	adc #$06
-	sta veralo
-	stz veradat ; set zdepth to 0
+	sta VERA_ADDR_L
+	stz VERA_DATA0 ; set zdepth to 0
 	rts
 	
 @1:	adc #$02
-	sta veralo
+	sta VERA_ADDR_L
 	lda r0L
-	sta veradat ; offset 2: X lo
+	sta VERA_DATA0 ; offset 2: X lo
 	lda r0H
-	sta veradat ; offset 3: X hi
+	sta VERA_DATA0 ; offset 3: X hi
 	lda r1L
-	sta veradat ; offset 4: Y lo
+	sta VERA_DATA0 ; offset 4: Y lo
 	lda r1H
-	sta veradat ; offset 5: Y hi
+	sta VERA_DATA0 ; offset 5: Y hi
 	lda #3 << 2
-	sta veradat ; offset 6: set zdepth to 3
+	sta VERA_DATA0 ; offset 6: set zdepth to 3
 
-	lda #$00
-	sta veralo
-	lda #$40
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #1
-	sta veradat ; enable sprites globally
+	; enable sprites globally
+	lda VERA_DC_VIDEO
+	ora #$40
+	sta VERA_DC_VIDEO
 	rts

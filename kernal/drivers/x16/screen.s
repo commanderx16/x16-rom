@@ -53,49 +53,51 @@ pnt:	.res 2           ;$D1 pointer to row
 ;
 ;---------------------------------------------------------------
 screen_init:
-	lda #0
-	sta veractl     ;set ADDR1 active
+	stz VERA_CTRL   ;set ADDR1 active
 
 	lda #2
 	jsr screen_set_charset
 
-	lda #$1f
-	sta verahi
+	; Layer 1 configuration
+	lda #((1<<6)|(2<<4)|(0<<0))
+	sta VERA_L1_CONFIG
+	lda #(mapbas>>9)
+	sta VERA_L1_MAPBASE
+	lda #((tilbas>>11)<<2)
+	sta VERA_L1_TILEBASE
+	stz VERA_L1_HSCROLL_L
+	stz VERA_L1_HSCROLL_H
+	stz VERA_L1_VSCROLL_L
+	stz VERA_L1_VSCROLL_H
 
-	lda #$00        ;$F2000: layer 0 registers
-	sta veralo
-	lda #$20
-	sta veramid
-	stz veradat     ;disable layer 0
+	; Display composer configuration
+	lda #2
+	sta VERA_CTRL
+	stz VERA_DC_HSTART
+	lda #(640>>2)
+	sta VERA_DC_HSTOP
+	stz VERA_DC_VSTART
+	lda #(480>>2)
+	sta VERA_DC_VSTOP
 
-	lda #$00        ;$F3000: layer 1 registers
-	sta veralo
-	lda #$30
-	sta veramid
-	ldx #0
-:	lda tvera_layer1,x
-	sta veradat
-	inx
-	cpx #tvera_layer1_end-tvera_layer1
-	bne :-
+	stz VERA_CTRL
+	lda #$21
+	sta VERA_DC_VIDEO
+	lda #128
+	sta VERA_DC_HSCALE
+	sta VERA_DC_VSCALE
+	stz VERA_DC_BORDER
 
-	lda #$00        ;$F0000: composer registers
-	sta veralo
-	sta veramid
-	ldx #0
-:	lda tvera_composer,x
-	sta veradat
-	inx
-	cpx #tvera_composer_end-tvera_composer
-	bne :-
+	; Clear sprite attributes ($1FC00-$1FFFF)
+	stz VERA_ADDR_L
+	lda #$FC
+	sta VERA_ADDR_M
+	lda #$11
+	sta VERA_ADDR_H
 
-	lda #$00        ;$F5000: sprite attributes
-	sta veralo
-	lda #$50
-	sta veramid
 	ldx #4
 	ldy #0
-:	stz veradat     ;clear 128*8 bytes
+:	stz VERA_DATA0     ;clear 128*8 bytes
 	iny
 	bne :-
 	dex
@@ -105,51 +107,44 @@ screen_init:
 
 ;NTSC=1
 
-tvera_layer1:
-	.byte 0 << 5 | 1  ;mode=0, enabled=1
-	.byte 1 << 2 | 2  ;maph=64, mapw=128
-	.word mapbas >> 2 ;map_base
-	.word tilbas >> 2 ;tile_bas
-	.word 0, 0        ;hscroll, vscroll
-tvera_layer1_end:
 
 mapbas	=0
 
-.ifdef NTSC
+; .ifdef NTSC
 ; ***** NTSC (with overscan)
-hstart  =46
-hstop   =591
-vstart  =35
-vstop   =444
+; hstart  =46
+; hstop   =591
+; vstart  =35
+; vstop   =444
 
-tvera_composer:
-	.byte 2           ;NTSC
-	.byte 150, 150    ;hscale, vscale
-	.byte 14          ;border color
-	.byte <hstart
-	.byte <hstop
-	.byte <vstart
-	.byte <vstop
-	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
-tvera_composer_end
-.else
-; ***** VGA
-hstart  =0
-hstop   =640
-vstart  =0
-vstop   =480
+; tvera_composer:
+; 	.byte 2           ;NTSC
+; 	.byte 150, 150    ;hscale, vscale
+; 	.byte 14          ;border color
+; 	.byte <hstart
+; 	.byte <hstop
+; 	.byte <vstart
+; 	.byte <vstop
+; 	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
+; tvera_composer_end
+; .else
+; ; ***** VGA
+; hstart  =0
+; hstop   =640
+; vstart  =0
+; vstop   =480
 
-tvera_composer:
-	.byte 1           ;VGA
-	.byte 128, 128    ;hscale, vscale
-	.byte 14          ;border color
-	.byte <hstart
-	.byte <hstop
-	.byte <vstart
-	.byte <vstop
-	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
-tvera_composer_end:
-.endif
+; tvera_composer:
+; 	.byte 1           ;VGA
+; 	.byte 128, 128    ;hscale, vscale
+; 	.byte 14          ;border color
+; 	.byte <hstart
+; 	.byte <hstop
+; 	.byte <vstart
+; 	.byte <vstop
+; 	.byte (vstop >> 8) << 5 | (vstart >> 8) << 4 | (hstop >> 8) << 2 | (hstart >> 8)
+; tvera_composer_end:
+; .endif
 
 ;---------------------------------------------------------------
 ; Set screen mode
@@ -166,63 +161,71 @@ tvera_composer_end:
 screen_set_mode:
 	cmp #$ff
 	bne scrmd1
-; toggle between 40x30 and  80x60
+
+	; Toggle between 40x30 and 80x60
 	lda #2
 	cmp cscrmd
 	bne scrmd1
 	lda #0
+
 scrmd1:	sta cscrmd
+
 	cmp #0 ; 40x30
-	beq swpp30
+	beq mode_40x30
+
 	cmp #1 ; 80x30 currently unsupported
 	bne scrmd2
-scrmd3:	sec
+mode_unsupported:
+	sec
 	rts
-scrmd2:	cmp #2 ; 80x60
-	beq swpp60
-	cmp #$80 ; 320x240@256c + 40x30 text
-	beq swpp25
-	cmp #$81 ; 640x400@16c
-	beq scrmd3 ; currently unsupported
-	bra scrmd3 ; otherwise: illegal mode
 
-swpp60:	ldx #80
+scrmd2:	cmp #2 ; 80x60
+	beq mode_80x60
+	cmp #$80 ; 320x240@256c + 40x30 text
+	beq mode_320x240
+	cmp #$81 ; 640x400@16c
+	beq mode_unsupported ; currently unsupported
+	bra mode_unsupported ; otherwise: illegal mode
+
+mode_80x60:
+	ldx #80
 	ldy #60
 	lda #128 ; scale = 1.0
 	clc
 	bra swpp2
 
-swpp25:	jsr grphon
+mode_320x240:
+	jsr grphon
 	ldy #25
 	sec
 	bra swpp3
 
-swpp30:	clc
+mode_40x30:
+	clc
 	ldy #30
 swpp3:	ldx #40
 	lda #64 ; scale = 2.0
+
 swpp2:	pha
 	bcs swppp4
-	jsr grphoff
-swppp4:	lda #$01
-	sta veralo
-	lda #$00
-	sta veramid
-	lda #$1F
-	sta verahi
-	pla
-	sta veradat ; reg $F0001: hscale
-	sta veradat ; reg $F0002: vscale
+	stz VERA_L0_CONFIG	; Disable layer 0
+
+swppp4:	pla
+	sta VERA_DC_HSCALE
+	sta VERA_DC_VSCALE
+
+	; Set vertical display stop
 	cpy #25
 	bne swpp1
-	lda #<400
+	lda #(400/2)
 	bra :+
-swpp1:	lda #<480
+swpp1:	lda #(480/2)
 :	pha
-	lda #7 ; vstop_lo
-	sta veralo
+	lda #2
+	sta VERA_CTRL
 	pla
-	sta veradat
+	sta VERA_DC_VSTOP
+	stz VERA_CTRL
 	jsr scnsiz
 	clc
 	rts
@@ -233,17 +236,6 @@ grphon:
 
 	LoadW r0, 0
 	jmp GRAPH_init
-
-grphoff:
-	lda #$00        ; layer0
-	sta veralo
-	lda #$20
-	sta veramid
-	lda #$1F
-	sta verahi
-	lda #0          ; off
-	sta veradat
-	rts
 
 ;---------------------------------------------------------------
 ; Calculate start of line
@@ -283,20 +275,20 @@ screen_get_char:
 	sec
 	sbc llen
 	asl
-	sta veralo
+	sta VERA_ADDR_L
 	lda pnt+1
 	adc #1 ; C=0
 	bne ldapnt3
 ldapnt1:
 	asl
 ldapnt2:
-	sta veralo
+	sta VERA_ADDR_L
 	lda pnt+1
 ldapnt3:
-	sta veramid
+	sta VERA_ADDR_M
 	lda #$10
-	sta verahi
-	lda veradat
+	sta VERA_ADDR_H
+	lda VERA_DATA0
 	rts
 
 
@@ -331,21 +323,21 @@ screen_set_char:
 	sec
 	sbc llen
 	asl
-	sta veralo
+	sta VERA_ADDR_L
 	lda pnt+1
 	adc #1 ; C=0
 	bne stapnt3
 stapnt1:
 	asl
 stapnt2:
-	sta veralo
+	sta VERA_ADDR_L
 	lda pnt+1
 stapnt3:
-	sta veramid
+	sta VERA_ADDR_M
 	lda #$10
-	sta verahi
+	sta VERA_ADDR_H
 	pla
-	sta veradat
+	sta VERA_DATA0
 	rts
 
 ;---------------------------------------------------------------
@@ -359,7 +351,7 @@ stapnt3:
 ;---------------------------------------------------------------
 screen_set_char_color:
 	jsr screen_set_char
-	stx veradat     ;set color
+	stx VERA_DATA0     ;set color
 	rts
 
 ;---------------------------------------------------------------
@@ -372,7 +364,7 @@ screen_set_char_color:
 ;---------------------------------------------------------------
 screen_get_char_color:
 	jsr screen_get_char
-	ldx veradat     ;get color
+	ldx VERA_DATA0     ;get color
 	rts
 
 ;---------------------------------------------------------------
@@ -394,32 +386,32 @@ screen_copy_line:
 
 	;destination into addr1
 	lda #$10
-	sta verahi
+	sta VERA_ADDR_H
 	lda pnt
-	sta veralo
+	sta VERA_ADDR_L
 	lda pnt+1
-	sta veramid
+	sta VERA_ADDR_M
 
 	lda #1
-	sta veractl
+	sta VERA_CTRL
 
 	;source into addr2
 	lda #$10
-	sta verahi
+	sta VERA_ADDR_H
 	lda sal
-	sta veralo
+	sta VERA_ADDR_L
 	lda sal+1
-	sta veramid
+	sta VERA_ADDR_M
 
 	lda #0
-	sta veractl
+	sta VERA_CTRL
 
 	ldy llen
 	dey
-:	lda veradat2    ;character
-	sta veradat
-	lda veradat2    ;color
-	sta veradat
+:	lda VERA_DATA1    ;character
+	sta VERA_DATA0
+	lda VERA_DATA1    ;color
+	sta VERA_DATA0
 	dey
 	bpl :-
 
@@ -438,15 +430,15 @@ screen_clear_line:
 	ldy llen
 	jsr screen_set_position
 	lda pnt
-	sta veralo      ;set base address
+	sta VERA_ADDR_L      ;set base address
 	lda pnt+1
-	sta veramid
+	sta VERA_ADDR_M
 	lda #$10        ;auto-increment = 1
-	sta verahi
+	sta VERA_ADDR_H
 :	lda #' '
-	sta veradat     ;store space
+	sta VERA_DATA0     ;store space
 	lda color       ;always clear to current foregnd color
-	sta veradat
+	sta VERA_DATA0
 	dey
 	bne :-
 	rts
@@ -462,14 +454,14 @@ screen_clear_line:
 screen_save_state:
 	plx
 	ply
-	lda veractl
+	lda VERA_CTRL
 	pha
-	stz veractl
-	lda veralo
+	stz VERA_CTRL
+	lda VERA_ADDR_L
 	pha
-	lda veramid
+	lda VERA_ADDR_M
 	pha
-	lda verahi
+	lda VERA_ADDR_H
 	pha
 	phy
 	phx
@@ -483,13 +475,13 @@ screen_restore_state:
 	plx
 	ply
 	pla
-	sta verahi
+	sta VERA_ADDR_H
 	pla
-	sta veramid
+	sta VERA_ADDR_M
 	pla
-	sta veralo
+	sta VERA_ADDR_L
 	pla
-	sta veractl
+	sta VERA_CTRL
 	phy
 	phx
 	rts
@@ -530,7 +522,7 @@ copyv:	ldy #0
 @l2:	ldx #BANK_CHARSET
 	jsr fetch
 	eor data
-	sta veradat
+	sta VERA_DATA0
 	iny
 	bne @l2
 	inc tmp2+1
@@ -571,11 +563,11 @@ cpypet2:
 
 inicpy:
 	ldx #<tilbas
-	stx veralo
+	stx VERA_ADDR_L
 	ldx #>tilbas
-	stx veramid
+	stx VERA_ADDR_M
 	ldx #$10 | (tilbas >> 16)
-	stx verahi
+	stx VERA_ADDR_H
 	stz data
 	stz tmp2
 	rts
