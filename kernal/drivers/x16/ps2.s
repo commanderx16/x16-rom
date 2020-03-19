@@ -83,7 +83,6 @@ ps2dis:	lda port_ddr,x
 
 ramcode:
 ; NMI
-	sei ; necessary?
 	pha
 .if 0
 	lda d2ifr
@@ -108,7 +107,9 @@ ramcode:
 	cpx #8
 	bcs @n_data_bit
 
-; *** 0-7: data bit
+; *********************
+; 0-7: data bit
+; *********************
 	and #bit_data
 	cmp #bit_data
 	bcc :+
@@ -123,7 +124,9 @@ ramcode:
 @n_data_bit:
 	bne @n_parity_bit
 
-; *** 8: parity bit
+; *********************
+; 8: parity bit
+; *********************
 	ldx ps2parity
 	cmp #bit_data
 	bcc :+
@@ -131,24 +134,29 @@ ramcode:
 :	txa
 	ror
 	bcs @inc_rti
-
-	brk ; XXX
+	bra @error
 
 @n_parity_bit:
 	bpl @n_start ; not -1
 
-; *** -1: start bit
+; *********************
+; -1: start bit
+; *********************
 	cmp #bit_data
 	bcc @inc_rti ; clear = OK
-	brk ; XXX error
+	bra @error
 
 @n_start:
-; *** 9: stop bit
+; *********************
+; 9: stop bit
+; *********************
 	cmp #bit_data
-	bcs @byte_complete ; set = OK
-	brk ; XXX error
+	bcc @error ; set = OK
+	; If the stop bit is incorrect, inhibiting communication
+	; at this late point won't cause a re-send from the
+	; device, so effectively, we will only ignore the
+	; byte and clear the queue.
 
-@byte_complete:
 	; byte complete
 	lda ps2byte
 	sta debug_port
@@ -156,13 +164,45 @@ ramcode:
 	sta ps2q,x
 	inc ps2c
 
+@next_byte:
 	lda #0
 	sta ps2parity
 	ldx #$ff
-:	stx ps2bits
+	stx ps2bits
+@pull_rti:
 	plx
 	pla
 	rti
+
+@error:
+	; inhibit for 100 µs
+	lda port_ddr
+	ora #bit_clk+bit_data
+	sta port_ddr ; set CLK and DATA as output
+	lda port_data
+	and #$ff - bit_clk ; CLK=0
+	ora #bit_data ; DATA=1
+	sta port_data
+
+	php
+	cli
+
+	ldx #100/5*mhz
+:	dex
+	bne :- ; 5 clocks
+
+	plp
+
+	ldx #0
+	stx ps2c ; clear queue
+	stx ps2parity
+	dex
+	stx ps2bits
+
+	lda port_ddr,x ; set CLK and DATA as input
+	and #$ff-bit_clk-bit_data
+	sta port_ddr,x ; -> bus is idle, device can start sending
+	bra @pull_rti
 
 @n_mouse:
 	; NMI button
