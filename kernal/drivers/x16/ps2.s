@@ -17,15 +17,33 @@ port_data =d2prb
 bit_data=1              ; 6522 IO port data bit mask  (PA0/PB0)
 bit_clk =2              ; 6522 IO port clock bit mask (PA1/PB1)
 
+ps2bits  = $9000
+ps2byte  = $9001
+ps2parity= $9002
+ps2c     = $90ff
+ps2q     = $9100
+
 .segment "KVARSB0"
 
-ps2byte:
-.res 1           ;    bit input
+_ps2byte:
+	.res 1           ;    bit input
 
 .segment "PS2"
 
 ; inhibit PS/2 communication on both ports
 ps2_init:
+	ldx #0
+:	lda ramcode,x
+	sta $9200,x
+	inx
+	cpx #ramcode_end - ramcode
+	bne :-
+
+	lda #$ff
+	sta ps2bits
+	lda #0
+	sta ps2parity
+
 	; VIA#2 CA1/CB1 IRQ: trigger on negative edge
 	lda d2pcr
 	and #%11101110
@@ -63,27 +81,95 @@ ps2dis:	lda port_ddr,x
 	sta port_data,x
 	rts
 
-.export irq_handler_start, irq_handler_end
-.import kbd_scan, mouse_scan
-
-irq_handler_start:
+ramcode:
+; NMI
+	sei ; necessary?
+	pha
+.if 0
 	lda d2ifr
-	tax
-	and #2
-	bne @kbd
-	txa
-	and #$10
-	bne @mouse
-	lda #1 ; Z=0: not handled
-	rts
-@mouse:	jsr mouse_scan
-	bra @end
-@kbd:	jsr kbd_scan
-@end:	lda #0 ; Z=1: handled
-	rts
+	bit #$02
+	beq @n_kbd
 
-irq_handler_end:
-	rts
+; Port 0: keyboard
+	lda port_data
+	; XXX TODO
+	pla
+	rti
+
+@n_kbd:
+	bit #$10
+	beq @n_mouse
+.endif
+; Port 1: mouse
+	lda port_data
+	and #bit_data
+	phx
+	ldx ps2bits
+	cpx #8
+	bcs @n_data_bit
+
+; *** 0-7: data bit
+	and #bit_data
+	cmp #bit_data
+	bcc :+
+	inc ps2parity
+:	ror ps2byte
+@inc_rti:
+	inc ps2bits
+	plx
+	pla
+	rti
+
+@n_data_bit:
+	bne @n_parity_bit
+
+; *** 8: parity bit
+	ldx ps2parity
+	cmp #bit_data
+	bcc :+
+	inx
+:	txa
+	ror
+	bcs @inc_rti
+
+	brk ; XXX
+
+@n_parity_bit:
+	bpl @n_start ; not -1
+
+; *** -1: start bit
+	cmp #bit_data
+	bcc @inc_rti ; clear = OK
+	brk ; XXX error
+
+@n_start:
+; *** 9: stop bit
+	cmp #bit_data
+	bcs @byte_complete ; set = OK
+	brk ; XXX error
+
+@byte_complete:
+	; byte complete
+	lda ps2byte
+	sta debug_port
+	ldx ps2c
+	sta ps2q,x
+	inc ps2c
+
+	lda #0
+	sta ps2parity
+	ldx #$ff
+:	stx ps2bits
+	plx
+	pla
+	rti
+
+@n_mouse:
+	; NMI button
+	pla
+	rti
+
+ramcode_end:
 
 ;****************************************
 ; RECEIVE BYTE
@@ -95,6 +181,23 @@ irq_handler_end:
 ;           1: parity error
 ;****************************************
 ps2_receive_byte:
+	lda ps2c
+	beq @1
+	php
+	sei
+	ldy ps2q
+	ldx #0
+:	lda ps2q+1,x
+	sta ps2q,x
+	inx
+	cpx ps2c
+	bne :-
+	dec ps2c
+	plp
+	tya
+@1:	clc
+	rts
+
 ; set input, bus idle
 	lda port_ddr,x ; set CLK and DATA as input
 	and #$ff-bit_clk-bit_data

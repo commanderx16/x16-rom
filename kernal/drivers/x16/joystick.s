@@ -36,6 +36,7 @@ joy2:	.res 3           ;    joystick 2 status
 ;
 ;---------------------------------------------------------------
 joystick_scan:
+	rts
 	KVARS_START
 
 	lda nes_ddr

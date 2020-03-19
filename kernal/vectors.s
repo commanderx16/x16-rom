@@ -171,7 +171,8 @@ jiobas	jmp iobase      ;return i/o base
 	.byte "MIST"
 
 	.segment "VECTORS"
-	.word nmi        ;program defineable
+	;.word nmi        ;program defineable
+	.word $9200
 	.word start      ;initialization code
 	.word puls       ;interrupt handler
 

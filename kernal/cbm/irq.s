@@ -15,6 +15,7 @@
 
 .import screen_init
 .import joystick_scan
+.import mouse_scan
 .import cursor_blink
 .import irq_ack
 .import mouse_update_position
@@ -40,24 +41,17 @@ puls	pha
 	jmp (cbinv)     ;...yes...break instr
 puls1	jmp (cinv)      ;...irq
 
-; IRQ handler
+; VBLANK IRQ handler
 ;
 key
-	; handle IRQ other than VBLANK
-	jsr irq_handler_start
-	beq irq_end ; handled -> end
-
-	; VBLANK
-	jsr irq_ack
-	cli
-
+	jsr mouse_scan
 	jsr mouse_update_position ; (do this first to avoid sprite tearing)
 	jsr joystick_scan
 	jsr clock_update
 	jsr cursor_blink
 
-	jsr irq_handler_end
-irq_end:
+	jsr irq_ack
+
 .ifp02
 	pla
 	tay
