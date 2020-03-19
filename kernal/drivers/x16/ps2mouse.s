@@ -157,24 +157,34 @@ _mouse_scan:
 	bne @a
 	txa
 .endif
-	sta mousebt
+	pha ; mousebt
 
 	ldx #0
 	jsr ps2_receive_byte
+	bcc :+
+	pla ; trash mousebt
+	rts
+
 	clc
 	adc mousex
-	sta mousex
+	pha ; mousex
 
 	lda mousebt
 	and #$10
 	beq :+
 	lda #$ff
 :	adc mousex+1
-	sta mousex+1
+	pha ; mousex+1
 
 	ldx #0
 	jsr ps2_receive_byte
-	clc
+	bcc :+
+	pla ; trash mousex+1
+	pla ; trash mousex
+	pla ; trash mousebt
+	rts
+
+:	clc
 	adc mousey
 	sta mousey
 

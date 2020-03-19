@@ -22,6 +22,7 @@ ps2byte  = $9001
 ps2parity= $9002
 ps2c     = $90ff
 ps2q     = $9100
+ps2err   = $9180
 
 .segment "KVARSB0"
 
@@ -161,6 +162,8 @@ ramcode:
 	sta debug_port
 	ldx ps2c
 	sta ps2q,x
+	lda #0
+	sta ps2err,x
 	inc ps2c
 
 @next_byte:
@@ -183,6 +186,18 @@ ramcode:
 	ora #bit_data ; DATA=1
 	sta port_data
 
+	; put error into queue
+	ldx ps2c
+	lda #1
+	sta ps2err,x
+	inc ps2c
+
+	; start with new byte
+	ldx #0
+	stx ps2parity
+	dex
+	stx ps2bits
+
 	php
 	cli
 
@@ -191,12 +206,6 @@ ramcode:
 	bne :- ; 5 clocks
 
 	plp
-
-	ldx #0
-	stx ps2c ; clear queue
-	stx ps2parity
-	dex
-	stx ps2bits
 
 	lda port_ddr,x ; set CLK and DATA as input
 	and #$ff-bit_clk-bit_data
@@ -212,27 +221,35 @@ ramcode_end:
 
 ;****************************************
 ; RECEIVE BYTE
-; out: A: byte (0 = none)
+; out: A: byte
 ;      Z: byte available
 ;           0: yes
 ;           1: no
-;      C:   0: parity OK
-;           1: parity error
+;      C:   0: byte OK
+;           1: byte error
 ;****************************************
 ps2_receive_byte:
 	lda ps2c
-	beq @1
-	php
-	sei
+	bne @1
+	clc
+	rts ; Z=1, C=0 -> no data, no error
+
+@1:	; TODO: mask NMI
+	lda ps2err
+	pha
 	ldy ps2q
 	ldx #0
 :	lda ps2q+1,x
 	sta ps2q,x
+	lda ps2err+1,x
+	sta ps2err,x
 	inx
 	cpx ps2c
 	bne :-
 	dec ps2c
-	plp
-	tya
-@1:	clc
+	; TODO: unmask NMI
+	pla
+	ror    ; C=error flag
+	tya    ; A=byte
+	ldx #1 ; Z=0
 	rts
