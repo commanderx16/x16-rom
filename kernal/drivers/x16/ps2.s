@@ -110,8 +110,7 @@ ramcode:
 ; *********************
 ; 0-7: data bit
 ; *********************
-	and #bit_data
-	cmp #bit_data
+	cmp #1
 	bcc :+
 	inc ps2parity
 :	ror ps2byte
@@ -128,7 +127,7 @@ ramcode:
 ; 8: parity bit
 ; *********************
 	ldx ps2parity
-	cmp #bit_data
+	cmp #1
 	bcc :+
 	inx
 :	txa
@@ -142,7 +141,7 @@ ramcode:
 ; *********************
 ; -1: start bit
 ; *********************
-	cmp #bit_data
+	cmp #1
 	bcc @inc_rti ; clear = OK
 	bra @error
 
@@ -150,7 +149,7 @@ ramcode:
 ; *********************
 ; 9: stop bit
 ; *********************
-	cmp #bit_data
+	cmp #1
 	bcc @error ; set = OK
 	; If the stop bit is incorrect, inhibiting communication
 	; at this late point won't cause a re-send from the
@@ -236,56 +235,4 @@ ps2_receive_byte:
 	plp
 	tya
 @1:	clc
-	rts
-
-; set input, bus idle
-	lda port_ddr,x ; set CLK and DATA as input
-	and #$ff-bit_clk-bit_data
-	sta port_ddr,x ; -> bus is idle, keyboard can start sending
-
-	lda #bit_clk+bit_data
-	ldy #10 * mhz
-:	dey
-	beq lc08c
-	bit port_data,x
-	bne :- ; wait for CLK=0 and DATA=0 (start bit)
-
-	lda #bit_clk
-lc044:	bit port_data,x ; wait for CLK=1 (not ready)
-	beq lc044
-	ldy #9 ; 9 bits including parity
-lc04a:	bit port_data,x
-	bne lc04a ; wait for CLK=0 (ready)
-	lda port_data,x
-	and #bit_data
-	cmp #bit_data
-	ror ps2byte ; save bit
-	lda #bit_clk
-lc058:	bit port_data,x
-	beq lc058 ; wait for CLK=1 (not ready)
-	dey
-	bne lc04a
-	rol ps2byte ; get parity bit into C
-lc061:	bit port_data,x
-	bne lc061 ; wait for CLK=0 (ready)
-lc065:	bit port_data,x
-	beq lc065 ; wait for CLK=1 (not ready)
-lc069:	lda ps2byte
-	php ; save parity
-lc07c:	lsr a ; calculate parity
-	bcc lc080
-	iny
-lc080:	cmp #0
-	bne lc07c
-	tya
-	plp ; transmitted parity
-	adc #1
-	lsr a ; C=0: parity OK
-	lda ps2byte
-	sta debug_port
-	ldy #1 ; Z=0
-	rts
-
-lc08c:	clc
-	lda #0 ; Z=1
 	rts
