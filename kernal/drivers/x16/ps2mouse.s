@@ -154,7 +154,8 @@ remove2:
 	bra error
 remove1:
 	ldy #1 ; error in byte #0
-error:	jmp ps2_remove_bytes
+error:	ldx #0
+	jmp ps2_remove_bytes
 
 _mouse_scan:
 	ldx #0

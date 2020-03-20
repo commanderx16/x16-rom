@@ -17,19 +17,19 @@ port_data =d2prb
 bit_data=1              ; 6522 IO port data bit mask  (PA0/PB0)
 bit_clk =2              ; 6522 IO port clock bit mask (PA1/PB1)
 
-ps2bits  = $9000
-ps2byte  = $9001
-ps2parity= $9002
-ps2tmp   = $90fd
-ps2r     = $90fe
-ps2w     = $90ff
+ps2bits  = $9000 ; 2 bytes
+ps2byte  = $9002 ; 2 bytes
+ps2parity= $9004 ; 2 bytes
+ps2r     = $9006 ; 2 bytes
+ps2w     = $9008 ; 2 bytes
+
+ps2tmp   = $900a
+
 ps2q     = $9800
-ps2err   = $9900
+ps2err   = $9a00
 
 .segment "KVARSB0"
 
-_ps2byte:
-	.res 1           ;    bit input
 
 .segment "PS2"
 
@@ -44,12 +44,16 @@ ps2_init:
 
 	lda #0
 	sta ps2r
+	sta ps2r+1
 	sta ps2w
+	sta ps2w+1
 
 	lda #$ff
 	sta ps2bits
+	sta ps2bits+1
 	lda #0
 	sta ps2parity
+	sta ps2parity+1
 
 	; VIA#2 CA1/CB1 IRQ: trigger on negative edge
 	lda d2pcr
@@ -94,32 +98,25 @@ VIA_IFR_CB1 = 16
 ramcode:
 ; NMI
 	pha
-	lda d2ifr
-	bit #VIA_IFR_CA1
-	beq @n_ca1
-
-; Port 0: keyboard
 	phx
-	ldx #1 ; offset of PA
-	bra @cont
-
-@n_ca1:
+	lda d2ifr
+	ldx #1 ; 1 = offset of PA
+	bit #VIA_IFR_CA1
+	bne @cont
+	dex    ; 0 = offset of PB
 	bit #VIA_IFR_CB1
-	bne @cb1
-
-; NMI button
+	bne @cont
+	; else: NMI button
+	plx
 	pla
 	; TODO
 	rti
 
-; Port 1: mouse
-@cb1:	phx
-	ldx #0 ; offset of PB
 @cont:
 	lda port_data,x
 	and #bit_data
 	phy
-	ldy ps2bits
+	ldy ps2bits,x
 	cpy #8
 	bcs @n_data_bit
 
@@ -128,10 +125,10 @@ ramcode:
 ; *********************
 	cmp #1
 	bcc :+
-	inc ps2parity
-:	ror ps2byte
+	inc ps2parity,x
+:	ror ps2byte,x
 @inc_rti:
-	inc ps2bits
+	inc ps2bits,x
 @pull_rti:
 	ply
 	plx
@@ -144,7 +141,7 @@ ramcode:
 ; *********************
 ; 8: parity bit
 ; *********************
-	ldy ps2parity
+	ldy ps2parity,x
 	cmp #1
 	bcc :+
 	iny
@@ -175,19 +172,18 @@ ramcode:
 	; byte and clear the queue.
 
 	; byte complete
-	lda ps2byte
+	lda ps2byte,x
 ;	sta debug_port
-	ldy ps2w
+	ldy ps2w,x
 	sta ps2q,y
 	lda #0
 	sta ps2err,y
-	inc ps2w
+	inc ps2w,x
 
-@next_byte:
 	lda #0
-	sta ps2parity
-	ldy #$ff
-	sty ps2bits
+	sta ps2parity,x
+	dec
+	sta ps2bits,x
 	jmp @pull_rti
 
 @error:
@@ -201,16 +197,16 @@ ramcode:
 	sta port_data,x
 
 	; put error into queue
-	ldy ps2w
+	ldy ps2w,x
 	lda #1
 	sta ps2err,y
-	inc ps2w
+	inc ps2w,x
 
 	; start with new byte
-	ldy #0
-	sty ps2parity
-	dey
-	sty ps2bits
+	lda #0
+	sta ps2parity,x
+	dec
+	sta ps2bits,x
 
 	php
 	cli
@@ -238,25 +234,11 @@ ramcode_end:
 ;      C:   0: byte OK
 ;           1: byte error
 ;****************************************
-ps2_receive_byte:
-	lda ps2r
-	cmp ps2w
-	bne @1
-	clc
-	rts ; Z=1, C=0 -> no data, no error
-
-@1:
-	ldx ps2r
-	lda ps2err,x
-	ror    ; C=error flag
-	lda ps2q,x
-	ldx #1 ; Z=0
-	rts
 
 ps2_peek_byte:
-	lda ps2w
+	lda ps2w,x
 	sec
-	sbc ps2r
+	sbc ps2r,x
 	sta ps2tmp
 	cpy ps2tmp
 	bcc @1
@@ -266,7 +248,7 @@ ps2_peek_byte:
 
 @1:	tya
 	clc
-	adc ps2r
+	adc ps2r,x
 	tay
 	lda ps2err,y
 	ror       ; C=error flag
@@ -279,6 +261,9 @@ ps2_remove_bytes:
 @loop:
 	tya
 	clc
-	adc ps2r
-	sta ps2r
+	adc ps2r,x
+	sta ps2r,x
 	rts
+
+ps2_receive_byte:
+	brk
