@@ -16,6 +16,7 @@
 .import screen_init
 .import joystick_scan
 .import mouse_scan
+.import kbd_scan
 .import cursor_blink
 .import irq_ack
 .import mouse_update_position
@@ -46,6 +47,7 @@ puls1	jmp (cinv)      ;...irq
 key
 	jsr mouse_scan
 	jsr mouse_update_position ; (do this first to avoid sprite tearing)
+	jsr kbd_scan
 	jsr joystick_scan
 	jsr clock_update
 	jsr cursor_blink

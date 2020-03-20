@@ -9,7 +9,7 @@
 ; data
 .importzp mhz ; [declare]
 
-.export ps2_init, ps2_receive_byte
+.export ps2_init
 .export ps2ena, ps2dis
 
 port_ddr  =d2ddrb
@@ -173,7 +173,7 @@ ramcode:
 
 	; byte complete
 	lda ps2byte,x
-;	sta debug_port
+	sta debug_port
 	ldy ps2w,x
 	sta ps2q,y
 	lda #0
@@ -265,5 +265,3 @@ ps2_remove_bytes:
 	sta ps2r,x
 	rts
 
-ps2_receive_byte:
-	brk

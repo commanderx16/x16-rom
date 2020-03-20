@@ -7,7 +7,6 @@
 .include "io.inc"
 
 ; code
-.import ps2_receive_byte; [ps2]
 .import joystick_from_ps2; [joystick]
 ; data
 .import mode; [declare]
@@ -210,6 +209,8 @@ is_stop:
 kbdbuf_put2:
 	jmp kbdbuf_put
 
+.import ps2_peek_byte, ps2_remove_bytes
+
 ;****************************************
 ; RECEIVE SCANCODE:
 ; out: X: prefix (E0, E1; 0 = none)
@@ -221,13 +222,30 @@ kbdbuf_put2:
 ;           1: no
 ;****************************************
 receive_scancode:
-	ldx #1
-	jsr ps2_receive_byte
-	bcs rcvsc1 ; parity error
-	bne rcvsc2 ; non-zero code
-rcvsc1:	lda #0
+	ldx #1 ; port
+	ldy #0 ; index
+	jsr ps2_peek_byte
+	bne :+
+	; no data
 	rts
-rcvsc2:	cmp #$e0 ; extend prefix 1
+
+:	php
+	pha
+	ldx #1 ; port
+	ldy #1 ; count
+	jsr ps2_remove_bytes
+	pla
+	plp
+	bcc @n_error
+
+	; error, clear all flags
+	stz prefix
+	stz brkflg
+	lda #0
+	rts
+
+@n_error:
+	cmp #$e0 ; extend prefix 1
 	beq rcvsc3
 	cmp #$e1 ; extend prefix 2
 	bne rcvsc4
@@ -240,9 +258,8 @@ rcvsc4:	cmp #$f0
 rcvsc5:	pha
 	lsr brkflg ; break bit into C
 	ldx prefix
-	lda #0
-	sta prefix
-	sta brkflg
+	stz prefix
+	stz brkflg
 	pla ; lower byte into A
 	rts
 
