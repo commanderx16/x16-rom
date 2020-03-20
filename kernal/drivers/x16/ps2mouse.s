@@ -32,6 +32,11 @@ mousey:	.res 2           ;    y coordinate
 mousebt:
 	.res 1           ;    buttons (1: left, 2: right, 4: third)
 
+tmp_mousebt:
+	.res 1
+tmp_mousex:
+	.res 2
+
 .segment "PS2MOUSE"
 
 mouse_init:
@@ -167,7 +172,7 @@ _mouse_scan:
 	bne @a
 	txa
 .endif
-	pha ; mousebt - don't commit yet
+	sta tmp_mousebt ; don't commit yet
 
 	ldx #0
 	ldy #1
@@ -175,26 +180,24 @@ _mouse_scan:
 	bcc @ok1
 
 	; error in byte #1
-	pla ; throw away mousebt
 	ldy #2
 	jmp ps2_remove_bytes
 
 @ok1:	bne @data1
 
 @eee1:	; no byte #1 yet
-	pla ; throw away mousebt
 	rts
 
 @data1:	clc
 	adc mousex
-	pha ; mousex - don't commit yet
+	sta tmp_mousex ; don't commit yet
 
-	lda mousebt
+	lda tmp_mousebt
 	and #$10
 	beq :+
 	lda #$ff
 :	adc mousex+1
-	pha ; mousex+1 - don't commit yet
+	sta tmp_mousex+1 ; don't commit yet
 
 	ldx #0
 	ldy #2
@@ -202,42 +205,34 @@ _mouse_scan:
 	bcc @ok2
 
 	; error in byte #2
-	pla ; throw away mousex+1
-	pla ; throw away mousex
-	pla ; throw away mousebt
 	ldy #3
 	jmp ps2_remove_bytes
 
 @ok2:	bne @data2
 
 @eee2:	; no byte #2 yet
-	pla ; throw away mousebt
-	pla ; throw away mousex
-	pla ; throw away mousebt
 	rts
 
 @data2:	clc
 	adc mousey
 	sta mousey
 
-	lda mousebt
+	lda tmp_mousebt
 	and #$20
 	beq :+
 	lda #$ff
 :	adc mousey+1
 	sta mousey+1
 
-	lda mousebt
+	lda tmp_mousebt
 	and #7
 	sta mousebt
 
 	; commit mousebt, mousex, mousex+1
-	pla
+	lda tmp_mousex+1
 	sta mousex+1
-	pla
+	lda tmp_mousex
 	sta mousex
-	pla
-	sta mousebt
 
 	ldy #3
 	jsr ps2_remove_bytes

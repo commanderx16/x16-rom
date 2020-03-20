@@ -165,7 +165,7 @@ ramcode:
 
 	; byte complete
 	lda ps2byte
-	sta debug_port
+;	sta debug_port
 	ldx ps2w
 	sta ps2q,x
 	lda #0
@@ -268,6 +268,7 @@ ps2_peek_byte:
 	lda ps2err,y
 	ror       ; C=error flag
 	lda ps2q,y; A=byte
+	sta debug_port
 	ldx #1    ; Z=0
 	rts
 
