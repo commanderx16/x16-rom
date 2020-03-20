@@ -32,10 +32,12 @@ mousey:	.res 2           ;    y coordinate
 mousebt:
 	.res 1           ;    buttons (1: left, 2: right, 4: third)
 
-tmp_mousebt:
+tmp_byte0:
 	.res 1
-tmp_mousex:
-	.res 2
+tmp_byte1:
+	.res 1
+tmp_byte2:
+	.res 1
 
 .segment "PS2MOUSE"
 
@@ -140,99 +142,64 @@ mouse_scan:
 	KVARS_END
 	rts
 
+not_enough_data:
+	rts
+
+
+error2:	ldy #3 ; ; error in byte #2
+	bra error
+error1:	ldy #2 ; error in byte #1
+	bra error
+error0:	ldy #1 ; error in byte #0
+error:	jmp ps2_remove_bytes
+
 _mouse_scan:
 	ldx #0
-	ldy #0
-	jsr ps2_peek_byte
-	bcc @ok0
-
-	; error in byte #0
-	ldy #1
-	jmp ps2_remove_bytes
-
-@ok0:	bne @data0
-
-	; no byte #0 yet
-	rts
-
-@data0:
-.if 0
-	; heuristic to test we're not out
-	; of sync:
-	; * overflow needs to be 0
-	; * bit #3 needs to be 1
-	; The following codes sent by
-	; the mouse will also be skipped
-	; by this logic:
-	; * $aa: self-test passed
-	; * $fa: command acknowledged
-	tax
-	and #$c8
-	cmp #$08
-	bne @a
-	txa
-.endif
-	sta tmp_mousebt ; don't commit yet
+	ldy #2
+	jsr ps2_peek_byte ; byte #2
+	sta tmp_byte2
+	bcs error2
+	beq not_enough_data
 
 	ldx #0
 	ldy #1
-	jsr ps2_peek_byte
-	bcc @ok1
+	jsr ps2_peek_byte ; byte #1
+	sta tmp_byte1
+	bcs error1
 
-	; error in byte #1
-	ldy #2
-	jmp ps2_remove_bytes
+	ldx #0
+	ldy #0
+	jsr ps2_peek_byte ; byte #0
+	sta tmp_byte0
+	bcs error0
 
-@ok1:	bne @data1
-
-@eee1:	; no byte #1 yet
-	rts
-
-@data1:	clc
+	lda tmp_byte1
+	clc
 	adc mousex
-	sta tmp_mousex ; don't commit yet
+	sta mousex
 
-	lda tmp_mousebt
+	lda tmp_byte0
 	and #$10
 	beq :+
 	lda #$ff
 :	adc mousex+1
-	sta tmp_mousex+1 ; don't commit yet
+	sta mousex+1
 
-	ldx #0
-	ldy #2
-	jsr ps2_peek_byte
-	bcc @ok2
-
-	; error in byte #2
-	ldy #3
-	jmp ps2_remove_bytes
-
-@ok2:	bne @data2
-
-@eee2:	; no byte #2 yet
-	rts
-
-@data2:	clc
+	lda tmp_byte2
+	clc
 	adc mousey
 	sta mousey
 
-	lda tmp_mousebt
+	lda tmp_byte0
 	and #$20
 	beq :+
 	lda #$ff
 :	adc mousey+1
 	sta mousey+1
 
-	lda tmp_mousebt
+	lda tmp_byte0
 	and #7
 	sta mousebt
-
-	; commit mousebt, mousex, mousex+1
-	lda tmp_mousex+1
-	sta mousex+1
-	lda tmp_mousex
-	sta mousex
 
 	ldy #3
 	jsr ps2_remove_bytes
@@ -280,6 +247,26 @@ _mouse_scan:
 
 	; check for another packet
 	jmp _mouse_scan
+
+
+.if 0
+	; heuristic to test we're not out
+	; of sync (on byte 0):
+	; * overflow needs to be 0
+	; * bit #3 needs to be 1
+	; The following codes sent by
+	; the mouse will also be skipped
+	; by this logic:
+	; * $aa: self-test passed
+	; * $fa: command acknowledged
+	tax
+	and #$c8
+	cmp #$08
+	bne @a
+	txa
+.endif
+
+
 
 mouse_update_position:
 	KVARS_START
