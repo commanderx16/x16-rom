@@ -181,7 +181,7 @@ _mouse_scan:
 
 @ok1:	bne @data1
 
-	; no byte #1 yet
+@eee1:	; no byte #1 yet
 	pla ; throw away mousebt
 	rts
 
@@ -210,7 +210,7 @@ _mouse_scan:
 
 @ok2:	bne @data2
 
-	; no byte #2 yet
+@eee2:	; no byte #2 yet
 	pla ; throw away mousebt
 	pla ; throw away mousex
 	pla ; throw away mousebt

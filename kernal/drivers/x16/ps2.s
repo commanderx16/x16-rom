@@ -20,9 +20,11 @@ bit_clk =2              ; 6522 IO port clock bit mask (PA1/PB1)
 ps2bits  = $9000
 ps2byte  = $9001
 ps2parity= $9002
-ps2c     = $90ff
-ps2q     = $9100
-ps2err   = $9180
+ps2tmp   = $90fd
+ps2r     = $90fe
+ps2w     = $90ff
+ps2q     = $9800
+ps2err   = $9900
 
 .segment "KVARSB0"
 
@@ -39,6 +41,10 @@ ps2_init:
 	inx
 	cpx #ramcode_end - ramcode
 	bne :-
+
+	lda #0
+	sta ps2r
+	sta ps2w
 
 	lda #$ff
 	sta ps2bits
@@ -160,11 +166,11 @@ ramcode:
 	; byte complete
 	lda ps2byte
 	sta debug_port
-	ldx ps2c
+	ldx ps2w
 	sta ps2q,x
 	lda #0
 	sta ps2err,x
-	inc ps2c
+	inc ps2w
 
 @next_byte:
 	lda #0
@@ -187,10 +193,10 @@ ramcode:
 	sta port_data
 
 	; put error into queue
-	ldx ps2c
+	ldx ps2w
 	lda #1
 	sta ps2err,x
-	inc ps2c
+	inc ps2w
 
 	; start with new byte
 	ldx #0
@@ -230,54 +236,45 @@ ramcode_end:
 ;           1: byte error
 ;****************************************
 ps2_receive_byte:
-	lda ps2c
+	lda ps2r
+	cmp ps2w
 	bne @1
 	clc
 	rts ; Z=1, C=0 -> no data, no error
 
-@1:	; TODO: mask NMI
-	lda ps2err
-	pha
-	ldy ps2q
-	ldx #0
-:	lda ps2q+1,x
-	sta ps2q,x
-	lda ps2err+1,x
-	sta ps2err,x
-	inx
-	cpx ps2c
-	bne :-
-	dec ps2c
-	; TODO: unmask NMI
-	pla
+@1:
+	ldx ps2r
+	lda ps2err,x
 	ror    ; C=error flag
-	tya    ; A=byte
+	lda ps2q,x
 	ldx #1 ; Z=0
 	rts
 
 ps2_peek_byte:
-	cpy ps2c
+	lda ps2w
+	sec
+	sbc ps2r
+	sta ps2tmp
+	cpy ps2tmp
 	bcc @1
 	lda #0
 	clc
 	rts ; Z=1, C=0 -> no data, no error
 
-@1:	lda ps2err,y
+@1:	tya
+	clc
+	adc ps2r
+	tay
+	lda ps2err,y
 	ror       ; C=error flag
 	lda ps2q,y; A=byte
 	ldx #1    ; Z=0
 	rts
 
 ps2_remove_bytes:
-@loop:	ldx #0
-:	lda ps2q+1,x
-	sta ps2q,x
-	lda ps2err+1,x
-	sta ps2err,x
-	inx
-	cpx ps2c
-	bne :-
-	dec ps2c
-	dey
-	bne @loop
+@loop:
+	tya
+	clc
+	adc ps2r
+	sta ps2r
 	rts
