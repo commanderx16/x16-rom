@@ -10,6 +10,7 @@
 
 ; code
 .import ps2_receive_byte; [ps2]
+.import ps2_peek_byte, ps2_remove_bytes
 .import ps2ena, ps2dis
 
 .import screen_save_state
@@ -136,11 +137,20 @@ mouse_scan:
 
 _mouse_scan:
 	ldx #0
-	jsr ps2_receive_byte
-	bcs @a ; parity error
-	bne @b ; no data
-@a:	rts
-@b:
+	ldy #0
+	jsr ps2_peek_byte
+	bcc @ok0
+
+	; error in byte #0
+	ldy #1
+	jmp ps2_remove_bytes
+
+@ok0:	bne @data0
+
+	; no byte #0 yet
+	rts
+
+@data0:
 .if 0
 	; heuristic to test we're not out
 	; of sync:
@@ -157,34 +167,56 @@ _mouse_scan:
 	bne @a
 	txa
 .endif
-	pha ; mousebt
+	pha ; mousebt - don't commit yet
 
 	ldx #0
-	jsr ps2_receive_byte
-	bcc :+
-	pla ; trash mousebt
+	ldy #1
+	jsr ps2_peek_byte
+	bcc @ok1
+
+	; error in byte #1
+	pla ; throw away mousebt
+	ldy #2
+	jmp ps2_remove_bytes
+
+@ok1:	bne @data1
+
+	; no byte #1 yet
+	pla ; throw away mousebt
 	rts
 
-	clc
+@data1:	clc
 	adc mousex
-	pha ; mousex
+	pha ; mousex - don't commit yet
 
 	lda mousebt
 	and #$10
 	beq :+
 	lda #$ff
 :	adc mousex+1
-	pha ; mousex+1
+	pha ; mousex+1 - don't commit yet
 
 	ldx #0
-	jsr ps2_receive_byte
-	bcc :+
-	pla ; trash mousex+1
-	pla ; trash mousex
-	pla ; trash mousebt
+	ldy #2
+	jsr ps2_peek_byte
+	bcc @ok2
+
+	; error in byte #2
+	pla ; throw away mousex+1
+	pla ; throw away mousex
+	pla ; throw away mousebt
+	ldy #3
+	jmp ps2_remove_bytes
+
+@ok2:	bne @data2
+
+	; no byte #2 yet
+	pla ; throw away mousebt
+	pla ; throw away mousex
+	pla ; throw away mousebt
 	rts
 
-:	clc
+@data2:	clc
 	adc mousey
 	sta mousey
 
@@ -199,12 +231,16 @@ _mouse_scan:
 	and #7
 	sta mousebt
 
-	; we can't hold IRQs off for too long, otherwise we'll miss more
-	; PS/2 IRQs (e.g. keyboard), so let's give the IRQ a chance
-	; XXX if events keep coming at this rate, the stack could overflow
-	php
-	cli
-	plp
+	; commit mousebt, mousex, mousex+1
+	pla
+	sta mousex+1
+	pla
+	sta mousex
+	pla
+	sta mousebt
+
+	ldy #3
+	jsr ps2_remove_bytes
 
 ; check bounds
 	ldy mousel
@@ -245,7 +281,10 @@ _mouse_scan:
 @4a:	bcs @5a
 	sty mousey
 	stx mousey+1
-@5a:	rts
+@5a:
+
+	; check for another packet
+	jmp _mouse_scan
 
 mouse_update_position:
 	KVARS_START

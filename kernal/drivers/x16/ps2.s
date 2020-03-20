@@ -219,6 +219,7 @@ ramcode:
 
 ramcode_end:
 
+.export ps2_peek_byte, ps2_remove_bytes
 ;****************************************
 ; RECEIVE BYTE
 ; out: A: byte
@@ -252,4 +253,31 @@ ps2_receive_byte:
 	ror    ; C=error flag
 	tya    ; A=byte
 	ldx #1 ; Z=0
+	rts
+
+ps2_peek_byte:
+	cpy ps2c
+	bcc @1
+	lda #0
+	clc
+	rts ; Z=1, C=0 -> no data, no error
+
+@1:	lda ps2err,y
+	ror       ; C=error flag
+	lda ps2q,y; A=byte
+	ldx #1    ; Z=0
+	rts
+
+ps2_remove_bytes:
+@loop:	ldx #0
+:	lda ps2q+1,x
+	sta ps2q,x
+	lda ps2err+1,x
+	sta ps2err,x
+	inx
+	cpx ps2c
+	bne :-
+	dec ps2c
+	dey
+	bne @loop
 	rts
