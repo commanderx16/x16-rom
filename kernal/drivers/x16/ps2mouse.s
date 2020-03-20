@@ -146,32 +146,39 @@ not_enough_data:
 	rts
 
 
-error2:	ldy #3 ; ; error in byte #2
+remove3:
+	ldy #3 ; ; error in byte #2
 	bra error
-error1:	ldy #2 ; error in byte #1
+remove2:
+	ldy #2 ; error in byte #1
 	bra error
-error0:	ldy #1 ; error in byte #0
+remove1:
+	ldy #1 ; error in byte #0
 error:	jmp ps2_remove_bytes
 
 _mouse_scan:
 	ldx #0
-	ldy #2
-	jsr ps2_peek_byte ; byte #2
-	sta tmp_byte2
-	bcs error2
+	ldy #0
+	jsr ps2_peek_byte ; byte #0
+	bcs remove1 ; error
 	beq not_enough_data
+	sta tmp_byte0
 
 	ldx #0
 	ldy #1
 	jsr ps2_peek_byte ; byte #1
+	bcs remove2 ; error
+	beq not_enough_data
 	sta tmp_byte1
-	bcs error1
 
 	ldx #0
-	ldy #0
-	jsr ps2_peek_byte ; byte #0
-	sta tmp_byte0
-	bcs error0
+	ldy #2
+	jsr ps2_peek_byte ; byte #2
+	bcs remove3 ; error
+	beq not_enough_data
+	sta tmp_byte2
+
+	jsr remove3 ; remove 3 bytes from queue
 
 	lda tmp_byte1
 	clc
@@ -200,9 +207,6 @@ _mouse_scan:
 	lda tmp_byte0
 	and #7
 	sta mousebt
-
-	ldy #3
-	jsr ps2_remove_bytes
 
 ; check bounds
 	ldy mousel

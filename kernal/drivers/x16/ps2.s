@@ -88,30 +88,39 @@ ps2dis:	lda port_ddr,x
 	sta port_data,x
 	rts
 
+VIA_IFR_CA1 = 2
+VIA_IFR_CB1 = 16
+
 ramcode:
 ; NMI
 	pha
-.if 0
 	lda d2ifr
-	bit #$02
-	beq @n_kbd
+	bit #VIA_IFR_CA1
+	beq @n_ca1
 
 ; Port 0: keyboard
-	lda port_data
-	; XXX TODO
+	phx
+	ldx #1 ; offset of PA
+	bra @cont
+
+@n_ca1:
+	bit #VIA_IFR_CB1
+	bne @cb1
+
+; NMI button
 	pla
+	; TODO
 	rti
 
-@n_kbd:
-	bit #$10
-	beq @n_mouse
-.endif
 ; Port 1: mouse
-	lda port_data
+@cb1:	phx
+	ldx #0 ; offset of PB
+@cont:
+	lda port_data,x
 	and #bit_data
-	phx
-	ldx ps2bits
-	cpx #8
+	phy
+	ldy ps2bits
+	cpy #8
 	bcs @n_data_bit
 
 ; *********************
@@ -123,6 +132,8 @@ ramcode:
 :	ror ps2byte
 @inc_rti:
 	inc ps2bits
+@pull_rti:
+	ply
 	plx
 	pla
 	rti
@@ -133,11 +144,11 @@ ramcode:
 ; *********************
 ; 8: parity bit
 ; *********************
-	ldx ps2parity
+	ldy ps2parity
 	cmp #1
 	bcc :+
-	inx
-:	txa
+	iny
+:	tya
 	ror
 	bcs @inc_rti
 	bra @error
@@ -166,49 +177,46 @@ ramcode:
 	; byte complete
 	lda ps2byte
 ;	sta debug_port
-	ldx ps2w
-	sta ps2q,x
+	ldy ps2w
+	sta ps2q,y
 	lda #0
-	sta ps2err,x
+	sta ps2err,y
 	inc ps2w
 
 @next_byte:
 	lda #0
 	sta ps2parity
-	ldx #$ff
-	stx ps2bits
-@pull_rti:
-	plx
-	pla
-	rti
+	ldy #$ff
+	sty ps2bits
+	jmp @pull_rti
 
 @error:
 	; inhibit for 100 µs
-	lda port_ddr
+	lda port_ddr,x
 	ora #bit_clk+bit_data
-	sta port_ddr ; set CLK and DATA as output
-	lda port_data
+	sta port_ddr,x ; set CLK and DATA as output
+	lda port_data,x
 	and #$ff - bit_clk ; CLK=0
 	ora #bit_data ; DATA=1
-	sta port_data
+	sta port_data,x
 
 	; put error into queue
-	ldx ps2w
+	ldy ps2w
 	lda #1
-	sta ps2err,x
+	sta ps2err,y
 	inc ps2w
 
 	; start with new byte
-	ldx #0
-	stx ps2parity
-	dex
-	stx ps2bits
+	ldy #0
+	sty ps2parity
+	dey
+	sty ps2bits
 
 	php
 	cli
 
-	ldx #100/5*mhz
-:	dex
+	ldy #100/5*mhz
+:	dey
 	bne :- ; 5 clocks
 
 	plp
@@ -217,11 +225,6 @@ ramcode:
 	and #$ff-bit_clk-bit_data
 	sta port_ddr,x ; -> bus is idle, device can start sending
 	bra @pull_rti
-
-@n_mouse:
-	; NMI button
-	pla
-	rti
 
 ramcode_end:
 
