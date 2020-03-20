@@ -195,7 +195,7 @@ ramcode:
 	sta ps2parity,x
 	dec
 	sta ps2bits,x
-	jmp @pull_rti
+	bra @pull_rti
 
 @error:
 	; inhibit for 100 µs
