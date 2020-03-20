@@ -172,11 +172,22 @@ ramcode:
 	; byte and clear the queue.
 
 	; byte complete
+	txa
+	clc
+	adc #>ps2q
+	sta @ps2qp+1
+	txa
+	clc
+	adc #>ps2err
+	sta @ps2errp+1
+
 	lda ps2byte,x
 	sta debug_port
 	ldy ps2w,x
+@ps2qp = *+1
 	sta ps2q,y
 	lda #0
+@ps2errp = *+1
 	sta ps2err,y
 	inc ps2w,x
 
@@ -220,14 +231,14 @@ ramcode:
 	lda port_ddr,x ; set CLK and DATA as input
 	and #$ff-bit_clk-bit_data
 	sta port_ddr,x ; -> bus is idle, device can start sending
-	bra @pull_rti
+	jmp @pull_rti
 
 ramcode_end:
 
 .export ps2_peek_byte, ps2_remove_bytes
 ;****************************************
 ; RECEIVE BYTE
-; out: A: byte
+; out: A: byte (0 if none available)
 ;      Z: byte available
 ;           0: yes
 ;           1: no
@@ -246,12 +257,24 @@ ps2_peek_byte:
 	clc
 	rts ; Z=1, C=0 -> no data, no error
 
-@1:	tya
+@1:
+	txa
+	clc
+	adc #>ps2q
+	sta @ps2qp+1
+	txa
+	clc
+	adc #>ps2err
+	sta @ps2errp+1
+
+	tya
 	clc
 	adc ps2r,x
 	tay
+@ps2errp = *+1
 	lda ps2err,y
 	ror       ; C=error flag
+@ps2qp = *+1
 	lda ps2q,y; A=byte
 	sta debug_port
 	ldx #1    ; Z=0
