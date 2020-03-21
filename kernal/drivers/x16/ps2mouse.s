@@ -156,16 +156,13 @@ _mouse_scan:
 	ldx #0
 	ldy #0
 	jsr ps2_peek_byte
-	bne :+
-	; no data
-	rts
-
-:	bcc @n_error
+	beq @rts ; no data
+	bcc @n_error
 
 	; error, clear all flags
 	lda #3
 	sta tmp_counter
-	rts
+@rts:	rts
 
 @n_error:
 	ldx tmp_counter

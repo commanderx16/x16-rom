@@ -225,36 +225,31 @@ receive_scancode:
 	ldx #1 ; port
 	ldy #0 ; index
 	jsr ps2_peek_byte
-	bne :+
-	; no data
-	rts
-
-:	bcc @n_error
+	beq @rts ; no data
+	bcc @n_error
 
 	; error, clear all flags
-	stz prefix
-	stz brkflg
 	lda #0
-	rts
+	bra @reset
 
 @n_error:
 	cmp #$e0 ; extend prefix 1
-	beq rcvsc3
+	beq @3
 	cmp #$e1 ; extend prefix 2
-	bne rcvsc4
-rcvsc3:	sta prefix
+	bne @4
+@3:	sta prefix
 	beq receive_scancode ; always
-rcvsc4:	cmp #$f0
-	bne rcvsc5
+@4:	cmp #$f0
+	bne @5
 	rol brkflg ; set to 1
 	bne receive_scancode ; always
-rcvsc5:	pha
+@5:	pha
 	lsr brkflg ; break bit into C
 	ldx prefix
-	stz prefix
-	stz brkflg
 	pla ; lower byte into A
-	rts
+@reset:	stz prefix
+	stz brkflg
+@rts:	rts
 
 ;****************************************
 ; RECEIVE SCANCODE AFTER shflag

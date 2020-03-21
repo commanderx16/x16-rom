@@ -1,8 +1,7 @@
 ;----------------------------------------------------------------------
 ; Generic PS/2 Port Driver
 ;----------------------------------------------------------------------
-; (C)2019 Michael Steil, License: 2-clause BSD
-; (based on "AT-Keyboard" by İlker Fıçıcılar)
+; (C)2020 Michael Steil, License: 2-clause BSD
 
 .include "io.inc"
 
@@ -179,7 +178,7 @@ ramcode:
 	txa
 	clc
 	adc #>ps2err
-	sta @ps2errp+1
+	sta @ps2errp+1 ; XXX this is not reentry-safe
 
 	lda ps2byte,x
 	sta debug_port
@@ -277,20 +276,10 @@ ps2_peek_byte:
 @ps2qp = *+1
 	lda ps2q,y; A=byte
 	sta debug_port
-:	php
-	pha
-	ldy #1 ; count
-	jsr ps2_remove_bytes
-	pla
-	plp
+	inc ps2r,x
 	ldx #1    ; Z=0
 	rts
 
 ps2_remove_bytes:
-@loop:
-	tya
-	clc
-	adc ps2r,x
-	sta ps2r,x
 	rts
 
