@@ -34,6 +34,8 @@ ps2err1  = $9b00
 
 ; inhibit PS/2 communication on both ports
 ps2_init:
+	jsr ps2reset_all
+
 	ldx #0
 :	lda ramcode,x
 	sta $9200,x
@@ -41,18 +43,18 @@ ps2_init:
 	cpx #ramcode_end - ramcode
 	bne :-
 
-	lda #0
-	sta ps2r
-	sta ps2r+1
-	sta ps2w
-	sta ps2w+1
+	stz ps2r
+	stz ps2r+1
+	stz ps2w
+	stz ps2w+1
 
 	lda #$ff
 	sta ps2bits
 	sta ps2bits+1
-	lda #0
-	sta ps2parity
-	sta ps2parity+1
+	stz ps2parity
+	stz ps2parity+1
+
+	jsr ps2dis_all
 
 	; VIA#2 CA1/CB1 IRQ: trigger on negative edge
 	lda d2pcr
@@ -62,10 +64,10 @@ ps2_init:
 	lda #%10010010
 	sta d2ier
 
+	; enable keyboard
 	ldx #1 ; keyboard
-	jsr ps2ena
-	ldx #0 ; mouse
-	jmp ps2dis
+	jmp ps2ena
+	; keep mouse disabled by default
 
 ;****************************************
 ps2ena_all:
@@ -88,6 +90,20 @@ ps2dis:	lda port_ddr,x
 	lda port_data,x
 	and #$ff - bit_clk ; CLK=0
 	ora #bit_data ; DATA=1
+	sta port_data,x
+	rts
+
+;****************************************
+ps2reset_all:
+	ldx #1 ; PA: keyboard
+	jsr ps2reset
+	dex    ; PB: mouse
+ps2reset:
+	lda port_ddr,x
+	ora #bit_clk+bit_data
+	sta port_ddr,x ; set CLK and DATA as output
+	lda port_data,x
+	and #$ff - bit_clk - bit_data ; CLK=0, DATA=0
 	sta port_data,x
 	rts
 
@@ -276,7 +292,3 @@ ps2_get_byte:
 	inc ps2r,x
 	ldx #1    ; Z=0
 	rts
-
-ps2_remove_bytes:
-	rts
-
