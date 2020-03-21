@@ -10,7 +10,7 @@
 
 ; code
 .import ps2_receive_byte; [ps2]
-.import ps2_peek_byte
+.import ps2_get_byte
 .import ps2ena, ps2dis
 
 .import screen_save_state
@@ -154,8 +154,7 @@ not_enough_data:
 
 _mouse_scan:
 	ldx #0
-	ldy #0
-	jsr ps2_peek_byte
+	jsr ps2_get_byte
 	beq @rts ; no data
 	bcc @n_error
 

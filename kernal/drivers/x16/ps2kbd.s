@@ -209,7 +209,7 @@ is_stop:
 kbdbuf_put2:
 	jmp kbdbuf_put
 
-.import ps2_peek_byte
+.import ps2_get_byte
 
 ;****************************************
 ; RECEIVE SCANCODE:
@@ -223,8 +223,7 @@ kbdbuf_put2:
 ;****************************************
 receive_scancode:
 	ldx #1 ; port
-	ldy #0 ; index
-	jsr ps2_peek_byte
+	jsr ps2_get_byte
 	beq @rts ; no data
 	bcc @n_error
 

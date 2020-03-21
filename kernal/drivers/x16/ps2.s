@@ -22,8 +22,6 @@ ps2parity= $9004 ; 2 bytes
 ps2r     = $9006 ; 2 bytes
 ps2w     = $9008 ; 2 bytes
 
-ps2tmp   = $900a
-
 ps2q     = $9800
 ps2err   = $9a00
 
@@ -234,7 +232,7 @@ ramcode:
 
 ramcode_end:
 
-.export ps2_peek_byte
+.export ps2_get_byte
 ;****************************************
 ; RECEIVE BYTE
 ; out: A: byte (0 if none available)
@@ -244,20 +242,15 @@ ramcode_end:
 ;      C:   0: byte OK
 ;           1: byte error
 ;****************************************
-
-ps2_peek_byte:
+ps2_get_byte:
 	lda ps2w,x
-	sec
-	sbc ps2r,x
-	sta ps2tmp
-	cpy ps2tmp
-	bcc @1
+	cmp ps2r,x
+	bne @1
 	lda #0
 	clc
 	rts ; Z=1, C=0 -> no data, no error
 
-@1:
-	txa
+@1:	txa
 	clc
 	adc #>ps2q
 	sta @ps2qp+1
@@ -266,10 +259,7 @@ ps2_peek_byte:
 	adc #>ps2err
 	sta @ps2errp+1
 
-	tya
-	clc
-	adc ps2r,x
-	tay
+	ldy ps2r,x
 @ps2errp = *+1
 	lda ps2err,y
 	ror       ; C=error flag
