@@ -235,7 +235,7 @@ ramcode:
 
 ramcode_end:
 
-.export ps2_peek_byte, ps2_remove_bytes
+.export ps2_peek_byte
 ;****************************************
 ; RECEIVE BYTE
 ; out: A: byte (0 if none available)
@@ -277,6 +277,12 @@ ps2_peek_byte:
 @ps2qp = *+1
 	lda ps2q,y; A=byte
 	sta debug_port
+:	php
+	pha
+	ldy #1 ; count
+	jsr ps2_remove_bytes
+	pla
+	plp
 	ldx #1    ; Z=0
 	rts
 

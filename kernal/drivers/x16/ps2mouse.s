@@ -10,7 +10,7 @@
 
 ; code
 .import ps2_receive_byte; [ps2]
-.import ps2_peek_byte, ps2_remove_bytes
+.import ps2_peek_byte
 .import ps2ena, ps2dis
 
 .import screen_save_state
@@ -152,17 +152,6 @@ not_enough_data:
 	rts
 
 
-remove3:
-	ldy #3 ; ; error in byte #2
-	bra error
-remove2:
-	ldy #2 ; error in byte #1
-	bra error
-remove1:
-	ldy #1 ; error in byte #0
-error:	ldx #0
-	jmp ps2_remove_bytes
-
 _mouse_scan:
 	ldx #0
 	ldy #0
@@ -171,14 +160,7 @@ _mouse_scan:
 	; no data
 	rts
 
-:	php
-	pha
-	ldx #0 ; port
-	ldy #1 ; count
-	jsr ps2_remove_bytes
-	pla
-	plp
-	bcc @n_error
+:	bcc @n_error
 
 	; error, clear all flags
 	lda #3

@@ -209,7 +209,7 @@ is_stop:
 kbdbuf_put2:
 	jmp kbdbuf_put
 
-.import ps2_peek_byte, ps2_remove_bytes
+.import ps2_peek_byte
 
 ;****************************************
 ; RECEIVE SCANCODE:
@@ -229,14 +229,7 @@ receive_scancode:
 	; no data
 	rts
 
-:	php
-	pha
-	ldx #1 ; port
-	ldy #1 ; count
-	jsr ps2_remove_bytes
-	pla
-	plp
-	bcc @n_error
+:	bcc @n_error
 
 	; error, clear all flags
 	stz prefix
