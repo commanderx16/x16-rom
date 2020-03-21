@@ -32,11 +32,14 @@ mousey:	.res 2           ;    y coordinate
 mousebt:
 	.res 1           ;    buttons (1: left, 2: right, 4: third)
 
-tmp_byte0:
+tmp_bytes:
+tmp_byte2:
 	.res 1
 tmp_byte1:
 	.res 1
-tmp_byte2:
+tmp_byte0:
+	.res 1
+tmp_counter:
 	.res 1
 
 .segment "PS2MOUSE"
@@ -60,6 +63,9 @@ _mouse_init:
 	sta mouseb
 	lda #>480
 	sta mouseb+1
+
+	lda #3
+	sta tmp_counter
 
 	ldx #0
 	jmp ps2dis
@@ -160,26 +166,34 @@ error:	ldx #0
 _mouse_scan:
 	ldx #0
 	ldy #0
-	jsr ps2_peek_byte ; byte #0
-	bcs remove1 ; error
-	beq not_enough_data
-	sta tmp_byte0
+	jsr ps2_peek_byte
+	bne :+
+	; no data
+	rts
 
-	ldx #0
-	ldy #1
-	jsr ps2_peek_byte ; byte #1
-	bcs remove2 ; error
-	beq not_enough_data
-	sta tmp_byte1
+:	php
+	pha
+	ldx #0 ; port
+	ldy #1 ; count
+	jsr ps2_remove_bytes
+	pla
+	plp
+	bcc @n_error
 
-	ldx #0
-	ldy #2
-	jsr ps2_peek_byte ; byte #2
-	bcs remove3 ; error
-	beq not_enough_data
-	sta tmp_byte2
+	; error, clear all flags
+	lda #3
+	sta tmp_counter
+	rts
 
-	jsr remove3 ; remove 3 bytes from queue
+@n_error:
+	ldx tmp_counter
+	sta tmp_bytes-1,x
+
+	dec tmp_counter
+	bne _mouse_scan
+
+	lda #3
+	sta tmp_counter
 
 	lda tmp_byte1
 	clc
