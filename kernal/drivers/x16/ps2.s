@@ -22,8 +22,10 @@ ps2parity= $9004 ; 2 bytes
 ps2r     = $9006 ; 2 bytes
 ps2w     = $9008 ; 2 bytes
 
-ps2q     = $9800
-ps2err   = $9a00
+ps2q0    = $9800
+ps2q1    = $9900
+ps2err0  = $9a00
+ps2err1  = $9b00
 
 .segment "KVARSB0"
 
@@ -169,23 +171,20 @@ ramcode:
 	; byte and clear the queue.
 
 	; byte complete
-	txa
-	clc
-	adc #>ps2q
-	sta @ps2qp+1
-	txa
-	clc
-	adc #>ps2err
-	sta @ps2errp+1 ; XXX this is not reentry-safe
+	lda ps2byte,x ; value
+	ldy ps2w,x    ; target offset in queue
 
-	lda ps2byte,x
-	sta debug_port
-	ldy ps2w,x
-@ps2qp = *+1
-	sta ps2q,y
+	cpx #0
+	bne @p1
+	sta ps2q0,y
 	lda #0
-@ps2errp = *+1
-	sta ps2err,y
+	sta ps2err0,y
+	bra @cont2
+@p1:	sta ps2q1,y
+	lda #0
+	sta ps2err1,y
+@cont2:
+
 	inc ps2w,x
 
 	lda #0
@@ -207,7 +206,15 @@ ramcode:
 	; put error into queue
 	ldy ps2w,x
 	lda #1
-	sta ps2err,y
+
+	cpx #0
+	bne @p1a
+
+	sta ps2err0,y
+	bra @cont3
+@p1a:	sta ps2err1,y
+
+@cont3:
 	inc ps2w,x
 
 	; start with new byte
@@ -250,22 +257,22 @@ ps2_get_byte:
 	clc
 	rts ; Z=1, C=0 -> no data, no error
 
-@1:	txa
-	clc
-	adc #>ps2q
-	sta @ps2qp+1
-	txa
-	clc
-	adc #>ps2err
-	sta @ps2errp+1
+@1:	ldy ps2r,x ; offset
 
-	ldy ps2r,x
-@ps2errp = *+1
-	lda ps2err,y
-	ror       ; C=error flag
-@ps2qp = *+1
-	lda ps2q,y; A=byte
-	sta debug_port
+	cpx #0
+	bne @p1
+
+	lda ps2err0,y
+	ror        ; C=error flag
+	lda ps2q0,y; A=byte
+	bra @cont
+
+@p1:	lda ps2err1,y
+	ror        ; C=error flag
+	lda ps2q1,y; A=byte
+
+@cont:
+
 	inc ps2r,x
 	ldx #1    ; Z=0
 	rts
