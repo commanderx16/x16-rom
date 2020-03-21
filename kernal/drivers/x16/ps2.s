@@ -115,7 +115,7 @@ ramcode:
 	pha
 	phx
 	lda d2ifr
-	ldx #1 ; 1 = offset of PA
+@again:	ldx #1 ; 1 = offset of PA
 	bit #VIA_IFR_CA1
 	bne @cont
 	dex    ; 0 = offset of PB
@@ -146,6 +146,8 @@ ramcode:
 	inc ps2bits,x
 @pull_rti:
 	ply
+	lda d2ifr
+	bne @again
 	plx
 	pla
 	rti
