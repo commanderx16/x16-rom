@@ -1156,7 +1156,8 @@ GetBlock:
 	jsr sd_read_block_lower
 	jmp @l6
 @l5:	jsr sd_read_block_upper
-@l6:	rts
+@l6:	ldx #0 ; no error
+	rts
 
 
 
