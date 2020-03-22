@@ -141,6 +141,32 @@ Credits
 Release Notes
 -------------
 
+### Release 37 ("Geneva")
+
+* API features
+	* console
+		* new: console_put_image (inline images)
+		* new: console_set_paging_message (to pause after a full screen)
+		* now respects window insets
+		* try "TEST1" and "TEST2" in BASIC!
+	* new entropy_get API to get randomness, used by FPLIB/BASIC RND function
+* KERNAL
+	* support for VERA 0.9 register layout (Frank van den Hoef)
+* BASIC
+	* TI$ and DA$ (DATE$) are now connected to the new date/time API
+	* TI is independent of TI$ and can be assigned
+* DOS
+	* enabled partition types 0x0b and 0x0c, should accept more image types
+* Build
+	* separated KERNAL code into core code and drivers
+	* support for building KERNAL for C64
+	* ROM banks are built independently
+	* support to replace CBM channel and editor code with GPLed "open-roms" code by the MEGA65 project
+* bug fixes
+	* LOAD respects target address
+	* FAT32 code no longer overwrites RAM
+	* monitor is not as broken any more
+
 ### Release 36 ("Berlin")
 
 * API Features
