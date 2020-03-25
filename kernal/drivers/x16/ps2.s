@@ -27,6 +27,9 @@ ps2q1    = $9900
 ps2err0  = $9a00
 ps2err1  = $9b00
 
+VIA_IFR_CA1 = %00000010
+VIA_IFR_CB1 = %00010000
+
 .segment "KVARSB0"
 
 
@@ -60,9 +63,6 @@ ps2_init:
 	lda d2pcr
 	and #%11101110
 	sta d2pcr
-	; VIA#2 CA1/CB1 IRQ: enable
-	lda #%10010010
-	sta d2ier
 
 	; enable keyboard
 	ldx #1 ; keyboard
@@ -74,8 +74,17 @@ ps2ena_all:
 	ldx #1 ; PA: keyboard
 	jsr ps2ena
 	dex    ; PB: mouse
-ps2ena:	lda port_ddr,x ; set CLK and DATA as input
-	and #$ff-bit_clk-bit_data
+ps2ena:
+	; enable NMI
+	txa
+	bne @1
+	lda #$80 + VIA_IFR_CB1
+	bra @2
+@1:	lda #$80 + VIA_IFR_CA1
+@2:	sta d2ier
+
+	lda port_ddr,x ; set CLK and DATA as input
+	and #$ff - bit_clk - bit_data
 	sta port_ddr,x ; -> bus is idle, device can start sending
 	rts
 
@@ -84,31 +93,39 @@ ps2dis_all:
 	ldx #1 ; PA: keyboard
 	jsr ps2dis
 	dex    ; PB: mouse
-ps2dis:	lda port_ddr,x
-	ora #bit_clk+bit_data
-	sta port_ddr,x ; set CLK and DATA as output
+ps2dis:
+	; disable NMI
+	txa
+	bne @1
+	lda #VIA_IFR_CB1
+	bra @2
+@1:	lda #VIA_IFR_CA1
+@2:	sta d2ier
+
 	lda port_data,x
 	and #$ff - bit_clk ; CLK=0
-	ora #bit_data ; DATA=1
+	ora #bit_data      ; DATA=1
 	sta port_data,x
+	lda port_ddr,x
+	ora #bit_clk + bit_data
+	sta port_ddr,x ; set CLK and DATA as output
 	rts
 
 ;****************************************
+; only call this while PS/2 NMI is disabled,
+; otherwise it could cause an NMI!
 ps2reset_all:
 	ldx #1 ; PA: keyboard
 	jsr ps2reset
 	dex    ; PB: mouse
 ps2reset:
 	lda port_ddr,x
-	ora #bit_clk+bit_data
+	ora #bit_clk + bit_data
 	sta port_ddr,x ; set CLK and DATA as output
 	lda port_data,x
 	and #$ff - bit_clk - bit_data ; CLK=0, DATA=0
 	sta port_data,x
 	rts
-
-VIA_IFR_CA1 = 2
-VIA_IFR_CB1 = 16
 
 ramcode:
 ; NMI
@@ -213,27 +230,17 @@ ramcode:
 
 @error:
 	; inhibit for 100 µs
-	lda port_ddr,x
-	ora #bit_clk+bit_data
-	sta port_ddr,x ; set CLK and DATA as output
-	lda port_data,x
-	and #$ff - bit_clk ; CLK=0
-	ora #bit_data ; DATA=1
-	sta port_data,x
+	jsr ps2dis
 
 	; put error into queue
 	ldy ps2w,x
 	lda #1
-
 	cpx #0
 	bne @p1a
-
 	sta ps2err0,y
 	bra @cont3
 @p1a:	sta ps2err1,y
-
-@cont3:
-	inc ps2w,x
+@cont3:	inc ps2w,x
 
 	; start with new byte
 	lda #0
@@ -250,9 +257,7 @@ ramcode:
 
 	plp
 
-	lda port_ddr,x ; set CLK and DATA as input
-	and #$ff-bit_clk-bit_data
-	sta port_ddr,x ; -> bus is idle, device can start sending
+	jsr ps2ena
 	jmp @pull_rti
 
 ramcode_end:
