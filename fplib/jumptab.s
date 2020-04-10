@@ -88,8 +88,10 @@
 	; [do not use, used by BASIC]
 	jmp fmultt  ; $BA2B
 
-	; FAC += .A * ARG
-	jmp mltply ; $BA59 [-mapping-]
+	; [removed]
+   brk
+   brk
+   brk
 
 	; ARG = mem(.Y:.A) (5 bytes)
 	jmp conupk ; $BA8C [-mapping-]

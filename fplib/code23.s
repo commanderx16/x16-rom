@@ -33,10 +33,6 @@ foutbl	.byt $fa,$0a,$1f,$00,$00
 	.byt $ff,$ff,$ff,$ff
 fdcend
 
-sqr	jsr movaf
-	lda #<fhalf
-	ldy #>fhalf
-	jsr movfm
 fpwrt	beq exp
 	lda argexp
 	bne fpwrt1
