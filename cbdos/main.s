@@ -172,7 +172,7 @@ buffer_for_channel:
 	jmp cbmdos_GetNxtDirEntry
 
 ; detection
-	jmp sdcard_init
+	jmp cbdos_sdcard_init
 
 cbdos_init:
 	; XXX don't do lazy init
@@ -206,6 +206,12 @@ cbdos_init:
 	jsr set_status_73
 
 	ldx save_x
+	rts
+
+cbdos_sdcard_init:
+	BANKING_START
+	jsr sdcard_init
+	BANKING_END
 	rts
 
 ;****************************************
