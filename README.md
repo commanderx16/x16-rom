@@ -24,7 +24,7 @@ Each [release of the X16 emulator][emu-releases] includes a compatible build of 
 
 Building this source code requires only [GNU Make] and the [cc65] assembler. GNU Make is almost invariably available as a system package with any Linux distribution; cc65 less often so. 
 
-- Red Hat: `sudo yum install make cc65`
+- Red Hat/CentOS: `sudo yum install make cc65` 
 - Debian: `sudo apt-get install make`
 
 On macOS, cc65 in [homebrew](https://brew.sh/), which must be installed before issuing the following command:
@@ -34,6 +34,8 @@ On macOS, cc65 in [homebrew](https://brew.sh/), which must be installed before i
 If cc65 is not available as a package on your system, you'll need to install or build/install it per the instructions below.
 
 Once the prerequisites are available, type `make` to build `rom.bin`. To use that with the emulator, copy it to the same directory as the `x16emu` binary or use `x16emu -rom .../path/to/rom.bin`.
+
+*Additional Notes: For users of Red Hat Enterprise Linux 8, you will need to have CodeReady builder repositories enabled, for CentOS, this is called PowerTools. Additionally, you will need Fedora EPEL installed as well as cc65 does not come usually within the official repositories.*
 
 ### Building/Installing cc65
 
