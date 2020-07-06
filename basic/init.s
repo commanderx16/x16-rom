@@ -129,13 +129,19 @@ chke0	.byt $00
 
 fremes
 	.byt $8f, $93
-	.byt $9c, $df, $12, $20, $20, $df, $92, $20, $20, $20, $12, $a9, $20, $20, $92, $a9, 13
-	.byt $9a, $20, $df, $12, $20, $20, $df, $92, $20, $12, $a9, $20, $20, $92, $a9
-	.byt 5, "  **** COMMANDER X16 BASIC V2 ****", 13
-	.byt $9f, $20, $20, $df, $12, $20, $20, $92, $20, $12, $20, $20, $92, $a9, 13
-	.byt $1e, $20, $20, $20, $20, $12, $20, $92, $20, $12, $20, $92
-	.byt 5, "     ",0
-
+	; line 0
+	.byt $9c, $12, $df, $92, "     ", $12, $a9
+	.byt $0d
+	; line 1
+	.byt $9a, $12, $b4, $df, $92, "   ", $12, $a9, $a7, $92
+	.byt 5, " **** COMMANDER X16 BASIC V2 ****"
+	.byt $0d
+	; line 2
+	.byt $9f, $12, $b5, " ", $df, $92, " ", $12, $a9, " ", $b6
+	.byt $0d
+	; line 3
+	.byt $1e, " ", $b7, $12, $bb, $92, " ", $12, $ac, $92, $b7
+	.byt 5, "  ",0
 freme2	.byt "K HIGH RAM"
 .ifdef PRERELEASE_VERSION
 	.byte " - ROM VERSION R"
@@ -147,15 +153,21 @@ freme2	.byt "K HIGH RAM"
 .endif
 	.byte (PRERELEASE_VERSION .mod 10) + '0'
 .endif
-	.byte 13
-	.byt $9e, $20, $20, $12, $a9, $20, $20, $92, $20, $12, $20, $20, $df, 13
-	.byt $81, $20, $12, $a9, $20, $20, $92, $a9, $20, $df, $12, $20, $20, $df, $92
-	.byt 5, "  ", 0
+	.byt $0d
+	; line 4
+	.byt $9e, " ", $af, $12, $be, $92, " ", $12, $bc, $92, $af
+	.byt $0d
+	; line 5
+	.byt $81, $a7, $12, " ", $92, $a9, " ", $df, $12, " ", $92, $b4
+	.byt 5, " ", 0
+words	.byt " BASIC BYTES FREE"
+	.byt $0d
+	; line 6
+	.byt $1c, $b6, $a9, "   ", $df, $b5
+	.byt $0d
+	.byt 5
+	.byt 0
 
-
-words	.byt " BASIC BYTES FREE",13
-	.byt $1c, $12, $a9, $20, $20, $92, $a9, $20, $20, $20, $df, $12, $20, $20, $df, 13
-	.byt 5, 0
 ; ppach - print# patch to coout (save .a)
 ;
 ppach	pha
