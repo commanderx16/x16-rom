@@ -179,9 +179,9 @@ monitor:
 ; code that will be copied to $0220
 goto_user:
 	;XXX what do we do if video bank is active?
-	sta d1pra       ;set RAM bank
+	sta ram_bank    ;set RAM bank
 	and #$07
-	sta d1prb       ;set ROM bank
+	sta rom_bank    ;set ROM bank
         lda     reg_a
         rti
 
@@ -189,7 +189,7 @@ brk_entry:
 	pha
 	; XXX TODO save banks
 	lda #BANK_MONITOR
-	sta d1prb ; ROM bank
+	sta rom_bank
 	pla
         jmp     brk_entry2
 

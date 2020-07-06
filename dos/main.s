@@ -39,21 +39,20 @@
 
 ieee_status = status
 
-via1        = $9f60
-via1porta   = via1+1 ; RAM bank
+ram_bank   = 0
 
 .macro BANKING_START
 	pha
-	lda via1porta
+	lda ram_bank
 	sta bank_save
-	stz via1porta
+	stz ram_bank
 	pla
 .endmacro
 
 .macro BANKING_END
 	pha
 	lda bank_save
-	sta via1porta
+	sta ram_bank
 	pla
 .endmacro
 

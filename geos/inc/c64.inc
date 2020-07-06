@@ -52,6 +52,5 @@ VERA_PSG_BASE     = $1F9C0
 VERA_PALETTE_BASE = $1FA00
 VERA_SPRITES_BASE = $1FC00
 
-via1	=$9f60                  ;VIA 6522 #1
-d1prb	=via1+0
-d1pra	=via1+1
+ram_bank = 0
+rom_bank = 1

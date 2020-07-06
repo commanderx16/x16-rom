@@ -49,7 +49,10 @@ VERA_PSG_BASE     = $1F9C0
 VERA_PALETTE_BASE = $1FA00
 VERA_SPRITES_BASE = $1FC00
 
-via1	=$9f60                  ;VIA 6522 #1
+ram_bank = 0
+rom_bank = 1
+
+via1	=$9f00                  ;VIA 6522 #1
 d1prb	=via1+0
 d1pra	=via1+1
 d1ddrb	=via1+2
@@ -67,7 +70,7 @@ d1ifr	=via1+13
 d1ier	=via1+14
 d1ora	=via1+15
 
-via2	=$9f70                  ;VIA 6522 #2
+via2	=$9f10                  ;VIA 6522 #2
 d2prb	=via2+0
 d2pra	=via2+1
 d2ddrb	=via2+2

@@ -12,13 +12,13 @@
 ; called by ps2 keyboard driver
 .export joystick_from_ps2
 
-nes_data = d2pra
-nes_ddr  = d2ddra
+nes_data = d1pra
+nes_ddr  = d1ddra
 
-bit_latch = $08 ; PB3 (user port pin F): LATCH (both controllers)
-bit_data1 = $10 ; PB4 (user port pin H): DATA  (controller #1)
-bit_jclk  = $20 ; PB5 (user port pin J): CLK   (both controllers)
-bit_data2 = $40 ; PB6 (user port pin K): DATA  (controller #2)
+bit_latch = $04 ; PA2 LATCH (both controllers)
+bit_jclk  = $08 ; PA3 CLK   (both controllers)
+bit_data2 = $40 ; PA6 DATA  (controller #2)
+bit_data1 = $80 ; PA7 DATA  (controller #1)
 
 .segment "KVARSB0"
 
@@ -53,11 +53,11 @@ joystick_scan:
 	ldx #0
 l2:	ldy #8
 l1:	lda nes_data
-.assert bit_data2 > bit_data1, error, "bit_data2 must be greater than bit_data1, otherwise swap 1 vs. 2 here"
-	cmp #bit_data2
-	rol joy2,x
-	and #bit_data1
+.assert bit_data2 < bit_data1, error, "bit_data2 must be greater than bit_data1, otherwise swap 1 vs. 2 here"
 	cmp #bit_data1
+	rol joy2,x
+	and #bit_data2
+	cmp #bit_data2
 	rol joy1,x
 	lda #bit_jclk
 	sta nes_data
