@@ -11,8 +11,8 @@
 
 .export ps2_init, ps2_receive_byte
 
-port_ddr  =d2ddrb
-port_data =d2prb
+port_ddr  =d1ddrb
+port_data =d1prb
 bit_data=1              ; 6522 IO port data bit mask  (PA0/PB0)
 bit_clk =2              ; 6522 IO port clock bit mask (PA1/PB1)
 
