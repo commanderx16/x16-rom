@@ -19,7 +19,7 @@ mhz     =8
 ;                         VVV
 tmp2	.res 2           ;$C3
 .assert * = imparm, error, "imparm must be at specific address"
-;imparm
+__imparm
 	.res 2           ;    PRIMM utility string pointer
 
 .segment "KVAR"
