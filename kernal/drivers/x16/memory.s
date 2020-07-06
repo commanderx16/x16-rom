@@ -85,22 +85,22 @@ ramtas:
 ;
 ; detect number of RAM banks
 ;
-	stz d1pra
+	stz ram_bank
 	ldx $a000
 	inx
 	lda #1
-:	sta d1pra
+:	sta ram_bank
 	ldy $a000
 	stx $a000
-	stz d1pra
+	stz ram_bank
 	cpx $a000
-	sta d1pra
+	sta ram_bank
 	sty $a000
 	beq :+
 	asl
 	bne :-
 :	tay
-	stz d1pra
+	stz ram_bank
 	dex
 	stx $a000
 	
@@ -121,7 +121,7 @@ ramtas:
 ; activate bank #1 as default
 ;
 	lda #1
-	sta d1pra ; RAM bank
+	sta ram_bank
 
 	rts
 
@@ -133,8 +133,8 @@ jsrfar:
 .segment "KERNRAM"
 .export jmpfr
 .assert * = jsrfar3, error, "jsrfar3 must be at specific address"
-;jsrfar3:
-	sta d1prb       ;set ROM bank
+__jsrfar3:
+	sta rom_bank    ;set ROM bank
 	pla
 	plp
 	jsr jmpfr
@@ -143,7 +143,7 @@ jsrfar:
 	phx
 	tsx
 	lda $0104,x
-	sta d1prb       ;restore ROM bank
+	sta rom_bank    ;restore ROM bank
 	lda $0103,x     ;overwrite reserved byte...
 	sta $0104,x     ;...with copy of .p
 	plx
@@ -152,20 +152,21 @@ jsrfar:
 	plp
 	rts
 .assert * = jmpfr, error, "jmpfr must be at specific address"
-;jmpfr:
+__jmpfr:
 	jmp $ffff
 
 
 .segment "KERNRAM2"
 
 .assert * = banked_irq, error, "banked_irq must be at specific address"
-;banked_irq:
+.export __banked_irq
+__banked_irq:
 	pha
 	phx
-	lda d1prb       ;save ROM bank
+	lda rom_bank    ;save ROM bank
 	pha
 	lda #BANK_KERNAL
-	sta d1prb
+	sta rom_bank
 	lda #>@l1       ;put RTI-style
 	pha             ;return-address
 	lda #<@l1       ;onto the
@@ -175,7 +176,7 @@ jsrfar:
 	pha             ;put it on the stack at the right location
 	jmp ($fffe)     ;execute other bank's IRQ handler
 @l1:	pla
-	sta d1prb       ;restore ROM bank
+	sta rom_bank    ;restore ROM bank
 	plx
 	pla
 	rti
@@ -194,12 +195,12 @@ indfet:
 ;  exits with .a= data byte & status flags valid
 ;             .x altered
 
-fetch:	lda d1pra       ;save current config (RAM)
+fetch:	lda ram_bank    ;save current config (RAM)
 	pha
-	lda d1prb       ;save current config (ROM)
+	lda rom_bank    ;save current config (ROM)
 	pha
 	txa
-	sta d1pra       ;set RAM bank
+	sta ram_bank    ;set RAM bank
 	plx             ;original ROM bank
 	and #$07
 	php
@@ -207,14 +208,14 @@ fetch:	lda d1pra       ;save current config (RAM)
 	jsr fetch2
 	plp
 	plx
-	stx d1pra       ;restore RAM bank
+	stx ram_bank    ;restore RAM bank
 	ora #0          ;set flags
 	rts
 .segment "KERNRAM2" ; *** RAM code ***
-fetch2:	sta d1prb       ;set new ROM bank
+fetch2:	sta rom_bank    ;set new ROM bank
 fetvec	=*+1
 	lda ($ff),y     ;get the byte ($ff here is a dummy address, 'FETVEC')
-	stx d1prb       ;restore ROM bank
+	stx rom_bank    ;restore ROM bank
 	rts
 
 .segment "MEMDRV"
@@ -230,19 +231,20 @@ fetvec	=*+1
 ; XXX this needs to be in RAM in order to work!
 
 stash:	sta stash1
-	lda d1pra       ;save current config (RAM)
+	lda ram_bank    ;save current config (RAM)
 	pha
-	stx d1pra       ;set RAM bank
+	stx ram_bank    ;set RAM bank
 	jmp stash0
 .segment "KERNRAM2" ; *** RAM code ***
 stash0:
 stash1	=*+1
 	lda #$ff
-_stavec	=*+1
-.assert stavec = _stavec, error, "stavec must be at specific address"
+.export __stavec
+__stavec	=*+1
+.assert stavec = __stavec, error, "stavec must be at specific address"
 	sta ($ff),y     ;put the byte ($ff here is a dummy address, 'STAVEC')
 	pla
-	sta d1pra
+	sta ram_bank
 	rts
 
 .segment "MEMDRV"
@@ -260,28 +262,28 @@ _stavec	=*+1
 
 cmpare:
 	pha
-	lda d1pra       ;save current config (RAM)
+	lda ram_bank    ;save current config (RAM)
 	pha
 	txa
-	sta d1pra       ;set RAM bank
+	sta ram_bank    ;set RAM bank
 	and #$07
-	ldx d1prb       ;save current config (ROM)
+	ldx rom_bank    ;save current config (ROM)
 	jmp cmpare0
 .segment "KERNRAM2" ; *** RAM code ***
 cmpare0:
-	sta d1prb       ;set ROM bank
+	sta rom_bank    ;set ROM bank
 	pla
 cmpvec	=*+1
 	cmp ($ff),y     ;compare bytes ($ff here is a dummy address, 'CMPVEC')
 	php
-	stx d1prb       ;restore previous memory configuration
+	stx rom_bank     ;restore previous memory configuration
 	jmp cmpare1
 .segment "MEMDRV"
 cmpare1:
 	pla
 	tax
 	pla
-	sta d1pra
+	sta ram_bank
 	txa
 	pha
 	plp

@@ -12,9 +12,9 @@ BANK_CHARSET = 6
 .ifdef MACHINE_X16
 status     = $0286 ; channel: status byte
 jsrfar3    = $02c4 ; jsrfar: RAM part
-jmpfr      = $02e1 ; jsrfar: core jmp instruction
+jmpfr      = $02df ; jsrfar: core jmp instruction
 imparm     = $82   ; jsrfar: temporary byte
-stavec     = $03b7 ; stash: argument
+stavec     = $03b2 ; stash: argument
 banked_irq = $038b ; irq handler: RAM part
 .elseif .defined(MACHINE_C64)
 status     = $029F
@@ -36,9 +36,9 @@ imparm     = $E2
 	sta kvswitch_tmp1
 	pla
 	sta kvswitch_tmp2
-	lda d1pra
+	lda ram_bank
 	pha
-	stz d1pra
+	stz ram_bank
 	lda kvswitch_tmp2
 	pha
 	lda kvswitch_tmp1
@@ -52,7 +52,7 @@ imparm     = $E2
 	pla
 	sta kvswitch_tmp2
 	pla
-	sta d1pra
+	sta ram_bank
 	lda kvswitch_tmp2
 	pha
 	lda kvswitch_tmp1
