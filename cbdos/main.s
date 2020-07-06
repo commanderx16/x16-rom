@@ -42,7 +42,7 @@ BUFNO_STATUS = NUM_BUFS + 2
 
 DIRSTART = $0801 ; load address of directory
 
-via1        = $9f60
+via1        = $9f00
 via1porta   = via1+1 ; RAM bank
 
 .macro BANKING_START

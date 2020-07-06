@@ -80,7 +80,7 @@ cload	lda #0          ;load flag
 	jsr plsv        ;parse parameters
 	bcs cld9
 	ldx andmsk
-	stx $9f61
+	stx ram_bank
 cld9	pla
 ;
 cld10	; jsr $ffe1 ;check run/stop
