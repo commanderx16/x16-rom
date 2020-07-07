@@ -975,7 +975,7 @@ gt_1000
 :	lda #' '
 :	jsr storedir
 	dex
-	bne :-
+	bpl :-
 
 	lda #$22
 	jsr storedir
