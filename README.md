@@ -25,7 +25,7 @@ Each [release of the X16 emulator][emu-releases] includes a compatible build of 
 Building this source code requires only [GNU Make] and the [cc65] assembler. GNU Make is almost invariably available as a system package with any Linux distribution; cc65 less often so. 
 
 - Red Hat/CentOS: `sudo yum install make cc65` 
-- Debian: `sudo apt-get install make`
+- Debian/Ubuntu: `sudo apt-get install make cc65`
 
 On macOS, cc65 in [homebrew](https://brew.sh/), which must be installed before issuing the following command:
 
