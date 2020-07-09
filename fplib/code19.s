@@ -26,54 +26,8 @@ log1	lda facexp
 	jsr finlog
 	lda #<log2
 	ldy #>log2
-fmult	jsr conupk
-fmultt	bne *+5
-	jmp multrt
-	jsr muldiv
-	lda #0
-	sta resho
-	sta resmoh
-	sta resmo
-	sta reslo
-	lda facov
-	jsr mltply
-	lda faclo
-	jsr mltply
-	lda facmo
-	jsr mltply
-	lda facmoh
-	jsr mltply
-	lda facho
-	jsr mltpl1
-	jmp movfr
-mltply	bne *+5
-	jmp mulshf
-mltpl1	lsr a
-	ora #$80
-mltpl2	tay
-	bcc mltpl3
-	clc
-	lda reslo
-	adc arglo
-	sta reslo
-	lda resmo
-	adc argmo
-	sta resmo
-	lda resmoh
-	adc argmoh
-	sta resmoh
-	lda resho
-	adc argho
-	sta resho
-mltpl3	ror resho
-	ror resmoh
-	ror resmo
-	ror reslo
-	ror facov
-	tya
-	lsr a
-	bne mltpl2
-multrt	rts
+   jmp fmult
+
 conupk	sta index1
 	sty index1+1
 	ldy #3+addprc
@@ -121,18 +75,7 @@ zeremv	pla
 	pla
 	jmp zerofc
 goover	jmp overr
-mul10	jsr movaf
-	tax
-	beq mul10r
-	clc
-	adc #2
-	bcs goover
-	ldx #0
-	stx arisgn
-	jsr faddc
-	inc facexp
-	beq goover
-mul10r	rts
+
 tenc	.byt $84,$20,0,0,0
 div10	jsr movaf
 	lda #<tenc

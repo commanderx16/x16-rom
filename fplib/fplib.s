@@ -16,3 +16,6 @@
 .include "code24.s"
 .include "code25.s"
 .include "trig.s"
+.include "fadd.s"
+.include "fmult.s"
+.include "fsqr.s"
