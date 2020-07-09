@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; Floating Point Library for 6502
+; Floating Point Library for 6502: Include
 ;----------------------------------------------------------------------
 
 ; FPLIB: zero page
@@ -15,7 +15,7 @@
 ; BASIC ONLY, DO NOT USE
 .import zero, fone
 ; XXX ideally, the FB library should be abstracted
-; XXX enough so that none of the symbols above
+; XXX enough so that neither of the symbols above
 ; XXX need to be exported
 
 ; see jumptab.s for the full documentation on these calls
