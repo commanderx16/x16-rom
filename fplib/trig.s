@@ -70,10 +70,7 @@ tan
 	jsr sin		;compute the sin.
 	ldx #<tempf3
 	ldy #>tempf3
-	jsr gmovmf	;put sign into other temp.
-;XXX C128
-;	jsr movmf	;put sign into other temp.
-;XXX C128
+	jsr movmf	;put sign into other temp.
 	lda #<tempf1
 	ldy #>tempf1
 	jsr movfm	;put this memory location into fac.

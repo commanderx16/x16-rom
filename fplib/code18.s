@@ -3,15 +3,6 @@
 ;----------------------------------------------------------------------
 ; (C)1978 Microsoft
 
-; XXX unused
-	rts
-; XXX unused
-
-; XXX move
-faddh	lda #<fhalf
-	ldy #>fhalf
-	jmp fadd
-
 ;
 ; floating point math package configuration.
 ;
@@ -223,3 +214,7 @@ rolshf
 shftrt
 	clc		;clear output of facov.
 	rts
+
+faddh	lda #<fhalf
+	ldy #>fhalf
+	jmp fadd

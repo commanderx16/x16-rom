@@ -50,10 +50,9 @@ int
 	lda facexp
 	cmp #addpr8+$98
 	bcs intrts	;forget it.
-;XXX C128
-;  fixes the infamous "INT(.9+.1)-> 0" Microsoft bug (04/08/85 FAB)
-;	jsr round	;must 'round' fac per 'facov'
-;XXX C128
+	jsr round	;must 'round' fac per 'facov'
+			;[fixes the infamous "INT(.9+.1)-> 0" Microsoft bug]
+			;(04/08/85 FAB)
 	jsr qint
 	sty facov	;clr overflow byte.
 	lda facsgn
