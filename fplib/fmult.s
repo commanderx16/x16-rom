@@ -1,3 +1,8 @@
+;----------------------------------------------------------------------
+; Floating Point Library for 6502: Multiplication
+;----------------------------------------------------------------------
+; (C)2020 Michael Jørgensen, License: 2-clause BSD
+
 ; This file contains the assembly routine for
 ; floating point multiplication.
 

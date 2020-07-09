@@ -1,3 +1,7 @@
+;----------------------------------------------------------------------
+; Floating Point Library for 6502
+;----------------------------------------------------------------------
+
 ; FBLIB Jump Table
 
 ; http://unusedino.de/ec64/technical/project64/mapping_c64.html "[-mapping-]"

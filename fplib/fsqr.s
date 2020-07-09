@@ -1,3 +1,8 @@
+;----------------------------------------------------------------------
+; Floating Point Library for 6502: SQR
+;----------------------------------------------------------------------
+; (C)2020 Michael Jørgensen, License: 2-clause BSD
+
 ; This file contains the assembly routine for the square root function.
 ;
 ; The method used is to first calculate an initial approximation to the result,

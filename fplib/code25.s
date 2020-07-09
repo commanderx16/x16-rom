@@ -1,3 +1,8 @@
+;----------------------------------------------------------------------
+; Floating Point Library for 6502
+;----------------------------------------------------------------------
+; (C)1978 Microsoft
+
 ; continuation of exponent routine
 ;
 stold	sta oldov

@@ -1,3 +1,7 @@
+;----------------------------------------------------------------------
+; Floating Point Library for 6502
+;----------------------------------------------------------------------
+
 addprc	=1
 fbuffr	=$100    ; buffer for "fout".
                  ; on page 1 so that string is not copied

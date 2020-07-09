@@ -1,3 +1,8 @@
+;----------------------------------------------------------------------
+; Floating Point Library for 6502: Addition
+;----------------------------------------------------------------------
+; (C)2020 Michael Jørgensen, License: 2-clause BSD
+
 ; This file contains the assembly routines for
 ; floating point addition.
 ; The algorithm uses the following steps:

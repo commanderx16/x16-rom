@@ -1,3 +1,7 @@
+;----------------------------------------------------------------------
+; Floating Point Library for 6502
+;----------------------------------------------------------------------
+
 .feature labels_without_colons, pc_assignment
 
 .include "declare.s"
