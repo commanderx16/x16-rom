@@ -248,8 +248,9 @@ paoc	lda #0
 	beq snerr6      ;must got something
 	jsr getbyt      ;get la
 	stx andmsk
-	txa
-	ldx #1          ;default device
+	jsr getfa
+	tax
+	lda andmsk      ;restore la
 	ldy #0          ;default command
 	jsr paoc19      ;store x,y then maybe quit
 	jsr getbyt
