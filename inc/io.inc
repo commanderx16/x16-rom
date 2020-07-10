@@ -88,6 +88,9 @@ d2ifr	=via2+13
 d2ier	=via2+14
 d2ora	=via2+15
 
+rtc_a	=$9f44
+rtc_d	=$9f46
+
 ;
 ; VERA Video RAM Layout
 ;
