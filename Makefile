@@ -137,12 +137,7 @@ KEYMAP_SOURCES = \
 CBDOS_SOURCES = \
 	cbdos/zeropage.s \
 	cbdos/fat32.s \
-	cbdos/util.s \
-	cbdos/matcher.s \
 	cbdos/sdcard.s \
-	cbdos/spi_rw_byte.s \
-	cbdos/spi_select_device.s \
-	cbdos/spi_deselect.s \
 	cbdos/main.s
 
 GEOS_SOURCES= \

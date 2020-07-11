@@ -23,14 +23,14 @@
 
 .include "banks.inc"
 
-.include "common.inc"
+;.include "common.inc"
 IMPORTED_FROM_MAIN=1
 
 .feature labels_without_colons
 
 .include "fat32.inc"
 .include "fcntl.inc"
-.include "65c02.inc"
+;.include "65c02.inc"
 
 
 NUM_BUFS = 4

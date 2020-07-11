@@ -1,636 +1,491 @@
-; MIT License
-;
-; Copyright (c) 2018 Thomas Woinke, Marko Lauke, www.steckschwein.de
-;
-; Permission is hereby granted, free of charge, to any person obtaining a copy
-; of this software and associated documentation files (the "Software"), to deal
-; in the Software without restriction, including without limitation the rights
-; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-; copies of the Software, and to permit persons to whom the Software is
-; furnished to do so, subject to the following conditions:
-;
-; The above copyright notice and this permission notice shall be included in all
-; copies or substantial portions of the Software.
-;
-; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-; SOFTWARE.
+;-----------------------------------------------------------------------------
+; sdcard.s
+; Copyright (C) 2020 Frank van den Hoef
+;-----------------------------------------------------------------------------
 
+	.include "lib.inc"
+	.include "sdcard.inc"
 
-; enable debug for this module
-.ifdef DEBUG_SDCARD
-	debug_enabled=1
-.endif
+	.bss
+cmd_idx = sdcard_param
+cmd_arg = sdcard_param + 1
+cmd_crc = sdcard_param + 5
 
-.importzp write_blkptr, read_blkptr
-.include "sdcard.inc"
-.include "spi.inc"
-.include "vera.inc"
-.include "65c02.inc"
-.macro debug arg1, arg2
+timeout_cnt:       .byte 0
+
+FAST_READ=1
+FAST_WRITE=1
+
+	.code
+
+;-----------------------------------------------------------------------------
+; wait ready
+;
+; clobbers: A,X,Y
+;-----------------------------------------------------------------------------
+.proc wait_ready
+	lda #2
+	sta timeout_cnt
+
+l3:	ldx #0		; 2
+l2:	ldy #0		; 2
+l1:	jsr spi_read	; 22
+	cmp #$FF	; 2
+	beq done	; 2 + 1
+	dey		; 2
+	bne l1		; 2 + 1
+	dex		; 2
+	bne l2		; 2 + 1
+	dec timeout_cnt
+	bne l3
+
+	; Total timeout: ~508 ms @ 8MHz
+
+	; Timeout error
+	clc
+	rts
+
+done:	sec
+	rts
+.endproc
+
+;-----------------------------------------------------------------------------
+; deselect card
+;
+; clobbers: A
+;-----------------------------------------------------------------------------
+.proc deselect
+	lda SPI_CTRL
+	and #(SPI_CTRL_SELECT_MASK ^ $FF)
+	sta SPI_CTRL
+
+	jmp spi_read
+.endproc
+
+;-----------------------------------------------------------------------------
+; select card
+;
+; clobbers: A,X,Y
+;-----------------------------------------------------------------------------
+.proc select
+	lda SPI_CTRL
+	ora #SPI_CTRL_SELECT_SDCARD
+	sta SPI_CTRL
+
+	jsr spi_read
+	jsr wait_ready
+	bcc error
+	rts
+
+error:	jsr deselect
+	clc
+	rts
+.endproc
+
+;-----------------------------------------------------------------------------
+; spi_read
+;
+; result in A
+;-----------------------------------------------------------------------------
+.proc spi_read
+	lda #$FF	; 2
+	sta SPI_DATA	; 4
+l1:	bit SPI_CTRL	; 4
+	bmi l1		; 2 + 1 if branch
+	lda SPI_DATA	; 4
+	rts		; 6
+.endproc		; >= 22 cycles
+
+.macro spi_read_macro
+	.local l1
+	lda #$FF	; 2
+	sta SPI_DATA	; 4
+l1:	bit SPI_CTRL	; 4
+	bmi l1		; 2 + 1 if branch
+	lda SPI_DATA	; 4
 .endmacro
-.macro debug32 arg1, arg2
+
+;-----------------------------------------------------------------------------
+; spi_write
+;
+; byte to write in A
+;-----------------------------------------------------------------------------
+.proc spi_write
+	sta SPI_DATA
+l1:	bit SPI_CTRL
+	bmi l1
+	rts
+.endproc
+
+.macro spi_write_macro
+	.local l1
+	sta SPI_DATA
+l1:	bit SPI_CTRL
+	bmi l1
 .endmacro
 
-.segment "sdcard_data"
+;-----------------------------------------------------------------------------
+; send_cmd - Send cmdbuf
+;
+; first byte of result in A, clobbers: Y
+;-----------------------------------------------------------------------------
+.proc send_cmd
+	; Make sure card is deselected
+	jsr deselect
 
-; SD Card command parameter/result buffer
-sd_cmd_param:
-	.res 4
-sd_cmd_chksum:
-	.res 1
+	; Select card
+	jsr select
+	bcc error
 
-.code
-.import spi_rw_byte, spi_r_byte, spi_select_device, spi_deselect
+	; Send the 6 cmdbuf bytes
+	lda cmd_idx
+	jsr spi_write
+	lda cmd_arg + 3
+	jsr spi_write
+	lda cmd_arg + 2
+	jsr spi_write
+	lda cmd_arg + 1
+	jsr spi_write
+	lda cmd_arg + 0
+	jsr spi_write
+	lda cmd_crc
+	jsr spi_write
 
-.export sdcard_init, sdcard_detect
-.export sd_select_card, sd_deselect_card
-.export sd_read_block, sd_read_multiblock, sd_write_block
+	; Wait for response
+	ldy #(10 + 1)
+l2:	dey
+	beq error	; Out of retries
+	jsr spi_read
+	bit #$80
+	bne l2
 
-; XXX: 256-byte sector emulation; should go away:
-; XXX: the caller should cache a 512 byte sector instead
-.export sd_read_block_lower, sd_read_block_upper
+	; Success
+	sec
+	rts
 
-; public bock api
-.export read_block=sd_read_block
-.export write_block=sd_write_block
+error:	; Error
+	clc
+	rts
+.endproc
 
-.ifdef MULTIBLOCK_WRITE
-.export sd_write_multiblock
+;-----------------------------------------------------------------------------
+; send_cmd_inline - send command with specified argument
+;-----------------------------------------------------------------------------
+.macro send_cmd_inline cmd, arg
+	lda #(cmd | $40)
+	sta cmd_idx
+
+.if .hibyte(.hiword(arg)) = 0
+	stz cmd_arg + 3
+.else
+	lda #(.hibyte(.hiword(arg)))
+	sta cmd_arg + 3
 .endif
 
-.import krn_tmp, lba_addr, blocks, sd_tmp
-
-;   out:
-;     Z=1 sd card available, Z=0 otherwise A=ENODEV
-sdcard_detect:
-	; TODO
-      rts
-
-;---------------------------------------------------------------------
-; Init SD Card
-; Destructive: A, X, Y
-;
-;   out:  Z=1 on success, Z=0 otherwise
-;
-;---------------------------------------------------------------------
-sdcard_init:
-	jsr spi_deselect
-@init:
-      ; 74 SPI clock cycles - !!!Note: spi clock cycle should be in range 100-400Khz!!!
-			ldy #10
-
-@l1:
-			jsr spi_r_byte
-			dey
-			bne @l1
-
-			jsr sd_select_card
-			beq @next
-			jmp @exit
-@next:
-
-			jsr sd_param_init
-
-			; CMD0 needs CRC7 checksum to be correct
-			lda #$95
-			sta sd_cmd_chksum
-
-			; send CMD0 - init SD card to SPI mode
-			lda #cmd0
-			jsr sd_cmd
-			debug "CMD0"
-			cmp #$01
-			beq @l2
-			jmp @exit
-@l2:
-
-			lda #$01
-			sta sd_cmd_param+2
-			lda #$aa
-			sta sd_cmd_param+3
-			lda #$87
-			sta sd_cmd_chksum
-
-
-			lda #cmd8
-			jsr sd_cmd
-			debug32 "CMD8", sd_cmd_param
-
-			jsr sd_param_init
-
-			cmp #$01
-			bne @l5
-			; Invalid Card (or card we can't handle yet)
-			; card must respond with $000001aa, otherwise we can't use it
-			;
-			; screw this
-			jsr spi_r_byte
-			; and that
-			jsr spi_r_byte
-
-			; is this $01? we're done if not
-			jsr spi_r_byte
-			cmp #$01
-			beq @l3
-			jmp @exit
-@l3:
-
-;			bne @exit
-
-			; is this $aa? we're done if not
-			jsr spi_r_byte
-			cmp #$aa
-			bne @exit
-
-			; init card using ACMD41 and parameter $40000000
-			lda #$40
-			sta sd_cmd_param
-
-@l5:
-			lda #cmd55
-			jsr sd_cmd
-
-			cmp #$01
-			bne @exit
-			; Init failed
-
-
-			lda #acmd41
-			jsr sd_cmd
-			debug32 "ACMD41", sd_cmd_param
-
-			cmp #$00
-			beq @l7
-
-			cmp #$01
-			beq @l5
-
-			cmp sd_cmd_param
-			beq @exit		; acmd41 with $40000000 and $00000000 failed, TODO: try CMD1
-
-			jsr sd_param_init
-			bra @l5
-
-@l7:
-			cmp sd_cmd_param
-			beq @cmd16		; acmd41 with $40000000 and $00000000 failed, TODO: try CMD1
-
-			stz sd_cmd_param
-
-			lda #cmd58
-			jsr sd_cmd
-			debug "CMD58"
-			; read result. we need to check bit 30 of a 32bit result
-			jsr spi_r_byte
-			debug "CMD58_r"
-		;	sta krn_tmp
-			;pha
-			; read the other 3 bytes and trash them
-		;	jsr spi_r_byte
-		;	jsr spi_r_byte
-		;	jsr spi_r_byte
-			; or don't read them at all. the next busy_wait will take care of everything
-
-			;pla
-			and #%01000000
-			bne @l9
-@cmd16:
-			jsr sd_param_init
-
-			; Set block size to 512 bytes
-			lda #$02
-			sta sd_cmd_param+2
-
-			debug32 "cmd16p", sd_cmd_param
-
-			lda #cmd16
-			jsr sd_cmd
-			debug "CMD16"
-
-
-
-@exit_ok:
-@l9:
-	; SD card init successful
-			lda #$00
-@exit:
-			jmp sd_deselect_card
-
-;---------------------------------------------------------------------
-; Send SD Card Command
-; in:
-; 	A - cmd byte
-; 	sd_cmd_param - parameters
-; out:
-;   A - SD Card R1 status byte in
-;---------------------------------------------------------------------
-sd_cmd:
-			pha
-			jsr sd_busy_wait
-			pla
-			; transfer command byte
-			jsr spi_rw_byte
-
-			; transfer parameter buffer
-			ldx #$00
-@l1:	 	lda sd_cmd_param,x
-			phx
-			jsr spi_rw_byte
-			plx
-			inx
-			cpx #$05
-			bne @l1
-
-;---------------------------------------------------------------------
-; wait for card response for command
-; read max. 8 bytes (The response is sent back within command response time (NCR), 0 to 8 bytes for SDC, 1 to 8 bytes for MMC. )
-; http://elm-chan.org/docs/mmc/mmc_e.html
-; out:
-; A - response of card, for error codes see sdcard.inc. $1F if no valid response within NCR
-; Z=1 - no error
-;---------------------------------------------------------------------
-sd_cmd_response_wait:
-			ldy #sd_cmd_response_retries
-@l:			dey
-			beq sd_block_cmd_timeout ; y already 0? then invalid response or timeout
-			jsr spi_r_byte
-			bitimm 80	; bit 7 clear
-			bne @l  ; no, next byte
-			cmp #$00 ; got cmd response, check if $00 to set z flag accordingly
-			rts
-sd_block_cmd_timeout:
-			debug "sd_block_cmd_timeout"
-			lda #$1f ; make up error code distinct from possible sd card responses to mark timeout
-			rts
-
-
-;---------------------------------------------------------------------
-; Read block from SD Card
-;in:
-;	A - sd card cmd byte (cmd17, cmd18, cmd24, cmd25)
-;   block lba in lba_addr
-;
-;out:
-;	A - A = 0 on success, error code otherwise
-;---------------------------------------------------------------------
-sd_read_block:
-			jsr sd_select_card
-
-			jsr sd_cmd_lba
-			lda #cmd17
-			jsr sd_cmd
-
-		   	bne @exit
-@l1:
-			jsr fullblock
-
-@exit: 		; fall through to sd_deselect_card
-
-;---------------------------------------------------------------------
-; deselect sd card, puSH CS line to HI and generate few clock cycles
-; to allow card to deinit
-;---------------------------------------------------------------------
-sd_deselect_card:
-      pha
-      phy
-      
-      jsr spi_deselect
-
-      ldy #$04
-@l1:
-      jsr spi_r_byte
-      dey
-      bne @l1
-      
-      ply
-      pla
-
-      rts
-
-; XXX: 256-byte sector emulation; should go away:
-; XXX: the caller should cache a 512 byte sector instead
-; ***** XXX
-sd_read_block_lower:
-			jsr sd_select_card
-
-			jsr sd_cmd_lba
-			lda #cmd17
-			jsr sd_cmd
-
-		   	bne @exit
-@l1:
-			; wait for sd card data token
-			lda #sd_data_token
-			jsr sd_wait
-            		bne @exit
-
-			ldy #$00
-			jsr halfblock
-
-@discard:		jsr spi_r_byte ; discard second half
-			iny
-			bne @discard
-
-@exit: 			jmp sd_deselect_card
-
-sd_read_block_upper:
-			jsr sd_select_card
-
-			jsr sd_cmd_lba
-			lda #cmd17
-			jsr sd_cmd
-
-		   	bne @exit
-@l1:
-			; wait for sd card data token
-			lda #sd_data_token
-			jsr sd_wait
-            		bne @exit
-
-			ldy #$00
-			jsr halfblock
-			jsr halfblock	; overwrite first half
-
-@exit: 			jmp sd_deselect_card
-; ***** XXX
-
-
-fullblock:
-			; wait for sd card data token
-			lda #sd_data_token
-			jsr sd_wait
-            bne @exit
-
-			ldy #$00
-			jsr halfblock
-
-			inc read_blkptr+1
-			jsr halfblock
-
-			jsr spi_r_byte		; Read 2 CRC bytes
-			jsr spi_r_byte
-			lda #$00
-@exit:
-			rts
-
-halfblock:
-@l:
-			jsr spi_r_byte
-			sta (read_blkptr),y
-			iny
-			bne @l
-			rts
-
-;---------------------------------------------------------------------
-; Read multiple blocks from SD Card
-;in:
-;	A - sd card cmd byte (cmd17, cmd18, cmd24, cmd25)
-;   block lba in lba_addr
-;   block count in blocks
-;
-;out:
-;	A - A = 0 on success, error code otherwise
-;---------------------------------------------------------------------
-sd_read_multiblock:
-			phx
-			phy
-
-			jsr sd_select_card
-
-			jsr sd_cmd_lba
-			lda #cmd18	; Send CMD18 command byte
-			jsr sd_cmd
-			bne @exit
-@l1:
-
-			jsr fullblock
-			bne @exit
-			inc read_blkptr+1
-
-			dec blocks
-			bne @l1
-
-	        ; all blocks read, send cmd12 to end transmission
-	        ; jsr sd_param_init
-	        lda #cmd12
-	        jsr sd_cmd
-
-@exit:
-	        ply
-			plx
-	        jmp sd_deselect_card
-
-;---------------------------------------------------------------------
-; Write block to SD Card
-;in:
-;	A - sd card cmd byte (cmd17, cmd18, cmd24, cmd25)
-;   block lba in lba_addr
-;
-;out:
-;	A - A = 0 on success, error code otherwise
-;---------------------------------------------------------------------
-sd_write_block:
-			phx
-			phy
-			jsr sd_select_card
-
-			jsr sd_cmd_lba
-			lda #cmd24
-			jsr sd_cmd
-		    bne @exit
-
-			lda #sd_data_token
-			jsr spi_rw_byte
-
-			ldy #$00
-@l2:		lda (write_blkptr),y
-			phy
-			jsr spi_rw_byte
-			ply
-			iny
-			bne @l2
-
-			inc write_blkptr+1
-
-			ldy #$00
-@l3:		lda (write_blkptr),y
-			phy
-			jsr spi_rw_byte
-			ply
-			iny
-			bne @l3
-
-
-
-			; Send fake CRC bytes
-			lda #$00
-			jsr spi_rw_byte
-			lda #$00
-			jsr spi_rw_byte
-			inc write_blkptr+1
-			lda #$00
-
-@exit:
-			ply
-			plx
-	        jmp sd_deselect_card
-
-;---------------------------------------------------------------------
-; Write multiple blocks to SD Card
-;---------------------------------------------------------------------#
-.ifdef MULTIBLOCK_WRITE
-sd_write_multiblock:
-			save
-
-			; TODO
-			; 1. make this work
-			; 2. use SET_WR_BLOCK_ERASE_COUNT (ACMD23) to pre-erase number of blocks
-
-			jsr sd_select_card
-			bne @exit
-
-			jsr sd_cmd_lba
-			lda #cmd25	; Send CMD25 command byte
-			jsr sd_cmd
-
-			; wait for command response.
-			lda #$00
-			jsr sd_wait
-	       	bne @exit
-
-@block:
-			lda #sd_data_token
-			jsr spi_rw_byte
-
-			ldy #$00
-@l2:		lda (write_blkptr),y
-			phy
-			jsr spi_rw_byte
-			ply
-			iny
-			bne @l2
-
-			inc 	write_blkptr+1
-
-			ldy #$00
-@l3:		lda (write_blkptr),y
-			phy
-			jsr spi_rw_byte
-			ply
-			iny
-			bne @l3
-
-			; Send fake CRC bytes
-			lda #$00
-			jsr spi_rw_byte
-			lda #$00
-			jsr spi_rw_byte
-
-			inc write_blkptr+1
-
-
-			dec blocks
-			bne @block
-
-	        ; all blocks read, send cmd12 to end transmission
-	        ; jsr sd_param_init
-	        lda #cmd12
-	        jsr sd_cmd
-
-@exit:
-			restore
-			jmp sd_deselect_card
+.if ^arg = 0
+	stz cmd_arg + 2
+.else
+	lda #^arg
+	sta cmd_arg + 2
 .endif
 
-;---------------------------------------------------------------------
-; wait for sd card whatever
-; in: A - value to wait for
-; out: Z = 1, A = 1 when error (timeout)
-;---------------------------------------------------------------------
-sd_wait:
-			sta sd_tmp
-			ldy #sd_data_token_retries
-			stz	krn_tmp				; use krn_tmp as loop var, not needed here
-@l1:
-			jsr spi_r_byte
-			cmp sd_tmp
-			beq @l2
-			dec	krn_tmp
-			bne	@l1
-			dey
-			bne @l1
+.if >arg = 0
+	stz cmd_arg + 1
+.else
+	lda #>arg
+	sta cmd_arg + 1
+.endif
 
-			lda #sd_card_error_timeout
-			rts
-@l2:		lda #0
-			rts
+.if <arg = 0
+	stz cmd_arg + 0
+.else
+	lda #<arg
+	sta cmd_arg + 0
+.endif
 
+.if cmd = 0
+	lda #$95
+.else
+.if cmd = 8
+	lda #$87
+.else
+	lda #1
+.endif
+.endif
+	sta cmd_crc
+	jsr send_cmd
+.endmacro
 
-;---------------------------------------------------------------------
-; select sd card, pull CS line to low
-;---------------------------------------------------------------------
-sd_select_card:
-	ldx #1
-	stx VERA_SPI_CTRL
-			;TODO FIXME race condition here!
-			
-; fall through to sd_busy_wait
+;-----------------------------------------------------------------------------
+; sdcard_init
+; result: C=0 -> error, C=1 -> success
+;-----------------------------------------------------------------------------
+.proc sdcard_init
+	; Deselect card and set slow speed (< 400kHz)
+	lda #SPI_CTRL_SLOWCLK
+	sta SPI_CTRL
 
-;---------------------------------------------------------------------
-; wait while sd card is busy
-; Z = 1, A = 1 when error (timeout)
-;---------------------------------------------------------------------
-sd_busy_wait:
-			ldx #$ff
-@l1:    	lda #$ff
-			dex
-			beq @err
+	; Generate at least 74 SPI clock cycles with device deselected
+	ldx #10
+l1:	jsr spi_read
+	dex
+	bne l1
 
-			phx
-	        jsr spi_rw_byte
-			plx
-	        cmp #$ff
-	        bne @l1
+	; Enter idle state
+	send_cmd_inline 0, 0
+	bcs :+
+	jmp error
+:
+	cmp #1	; In idle state?
+	beq :+
+	jmp error
+:
+	; SDv2? (SDHC/SDXC)
+	send_cmd_inline 8, $1AA
+	bcs :+
+	jmp error
+:
+	cmp #1	; No error?
+	beq :+
+	jmp error
+:
+sdv2:	; Receive remaining 4 bytes of R7 response
+	jsr spi_read
+	jsr spi_read
+	jsr spi_read
+	jsr spi_read
 
-			lda #$00
-	       	rts
+	; Wait for card to leave idle state
+l2:	send_cmd_inline 55, 0
+	bcs :+
+	bra error
+:
+	send_cmd_inline 41, $40000000
+	bcs :+
+	bra error
+:
+	cmp #0
+	bne l2
 
-@err:
-			lda #sd_card_error_timeout_busy
-			rts
+	; Check CCS bit in OCR register
+	send_cmd_inline 58, 0
+	cmp #0
+	jsr spi_read
+	and #$40	; Check if this card supports block addressing mode
+	beq error
+	jsr spi_read
+	jsr spi_read
+	jsr spi_read
 
-;---------------------------------------------------------------------
-; clear sd card parameter buffer
-;---------------------------------------------------------------------
-sd_param_init:
-			ldx #$03
-@l:
-			stz sd_cmd_param,x
-			dex
-			bpl @l
-			lda #$01
-			sta sd_cmd_chksum
-			rts
+	; Select full speed
+	jsr deselect
+	lda #0
+	sta SPI_CTRL
 
-;---------------------------------------------------------------------
-; write lba_addr in correct order into sd_cmd_param
-; in:
-;	lba_addr - LBA address
-; out:
-;   sd_cmd_param
-;---------------------------------------------------------------------
-sd_cmd_lba:
-			ldx #$03
-			ldy #$00
-@l:
-			lda lba_addr,x
-			sta sd_cmd_param,y
-			iny
-			dex
-			bpl @l
-			rts
+	; Success
+	sec
+	rts
+
+error:	jsr deselect
+
+	; Error
+	clc
+	rts
+.endproc
+
+;-----------------------------------------------------------------------------
+; sdcard_read_sector
+; Set sector_lba prior to calling this function.
+; result: C=0 -> error, C=1 -> success
+;-----------------------------------------------------------------------------
+.proc sdcard_read_sector
+	; Send READ_SINGLE_BLOCK command
+	lda #($40 | 17)
+	sta cmd_idx
+	lda #1
+	sta cmd_crc
+	jsr send_cmd
+
+	; Wait for start of data packet
+	ldx #0
+l2:	ldy #0
+l1:	jsr spi_read
+	cmp #$FE
+	beq start
+	dey
+	bne l1
+	dex
+	bne l2
+
+	; Timeout error
+	jsr deselect
+	clc
+	rts
+
+.ifdef FAST_READ
+start:	
+	; Enable auto-tx mode
+	lda SPI_CTRL
+	ora #SPI_CTRL_AUTOTX
+	sta SPI_CTRL
+
+	; Start first read transfer
+	lda SPI_DATA			; Auto-tx
+	nop				; 2
+
+	; Efficiently read first 256 bytes (hide SPI transfer time)
+ 	ldy #0				; 2
+l3:	lda SPI_DATA			; 4
+	sta sector_buffer + 0, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 1, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 2, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 3, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 4, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 5, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 6, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 7, y	; 5
+	tya				; 2
+	clc				; 2
+	adc #8				; 2
+	tay				; 2
+	bne l3				; 2+1
+
+	; Efficiently read second 256 bytes (hide SPI transfer time)
+l4:	lda SPI_DATA			; 4
+	sta sector_buffer + 256 + 0, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 256 + 1, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 256 + 2, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 256 + 3, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 256 + 4, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 256 + 5, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 256 + 6, y	; 5
+	lda SPI_DATA			; 4
+	sta sector_buffer + 256 + 7, y	; 5
+	tya				; 2
+	clc				; 2
+	adc #8				; 2
+	tay				; 2
+	bne l4				; 2+1
+
+	; Disable auto-tx mode
+	lda SPI_CTRL
+	and #(SPI_CTRL_AUTOTX ^ $FF)
+	sta SPI_CTRL
+
+	; Next read is now already done (first CRC byte), read second CRC byte
+	jsr spi_read
+
+.else
+start:	; Read 512 bytes of sector data
+	ldx #$FF
+	ldy #0
+l3:	stx SPI_DATA		; 4
+:	bit SPI_CTRL		; 4
+	bmi :-			; 2 + 1 if branch
+
+	lda SPI_DATA		; 4
+	sta sector_buffer + 0, y
+	iny
+	bne l3
+
+	; Y already 0 at this point
+l4:	stx SPI_DATA		; 4
+:	bit SPI_CTRL		; 4
+	bmi :-			; 2 + 1 if branch
+	lda SPI_DATA		; 4
+	sta sector_buffer + 256, y
+	iny
+	bne l4
+
+	; Read CRC bytes
+	jsr spi_read
+	jsr spi_read
+.endif
+
+	; Success
+	jsr deselect
+	sec
+	rts
+.endproc
+
+;-----------------------------------------------------------------------------
+; sdcard_write_sector
+; Set sector_lba prior to calling this function.
+; result: C=0 -> error, C=1 -> success
+;-----------------------------------------------------------------------------
+.proc sdcard_write_sector
+	; Send WRITE_BLOCK command
+	lda #($40 | 24)
+	sta cmd_idx
+	lda #1
+	sta cmd_crc
+	jsr send_cmd
+	cmp #00
+	bne error
+
+	; Wait for card to be ready
+	jsr wait_ready
+	bcc error
+
+	; Send start of data token
+	lda #$FE
+	jsr spi_write
+
+.ifdef FAST_WRITE
+	; Send 512 bytes of sector data
+	; NOTE: Direct access of SPI registers to speed up.
+	;       Make sure 9 CPU clock cycles take longer than 640 ns (eg. CPU max 14MHz)
+	ldy #0
+:	lda sector_buffer, y		; 4
+	sta SPI_DATA			; 4
+	iny				; 2
+	bne :-				; 2 + 1
+
+	; Y already 0 at this point
+:	lda sector_buffer + 256, y	; 4
+	sta SPI_DATA			; 4
+	iny				; 2
+	bne :-				; 2 + 1
+.else
+	; Send 512 bytes of sector data
+	ldy #0
+l1:	lda sector_buffer, y		; 4
+	spi_write_macro
+	iny				; 2
+	bne l1				; 2 + 1
+
+	; Y already 0 at this point
+l2:	lda sector_buffer + 256, y	; 4
+	spi_write_macro
+	iny				; 2
+	bne l2				; 2 + 1
+.endif
+
+	; Dummy CRC
+	lda #0
+	jsr spi_write
+	jsr spi_write
+
+	; Success
+	jsr deselect
+	sec
+	rts
+
+error:	; Error
+	jsr deselect
+	clc
+	rts
+.endproc
