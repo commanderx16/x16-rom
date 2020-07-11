@@ -38,4 +38,4 @@ BVARS:    start = $03D4, size = $002C; # BASIC
 
 /* KERNAL/CBDOS bank #0 vars */
 KVARSB0:  start = $A000, size = $0C00;
-CBDOSDAT: start = $AC00, size = $1500;
+CBDOSDAT: start = $AC00, size = $1700;

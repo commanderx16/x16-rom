@@ -22,14 +22,6 @@ cluster    .dword
 ; Optionally, fat32_alloc_context / fat32_free_context can be used to manage contexts
 FAT32_CONTEXTS = 4
 
-sdcard_param        = $414  ; 6 bytes
-sector_lba          = $415  ; dword (part of sdcard_param) - LBA of sector to read/write
-fat32_size          = $41A  ; dword - Used for fat32_get_free_space result
-fat32_cwd_cluster   = $41E  ; dword - Cluster of current directory
-fat32_dirent        = $422  ; 22 bytes - Buffer containing decoded directory entry
-sector_buffer       = $600
-sector_buffer_end   = $800
-
 ;-----------------------------------------------------------------------------
 ; Register bits
 ;-----------------------------------------------------------------------------

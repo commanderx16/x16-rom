@@ -10,6 +10,8 @@
 	.include "lib.inc"
 	.include "sdcard.inc"
 
+	.import sector_buffer, sector_buffer_end, sector_lba
+
 CONTEXT_SIZE = 32
 
 FLAG_IN_USE = 1<<0  ; Context in use
@@ -30,6 +32,13 @@ dirent_bufptr   .word    ; Offset to start of directory entry
 
 	.bss
 _fat32_bss_start:
+
+fat32_size:
+	.res 4 ; dword - Used for fat32_get_free_space result
+fat32_cwd_cluster:
+	.res 4 ; dword - Cluster of current directory
+fat32_dirent:
+	.res 22 ; 22 bytes - Buffer containing decoded directory entry
 
 ; Static filesystem parameters
 rootdir_cluster:     .dword 0      ; Cluster of root directory
