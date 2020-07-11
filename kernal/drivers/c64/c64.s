@@ -3,7 +3,7 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.import clklo
+.import clklo, entropy_init
 .export emulator_get_data, ioinit,iokeys,irq_ack,monitor
 
 .segment "MACHINE"
@@ -37,6 +37,8 @@ ioinit:
 	; SID
 	lda #0
 	sta $d418       ;mute SID
+
+	jsr entropy_init
 
 	; Serial
 	jsr clklo       ;release the clock line
