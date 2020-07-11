@@ -281,7 +281,6 @@ KEYMAP_DEPS = \
 CBDOS_DEPS = \
 	$(GENERIC_DEPS) \
 	cbdos/fat32.inc \
-	cbdos/fat32_util.inc \
 	cbdos/lib.inc \
 	cbdos/regs.inc \
 	cbdos/sdcard.inc \
