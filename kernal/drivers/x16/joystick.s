@@ -17,6 +17,8 @@ nes_ddr  = d1ddra
 
 bit_latch = $04 ; PA2 LATCH (both controllers)
 bit_jclk  = $08 ; PA3 CLK   (both controllers)
+bit_data4 = $10 ; PA4 DATA  (controller #4)
+bit_data3 = $20 ; PA5 DATA  (controller #3)
 bit_data2 = $40 ; PA6 DATA  (controller #2)
 bit_data1 = $80 ; PA7 DATA  (controller #1)
 
@@ -26,6 +28,8 @@ j0tmp:	.res 1           ;    keyboard joystick temp
 joy0:	.res 1           ;    keyboard joystick temp
 joy1:	.res 3           ;    joystick 1 status
 joy2:	.res 3           ;    joystick 2 status
+joy3:	.res 3           ;    joystick 3 status
+joy4:	.res 3           ;    joystick 4 status
 
 .segment "JOYSTICK"
 
@@ -54,11 +58,18 @@ joystick_scan:
 l2:	ldy #8
 l1:	lda nes_data
 .assert bit_data2 < bit_data1, error, "bit_data2 must be greater than bit_data1, otherwise swap 1 vs. 2 here"
-	cmp #bit_data1
-	rol joy2,x
-	and #bit_data2
-	cmp #bit_data2
+	cmp #%10000000
 	rol joy1,x
+	rol
+	cmp #%10000000
+	rol joy2,x
+	rol
+	cmp #%10000000
+	rol joy3,x
+	rol
+	cmp #%10000000
+	rol joy4,x
+
 	lda #bit_jclk
 	sta nes_data
 	lda #0
@@ -101,26 +112,51 @@ l1:	lda nes_data
 joystick_get:
 	KVARS_START
 	tax
-	bne @1       ; -> joy2
+	beq @1
+	cmp #1
+	beq @2       ; -> joy2
+	cmp #2
+	beq @3       ; -> joy2
+	cmp #3
+	beq @4       ; -> joy2
 
+
+@1:
 ; joy1
 	lda joy1
 	ldx joy1+1
 	ldy joy1+2
-	beq @2       ; present
+	beq @5      ; present
 
 ; joy1 not present, return keyboard
 	lda joy0
 	ldx #1       ; type = keyboard
 	ldy #0       ; present
-	bra @2
+	bra @5
 
 ; joy 2
-@1:	lda joy2
+@2:
+	lda joy2
 	ldx joy2+1
 	ldy joy2+2
+	bra @5
 
-@2:	KVARS_END
+@3:
+	lda joy3
+	ldx joy3+1
+	ldy joy3+2
+	bra @5
+
+
+
+@4:
+	lda joy4
+	ldx joy4+1
+	ldy joy4+2
+	bra @5
+
+
+@5:	KVARS_END
 	rts
 
 ;----------------------------------------------------------------------
@@ -197,4 +233,3 @@ NES_RIGHT  = (1 << 0)
 @l2:	plp
 	pla
 	rts
-
