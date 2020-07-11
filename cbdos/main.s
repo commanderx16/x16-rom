@@ -721,7 +721,7 @@ status_74:
 
 ;****************************************
 open_file:
-	jsr fat_mount
+;XXX	jsr fat_mount
 
 	lda #0 ; zero-terminate filename
 	ldy fnlen
@@ -729,7 +729,7 @@ open_file:
 	lda #<fnbuffer
 	ldx #>fnbuffer
 	ldy #O_RDONLY
-	jsr fat_open
+;XXX	jsr fat_open
 	beq :+
 	lda #MAGIC_FD_NONE
 	.byte $24 ; no fd
@@ -740,13 +740,13 @@ open_file:
 ; start counting remaining bytes
 	tax
 	ldy channel
-	lda fd_area + F32_fd::FileSize + 0, x
+;XXX	lda fd_area + F32_fd::FileSize + 0, x
 	sta bytes_remaining_for_channel + 0,y
-	lda fd_area + F32_fd::FileSize + 1, x
+;XXX	lda fd_area + F32_fd::FileSize + 1, x
 	sta bytes_remaining_for_channel + 1,y
-	lda fd_area + F32_fd::FileSize + 2, x
+;XXX	lda fd_area + F32_fd::FileSize + 2, x
 	sta bytes_remaining_for_channel + 2,y
-	lda fd_area + F32_fd::FileSize + 3, x
+;XXX	lda fd_area + F32_fd::FileSize + 3, x
 	sta bytes_remaining_for_channel + 3,y
 
 ; indicate there's nothing currently read
@@ -768,7 +768,7 @@ read_block:
 	lda buffer + 1
 	sta read_blkptr + 1
 	ldy #1 ; one block
-	jsr fat_fread
+;XXX	jsr fat_fread
 
 ; are there more than $0200 bytes remaining?
 	ldx channel
@@ -824,7 +824,7 @@ read_block:
 
 
 open_dir:
-	jsr fat_mount
+;XXX	jsr fat_mount
 	beq :+
 	lda #$02 ; timeout/file not found
 	sta status
@@ -872,9 +872,12 @@ open_dir:
 	jsr storedir
 
 	phy
-	SetVector allfiles, filenameptr
-	ldx #FD_INDEX_CURRENT_DIR
-	jsr fat_find_first
+	lda #<allfiles
+	sta filenameptr
+	lda #>allfiles
+	sta filenameptr+1
+;XXX	ldx #FD_INDEX_CURRENT_DIR
+;XXX	jsr fat_find_first
 	ply
 	bcc end_of_dir ; end of dir
 
@@ -923,7 +926,7 @@ read_dir:
 
 	tya
 	tax
-	ldy #F32DirEntry::FileSize
+;XXX	ldy #F32DirEntry::FileSize
 	lda (dirptr),y
 	iny
 	clc
@@ -993,7 +996,7 @@ gt_1000
 	sta krn_ptr3 + 1
 	sty krn_tmp3
 	sty fn_base
-	jsr fat_name_string
+;XXX	jsr fat_name_string
 	ldy krn_tmp3
 
 	lda #$22 ; quote
@@ -1021,8 +1024,8 @@ gt_1000
 	jsr storedir
 
 	phy
-	ldx #FD_INDEX_CURRENT_DIR
-	jsr fat_find_next
+;XXX	ldx #FD_INDEX_CURRENT_DIR
+;XXX	jsr fat_find_next
 	ply
 	bcs :+
 	jmp end_of_dir ; end of dir
@@ -1088,7 +1091,7 @@ cmdptrs:
 	.word cmd_u - 1
 
 cmd_i:
-	jsr fat_mount
+;XXX	jsr fat_mount
 	jmp set_status_ok ; XXX error handling
 
 cmd_v:
@@ -1166,9 +1169,10 @@ GetBlock:
 	lda r4H
 	sta read_blkptr + 1
 	bcs @l5
-	jsr sd_read_block_lower
+;XXX	jsr sd_read_block_lower
 	jmp @l6
-@l5:	jsr sd_read_block_upper
+@l5:
+;XXX	jsr sd_read_block_upper
 @l6:	ldx #0 ; no error
 	rts
 

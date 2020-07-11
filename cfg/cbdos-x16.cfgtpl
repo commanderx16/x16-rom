@@ -10,7 +10,6 @@ SEGMENTS {
 	cbdos:      load = CBDOS,    type = ro;
 	CODE:       load = CBDOS,    type = ro;
 	cbdos_data: load = CBDOSDAT, type = bss;
-	fat_data:   load = CBDOSDAT, type = bss;
-	sdcard_data:load = CBDOSDAT, type = bss;
+	BSS:        load = CBDOSDAT, type = bss;
 	IRQB:       load = IRQB,     type = ro;
 }
