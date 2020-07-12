@@ -21,7 +21,6 @@ bit_data4 = $10 ; PA4 DATA  (controller #4)
 bit_data3 = $20 ; PA5 DATA  (controller #3)
 bit_data2 = $40 ; PA6 DATA  (controller #2)
 bit_data1 = $80 ; PA7 DATA  (controller #1)
-top_bit = $80
 
 .segment "KVARSB0"
 
