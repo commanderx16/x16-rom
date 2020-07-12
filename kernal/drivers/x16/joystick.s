@@ -112,13 +112,13 @@ l1:	lda nes_data
 joystick_get:
 	KVARS_START
 	tax
-	beq @1
+	beq @1       ; -> joy1
 	cmp #1
 	beq @2       ; -> joy2
 	cmp #2
-	beq @3       ; -> joy2
+	beq @3       ; -> joy3
 	cmp #3
-	beq @4       ; -> joy2
+	beq @4       ; -> joy4
 
 
 @1:
@@ -146,8 +146,6 @@ joystick_get:
 	ldx joy3+1
 	ldy joy3+2
 	bra @5
-
-
 
 @4:
 	lda joy4
