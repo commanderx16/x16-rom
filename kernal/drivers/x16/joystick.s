@@ -58,16 +58,13 @@ joystick_scan:
 	ldx #0
 l2:	ldy #8
 l1:	lda nes_data
-	cmp #top_bit ; Check if top bit (Controller #1) is set.
+	rol
 	rol joy1,x ;If top bit was set, carry will be set rotate that into joy1
-	rol ;shift data to remove top bit.
-	cmp #top_bit ; Check top bit again (Controller #2)
+	rol
 	rol joy2,x ;rol into joy2
 	rol
-	cmp #top_bit
 	rol joy3,x
 	rol
-	cmp #top_bit
 	rol joy4,x
 
 	lda #bit_jclk
@@ -113,11 +110,11 @@ joystick_get:
 	KVARS_START
 	tax
 	beq @1       ; -> joy1
-	cmp #1
+	dex
 	beq @2       ; -> joy2
-	cmp #2
+	dex
 	beq @3       ; -> joy3
-	cmp #3
+	dex
 	beq @4       ; -> joy4
 
 
@@ -151,7 +148,6 @@ joystick_get:
 	lda joy4
 	ldx joy4+1
 	ldy joy4+2
-	bra @5
 
 
 @5:	KVARS_END
