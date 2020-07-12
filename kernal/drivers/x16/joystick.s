@@ -21,6 +21,7 @@ bit_data4 = $10 ; PA4 DATA  (controller #4)
 bit_data3 = $20 ; PA5 DATA  (controller #3)
 bit_data2 = $40 ; PA6 DATA  (controller #2)
 bit_data1 = $80 ; PA7 DATA  (controller #1)
+top_bit = $80
 
 .segment "KVARSB0"
 
@@ -57,17 +58,16 @@ joystick_scan:
 	ldx #0
 l2:	ldy #8
 l1:	lda nes_data
-.assert bit_data2 < bit_data1, error, "bit_data2 must be greater than bit_data1, otherwise swap 1 vs. 2 here"
-	cmp #%10000000
-	rol joy1,x
+	cmp #top_bit ; Check if top bit (Controller #1) is set.
+	rol joy1,x ;If top bit was set, carry will be set rotate that into joy1
+	rol ;shift data to remove top bit.
+	cmp #top_bit ; Check top bit again (Controller #2)
+	rol joy2,x ;rol into joy2
 	rol
-	cmp #%10000000
-	rol joy2,x
-	rol
-	cmp #%10000000
+	cmp #top_bit
 	rol joy3,x
 	rol
-	cmp #%10000000
+	cmp #top_bit
 	rol joy4,x
 
 	lda #bit_jclk
