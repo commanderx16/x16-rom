@@ -11,6 +11,7 @@
 	.include "sdcard.inc"
 
 	.import sector_buffer, sector_buffer_end, sector_lba
+	.export fat32_dirent
 
 CONTEXT_SIZE = 32
 

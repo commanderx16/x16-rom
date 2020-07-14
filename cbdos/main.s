@@ -3,18 +3,9 @@
 
 .import sdcard_init
 
-.import fat_mount
-.import fat_open, fat_chdir, fat_unlink
-.import fat_mkdir, fat_rmdir
-.import fat_read_block, fat_fread ; TODO FIXME update exec, use fat_fread
-.import fat_read
-.import fat_fseek
-.import fat_find_first, fat_find_next, fat_write
-.import fat_get_root_and_pwd
-.import fat_close_all, fat_close, fat_getfilesize
-.import inc_lba_address
+.import fat32_init
 
-.import fat_name_string
+.import fat32_dirent
 
 .export tmp1, krn_tmp, krn_tmp2, krn_tmp3, sd_tmp, lba_addr, blocks
 .export fd_area, sd_blktarget, block_data, block_fat
@@ -32,8 +23,10 @@ IMPORTED_FROM_MAIN=1
 .include "fcntl.inc"
 ;.include "65c02.inc"
 
+.include "regs.inc"
 
-NUM_BUFS = 4
+
+NUM_BUFS = 2
 TOTAL_NUM_BUFS = NUM_BUFS + 3
 ; special purpose buffers follow general purpose buffers
 BUFNO_FN     = NUM_BUFS
@@ -210,7 +203,10 @@ cbdos_init:
 
 cbdos_sdcard_init:
 	BANKING_START
-	jsr sdcard_init
+	jsr sdcard_init ; C=0: error
+	lda #0
+	rol
+	eor #1          ; Z=0: error
 	BANKING_END
 	rts
 
@@ -721,7 +717,7 @@ status_74:
 
 ;****************************************
 open_file:
-;XXX	jsr fat_mount
+	jsr fat32_init
 
 	lda #0 ; zero-terminate filename
 	ldy fnlen
@@ -824,8 +820,8 @@ read_block:
 
 
 open_dir:
-;XXX	jsr fat_mount
-	beq :+
+	jsr fat32_init
+	bcs :+
 	lda #$02 ; timeout/file not found
 	sta status
 	jmp set_status_62
@@ -871,14 +867,14 @@ open_dir:
 	lda #0 ; end of line
 	jsr storedir
 
-	phy
-	lda #<allfiles
-	sta filenameptr
-	lda #>allfiles
-	sta filenameptr+1
-;XXX	ldx #FD_INDEX_CURRENT_DIR
-;XXX	jsr fat_find_first
-	ply
+;XXX	phy
+;XXX	lda #<allfiles
+;XXX	sta filenameptr
+;XXX	lda #>allfiles
+;XXX	sta filenameptr+1
+	jsr fat32_open_cwd
+	nop
+;XXX	ply
 	bcc end_of_dir ; end of dir
 
 not_end_of_dir:
@@ -926,21 +922,17 @@ read_dir:
 
 	tya
 	tax
-;XXX	ldy #F32DirEntry::FileSize
-	lda (dirptr),y
-	iny
+	lda fat32_dirent + dirent::size + 0
 	clc
 	adc #255
 	lda #0
-	adc (dirptr),y
+	adc fat32_dirent + dirent::size + 1
 	sta num_blocks
-	iny
 	lda #0
-	adc (dirptr),y
+	adc fat32_dirent + dirent::size + 2
 	sta num_blocks + 1
-	iny
 	lda #0
-	adc (dirptr),y
+	adc fat32_dirent + dirent::size + 3
 	beq :+
 	lda #$ff ; overflows 65535 blocks, so show 65535
 	sta num_blocks
@@ -994,24 +986,25 @@ gt_1000
 	sta krn_ptr3
 	lda buffer + 1
 	sta krn_ptr3 + 1
-	sty krn_tmp3
+;	sty krn_tmp3
 	sty fn_base
-;XXX	jsr fat_name_string
-	ldy krn_tmp3
+
+mmm1:
+	ldx #0
+:	lda fat32_dirent + dirent::name, x
+	beq :+
+	jsr storedir
+	inx
+	bne :-
+:
 
 	lda #$22 ; quote
 	jsr storedir
 
-	lda #17
-	sec
-	sbc krn_tmp3
-	clc
-	adc fn_base
-	tax
-
 	lda #' '
 :	jsr storedir
-	dex
+	inx
+	cpx #20
 	bne :-
 
 	lda #'P'
@@ -1024,8 +1017,7 @@ gt_1000
 	jsr storedir
 
 	phy
-;XXX	ldx #FD_INDEX_CURRENT_DIR
-;XXX	jsr fat_find_next
+	jsr fat32_read_dirent
 	ply
 	bcs :+
 	jmp end_of_dir ; end of dir
@@ -1046,8 +1038,8 @@ storedir:
 	inc buffer + 1
 :	rts
 
-allfiles:
-	.byte "*.*", 0
+;XXXallfiles:
+;XXX	.byte "*.*", 0
 
 __rtc_systime_update:
 	rts
@@ -1091,7 +1083,7 @@ cmdptrs:
 	.word cmd_u - 1
 
 cmd_i:
-;XXX	jsr fat_mount
+	jsr fat32_init
 	jmp set_status_ok ; XXX error handling
 
 cmd_v:
