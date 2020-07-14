@@ -867,14 +867,14 @@ open_dir:
 	lda #0 ; end of line
 	jsr storedir
 
-;XXX	phy
+	phy
 ;XXX	lda #<allfiles
 ;XXX	sta filenameptr
 ;XXX	lda #>allfiles
 ;XXX	sta filenameptr+1
 	jsr fat32_open_cwd
 	nop
-;XXX	ply
+	ply
 	bcc end_of_dir ; end of dir
 
 not_end_of_dir:
@@ -915,6 +915,11 @@ end_of_dir:
 	rts
 
 read_dir:
+	lda fat32_dirent + dirent::attributes
+	bit #$10 ; = directory
+	beq :+
+	jmp next
+:
 	ldy #0
 	lda #1
 	jsr storedir ; link
@@ -989,7 +994,6 @@ gt_1000
 ;	sty krn_tmp3
 	sty fn_base
 
-mmm1:
 	ldx #0
 :	lda fat32_dirent + dirent::name, x
 	beq :+
@@ -1004,7 +1008,7 @@ mmm1:
 	lda #' '
 :	jsr storedir
 	inx
-	cpx #20
+	cpx #16
 	bne :-
 
 	lda #'P'
@@ -1016,6 +1020,7 @@ mmm1:
 	lda #0 ; end of line
 	jsr storedir
 
+next:
 	phy
 	jsr fat32_read_dirent
 	ply
