@@ -417,7 +417,7 @@ cbdos_acptr:
 	sty save_y
 	ldx channel
 	lda fd_for_channel,x
-	bpl @acptr5 ; actual file
+	bpl @acptrX ; actual file
 	cmp #MAGIC_FD_DIR_LOAD
 	beq @acptr5
  	cmp #MAGIC_FD_STATUS
@@ -428,6 +428,7 @@ cbdos_acptr:
 
 
 ; EOF
+@eof:
 	lda #$40
 	bra :+
 @acptr_nofd
@@ -440,6 +441,11 @@ cbdos_acptr:
 	BANKING_END
 	sec
 	rts
+
+@acptrX:
+	jsr fat32_read_byte
+	bcc @eof
+	jmp @acptr_end
 
 ; no data? read more
 @acptr5:
@@ -723,10 +729,11 @@ open_file:
 	ldy fnlen
 	sta fnbuffer,y
 	lda #<fnbuffer
-	ldx #>fnbuffer
-	ldy #O_RDONLY
-;XXX	jsr fat_open
-	beq :+
+	sta fat32_ptr + 0
+	lda #>fnbuffer
+	sta fat32_ptr + 1
+	jsr fat32_open
+	bcs :+
 	lda #MAGIC_FD_NONE
 	.byte $24 ; no fd
 :	txa
@@ -734,16 +741,16 @@ open_file:
 	sta fd_for_channel,x ; remember fd
 
 ; start counting remaining bytes
-	tax
-	ldy channel
+;XXX	tax
+;XXX	ldy channel
 ;XXX	lda fd_area + F32_fd::FileSize + 0, x
-	sta bytes_remaining_for_channel + 0,y
+;XXX	sta bytes_remaining_for_channel + 0,y
 ;XXX	lda fd_area + F32_fd::FileSize + 1, x
-	sta bytes_remaining_for_channel + 1,y
+;XXX	sta bytes_remaining_for_channel + 1,y
 ;XXX	lda fd_area + F32_fd::FileSize + 2, x
-	sta bytes_remaining_for_channel + 2,y
+;XXX	sta bytes_remaining_for_channel + 2,y
 ;XXX	lda fd_area + F32_fd::FileSize + 3, x
-	sta bytes_remaining_for_channel + 3,y
+;XXX	sta bytes_remaining_for_channel + 3,y
 
 ; indicate there's nothing currently read
 	lda #0
@@ -868,10 +875,6 @@ open_dir:
 	jsr storedir
 
 	phy
-;XXX	lda #<allfiles
-;XXX	sta filenameptr
-;XXX	lda #>allfiles
-;XXX	sta filenameptr+1
 	jsr fat32_open_cwd
 	nop
 	ply
@@ -1042,9 +1045,6 @@ storedir:
 	bne :+
 	inc buffer + 1
 :	rts
-
-;XXXallfiles:
-;XXX	.byte "*.*", 0
 
 __rtc_systime_update:
 	rts
