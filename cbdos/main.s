@@ -125,9 +125,6 @@ buffer_len:
 buffer_ptr:
 	.res TOTAL_NUM_BUFS * 2, 0
 
-bytes_remaining_for_channel:
-	.res 16 * 4, 0
-
 is_last_block_for_channel:
 	; $ff = after transmitting the contents of this buffer,
 	;       there won't be more
@@ -461,8 +458,8 @@ cbdos_acptr:
 	jsr read_dir
 	jmp @acptr7
 @acptr6:
- 	cmp #MAGIC_FD_STATUS
-	bne @acptr9
+; MAGIC_FD_STATUS
+
 	lda #$40 ; EOF
 	sta status
 	jsr set_status_ok
@@ -472,9 +469,7 @@ cbdos_acptr:
 	sta cur_buffer_len + 1
 	lda #$0d
 	bne @acptr_end
-@acptr9:
-; read next block
-	jsr read_block
+
 @acptr7:
 	ldy cur_buffer_ptr + 1
 	bne @acptr1
@@ -733,98 +728,19 @@ open_file:
 	lda #>fnbuffer
 	sta fat32_ptr + 1
 	jsr fat32_open
-	bcs :+
+	lda #0 ; >= 0 FD
+	bcs @l0
 	lda #MAGIC_FD_NONE
-	.byte $24 ; no fd
-:	txa
-	ldx channel
+	bra @l1 ; no fd
+@l0:	txa
+@l1:	ldx channel
 	sta fd_for_channel,x ; remember fd
-
-; start counting remaining bytes
-;XXX	tax
-;XXX	ldy channel
-;XXX	lda fd_area + F32_fd::FileSize + 0, x
-;XXX	sta bytes_remaining_for_channel + 0,y
-;XXX	lda fd_area + F32_fd::FileSize + 1, x
-;XXX	sta bytes_remaining_for_channel + 1,y
-;XXX	lda fd_area + F32_fd::FileSize + 2, x
-;XXX	sta bytes_remaining_for_channel + 2,y
-;XXX	lda fd_area + F32_fd::FileSize + 3, x
-;XXX	sta bytes_remaining_for_channel + 3,y
 
 ; indicate there's nothing currently read
 	lda #0
 	sta cur_buffer_len
 	sta cur_buffer_len + 1
 	rts
-
-
-read_block:
-	ldx channel
-	lda fd_for_channel,x
-	bpl :+
-	sec
-	rts ; no fd, return
-:	tax
-	lda buffer
-	sta read_blkptr
-	lda buffer + 1
-	sta read_blkptr + 1
-	ldy #1 ; one block
-;XXX	jsr fat_fread
-
-; are there more than $0200 bytes remaining?
-	ldx channel
-	lda bytes_remaining_for_channel + 0,x
-	sec
-	sbc #<$0200
-	pha
-	lda bytes_remaining_for_channel + 1,x
-	sbc #>$0200
-	pha
-	lda bytes_remaining_for_channel + 2,x
-	sbc #0
-	pha
-	lda bytes_remaining_for_channel + 3,x
-	sbc #0
-	bcc @read_block1
-; yes, subtract $0200, say there's $0200 in the buffer
-	sta bytes_remaining_for_channel + 3,x
-	pla
-	sta bytes_remaining_for_channel + 2,x
-	pla
-	sta bytes_remaining_for_channel + 1,x
-	pla
-	sta bytes_remaining_for_channel + 0,x
-	lda #<$0200
-	sta cur_buffer_len
-	lda #>$0200
-	sta cur_buffer_len + 1
-; need to check if we're actually down to 0 bytes
-	lda bytes_remaining_for_channel + 0,x
-	ora bytes_remaining_for_channel + 1,x
-	ora bytes_remaining_for_channel + 2,x
-	ora bytes_remaining_for_channel + 3,x
-	beq @read_block2
-	lda #0
-	sta is_last_block_for_channel,x
-	clc
-	rts
-; no, say there's this many bytes in the buffer
-@read_block1:
-	pla
-	pla
-	pla
-	lda bytes_remaining_for_channel + 0,x
-	sta cur_buffer_len
-	lda bytes_remaining_for_channel + 1,x
-	sta cur_buffer_len + 1
-@read_block2:
-	lda #$ff
-	sta is_last_block_for_channel,x
-	clc
-	rts
-
 
 open_dir:
 	jsr fat32_init
