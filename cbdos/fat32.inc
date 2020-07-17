@@ -16,19 +16,19 @@
 .global fat32_get_free_space    ; Get free space, result in KiB in fat32_size (32-bit)
 
 ; Directory operations
-.global fat32_open_cwd          ; Open current working directory
+.global fat32_open_dir          ; Open directory with path in fat32_ptr
 .global fat32_read_dirent       ; Read directory entry, result in fat32_dirent
-.global fat32_find_dirent       ; Find file with name in fat32_ptr in current directory
+.global fat32_find_dirent       ; Find file with path in fat32_ptr in current directory
 
-.global fat32_chdir             ; Change to directory with name in fat32_ptr
-.global fat32_rename            ; Rename file with name in fat32_ptr to fat32_ptr2
-.global fat32_delete            ; Delete file with name in fat32_ptr
-.global fat32_mkdir             ; Create new directory with name in fat32_ptr
-.global fat32_rmdir             ; Delete empty directory with name in fat32_ptr
+.global fat32_chdir             ; Change to directory with path in fat32_ptr
+.global fat32_rename            ; Rename file with path in fat32_ptr to fat32_ptr2
+.global fat32_delete            ; Delete file with path in fat32_ptr
+.global fat32_mkdir             ; Create new directory with path in fat32_ptr
+.global fat32_rmdir             ; Delete empty directory with path in fat32_ptr
 
 ; File operations
-.global fat32_open              ; Open file with name in fat32_ptr
-.global fat32_create            ; Create file with name in fat32_ptr (delete existing file)
+.global fat32_open              ; Open file with path in fat32_ptr
+.global fat32_create            ; Create file with path in fat32_ptr (delete existing file)
 .global fat32_close             ; Close file
 .global fat32_read_byte         ; Read byte, result in A
 .global fat32_read              ; Read fat32_size (16-bit) bytes to fat32_ptr

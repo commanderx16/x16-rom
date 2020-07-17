@@ -79,7 +79,7 @@ open_dir:
 	sty dirbuffer_w
 	stz dirbuffer_r
 
-	jsr fat32_open_cwd
+	jsr fat32_open_dir
 	bcc @open_dir_err
 
 	stz dir_eof

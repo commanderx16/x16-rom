@@ -1,12 +1,53 @@
 ;-----------------------------------------------------------------------------
 ; lib.inc
-; Copyright (C) 2020 Frank van den Hoef
 ;-----------------------------------------------------------------------------
 
-	.include "regs.inc"
+        .include "regs.inc"
 
-	.global irq_done
-	.global flash_load
+	.global main
+
+;-----------------------------------------------------------------------------
+; Set 8-bit variable
+;-----------------------------------------------------------------------------
+.macro set8 dst, src
+	lda src
+	sta dst
+.endmacro
+
+.macro set8_val dst, val
+.if .const(val) && val = 0
+	stz dst
+.else
+	lda #val
+	sta dst
+.endif
+.endmacro
+
+.macro add8_val dst, src, val
+	clc
+	lda src + 0
+	adc #val
+	sta dst + 0
+.endmacro
+
+.macro sub8_val dst, src, val
+	sec
+	lda src
+	sbc #val
+	sta dst
+.endmacro
+
+.macro cmp8_ne src_a, src_b, lbl
+	lda src_a
+	cmp src_b
+	bne lbl
+.endmacro
+
+.macro cmp8_eq src_a, src_b, lbl
+	lda src_a
+	cmp src_b
+	beq lbl
+.endmacro
 
 ;-----------------------------------------------------------------------------
 ; Set 16-bit variable
@@ -18,14 +59,19 @@
 	sta dst + 1
 .endmacro
 
-;-----------------------------------------------------------------------------
-; Set 16-bit variable
-;-----------------------------------------------------------------------------
 .macro set16_val dst, val
+.if .const(val) && <val = 0
+	stz dst + 0
+.else
 	lda #<val
 	sta dst + 0
+.endif
+.if .const(val) && >val = 0
+	stz dst + 1
+.else
 	lda #>val
 	sta dst + 1
+.endif
 .endmacro
 
 ;-----------------------------------------------------------------------------
@@ -41,8 +87,27 @@
 	sta dst + 1
 .endmacro
 
+.macro add16_8 dst, src_a, src_b
+	clc
+	lda src_a + 0
+	adc src_b
+	sta dst + 0
+	lda src_a + 1
+	adc #0
+	sta dst + 1
+.endmacro
+
+.macro add16_a dst, src
+	clc
+	adc src
+	sta dst + 0
+	lda src + 1
+	adc #0
+	sta dst + 1
+.endmacro
+
 ;-----------------------------------------------------------------------------
-; Add value to 16-bit variables
+; Add value to 16-bit variable
 ;-----------------------------------------------------------------------------
 .macro add16_val dst, src, val
 	clc
@@ -69,54 +134,155 @@
 .endmacro
 
 ;-----------------------------------------------------------------------------
+; Subtract value from 16-bit variable
+;-----------------------------------------------------------------------------
+.macro sub16_val dst, src, val
+	sec
+	lda src + 0
+	sbc #<val
+	sta dst + 0
+
+	lda src + 1
+	sbc #>val
+	sta dst + 1
+.endmacro
+
+;-----------------------------------------------------------------------------
 ; Increment 16-bit variable
 ;-----------------------------------------------------------------------------
 .macro inc16 dst
-	.local l1
+	.local @1
 	inc dst
-	bne l1
+	bne @1
 	inc dst + 1
-l1:
+@1:
 .endmacro
 
 ;-----------------------------------------------------------------------------
 ; Decrement 16-bit variable
 ;-----------------------------------------------------------------------------
 .macro dec16 dst
-	.local l1
+	.local @1
 	lda dst
-	bne l1
+	bne @1
 	dec dst + 1
-l1:	dec dst
+@1:	dec dst
 .endmacro
 
 ;-----------------------------------------------------------------------------
 ; Compare two 16-bit variables
 ;-----------------------------------------------------------------------------
-.macro cmp16 src_a, src_b, lbl_not_equal
+.macro cmp16_ne src_a, src_b, lbl
 	lda src_a + 0
 	cmp src_b + 0
-	bne lbl_not_equal
+	bne lbl
 	lda src_a + 1
 	cmp src_b + 1
-	bne lbl_not_equal
+	bne lbl
+.endmacro
+
+.macro cmp16_eq src_a, src_b, lbl
+	.local @1
+	lda src_a + 0
+	cmp src_b + 0
+	bne @1
+	lda src_a + 1
+	cmp src_b + 1
+	beq lbl
+@1:
+.endmacro
+
+.macro cmp16_lt src_a, src_b, lbl
+	.local @1
+	lda src_a + 1
+	cmp src_b + 1
+	bcc lbl
+	bne @1
+	lda src_a + 0
+	cmp src_b + 0
+	bcc lbl
+@1:
+.endmacro
+
+.macro cmp16_ge src_a, src_b, lbl
+	.local @1
+	lda src_a + 1
+	cmp src_b + 1
+	bcc @1
+	bne lbl
+	lda src_a + 0
+	cmp src_b + 0
+	bcs lbl
+@1:
+.endmacro
+
+.macro cmp16_z src, lbl
+	lda src + 0
+	ora src + 1
+	beq lbl
+.endmacro
+
+.macro cmp16_nz src, lbl
+	lda src + 0
+	ora src + 1
+	bne lbl
 .endmacro
 
 ;-----------------------------------------------------------------------------
 ; Compare 16-bit variable with value
 ;-----------------------------------------------------------------------------
-.macro cmp16_val src, val, lbl_not_equal
+.macro cmp16_val_ne src, val, lbl_not_equal
 	lda src + 0
 .if !(.const(val) && <val = 0)
 	cmp #<val
 .endif
 	bne lbl_not_equal
 	lda src + 1
-.if !(.const(val) && <val = 0)
+.if !(.const(val) && >val = 0)
 	cmp #>val
 .endif
 	bne lbl_not_equal
 .endmacro
+
+.macro cmp16_val_eq src, val, lbl_equal
+	.local @1
+	lda src + 0
+.if !(.const(val) && <val = 0)
+	cmp #<val
+.endif
+	bne @1
+	lda src + 1
+.if !(.const(val) && >val = 0)
+	cmp #>val
+.endif
+	beq lbl_equal
+@1:
+.endmacro
+
+.macro cmp16_val_lt src, val, lbl
+	.local @1
+	lda src + 1
+	cmp #>val
+	bcc lbl
+	bne @1
+	lda src + 0
+	cmp #<val
+	bcc lbl
+@1:
+.endmacro
+
+.macro cmp16_val_ge src, val, lbl
+	.local @1
+	lda src + 1
+	cmp #>val
+	bcc @1
+	bne lbl
+	lda src + 0
+	cmp #<val
+	bcs lbl
+@1:
+.endmacro
+
 
 ;-----------------------------------------------------------------------------
 ; Set 32-bit variable
@@ -184,7 +350,7 @@ l1:	dec dst
 ;-----------------------------------------------------------------------------
 ; Compare two 32-bit variables
 ;-----------------------------------------------------------------------------
-.macro cmp32 src_a, src_b, lbl_not_equal
+.macro cmp32_ne src_a, src_b, lbl_not_equal
 	lda src_a + 0
 	cmp src_b + 0
 	bne lbl_not_equal
@@ -197,6 +363,22 @@ l1:	dec dst
 	lda src_a + 3
 	cmp src_b + 3
 	bne lbl_not_equal
+.endmacro
+
+.macro cmp32_z src, lbl
+	lda src + 0
+	ora src + 1
+	ora src + 2
+	ora src + 3
+	beq lbl
+.endmacro
+
+.macro cmp32_nz src, lbl
+	lda src + 0
+	ora src + 1
+	ora src + 2
+	ora src + 3
+	bne lbl
 .endmacro
 
 ;-----------------------------------------------------------------------------
@@ -226,32 +408,32 @@ l1:	dec dst
 ; Increment 32-bit variable
 ;-----------------------------------------------------------------------------
 .macro inc32 dst
-	.local l1
+	.local @1
 	inc dst + 0
-	bne l1
+	bne @1
 	inc dst + 1
-	bne l1
+	bne @1
 	inc dst + 2
-	bne l1
+	bne @1
 	inc dst + 3
-l1:
+@1:
 .endmacro
 
 ;-----------------------------------------------------------------------------
 ; Decrement 32-bit variable
 ;-----------------------------------------------------------------------------
 .macro dec32 dst
-	.local l1, l2, l3
+	.local @1, @2, @3
 	lda dst + 0
-	bne l3
+	bne @3
 	lda dst + 1
-	bne l2
+	bne @2
 	lda dst + 2
-	bne l1
+	bne @1
 	dec dst + 3
-l1:	dec dst + 2
-l2:	dec dst + 1
-l3:	dec dst + 0
+@1:	dec dst + 2
+@2:	dec dst + 1
+@3:	dec dst + 0
 .endmacro
 
 ;-----------------------------------------------------------------------------
@@ -322,25 +504,25 @@ l3:	dec dst + 0
 ; Copy bytes
 ;-----------------------------------------------------------------------------
 .macro copy_bytes dst, src, count
-	.local l1
+	.local @1
 	ldy #0
-l1:	lda src, y
+@1:	lda src, y
 	sta dst, y
 	iny
 	cpy #count
-	bne l1
+	bne @1
 .endmacro
 
 ;-----------------------------------------------------------------------------
 ; Clear bytes
 ;-----------------------------------------------------------------------------
 .macro clear_bytes dst, count
-	.local l1
+	.local @1
 	ldx #0
-l1:	stz dst, x
+@1:	stz dst, x
 	inx
 	cpx #count
-	bne l1
+	bne @1
 .endmacro
 
 .macro set24_val dst, val
