@@ -6,10 +6,22 @@
 	.include "lib.inc"
 	.include "sdcard.inc"
 
+	.export sector_buffer, sector_buffer_end, sector_lba
+
 	.bss
 cmd_idx = sdcard_param
 cmd_arg = sdcard_param + 1
 cmd_crc = sdcard_param + 5
+
+sector_buffer:
+	.res 512
+sector_buffer_end:
+
+sdcard_param:
+	.res 1
+sector_lba:
+	.res 4 ; dword (part of sdcard_param) - LBA of sector to read/write
+	.res 1
 
 timeout_cnt:       .byte 0
 

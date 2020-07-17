@@ -135,15 +135,14 @@ KEYMAP_SOURCES = \
 	keymap/keymap.s
 
 CBDOS_SOURCES = \
+	cbdos/fat32/fat32.s \
+	cbdos/fat32/sdcard.s \
+	cbdos/fat32/text_input.s \
 	cbdos/zeropage.s \
-	cbdos/fat32.s \
-	cbdos/util.s \
-	cbdos/matcher.s \
-	cbdos/sdcard.s \
-	cbdos/spi_rw_byte.s \
-	cbdos/spi_select_device.s \
-	cbdos/spi_deselect.s \
-	cbdos/main.s
+	cbdos/main.s \
+	cbdos/cmdch.s \
+	cbdos/dir.s \
+	cbdos/geos.s
 
 GEOS_SOURCES= \
 	geos/kernal/bitmask/bitmask2.s \
@@ -285,15 +284,11 @@ KEYMAP_DEPS = \
 
 CBDOS_DEPS = \
 	$(GENERIC_DEPS) \
-	cbdos/errno.inc \
-	cbdos/debug.inc \
-	cbdos/fat32.inc \
-	cbdos/rtc.inc \
-	cbdos/fcntl.inc \
-	cbdos/spi.inc \
-	cbdos/65c02.inc \
-	cbdos/common.inc \
-	cbdos/sdcard.inc \
+	cbdos/fat32/fat32.inc \
+	cbdos/fat32/lib.inc \
+	cbdos/fat32/regs.inc \
+	cbdos/fat32/sdcard.inc \
+	cbdos/fat32/text_input.inc \
 	cbdos/vera.inc
 
 GEOS_DEPS= \
