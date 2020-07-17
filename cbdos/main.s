@@ -5,7 +5,7 @@
 
 .import fat32_dirent
 
-.importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
+.importzp krn_ptr1, read_blkptr, buffer, bank_save
 
 ; cmdch.s
 .import ciout_cmdch, execute_command, set_status, acptr_status
