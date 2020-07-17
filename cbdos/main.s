@@ -239,14 +239,16 @@ cbdos_secnd:
 	; The upper nybble is the command:
 	; $Fx OPEN
 	;     The bytes sent by the host until UNLISTEN will be
-	;     a filename to be associated with the channel.
-	; $Ex CLOSE
-	;     Close this channel, no more bytes will be sent to
-	;     it.
+	;     a filename to be associated with the given channel.
 	; $6x LISTEN
-	;     The following bytes will be received into the
-	;     channel.
+	;     The bytes sent by the host until UNLISTEN will be
+	;     received into the given channel. (The channel has
+	;     to be open.)
+	; $Ex CLOSE
+	;     Close the given channel, no more bytes will be sent
+	;     to it.
 
+; separate into cmd and channel
 	tax
 	and #$f0
 	sta listen_cmd ; we need it for UNLISTEN
@@ -254,44 +256,48 @@ cbdos_secnd:
 	and #$0f
 	sta channel
 
-; if channel 15, ignore "OPEN", just switch to it
+; special-case command channel
 	cmp #$0f
-	bne @secnd1
-	lda #BUFNO_CMD
-@secnd_switch:
-	jsr switch_to_buffer
-	ldx save_x
-	ldy save_y
-	BANKING_END
-	rts
+	beq @secnd_cmdchnl
 
-@secnd1:
 	lda listen_cmd
 	cmp #$f0
 	beq @secnd_open
-
 	cmp #$e0
 	beq @secnd_close
 
+;---------------------------------------------------------------
 ; switch to channel
-	lda channel
-	tax
+	ldx channel
+	; XXX open already?
 	lda buffer_for_channel,x
+	bra @secnd_switch
+
+;---------------------------------------------------------------
+; LISTEN on command channel will ignore OPEN/CLOSE
+; -> always just switch to command channel
+@secnd_cmdchnl:
+	lda #BUFNO_CMD
 	jmp @secnd_switch
 
+;---------------------------------------------------------------
+; OPEN
 @secnd_open:
 	lda #0
 	sta buffer_ptr + 2 * BUFNO_FN ; clear fn buffer
 	sta buffer_ptr + 2 * BUFNO_FN + 1
 	lda #BUFNO_FN
-	jmp @secnd_switch
+@secnd_switch:
+	jsr switch_to_buffer
+	bra @secnd_rts
 
+;---------------------------------------------------------------
+; CLOSE
 @secnd_close:
 	lda channel
-	cmp #$0f
-	beq @ignore_close_15
 	jsr buf_free
-@ignore_close_15:
+
+@secnd_rts:
 	ldx save_x
 	ldy save_y
 	BANKING_END
@@ -299,12 +305,18 @@ cbdos_secnd:
 
 ;---------------------------------------------------------------
 ; SEND
+;
+; XXX This has to be rewritten:
+;     * CMD channel and FN buffer should be special cased
+;       and use buffers < 512 bytes
+;     * regular channel writes will go directly to fat32 lib
 ;---------------------------------------------------------------
 cbdos_ciout:
 	BANKING_START
 	sty save_y
 	ldy cur_buffer_ptr + 1
 	bne @ciout2
+
 ; halfblock 0
 	ldy cur_buffer_ptr
 	sta (buffer),y
@@ -314,6 +326,7 @@ cbdos_ciout:
 	inc cur_buffer_ptr + 1
 :	BANKING_END
 	rts
+
 @ciout2:
 ; halfblock 1
 	ldy cur_buffer_ptr
@@ -335,32 +348,16 @@ cbdos_unlsn:
 	BANKING_START
 	stx save_x
 	sty save_y
-	; UNLISTEN of the command channel ignores whether it was OPEN
+
+; special-case command channel
 	lda channel
 	cmp #$0f
-	beq @unlisten_cmd
+	beq @unlisten_cmdchnl
 
 	lda listen_cmd
 	cmp #$f0
-	beq @unlsn_open
+	bne @unlsn_end2; otherwise UNLISTEN does nothing
 
-	; otherwise UNLISTEN does nothing
-@unlsn_end2:
-	ldy save_y
-	ldx save_x
-	BANKING_END
-	rts
-
-@unlisten_cmd:
-; UNLISTEN on command channel -> execute
-	lda cur_buffer_ptr
-	ora cur_buffer_ptr + 1
-	beq @unlsn_end2 ; empty
-
-	jsr execute_command
-	jmp @unlsn_end2
-
-@unlsn_open:
 	; XXX low byte only
 	lda cur_buffer_ptr
 	sta fnlen
@@ -384,12 +381,25 @@ cbdos_unlsn:
 	jsr open_file
 @unlisten_end:
 	jsr finished_with_buffer
-	jmp @unlsn_end2
+
+@unlsn_end2:
+	ldy save_y
+	ldx save_x
+	BANKING_END
+	rts
 
 ; no buffers
 @no_bufs:
 	; TODO
 	brk
+
+;---------------------------------------------------------------
+; UNLISTEN on command channel will ignore whether it was
+; and OPEN command; it will always trigger command execution
+@unlisten_cmdchnl:
+	jsr execute_command
+	jmp @unlsn_end2
+
 
 ;---------------------------------------------------------------
 ; TALK
@@ -985,6 +995,10 @@ write_block:
 	rts
 
 execute_command:
+	lda cur_buffer_ptr
+	ora cur_buffer_ptr + 1
+	beq @rts ; empty
+
 	lda cmdbuffer
 	ldx #0
 :	cmp cmds,x
@@ -1002,7 +1016,7 @@ execute_command:
 	pha
 	lda cmdptrs,x
 	pha
-	rts
+@rts:	rts
 
 cmds:
 	.byte "IVNRSCU"
