@@ -222,6 +222,9 @@ cbdos_ciout:
 	phx
 	phy
 
+	ldx #0
+	stx ieee_status
+
 	ldx channel
 	cpx #15
 	beq @ciout_cmdch
@@ -343,6 +346,9 @@ cbdos_acptr:
 	phx
 	phy
 
+	lda #0
+	sta ieee_status
+
 	ldx channel
 	cpx #15
 	beq @acptr_status
@@ -415,8 +421,10 @@ open_file:
 	sta fat32_ptr + 0
 	lda #>fnbuffer
 	sta fat32_ptr + 1
+
 	jsr fat32_open
 	bcc @open_file_err
+
 	ldx channel
 	lda #0 ; >= 0 FD
 	sta fd_for_channel,x ; remember fd
