@@ -1,12 +1,10 @@
 .export open_dir, acptr_dir, read_dir
 
-.import cur_buffer_len, cur_buffer_ptr, is_last_block_for_channel
-.import channel, fd_for_channel, status
-.importzp MAGIC_FD_DIR_LOAD, MAGIC_FD_EOF
+.import channel, fd_for_channel, ieee_status
+.importzp MAGIC_FD_EOF
 
 .import set_status
 .import fat32_dirent
-.importzp krn_ptr3, buffer
 
 .include "fat32.inc"
 .include "regs.inc"
@@ -15,8 +13,16 @@ DIRSTART = $0801 ; load address of directory
 
 .segment "cbdos_data"
 
-fn_base:
-	.byte 0 ; XXX unused?
+dirbuffer:
+	.res 256, 0
+
+dirbuffer_w:
+	.byte 0
+dirbuffer_r:
+	.byte 0
+end_reached:
+	.byte 0
+
 num_blocks:
 	.word 0
 
@@ -24,14 +30,9 @@ num_blocks:
 open_dir:
 	jsr fat32_init
 	bcs :+
-	lda #$02 ; timeout/file not found
-	sta status
-	lda #$62
-	jmp set_status
-:
-	lda #MAGIC_FD_DIR_LOAD
-	ldx channel
-	sta fd_for_channel,x ; remember fd
+
+	sec
+	rts
 
 	ldy #0
 	lda #<DIRSTART
@@ -72,16 +73,14 @@ open_dir:
 
 	phy
 	jsr fat32_open_cwd
-	nop
 	ply
 	bcc end_of_dir ; end of dir
 
 not_end_of_dir:
-	sty cur_buffer_len
-	lda #0
-	ldx channel
-	sta is_last_block_for_channel,x
+	sty dirbuffer_r
+	stz end_reached
 
+	clc ; ok
 	rts
 
 end_of_dir:
@@ -102,48 +101,47 @@ end_of_dir:
 	jsr storedir
 	jsr storedir
 
-	sty cur_buffer_len
-	lda #$ff
-	ldx channel
-	sta is_last_block_for_channel,x
+	sty dirbuffer_r
+	lda #1
+	sta end_reached
 
+	clc ; ok
 	rts
 
 acptr_dir:
-	lda cur_buffer_len
+	lda dirbuffer_r
 	bne @acptr7
 
 ; read next directory line
 	jsr read_dir
 @acptr7:
-	ldy cur_buffer_ptr
-	lda (buffer),y
-	inc cur_buffer_ptr
+	ldy dirbuffer_w
+	lda dirbuffer,y
+	inc dirbuffer_w
 	bne :+
 	brk
 :	pha
-	lda cur_buffer_ptr
-	cmp cur_buffer_len
+	lda dirbuffer_w
+	cmp dirbuffer_r
 	bne @acptr3
 ; buffer exhausted
-	ldx channel
-	lda is_last_block_for_channel,x
-	bmi @acptr4
+	lda end_reached
+	bne @acptr4
 
 ; read another block next time
 	lda #0
-	sta cur_buffer_len
-	sta cur_buffer_ptr
-	jmp @acptr3
+	sta dirbuffer_r
+	sta dirbuffer_w
+	bra @acptr3
 
 @acptr4:
-; clear fd from channel
-	ldx channel
-	lda #MAGIC_FD_EOF ; next time, send EOF
-	sta fd_for_channel,x
+	pla
+	sec
+	rts
 
 @acptr3:
 	pla
+	clc
 	rts
 
 
@@ -220,13 +218,6 @@ gt_1000:
 	lda #$22
 	jsr storedir
 
-	lda buffer
-	sta krn_ptr3
-	lda buffer + 1
-	sta krn_ptr3 + 1
-;	sty krn_tmp3
-	sty fn_base
-
 	ldx #0
 :	lda fat32_dirent + dirent::name, x
 	beq :+
@@ -270,8 +261,6 @@ txt_blocksfree:
 txt_blocksfree_end:
 
 storedir:
-	sta (buffer),y
+	sta dirbuffer,y
 	iny
-	bne :+
-	inc buffer + 1 ; XXX?
-:	rts
+	rts

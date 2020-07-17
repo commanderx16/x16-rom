@@ -11,17 +11,14 @@
 .importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
 
 ; cmdch.s
-.import execute_command, set_status
+.import ciout_cmdch, execute_command, set_status, acptr_status
 .export buffer_len
-.export BUFNO_STATUS
 .export buffer_ptr
-.export statusbuffer
-.export cmdbuffer
 
 ; dir.s
 .import open_dir, acptr_dir, read_dir
-.export cur_buffer_len, cur_buffer_ptr, is_last_block_for_channel
-.export channel, fd_for_channel, status
+.export fnbuffer_ptr
+.export channel, fd_for_channel, ieee_status
 .export MAGIC_FD_DIR_LOAD, MAGIC_FD_EOF
 
 ; geos.s
@@ -41,15 +38,7 @@ IMPORTED_FROM_MAIN=1
 .include "regs.inc"
 
 
-NUM_BUFS = 2
-TOTAL_NUM_BUFS = NUM_BUFS + 3
-; special purpose buffers follow general purpose buffers
-BUFNO_FN     = NUM_BUFS
-BUFNO_CMD    = NUM_BUFS + 1
-BUFNO_STATUS = NUM_BUFS + 2
-; XXX Filename cnd CMD buffers shouldn't be separate!
-; XXX In both cases, the full string has to be transmissed in one go
-; XXX and will be discarded afterwards.
+ieee_status = status
 
 via1        = $9f60
 via1porta   = via1+1 ; RAM bank
@@ -71,14 +60,7 @@ via1porta   = via1+1 ; RAM bank
 
 .segment "cbdos_data"
 
-; Commodore DOS buffers
-buffers:
-	.res NUM_BUFS * 256, 0
 fnbuffer:
-	.res 256, 0
-cmdbuffer:
-	.res 256, 0
-statusbuffer:
 	.res 256, 0
 
 ; SD/FAT32 buffers/variables
@@ -103,10 +85,6 @@ blocks: ; 3 bytes blocks to read, 3 bytes sufficient to address 4GB -> 429496729
 initialized:
 	.byte 0
 MAGIC_INITIALIZED  = $7A
-cur_buffer_ptr:
-	.byte 0
-cur_buffer_len:
-	.byte 0
 save_x:
 	.byte 0
 save_y:
@@ -115,27 +93,20 @@ listen_cmd:
 	.byte 0
 channel:
 	.byte 0
-fnlen:
+receiving_filename:
+	.byte 0
+fnbuffer_ptr:
 	.byte 0
 bufferno:
 	.byte 0
 
-buffer_alloc_map:
-	; $00 = free, $ff = allocated
-	.res NUM_BUFS, 0
-
 ; number of valid data bytes in each buffer
 buffer_len:
-	.res TOTAL_NUM_BUFS, 0
+	.byte 0
 
 ; current r/w pointer within the buffer
 buffer_ptr:
-	.res TOTAL_NUM_BUFS, 0
-
-is_last_block_for_channel:
-	; $ff = after transmitting the contents of this buffer,
-	;       there won't be more
-	.res 16, 0
+	.byte 0
 
 fd_for_channel:
 	.res 16, 0
@@ -143,9 +114,6 @@ MAGIC_FD_NONE     = $ff
 MAGIC_FD_STATUS   = $fe
 MAGIC_FD_DIR_LOAD = $fd
 MAGIC_FD_EOF      = $fc
-
-buffer_for_channel:
-	.res 15, 0 ; just 0-14; cmd/status is special cased
 
 
 .segment "cbdos"
@@ -184,18 +152,6 @@ cbdos_init:
 	rts
 :	sta initialized
 	stx save_x
-
-	ldx #NUM_BUFS - 1
-	lda #0
-:	sta buffer_alloc_map,x
-	dex
-	bpl :-
-
-	ldx #14
-	lda #$ff
-:	sta buffer_for_channel,x
-	dex
-	bpl :-
 
 	ldx #14
 	lda #MAGIC_FD_NONE
@@ -276,33 +232,33 @@ cbdos_secnd:
 
 ;---------------------------------------------------------------
 ; switch to channel
-	ldx channel
-	; XXX open already?
-	lda buffer_for_channel,x
+; XXX check wheher open!
 	bra @secnd_switch
 
 ;---------------------------------------------------------------
 ; LISTEN on command channel will ignore OPEN/CLOSE
 ; -> always just switch to command channel
 @secnd_cmdch:
-	lda #BUFNO_CMD
-	jmp @secnd_switch
+	bra @secnd_rts
 
 ;---------------------------------------------------------------
 ; Initiate OPEN
 @secnd_open:
 	lda #0
-	sta buffer_ptr + BUFNO_FN ; clear fn buffer
-	lda #BUFNO_FN
+	sta buffer_ptr ; clear fn buffer
+	lda #1
+	sta receiving_filename
+	stz fnbuffer_ptr
+	bra @secnd_rts
+
 @secnd_switch:
-	jsr switch_to_buffer
+	stz receiving_filename
 	bra @secnd_rts
 
 ;---------------------------------------------------------------
 ; CLOSE
 @secnd_close:
-	lda channel
-	jsr buf_free
+	; do nothing
 
 @secnd_rts:
 	ldx save_x
@@ -320,13 +276,30 @@ cbdos_secnd:
 ;---------------------------------------------------------------
 cbdos_ciout:
 	BANKING_START
+	stx save_x
 	sty save_y
-	ldy cur_buffer_ptr
-	sta (buffer),y
-	inc cur_buffer_ptr
+
+	lda channel
+	cmp #15
 	bne :+
-	brk
-:	ldy save_y
+	jsr ciout_cmdch
+	bra @ciout_end
+
+	lda receiving_filename
+	bne :+
+
+	brk ; receiving data
+
+:	ldy fnbuffer_ptr
+	sta fnbuffer,y
+	inc fnbuffer_ptr
+	bne @ciout_end
+
+	brk ; overflow
+
+@ciout_end:
+	ldx save_x
+	ldy save_y
 	BANKING_END
 	rts
 
@@ -349,13 +322,6 @@ cbdos_unlsn:
 
 ;---------------------------------------------------------------
 ; Execute OPEN with filename
-	lda cur_buffer_ptr
-	sta fnlen
-
-	lda channel
-	jsr buf_alloc
-	bcs @no_bufs
-
 	; XXX necessary?
 	jsr sdcard_init
 
@@ -366,7 +332,17 @@ cbdos_unlsn:
 ;---------------------------------------------------------------
 ; OPEN directory
 	jsr open_dir
-	jmp @unlisten_end
+	bcc :+
+	lda #$02 ; timeout/file not found
+	sta ieee_status
+	lda #$62
+	jsr set_status
+	bra @unlisten_end
+
+:	lda #MAGIC_FD_DIR_LOAD
+	ldx channel
+	sta fd_for_channel,x ; remember fd
+	bra @unlisten_end
 
 ;---------------------------------------------------------------
 ; OPEN file
@@ -374,18 +350,12 @@ cbdos_unlsn:
 	jsr open_file
 
 @unlisten_end:
-	jsr finished_with_buffer
 
 @unlsn_end2:
 	ldy save_y
 	ldx save_x
 	BANKING_END
 	rts
-
-; no buffers
-@no_bufs:
-	; TODO
-	brk
 
 ;---------------------------------------------------------------
 ; Execute Command
@@ -420,12 +390,9 @@ cbdos_tksa: ; after talk
 	cmp #$0f
 	beq @tksa_cmdch
 
-	tax
-	lda buffer_for_channel,x
-	bmi @empty_channel
-
 @tksa_switch:
-	jsr switch_to_buffer
+
+@tksa_end:
 	ldx save_x
 	ldy save_y
 	BANKING_END
@@ -435,8 +402,7 @@ cbdos_tksa: ; after talk
 	brk; TODO
 
 @tksa_cmdch:
-	lda #BUFNO_STATUS
-	bra @tksa_switch
+	bra @tksa_end
 
 ;---------------------------------------------------------------
 ; RECEIVE
@@ -448,12 +414,24 @@ cbdos_acptr:
 	ldx channel
 	lda fd_for_channel,x
 	bpl @acptrX ; actual file
+
 	cmp #MAGIC_FD_DIR_LOAD
-	bne :+
+	bne @not_dir
 	jsr acptr_dir
+	bcc :+
+	; clear fd from channel
+	ldx channel
+	pha
+	lda #MAGIC_FD_EOF ; next time, send EOF
+	sta fd_for_channel,x
+	pla
+:	jmp @acptr_end
+
+@not_dir:
+ 	cmp #MAGIC_FD_STATUS
+	bne :+
+	jsr acptr_status
 	jmp @acptr_end
-: 	cmp #MAGIC_FD_STATUS
-	beq @acptr5
 	cmp #MAGIC_FD_NONE
 	beq @acptr_nofd
 ; else #MAGIC_FD_EOF
@@ -466,7 +444,7 @@ cbdos_acptr:
 @acptr_nofd
 ; no fd
 	lda #$02 ; timeout/file not found
-:	sta status
+:	sta ieee_status
 	lda #0
 	ldy save_y
 	ldx save_x
@@ -477,61 +455,7 @@ cbdos_acptr:
 @acptrX:
 	jsr fat32_read_byte
 	bcc @eof
-	jmp @acptr_end
 
-@acptr5:
-; no data? read more
-	lda cur_buffer_len
-	bne @acptr7
-
-	ldx channel
-	lda fd_for_channel,x
-	cmp #MAGIC_FD_DIR_LOAD
-	bne @acptr6
-; read next directory line
-	jsr read_dir
-	jmp @acptr7
-@acptr6:
-; MAGIC_FD_STATUS
-
-	lda #$40 ; EOF
-	sta status
-	lda #0
-	jsr set_status
-	lda buffer_len + BUFNO_STATUS
-	sta cur_buffer_len
-	lda #$0d
-	bne @acptr_end
-
-@acptr7:
-	ldy cur_buffer_ptr
-	lda (buffer),y
-	inc cur_buffer_ptr
-	bne :+
-	brk
-:	pha
-	lda cur_buffer_ptr
-	cmp cur_buffer_len
-	bne @acptr3
-; buffer exhausted
-	ldx channel
-	lda is_last_block_for_channel,x
-	bmi @acptr4
-
-; read another block next time
-	lda #0
-	sta cur_buffer_len
-	sta cur_buffer_ptr
-	jmp @acptr3
-
-@acptr4:
-; clear fd from channel
-	ldx channel
-	lda #MAGIC_FD_EOF ; next time, send EOF
-	sta fd_for_channel,x
-
-@acptr3:
-	pla
 @acptr_end:
 	ldy save_y
 	ldx save_x
@@ -544,83 +468,6 @@ cbdos_acptr:
 ; UNTALK
 ;---------------------------------------------------------------
 cbdos_untlk:
-	BANKING_START
-	stx save_x
-	sty save_y
-	jsr finished_with_buffer
-	ldy save_y
-	ldx save_x
-	BANKING_END
-	rts
-
-;---------------------------------------------------------------
-; allocate a buffer for channel
-; * remember it as the channel's buffer
-; * switch to it
-;   in:  A: channel
-;   out: C: 0: success; 1: error
-buf_alloc:
-	tay ;  save channel
-; search & allocate free buffer
-	ldx #0
-:	lda buffer_alloc_map,x
-	beq :+
-	inx
-	cpx #NUM_BUFS
-	bne :-
-	sec ; error
-	rts
-:	dec buffer_alloc_map,x
-; associate channel with buffer
-	txa
-	sta buffer_for_channel,y
-; set buffer pointer to 0
-	asl
-	tay
-	lda #0
-	sta buffer_ptr,y
-	tya
-	lsr
-switch_to_buffer:
-	sta bufferno
-; fetch buffer pointer & len
-	tay
-	lda buffer_ptr,y
-	sta cur_buffer_ptr
-	lda buffer_len,y
-	sta cur_buffer_len
-; set zp word
-	tya ; buffer# * 2
-	clc
-	adc #>buffers
-	sta buffer + 1
-	lda #0
-	sta buffer
-	clc ; success
-	rts
-
-;---------------------------------------------------------------
-; free a channel's buffer
-;   in: A: channel
-buf_free:
-	tax
-	lda buffer_for_channel,x
-	tay
-	lda #$ff
-	sta buffer_for_channel,x
-	lda #0
-	sta buffer_alloc_map,y
-	rts
-
-;---------------------------------------------------------------
-; write back buffer ptr
-finished_with_buffer:
-	lda bufferno
-	tax
-	lda cur_buffer_ptr
-	sta buffer_ptr,x
-	lda cur_buffer_len
-	sta buffer_len,x
 	rts
 
 ;---------------------------------------------------------------
@@ -628,7 +475,7 @@ open_file:
 	jsr fat32_init
 
 	lda #0 ; zero-terminate filename
-	ldy fnlen
+	ldy fnbuffer_ptr
 	sta fnbuffer,y
 	lda #<fnbuffer
 	sta fat32_ptr + 0

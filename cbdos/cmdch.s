@@ -1,17 +1,42 @@
-.export execute_command, set_status
+.export ciout_cmdch, execute_command, set_status, acptr_status
 
 .import buffer_len
 .import buffer_ptr
-.importzp BUFNO_STATUS
 
-.import statusbuffer
-.import cmdbuffer
+.import fd_for_channel, channel, ieee_status
+.importzp MAGIC_FD_EOF
 
+.importzp buffer
 .importzp krn_ptr1
 .import fat32_init
 
+
+.segment "cbdos_data"
+
+cmdbuffer:
+	.res 256, 0
+statusbuffer:
+	.res 256, 0
+
+cmdbuffer_len:
+	.byte 0
+
+status_ptr:
+	.byte 0
+status_len:
+	.byte 0
+
+.segment "cbdos"
+
+ciout_cmdch:
+:	ldx cmdbuffer_len
+	sta cmdbuffer,x
+	inc cmdbuffer_len
+	; XXX overflow
+	rts
+
 execute_command:
-	lda buffer_ptr + BUFNO_STATUS
+	lda cmdbuffer_len
 	beq @rts ; empty
 
 	lda cmdbuffer
@@ -31,6 +56,8 @@ execute_command:
 	pha
 	lda cmdptrs,x
 	pha
+
+	stz cmdbuffer_len
 @rts:	rts
 
 cmds:
@@ -132,11 +159,11 @@ set_status:
 	sta statusbuffer + 5,x
 
 	lda #0
-	sta buffer_ptr + BUFNO_STATUS
+	sta status_ptr
 	txa
 	clc
 	adc #6
-	sta buffer_len + BUFNO_STATUS
+	sta status_len
 	rts
 
 stcodes:
@@ -163,3 +190,42 @@ status_73:
 	.byte "CBDOS V1.0 X16", 0
 status_74:
 	.byte "DRIVE NOT READY", 0
+
+acptr_status:
+; no data? read more
+	lda status_len
+	bne @acptr7
+
+	lda #$40 ; EOF
+	sta ieee_status
+	jsr set_status_ok
+	lda #$0d
+	bne @acptr_end
+
+@acptr7:
+	ldy status_ptr
+	lda (buffer),y
+	inc status_ptr
+	bne :+
+	brk
+:	pha
+	lda status_ptr
+	cmp status_len
+	bne @acptr3
+
+; read another block next time
+	lda #0
+	sta status_len
+	sta status_ptr
+	jmp @acptr3
+
+@acptr4:
+; clear fd from channel
+	ldx channel
+	lda #MAGIC_FD_EOF ; next time, send EOF
+	sta fd_for_channel,x
+
+@acptr3:
+	pla
+@acptr_end:
+	rts
