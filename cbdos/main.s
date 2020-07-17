@@ -12,7 +12,6 @@
 
 ; dir.s
 .import open_dir, acptr_dir, read_dir
-.export fnbuffer_ptr
 .export channel, fd_for_channel, ieee_status
 .export MAGIC_FD_DIR_LOAD, MAGIC_FD_EOF
 
@@ -68,7 +67,7 @@ channel:
 	.byte 0
 is_receiving_filename:
 	.byte 0
-fnbuffer_ptr:
+fnbuffer_w:
 	.byte 0
 
 fd_for_channel:
@@ -187,43 +186,30 @@ cbdos_secnd:
 	and #$0f
 	sta channel
 
-; special-case command channel
-	cmp #$0f
-	beq @secnd_cmdch
+; special-case command channel:
+; ignore OPEN/CLOSE
+	cmp #15
+	beq @secnd_rts
+
+	stz is_receiving_filename
 
 	lda listen_cmd
 	cmp #$f0
 	beq @secnd_open
 	cmp #$e0
-	beq @secnd_close
+	bne @secnd_rts
 
 ;---------------------------------------------------------------
-; switch to channel
-; XXX check wheher open!
-	bra @secnd_switch
-
-;---------------------------------------------------------------
-; LISTEN on command channel will ignore OPEN/CLOSE
-; -> always just switch to command channel
-@secnd_cmdch:
+; CLOSE
+@secnd_close:
+	; XXX fill this when closing files that have been written to
 	bra @secnd_rts
 
 ;---------------------------------------------------------------
 ; Initiate OPEN
 @secnd_open:
-	lda #1
-	sta is_receiving_filename
-	stz fnbuffer_ptr
-	bra @secnd_rts
-
-@secnd_switch:
-	stz is_receiving_filename
-	bra @secnd_rts
-
-;---------------------------------------------------------------
-; CLOSE
-@secnd_close:
-	; do nothing
+	inc is_receiving_filename
+	stz fnbuffer_w
 
 @secnd_rts:
 	ply
@@ -232,35 +218,31 @@ cbdos_secnd:
 	rts
 
 ;---------------------------------------------------------------
-; SEND
-;
-; XXX This has to be rewritten:
-;     * CMD channel and FN buffer should be special cased
-;       and use buffers < 512 bytes
-;     * regular channel writes will go directly to fat32 lib
+; CIOUT (send)
 ;---------------------------------------------------------------
 cbdos_ciout:
 	BANKING_START
 	phx
 	phy
 
-	lda channel
-	cmp #15
-	bne :+
-	jsr ciout_cmdch
+	ldx channel
+	cpx #15
+	beq @ciout_cmdch
+
+	ldx is_receiving_filename
+	bne @ciout_filename
+
+	brk ; XXX TODO receiving data
+
+@ciout_filename:
+	ldy fnbuffer_w
+	sta fnbuffer,y
+	inc fnbuffer_w
+	; if len(filename) > 256, it will be garbled, but that's ok
 	bra @ciout_end
 
-	lda is_receiving_filename
-	bne :+
-
-	brk ; receiving data
-
-:	ldy fnbuffer_ptr
-	sta fnbuffer,y
-	inc fnbuffer_ptr
-	bne @ciout_end
-
-	brk ; overflow
+@ciout_cmdch:
+	jsr ciout_cmdch
 
 @ciout_end:
 	ply
@@ -283,7 +265,7 @@ cbdos_unlsn:
 
 	lda listen_cmd
 	cmp #$f0
-	bne @unlsn_end2; otherwise UNLISTEN does nothing
+	bne @unlsn_end; != OPEN? -> UNLISTEN does nothing
 
 ;---------------------------------------------------------------
 ; Execute OPEN with filename
@@ -292,7 +274,7 @@ cbdos_unlsn:
 
 	lda fnbuffer
 	cmp #'$'
-	bne @not_dir
+	bne @unlsn_open_file
 
 ;---------------------------------------------------------------
 ; OPEN directory
@@ -302,25 +284,18 @@ cbdos_unlsn:
 	sta ieee_status
 	lda #$62
 	jsr set_status
-	bra @unlisten_end
+	bra @unlsn_end
 
 :	lda #MAGIC_FD_DIR_LOAD
 	ldx channel
 	sta fd_for_channel,x ; remember fd
-	bra @unlisten_end
+	bra @unlsn_end
 
 ;---------------------------------------------------------------
 ; OPEN file
-@not_dir:
+@unlsn_open_file:
 	jsr open_file
-
-@unlisten_end:
-
-@unlsn_end2:
-	ply
-	plx
-	BANKING_END
-	rts
+	bra @unlsn_end
 
 ;---------------------------------------------------------------
 ; Execute Command
@@ -329,7 +304,12 @@ cbdos_unlsn:
 ; and OPEN command; it will always trigger command execution
 @unlisten_cmdch:
 	jsr execute_command
-	jmp @unlsn_end2
+
+@unlsn_end:
+	ply
+	plx
+	BANKING_END
+	rts
 
 
 ;---------------------------------------------------------------
@@ -440,7 +420,7 @@ open_file:
 	jsr fat32_init
 
 	lda #0 ; zero-terminate filename
-	ldy fnbuffer_ptr
+	ldy fnbuffer_w
 	sta fnbuffer,y
 	lda #<fnbuffer
 	sta fat32_ptr + 0
