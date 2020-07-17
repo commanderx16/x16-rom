@@ -4,7 +4,7 @@
 .import set_status
 
 ; fat32.s
-.import fat32_dirent
+.import fat32_dirent, fat32_get_free_space, fat32_size
 
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"
@@ -231,14 +231,40 @@ read_dir_entry:
 	lda #1
 	jsr storedir ; link
 	jsr storedir
-	lda #$ff
-	jsr storedir ; XXX TODO real blocks free
+
+	jsr fat32_get_free_space
+	lda fat32_size + 2
+	ora fat32_size + 3
+	bne @not_kb
+
+	lda #'K'
+	bra @print_free
+
+@not_kb:
+	jsr shr10
+	lda fat32_size + 2
+	bne @not_mb
+
+	lda #'M'
+	bra @print_free
+
+@not_mb:
+	jsr shr10
+	lda #'G'
+
+@print_free:
+	pha
+	lda fat32_size + 0
+	jsr storedir
+	lda fat32_size + 1
+	jsr storedir
+	pla
 	jsr storedir
 	ldx #0
-:	lda txt_blocksfree,x
+:	lda txt_free,x
 	jsr storedir
 	inx
-	cpx #txt_blocksfree_end - txt_blocksfree
+	cpx #txt_free_end - txt_free
 	bne :-
 
 	lda #0
@@ -254,11 +280,34 @@ read_dir_entry:
 	rts
 
 
-txt_blocksfree:
-	.byte "BLOCKS FREE."
-txt_blocksfree_end:
+txt_free:
+	.byte "B FREE."
+txt_free_end:
 
 storedir:
 	sta dirbuffer,y
 	iny
+	rts
+
+shr10:
+	; >> 8
+	lda fat32_size + 1
+	sta fat32_size + 0
+	lda fat32_size + 2
+	sta fat32_size + 1
+	lda fat32_size + 3
+	sta fat32_size + 2
+
+	; >> 2
+	lsr fat32_size + 2
+	ror fat32_size + 1
+	ror fat32_size + 0
+	lsr fat32_size + 2
+	ror fat32_size + 1
+	ror fat32_size + 0
+
+	lda fat32_size + 0
+	lda fat32_size + 1
+	lda fat32_size + 2
+	lda fat32_size + 3
 	rts
