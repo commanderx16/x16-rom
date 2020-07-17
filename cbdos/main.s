@@ -8,7 +8,7 @@
 .import fat32_dirent
 
 .export tmp1, krn_tmp, krn_tmp2, krn_tmp3, sd_tmp, lba_addr, blocks
-.export fd_area, sd_blktarget, block_data, block_fat
+.export fd_area
 
 .importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
 
@@ -60,22 +60,17 @@ via1porta   = via1+1 ; RAM bank
 
 ; Commodore DOS buffers
 buffers:
-	.res NUM_BUFS * 512, 0
+	.res NUM_BUFS * 256, 0
 fnbuffer:
-	.res 512, 0
+	.res 256, 0
 cmdbuffer:
-	.res 512, 0
+	.res 256, 0
 statusbuffer:
-	.res 512, 0
+	.res 256, 0
 
 ; SD/FAT32 buffers/variables
 fd_area: ; File descriptor area
 	.res 128, 0
-sd_blktarget:
-block_data:
-	.res 512, 0
-block_fat:
-	.res 512, 0
 tmp1:
 	.byte 0
 krn_tmp:
@@ -98,9 +93,9 @@ MAGIC_INITIALIZED  = $7A
 fn_base:
 	.byte 0
 cur_buffer_ptr:
-	.word 0
+	.byte 0
 cur_buffer_len:
-	.word 0
+	.byte 0
 save_x:
 	.byte 0
 save_y:
@@ -122,11 +117,11 @@ buffer_alloc_map:
 
 ; number of valid data bytes in each buffer
 buffer_len:
-	.res TOTAL_NUM_BUFS * 2, 0
+	.res TOTAL_NUM_BUFS, 0
 
 ; current r/w pointer within the buffer
 buffer_ptr:
-	.res TOTAL_NUM_BUFS * 2, 0
+	.res TOTAL_NUM_BUFS, 0
 
 is_last_block_for_channel:
 	; $ff = after transmitting the contents of this buffer,
@@ -287,8 +282,7 @@ cbdos_secnd:
 ; Initiate OPEN
 @secnd_open:
 	lda #0
-	sta buffer_ptr + 2 * BUFNO_FN ; clear fn buffer
-	sta buffer_ptr + 2 * BUFNO_FN + 1
+	sta buffer_ptr + BUFNO_FN ; clear fn buffer
 	lda #BUFNO_FN
 @secnd_switch:
 	jsr switch_to_buffer
@@ -317,31 +311,13 @@ cbdos_secnd:
 cbdos_ciout:
 	BANKING_START
 	sty save_y
-	ldy cur_buffer_ptr + 1
-	bne @ciout2
-
-; halfblock 0
 	ldy cur_buffer_ptr
 	sta (buffer),y
-	ldy save_y
 	inc cur_buffer_ptr
 	bne :+
-	inc cur_buffer_ptr + 1
-:	BANKING_END
-	rts
-
-@ciout2:
-; halfblock 1
-	ldy cur_buffer_ptr
-	inc buffer + 1
-	sta (buffer),y
-	dec buffer + 1
-	ldy save_y
-	inc cur_buffer_ptr
-	bne :+
-; XXX reached 0x200
 	brk
-:	BANKING_END
+:	ldy save_y
+	BANKING_END
 	rts
 
 ;---------------------------------------------------------------
@@ -363,7 +339,6 @@ cbdos_unlsn:
 
 ;---------------------------------------------------------------
 ; Execute OPEN with filename
-	; XXX low byte only
 	lda cur_buffer_ptr
 	sta fnlen
 
@@ -495,7 +470,6 @@ cbdos_acptr:
 ; no data? read more
 @acptr5:
 	lda cur_buffer_len
-	ora cur_buffer_len + 1
 	bne @acptr7
 
 	ldx channel
@@ -511,34 +485,18 @@ cbdos_acptr:
 	lda #$40 ; EOF
 	sta status
 	jsr set_status_ok
-	lda buffer_len + 2 * BUFNO_STATUS
+	lda buffer_len + BUFNO_STATUS
 	sta cur_buffer_len
-	lda buffer_len + 2 * BUFNO_STATUS + 1
-	sta cur_buffer_len + 1
 	lda #$0d
 	bne @acptr_end
 
 @acptr7:
-	ldy cur_buffer_ptr + 1
-	bne @acptr1
-; halfblock 0
 	ldy cur_buffer_ptr
 	lda (buffer),y
-	jmp @acptr2
-@acptr1:
-; halfblock 1
-	ldy cur_buffer_ptr
-	inc buffer + 1
-	lda (buffer),y
-	dec buffer + 1
-@acptr2:
 	inc cur_buffer_ptr
 	bne :+
-	inc cur_buffer_ptr + 1
+	brk
 :	pha
-	lda cur_buffer_ptr + 1
-	cmp cur_buffer_len + 1
-	bne @acptr3
 	lda cur_buffer_ptr
 	cmp cur_buffer_len
 	bne @acptr3
@@ -550,9 +508,7 @@ cbdos_acptr:
 ; read another block next time
 	lda #0
 	sta cur_buffer_len
-	sta cur_buffer_len + 1
 	sta cur_buffer_ptr
-	sta cur_buffer_ptr + 1
 	jmp @acptr3
 
 @acptr4:
@@ -609,22 +565,16 @@ buf_alloc:
 	tay
 	lda #0
 	sta buffer_ptr,y
-	sta buffer_ptr + 1,y
 	tya
 	lsr
 switch_to_buffer:
 	sta bufferno
 ; fetch buffer pointer & len
-	asl
 	tay
 	lda buffer_ptr,y
 	sta cur_buffer_ptr
-	lda buffer_ptr + 1,y
-	sta cur_buffer_ptr + 1
 	lda buffer_len,y
 	sta cur_buffer_len
-	lda buffer_len + 1,y
-	sta cur_buffer_len + 1
 ; set zp word
 	tya ; buffer# * 2
 	clc
@@ -652,16 +602,11 @@ buf_free:
 ; write back buffer ptr
 finished_with_buffer:
 	lda bufferno
-	asl
 	tax
 	lda cur_buffer_ptr
 	sta buffer_ptr,x
-	lda cur_buffer_ptr + 1
-	sta buffer_ptr + 1,x
 	lda cur_buffer_len
 	sta buffer_len,x
-	lda cur_buffer_len + 1
-	sta buffer_len + 1,x
 	rts
 
 ;---------------------------------------------------------------
@@ -730,13 +675,11 @@ set_status_74
 	sta statusbuffer + 5,x
 
 	lda #0
-	sta buffer_ptr + 2 * BUFNO_STATUS
-	sta buffer_ptr + 2 * BUFNO_STATUS + 1
-	sta buffer_len + 2 * BUFNO_STATUS + 1
+	sta buffer_ptr + BUFNO_STATUS
 	txa
 	clc
 	adc #6
-	sta buffer_len + 2 * BUFNO_STATUS
+	sta buffer_len + BUFNO_STATUS
 	rts
 
 stcodes:
@@ -840,8 +783,6 @@ open_dir:
 not_end_of_dir:
 	sty cur_buffer_len
 	lda #0
-	sta cur_buffer_len + 1
-	lda #0
 	ldx channel
 	sta is_last_block_for_channel,x
 
@@ -866,8 +807,6 @@ end_of_dir:
 	jsr storedir
 
 	sty cur_buffer_len
-	lda #0
-	sta cur_buffer_len + 1
 	lda #$ff
 	ldx channel
 	sta is_last_block_for_channel,x
@@ -1000,7 +939,7 @@ storedir:
 	sta (buffer),y
 	iny
 	bne :+
-	inc buffer + 1
+	inc buffer + 1 ; XXX?
 :	rts
 
 __rtc_systime_update:
@@ -1013,7 +952,6 @@ write_block:
 
 execute_command:
 	lda cur_buffer_ptr
-	ora cur_buffer_ptr + 1
 	beq @rts ; empty
 
 	lda cmdbuffer
