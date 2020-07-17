@@ -1,4 +1,4 @@
-.export open_dir, acptr_dir, read_dir
+.export open_dir, acptr_dir
 
 .import channel, fd_for_channel, ieee_status
 .importzp MAGIC_FD_EOF
@@ -16,24 +16,28 @@ DIRSTART = $0801 ; load address of directory
 dirbuffer:
 	.res 256, 0
 
-dirbuffer_w:
-	.byte 0
 dirbuffer_r:
 	.byte 0
-end_reached:
+dirbuffer_w:
 	.byte 0
-
 num_blocks:
 	.word 0
+dir_eof:
+	.byte 0
 
 .segment "cbdos"
 
+;---------------------------------------------------------------
+;---------------------------------------------------------------
 open_dir:
 	jsr fat32_init
 	bcs :+
 
 	sec
 	rts
+
+:	lda #0
+	jsr set_status
 
 	ldy #0
 	lda #<DIRSTART
@@ -72,86 +76,55 @@ open_dir:
 	lda #0 ; end of line
 	jsr storedir
 
-	phy
+	sty dirbuffer_w
+	stz dirbuffer_r
+
 	jsr fat32_open_cwd
-	ply
-	bcc end_of_dir ; end of dir
+	bcc @open_dir_err
 
-not_end_of_dir:
-	sty dirbuffer_r
-	stz end_reached
-
+	stz dir_eof
 	clc ; ok
 	rts
 
-end_of_dir:
+@open_dir_err:
 	lda #1
-	jsr storedir ; link
-	jsr storedir
-	lda #$ff
-	jsr storedir ; XXX TODO real blocks free
-	jsr storedir
-	ldx #0
-:	lda txt_blocksfree,x
-	jsr storedir
-	inx
-	cpx #txt_blocksfree_end - txt_blocksfree
-	bne :-
-
-	lda #0
-	jsr storedir
-	jsr storedir
-
-	sty dirbuffer_r
-	lda #1
-	sta end_reached
-
+	sta dir_eof
 	clc ; ok
 	rts
 
+;---------------------------------------------------------------
+;---------------------------------------------------------------
 acptr_dir:
-	lda dirbuffer_r
-	bne @acptr7
+	ldx dirbuffer_r
+	cpx dirbuffer_w
+	beq @acptr_empty
 
-; read next directory line
-	jsr read_dir
-@acptr7:
-	ldy dirbuffer_w
-	lda dirbuffer,y
-	inc dirbuffer_w
-	bne :+
-	brk
-:	pha
-	lda dirbuffer_w
-	cmp dirbuffer_r
-	bne @acptr3
-; buffer exhausted
-	lda end_reached
-	bne @acptr4
-
-; read another block next time
-	lda #0
-	sta dirbuffer_r
-	sta dirbuffer_w
-	bra @acptr3
-
-@acptr4:
-	pla
-	sec
-	rts
-
-@acptr3:
-	pla
+	lda dirbuffer,x
+	inc dirbuffer_r
 	clc
 	rts
 
+@acptr_empty:
+	jsr read_dir_entry
+	bcc acptr_dir
+	rts ; C = 1
 
-read_dir:
-	lda fat32_dirent + dirent::attributes
-	bit #$10 ; = directory
+
+;---------------------------------------------------------------
+read_dir_entry:
+	lda dir_eof
 	beq :+
-	jmp next
-:
+	sec
+	rts
+
+:	jsr fat32_read_dirent
+	bcs :+
+	jmp @read_dir_entry_end
+
+:	lda fat32_dirent + dirent::attributes
+	bit #$10 ; = directory
+	bne read_dir_entry
+
 	ldy #0
 	lda #1
 	jsr storedir ; link
@@ -188,28 +161,28 @@ read_dir:
 	sbc #<1000
 	lda num_blocks + 1
 	sbc #>1000
-	bcs gt_1000
+	bcs @gt_1000
 	lda num_blocks
 	sec
 	sbc #<100
 	lda num_blocks + 1
 	sbc #>100
-	bcs gt_100
+	bcs @gt_100
 	lda num_blocks
 	sec
 	sbc #<10
 	lda num_blocks + 1
 	sbc #>10
-	bcs gt_10
+	bcs @gt_10
 	ldx #3
 	bra :+
-gt_10:
+@gt_10:
 	ldx #2
 	bra :+
-gt_100:
+@gt_100:
 	ldx #1
 	bra :+
-gt_1000:
+@gt_1000:
 	ldx #0
 :	lda #' '
 :	jsr storedir
@@ -226,7 +199,6 @@ gt_1000:
 	inx
 	bne :-
 :
-
 	lda #$22 ; quote
 	jsr storedir
 
@@ -245,16 +217,40 @@ gt_1000:
 	lda #0 ; end of line
 	jsr storedir
 
-next:
-	phy
-	jsr fat32_read_dirent
-	ply
-	bcs :+
-	jmp end_of_dir ; end of dir
-	cmp #0
-	beq :+
-	jmp end_of_dir ; error
-:	jmp not_end_of_dir
+	stz dir_eof
+
+	sty dirbuffer_w
+	stz dirbuffer_r
+	clc ; ok
+	rts
+
+
+@read_dir_entry_end:
+	ldy #0
+	lda #1
+	jsr storedir ; link
+	jsr storedir
+	lda #$ff
+	jsr storedir ; XXX TODO real blocks free
+	jsr storedir
+	ldx #0
+:	lda txt_blocksfree,x
+	jsr storedir
+	inx
+	cpx #txt_blocksfree_end - txt_blocksfree
+	bne :-
+
+	lda #0
+	jsr storedir
+	jsr storedir
+	jsr storedir
+
+	inc dir_eof ; = 1
+
+	sty dirbuffer_w
+	stz dirbuffer_r
+	clc ; ok
+	rts
 
 
 txt_blocksfree:

@@ -11,7 +11,7 @@
 .import ciout_cmdch, execute_command, set_status, acptr_status
 
 ; dir.s
-.import open_dir, acptr_dir, read_dir
+.import open_dir, acptr_dir
 .export channel, fd_for_channel, ieee_status
 .export MAGIC_FD_DIR_LOAD, MAGIC_FD_EOF
 
@@ -122,9 +122,6 @@ cbdos_init:
 :	sta fd_for_channel,x
 	dex
 	bpl :-
-
-	lda #MAGIC_FD_STATUS
-	sta fd_for_channel + 15
 
 	lda #$73
 	jsr set_status
@@ -279,14 +276,17 @@ cbdos_unlsn:
 ;---------------------------------------------------------------
 ; OPEN directory
 	jsr open_dir
-	bcc :+
+	bcc @open_ok
+
+@open_err:
 	lda #$02 ; timeout/file not found
 	sta ieee_status
 	lda #$62
 	jsr set_status
 	bra @unlsn_end
 
-:	lda #MAGIC_FD_DIR_LOAD
+@open_ok:
+	lda #MAGIC_FD_DIR_LOAD
 	ldx channel
 	sta fd_for_channel,x ; remember fd
 	bra @unlsn_end
@@ -295,6 +295,7 @@ cbdos_unlsn:
 ; OPEN file
 @unlsn_open_file:
 	jsr open_file
+	bcs @open_err
 	bra @unlsn_end
 
 ;---------------------------------------------------------------
@@ -320,34 +321,19 @@ cbdos_unlsn:
 cbdos_talk:
 	rts
 
+
 ;---------------------------------------------------------------
 ; SECOND (after TALK)
 ;---------------------------------------------------------------
 cbdos_tksa: ; after talk
 	BANKING_START
-	phx
-	phy
 
 	and #$0f
 	sta channel
 
-; special-case command channel
-	cmp #$0f
-	beq @tksa_cmdch
-
-@tksa_switch:
-
-@tksa_end:
-	ply
-	plx
 	BANKING_END
 	rts
 
-@empty_channel:
-	brk; TODO
-
-@tksa_cmdch:
-	bra @tksa_end
 
 ;---------------------------------------------------------------
 ; RECEIVE
@@ -356,56 +342,59 @@ cbdos_acptr:
 	BANKING_START
 	phx
 	phy
+
 	ldx channel
+	cpx #15
+	beq @acptr_status
+
 	lda fd_for_channel,x
-	bpl @acptrX ; actual file
+	bpl @acptr_file ; actual file
 
 	cmp #MAGIC_FD_DIR_LOAD
-	bne @not_dir
+	beq @acptr_dir
+
+	cmp #MAGIC_FD_NONE
+	beq @acptr_none
+
+	; else #MAGIC_FD_EOF
+@acptr_eof:
+	lda #$40
+	bra @acptr_error
+
+@acptr_none:
+	lda #$02 ; timeout/file not found
+
+@acptr_error:
+	sta ieee_status
+	lda #0
+	sec
+	bra @acptr_end
+
+@acptr_dir:
 	jsr acptr_dir
-	bcc :+
+	bcc @acptr_end_ok
 	; clear fd from channel
 	ldx channel
 	pha
 	lda #MAGIC_FD_EOF ; next time, send EOF
 	sta fd_for_channel,x
 	pla
-:	jmp @acptr_end
+	bra @acptr_end_ok
 
-@not_dir:
- 	cmp #MAGIC_FD_STATUS
-	bne :+
+@acptr_status:
 	jsr acptr_status
-	jmp @acptr_end
-	cmp #MAGIC_FD_NONE
-	beq @acptr_nofd
-; else #MAGIC_FD_EOF
+	bra @acptr_end_ok
 
-
-; EOF
-@eof:
-	lda #$40
-	bra :+
-@acptr_nofd
-; no fd
-	lda #$02 ; timeout/file not found
-:	sta ieee_status
-	lda #0
-	ply
-	plx
-	BANKING_END
-	sec
-	rts
-
-@acptrX:
+@acptr_file:
 	jsr fat32_read_byte
-	bcc @eof
+	bcc @acptr_eof
 
+@acptr_end_ok:
+	clc
 @acptr_end:
 	ply
 	plx
 	BANKING_END
-	clc
 	rts
 
 
@@ -427,11 +416,17 @@ open_file:
 	lda #>fnbuffer
 	sta fat32_ptr + 1
 	jsr fat32_open
+	bcc @open_file_err
+	ldx channel
 	lda #0 ; >= 0 FD
-	bcs :+
-	lda #MAGIC_FD_NONE
-:	ldx channel
 	sta fd_for_channel,x ; remember fd
+	rts
+
+@open_file_err:
+	ldx channel
+	lda #MAGIC_FD_NONE
+	sta fd_for_channel,x ; remember fd
+	sec
 	rts
 
 .segment "IRQB"
