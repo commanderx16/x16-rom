@@ -62,10 +62,6 @@ fnbuffer:
 initialized:
 	.byte 0
 MAGIC_INITIALIZED  = $7A
-save_x:
-	.byte 0
-save_y:
-	.byte 0
 listen_cmd:
 	.byte 0
 channel:
@@ -117,8 +113,10 @@ cbdos_init:
 	cmp initialized
 	bne :+
 	rts
+
 :	sta initialized
-	stx save_x
+	phx
+	phy
 
 	ldx #14
 	lda #MAGIC_FD_NONE
@@ -128,10 +126,12 @@ cbdos_init:
 
 	lda #MAGIC_FD_STATUS
 	sta fd_for_channel + 15
+
 	lda #$73
 	jsr set_status
 
-	ldx save_x
+	ply
+	plx
 	rts
 
 ;---------------------------------------------------------------
@@ -164,8 +164,8 @@ cbdos_listn:
 ;---------------------------------------------------------------
 cbdos_secnd:
 	BANKING_START
-	stx save_x
-	sty save_y
+	phx
+	phy
 
 	; The upper nybble is the command:
 	; $Fx OPEN
@@ -226,8 +226,8 @@ cbdos_secnd:
 	; do nothing
 
 @secnd_rts:
-	ldx save_x
-	ldy save_y
+	ply
+	plx
 	BANKING_END
 	rts
 
@@ -241,8 +241,8 @@ cbdos_secnd:
 ;---------------------------------------------------------------
 cbdos_ciout:
 	BANKING_START
-	stx save_x
-	sty save_y
+	phx
+	phy
 
 	lda channel
 	cmp #15
@@ -263,8 +263,8 @@ cbdos_ciout:
 	brk ; overflow
 
 @ciout_end:
-	ldx save_x
-	ldy save_y
+	ply
+	plx
 	BANKING_END
 	rts
 
@@ -273,8 +273,8 @@ cbdos_ciout:
 ;---------------------------------------------------------------
 cbdos_unlsn:
 	BANKING_START
-	stx save_x
-	sty save_y
+	phx
+	phy
 
 ; special-case command channel
 	lda channel
@@ -317,8 +317,8 @@ cbdos_unlsn:
 @unlisten_end:
 
 @unlsn_end2:
-	ldy save_y
-	ldx save_x
+	ply
+	plx
 	BANKING_END
 	rts
 
@@ -345,8 +345,8 @@ cbdos_talk:
 ;---------------------------------------------------------------
 cbdos_tksa: ; after talk
 	BANKING_START
-	stx save_x
-	sty save_y
+	phx
+	phy
 
 	and #$0f
 	sta channel
@@ -358,8 +358,8 @@ cbdos_tksa: ; after talk
 @tksa_switch:
 
 @tksa_end:
-	ldx save_x
-	ldy save_y
+	ply
+	plx
 	BANKING_END
 	rts
 
@@ -374,8 +374,8 @@ cbdos_tksa: ; after talk
 ;---------------------------------------------------------------
 cbdos_acptr:
 	BANKING_START
-	stx save_x
-	sty save_y
+	phx
+	phy
 	ldx channel
 	lda fd_for_channel,x
 	bpl @acptrX ; actual file
@@ -411,8 +411,8 @@ cbdos_acptr:
 	lda #$02 ; timeout/file not found
 :	sta ieee_status
 	lda #0
-	ldy save_y
-	ldx save_x
+	ply
+	plx
 	BANKING_END
 	sec
 	rts
@@ -422,8 +422,8 @@ cbdos_acptr:
 	bcc @eof
 
 @acptr_end:
-	ldy save_y
-	ldx save_x
+	ply
+	plx
 	BANKING_END
 	clc
 	rts
