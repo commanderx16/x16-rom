@@ -1,9 +1,9 @@
 .export ciout_cmdch, execute_command, set_status, acptr_status
 
-.import fd_for_channel, channel, ieee_status
-
-.importzp buffer
+; zeropage.s
 .importzp krn_ptr1
+
+; fat32.s
 .import fat32_init
 
 
@@ -154,12 +154,11 @@ set_status:
 	sta statusbuffer + 4,x
 	sta statusbuffer + 5,x
 
-	lda #0
-	sta status_r
 	txa
 	clc
 	adc #6
 	sta status_w
+	stz status_r
 	rts
 
 stcodes:
@@ -188,30 +187,17 @@ status_74:
 	.byte "DRIVE NOT READY", 0
 
 acptr_status:
-; no data? read more
-	lda status_w
-	bne @acptr7
-
-	lda #$40 ; EOF
-	sta ieee_status
-	jsr set_status_ok
-	lda #$0d
-	bne @acptr_end
-
-@acptr7:
 	ldy status_r
+	cpy status_w
+	beq @acptr_status_eoi
+
 	lda statusbuffer,y
 	inc status_r
+	clc ; !eof
+	rts
 
-	pha
-	lda status_r
-	cmp status_w
-	bne @acptr3
-
-	stz status_w
-	stz status_r
-
-@acptr3:
-	pla
-@acptr_end:
+@acptr_status_eoi:
+	jsr set_status_ok
+	lda #$0d
+	sec ; eof
 	rts

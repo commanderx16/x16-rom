@@ -389,6 +389,9 @@ cbdos_acptr:
 
 @acptr_status:
 	jsr acptr_status
+	bcc @acptr_end_ok
+	ldx #$40 ; EOF
+	stx ieee_status
 	bra @acptr_end_ok
 
 @acptr_file:

@@ -1,9 +1,9 @@
 .export open_dir, acptr_dir
 
-.import channel, fd_for_channel, ieee_status
-.importzp MAGIC_FD_EOF
-
+; cmdch.s
 .import set_status
+
+; fat32.s
 .import fat32_dirent
 
 .include "fat32/fat32.inc"
