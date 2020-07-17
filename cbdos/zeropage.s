@@ -14,8 +14,6 @@ dirptr:
 	.res 2
 read_blkptr:
 	.res 2
-buffer:
-	.res 2
 bank_save:
 	.res 1
 

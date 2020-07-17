@@ -5,15 +5,10 @@
 
 .import fat32_dirent
 
-.export tmp1, krn_tmp, krn_tmp2, krn_tmp3, sd_tmp, lba_addr, blocks
-.export fd_area
-
 .importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
 
 ; cmdch.s
 .import ciout_cmdch, execute_command, set_status, acptr_status
-.export buffer_len
-.export buffer_ptr
 
 ; dir.s
 .import open_dir, acptr_dir, read_dir
@@ -63,24 +58,6 @@ via1porta   = via1+1 ; RAM bank
 fnbuffer:
 	.res 256, 0
 
-; SD/FAT32 buffers/variables
-fd_area: ; File descriptor area
-	.res 128, 0
-tmp1:
-	.byte 0
-krn_tmp:
-	.byte 0
-krn_tmp2:
-	.byte 0
-krn_tmp3:
-	.byte 0
-sd_tmp:
-	.byte 0
-lba_addr:
-	.byte 0,0,0,0
-blocks: ; 3 bytes blocks to read, 3 bytes sufficient to address 4GB -> 4294967296 >> 9 = 8388608 ($800000) max blocks/file
-	.byte 0,0,0
-
 ; Commodore DOS variables
 initialized:
 	.byte 0
@@ -93,19 +70,9 @@ listen_cmd:
 	.byte 0
 channel:
 	.byte 0
-receiving_filename:
+is_receiving_filename:
 	.byte 0
 fnbuffer_ptr:
-	.byte 0
-bufferno:
-	.byte 0
-
-; number of valid data bytes in each buffer
-buffer_len:
-	.byte 0
-
-; current r/w pointer within the buffer
-buffer_ptr:
 	.byte 0
 
 fd_for_channel:
@@ -244,15 +211,13 @@ cbdos_secnd:
 ;---------------------------------------------------------------
 ; Initiate OPEN
 @secnd_open:
-	lda #0
-	sta buffer_ptr ; clear fn buffer
 	lda #1
-	sta receiving_filename
+	sta is_receiving_filename
 	stz fnbuffer_ptr
 	bra @secnd_rts
 
 @secnd_switch:
-	stz receiving_filename
+	stz is_receiving_filename
 	bra @secnd_rts
 
 ;---------------------------------------------------------------
@@ -285,7 +250,7 @@ cbdos_ciout:
 	jsr ciout_cmdch
 	bra @ciout_end
 
-	lda receiving_filename
+	lda is_receiving_filename
 	bne :+
 
 	brk ; receiving data

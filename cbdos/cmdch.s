@@ -1,10 +1,6 @@
 .export ciout_cmdch, execute_command, set_status, acptr_status
 
-.import buffer_len
-.import buffer_ptr
-
 .import fd_for_channel, channel, ieee_status
-.importzp MAGIC_FD_EOF
 
 .importzp buffer
 .importzp krn_ptr1
@@ -21,9 +17,9 @@ statusbuffer:
 cmdbuffer_len:
 	.byte 0
 
-status_ptr:
+status_r:
 	.byte 0
-status_len:
+status_w:
 	.byte 0
 
 .segment "cbdos"
@@ -159,11 +155,11 @@ set_status:
 	sta statusbuffer + 5,x
 
 	lda #0
-	sta status_ptr
+	sta status_r
 	txa
 	clc
 	adc #6
-	sta status_len
+	sta status_w
 	rts
 
 stcodes:
@@ -193,7 +189,7 @@ status_74:
 
 acptr_status:
 ; no data? read more
-	lda status_len
+	lda status_w
 	bne @acptr7
 
 	lda #$40 ; EOF
@@ -203,27 +199,17 @@ acptr_status:
 	bne @acptr_end
 
 @acptr7:
-	ldy status_ptr
-	lda (buffer),y
-	inc status_ptr
-	bne :+
-	brk
-:	pha
-	lda status_ptr
-	cmp status_len
+	ldy status_r
+	lda statusbuffer,y
+	inc status_r
+
+	pha
+	lda status_r
+	cmp status_w
 	bne @acptr3
 
-; read another block next time
-	lda #0
-	sta status_len
-	sta status_ptr
-	jmp @acptr3
-
-@acptr4:
-; clear fd from channel
-	ldx channel
-	lda #MAGIC_FD_EOF ; next time, send EOF
-	sta fd_for_channel,x
+	stz status_w
+	stz status_r
 
 @acptr3:
 	pla

@@ -27,6 +27,7 @@ num_blocks:
 	.word 0
 
 .segment "cbdos"
+
 open_dir:
 	jsr fat32_init
 	bcs :+

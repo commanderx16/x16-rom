@@ -9,9 +9,16 @@
 .include "../geos/inc/geosmac.inc"
 
 .import sd_read_block_lower, sd_read_block_upper
-.import read_blkptr, lba_addr, sdcard_init
+.import read_blkptr, sdcard_init
 
 .export cbmdos_GetNxtDirEntry, cbmdos_Get1stDirEntry, cbmdos_CalcBlksFree, cbmdos_GetDirHead, cbmdos_ReadBlock, cbmdos_ReadBuff, cbmdos_OpenDisk
+
+.segment "cbdos_data"
+
+lba_addr:
+	.byte 0,0,0,0
+
+.segment "cbdos"
 
 cbmdos_OpenDisk:
 	jsr sdcard_init
