@@ -102,7 +102,7 @@ save_x:
 	.byte 0
 save_y:
 	.byte 0
-listen_addr:
+listen_cmd:
 	.byte 0
 channel:
 	.byte 0
@@ -162,10 +162,15 @@ buffer_for_channel:
 	jmp cbmdos_GetNxtDirEntry
 
 ; detection
-	jmp cbdos_sdcard_init
+	jmp cbdos_sdcard_detect
 
+;---------------------------------------------------------------
+; Initialize CBDOS data structures
+;
+; This has to be done once and is triggered by
+; cbdos_sdcard_detect.
+;---------------------------------------------------------------
 cbdos_init:
-	; XXX don't do lazy init
 	lda #MAGIC_INITIALIZED
 	cmp initialized
 	bne :+
@@ -198,8 +203,14 @@ cbdos_init:
 	ldx save_x
 	rts
 
-cbdos_sdcard_init:
+;---------------------------------------------------------------
+; Detect SD card
+;
+; Returns Z=1 if SD card is present
+;---------------------------------------------------------------
+cbdos_sdcard_detect:
 	BANKING_START
+	jsr cbdos_init
 	jsr sdcard_init ; C=0: error
 	lda #0
 	rol
@@ -207,33 +218,45 @@ cbdos_sdcard_init:
 	BANKING_END
 	rts
 
-;****************************************
+;---------------------------------------------------------------
 ; LISTEN
-;****************************************
+;
+; Nothing to do.
+;---------------------------------------------------------------
 cbdos_listn:
-	BANKING_START
-	jsr cbdos_init ; XXX
-	BANKING_END
 	rts
 
-;****************************************
+;---------------------------------------------------------------
 ; SECOND (after LISTEN)
-;****************************************
-cbdos_secnd: ; after listen
+;
+;   In:   a    secondary address
+;---------------------------------------------------------------
+cbdos_secnd:
 	BANKING_START
 	stx save_x
 	sty save_y
-	; If it's $Fx, the bytes sent by the host until UNLISTEN
-	; will be a filename to be associated with channel x.
-	; Otherwise, we need to receive into channel x.
 
-	sta listen_addr ; we need it for UNLISTEN
+	; The upper nybble is the command:
+	; $Fx OPEN
+	;     The bytes sent by the host until UNLISTEN will be
+	;     a filename to be associated with the channel.
+	; $Ex CLOSE
+	;     Close this channel, no more bytes will be sent to
+	;     it.
+	; $6x LISTEN
+	;     The following bytes will be received into the
+	;     channel.
+
+	tax
+	and #$f0
+	sta listen_cmd ; we need it for UNLISTEN
+	txa
+	and #$0f
+	sta channel
 
 ; if channel 15, ignore "OPEN", just switch to it
-	and #$0f
 	cmp #$0f
-	sta channel
-	bne :+
+	bne @secnd1
 	lda #BUFNO_CMD
 @secnd_switch:
 	jsr switch_to_buffer
@@ -242,8 +265,8 @@ cbdos_secnd: ; after listen
 	BANKING_END
 	rts
 
-:	lda listen_addr
-	and #$f0
+@secnd1:
+	lda listen_cmd
 	cmp #$f0
 	beq @secnd_open
 
@@ -274,9 +297,9 @@ cbdos_secnd: ; after listen
 	BANKING_END
 	rts
 
-;****************************************
+;---------------------------------------------------------------
 ; SEND
-;****************************************
+;---------------------------------------------------------------
 cbdos_ciout:
 	BANKING_START
 	sty save_y
@@ -305,9 +328,9 @@ cbdos_ciout:
 :	BANKING_END
 	rts
 
-;****************************************
+;---------------------------------------------------------------
 ; UNLISTEN
-;****************************************
+;---------------------------------------------------------------
 cbdos_unlsn:
 	BANKING_START
 	stx save_x
@@ -317,8 +340,7 @@ cbdos_unlsn:
 	cmp #$0f
 	beq @unlisten_cmd
 
-	lda listen_addr
-	and #$f0
+	lda listen_cmd
 	cmp #$f0
 	beq @unlsn_open
 
@@ -369,18 +391,17 @@ cbdos_unlsn:
 	; TODO
 	brk
 
-;****************************************
+;---------------------------------------------------------------
 ; TALK
-;****************************************
+;
+; Nothing to do.
+;---------------------------------------------------------------
 cbdos_talk:
-	BANKING_START
-	jsr cbdos_init ; XXX
-	BANKING_END
 	rts
 
-;****************************************
+;---------------------------------------------------------------
 ; SECOND (after TALK)
-;****************************************
+;---------------------------------------------------------------
 cbdos_tksa: ; after talk
 	BANKING_START
 	stx save_x
@@ -405,9 +426,9 @@ cbdos_tksa: ; after talk
 @empty_channel:
 	brk; TODO
 
-;****************************************
+;---------------------------------------------------------------
 ; RECEIVE
-;****************************************
+;---------------------------------------------------------------
 cbdos_acptr:
 	BANKING_START
 	stx save_x
@@ -522,9 +543,9 @@ cbdos_acptr:
 	clc
 	rts
 
-;****************************************
+;---------------------------------------------------------------
 ; UNTALK
-;****************************************
+;---------------------------------------------------------------
 cbdos_untlk:
 	BANKING_START
 	stx save_x
@@ -535,7 +556,7 @@ cbdos_untlk:
 	BANKING_END
 	rts
 
-;****************************************
+;---------------------------------------------------------------
 ; allocate a buffer for channel
 ; * remember it as the channel's buffer
 ; * switch to it
@@ -587,7 +608,7 @@ switch_to_buffer:
 	clc ; success
 	rts
 
-;****************************************
+;---------------------------------------------------------------
 ; free a channel's buffer
 ;   in: A: channel
 buf_free:
@@ -600,7 +621,7 @@ buf_free:
 	sta buffer_alloc_map,y
 	rts
 
-;****************************************
+;---------------------------------------------------------------
 ; write back buffer ptr
 finished_with_buffer:
 	lda bufferno
@@ -616,7 +637,7 @@ finished_with_buffer:
 	sta buffer_len + 1,x
 	rts
 
-;****************************************
+;---------------------------------------------------------------
 set_status_ok:
 	lda #$00
 	bra :+
@@ -716,7 +737,7 @@ status_73:
 status_74:
 	.byte "DRIVE NOT READY", 0
 
-;****************************************
+;---------------------------------------------------------------
 open_file:
 	jsr fat32_init
 
