@@ -32,6 +32,9 @@ TOTAL_NUM_BUFS = NUM_BUFS + 3
 BUFNO_FN     = NUM_BUFS
 BUFNO_CMD    = NUM_BUFS + 1
 BUFNO_STATUS = NUM_BUFS + 2
+; XXX Filename cnd CMD buffers shouldn't be separate!
+; XXX In both cases, the full string has to be transmissed in one go
+; XXX and will be discarded afterwards.
 
 DIRSTART = $0801 ; load address of directory
 
@@ -258,7 +261,7 @@ cbdos_secnd:
 
 ; special-case command channel
 	cmp #$0f
-	beq @secnd_cmdchnl
+	beq @secnd_cmdch
 
 	lda listen_cmd
 	cmp #$f0
@@ -276,12 +279,12 @@ cbdos_secnd:
 ;---------------------------------------------------------------
 ; LISTEN on command channel will ignore OPEN/CLOSE
 ; -> always just switch to command channel
-@secnd_cmdchnl:
+@secnd_cmdch:
 	lda #BUFNO_CMD
 	jmp @secnd_switch
 
 ;---------------------------------------------------------------
-; OPEN
+; Initiate OPEN
 @secnd_open:
 	lda #0
 	sta buffer_ptr + 2 * BUFNO_FN ; clear fn buffer
@@ -352,12 +355,14 @@ cbdos_unlsn:
 ; special-case command channel
 	lda channel
 	cmp #$0f
-	beq @unlisten_cmdchnl
+	beq @unlisten_cmdch
 
 	lda listen_cmd
 	cmp #$f0
 	bne @unlsn_end2; otherwise UNLISTEN does nothing
 
+;---------------------------------------------------------------
+; Execute OPEN with filename
 	; XXX low byte only
 	lda cur_buffer_ptr
 	sta fnlen
@@ -366,19 +371,23 @@ cbdos_unlsn:
 	jsr buf_alloc
 	bcs @no_bufs
 
+	; XXX necessary?
 	jsr sdcard_init
 
 	lda fnbuffer
 	cmp #'$'
 	bne @not_dir
 
-; DIR
+;---------------------------------------------------------------
+; OPEN directory
 	jsr open_dir
 	jmp @unlisten_end
 
-; READ FILE
+;---------------------------------------------------------------
+; OPEN file
 @not_dir:
 	jsr open_file
+
 @unlisten_end:
 	jsr finished_with_buffer
 
@@ -394,9 +403,11 @@ cbdos_unlsn:
 	brk
 
 ;---------------------------------------------------------------
+; Execute Command
+;
 ; UNLISTEN on command channel will ignore whether it was
 ; and OPEN command; it will always trigger command execution
-@unlisten_cmdchnl:
+@unlisten_cmdch:
 	jsr execute_command
 	jmp @unlsn_end2
 
@@ -416,16 +427,18 @@ cbdos_tksa: ; after talk
 	BANKING_START
 	stx save_x
 	sty save_y
+
 	and #$0f
 	sta channel
-	cmp #$0f
-	bne :+
-	lda #BUFNO_STATUS
-	bne @tksa_switch ; always
 
-:	tax
+; special-case command channel
+	cmp #$0f
+	beq @tksa_cmdch
+
+	tax
 	lda buffer_for_channel,x
 	bmi @empty_channel
+
 @tksa_switch:
 	jsr switch_to_buffer
 	ldx save_x
@@ -435,6 +448,10 @@ cbdos_tksa: ; after talk
 
 @empty_channel:
 	brk; TODO
+
+@tksa_cmdch:
+	lda #BUFNO_STATUS
+	bra @tksa_switch
 
 ;---------------------------------------------------------------
 ; RECEIVE
