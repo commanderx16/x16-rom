@@ -1,9 +1,8 @@
-.export open_dir, read_dir
+.export open_dir, acptr_dir, read_dir
 
-.import fn_base, num_blocks, cur_buffer_len, is_last_block_for_channel
+.import fn_base, num_blocks, cur_buffer_len, cur_buffer_ptr, is_last_block_for_channel
 .import channel, fd_for_channel, status
-.importzp MAGIC_FD_DIR_LOAD
-
+.importzp MAGIC_FD_DIR_LOAD, MAGIC_FD_EOF
 
 .import set_status
 .import fat32_dirent
@@ -101,6 +100,44 @@ end_of_dir:
 	sta is_last_block_for_channel,x
 
 	rts
+
+acptr_dir:
+	lda cur_buffer_len
+	bne @acptr7
+
+; read next directory line
+	jsr read_dir
+@acptr7:
+	ldy cur_buffer_ptr
+	lda (buffer),y
+	inc cur_buffer_ptr
+	bne :+
+	brk
+:	pha
+	lda cur_buffer_ptr
+	cmp cur_buffer_len
+	bne @acptr3
+; buffer exhausted
+	ldx channel
+	lda is_last_block_for_channel,x
+	bmi @acptr4
+
+; read another block next time
+	lda #0
+	sta cur_buffer_len
+	sta cur_buffer_ptr
+	jmp @acptr3
+
+@acptr4:
+; clear fd from channel
+	ldx channel
+	lda #MAGIC_FD_EOF ; next time, send EOF
+	sta fd_for_channel,x
+
+@acptr3:
+	pla
+	rts
+
 
 read_dir:
 	lda fat32_dirent + dirent::attributes

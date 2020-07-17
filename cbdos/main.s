@@ -19,10 +19,10 @@
 .export cmdbuffer
 
 ; dir.s
-.import open_dir, read_dir
-.export fn_base, num_blocks, cur_buffer_len, is_last_block_for_channel
+.import open_dir, acptr_dir, read_dir
+.export fn_base, num_blocks, cur_buffer_len, cur_buffer_ptr, is_last_block_for_channel
 .export channel, fd_for_channel, status
-.export MAGIC_FD_DIR_LOAD
+.export MAGIC_FD_DIR_LOAD, MAGIC_FD_EOF
 
 ; geos.s
 .import cbmdos_GetNxtDirEntry, cbmdos_Get1stDirEntry, cbmdos_CalcBlksFree, cbmdos_GetDirHead, cbmdos_ReadBlock, cbmdos_ReadBuff, cbmdos_OpenDisk
@@ -453,8 +453,10 @@ cbdos_acptr:
 	lda fd_for_channel,x
 	bpl @acptrX ; actual file
 	cmp #MAGIC_FD_DIR_LOAD
-	beq @acptr5
- 	cmp #MAGIC_FD_STATUS
+	bne :+
+	jsr acptr_dir
+	jmp @acptr_end
+: 	cmp #MAGIC_FD_STATUS
 	beq @acptr5
 	cmp #MAGIC_FD_NONE
 	beq @acptr_nofd
@@ -481,8 +483,8 @@ cbdos_acptr:
 	bcc @eof
 	jmp @acptr_end
 
-; no data? read more
 @acptr5:
+; no data? read more
 	lda cur_buffer_len
 	bne @acptr7
 
@@ -540,6 +542,7 @@ cbdos_acptr:
 	BANKING_END
 	clc
 	rts
+
 
 ;---------------------------------------------------------------
 ; UNTALK
