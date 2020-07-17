@@ -729,17 +729,10 @@ open_file:
 	sta fat32_ptr + 1
 	jsr fat32_open
 	lda #0 ; >= 0 FD
-	bcs @l0
+	bcs :+
 	lda #MAGIC_FD_NONE
-	bra @l1 ; no fd
-@l0:	txa
-@l1:	ldx channel
+:	ldx channel
 	sta fd_for_channel,x ; remember fd
-
-; indicate there's nothing currently read
-	lda #0
-	sta cur_buffer_len
-	sta cur_buffer_len + 1
 	rts
 
 open_dir:
