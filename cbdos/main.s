@@ -20,7 +20,7 @@
 
 ; dir.s
 .import open_dir, acptr_dir, read_dir
-.export fn_base, num_blocks, cur_buffer_len, cur_buffer_ptr, is_last_block_for_channel
+.export cur_buffer_len, cur_buffer_ptr, is_last_block_for_channel
 .export channel, fd_for_channel, status
 .export MAGIC_FD_DIR_LOAD, MAGIC_FD_EOF
 
@@ -103,8 +103,6 @@ blocks: ; 3 bytes blocks to read, 3 bytes sufficient to address 4GB -> 429496729
 initialized:
 	.byte 0
 MAGIC_INITIALIZED  = $7A
-fn_base:
-	.byte 0
 cur_buffer_ptr:
 	.byte 0
 cur_buffer_len:
@@ -117,8 +115,6 @@ listen_cmd:
 	.byte 0
 channel:
 	.byte 0
-num_blocks:
-	.word 0
 fnlen:
 	.byte 0
 bufferno:

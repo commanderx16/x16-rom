@@ -1,6 +1,6 @@
 .export open_dir, acptr_dir, read_dir
 
-.import fn_base, num_blocks, cur_buffer_len, cur_buffer_ptr, is_last_block_for_channel
+.import cur_buffer_len, cur_buffer_ptr, is_last_block_for_channel
 .import channel, fd_for_channel, status
 .importzp MAGIC_FD_DIR_LOAD, MAGIC_FD_EOF
 
@@ -13,6 +13,14 @@
 
 DIRSTART = $0801 ; load address of directory
 
+.segment "cbdos_data"
+
+fn_base:
+	.byte 0 ; XXX unused?
+num_blocks:
+	.word 0
+
+.segment "cbdos"
 open_dir:
 	jsr fat32_init
 	bcs :+
