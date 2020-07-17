@@ -132,7 +132,7 @@ Credits
 -------
 
 * All new code, and additions to legacy code: &copy;2020 Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
-* FAT32 and SD card drivers: &copy;2018 Thomas Woinke, Marko Lauke, [www.steckschein.de](https://steckschwein.de); MIT License
+* FAT32 and SD card drivers: &copy;2018 Frank van den Hoef; 2-clause BSD license
 * `kernal/open-roms`: &copy;2019 Paul Gardner-Stephen, 2019; GPLv3 license
 * `kernal/cbm`: &copy;1983 Commodore Business Machines (CBM)
 * `basic`: &copy;1977 Microsoft Corp.
