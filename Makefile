@@ -139,7 +139,8 @@ CBDOS_SOURCES = \
 	cbdos/fat32.s \
 	cbdos/sdcard.s \
 	cbdos/main.s \
-	cbdos/cmdch.s
+	cbdos/cmdch.s \
+	cbdos/dir.s
 
 GEOS_SOURCES= \
 	geos/kernal/bitmask/bitmask2.s \

@@ -2,7 +2,7 @@
 
 .import buffer_len
 .import buffer_ptr
-.import BUFNO_STATUS
+.importzp BUFNO_STATUS
 
 .import statusbuffer
 .import cmdbuffer
