@@ -10,11 +10,12 @@
 .include "fat32/regs.inc"
 
 DIRSTART = $0801 ; load address of directory
+MAX_DIRLINE_LEN = 40
 
 .segment "cbdos_data"
 
 dirbuffer:
-	.res 256, 0
+	.res MAX_DIRLINE_LEN, 0
 
 dirbuffer_r:
 	.byte 0

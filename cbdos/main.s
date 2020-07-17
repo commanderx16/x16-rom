@@ -31,6 +31,7 @@ IMPORTED_FROM_MAIN=1
 
 .include "fat32/regs.inc"
 
+MAX_FILENAME_LEN = 40
 
 ieee_status = status
 
@@ -55,7 +56,7 @@ via1porta   = via1+1 ; RAM bank
 .segment "cbdos_data"
 
 fnbuffer:
-	.res 256, 0
+	.res MAX_FILENAME_LEN, 0
 
 ; Commodore DOS variables
 initialized:
@@ -235,10 +236,11 @@ cbdos_ciout:
 	brk ; XXX TODO receiving data
 
 @ciout_filename:
-	ldy fnbuffer_w
-	sta fnbuffer,y
+	ldx fnbuffer_w
+	cpx #MAX_FILENAME_LEN
+	bcs @ciout_end ; ignore characters on overflow
+	sta fnbuffer,x
 	inc fnbuffer_w
-	; if len(filename) > 256, it will be garbled, but that's ok
 	bra @ciout_end
 
 @ciout_cmdch:

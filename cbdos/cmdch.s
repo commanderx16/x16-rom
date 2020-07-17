@@ -6,13 +6,15 @@
 ; fat32.s
 .import fat32_init
 
+MAX_CMD_LEN = 40
+MAX_STATUS_LEN = 40
 
 .segment "cbdos_data"
 
 cmdbuffer:
-	.res 256, 0
+	.res MAX_CMD_LEN, 0
 statusbuffer:
-	.res 256, 0
+	.res MAX_STATUS_LEN, 0
 
 cmdbuffer_len:
 	.byte 0
@@ -25,11 +27,12 @@ status_w:
 .segment "cbdos"
 
 ciout_cmdch:
-:	ldx cmdbuffer_len
+	ldx cmdbuffer_len
+	cpx #MAX_CMD_LEN
+	bcs :+ ; ignore characters on overflow
 	sta cmdbuffer,x
 	inc cmdbuffer_len
-	; XXX overflow
-	rts
+:	rts
 
 execute_command:
 	lda cmdbuffer_len
