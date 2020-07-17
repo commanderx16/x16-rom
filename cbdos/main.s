@@ -2,18 +2,16 @@
 .import sdcard_init
 
 .import fat32_init
-
 .import fat32_dirent
+.import sync_sector_buffer
 
-.importzp filenameptr, krn_ptr1, krn_ptr3, dirptr, read_blkptr, buffer, bank_save
+.importzp krn_ptr1, read_blkptr, buffer, bank_save
 
 ; cmdch.s
 .import ciout_cmdch, execute_command, set_status, acptr_status
 
 ; dir.s
 .import open_dir, acptr_dir
-.export channel, fd_for_channel, ieee_status
-.export MAGIC_FD_DIR_LOAD, MAGIC_FD_EOF
 
 ; geos.s
 .import cbmdos_GetNxtDirEntry, cbmdos_Get1stDirEntry, cbmdos_CalcBlksFree, cbmdos_GetDirHead, cbmdos_ReadBlock, cbmdos_ReadBuff, cbmdos_OpenDisk
@@ -31,6 +29,7 @@ IMPORTED_FROM_MAIN=1
 
 .include "fat32/regs.inc"
 
+MAX_FILENAME_LEN = 40
 
 ieee_status = status
 
@@ -55,7 +54,7 @@ via1porta   = via1+1 ; RAM bank
 .segment "cbdos_data"
 
 fnbuffer:
-	.res 256, 0
+	.res MAX_FILENAME_LEN, 0
 
 ; Commodore DOS variables
 initialized:
@@ -70,12 +69,13 @@ is_receiving_filename:
 fnbuffer_w:
 	.byte 0
 
-fd_for_channel:
+next_byte_for_channel:
+	.res 16, 0
+context_for_channel:
 	.res 16, 0
 MAGIC_FD_NONE     = $ff
 MAGIC_FD_STATUS   = $fe
 MAGIC_FD_DIR_LOAD = $fd
-MAGIC_FD_EOF      = $fc
 
 
 .segment "cbdos"
@@ -119,12 +119,15 @@ cbdos_init:
 
 	ldx #14
 	lda #MAGIC_FD_NONE
-:	sta fd_for_channel,x
+:	sta context_for_channel,x
 	dex
 	bpl :-
 
 	lda #$73
 	jsr set_status
+
+	jsr fat32_init
+	; XXX error
 
 	ply
 	plx
@@ -138,7 +141,13 @@ cbdos_init:
 cbdos_sdcard_detect:
 	BANKING_START
 	jsr cbdos_init
-	jsr sdcard_init ; C=0: error
+
+	; re-init the SD card
+	; * first write back any dirty sectors
+	jsr sync_sector_buffer
+	; * then init it
+	jsr sdcard_init
+
 	lda #0
 	rol
 	eor #1          ; Z=0: error
@@ -198,8 +207,18 @@ cbdos_secnd:
 
 ;---------------------------------------------------------------
 ; CLOSE
-@secnd_close:
-	; XXX fill this when closing files that have been written to
+	ldx channel
+	lda context_for_channel,x
+	bmi @secnd_rts
+
+@close_file:
+	pha
+	jsr fat32_close
+	pla
+	jsr fat32_free_context
+	ldx channel
+	lda #MAGIC_FD_NONE
+	sta context_for_channel,x
 	bra @secnd_rts
 
 ;---------------------------------------------------------------
@@ -232,19 +251,38 @@ cbdos_ciout:
 	ldx is_receiving_filename
 	bne @ciout_filename
 
-	brk ; XXX TODO receiving data
+	; ignore writing to read channels
+	ldx channel
+	beq @ciout_end
+	cpx #2
+	bcs @ciout_end
+
+; write to file
+	pha
+	jsr fat32_write_byte
+	pla
+	bcs @ciout_end
+
+; write error
+	ldx #$26 ; XXX different error!
+	jsr set_status
+	lda #1
+	sta ieee_status
+	bra @ciout_end
 
 @ciout_filename:
-	ldy fnbuffer_w
-	sta fnbuffer,y
+	ldx fnbuffer_w
+	cpx #MAX_FILENAME_LEN
+	bcs @ciout_end ; ignore characters on overflow
+	sta fnbuffer,x
 	inc fnbuffer_w
-	; if len(filename) > 256, it will be garbled, but that's ok
 	bra @ciout_end
 
 @ciout_cmdch:
 	jsr ciout_cmdch
 
 @ciout_end:
+	clc
 	ply
 	plx
 	BANKING_END
@@ -269,9 +307,7 @@ cbdos_unlsn:
 
 ;---------------------------------------------------------------
 ; Execute OPEN with filename
-	; XXX necessary?
-	jsr sdcard_init
-
+; XXX only on channel 0!
 	lda fnbuffer
 	cmp #'$'
 	bne @unlsn_open_file
@@ -284,14 +320,12 @@ cbdos_unlsn:
 @open_err:
 	lda #$02 ; timeout/file not found
 	sta ieee_status
-	lda #$62
-	jsr set_status
 	bra @unlsn_end
 
 @open_ok:
 	lda #MAGIC_FD_DIR_LOAD
 	ldx channel
-	sta fd_for_channel,x ; remember fd
+	sta context_for_channel,x
 	bra @unlsn_end
 
 ;---------------------------------------------------------------
@@ -330,10 +364,19 @@ cbdos_talk:
 ;---------------------------------------------------------------
 cbdos_tksa: ; after talk
 	BANKING_START
+	phx
+	phy
 
 	and #$0f
 	sta channel
 
+	tax
+	lda context_for_channel,x
+	; XXX test
+	jsr fat32_set_context
+
+	ply
+	plx
 	BANKING_END
 	rts
 
@@ -346,28 +389,17 @@ cbdos_acptr:
 	phx
 	phy
 
-	lda #0
-	sta ieee_status
-
 	ldx channel
 	cpx #15
 	beq @acptr_status
 
-	lda fd_for_channel,x
+	lda context_for_channel,x
 	bpl @acptr_file ; actual file
 
 	cmp #MAGIC_FD_DIR_LOAD
 	beq @acptr_dir
 
-	cmp #MAGIC_FD_NONE
-	beq @acptr_none
-
-	; else #MAGIC_FD_EOF
-@acptr_eof:
-	lda #$40
-	bra @acptr_error
-
-@acptr_none:
+	; #MAGIC_FD_NONE
 	lda #$02 ; timeout/file not found
 
 @acptr_error:
@@ -378,30 +410,52 @@ cbdos_acptr:
 
 @acptr_dir:
 	jsr acptr_dir
-	bcc @acptr_end_ok
-	; clear fd from channel
-	ldx channel
-	pha
-	lda #MAGIC_FD_EOF ; next time, send EOF
-	sta fd_for_channel,x
-	pla
-	bra @acptr_end_ok
+	bra @acptr_eval
 
 @acptr_status:
 	jsr acptr_status
-	bra @acptr_end_ok
+	bra @acptr_eval
 
 @acptr_file:
-	jsr fat32_read_byte
-	bcc @acptr_eof
+	jsr acptr_file
 
-@acptr_end_ok:
+@acptr_eval:
+	stz ieee_status
+	bcc @acptr_end_neoi
+
+	ldx #$40 ; EOI
+	stx ieee_status
+
+@acptr_end_neoi:
 	clc
 @acptr_end:
 	ply
 	plx
 	BANKING_END
 	rts
+
+
+acptr_file:
+	jsr fat32_read_byte
+	bcs @acptr_file_neof
+
+	; EOF
+	ldx channel
+	lda next_byte_for_channel,x
+	sec
+	rts
+
+@acptr_file_neof:
+	tay
+	ldx channel
+	lda next_byte_for_channel,x
+	pha
+	tya
+	sta next_byte_for_channel,x
+	pla
+	clc
+	rts
+
 
 
 ;---------------------------------------------------------------
@@ -412,28 +466,50 @@ cbdos_untlk:
 
 ;---------------------------------------------------------------
 open_file:
-	jsr fat32_init
+	; XXX check if channel already open
 
-	lda #0 ; zero-terminate filename
-	ldy fnbuffer_w
-	sta fnbuffer,y
+	jsr fat32_alloc_context
+	pha
+	jsr fat32_set_context
+
+	ldx fnbuffer_w
+	stz fnbuffer,x ; zero-terminate filename
 	lda #<fnbuffer
 	sta fat32_ptr + 0
 	lda #>fnbuffer
 	sta fat32_ptr + 1
 
+	lda channel
+	beq @open_read
+	cmp #2
+	bcs @open_read ; XXX parse ",t,R"/",t,W"/",t,A"
+
+; create
+	; XXX file exists?
+	jsr fat32_create
+	bcc @open_file_err
+	ldx channel
+	bra @open_file_cont
+
+@open_read:
 	jsr fat32_open
 	bcc @open_file_err
 
-	ldx channel
-	lda #0 ; >= 0 FD
-	sta fd_for_channel,x ; remember fd
+	jsr fat32_read_byte
+	bcs :+
+	lda #0 ; of EOF then make the only byte a 0
+
+:	ldx channel
+	sta next_byte_for_channel,x
+
+@open_file_cont:
+	pla ; context number
+	sta context_for_channel,x
 	rts
 
 @open_file_err:
-	ldx channel
-	lda #MAGIC_FD_NONE
-	sta fd_for_channel,x ; remember fd
+	pla ; context number
+	jsr fat32_free_context
 	sec
 	rts
 

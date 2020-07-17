@@ -1,20 +1,21 @@
 .export open_dir, acptr_dir
 
-.import channel, fd_for_channel, ieee_status
-.importzp MAGIC_FD_EOF
-
+; cmdch.s
 .import set_status
-.import fat32_dirent
+
+; fat32.s
+.import fat32_dirent, fat32_get_free_space, fat32_size
 
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"
 
 DIRSTART = $0801 ; load address of directory
+MAX_DIRLINE_LEN = 40
 
 .segment "cbdos_data"
 
 dirbuffer:
-	.res 256, 0
+	.res MAX_DIRLINE_LEN, 0
 
 dirbuffer_r:
 	.byte 0
@@ -22,6 +23,8 @@ dirbuffer_w:
 	.byte 0
 num_blocks:
 	.word 0
+context:
+	.byte 0
 dir_eof:
 	.byte 0
 
@@ -30,14 +33,12 @@ dir_eof:
 ;---------------------------------------------------------------
 ;---------------------------------------------------------------
 open_dir:
-	jsr fat32_init
-	bcs :+
-
-	sec
-	rts
-
-:	lda #0
+	lda #0
 	jsr set_status
+
+	jsr fat32_alloc_context
+	sta context
+	jsr fat32_set_context
 
 	ldy #0
 	lda #<DIRSTART
@@ -79,6 +80,11 @@ open_dir:
 	sty dirbuffer_w
 	stz dirbuffer_r
 
+	lda #<root
+	sta fat32_ptr
+	lda #>root
+	sta fat32_ptr + 1
+
 	jsr fat32_open_dir
 	bcc @open_dir_err
 
@@ -87,10 +93,15 @@ open_dir:
 	rts
 
 @open_dir_err:
+	lda context
+	jsr fat32_free_context
 	lda #1
 	sta dir_eof
 	clc ; ok
 	rts
+
+root:
+	.byte '/', 0
 
 ;---------------------------------------------------------------
 ;---------------------------------------------------------------
@@ -107,6 +118,7 @@ acptr_dir:
 @acptr_empty:
 	jsr read_dir_entry
 	bcc acptr_dir
+	lda #0
 	rts ; C = 1
 
 
@@ -230,20 +242,51 @@ read_dir_entry:
 	lda #1
 	jsr storedir ; link
 	jsr storedir
-	lda #$ff
-	jsr storedir ; XXX TODO real blocks free
+
+	jsr fat32_get_free_space
+	lda fat32_size + 2
+	ora fat32_size + 3
+	bne @not_kb
+
+	lda #'K'
+	bra @print_free
+
+@not_kb:
+	jsr shr10
+	lda fat32_size + 2
+	bne @not_mb
+
+	lda #'M'
+	bra @print_free
+
+@not_mb:
+	jsr shr10
+	lda #'G'
+
+@print_free:
+	pha
+	lda fat32_size + 0
+	jsr storedir
+	lda fat32_size + 1
+	jsr storedir
+	pla
 	jsr storedir
 	ldx #0
-:	lda txt_blocksfree,x
+:	lda txt_free,x
 	jsr storedir
 	inx
-	cpx #txt_blocksfree_end - txt_blocksfree
+	cpx #txt_free_end - txt_free
 	bne :-
 
 	lda #0
 	jsr storedir
 	jsr storedir
-	jsr storedir
+	; the final 0 is missing, because the character transmission
+	; function will send one extra 0 with EOI
+
+	jsr fat32_close
+	lda context
+	jsr fat32_free_context
 
 	inc dir_eof ; = 1
 
@@ -253,11 +296,34 @@ read_dir_entry:
 	rts
 
 
-txt_blocksfree:
-	.byte "BLOCKS FREE."
-txt_blocksfree_end:
+txt_free:
+	.byte "B FREE."
+txt_free_end:
 
 storedir:
 	sta dirbuffer,y
 	iny
+	rts
+
+shr10:
+	; >> 8
+	lda fat32_size + 1
+	sta fat32_size + 0
+	lda fat32_size + 2
+	sta fat32_size + 1
+	lda fat32_size + 3
+	sta fat32_size + 2
+
+	; >> 2
+	lsr fat32_size + 2
+	ror fat32_size + 1
+	ror fat32_size + 0
+	lsr fat32_size + 2
+	ror fat32_size + 1
+	ror fat32_size + 0
+
+	lda fat32_size + 0
+	lda fat32_size + 1
+	lda fat32_size + 2
+	lda fat32_size + 3
 	rts

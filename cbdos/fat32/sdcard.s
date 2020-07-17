@@ -25,8 +25,8 @@ sector_lba:
 
 timeout_cnt:       .byte 0
 
-; FAST_READ=1
-; FAST_WRITE=1
+FAST_READ=1
+FAST_WRITE=1
 
 	.code
 

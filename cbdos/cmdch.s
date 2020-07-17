@@ -1,18 +1,20 @@
 .export ciout_cmdch, execute_command, set_status, acptr_status
 
-.import fd_for_channel, channel, ieee_status
-
-.importzp buffer
+; zeropage.s
 .importzp krn_ptr1
-.import fat32_init
 
+; sdcard.s
+.import sdcard_init
+
+MAX_CMD_LEN = 40
+MAX_STATUS_LEN = 40
 
 .segment "cbdos_data"
 
 cmdbuffer:
-	.res 256, 0
+	.res MAX_CMD_LEN, 0
 statusbuffer:
-	.res 256, 0
+	.res MAX_STATUS_LEN, 0
 
 cmdbuffer_len:
 	.byte 0
@@ -25,11 +27,12 @@ status_w:
 .segment "cbdos"
 
 ciout_cmdch:
-:	ldx cmdbuffer_len
+	ldx cmdbuffer_len
+	cpx #MAX_CMD_LEN
+	bcs :+ ; ignore characters on overflow
 	sta cmdbuffer,x
 	inc cmdbuffer_len
-	; XXX overflow
-	rts
+:	rts
 
 execute_command:
 	lda cmdbuffer_len
@@ -70,7 +73,8 @@ cmdptrs:
 	.word cmd_u - 1
 
 cmd_i:
-	jsr fat32_init
+	jsr sdcard_init
+	; also check fartitioning, FAT32 header etc.
 	jmp set_status_ok ; XXX error handling
 
 cmd_v:
@@ -154,12 +158,11 @@ set_status:
 	sta statusbuffer + 4,x
 	sta statusbuffer + 5,x
 
-	lda #0
-	sta status_r
 	txa
 	clc
 	adc #6
 	sta status_w
+	stz status_r
 	rts
 
 stcodes:
@@ -188,30 +191,17 @@ status_74:
 	.byte "DRIVE NOT READY", 0
 
 acptr_status:
-; no data? read more
-	lda status_w
-	bne @acptr7
-
-	lda #$40 ; EOF
-	sta ieee_status
-	jsr set_status_ok
-	lda #$0d
-	bne @acptr_end
-
-@acptr7:
 	ldy status_r
+	cpy status_w
+	beq @acptr_status_eoi
+
 	lda statusbuffer,y
 	inc status_r
+	clc ; !eof
+	rts
 
-	pha
-	lda status_r
-	cmp status_w
-	bne @acptr3
-
-	stz status_w
-	stz status_r
-
-@acptr3:
-	pla
-@acptr_end:
+@acptr_status_eoi:
+	jsr set_status_ok
+	lda #$0d
+	sec ; eof
 	rts

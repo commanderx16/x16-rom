@@ -36,6 +36,10 @@
 .global fat32_write             ; Write fat32_size (16-bit) bytes from fat32_ptr
 .global fat32_get_offset        ; Get current file offset, result in fat32_size
 
+.global fat32_size
+.global fat32_dirent
+.global sync_sector_buffer
+
 ; TODO:
 ; fat32_seek
 
