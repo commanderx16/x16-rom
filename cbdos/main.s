@@ -201,6 +201,7 @@ cbdos_secnd:
 
 ;---------------------------------------------------------------
 ; CLOSE
+	jsr fat32_close
 	ldx channel
 	lda context_for_channel,x
 	jsr fat32_free_context
@@ -277,9 +278,7 @@ cbdos_unlsn:
 
 ;---------------------------------------------------------------
 ; Execute OPEN with filename
-	; XXX necessary?
-	jsr sdcard_init
-
+; XXX only on channel 0!
 	lda fnbuffer
 	cmp #'$'
 	bne @unlsn_open_file
