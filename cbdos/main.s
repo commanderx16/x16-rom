@@ -76,7 +76,6 @@ context_for_channel:
 MAGIC_FD_NONE     = $ff
 MAGIC_FD_STATUS   = $fe
 MAGIC_FD_DIR_LOAD = $fd
-MAGIC_FD_EOF      = $fc
 
 
 .segment "cbdos"
@@ -288,8 +287,6 @@ cbdos_unlsn:
 @open_err:
 	lda #$02 ; timeout/file not found
 	sta ieee_status
-	lda #$62
-	jsr set_status
 	bra @unlsn_end
 
 @open_ok:
@@ -359,8 +356,6 @@ cbdos_acptr:
 	phx
 	phy
 
-	stz ieee_status
-
 	ldx channel
 	cpx #15
 	beq @acptr_status
@@ -371,13 +366,7 @@ cbdos_acptr:
 	cmp #MAGIC_FD_DIR_LOAD
 	beq @acptr_dir
 
-	cmp #MAGIC_FD_NONE
-	beq @acptr_none
-
-	; else #MAGIC_FD_EOF
-	bra @acptr_eof
-
-@acptr_none:
+	; #MAGIC_FD_NONE
 	lda #$02 ; timeout/file not found
 
 @acptr_error:
@@ -388,31 +377,40 @@ cbdos_acptr:
 
 @acptr_dir:
 	jsr acptr_dir
-	bcc @acptr_end_ok
-	; clear fd from channel
-	ldx channel
-	pha
-	lda #MAGIC_FD_EOF ; next time, send EOF
-	sta context_for_channel,x
-	pla
-	bra @acptr_end_ok
+	bra @acptr_eval
 
 @acptr_status:
 	jsr acptr_status
-	bcc @acptr_end_ok
-@acptr_eof:
-	ldx #$40 ; EOF
-	stx ieee_status
-	bra @acptr_end_ok
+	bra @acptr_eval
 
 @acptr_file:
+	jsr acptr_file
+
+@acptr_eval:
+	stz ieee_status
+	bcc @acptr_end_neoi
+
+	ldx #$40 ; EOI
+	stx ieee_status
+
+@acptr_end_neoi:
+	clc
+@acptr_end:
+	ply
+	plx
+	BANKING_END
+	rts
+
+
+acptr_file:
 	jsr fat32_read_byte
 	bcs @acptr_file_neof
 
 	; EOF
 	ldx channel
 	lda next_byte_for_channel,x
-	bra @acptr_eof
+	sec
+	rts
 
 @acptr_file_neof:
 	tay
@@ -422,14 +420,9 @@ cbdos_acptr:
 	tya
 	sta next_byte_for_channel,x
 	pla
-
-@acptr_end_ok:
 	clc
-@acptr_end:
-	ply
-	plx
-	BANKING_END
 	rts
+
 
 
 ;---------------------------------------------------------------
