@@ -118,6 +118,7 @@ acptr_dir:
 @acptr_empty:
 	jsr read_dir_entry
 	bcc acptr_dir
+	lda #0
 	rts ; C = 1
 
 
@@ -280,7 +281,8 @@ read_dir_entry:
 	lda #0
 	jsr storedir
 	jsr storedir
-	jsr storedir
+	; the final 0 is missing, because the character transmission
+	; function will send one extra 0 with EOI
 
 	lda context
 	jsr fat32_free_context
