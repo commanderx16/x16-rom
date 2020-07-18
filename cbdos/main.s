@@ -126,6 +126,9 @@ cbdos_init:
 	lda #$73
 	jsr set_status
 
+	jsr fat32_init
+	; XXX error
+
 	ply
 	plx
 	rts
@@ -434,8 +437,6 @@ cbdos_untlk:
 ;---------------------------------------------------------------
 open_file:
 	; XXX check if channel already open
-
-	jsr fat32_init
 
 	jsr fat32_alloc_context
 	pha
