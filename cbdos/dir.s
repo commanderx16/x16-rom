@@ -23,6 +23,8 @@ dirbuffer_w:
 	.byte 0
 num_blocks:
 	.word 0
+context:
+	.byte 0
 dir_eof:
 	.byte 0
 
@@ -34,11 +36,17 @@ open_dir:
 	jsr fat32_init
 	bcs :+
 
+	lda #$74
+	jsr set_status
 	sec
 	rts
 
 :	lda #0
 	jsr set_status
+
+	jsr fat32_alloc_context
+	sta context
+	jsr fat32_set_context
 
 	ldy #0
 	lda #<DIRSTART
@@ -88,6 +96,8 @@ open_dir:
 	rts
 
 @open_dir_err:
+	lda context
+	jsr fat32_free_context
 	lda #1
 	sta dir_eof
 	clc ; ok
@@ -271,6 +281,9 @@ read_dir_entry:
 	jsr storedir
 	jsr storedir
 	jsr storedir
+
+	lda context
+	jsr fat32_free_context
 
 	inc dir_eof ; = 1
 

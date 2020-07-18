@@ -12,8 +12,6 @@
 
 ; dir.s
 .import open_dir, acptr_dir
-.export channel, fd_for_channel, ieee_status
-.export MAGIC_FD_DIR_LOAD, MAGIC_FD_EOF
 
 ; geos.s
 .import cbmdos_GetNxtDirEntry, cbmdos_Get1stDirEntry, cbmdos_CalcBlksFree, cbmdos_GetDirHead, cbmdos_ReadBlock, cbmdos_ReadBuff, cbmdos_OpenDisk
@@ -71,7 +69,7 @@ is_receiving_filename:
 fnbuffer_w:
 	.byte 0
 
-fd_for_channel:
+context_for_channel:
 	.res 16, 0
 MAGIC_FD_NONE     = $ff
 MAGIC_FD_STATUS   = $fe
@@ -120,7 +118,7 @@ cbdos_init:
 
 	ldx #14
 	lda #MAGIC_FD_NONE
-:	sta fd_for_channel,x
+:	sta context_for_channel,x
 	dex
 	bpl :-
 
@@ -200,7 +198,9 @@ cbdos_secnd:
 ;---------------------------------------------------------------
 ; CLOSE
 @secnd_close:
-	; XXX fill this when closing files that have been written to
+	ldx channel
+	lda context_for_channel,x
+	jsr fat32_free_context
 	bra @secnd_rts
 
 ;---------------------------------------------------------------
@@ -293,7 +293,7 @@ cbdos_unlsn:
 @open_ok:
 	lda #MAGIC_FD_DIR_LOAD
 	ldx channel
-	sta fd_for_channel,x ; remember fd
+	sta context_for_channel,x
 	bra @unlsn_end
 
 ;---------------------------------------------------------------
@@ -355,7 +355,7 @@ cbdos_acptr:
 	cpx #15
 	beq @acptr_status
 
-	lda fd_for_channel,x
+	lda context_for_channel,x
 	bpl @acptr_file ; actual file
 
 	cmp #MAGIC_FD_DIR_LOAD
@@ -385,7 +385,7 @@ cbdos_acptr:
 	ldx channel
 	pha
 	lda #MAGIC_FD_EOF ; next time, send EOF
-	sta fd_for_channel,x
+	sta context_for_channel,x
 	pla
 	bra @acptr_end_ok
 
@@ -417,11 +417,16 @@ cbdos_untlk:
 
 ;---------------------------------------------------------------
 open_file:
+	; XXX check if channel already open
+
 	jsr fat32_init
 
-	lda #0 ; zero-terminate filename
-	ldy fnbuffer_w
-	sta fnbuffer,y
+	jsr fat32_alloc_context
+	pha
+	jsr fat32_set_context
+
+	ldx fnbuffer_w
+	stz fnbuffer,x ; zero-terminate filename
 	lda #<fnbuffer
 	sta fat32_ptr + 0
 	lda #>fnbuffer
@@ -431,14 +436,13 @@ open_file:
 	bcc @open_file_err
 
 	ldx channel
-	lda #0 ; >= 0 FD
-	sta fd_for_channel,x ; remember fd
+	pla ; context number
+	sta context_for_channel,x
 	rts
 
 @open_file_err:
-	ldx channel
-	lda #MAGIC_FD_NONE
-	sta fd_for_channel,x ; remember fd
+	pla ; context number
+	jsr fat32_free_context
 	sec
 	rts
 
