@@ -69,6 +69,8 @@ is_receiving_filename:
 fnbuffer_w:
 	.byte 0
 
+next_byte_for_channel:
+	.res 16, 0
 context_for_channel:
 	.res 16, 0
 MAGIC_FD_NONE     = $ff
@@ -405,7 +407,21 @@ cbdos_acptr:
 
 @acptr_file:
 	jsr fat32_read_byte
-	bcc @acptr_eof
+	bcs @acptr_file_neof
+
+	; EOF
+	ldx channel
+	lda next_byte_for_channel,x
+	bra @acptr_eof
+
+@acptr_file_neof:
+	tay
+	ldx channel
+	lda next_byte_for_channel,x
+	pha
+	tya
+	sta next_byte_for_channel,x
+	pla
 
 @acptr_end_ok:
 	clc
@@ -442,7 +458,12 @@ open_file:
 	jsr fat32_open
 	bcc @open_file_err
 
-	ldx channel
+	jsr fat32_read_byte
+	bcs :+
+	lda #0 ; of EOF then make the only byte a 0
+
+:	ldx channel
+	sta next_byte_for_channel,x
 	pla ; context number
 	sta context_for_channel,x
 	rts
