@@ -133,11 +133,7 @@ read_dir_entry:
 	bcs :+
 	jmp @read_dir_entry_end
 
-:	lda fat32_dirent + dirent::attributes
-	bit #$10 ; = directory
-	bne read_dir_entry
-
-	ldy #0
+:	ldy #0
 	lda #1
 	jsr storedir ; link
 	jsr storedir
@@ -220,12 +216,27 @@ read_dir_entry:
 	cpx #16
 	bne :-
 
+	lda fat32_dirent + dirent::attributes
+	bit #$10 ; = directory
+	bne @read_dir_entry_dir
+
 	lda #'P'
 	jsr storedir
 	lda #'R'
 	jsr storedir
 	lda #'G'
 	jsr storedir
+	bra @read_dir_cont
+
+@read_dir_entry_dir:
+	lda #'D'
+	jsr storedir
+	lda #'I'
+	jsr storedir
+	lda #'R'
+	jsr storedir
+
+@read_dir_cont:
 	lda #0 ; end of line
 	jsr storedir
 

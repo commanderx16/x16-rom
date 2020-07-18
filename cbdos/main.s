@@ -401,8 +401,7 @@ cbdos_acptr:
 
 	; #MAGIC_FD_NONE
 	lda #$02 ; timeout/file not found
-
-@acptr_error:
+	ora ieee_status
 	sta ieee_status
 	lda #0
 	sec
@@ -420,13 +419,18 @@ cbdos_acptr:
 	jsr acptr_file
 
 @acptr_eval:
-	stz ieee_status
 	bcc @acptr_end_neoi
 
-	ldx #$40 ; EOI
-	stx ieee_status
+	pha
+	lda #$40 ; EOI
+	ora ieee_status
+	sta ieee_status
+	pla
+	bra @acptr_end2
 
 @acptr_end_neoi:
+	stz ieee_status
+@acptr_end2:
 	clc
 @acptr_end:
 	ply
