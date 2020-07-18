@@ -245,7 +245,24 @@ cbdos_ciout:
 	ldx is_receiving_filename
 	bne @ciout_filename
 
-	brk ; XXX TODO receiving data
+	; ignore writing to read channels
+	ldx channel
+	beq @ciout_end
+	cpx #2
+	bcs @ciout_end
+
+; write to file
+	pha
+	jsr fat32_write_byte
+	pla
+	bcs @ciout_end
+
+; write error
+	ldx #$26 ; XXX different error!
+	jsr set_status
+	lda #1
+	sta ieee_status
+	bra @ciout_end
 
 @ciout_filename:
 	ldx fnbuffer_w
@@ -259,6 +276,7 @@ cbdos_ciout:
 	jsr ciout_cmdch
 
 @ciout_end:
+	clc
 	ply
 	plx
 	BANKING_END
@@ -455,6 +473,19 @@ open_file:
 	lda #>fnbuffer
 	sta fat32_ptr + 1
 
+	lda channel
+	beq @open_read
+	cmp #2
+	bcs @open_read ; XXX parse ",t,R"/",t,W"/",t,A"
+
+; create
+	; XXX file exists?
+	jsr fat32_create
+	bcc @open_file_err
+	ldx channel
+	bra @open_file_cont
+
+@open_read:
 	jsr fat32_open
 	bcc @open_file_err
 
@@ -464,6 +495,8 @@ open_file:
 
 :	ldx channel
 	sta next_byte_for_channel,x
+
+@open_file_cont:
 	pla ; context number
 	sta context_for_channel,x
 	rts
