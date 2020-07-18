@@ -33,15 +33,7 @@ dir_eof:
 ;---------------------------------------------------------------
 ;---------------------------------------------------------------
 open_dir:
-	jsr fat32_init
-	bcs :+
-
-	lda #$74
-	jsr set_status
-	sec
-	rts
-
-:	lda #0
+	lda #0
 	jsr set_status
 
 	jsr fat32_alloc_context

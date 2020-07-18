@@ -3,8 +3,8 @@
 ; zeropage.s
 .importzp krn_ptr1
 
-; fat32.s
-.import fat32_init
+; sdcard.s
+.import sdcard_init
 
 MAX_CMD_LEN = 40
 MAX_STATUS_LEN = 40
@@ -73,7 +73,8 @@ cmdptrs:
 	.word cmd_u - 1
 
 cmd_i:
-	jsr fat32_init
+	jsr sdcard_init
+	; also check fartitioning, FAT32 header etc.
 	jmp set_status_ok ; XXX error handling
 
 cmd_v:
