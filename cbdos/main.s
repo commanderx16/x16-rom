@@ -201,10 +201,12 @@ cbdos_secnd:
 
 ;---------------------------------------------------------------
 ; CLOSE
-@secnd_close:
 	ldx channel
 	lda context_for_channel,x
 	jsr fat32_free_context
+	ldx channel
+	lda #MAGIC_FD_NONE
+	sta context_for_channel,x
 	bra @secnd_rts
 
 ;---------------------------------------------------------------
