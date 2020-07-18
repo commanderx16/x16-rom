@@ -292,6 +292,7 @@ read_dir_entry:
 	; the final 0 is missing, because the character transmission
 	; function will send one extra 0 with EOI
 
+	jsr fat32_close
 	lda context
 	jsr fat32_free_context
 

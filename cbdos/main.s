@@ -201,9 +201,14 @@ cbdos_secnd:
 
 ;---------------------------------------------------------------
 ; CLOSE
-	jsr fat32_close
 	ldx channel
 	lda context_for_channel,x
+	bmi @secnd_rts
+
+@close_file:
+	pha
+	jsr fat32_close
+	pla
 	jsr fat32_free_context
 	ldx channel
 	lda #MAGIC_FD_NONE
