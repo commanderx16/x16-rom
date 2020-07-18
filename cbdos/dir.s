@@ -88,6 +88,11 @@ open_dir:
 	sty dirbuffer_w
 	stz dirbuffer_r
 
+	lda #<root
+	sta fat32_ptr
+	lda #>root
+	sta fat32_ptr + 1
+
 	jsr fat32_open_dir
 	bcc @open_dir_err
 
@@ -102,6 +107,9 @@ open_dir:
 	sta dir_eof
 	clc ; ok
 	rts
+
+root:
+	.byte '/', 0
 
 ;---------------------------------------------------------------
 ;---------------------------------------------------------------
