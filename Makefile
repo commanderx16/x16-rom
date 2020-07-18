@@ -142,6 +142,8 @@ CBDOS_SOURCES = \
 	cbdos/main.s \
 	cbdos/cmdch.s \
 	cbdos/dir.s \
+	cbdos/parser.s \
+	cbdos/functions.s \
 	cbdos/geos.s
 
 GEOS_SOURCES= \
@@ -289,6 +291,7 @@ CBDOS_DEPS = \
 	cbdos/fat32/regs.inc \
 	cbdos/fat32/sdcard.inc \
 	cbdos/fat32/text_input.inc \
+	cbdos/functions.inc \
 	cbdos/vera.inc
 
 GEOS_DEPS= \

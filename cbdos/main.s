@@ -1,3 +1,10 @@
+;----------------------------------------------------------------------
+; CBDOS Main
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
+
+; TODO
+; * SAVE: don't overwrite if file exists (unless it's "@:")
 
 .import sdcard_init
 
@@ -5,7 +12,7 @@
 .import fat32_dirent
 .import sync_sector_buffer
 
-.importzp krn_ptr1, read_blkptr, buffer, bank_save
+.importzp krn_ptr1, read_blkptr, bank_save
 
 ; cmdch.s
 .import ciout_cmdch, execute_command, set_status, acptr_status
@@ -15,6 +22,17 @@
 
 ; geos.s
 .import cbmdos_GetNxtDirEntry, cbmdos_Get1stDirEntry, cbmdos_CalcBlksFree, cbmdos_GetDirHead, cbmdos_ReadBlock, cbmdos_ReadBuff, cbmdos_OpenDisk
+
+; functions.s
+.export cbdos_init
+
+; parser.s
+.import parse_cbmdos_filename, create_unix_path, unix_path, buffer
+fnbuffer = buffer
+MAX_FILENAME_LEN = 40 ; XXX update
+
+; functions.s
+.import medium, soft_check_medium_a
 
 .include "banks.inc"
 
@@ -29,7 +47,6 @@ IMPORTED_FROM_MAIN=1
 
 .include "fat32/regs.inc"
 
-MAX_FILENAME_LEN = 40
 
 ieee_status = status
 
@@ -52,9 +69,6 @@ via1porta   = via1+1 ; RAM bank
 .endmacro
 
 .segment "cbdos_data"
-
-fnbuffer:
-	.res MAX_FILENAME_LEN, 0
 
 ; Commodore DOS variables
 initialized:
@@ -314,6 +328,7 @@ cbdos_unlsn:
 
 ;---------------------------------------------------------------
 ; OPEN directory
+	lda fnbuffer_w ; filename length
 	jsr open_dir
 	bcc @open_ok
 
@@ -401,8 +416,7 @@ cbdos_acptr:
 
 	; #MAGIC_FD_NONE
 	lda #$02 ; timeout/file not found
-
-@acptr_error:
+	ora ieee_status
 	sta ieee_status
 	lda #0
 	sec
@@ -420,13 +434,18 @@ cbdos_acptr:
 	jsr acptr_file
 
 @acptr_eval:
-	stz ieee_status
 	bcc @acptr_end_neoi
 
-	ldx #$40 ; EOI
-	stx ieee_status
+	pha
+	lda #$40 ; EOI
+	ora ieee_status
+	sta ieee_status
+	pla
+	bra @acptr_end2
 
 @acptr_end_neoi:
+	stz ieee_status
+@acptr_end2:
 	clc
 @acptr_end:
 	ply
@@ -472,11 +491,22 @@ open_file:
 	pha
 	jsr fat32_set_context
 
-	ldx fnbuffer_w
-	stz fnbuffer,x ; zero-terminate filename
-	lda #<fnbuffer
+	ldx #0
+	ldy fnbuffer_w
+	jsr parse_cbmdos_filename
+	bcc :+
+	lda #$30 ; syntax error
+	bra @open_file_err
+:	lda medium
+	jsr soft_check_medium_a
+	bcc :+
+	lda #$74 ; drive not ready
+	bra @open_file_err
+:	ldy #0
+	jsr create_unix_path
+	lda #<unix_path
 	sta fat32_ptr + 0
-	lda #>fnbuffer
+	lda #>unix_path
 	sta fat32_ptr + 1
 
 	lda channel
@@ -487,15 +517,20 @@ open_file:
 ; create
 	; XXX file exists?
 	jsr fat32_create
-	bcc @open_file_err
-	ldx channel
+	bcs :+
+	lda #$26 ; XXX
+	bra @open_file_err
+
+:	ldx channel
 	bra @open_file_cont
 
 @open_read:
 	jsr fat32_open
-	bcc @open_file_err
+	bcs :+
+	lda #$62 ; file not found
+	bra @open_file_err
 
-	jsr fat32_read_byte
+:	jsr fat32_read_byte
 	bcs :+
 	lda #0 ; of EOF then make the only byte a 0
 
@@ -508,6 +543,7 @@ open_file:
 	rts
 
 @open_file_err:
+	jsr set_status
 	pla ; context number
 	jsr fat32_free_context
 	sec
