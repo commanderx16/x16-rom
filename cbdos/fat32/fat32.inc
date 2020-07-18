@@ -38,6 +38,7 @@
 
 .global fat32_size
 .global fat32_dirent
+.global sync_sector_buffer
 
 ; TODO:
 ; fat32_seek

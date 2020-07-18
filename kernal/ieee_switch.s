@@ -116,16 +116,7 @@ talk:
 	rts
 
 cbdos_detect:
-	bit cbdos_enabled
-	bpl :+
 	pha
-	lda #$80
-	sta cbdos_enabled
-	pla
-	rts
-
-
-:	pha
 	phx
 	phy
 

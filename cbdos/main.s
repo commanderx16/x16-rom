@@ -2,8 +2,8 @@
 .import sdcard_init
 
 .import fat32_init
-
 .import fat32_dirent
+.import sync_sector_buffer
 
 .importzp krn_ptr1, read_blkptr, buffer, bank_save
 
@@ -141,7 +141,13 @@ cbdos_init:
 cbdos_sdcard_detect:
 	BANKING_START
 	jsr cbdos_init
-	jsr sdcard_init ; C=0: error
+
+	; re-init the SD card
+	; * first write back any dirty sectors
+	jsr sync_sector_buffer
+	; * then init it
+	jsr sdcard_init
+
 	lda #0
 	rol
 	eor #1          ; Z=0: error
