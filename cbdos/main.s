@@ -332,10 +332,19 @@ cbdos_talk:
 ;---------------------------------------------------------------
 cbdos_tksa: ; after talk
 	BANKING_START
+	phx
+	phy
 
 	and #$0f
 	sta channel
 
+	tax
+	lda context_for_channel,x
+	; XXX test
+	jsr fat32_set_context
+
+	ply
+	plx
 	BANKING_END
 	rts
 
@@ -348,8 +357,7 @@ cbdos_acptr:
 	phx
 	phy
 
-	lda #0
-	sta ieee_status
+	stz ieee_status
 
 	ldx channel
 	cpx #15
@@ -365,9 +373,7 @@ cbdos_acptr:
 	beq @acptr_none
 
 	; else #MAGIC_FD_EOF
-@acptr_eof:
-	lda #$40
-	bra @acptr_error
+	bra @acptr_eof
 
 @acptr_none:
 	lda #$02 ; timeout/file not found
@@ -392,6 +398,7 @@ cbdos_acptr:
 @acptr_status:
 	jsr acptr_status
 	bcc @acptr_end_ok
+@acptr_eof:
 	ldx #$40 ; EOF
 	stx ieee_status
 	bra @acptr_end_ok
