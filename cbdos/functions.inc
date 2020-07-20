@@ -1,0 +1,27 @@
+.global initialize
+.global validate
+.global new
+.global scratch
+.global make_directory
+.global remove_directory
+.global change_directory
+.global change_partition
+.global user
+.global rename
+.global rename_header
+.global rename_partition
+.global change_unit
+.global copy
+.global copy_all
+.global duplicate
+.global file_lock
+.global file_unlock
+.global file_restore
+.global set_sector_interleave
+.global set_retries
+.global test_rom_checksum
+.global set_fast_serial
+.global set_verify
+.global set_directory_interleave
+.global set_large_rel_support
+
