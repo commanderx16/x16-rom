@@ -1,3 +1,8 @@
+;----------------------------------------------------------------------
+; CBDOS Command Channel
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
+
 .export ciout_cmdch, set_status, acptr_status
 
 ; parse.s

@@ -1,3 +1,8 @@
+;----------------------------------------------------------------------
+; CBDOS Parser
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
+
 .setcpu "65c02"
 
 .include "functions.inc"
@@ -6,19 +11,8 @@
 .import buffer, buffer_len
 .import set_status
 
-.macro debug_print text
-	ldx #0
-:	lda @txt,x
-	beq :+
-	jsr bsout
-	inx
-	bra :-
-:	lda #$0d
-	jsr bsout
-	bra :+
-@txt:	.asciiz text
-:
-.endmacro
+; functions.s
+.export unix_path, create_unix_path
 
 .code
 
@@ -287,6 +281,8 @@ consume_cmd:
 	beq @end
 	lda buffer,x
 	cmp #'/'
+	beq @end
+	cmp #':'
 	beq @end
 	cmp #'0'
 	bcc @next

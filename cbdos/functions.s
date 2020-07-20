@@ -1,9 +1,52 @@
+;----------------------------------------------------------------------
+; CBDOS Functions
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
 
 .include "functions.inc"
 
-;***************************************************************
-; IMPLEMENTATIONS
-;***************************************************************
+; fat32.s
+.import fat32_alloc_context, fat32_free_context, fat32_set_context
+.import fat32_mkdir, fat32_ptr
+
+; parser.s
+.import unix_path, create_unix_path
+
+.macro debug_print text
+	ldx #0
+:	lda @txt,x
+	beq :+
+	jsr bsout
+	inx
+	bra :-
+:	lda #$0d
+	jsr bsout
+	bra :+
+@txt:	.asciiz text
+:
+.endmacro
+
+.macro FAT32_CONTEXT_START
+	jsr fat32_alloc_context
+	pha
+	jsr fat32_set_context
+.endmacro
+
+.macro FAT32_CONTEXT_END
+	pla
+	jsr fat32_free_context
+.endmacro
+
+.code
+
+;---------------------------------------------------------------
+create_fat32_path:
+	jsr create_unix_path
+	lda #<unix_path
+	sta fat32_ptr + 0
+	lda #>unix_path
+	sta fat32_ptr + 1
+	rts
 
 ;---------------------------------------------------------------
 ; for all these implementations:
@@ -80,7 +123,16 @@ make_directory:
 	jsr print_r0
 	jsr print_r1
 .endif
+	FAT32_CONTEXT_START
+	jsr create_fat32_path
+	jsr fat32_mkdir
+	bcc @error
+	FAT32_CONTEXT_END
 	lda #0
+	rts
+@error:
+	FAT32_CONTEXT_END
+	lda #$26 ; XXX write protect on
 	rts
 
 ;---------------------------------------------------------------

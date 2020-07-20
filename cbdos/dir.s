@@ -1,3 +1,8 @@
+;----------------------------------------------------------------------
+; CBDOS Directory Listing
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
+
 .export open_dir, acptr_dir
 
 ; cmdch.s
