@@ -142,6 +142,7 @@ CBDOS_SOURCES = \
 	cbdos/main.s \
 	cbdos/cmdch.s \
 	cbdos/dir.s \
+	cbdos/parser.s \
 	cbdos/geos.s
 
 GEOS_SOURCES= \
