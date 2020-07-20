@@ -6,8 +6,9 @@
 .include "functions.inc"
 
 ; fat32.s
+.import fat32_ptr
 .import fat32_alloc_context, fat32_free_context, fat32_set_context
-.import fat32_mkdir, fat32_ptr
+.import fat32_mkdir, fat32_rmdir, fat32_chdir
 
 ; parser.s
 .import unix_path, create_unix_path
@@ -126,11 +127,13 @@ make_directory:
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_mkdir
-	bcc @error
-	FAT32_CONTEXT_END
+	bcs :+
+	jmp write_error
+:	FAT32_CONTEXT_END
 	lda #0
 	rts
-@error:
+
+write_error:
 	FAT32_CONTEXT_END
 	lda #$26 ; XXX write protect on
 	rts
@@ -145,6 +148,12 @@ remove_directory:
 	jsr print_r0
 	jsr print_r1
 .endif
+	FAT32_CONTEXT_START
+	jsr create_fat32_path
+	jsr fat32_rmdir
+	bcs :+
+	jmp write_error
+:	FAT32_CONTEXT_END
 	lda #0
 	rts
 
@@ -158,6 +167,12 @@ change_directory:
 	jsr print_r0
 	jsr print_r1
 .endif
+	FAT32_CONTEXT_START
+	jsr create_fat32_path
+	jsr fat32_chdir
+	bcs :+
+	jmp write_error
+:	FAT32_CONTEXT_END
 	lda #0
 	rts
 
