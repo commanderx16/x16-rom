@@ -5,6 +5,9 @@
 
 .include "functions.inc"
 
+; main.s
+.import cbdos_init
+
 ; fat32.s
 .import fat32_ptr, fat32_ptr2, fat32_size
 .import fat32_alloc_context, fat32_free_context, fat32_set_context
@@ -208,13 +211,47 @@ change_partition:
 ; In:   a  vector number
 ;---------------------------------------------------------------
 user:
-.ifdef DEBUG
-	pha
-	debug_print "U"
-	pla
-	jsr print_a
-.endif
+	cmp #0
+	beq @user_0
+	cmp #1
+	beq @user_1
+	cmp #2
+	beq @user_2
+	cmp #9
+	beq @user_9
+	cmp #10
+	beq @user_10
+
+	; U3-U8; execute code
+	lda #$31
+	rts
+
+; U0 - init user vectors
+@user_0:
 	lda #0
+	rts
+
+; U1/UA - read block
+@user_1:
+	; TODO
+	lda #$31
+	rts
+
+; U2/UB - write block
+@user_2:
+	; TODO
+	lda #$31
+	rts
+
+; U9/UI - warm RESET
+@user_9:
+	lda #$73
+	rts
+
+; U:/UJ - cold RESET
+@user_10:
+	jsr cbdos_init
+	lda #$73
 	rts
 
 ;---------------------------------------------------------------

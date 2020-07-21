@@ -20,6 +20,9 @@
 ; geos.s
 .import cbmdos_GetNxtDirEntry, cbmdos_Get1stDirEntry, cbmdos_CalcBlksFree, cbmdos_GetDirHead, cbmdos_ReadBlock, cbmdos_ReadBuff, cbmdos_OpenDisk
 
+; functions.s
+.export cbdos_init
+
 .include "banks.inc"
 
 ;.include "common.inc"
