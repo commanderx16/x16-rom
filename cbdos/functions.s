@@ -370,159 +370,130 @@ copy:
 ;       y   source medium
 ;---------------------------------------------------------------
 copy_all:
-.ifdef DEBUG
-	phx
-	debug_print "COPY ALL"
-	plx
-	txa
-	jsr print_a
-	tya
-	jsr print_a
-.endif
-	lda #0
+	; This is the "C" command, with two media numbers as
+	; arguments, which should perform a file copy of all
+	; files between from one media to another. It is not
+	; supported by CMD drives (partitions).
+
+	lda #$31 ; unsupported
 	rts
 
 ;---------------------------------------------------------------
+; duplicate
+;
 ; In:   x   destination medium
 ;       y   source medium
 ;---------------------------------------------------------------
 duplicate:
-.ifdef DEBUG
-	phx
-	debug_print "D"
-	plx
-	txa
-	jsr print_a
-	tya
-	jsr print_a
-.endif
-	lda #0
+	; This is the "D" command, which should perform a
+	; block-by-block copy from one drive to another.
+	; It is only supported on Commodore multi-drive units,
+	; but not by CMD devices, since it makes little sense
+	; on devices with differently sized partitions.
+	lda #$31 ; unsupported
 	rts
 
 ;---------------------------------------------------------------
+; file_lock
+;
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 file_lock:
-.ifdef DEBUG
-	debug_print "F-L"
-	jsr print_medium
-	jsr print_r0
-	jsr print_r1
-.endif
-	lda #0
+	; TODO: set read-only flag
+	lda #$31 ; unsupported
 	rts
 
 ;---------------------------------------------------------------
+; file_unlock
+;
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 file_unlock:
-.ifdef DEBUG
-	debug_print "F-U"
-	jsr print_medium
-	jsr print_r0
-	jsr print_r1
-.endif
-	lda #0
+	; TODO: clear read-only flag
+	lda #$31 ; unsupported
 	rts
 
 ;---------------------------------------------------------------
+; file_restore
+;
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 file_restore:
-.ifdef DEBUG
-	debug_print "F-R"
-	jsr print_medium
-	jsr print_r0
-	jsr print_r1
-.endif
-	lda #0
+	; TODO:
+	; This is the "F-R" command, as added to the C65 drive,
+	; which should perform an undelete.
+	; FAT32 keeps the directory entry and the FAT links,
+	; but overwrites the first character. The user provides
+	; the full filename to this function though.
+	lda #$31 ; unsupported
 	rts
 
 ;---------------------------------------------------------------
+; set_sector_interleave
+
 ; In:   a  sector interleave
 ;---------------------------------------------------------------
 set_sector_interleave:
-.ifdef DEBUG
-	pha
-	debug_print "U0>S"
-	pla
-	jsr print_a
-.endif
+	; do nothing
 	lda #0
 	rts
 
 ;---------------------------------------------------------------
+; set_retries
+;
 ; In:   a  retries
 ;---------------------------------------------------------------
 set_retries:
-.ifdef DEBUG
-	pha
-	debug_print "U0>R"
-	pla
-	jsr print_a
-.endif
+	; do nothing
 	lda #0
 	rts
 
 ;---------------------------------------------------------------
+; test_rom_checksum
+;
 ; In:   -
 ;---------------------------------------------------------------
 test_rom_checksum:
-.ifdef DEBUG
-	debug_print "U0>T"
-.endif
+	; do nothing
 	lda #0
 	rts
 
 ;---------------------------------------------------------------
+; set_fast_serial
+;
 ; In:   a  fast serial (0/1)
 ;---------------------------------------------------------------
 set_fast_serial:
-.ifdef DEBUG
-	pha
-	debug_print "U0>B"
-	pla
-	jsr print_a
-.endif
+	; do nothing
 	lda #0
 	rts
 
 ;---------------------------------------------------------------
+; set_verify
+;
 ; In:   a  verify (0/1)
 ;---------------------------------------------------------------
 set_verify:
-.ifdef DEBUG
-	pha
-	debug_print "U0>V"
-	pla
-	jsr print_a
-.endif
+	; do nothing
 	lda #0
 	rts
 
 ;---------------------------------------------------------------
+; set_directory_interleave
+;
 ; In:   a  directory interleave
 ;---------------------------------------------------------------
 set_directory_interleave:
-.ifdef DEBUG
-	pha
-	debug_print "U0>D"
-	pla
-	jsr print_a
-.endif
+	; do nothing
 	lda #0
 	rts
 
 ;---------------------------------------------------------------
+; set_large_rel_support
+;
 ; In:   a  large REL support (0/1)
 ;---------------------------------------------------------------
 set_large_rel_support:
-.ifdef DEBUG
-	pha
-	debug_print "U0>L"
-	pla
-	jsr print_a
-.endif
-	lda #0
+	lda #$31 ; unsupported
 	rts
 
