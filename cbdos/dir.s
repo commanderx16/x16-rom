@@ -3,6 +3,10 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
+; TODO:
+; * hook up path/file parser
+; * directory listing name filter
+
 .export open_dir, acptr_dir
 
 ; cmdch.s
@@ -85,9 +89,9 @@ open_dir:
 	sty dirbuffer_w
 	stz dirbuffer_r
 
-	lda #<root
+	; current directory
+	lda #0
 	sta fat32_ptr
-	lda #>root
 	sta fat32_ptr + 1
 
 	jsr fat32_open_dir
@@ -104,9 +108,6 @@ open_dir:
 	sta dir_eof
 	clc ; ok
 	rts
-
-root:
-	.byte '/', 0
 
 ;---------------------------------------------------------------
 ;---------------------------------------------------------------

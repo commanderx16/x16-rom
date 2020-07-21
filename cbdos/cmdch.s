@@ -56,9 +56,9 @@ set_status_74:
 	lda #$74
 
 set_status:
-	cmp #1   ; FILES SCRATCHED
+	cmp #$01   ; FILES SCRATCHED
 	beq @clr_y
-	cmp #2   ; PARTITION SELECTED
+	cmp #$02   ; PARTITION SELECTED
 	beq @clr_y
 	cmp #$77   ; SELECTED PARTITION ILLEGAL
 	beq @clr_y

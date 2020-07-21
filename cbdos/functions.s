@@ -236,14 +236,32 @@ remove_directory:
 change_directory:
 	jsr check_medium
 
-	; TODO: This seems to have no effect!
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
+
+	lda unix_path
+	cmp #'_'
+	bne @regular_cd
+	lda unix_path + 1
+	bne @regular_cd
+
+	; "cd .."
+	lda #'.'
+	sta unix_path
+	sta unix_path + 1
+	stz unix_path + 2
+
+@regular_cd:
 	jsr fat32_chdir
 	bcs :+
-	jmp write_error
+	jmp fnf_error
 :	FAT32_CONTEXT_END
 	lda #0
+	rts
+
+fnf_error:
+	FAT32_CONTEXT_END
+	lda #$62 ; file not found
 	rts
 
 ;---------------------------------------------------------------
