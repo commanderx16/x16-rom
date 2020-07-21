@@ -6,9 +6,10 @@
 .include "functions.inc"
 
 ; fat32.s
-.import fat32_ptr, fat32_ptr2
+.import fat32_ptr, fat32_ptr2, fat32_size
 .import fat32_alloc_context, fat32_free_context, fat32_set_context
 .import fat32_mkdir, fat32_rmdir, fat32_chdir, fat32_rename, fat32_delete
+.import fat32_open, fat32_close, fat32_read, fat32_write, fat32_create
 
 ; parser.s
 .import medium, unix_path, unix_path2, create_unix_path, create_unix_path_b
@@ -37,6 +38,13 @@
 	pla
 	jsr fat32_free_context
 .endmacro
+
+.bss
+
+context_src:
+	.byte 0
+context_dst:
+	.byte 0
 
 .code
 
@@ -253,6 +261,8 @@ rename_partition:
 	rts
 
 ;---------------------------------------------------------------
+; change_unit
+;
 ; In:   a  unit number
 ;---------------------------------------------------------------
 change_unit:
@@ -266,6 +276,8 @@ change_unit:
 	rts
 
 ;---------------------------------------------------------------
+; copy
+;
 ; In:   a              =0:  create
 ;                      !=0: append
 ;       medium/r0/r1   source
@@ -286,10 +298,74 @@ copy:
 	jsr print_r0
 	jsr print_r1
 .endif
+	jsr create_fat32_path_x2
+	lda fat32_ptr2
+	pha
+	lda fat32_ptr2 + 1
+	pha
+
+	jsr fat32_alloc_context
+	sta context_dst
+	jsr fat32_alloc_context
+	sta context_src
+
+	; open source
+	jsr fat32_set_context
+	jsr fat32_open
+
+	; create destination
+	lda context_dst
+	jsr fat32_set_context
+
+	pla
+	sta fat32_ptr + 1
+	pla
+	sta fat32_ptr
+	jsr fat32_create
+
+@loop:
+	lda context_src
+	jsr fat32_set_context
+
+	lda #<unix_path
+	sta fat32_ptr
+	lda #>unix_path
+	sta fat32_ptr + 1
+	stz fat32_size
+	lda #1
+	sta fat32_size + 1
+	jsr fat32_read
+
+	lda fat32_size
+	ora fat32_size + 1
+	beq @done
+
+	lda context_dst
+	jsr fat32_set_context
+
+	lda #<unix_path
+	sta fat32_ptr
+	lda #>unix_path
+	sta fat32_ptr + 1
+	jsr fat32_write
+
+	bra @loop
+
+@done:
+	lda context_src
+	jsr fat32_set_context
+	jsr fat32_close
+
+	lda context_dst
+	jsr fat32_set_context
+	jsr fat32_close
+
 	lda #0
 	rts
 
 ;---------------------------------------------------------------
+; copy_all
+;
 ; In:   x   destination medium
 ;       y   source medium
 ;---------------------------------------------------------------
