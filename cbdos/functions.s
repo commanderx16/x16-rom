@@ -74,15 +74,20 @@ create_fat32_path_x2:
 
 	jmp create_unix_path_b
 
+;---------------------------------------------------------------
 check_medium:
 	lda medium
 check_medium_a:
-	cmp #2
+	jsr soft_check_medium_a
 	bcc :+
 	pla
 	pla
 	lda #$74
 :	rts
+
+soft_check_medium_a:
+	cmp #2
+	rts
 
 ;---------------------------------------------------------------
 ; for all these implementations:
@@ -100,6 +105,7 @@ check_medium_a:
 ; In:   medium  medium
 ;---------------------------------------------------------------
 initialize:
+	jsr check_medium
 	; TODO
 	lda #0
 	rts
@@ -113,6 +119,8 @@ initialize:
 ; In:   medium  medium
 ;---------------------------------------------------------------
 validate:
+	jsr check_medium
+
 	; TODO
 	lda #$31
 	rts
@@ -138,6 +146,8 @@ validate:
 ;       a       format (1st char)
 ;---------------------------------------------------------------
 new:
+	jsr check_medium
+
 	; TODO
 	lda #$31
 	rts
@@ -229,8 +239,17 @@ change_directory:
 ; In:   a  partition
 ;---------------------------------------------------------------
 change_partition:
-	jsr check_medium_a
-	lda #0
+	jsr soft_check_medium_a
+	bcs @ill_part
+	cmp #0
+	beq @ill_part
+	tax
+	lda #$02
+	rts
+
+@ill_part:
+	tax
+	lda #$77
 	rts
 
 ;---------------------------------------------------------------

@@ -58,6 +58,10 @@ set_status_74:
 set_status:
 	cmp #1   ; FILES SCRATCHED
 	beq @clr_y
+	cmp #2   ; PARTITION SELECTED
+	beq @clr_y
+	cmp #$77   ; SELECTED PARTITION ILLEGAL
+	beq @clr_y
 
 	; TODO: preserve X and Y for certain errors
 	; "beq @clr_nothing"
@@ -157,22 +161,26 @@ bin_to_bcd:
 	rts
 
 stcodes:
-	.byte $00, $01, $26, $31, $62, $73, $74
+	.byte $00, $01, $02, $26, $31, $62, $73, $74, $77
 stcodes_end:
 
 ststrs:
 	.word status_00
 	.word status_01
+	.word status_02
 	.word status_26
 	.word status_31
 	.word status_62
 	.word status_73
 	.word status_74
+	.word status_77
 
 status_00:
 	.byte "OK", 0
 status_01:
 	.byte " FILES SCRATCHED", 0
+status_02:
+	.byte "PARTITION SELECTED", 0
 status_26:
 	.byte "WRITE PROTECT ON", 0
 status_31:
@@ -183,6 +191,8 @@ status_73:
 	.byte "CBDOS V1.0 X16", 0
 status_74:
 	.byte "DRIVE NOT READY", 0
+status_77:
+	.byte "SELECTED PARTITION ILLEGAL",0
 
 acptr_status:
 	ldy status_r
