@@ -18,6 +18,10 @@
 .import medium, medium1, unix_path, unix_path2, create_unix_path, create_unix_path_b
 .import r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e
 
+; main.s
+.export soft_check_medium_a
+
+
 .macro debug_print text
 	ldx #0
 :	lda @txt,x

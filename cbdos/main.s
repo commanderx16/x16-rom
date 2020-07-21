@@ -3,6 +3,9 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
+; TODO
+; * SAVE: don't overwrite if file exists (unless it's "@:")
+
 .import sdcard_init
 
 .import fat32_init
@@ -27,6 +30,9 @@
 .import parse_cbmdos_filename, create_unix_path, unix_path, buffer
 fnbuffer = buffer
 MAX_FILENAME_LEN = 40 ; XXX update
+
+; functions.s
+.import medium, soft_check_medium_a
 
 .include "banks.inc"
 
@@ -494,7 +500,15 @@ open_file:
 	ldx #0
 	ldy fnbuffer_w
 	jsr parse_cbmdos_filename
-	ldy #0
+	bcc :+
+	lda #$30 ; syntax error
+	bra @open_file_err
+:	lda medium
+	jsr soft_check_medium_a
+	bcc :+
+	lda #$74 ; drive not ready
+	bra @open_file_err
+:	ldy #0
 	jsr create_unix_path
 	lda #<unix_path
 	sta fat32_ptr + 0
@@ -509,15 +523,20 @@ open_file:
 ; create
 	; XXX file exists?
 	jsr fat32_create
-	bcc @open_file_err
-	ldx channel
+	bcs :+
+	lda #$26 ; XXX
+	bra @open_file_err
+
+:	ldx channel
 	bra @open_file_cont
 
 @open_read:
 	jsr fat32_open
-	bcc @open_file_err
+	bcs :+
+	lda #$62
+	bra @open_file_err
 
-	jsr fat32_read_byte
+:	jsr fat32_read_byte
 	bcs :+
 	lda #0 ; of EOF then make the only byte a 0
 
@@ -530,6 +549,7 @@ open_file:
 	rts
 
 @open_file_err:
+	jsr set_status
 	pla ; context number
 	jsr fat32_free_context
 	sec
