@@ -13,6 +13,7 @@
 
 ; parser.s
 .import medium, unix_path, unix_path2, create_unix_path, create_unix_path_b
+.import r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e
 
 .macro debug_print text
 	ldx #0
@@ -231,6 +232,15 @@ rename:
 	rts
 
 ;---------------------------------------------------------------
+; rename_header
+;
+; This is the "R-H" command, which should set the name of
+;   * the filesystem (i.e. FAT volume name), if no path
+;     is given.
+;   * the "header" of a subdirectory, if a path is given.
+;     FAT doesn't have any such concept, so this part must
+;     remain unsupported.
+;
 ; In:   medium  medium
 ;       r0      path
 ;               empty:     rename filesystem
@@ -238,26 +248,31 @@ rename:
 ;       r1      new name
 ;---------------------------------------------------------------
 rename_header:
-.ifdef DEBUG
-	debug_print "R-H"
-	jsr print_medium
-	jsr print_r0
-	jsr print_r1
-.endif
-	lda #0
+	lda r0s
+	cmp r0e
+	bne @rename_subdir_header
+
+; TODO: set volume name
+	lda #$31 ; unsupported
+	rts
+
+@rename_subdir_header:
+	lda #$31 ; unsupported; FAT can't do this
 	rts
 
 ;---------------------------------------------------------------
+; rename_partition
+;
+; This is the "R-P" command, which should change the name of
+; a partition as stored in the partition table.
+; MBR partition tables don't support names, so this is
+; unsupported.
+;
 ; In:   r0  new name
 ;       r1  old name
 ;---------------------------------------------------------------
 rename_partition:
-.ifdef DEBUG
-	debug_print "R-P"
-	jsr print_r1
-	jsr print_r0
-.endif
-	lda #0
+	lda #$31 ; unsupported
 	rts
 
 ;---------------------------------------------------------------
@@ -266,17 +281,17 @@ rename_partition:
 ; In:   a  unit number
 ;---------------------------------------------------------------
 change_unit:
-.ifdef DEBUG
-	pha
-	debug_print "S-*"
-	pla
-	jsr print_a
-.endif
-	lda #0
+	; TODO
+	lda #$31
 	rts
 
 ;---------------------------------------------------------------
 ; copy
+;
+; TODO:
+; * error handling
+; * create mode: fail if file exists
+; * support append mode
 ;
 ; In:   a              =0:  create
 ;                      !=0: append
@@ -284,20 +299,6 @@ change_unit:
 ;       medium1/r2/r3  destination
 ;---------------------------------------------------------------
 copy:
-.ifdef DEBUG
-	pha
-	lda #13
-	jsr bsout
-	debug_print "C"
-	pla
-	jsr print_a
-	jsr print_medium1
-	jsr print_r2
-	jsr print_r3
-	jsr print_medium
-	jsr print_r0
-	jsr print_r1
-.endif
 	jsr create_fat32_path_x2
 	lda fat32_ptr2
 	pha
@@ -366,30 +367,32 @@ copy:
 ;---------------------------------------------------------------
 ; copy_all
 ;
+; This is the variant of the "C" command with two media numbers
+; as arguments, which should perform a file copy of all files
+; between from one media to another. It is only supported on
+; Commodore multi-drive units, not by CMD devices, so this
+; implementation doesn't support it either.
+;
 ; In:   x   destination medium
 ;       y   source medium
 ;---------------------------------------------------------------
 copy_all:
-	; This is the "C" command, with two media numbers as
-	; arguments, which should perform a file copy of all
-	; files between from one media to another. It is not
-	; supported by CMD drives (partitions).
-
 	lda #$31 ; unsupported
 	rts
 
 ;---------------------------------------------------------------
 ; duplicate
 ;
+; This is the "D" command, which should perform a block-by-block
+; copy from one drive to another.It is only supported on
+; Commodore multi-drive units, not by CMD devices, since it
+; makes little sense on devices with differently sized
+; partitions, so this implementation doesn't support it either.
+;
 ; In:   x   destination medium
 ;       y   source medium
 ;---------------------------------------------------------------
 duplicate:
-	; This is the "D" command, which should perform a
-	; block-by-block copy from one drive to another.
-	; It is only supported on Commodore multi-drive units,
-	; but not by CMD devices, since it makes little sense
-	; on devices with differently sized partitions.
 	lda #$31 ; unsupported
 	rts
 
@@ -400,7 +403,7 @@ duplicate:
 ;---------------------------------------------------------------
 file_lock:
 	; TODO: set read-only flag
-	lda #$31 ; unsupported
+	lda #$31
 	rts
 
 ;---------------------------------------------------------------
@@ -410,22 +413,23 @@ file_lock:
 ;---------------------------------------------------------------
 file_unlock:
 	; TODO: clear read-only flag
-	lda #$31 ; unsupported
+	lda #$31
 	rts
 
 ;---------------------------------------------------------------
 ; file_restore
 ;
+; This is the "F-R" command, which should perform an undelete.
+; It is only supported by the C65 drive.
+;
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 file_restore:
 	; TODO:
-	; This is the "F-R" command, as added to the C65 drive,
-	; which should perform an undelete.
 	; FAT32 keeps the directory entry and the FAT links,
 	; but overwrites the first character. The user provides
 	; the full filename to this function though.
-	lda #$31 ; unsupported
+	lda #$31
 	rts
 
 ;---------------------------------------------------------------
@@ -490,6 +494,9 @@ set_directory_interleave:
 
 ;---------------------------------------------------------------
 ; set_large_rel_support
+;
+; This is the "U0>L" command, which enables/disables support for
+; "large" REL files. It is unsupported in this implementation.
 ;
 ; In:   a  large REL support (0/1)
 ;---------------------------------------------------------------

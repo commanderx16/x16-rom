@@ -13,6 +13,7 @@
 
 ; functions.s
 .export medium, unix_path, create_unix_path, create_unix_path_b
+.export r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e
 
 .code
 
