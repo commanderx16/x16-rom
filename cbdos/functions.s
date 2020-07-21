@@ -148,10 +148,10 @@ validate:
 ; yet. Here are a few ideas:
 ; * There has to be a format argument: "NAME,ID,FORMAT" - the
 ;   function is only actually performed if the format is 'Y'.
-;   (as in "Yes, I'm sure.") Otherwise, an informative status
+;   (as in "Yes, I'm sure.") Otherwise, an informational status
 ;   message (code $0x) explains what's going on.
 ; * The "N" command has to be sent twice. The first time, an
-;   informative status message explains what's going on.
+;   informational status message explains what's going on.
 ;
 ; In:   medium  medium
 ;       r0      name

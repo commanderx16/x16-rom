@@ -161,65 +161,126 @@ bin_to_bcd:
 	rts
 
 stcodes:
-	.byte $00, $01, $02, $26, $30, $31, $62, $73, $74, $77
+	.byte $00, $01, $02, $20, $25, $26, $30, $31, $32, $33, $34, $49, $62, $63, $70, $71, $72, $73, $74, $77
 stcodes_end:
 
 ststrs:
 	.word status_00
 	.word status_01
 	.word status_02
+	.word status_20
+	.word status_25
 	.word status_26
 	.word status_30
 	.word status_31
+	.word status_32
+	.word status_33
+	.word status_34
+	.word status_49
 	.word status_62
+	.word status_63
+	.word status_70
+	.word status_71
+	.word status_72
 	.word status_73
 	.word status_74
 	.word status_77
 
+;---------------------------------------------------------------
+; $0x: Informational
+;---------------------------------------------------------------
 status_00:
 	.byte "OK", 0
 status_01:
 	.byte " FILES SCRATCHED", 0
 status_02:
 	.byte "PARTITION SELECTED", 0
+
+;---------------------------------------------------------------
+; $2x: Physical disk error
+;---------------------------------------------------------------
+
+status_20:
+	.byte "READ ERROR", 0 ; generic read error
+status_25:
+	.byte "WRITE ERROR", 0 ; generic write error
 status_26:
 	.byte "WRITE PROTECT ON", 0
-status_30:
-status_31:
+
+;---------------------------------------------------------------
+; $3x: Error parsing the command
+;---------------------------------------------------------------
+
+status_30: ; generic
+status_31: ; invalid command
+status_32: ; command buffer overflow
+status_33: ; illegal wildcard use
+status_34: ; empty file name
 	.byte "SYNTAX ERROR" ,0
+
+;---------------------------------------------------------------
+; $4x: Controller error (CMD addition)
+;---------------------------------------------------------------
+
+status_49:
+	.byte "INVALID FORMAT", 0 ; partition present, but not FAT32
+
+;---------------------------------------------------------------
+; $5x: Relative file related error
+;---------------------------------------------------------------
+
+; unsupported
+
+;---------------------------------------------------------------
+; $6x: File error
+;---------------------------------------------------------------
+
 status_62:
 	.byte " FILE NOT FOUND" ,0
+status_63:
+	.byte "FILE EXISTS", 0
+
+;---------------------------------------------------------------
+; $7x: Generic disk or device error
+;---------------------------------------------------------------
+
+status_70:
+	.byte "NO CHANNEL", 0 ; error allocating context
+status_71:
+	.byte "DIRECTORY ERROR", 0 ; FAT error
+status_72:
+	.byte "PARTITION FULL", 0 ; filesystem full
+
 status_73:
 	.byte "CBDOS V1.0 X16", 0
 status_74:
-	.byte "DRIVE NOT READY", 0
+	.byte "DRIVE NOT READY", 0 ; illegal partition for any command but "CP"
 status_77:
 	.byte "SELECTED PARTITION ILLEGAL",0
 
-; READ ERROR
-; WRITE ERROR
-; WRITE PROTECT ON
-; FILE NOT FOUND
-; CONTROLLER ERROR
-; ILLEGAL JOB
-; INVALID FORMAT
-; RECORD NOT PRESENT
-; OVERFLOW IN RECORD
-; FILE TOO LARGE
-; WRITE FILE OPEN
-; FILE NOT OPEN
-; FILE EXISTS
-; FILE TYPE MISMATCH
-; NO BLOCK
-; ILLEGAL BLOCK
-; NO CHANNEL
-; DIRECTORY ERROR
-; PARTITION FULL
-; DRIVE NOT READY
-; FORMAT ERROR
-; HARDWARE ERROR
-; SELECTED PARTITION ILLEGAL
-; SYSTEM ERROR
+;---------------------------------------------------------------
+; Unsupported
+;---------------------------------------------------------------
+;   $29     DISK ID MISMATCH
+;   $39     FILE NOT FOUND
+;   $40-$47 CONTROLLER ERROR
+;   $48     ILLEGAL JOB
+;   $64     FILE TYPE MISMATCH
+;   $65     NO BLOCK
+;   $66/$67 ILLEGAL BLOCK
+;   $75     FORMAT ERROR
+;   $76     HARDWARE ERROR
+;   $78     SYSTEM ERROR
+; specific codes of supported strings
+;   $21-$23/$27 READ ERROR
+;   $28     WRITE ERROR
+; unknown
+;   $60     WRITE FILE OPEN
+;   $61     FILE NOT OPEN
+; TODO: REL files
+;   $50     RECORD NOT PRESENT
+;   $51     OVERFLOW IN RECORD
+;   $52     FILE TOO LARGE
 
 acptr_status:
 	ldy status_r
