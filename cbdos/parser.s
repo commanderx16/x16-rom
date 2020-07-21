@@ -12,7 +12,7 @@
 .import set_status
 
 ; functions.s
-.export unix_path, create_unix_path, create_unix_path_b
+.export medium, unix_path, create_unix_path, create_unix_path_b
 
 .code
 

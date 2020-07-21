@@ -11,7 +11,7 @@
 .import fat32_mkdir, fat32_rmdir, fat32_chdir, fat32_rename, fat32_delete
 
 ; parser.s
-.import unix_path, unix_path2, create_unix_path, create_unix_path_b
+.import medium, unix_path, unix_path2, create_unix_path, create_unix_path_b
 
 .macro debug_print text
 	ldx #0
@@ -61,6 +61,15 @@ create_fat32_path_x2:
 	sta fat32_ptr2 + 1
 
 	jmp create_unix_path_b
+
+check_medium:
+	lda medium
+	cmp #2
+	bcc :+
+	pla
+	pla
+:	lda #$74
+	rts
 
 ;---------------------------------------------------------------
 ; for all these implementations:
@@ -115,15 +124,7 @@ new:
 ; Out:  x             number of files scratched
 ;---------------------------------------------------------------
 scratch:
-.ifdef DEBUG
-	lda #13
-	jsr bsout
-	debug_print "S"
-	jsr print_medium
-	jsr print_r0
-	jsr print_r1
-.endif
-
+	jsr check_medium
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_delete
@@ -142,12 +143,6 @@ scratch:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 make_directory:
-.ifdef DEBUG
-	debug_print "MD"
-	jsr print_medium
-	jsr print_r0
-	jsr print_r1
-.endif
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_mkdir
@@ -166,12 +161,6 @@ write_error:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 remove_directory:
-.ifdef DEBUG
-	debug_print "RD"
-	jsr print_medium
-	jsr print_r0
-	jsr print_r1
-.endif
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_rmdir
@@ -185,12 +174,6 @@ remove_directory:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 change_directory:
-.ifdef DEBUG
-	debug_print "CD"
-	jsr print_medium
-	jsr print_r0
-	jsr print_r1
-.endif
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_chdir

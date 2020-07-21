@@ -56,14 +56,16 @@ set_status_74:
 	lda #$74
 
 set_status:
-	cmp #0   ; OK
-	bne :+
-	tax ; has X and Y = 0
-	tay
-:	cmp #1   ; FILES SCRATCHED
-	bne :+
-	ldy #0 ; has Y = 0
-:
+	cmp #1   ; FILES SCRATCHED
+	beq @clr_y
+
+	; TODO: preserve X and Y for certain errors
+	; "beq @clr_nothing"
+
+	ldx #0
+@clr_y:
+	ldy #0
+@clr_nothing:
 	phy
 	phx
 
