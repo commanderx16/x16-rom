@@ -64,12 +64,13 @@ create_fat32_path_x2:
 
 check_medium:
 	lda medium
+check_medium_a:
 	cmp #2
 	bcc :+
 	pla
 	pla
-:	lda #$74
-	rts
+	lda #$74
+:	rts
 
 ;---------------------------------------------------------------
 ; for all these implementations:
@@ -143,6 +144,7 @@ scratch:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 make_directory:
+	jsr check_medium
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_mkdir
@@ -161,6 +163,7 @@ write_error:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 remove_directory:
+	jsr check_medium
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_rmdir
@@ -174,6 +177,7 @@ remove_directory:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 change_directory:
+	jsr check_medium
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_chdir
@@ -187,12 +191,7 @@ change_directory:
 ; In:   a  partition
 ;---------------------------------------------------------------
 change_partition:
-.ifdef DEBUG
-	pha
-	debug_print "CP"
-	pla
-	jsr print_a
-.endif
+	jsr check_medium_a
 	lda #0
 	rts
 
@@ -214,15 +213,6 @@ user:
 ;       medium1/r2/r3  new medium/path/name
 ;---------------------------------------------------------------
 rename:
-.ifdef DEBUG
-	debug_print "R"
-	jsr print_medium
-	jsr print_r0
-	jsr print_r1
-	jsr print_medium1
-	jsr print_r2
-	jsr print_r3
-.endif
 	FAT32_CONTEXT_START
 	jsr create_fat32_path_x2
 	jsr fat32_rename
