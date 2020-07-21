@@ -161,7 +161,7 @@ bin_to_bcd:
 	rts
 
 stcodes:
-	.byte $00, $01, $02, $26, $31, $62, $73, $74, $77
+	.byte $00, $01, $02, $26, $30, $31, $62, $73, $74, $77
 stcodes_end:
 
 ststrs:
@@ -169,6 +169,7 @@ ststrs:
 	.word status_01
 	.word status_02
 	.word status_26
+	.word status_30
 	.word status_31
 	.word status_62
 	.word status_73
@@ -183,6 +184,7 @@ status_02:
 	.byte "PARTITION SELECTED", 0
 status_26:
 	.byte "WRITE PROTECT ON", 0
+status_30:
 status_31:
 	.byte "SYNTAX ERROR" ,0
 status_62:
@@ -193,6 +195,31 @@ status_74:
 	.byte "DRIVE NOT READY", 0
 status_77:
 	.byte "SELECTED PARTITION ILLEGAL",0
+
+; READ ERROR
+; WRITE ERROR
+; WRITE PROTECT ON
+; FILE NOT FOUND
+; CONTROLLER ERROR
+; ILLEGAL JOB
+; INVALID FORMAT
+; RECORD NOT PRESENT
+; OVERFLOW IN RECORD
+; FILE TOO LARGE
+; WRITE FILE OPEN
+; FILE NOT OPEN
+; FILE EXISTS
+; FILE TYPE MISMATCH
+; NO BLOCK
+; ILLEGAL BLOCK
+; NO CHANNEL
+; DIRECTORY ERROR
+; PARTITION FULL
+; DRIVE NOT READY
+; FORMAT ERROR
+; HARDWARE ERROR
+; SELECTED PARTITION ILLEGAL
+; SYSTEM ERROR
 
 acptr_status:
 	ldy status_r

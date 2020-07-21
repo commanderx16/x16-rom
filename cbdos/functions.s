@@ -85,7 +85,20 @@ check_medium_a:
 	lda #$74
 :	rts
 
+;---------------------------------------------------------------
+; soft_check_medium_a
+;
+; Checks whether a medium is valid, i.e. whether a partition
+; exists.
+;
+; In:   a   medium
+; Out:  c   =0: medium valid (partition exists)
+;           =1: medium invalid (partition does not exist)
+;---------------------------------------------------------------
 soft_check_medium_a:
+	; Since partitions are not currently supported,
+	; only partitions 0 (current) and 1 (single partition)
+	; are supported
 	cmp #2
 	rts
 

@@ -3,6 +3,11 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
+; TODO
+; * Detect command string overflows and return error 32.
+; * Detect wildcards in commands that don't them and return error 33.
+; * Detect empty file names and return error 34.
+
 .setcpu "65c02"
 
 .include "functions.inc"
@@ -40,7 +45,7 @@ execute_command:
 
 	jsr parse_command
 	bcc :+
-	lda #$31 ; SYNTAX ERROR
+	lda #$30 ; generic syntax error
 :	jsr set_status
 
 	stz buffer_len
@@ -607,7 +612,9 @@ parse_command:
 	beq @found
 	dex
 	bpl @loop
-	sec
+
+	lda #$31 ; syntax error: unknown command
+	clc
 	rts
 
 @found:
@@ -639,7 +646,8 @@ cmd_r:
 :	cmp #'P'
 	bne :+
 	jmp cmd_rp
-:	sec ; syntax error
+:	lda #$31 ; syntax error: unknown command
+	clc
 	rts
 
 ;---------------------------------------------------------------
@@ -664,7 +672,8 @@ cmd_s:
 :	cmp #'D'
 	bne :+
 	jmp cmd_sd
-:	sec
+:	lda #$31 ; syntax error: unknown command
+	clc
 	rts
 
 ;---------------------------------------------------------------
@@ -697,7 +706,8 @@ cmd_g:
 	jmp cmd_gp
 :	cmp #'-'
 	beq @minus
-	sec ; syntax error
+	lda #$31 ; syntax error: unknown command
+	clc
 	rts
 @minus:
 	inx
@@ -705,7 +715,8 @@ cmd_g:
 	cmp #'D'
 	bne :+
 	jmp cmd_gd
-:	sec ; syntax error
+:	lda #$31 ; syntax error: unknown command
+	clc
 	rts
 
 ;---------------------------------------------------------------
@@ -720,7 +731,8 @@ cmd_m:
 	jmp cmd_md
 :	cmp #'-'
 	beq @minus
-	sec ; syntax error
+	lda #$31 ; syntax error: unknown command
+	clc
 	rts
 @minus:
 	inx
@@ -734,7 +746,8 @@ cmd_m:
 :	cmp #'E'
 	bne :+
 	jmp cmd_me
-:	sec ; syntax error
+:	lda #$31 ; syntax error: unknown command
+	clc
 	rts
 
 ;---------------------------------------------------------------
@@ -746,7 +759,8 @@ cmd_f:
 	lda buffer,x
 	cmp #'-'
 	beq @minus
-	sec ; syntax error
+	lda #$31 ; syntax error: unknown command
+	clc
 	rts
 @minus:
 	inx
@@ -760,7 +774,8 @@ cmd_f:
 :	cmp #'R'
 	bne :+
 	jmp cmd_fr
-:	sec ; syntax error
+:	lda #$31 ; syntax error: unknown command
+	clc
 	rts
 
 ;---------------------------------------------------------------
@@ -783,7 +798,9 @@ cmd_u0ext:
 	beq @found
 	dex
 	bpl @loop
-	sec
+
+	lda #$31 ; syntax error: unknown command
+	clc
 	rts
 
 @found:
@@ -804,7 +821,8 @@ cmd_u0_m:
 :	cmp #'W'
 	bne :+
 	jmp cmd_u0_mw
-:	sec
+:	lda #$31 ; syntax error: unknown command
+	clc
 	rts
 
 ;---------------------------------------------------------------
