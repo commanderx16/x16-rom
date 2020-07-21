@@ -15,7 +15,7 @@
 .import fat32_open, fat32_close, fat32_read, fat32_write, fat32_create
 
 ; parser.s
-.import medium, unix_path, unix_path2, create_unix_path, create_unix_path_b
+.import medium, medium1, unix_path, unix_path2, create_unix_path, create_unix_path_b
 .import r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e
 
 .macro debug_print text
@@ -92,52 +92,65 @@ check_medium_a:
 ;---------------------------------------------------------------
 
 ;---------------------------------------------------------------
+; initialize
+;
+; This is the "I" command, which is a hint that the physical
+; media was changed, and the new media should be mounted.
+;
 ; In:   medium  medium
 ;---------------------------------------------------------------
 initialize:
-.ifdef DEBUG
-	debug_print "I"
-	jsr print_medium
-.endif
+	; TODO
 	lda #0
 	rts
 
 ;---------------------------------------------------------------
+; validate
+;
+; This is the "V" command, which should do a filesystem check
+; and repair.
+;
 ; In:   medium  medium
 ;---------------------------------------------------------------
 validate:
-.ifdef DEBUG
-	debug_print "V"
-	jsr print_medium
-.endif
-	lda #0
+	; TODO
+	lda #$31
 	rts
 
 ;---------------------------------------------------------------
+; new
+;
+; This is the "N" command, which should initialize a filesystem.
+; FAT32 filesystems are large, so formatting is a rarely used
+; and very dangerous function. Therefore, the standard syntax
+; (NAME or NAME,ID) should not initialize the filesystem just
+; yet. Here are a few ideas:
+; * There has to be a format argument: "NAME,ID,FORMAT" - the
+;   function is only actually performed if the format is 'Y'.
+;   (as in "Yes, I'm sure.") Otherwise, an informative status
+;   message (code $0x) explains what's going on.
+; * The "N" command has to be sent twice. The first time, an
+;   informative status message explains what's going on.
+;
 ; In:   medium  medium
 ;       r0      name
 ;       r1      id
 ;       a       format (1st char)
 ;---------------------------------------------------------------
 new:
-.ifdef DEBUG
-	pha
-	debug_print "N"
-	jsr print_medium
-	jsr print_r0
-	jsr print_r1
-	pla
-	jsr print_a
-.endif
-	lda #0
+	; TODO
+	lda #$31
 	rts
 
 ;---------------------------------------------------------------
+; scratch
+;
 ; In:   medium/r0/r1  medium/path/name
 ; Out:  x             number of files scratched
 ;---------------------------------------------------------------
 scratch:
 	jsr check_medium
+
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_delete
@@ -153,10 +166,13 @@ scratch:
 	rts
 
 ;---------------------------------------------------------------
+; make_directory
+;
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 make_directory:
 	jsr check_medium
+
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_mkdir
@@ -172,10 +188,14 @@ write_error:
 	rts
 
 ;---------------------------------------------------------------
+;
+; remove_directory
+;
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 remove_directory:
 	jsr check_medium
+
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_rmdir
@@ -186,10 +206,14 @@ remove_directory:
 	rts
 
 ;---------------------------------------------------------------
+; change_directory
+;
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 change_directory:
 	jsr check_medium
+
+	; TODO: This seems to have no effect!
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_chdir
@@ -200,6 +224,8 @@ change_directory:
 	rts
 
 ;---------------------------------------------------------------
+; change_partition
+;
 ; In:   a  partition
 ;---------------------------------------------------------------
 change_partition:
@@ -208,6 +234,8 @@ change_partition:
 	rts
 
 ;---------------------------------------------------------------
+; user
+;
 ; In:   a  vector number
 ;---------------------------------------------------------------
 user:
@@ -285,6 +313,8 @@ rename:
 ;       r1      new name
 ;---------------------------------------------------------------
 rename_header:
+	jsr check_medium
+
 	lda r0s
 	cmp r0e
 	bne @rename_subdir_header
@@ -336,6 +366,10 @@ change_unit:
 ;       medium1/r2/r3  destination
 ;---------------------------------------------------------------
 copy:
+	jsr check_medium
+	lda medium1
+	jsr check_medium_a
+
 	jsr create_fat32_path_x2
 	lda fat32_ptr2
 	pha
@@ -439,6 +473,8 @@ duplicate:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 file_lock:
+	jsr check_medium
+
 	; TODO: set read-only flag
 	lda #$31
 	rts
@@ -449,6 +485,8 @@ file_lock:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 file_unlock:
+	jsr check_medium
+
 	; TODO: clear read-only flag
 	lda #$31
 	rts
@@ -462,6 +500,8 @@ file_unlock:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 file_restore:
+	jsr check_medium
+
 	; TODO:
 	; FAT32 keeps the directory entry and the FAT links,
 	; but overwrites the first character. The user provides
@@ -533,7 +573,8 @@ set_directory_interleave:
 ; set_large_rel_support
 ;
 ; This is the "U0>L" command, which enables/disables support for
-; "large" REL files. It is unsupported in this implementation.
+; "large" REL files. It is only supported by the C65 drive, and
+; unsupported in this implementation.
 ;
 ; In:   a  large REL support (0/1)
 ;---------------------------------------------------------------
