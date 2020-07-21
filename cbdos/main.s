@@ -328,6 +328,7 @@ cbdos_unlsn:
 
 ;---------------------------------------------------------------
 ; OPEN directory
+	lda fnbuffer_w ; filename length
 	jsr open_dir
 	bcc @open_ok
 
@@ -490,13 +491,6 @@ open_file:
 	pha
 	jsr fat32_set_context
 
-	lda #<unix_path
-	sta fat32_ptr + 0
-	lda #>unix_path
-	sta fat32_ptr + 1
-	ldy #0
-	jsr create_unix_path
-
 	ldx #0
 	ldy fnbuffer_w
 	jsr parse_cbmdos_filename
@@ -533,7 +527,7 @@ open_file:
 @open_read:
 	jsr fat32_open
 	bcs :+
-	lda #$62
+	lda #$62 ; file not found
 	bra @open_file_err
 
 :	jsr fat32_read_byte

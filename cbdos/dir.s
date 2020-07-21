@@ -4,7 +4,6 @@
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
 ; TODO:
-; * hook up path/file parser
 ; * directory listing name filter
 
 .export open_dir, acptr_dir
@@ -14,6 +13,12 @@
 
 ; fat32.s
 .import fat32_dirent, fat32_get_free_space, fat32_size
+
+.import create_unix_path
+.import unix_path
+.import soft_check_medium_a
+.import medium
+.import parse_cbmdos_filename
 
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"
@@ -42,12 +47,44 @@ dir_eof:
 ;---------------------------------------------------------------
 ;---------------------------------------------------------------
 open_dir:
+	pha ; filename length
+
 	lda #0
 	jsr set_status
 
 	jsr fat32_alloc_context
 	sta context
 	jsr fat32_set_context
+
+	ldx #1
+	ply ; filename length
+	jsr parse_cbmdos_filename
+	bcc :+
+	lda #$30 ; syntax error
+	jmp @open_dir_err
+:	lda medium
+	jsr soft_check_medium_a
+	bcc :+
+	lda #$74 ; drive not ready
+	jmp @open_dir_err
+:	lda #<unix_path
+	sta fat32_ptr + 0
+	lda #>unix_path
+	sta fat32_ptr + 1
+	ldy #0
+	jsr create_unix_path
+
+	cpy #1 ; // empty unix_path
+	bne @nempty
+	; current directory
+	lda #0
+	sta fat32_ptr
+	sta fat32_ptr + 1
+@nempty:
+
+	jsr fat32_open_dir
+	lda #$62 ; file not found
+	bcc @open_dir_err
 
 	ldy #0
 	lda #<DIRSTART
@@ -89,19 +126,12 @@ open_dir:
 	sty dirbuffer_w
 	stz dirbuffer_r
 
-	; current directory
-	lda #0
-	sta fat32_ptr
-	sta fat32_ptr + 1
-
-	jsr fat32_open_dir
-	bcc @open_dir_err
-
 	stz dir_eof
 	clc ; ok
 	rts
 
 @open_dir_err:
+	jsr set_status
 	lda context
 	jsr fat32_free_context
 	lda #1
