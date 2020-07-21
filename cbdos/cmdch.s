@@ -64,6 +64,8 @@ set_status:
 	bne :+
 	ldy #0 ; has Y = 0
 :
+	phy
+	phx
 
 	pha
 	pha
@@ -103,13 +105,33 @@ set_status:
 	bne :-
 :	lda #','
 	sta statusbuffer + 0,x
-	lda #'0'
-	sta statusbuffer + 1,x ; XXX X
+	pla ; first arg
+	jsr bin_to_bcd
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	ora #$30
+	sta statusbuffer + 1,x
+	pla
+	and #$0f
+	ora #$30
 	sta statusbuffer + 2,x
 	lda #','
 	sta statusbuffer + 3,x
-	lda #'0'
+	pla ; second arg
+	jsr bin_to_bcd
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	ora #$30
 	sta statusbuffer + 4,x ; XXX Y
+	pla
+	and #$0f
+	ora #$30
 	sta statusbuffer + 5,x
 
 	txa
@@ -117,6 +139,19 @@ set_status:
 	adc #6
 	sta status_w
 	stz status_r
+	rts
+
+bin_to_bcd:
+	tay
+	lda #0
+	sed
+@loop:	cpy #0
+	beq @end
+	clc
+	adc #1
+	dey
+	bra @loop
+@end:	cld
 	rts
 
 stcodes:

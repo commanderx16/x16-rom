@@ -8,7 +8,7 @@
 ; fat32.s
 .import fat32_ptr, fat32_ptr2
 .import fat32_alloc_context, fat32_free_context, fat32_set_context
-.import fat32_mkdir, fat32_rmdir, fat32_chdir, fat32_rename
+.import fat32_mkdir, fat32_rmdir, fat32_chdir, fat32_rename, fat32_delete
 
 ; parser.s
 .import unix_path, unix_path2, create_unix_path, create_unix_path_b
@@ -123,8 +123,19 @@ scratch:
 	jsr print_r0
 	jsr print_r1
 .endif
+
+	FAT32_CONTEXT_START
+	jsr create_fat32_path
+	jsr fat32_delete
+	bcc @error
+	FAT32_CONTEXT_END
 	lda #0
 	ldx #1
+	rts
+@error:
+	FAT32_CONTEXT_END
+	lda #0
+	tax
 	rts
 
 ;---------------------------------------------------------------
