@@ -12,7 +12,7 @@
 .import set_status
 
 ; functions.s
-.export unix_path, create_unix_path
+.export unix_path, create_unix_path, create_unix_path_b
 
 .code
 
@@ -47,9 +47,6 @@ execute_command:
 
 .bss
 
-unix_path:
-	.res 256, 0
-
 overwrite_flag:
 	.byte 0
 medium:
@@ -61,6 +58,9 @@ file_type:
 file_mode:
 	.byte 0
 
+.if 1
+unix_path:
+	.res 256, 0
 r0s:	.byte 0
 r0e:	.byte 0
 r1s:	.byte 0
@@ -69,6 +69,18 @@ r2s:	.byte 0
 r2e:	.byte 0
 r3s:	.byte 0
 r3e:	.byte 0
+.else
+unix_path = $0200
+
+r0s = 2
+r0e = 3
+r1s = 4
+r1e = 5
+r2s = 6
+r2e = 7
+r3s = 8
+r3e = 9
+.endif
 
 ; temp variables, must only be used in leaf functions
 tmp0:	.byte 0
@@ -452,11 +464,12 @@ parse_path:
 ;
 ; In:   r0         CBMDOS path
 ;       r1         CBMDOS name
+;       y          offset in unix_path
 ;
 ; Out:  unix_path  UNIX path
+;       y          points to after terminating zero
 ;---------------------------------------------------------------
 create_unix_path:
-	ldy #0
 	ldx r0s
 	lda r0e
 	jsr copy_chars
@@ -465,6 +478,18 @@ create_unix_path:
 	jsr copy_chars
 	lda #0
 	sta unix_path,y
+	iny
+	rts
+create_unix_path_b:
+	ldx r2s
+	lda r2e
+	jsr copy_chars
+	ldx r3s
+	lda r3e
+	jsr copy_chars
+	lda #0
+	sta unix_path,y
+	iny
 	rts
 
 ;***************************************************************
@@ -941,8 +966,6 @@ cmd_rename:
 	bcs @error
 
 	lda r1s
-	cmp r1e
-	beq @error
 	pha
 	lda r1e
 	pha

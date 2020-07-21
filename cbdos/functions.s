@@ -6,12 +6,12 @@
 .include "functions.inc"
 
 ; fat32.s
-.import fat32_ptr
+.import fat32_ptr, fat32_ptr2
 .import fat32_alloc_context, fat32_free_context, fat32_set_context
-.import fat32_mkdir, fat32_rmdir, fat32_chdir
+.import fat32_mkdir, fat32_rmdir, fat32_chdir, fat32_rename
 
 ; parser.s
-.import unix_path, create_unix_path
+.import unix_path, unix_path2, create_unix_path, create_unix_path_b
 
 .macro debug_print text
 	ldx #0
@@ -42,12 +42,25 @@
 
 ;---------------------------------------------------------------
 create_fat32_path:
-	jsr create_unix_path
 	lda #<unix_path
 	sta fat32_ptr + 0
 	lda #>unix_path
 	sta fat32_ptr + 1
-	rts
+	ldy #0
+	jmp create_unix_path
+
+create_fat32_path_x2:
+	jsr create_fat32_path
+
+	tya
+	clc
+	adc #<unix_path
+	sta fat32_ptr2 + 0
+	lda #>unix_path
+	adc #0
+	sta fat32_ptr2 + 1
+
+	jmp create_unix_path_b
 
 ;---------------------------------------------------------------
 ; for all these implementations:
@@ -216,6 +229,12 @@ rename:
 	jsr print_r2
 	jsr print_r3
 .endif
+	FAT32_CONTEXT_START
+	jsr create_fat32_path_x2
+	jsr fat32_rename
+	bcs :+
+	jmp write_error
+:	FAT32_CONTEXT_END
 	lda #0
 	rts
 
