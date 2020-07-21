@@ -9,7 +9,7 @@
 .import fat32_dirent
 .import sync_sector_buffer
 
-.importzp krn_ptr1, read_blkptr, buffer, bank_save
+.importzp krn_ptr1, read_blkptr, bank_save
 
 ; cmdch.s
 .import ciout_cmdch, execute_command, set_status, acptr_status
@@ -22,6 +22,11 @@
 
 ; functions.s
 .export cbdos_init
+
+; parser.s
+.import parse_cbmdos_filename, create_unix_path, unix_path, buffer
+fnbuffer = buffer
+MAX_FILENAME_LEN = 40 ; XXX update
 
 .include "banks.inc"
 
@@ -36,7 +41,6 @@ IMPORTED_FROM_MAIN=1
 
 .include "fat32/regs.inc"
 
-MAX_FILENAME_LEN = 40
 
 ieee_status = status
 
@@ -59,9 +63,6 @@ via1porta   = via1+1 ; RAM bank
 .endmacro
 
 .segment "cbdos_data"
-
-fnbuffer:
-	.res MAX_FILENAME_LEN, 0
 
 ; Commodore DOS variables
 initialized:
@@ -483,11 +484,21 @@ open_file:
 	pha
 	jsr fat32_set_context
 
-	ldx fnbuffer_w
-	stz fnbuffer,x ; zero-terminate filename
-	lda #<fnbuffer
+	lda #<unix_path
 	sta fat32_ptr + 0
-	lda #>fnbuffer
+	lda #>unix_path
+	sta fat32_ptr + 1
+	ldy #0
+	jsr create_unix_path
+
+	ldx #0
+	ldy fnbuffer_w
+	jsr parse_cbmdos_filename
+	ldy #0
+	jsr create_unix_path
+	lda #<unix_path
+	sta fat32_ptr + 0
+	lda #>unix_path
 	sta fat32_ptr + 1
 
 	lda channel

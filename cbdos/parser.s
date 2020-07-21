@@ -13,6 +13,7 @@
 .include "functions.inc"
 
 .export execute_command
+.export parse_cbmdos_filename
 .import buffer, buffer_len
 .import set_status
 
@@ -21,22 +22,6 @@
 .export r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e
 
 .code
-
-;	ldx #0
-;	ldy #buffer_endptr - buffer
-;.if 1
-;	jsr parse_cbmdos_filename
-;
-;	jsr print_medium
-;	jsr print_r0
-;	jsr print_r1
-;	jsr print_file_type
-;	jsr print_file_mode
-;
-;	jsr create_unix_path
-;	jsr print_unix_path
-;
-;.else
 
 execute_command:
 	ldx #0
