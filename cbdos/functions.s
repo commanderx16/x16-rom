@@ -253,9 +253,8 @@ change_directory:
 
 @regular_cd:
 	jsr fat32_chdir
-	bcs :+
-	jmp fnf_error
-:	FAT32_CONTEXT_END
+	bcc fnf_error
+	FAT32_CONTEXT_END
 	lda #0
 	rts
 

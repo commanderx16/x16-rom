@@ -131,15 +131,20 @@ acptr_dir:
 ;---------------------------------------------------------------
 read_dir_entry:
 	lda dir_eof
-	beq :+
+	beq @read_entry
 	sec
 	rts
 
-:	jsr fat32_read_dirent
+@read_entry:
+	jsr fat32_read_dirent
 	bcs :+
 	jmp @read_dir_entry_end
 
-:	ldy #0
+:	lda fat32_dirent + dirent::name
+	cmp #'.' ; hide "." and ".."
+	beq @read_entry
+
+	ldy #0
 	lda #1
 	jsr storedir ; link
 	jsr storedir
@@ -243,6 +248,13 @@ read_dir_entry:
 	jsr storedir
 
 @read_dir_cont:
+	lda fat32_dirent + dirent::attributes
+	lsr
+	bcc :+
+	lda #'<' ; write protect indicator
+	jsr storedir
+:
+
 	lda #0 ; end of line
 	jsr storedir
 
