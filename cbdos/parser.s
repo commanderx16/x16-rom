@@ -1325,7 +1325,7 @@ cmd_d:
 ;---------------------------------------------------------------
 cmd_l:
 cmd_fl:
-	; TODO: support a lite of files
+	; TODO: support a list of files
 	jsr consume_get_path_and_name_remove_options
 	bcs @error
 	jsr file_lock
@@ -1338,7 +1338,7 @@ cmd_fl:
 ; F-U - file unlock
 ;---------------------------------------------------------------
 cmd_fu:
-	; TODO: support a lite of files
+	; TODO: support a list of files
 	jsr consume_get_path_and_name_remove_options
 	bcs @error
 	jsr file_unlock
@@ -1351,7 +1351,7 @@ cmd_fu:
 ; F-R - file restore
 ;---------------------------------------------------------------
 cmd_fr:
-	; TODO: support a lite of files
+	; TODO: support a list of files
 	jsr consume_get_path_and_name_remove_options
 	bcs @error
 	jsr file_restore

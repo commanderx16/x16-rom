@@ -718,6 +718,50 @@ next_sector:
 	jmp @read_cluster
 
 ;-----------------------------------------------------------------------------
+; match_name
+;
+; Check if name matches
+;-----------------------------------------------------------------------------
+match_name:
+	ldx #0
+	ldy name_offset
+@1:	lda (fat32_ptr), y
+	beq @match
+	cmp #'?'
+	beq @char_match
+	cmp #'*'
+	beq @asterisk
+	cmp #'/'
+	beq @match
+	jsr to_upper
+	cmp fat32_dirent + dirent::name, x
+	bne @no
+@char_match:
+	inx
+	iny
+	bra @1
+
+; '*' found: consume excess characters in input until '/' or end
+@asterisk:
+	iny
+	lda (fat32_ptr), y
+	beq @yes
+	cmp #'/'
+	bne @asterisk
+	bra @yes
+
+@match:	; Search string also at end?
+	lda fat32_dirent + dirent::name, x
+	bne @no
+
+@yes:
+	sec
+	rts
+@no:
+	clc
+	rts
+
+;-----------------------------------------------------------------------------
 ; find_dirent
 ;
 ; Find directory entry with path specified in string pointed to by fat32_ptr
@@ -765,39 +809,9 @@ find_dirent:
 	jsr fat32_read_dirent
 	bcc @error
 
-	; Check if name matches
-	ldx #0
-	ldy name_offset
-@1:	lda (fat32_ptr), y
-	beq @match
-	cmp #'?'
-	beq @char_match
-	cmp #'*'
-	beq @asterisk
-	cmp #'/'
-	beq @match
-	jsr to_upper
-	cmp fat32_dirent + dirent::name, x
-	bne @next
-@char_match:
-	inx
-	iny
-	bra @1
+	jsr match_name
+	bcc @next
 
-; '*' found: consume excess characters in input until '/' or end
-@asterisk:
-	iny
-	lda (fat32_ptr), y
-	beq @match2
-	cmp #'/'
-	bne @asterisk
-	bra @match2
-
-@match:	; Search string also at end?
-	lda fat32_dirent + dirent::name, x
-	bne @next
-
-@match2:
 	; Check for '/'
 	lda (fat32_ptr), y
 	cmp #'/'
@@ -1256,6 +1270,26 @@ fat32_read_dirent:
 	add16_val fat32_bufptr, fat32_bufptr, 32
 	jmp fat32_read_dirent
 
+
+;-----------------------------------------------------------------------------
+; fat32_read_dirent_filtered
+;-----------------------------------------------------------------------------
+fat32_read_dirent_filtered:
+	jsr fat32_read_dirent
+	bcc @error
+
+	cmp16_z fat32_ptr, @ok
+
+	stz name_offset
+	jsr match_name
+	bcc fat32_read_dirent_filtered
+@ok:
+	sec
+	rts
+
+@error:
+	clc
+	rts
 ;-----------------------------------------------------------------------------
 ; fat32_chdir
 ;-----------------------------------------------------------------------------

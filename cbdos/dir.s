@@ -3,9 +3,6 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-; TODO:
-; * directory listing name filter
-
 .export open_dir, acptr_dir
 
 ; cmdch.s
@@ -13,12 +10,15 @@
 
 ; fat32.s
 .import fat32_dirent, fat32_get_free_space, fat32_size
+.import fat32_read_dirent_filtered
 
 .import create_unix_path
 .import unix_path
 .import soft_check_medium_a
 .import medium
 .import parse_cbmdos_filename
+.import buffer
+.import r0s, r0e, r1s, r1e
 
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"
@@ -67,21 +67,29 @@ open_dir:
 	bcc :+
 	lda #$74 ; drive not ready
 	jmp @open_dir_err
-:	lda #<unix_path
-	sta fat32_ptr + 0
-	lda #>unix_path
-	sta fat32_ptr + 1
-	ldy #0
-	jsr create_unix_path
+:
 
-	cpy #1 ; // empty unix_path
-	bne @nempty
+	; pass in just the path, not the name
+	ldx r0e
+	cpx r0s
+	beq @no_path
+	stz buffer,x
+	lda r0s
+	clc
+	adc #<buffer
+	sta fat32_ptr + 0
+	lda #>buffer
+	adc #0
+	sta fat32_ptr + 1
+	bra @nempty
+
+@no_path:
 	; current directory
 	lda #0
 	sta fat32_ptr
 	sta fat32_ptr + 1
-@nempty:
 
+@nempty:
 	jsr fat32_open_dir
 	lda #$62 ; file not found
 	bcc @open_dir_err
@@ -166,7 +174,26 @@ read_dir_entry:
 	rts
 
 @read_entry:
-	jsr fat32_read_dirent
+	; pass in just the name, not the path
+	ldx r1e
+	cpx r1s
+	beq @no_name
+	stz buffer,x
+	lda r1s
+	clc
+	adc #<buffer
+	sta fat32_ptr + 0
+	lda #>buffer
+	adc #0
+	sta fat32_ptr + 1
+	bra @read_cont
+
+@no_name:
+	stz fat32_ptr
+	stz fat32_ptr + 1
+
+@read_cont:
+	jsr fat32_read_dirent_filtered
 	bcs :+
 	jmp @read_dir_entry_end
 

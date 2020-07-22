@@ -63,13 +63,9 @@ set_status:
 	cmp #$77   ; SELECTED PARTITION ILLEGAL
 	beq @clr_y
 
-	; TODO: preserve X and Y for certain errors
-	; "beq @clr_nothing"
-
 	ldx #0
 @clr_y:
 	ldy #0
-@clr_nothing:
 	phy
 	phx
 
