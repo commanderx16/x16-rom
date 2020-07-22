@@ -3,8 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-; TODO
-; * SAVE: don't overwrite if file exists (unless it's "@:")
+; TODO:
+; * parse OPEN ",t,R"/",t,W"/",t,A"
 
 .import sdcard_init
 
@@ -27,7 +27,7 @@
 .export cbdos_init
 
 ; parser.s
-.import parse_cbmdos_filename, create_unix_path, unix_path, buffer
+.import parse_cbmdos_filename, create_unix_path, unix_path, buffer, overwrite_flag
 fnbuffer = buffer
 MAX_FILENAME_LEN = 40 ; XXX update
 
@@ -87,10 +87,12 @@ next_byte_for_channel:
 	.res 16, 0
 context_for_channel:
 	.res 16, 0
-MAGIC_FD_NONE     = $ff
-MAGIC_FD_STATUS   = $fe
-MAGIC_FD_DIR_LOAD = $fd
-
+CONTEXT_NONE = $ff
+CONTEXT_DIR  = $fd
+mode_for_channel:
+	.res 16, 0
+; $80 write
+; $40 read
 
 .segment "cbdos"
 ; $C000
@@ -132,7 +134,7 @@ cbdos_init:
 	phy
 
 	ldx #14
-	lda #MAGIC_FD_NONE
+	lda #CONTEXT_NONE
 :	sta context_for_channel,x
 	dex
 	bpl :-
@@ -231,8 +233,9 @@ cbdos_secnd:
 	pla
 	jsr fat32_free_context
 	ldx channel
-	lda #MAGIC_FD_NONE
+	lda #CONTEXT_NONE
 	sta context_for_channel,x
+	stz mode_for_channel,x
 	bra @secnd_rts
 
 ;---------------------------------------------------------------
@@ -255,8 +258,7 @@ cbdos_ciout:
 	phx
 	phy
 
-	ldx #0
-	stx ieee_status
+	stz ieee_status
 
 	ldx channel
 	cpx #15
@@ -265,11 +267,9 @@ cbdos_ciout:
 	ldx is_receiving_filename
 	bne @ciout_filename
 
-	; ignore writing to read channels
-	ldx channel
-	beq @ciout_end
-	cpx #2
-	bcs @ciout_end
+	; ignore if channel is not for writing
+	bit mode_for_channel,x
+	bpl @ciout_end
 
 ; write to file
 	pha
@@ -338,7 +338,7 @@ cbdos_unlsn:
 	bra @unlsn_end
 
 @open_ok:
-	lda #MAGIC_FD_DIR_LOAD
+	lda #CONTEXT_DIR
 	ldx channel
 	sta context_for_channel,x
 	bra @unlsn_end
@@ -411,10 +411,10 @@ cbdos_acptr:
 	lda context_for_channel,x
 	bpl @acptr_file ; actual file
 
-	cmp #MAGIC_FD_DIR_LOAD
+	cmp #CONTEXT_DIR
 	beq @acptr_dir
 
-	; #MAGIC_FD_NONE
+	; #CONTEXT_NONE
 	lda #$02 ; timeout/file not found
 	ora ieee_status
 	sta ieee_status
@@ -455,9 +455,14 @@ cbdos_acptr:
 
 
 acptr_file:
+	; ignore if not open for writing
+	bit mode_for_channel,x
+	bvc @acptr_file_not_open
+
 	jsr fat32_read_byte
 	bcs @acptr_file_neof
 
+@acptr_file_not_open:
 	; EOF
 	ldx channel
 	lda next_byte_for_channel,x
@@ -514,15 +519,25 @@ open_file:
 	cmp #2
 	bcs @open_read ; XXX parse ",t,R"/",t,W"/",t,A"
 
-; create
-	; XXX file exists?
+	; open for writing
+	lda overwrite_flag
+	bne @open_create
+	jsr fat32_find_dirent
+	bcc @open_create
+	; exists, but don't overwrite
+	lda #$63
+	bra @open_file_err
+
+@open_create:
 	jsr fat32_create
 	bcs :+
-	lda #$26 ; XXX
+	lda #$26 ; write protect on - XXX be more specific!
 	bra @open_file_err
 
 :	ldx channel
-	bra @open_file_cont
+	lda #$80 ; write
+	sta mode_for_channel,x
+	bra @open_file_ok
 
 @open_read:
 	jsr fat32_open
@@ -530,16 +545,21 @@ open_file:
 	lda #$62 ; file not found
 	bra @open_file_err
 
-:	jsr fat32_read_byte
+:	ldx channel
+	lda #$40 ; read
+	sta mode_for_channel,x
+
+	jsr fat32_read_byte
 	bcs :+
 	lda #0 ; of EOF then make the only byte a 0
 
 :	ldx channel
 	sta next_byte_for_channel,x
 
-@open_file_cont:
+@open_file_ok:
 	pla ; context number
 	sta context_for_channel,x
+	clc
 	rts
 
 @open_file_err:
