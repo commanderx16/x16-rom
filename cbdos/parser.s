@@ -5,7 +5,6 @@
 
 ; TODO
 ; * Detect wildcards in commands that don't them and return error 33.
-; * Detect empty file names and return error 34.
 
 .setcpu "65c02"
 
@@ -26,7 +25,7 @@
 .code
 
 execute_command:
-:	ldx #0
+	ldx #0
 	ldy buffer_len
 	beq @rts ; empty
 
@@ -81,6 +80,7 @@ tmp2:	.byte 0
 
 ; temp variable, must only be used by command implementation
 ctmp0:	.byte 0
+ctmp1:	.byte 0
 
 
 .code
@@ -968,7 +968,7 @@ cmd_rename:
 	lda #'='
 	sec
 	jsr split
-	bcs @error
+	bcs @error ; no '=' -> missing filename
 
 	lda r1s
 	pha
@@ -994,15 +994,24 @@ cmd_rename:
 	pla
 	sta r0s
 
+	lda r3s
+	cmp r3e
+	beq @error ; empty new name
+
 	; parse old file and store it in medium/r0/r1
 	jsr get_path_and_name
 	jsr remove_options_r1
+
+	lda r1s
+	cmp r1e
+	beq @error ; empty old name
 
 	jsr rename
 	clc
 	rts
 @error:
-	sec
+	lda #$34 ; syntax error (empty filename)
+	clc
 	rts
 
 ;---------------------------------------------------------------
@@ -1010,27 +1019,27 @@ cmd_rename:
 ;---------------------------------------------------------------
 cmd_scratch:
 @scratch_counter = ctmp0
+@loop_counter = ctmp1
 	jsr consume_cmd
 
 	stz @scratch_counter
+	stz @loop_counter
 
 @loop:	ldx r0s
-	lda buffer,x
-	cmp #','
-	bne :+
-	inc r0s
-	inx
-:	cpx r0e
-	beq @end ; XXX no args should be error
 	ldy r0e
 	lda #','
 	jsr search_char
 	phx
 	phy ; save remainder
 
+	; r0 points to current name
 	stx r0e
 	jsr get_path_and_name
 	bcs @syntax_error
+
+	lda r1s
+	cmp r1e
+	beq @empty_error
 
 	jsr scratch
 	cmp #0
@@ -1045,6 +1054,11 @@ cmd_scratch:
 	sty r0e
 	plx
 	stx r0s
+
+	lda buffer,x
+	cmp #','
+	bne @end
+	inc r0s
 	bra @loop
 
 @end:
@@ -1062,6 +1076,14 @@ cmd_scratch:
 	plx
 	plx
 	ldx @scratch_counter
+@error2:
+	clc
+	rts
+
+@empty_error:
+	pla
+	pla
+	lda #$34 ; syntax error (empty filename)
 	clc
 	rts
 
@@ -1193,14 +1215,17 @@ cmd_cp_binary:
 ; C - copy
 ;---------------------------------------------------------------
 cmd_copy:
-@append_flag = ctmp0
 	; if it contains a ':', it's file copy, else copy-all
 	ldx r0s
 	ldy r0e
 	lda #':'
 	jsr search_char
-	bcs @copy_all
+	bcc @copy_file
+	jmp @copy_all
 
+@copy_file:
+@append_flag = ctmp0
+@loop_counter = ctmp1
 	; file copy
 	jsr consume_cmd
 
@@ -1211,13 +1236,11 @@ cmd_copy:
 	sec
 	jsr split
 	bcc :+
-	jmp @error
+	jmp @error ; no '=' -> missing filename
 :
 	; r0 is left string, r1 is right string
 
 	lda r1s
-	cmp r1e
-	beq @error
 	pha
 	lda r1e
 	pha
@@ -1240,10 +1263,22 @@ cmd_copy:
 	pla
 	sta r0s
 
+	lda r3s
+	cmp r3e
+	beq @error ; empty new name
+
+	stz @loop_counter
+
 @loop:
 	lda r0s
 	cmp r0e
-	beq @end
+	bne :+
+
+	lda @loop_counter
+	beq @error
+	bra @end
+
+:	inc @loop_counter
 
 	; split into current source and rest
 	lda #','
@@ -1257,6 +1292,10 @@ cmd_copy:
 
 	; parse old file and store it in medium/r0/r1
 	jsr get_path_and_name
+
+	lda r1s
+	cmp r1e
+	beq @error2 ; empty new name
 
 	lda @append_flag
 	jsr copy
@@ -1287,8 +1326,13 @@ cmd_copy:
 	clc
 	rts
 
+@error2:
+	pla
+	pla
+
 @error:
-	sec
+	lda #$34 ; syntax error (empty filename)
+	clc
 	rts
 
 
@@ -1326,6 +1370,7 @@ cmd_fl:
 	; TODO: support a list of files
 	jsr consume_get_path_and_name_remove_options
 	bcs @error
+	; TODO: empty filename: error 34
 	jsr file_lock
 	clc
 	rts
@@ -1339,6 +1384,7 @@ cmd_fu:
 	; TODO: support a list of files
 	jsr consume_get_path_and_name_remove_options
 	bcs @error
+	; TODO: empty filename: error 34
 	jsr file_unlock
 	clc
 	rts
@@ -1352,6 +1398,7 @@ cmd_fr:
 	; TODO: support a list of files
 	jsr consume_get_path_and_name_remove_options
 	bcs @error
+	; TODO: empty filename: error 34
 	jsr file_restore
 	clc
 	rts

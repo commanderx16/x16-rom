@@ -185,6 +185,12 @@ scratch:
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 @loop:
+	; TODO:
+	; If there are wildcards in the name, and the first match
+	; is a directory, this call will fail, and deleting
+	; will end here. fat32_delete needs an option to skip
+	; directories. Or maybe we should enumerate the directory
+	; and call fat32_delete on specific filenames.
 	jsr fat32_delete
 	bcc @end
 	inc scratch_counter
@@ -192,6 +198,7 @@ scratch:
 @end:
 	FAT32_CONTEXT_END
 	ldx scratch_counter
+	lda #0
 	rts
 
 ;---------------------------------------------------------------

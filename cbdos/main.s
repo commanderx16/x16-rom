@@ -26,6 +26,7 @@
 ; parser.s
 .import parse_cbmdos_filename, create_unix_path, unix_path, buffer, overwrite_flag
 .import file_mode, buffer_len, buffer_overflow
+.import r1s, r1e
 
 ; functions.s
 .import medium, soft_check_medium_a
@@ -503,12 +504,19 @@ open_file:
 	jsr parse_cbmdos_filename
 	bcc :+
 	lda #$30 ; syntax error
-	bra @open_file_err
+	jmp @open_file_err
 :	lda medium
 	jsr soft_check_medium_a
 	bcc :+
 	lda #$74 ; drive not ready
 	bra @open_file_err
+:
+	lda r1s
+	cmp r1e
+	bne :+
+	lda #$34 ; syntax error (empty filename)
+	bra @open_file_err
+
 :	ldy #0
 	jsr create_unix_path
 	lda #<unix_path
