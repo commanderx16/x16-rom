@@ -19,7 +19,7 @@
 
 ; functions.s
 .export medium, medium1, unix_path, create_unix_path, create_unix_path_b
-.export r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e
+.export r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e, file_mode
 
 ; main.s
 .export overwrite_flag

@@ -3,9 +3,6 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-; TODO:
-; * parse OPEN ",t,R"/",t,W"/",t,A"
-
 .import sdcard_init
 
 .import fat32_init
@@ -28,6 +25,7 @@
 
 ; parser.s
 .import parse_cbmdos_filename, create_unix_path, unix_path, buffer, overwrite_flag
+.import file_mode
 fnbuffer = buffer
 MAX_FILENAME_LEN = 40 ; XXX update
 
@@ -213,6 +211,7 @@ cbdos_secnd:
 	cmp #15
 	beq @secnd_rts
 
+@xxx2:
 	stz is_receiving_filename
 
 	lda listen_cmd
@@ -273,6 +272,7 @@ cbdos_ciout:
 	bpl @ciout_end
 
 ; write to file
+@xxx1:
 	pha
 	jsr fat32_write_byte
 	pla
@@ -515,11 +515,27 @@ open_file:
 	lda #>unix_path
 	sta fat32_ptr + 1
 
+	; channels 0 and 1 are read and write
 	lda channel
 	beq @open_read
-	cmp #2
-	bcs @open_read ; XXX parse ",t,R"/",t,W"/",t,A"
+	cmp #1
+	beq @open_write
 
+	; otherwise check the mode
+	lda file_mode
+	cmp #'W'
+	beq @open_write
+	cmp #'A'
+	beq @open_append
+	; 'R', nonexistant and illegal modes -> read
+	bra @open_read
+
+@open_append:
+	; TODO
+	lda #$31
+	bra @open_file_err
+
+@open_write:
 	; open for writing
 	lda overwrite_flag
 	bne @open_create
@@ -560,6 +576,8 @@ open_file:
 @open_file_ok:
 	pla ; context number
 	sta context_for_channel,x
+	lda #0
+	jsr set_status
 	clc
 	rts
 
