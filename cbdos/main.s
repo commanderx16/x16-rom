@@ -268,6 +268,7 @@ cbdos_ciout:
 	bne @ciout_filename
 
 	; ignore if channel is not for writing
+	ldx channel
 	bit mode_for_channel,x
 	bpl @ciout_end
 

@@ -197,7 +197,7 @@ get_src_dst_numbers:
 	tay
 	lda buffer,x
 	cmp #'='
-	bne @error2
+	bne @error
 	phy ; target medium
 	inx
 	stx r0s
