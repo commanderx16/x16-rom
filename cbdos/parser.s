@@ -4,7 +4,6 @@
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
 ; TODO
-; * Detect command string overflows and return error 32.
 ; * Detect wildcards in commands that don't them and return error 33.
 ; * Detect empty file names and return error 34.
 
@@ -14,7 +13,7 @@
 
 .export execute_command
 .export parse_cbmdos_filename
-.import buffer, buffer_len
+.import buffer, buffer_len, buffer_overflow
 .import set_status
 
 ; functions.s
@@ -27,16 +26,15 @@
 .code
 
 execute_command:
-	ldx #0
+:	ldx #0
 	ldy buffer_len
 	beq @rts ; empty
 
 	jsr parse_command
 	bcc :+
 	lda #$30 ; generic syntax error
-:	jsr set_status
+:	jmp set_status
 
-	stz buffer_len
 @rts:	rts
 
 .bss

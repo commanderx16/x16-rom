@@ -3,10 +3,10 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.export ciout_cmdch, set_status, acptr_status
+.export set_status, acptr_status
 
 ; parse.s
-.export buffer, buffer_len
+.export buffer, buffer_len, buffer_overflow
 
 ; zeropage.s
 .importzp krn_ptr1
@@ -14,17 +14,20 @@
 ; sdcard.s
 .import sdcard_init
 
-MAX_CMD_LEN = 40
 MAX_STATUS_LEN = 40
 
 .segment "cbdos_data"
 
+; buffer for filenames and commands
 buffer:
-	.res MAX_CMD_LEN, 0
+	.res 256, 0
+
 statusbuffer:
 	.res MAX_STATUS_LEN, 0
 
 buffer_len:
+	.byte 0
+buffer_overflow:
 	.byte 0
 
 status_r:
@@ -33,14 +36,6 @@ status_w:
 	.byte 0
 
 .segment "cbdos"
-
-ciout_cmdch:
-	ldx buffer_len
-	cpx #MAX_CMD_LEN
-	bcs :+ ; ignore characters on overflow
-	sta buffer,x
-	inc buffer_len
-:	rts
 
 ;---------------------------------------------------------------
 set_status_ok:
@@ -130,7 +125,7 @@ set_status:
 	lsr
 	lsr
 	ora #$30
-	sta statusbuffer + 4,x ; XXX Y
+	sta statusbuffer + 4,x
 	pla
 	and #$0f
 	ora #$30

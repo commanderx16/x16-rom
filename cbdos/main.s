@@ -12,7 +12,7 @@
 .importzp krn_ptr1, read_blkptr, bank_save
 
 ; cmdch.s
-.import ciout_cmdch, execute_command, set_status, acptr_status
+.import execute_command, set_status, acptr_status
 
 ; dir.s
 .import open_dir, acptr_dir
@@ -25,9 +25,7 @@
 
 ; parser.s
 .import parse_cbmdos_filename, create_unix_path, unix_path, buffer, overwrite_flag
-.import file_mode
-fnbuffer = buffer
-MAX_FILENAME_LEN = 40 ; XXX update
+.import file_mode, buffer_len, buffer_overflow
 
 ; functions.s
 .import medium, soft_check_medium_a
@@ -77,8 +75,6 @@ listen_cmd:
 channel:
 	.byte 0
 is_receiving_filename:
-	.byte 0
-fnbuffer_w:
 	.byte 0
 
 next_byte_for_channel:
@@ -211,7 +207,6 @@ cbdos_secnd:
 	cmp #15
 	beq @secnd_rts
 
-@xxx2:
 	stz is_receiving_filename
 
 	lda listen_cmd
@@ -241,7 +236,7 @@ cbdos_secnd:
 ; Initiate OPEN
 @secnd_open:
 	inc is_receiving_filename
-	stz fnbuffer_w
+	stz buffer_len
 
 @secnd_rts:
 	ply
@@ -261,10 +256,10 @@ cbdos_ciout:
 
 	ldx channel
 	cpx #15
-	beq @ciout_cmdch
+	beq @ciout_buffer
 
 	ldx is_receiving_filename
-	bne @ciout_filename
+	bne @ciout_buffer
 
 	; ignore if channel is not for writing
 	ldx channel
@@ -272,7 +267,6 @@ cbdos_ciout:
 	bpl @ciout_end
 
 ; write to file
-@xxx1:
 	pha
 	jsr fat32_write_byte
 	pla
@@ -285,16 +279,13 @@ cbdos_ciout:
 	sta ieee_status
 	bra @ciout_end
 
-@ciout_filename:
-	ldx fnbuffer_w
-	cpx #MAX_FILENAME_LEN
-	bcs @ciout_end ; ignore characters on overflow
-	sta fnbuffer,x
-	inc fnbuffer_w
-	bra @ciout_end
-
-@ciout_cmdch:
-	jsr ciout_cmdch
+@ciout_buffer:
+	ldx buffer_len
+	sta buffer,x
+	inc buffer_len
+	bne :+
+	inc buffer_overflow
+:
 
 @ciout_end:
 	clc
@@ -311,6 +302,13 @@ cbdos_unlsn:
 	phx
 	phy
 
+	lda buffer_overflow
+	beq :+
+	lda #$32
+	jsr set_status
+	bra @unlsn_end
+:
+
 ; special-case command channel
 	lda channel
 	cmp #$0f
@@ -322,14 +320,14 @@ cbdos_unlsn:
 
 ;---------------------------------------------------------------
 ; Execute OPEN with filename
-; XXX only on channel 0!
-	lda fnbuffer
+	; XXX '$' only on channel 0!
+	lda buffer
 	cmp #'$'
 	bne @unlsn_open_file
 
 ;---------------------------------------------------------------
 ; OPEN directory
-	lda fnbuffer_w ; filename length
+	lda buffer_len ; filename length
 	jsr open_dir
 	bcc @open_ok
 
@@ -360,6 +358,9 @@ cbdos_unlsn:
 	jsr execute_command
 
 @unlsn_end:
+	stz buffer_len
+	stz buffer_overflow
+
 	ply
 	plx
 	BANKING_END
@@ -498,7 +499,7 @@ open_file:
 	jsr fat32_set_context
 
 	ldx #0
-	ldy fnbuffer_w
+	ldy buffer_len
 	jsr parse_cbmdos_filename
 	bcc :+
 	lda #$30 ; syntax error
@@ -531,7 +532,8 @@ open_file:
 	bra @open_read
 
 @open_append:
-	; TODO
+	; TODO: This is blocked on the implementation of fat32_seek
+	;       or fat32_open with an "append" option.
 	lda #$31
 	bra @open_file_err
 
