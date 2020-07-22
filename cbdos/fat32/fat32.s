@@ -770,19 +770,34 @@ find_dirent:
 	ldy name_offset
 @1:	lda (fat32_ptr), y
 	beq @match
+	cmp #'?'
+	beq @char_match
+	cmp #'*'
+	beq @asterisk
 	cmp #'/'
 	beq @match
 	jsr to_upper
 	cmp fat32_dirent + dirent::name, x
 	bne @next
+@char_match:
 	inx
 	iny
 	bra @1
+
+; '*' found: consume excess characters in input until '/' or end
+@asterisk:
+	iny
+	lda (fat32_ptr), y
+	beq @match2
+	cmp #'/'
+	bne @asterisk
+	bra @match2
 
 @match:	; Search string also at end?
 	lda fat32_dirent + dirent::name, x
 	bne @next
 
+@match2:
 	; Check for '/'
 	lda (fat32_ptr), y
 	cmp #'/'
