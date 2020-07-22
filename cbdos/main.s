@@ -25,6 +25,7 @@
 
 ; parser.s
 .import parse_cbmdos_filename, create_unix_path, unix_path, buffer, overwrite_flag
+.import find_wildcards
 .import file_mode, buffer_len, buffer_overflow
 .import r1s, r1e
 
@@ -509,15 +510,15 @@ open_file:
 	jsr soft_check_medium_a
 	bcc :+
 	lda #$74 ; drive not ready
-	bra @open_file_err
+	jmp @open_file_err
 :
 	lda r1s
 	cmp r1e
 	bne :+
 	lda #$34 ; syntax error (empty filename)
 	bra @open_file_err
-
-:	ldy #0
+:
+	ldy #0
 	jsr create_unix_path
 	lda #<unix_path
 	sta fat32_ptr + 0
@@ -545,9 +546,13 @@ open_file:
 	lda #$31
 	bra @open_file_err
 
-@open_write:
 	; open for writing
-	lda overwrite_flag
+@open_write:
+	jsr find_wildcards
+	bcc :+
+	lda #$33; syntax error (wildcards)
+	bra @open_file_err
+:	lda overwrite_flag
 	bne @open_create
 	jsr fat32_find_dirent
 	bcc @open_create

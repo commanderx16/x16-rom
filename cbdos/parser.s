@@ -3,9 +3,6 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-; TODO
-; * Detect wildcards in commands that don't them and return error 33.
-
 .setcpu "65c02"
 
 .include "functions.inc"
@@ -21,6 +18,7 @@
 
 ; main.s
 .export overwrite_flag
+.export find_wildcards
 
 .code
 
@@ -484,6 +482,36 @@ create_unix_path_b:
 	iny
 	rts
 
+;---------------------------------------------------------------
+; find_wildcards
+;
+; Checks whether there are any wildcards in the filename.
+;
+; In:   r1         CBMDOS name
+;
+; Out:
+;---------------------------------------------------------------
+find_wildcards:
+	ldx r1s
+@loop:
+	cpx r1e
+	beq @not_found
+	lda buffer,x
+	cmp #'*'
+	beq @found
+	cmp #'?'
+	beq @found
+	inx
+	bra @loop
+
+@found:
+	sec
+	rts
+
+@not_found:
+	clc
+	rts
+
 ;***************************************************************
 ; FILE NAMES
 ;***************************************************************
@@ -925,6 +953,9 @@ cmd_n:
 	jsr parse_path ; path is ignored, we only care about the "file" part
 	bcs @error
 
+	jsr find_wildcards
+	bcs @error_wildcards
+
 	; split into NAME and ID[,FMT]
 	ldx r1s
 	stx r0s
@@ -958,6 +989,11 @@ cmd_n:
 @error:	sec
 	rts
 
+@error_wildcards:
+	lda #$33; syntax error (wildcards)
+	clc
+	rts
+
 ;---------------------------------------------------------------
 ; R - rename
 ;---------------------------------------------------------------
@@ -978,6 +1014,10 @@ cmd_rename:
 	; parse new file and store it in medium1/r2/r3
 	jsr get_path_and_name
 	jsr remove_options_r1
+
+	jsr find_wildcards
+	bcs @error_wildcards
+
 	lda r0s
 	sta r2s
 	lda r0e
@@ -1011,6 +1051,13 @@ cmd_rename:
 	rts
 @error:
 	lda #$34 ; syntax error (empty filename)
+	clc
+	rts
+
+@error_wildcards:
+	pla
+	pla
+	lda #$33; syntax error (wildcards)
 	clc
 	rts
 
@@ -1093,10 +1140,19 @@ cmd_scratch:
 cmd_md:
 	jsr consume_get_path_and_name_remove_options
 	bcs @error
+
+	jsr find_wildcards
+	bcs @error_wildcards
+
 	jsr make_directory
 	clc
 	rts
 @error:	sec
+	rts
+
+@error_wildcards:
+	lda #$33; syntax error (wildcards)
+	clc
 	rts
 
 ;---------------------------------------------------------------
@@ -1129,10 +1185,19 @@ cmd_cd:
 cmd_rh:
 	jsr consume_get_path_and_name_remove_options
 	bcs @error
+
+	jsr find_wildcards
+	bcs @error_wildcards
+
 	jsr rename_header
 	clc
 	rts
 @error:	sec
+	rts
+
+@error_wildcards:
+	lda #$33; syntax error (wildcards)
+	clc
 	rts
 
 ;---------------------------------------------------------------
@@ -1144,6 +1209,10 @@ cmd_rp:
 	sec
 	jsr split
 	bcs @error
+
+	jsr find_wildcards
+	bcs @error_wildcards
+
 	lda r1s
 	sta r0s
 	lda r1e
@@ -1153,13 +1222,35 @@ cmd_rp:
 	lda #'='
 	sec
 	jsr split
-	bcs @error
+	bcs @error_missing
+
+	jsr find_wildcards
+	bcs @error_wildcards
+
 	jsr remove_options_r0
 	jsr remove_options_r1
+
+	lda r0s
+	cmp r0e
+	beq @error_missing
+	lda r1s
+	cmp r1e
+	beq @error_missing
+
 	jsr rename_partition
 	clc
 	rts
 @error:	sec
+	rts
+
+@error_wildcards:
+	lda #$33; syntax error (wildcards)
+	clc
+	rts
+
+@error_missing:
+	lda #$34 ; syntax error (empty filename)
+	clc
 	rts
 
 ;---------------------------------------------------------------
@@ -1247,6 +1338,12 @@ cmd_copy:
 
 	; parse new file and store it in medium1/r2/r3
 	jsr get_path_and_name
+
+	jsr find_wildcards
+	bcc :+
+	jmp @error_wildcards
+:
+
 	lda r0s
 	sta r2s
 	lda r0e
@@ -1335,6 +1432,13 @@ cmd_copy:
 	clc
 	rts
 
+@error_wildcards:
+	pla
+	pla
+	lda #$33; syntax error (wildcards)
+	clc
+	rts
+
 
 ;---------------------------------------------------------------
 ; D - duplicate
@@ -1398,11 +1502,20 @@ cmd_fr:
 	; TODO: support a list of files
 	jsr consume_get_path_and_name_remove_options
 	bcs @error
+
+	jsr find_wildcards
+	bcs @error_wildcards
+
 	; TODO: empty filename: error 34
 	jsr file_restore
 	clc
 	rts
 @error:	sec
+	rts
+
+@error_wildcards:
+	lda #$33; syntax error (wildcards)
+	clc
 	rts
 
 ;---------------------------------------------------------------
