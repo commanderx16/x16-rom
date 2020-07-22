@@ -53,6 +53,8 @@ context_src:
 	.byte 0
 context_dst:
 	.byte 0
+scratch_counter:
+	.byte 0
 
 .code
 
@@ -178,18 +180,18 @@ new:
 scratch:
 	jsr check_medium
 
+	stz scratch_counter
+
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
+@loop:
 	jsr fat32_delete
-	bcc @error
+	bcc @end
+	inc scratch_counter
+	bra @loop
+@end:
 	FAT32_CONTEXT_END
-	lda #0
-	ldx #1
-	rts
-@error:
-	FAT32_CONTEXT_END
-	lda #0
-	tax
+	ldx scratch_counter
 	rts
 
 ;---------------------------------------------------------------
