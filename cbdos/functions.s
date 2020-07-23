@@ -79,7 +79,6 @@ create_fat32_path_x2:
 ;---------------------------------------------------------------
 check_medium:
 	lda medium
-check_medium_a:
 	jsr soft_check_medium_a
 	bcc :+
 	pla
@@ -418,55 +417,56 @@ change_unit:
 	rts
 
 ;---------------------------------------------------------------
-; copy
+; copy_start
+;
+; Open destination file for writing.
 ;
 ; TODO:
-; * error handling
 ; * create mode: fail if file exists
-; * support append mode
 ;
-; In:   a              =0:  create
-;                      !=0: append
-;       medium/r0/r1   source
-;       medium1/r2/r3  destination
+; In:   medium/r0/r1   destination
 ;---------------------------------------------------------------
-copy:
+copy_start:
 	jsr check_medium
-	lda medium1
-	jsr check_medium_a
 
-	jsr create_fat32_path_x2
-	lda fat32_ptr2
-	pha
-	lda fat32_ptr2 + 1
-	pha
-
-	jsr fat32_alloc_context ; XXX error handling
+	jsr fat32_alloc_context
+	bcc @error_70
 	sta context_dst
-	jsr fat32_alloc_context ; XXX error handling
-	sta context_src
-
-	; open source
-	jsr fat32_set_context
-	jsr fat32_open
-	bcc @error2
-
-	; create destination
-	lda context_dst
 	jsr fat32_set_context
 
-	pla
-	sta fat32_ptr + 1
-	pla
-	sta fat32_ptr
+	jsr create_fat32_path
 	jsr fat32_create
-	bcc @error
+	bcc @error_errno
 
-@loop:
+	lda #0
+	rts
+
+@error_70:
+	lda #$70
+	rts
+
+@error_errno:
+	jmp convert_errno_status
+
+;---------------------------------------------------------------
+copy_do:
+	jsr check_medium
+
+	jsr fat32_alloc_context
+	bcc @error_70
+	sta context_src
+	jsr fat32_set_context
+	bcc @error_errno
+
+	jsr create_fat32_path
+	jsr fat32_open
+	bcc @error_errno
+
+@cloop:
+	; read
 	lda context_src
 	jsr fat32_set_context
-	bcc @error
-
+	bcc @error_errno
 	lda #<unix_path
 	sta fat32_ptr
 	lda #>unix_path
@@ -475,55 +475,80 @@ copy:
 	lda #1
 	sta fat32_size + 1
 	jsr fat32_read
-	bcc @error
+	bcs :+
+	lda fat32_errno
+	bne @error_errno
 
-	lda fat32_size
+:	lda fat32_size
 	ora fat32_size + 1
 	beq @done
 
+	; write
 	lda context_dst
 	jsr fat32_set_context
-	bcc @error
-
+	bcc @error_errno
 	lda #<unix_path
 	sta fat32_ptr
 	lda #>unix_path
 	sta fat32_ptr + 1
 	jsr fat32_write
-	bcc @error
+	bcc @error_errno
 
-	bra @loop
+	bra @cloop
 
 @done:
+	; close source
 	lda context_src
 	jsr fat32_set_context
-	bcc @error
+	bcc @error_errno
 	jsr fat32_close
-	bcc @error
-
-	lda context_dst
-	jsr fat32_set_context
-	bcc @error
-	jsr fat32_close
-	bcc @error
+	bcc @error_errno
+	lda context_src
+	jsr fat32_free_context
 
 	lda #0
 	rts
 
-@error2:
-	pla
-	pla
-@error:
+@error_70:
+	lda #$70
+	rts
 
+@error_errno:
+	jsr convert_errno_status
+	pha
 	lda context_src
 	jsr fat32_set_context
 	jsr fat32_close
+	lda context_src
+	jsr fat32_free_context
+	pla
+	rts
 
+;---------------------------------------------------------------
+copy_end:
 	lda context_dst
 	jsr fat32_set_context
+	bcs @1
+
+	jsr convert_errno_status
+	pha
 	jsr fat32_close
+	lda context_dst
+	jsr fat32_free_context
+	pla
+	rts
+
+@1:	jsr fat32_close
+	php
+	lda context_dst
+	jsr fat32_free_context
+	plp
+	bcs @2
 
 	jmp convert_errno_status
+
+@2:	lda #0
+	rts
 
 ;---------------------------------------------------------------
 ; copy_all

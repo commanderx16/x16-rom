@@ -239,6 +239,8 @@ copy_chars:
 ;
 ; Out:  r0   characters before delimiter
 ;       r1   characters after delimiter
+;       c     =0: delimiter found
+;             =1: delimiter not found
 ;---------------------------------------------------------------
 split:
 	ldx r0s
@@ -1312,22 +1314,19 @@ cmd_copy:
 	lda #':'
 	jsr search_char
 	bcc @copy_file
-	jmp @copy_all
+	jmp cmd_copy_all
 
 @copy_file:
-@append_flag = ctmp0
-@loop_counter = ctmp1
+@loop_counter = ctmp0
 	; file copy
 	jsr consume_cmd
-
-	stz @append_flag
 
 	; split into target and sources
 	lda #'='
 	sec
 	jsr split
 	bcc :+
-	jmp @error ; no '=' -> missing filename
+	jmp @error_empty ; no '=' -> missing filename
 :
 	; r0 is left string, r1 is right string
 
@@ -1336,71 +1335,58 @@ cmd_copy:
 	lda r1e
 	pha
 
-	; parse new file and store it in medium1/r2/r3
+	; parse target file name
 	jsr get_path_and_name
-
 	jsr find_wildcards
 	bcc :+
-	jmp @error_wildcards
-:
+	jmp @error_ill_name_pop2
+:	lda r1s
+	cmp r1e
+	beq @error_empty_pop2 ; empty new name
 
-	lda r0s
-	sta r2s
-	lda r0e
-	sta r2e
-	lda r1s
-	sta r3s
-	lda r1e
-	sta r3e
-	lda medium
-	sta medium1
+	; open target for writing
+	jsr copy_start
 
 	pla
 	sta r0e
 	pla
 	sta r0s
 
-	lda r3s
-	cmp r3e
-	beq @error ; empty new name
-
 	stz @loop_counter
 
 @loop:
 	lda r0s
 	cmp r0e
-	bne :+
+	bne @1
 
+	; empty/end?
 	lda @loop_counter
-	beq @error
+	beq @error_empty
 	bra @end
 
-:	inc @loop_counter
+@1:	inc @loop_counter
 
 	; split into current source and rest
 	lda #','
 	sec
 	jsr split
 
+	; remember rest
 	lda r1s
 	pha
 	lda r1e
 	pha
 
-	; parse old file and store it in medium/r0/r1
+	; parse source file name
 	jsr get_path_and_name
-
 	lda r1s
 	cmp r1e
-	beq @error2 ; empty new name
+	beq @error_empty_pop2 ; empty new name
 
-	lda @append_flag
-	jsr copy
+	; copy into open file
+	jsr copy_do
 	cmp #0
-	bne @end_err
-
-	inc @append_flag
-
+	bne @error_copy
 	pla
 	sta r0e
 	pla
@@ -1408,37 +1394,48 @@ cmd_copy:
 	bra @loop
 
 @end:
+	jsr copy_end
 	lda #0
-@end_err:
 	clc
 	rts
 
-@copy_all:
-	inc r0s
-
-	jsr get_src_dst_numbers
-	bcs @error
-
-	jsr copy_all
-	clc
-	rts
-
-@error2:
+@error_empty_pop2:
 	pla
 	pla
 
-@error:
+@error_empty:
 	lda #$34 ; syntax error (empty filename)
 	clc
 	rts
 
-@error_wildcards:
+@error_ill_name_pop2:
 	pla
 	pla
 	lda #$33; syntax error (wildcards)
 	clc
 	rts
 
+@error_copy:
+	plx
+	plx
+	pha
+	jsr copy_end
+	pla
+	clc
+	rts
+
+;---------------------------------------------------------------
+cmd_copy_all:
+	inc r0s
+
+	jsr get_src_dst_numbers
+	bcc @1
+	lda #$34 ; syntax error (empty filename)
+	clc
+	rts
+@1:	jsr copy_all
+	clc
+	rts
 
 ;---------------------------------------------------------------
 ; D - duplicate

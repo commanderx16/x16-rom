@@ -242,37 +242,50 @@ read_dir_entry:
 	; find out how many spaces to print
 	lda num_blocks
 	sec
+	sbc #<10000
+	lda num_blocks + 1
+	sbc #>10000
+	bcc @ngt_10000
+	lda #'T' - $40
+	jsr storedir
+	bra @gt_1000
+
+@ngt_10000:
+	lda num_blocks
+	sec
 	sbc #<1000
 	lda num_blocks + 1
 	sbc #>1000
 	bcs @gt_1000
+
 	lda num_blocks
 	sec
 	sbc #<100
 	lda num_blocks + 1
 	sbc #>100
 	bcs @gt_100
+
 	lda num_blocks
 	sec
 	sbc #<10
 	lda num_blocks + 1
 	sbc #>10
 	bcs @gt_10
-	ldx #3
-	bra :+
-@gt_10:
+
 	ldx #2
 	bra :+
-@gt_100:
+@gt_10:
 	ldx #1
 	bra :+
-@gt_1000:
+@gt_100:
 	ldx #0
 :	lda #' '
 :	jsr storedir
 	dex
 	bpl :-
+@gt_1000:
 
+;@gt_10000:
 	lda #$22
 	jsr storedir
 

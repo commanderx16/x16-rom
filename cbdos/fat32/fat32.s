@@ -1113,6 +1113,8 @@ fat32_init:
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
+; TODO: even in the error case, the context must always been set, otherwise
+; we are stuck.
 fat32_set_context:
 	stz fat32_errno
 
@@ -1914,6 +1916,7 @@ fat32_read:
 	; No sectors left (this shouldn't happen with a correct file size)
 	lda #ERRNO_FS_INCONSISTENT
 	jsr set_errno
+	sec
 	jmp @done
 @2:	lda #2
 	sta bytecnt + 1

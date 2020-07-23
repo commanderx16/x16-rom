@@ -11,7 +11,9 @@
 .global rename_header
 .global rename_partition
 .global change_unit
-.global copy
+.global copy_start
+.global copy_do
+.global copy_end
 .global copy_all
 .global duplicate
 .global file_lock
