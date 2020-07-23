@@ -32,6 +32,7 @@ ERRNO_FILE_EXISTS      = 3
 ERRNO_FILE_NOT_FOUND   = 4
 ERRNO_DIR_NOT_EMPTY    = 5
 ERRNO_NO_MEDIA         = 6
+ERRNO_FS_INCONSISTENT  = 7
 
 ;-----------------------------------------------------------------------------
 ; Register bits

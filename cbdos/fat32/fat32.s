@@ -99,7 +99,7 @@ _fat32_bss_end:
 ; one is useful.
 ;-----------------------------------------------------------------------------
 set_errno:
-	sec
+	clc
 	pha
 	lda fat32_errno
 	bne @1
@@ -1830,7 +1830,8 @@ fat32_close:
 ;-----------------------------------------------------------------------------
 ; error_clear_context
 ;
-; Call this instead of fat32_close if there has been an error.
+; Call this instead of fat32_close if there has been an error to avoid cached
+; writes and possible further inconsistencies.
 ;-----------------------------------------------------------------------------
 error_clear_context:
 	clear_bytes cur_context, .sizeof(context)
@@ -1839,6 +1840,8 @@ error_clear_context:
 
 ;-----------------------------------------------------------------------------
 ; fat32_read_byte
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_read_byte:
 	stz fat32_errno
@@ -1871,6 +1874,8 @@ fat32_read_byte:
 ; fat32_size (16-bit): size of data to read
 ;
 ; On return fat32_size reflects the number of bytes actually read
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_read:
 	stz fat32_errno
@@ -1902,7 +1907,10 @@ fat32_read:
 	lda #0
 	jsr next_sector
 	bcs @2
-	jmp @done	; No sectors left (this shouldn't happen with a correct file size)
+	; No sectors left (this shouldn't happen with a correct file size)
+	lda #ERRNO_FS_INCONSISTENT
+	jsr set_errno
+	jmp @done
 @2:	lda #2
 	sta bytecnt + 1
 
@@ -2031,6 +2039,8 @@ write__end_of_buffer:
 
 ;-----------------------------------------------------------------------------
 ; fat32_write_byte
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_write_byte:
 	stz fat32_errno
@@ -2083,6 +2093,8 @@ fat32_write_byte:
 ;
 ; fat32_ptr          : pointer to data to write
 ; fat32_size (16-bit): size of data to write
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_write:
 	stz fat32_errno
@@ -2190,6 +2202,8 @@ fat32_get_free_space:
 
 ;-----------------------------------------------------------------------------
 ; fat32_next_sector
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_next_sector:
 	stz fat32_errno
