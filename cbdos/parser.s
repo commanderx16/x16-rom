@@ -28,9 +28,13 @@ execute_command:
 	beq @rts ; empty
 
 	jsr parse_command
-	bcc :+
+	bcc @1
 	lda #$30 ; generic syntax error
-:	jmp set_status
+	jmp set_status
+
+@1:	cmp #$ff ; command has already put data into the status buffer
+	beq @rts
+	jmp set_status
 
 @rts:	rts
 
@@ -1601,8 +1605,11 @@ cmd_gd:
 ; M-R - memory read
 ;---------------------------------------------------------------
 cmd_mr:
-	; TODO
-	lda #$31
+	ldx buffer+3
+	ldy buffer+4
+	lda buffer+5
+	jsr memory_read
+	lda #$ff ; don't set status
 	clc
 	rts
 
@@ -1610,8 +1617,10 @@ cmd_mr:
 ; M-W - memory write
 ;---------------------------------------------------------------
 cmd_mw:
-	; TODO
-	lda #$31
+	ldx #<(buffer+3)
+	ldy #>(buffer+3)
+	jsr memory_write
+	lda #0
 	clc
 	rts
 
@@ -1619,8 +1628,10 @@ cmd_mw:
 ; M-E - memory exectue
 ;---------------------------------------------------------------
 cmd_me:
-	; TODO
-	lda #$31
+	ldx buffer+3
+	ldy buffer+4
+	jsr memory_execute
+	lda #0
 	clc
 	rts
 

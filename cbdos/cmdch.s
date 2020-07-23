@@ -14,6 +14,9 @@
 ; sdcard.s
 .import sdcard_init
 
+; functions.s
+.export statusbuffer, status_w, status_r
+
 MAX_STATUS_LEN = 40
 
 .segment "cbdos_data"

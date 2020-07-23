@@ -20,6 +20,9 @@
 .global file_lock_toggle
 .global file_unlock
 .global file_restore
+.global memory_read
+.global memory_write
+.global memory_execute
 .global set_sector_interleave
 .global set_retries
 .global test_rom_checksum

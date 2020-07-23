@@ -18,6 +18,9 @@
 .export soft_check_medium_a
 .import convert_errno_status
 
+; cmdch.s
+.import statusbuffer, status_w, status_r
+
 .export create_fat32_path_only_dir, create_fat32_path_only_name
 
 .import buffer
@@ -726,8 +729,83 @@ file_restore:
 	rts
 
 ;---------------------------------------------------------------
-; set_sector_interleave
+; memory_read
+;
+; In:   x/y  address
+;       a    number of bytes
+;---------------------------------------------------------------
+memory_read:
+	stx fat32_ptr
+	sty fat32_ptr + 1
+	sta status_w
 
+	ldy #0
+@1:	lda (fat32_ptr),y
+	sta statusbuffer,y
+	iny
+	cpy status_w
+	bne @1
+
+	stz status_r
+	lda #0
+	rts
+
+;---------------------------------------------------------------
+; memory_write
+;
+; In:   x/y  structure that contains
+;              offset 0   address low
+;              offset 1   address hi
+;              offset 2   number of bytes
+;              offset 3+  data
+;---------------------------------------------------------------
+memory_write:
+	stx fat32_ptr
+	sty fat32_ptr + 1
+
+	ldy #0
+	lda (fat32_ptr),y
+	sta fat32_ptr2
+	iny
+	lda (fat32_ptr),y
+	sta fat32_ptr2 + 1
+	iny
+	lda (fat32_ptr),y
+	sta tmp0
+
+	lda fat32_ptr
+	clc
+	adc #3
+	sta fat32_ptr
+	lda fat32_ptr + 1
+	adc #0
+	sta fat32_ptr + 1
+
+	ldy #0
+@1:	lda (fat32_ptr),y
+	sta (fat32_ptr2),y
+	iny
+	cpy tmp0
+	bne @1
+
+	lda #0
+	rts
+
+;---------------------------------------------------------------
+; memory_execute
+;
+; In:   x/y  address
+;---------------------------------------------------------------
+memory_execute:
+	lda #$4c
+	sta fat32_size
+	stx fat32_size + 1
+	sty fat32_size + 2
+	jmp fat32_size
+
+;---------------------------------------------------------------
+; set_sector_interleave
+;
 ; In:   a  sector interleave
 ;---------------------------------------------------------------
 set_sector_interleave:
