@@ -1126,6 +1126,7 @@ fat32_set_context:
 
 	; Save dirty sector
 	jsr sync_sector_buffer
+	bcc @error
 
 	; Put zero page variables in current context
 	set16 cur_context + context::bufptr, fat32_bufptr
@@ -1369,6 +1370,10 @@ fat32_read_dirent:
 
 ;-----------------------------------------------------------------------------
 ; fat32_read_dirent_filtered
+;
+; Only returns dirents that match the name in (fat32_ptr)
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_read_dirent_filtered:
 	stz fat32_errno
@@ -1388,8 +1393,11 @@ fat32_read_dirent_filtered:
 @error:
 	clc
 	rts
+
 ;-----------------------------------------------------------------------------
 ; fat32_chdir
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_chdir:
 	stz fat32_errno
@@ -1520,7 +1528,9 @@ fat32_rmdir:
 @3:	lda fat32_dirent + dirent::name
 	cmp #'.'	; Allow for dot-entries
 	beq @next
-	bra @error
+	lda #ERRNO_DIR_NOT_EMPTY
+	jmp set_errno
+
 @done:
 	; Find directory
 	jsr find_dir
