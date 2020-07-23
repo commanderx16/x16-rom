@@ -729,6 +729,87 @@ file_restore:
 	rts
 
 ;---------------------------------------------------------------
+; get_partition
+;
+; In:   a    partition number (0 = "system"; 255 = current)
+;---------------------------------------------------------------
+get_partition:
+	cmp #255
+	beq :+
+	jsr soft_check_medium_a
+	bcc :+
+	lda #$74
+	rts
+:
+
+	lda #30
+	sta status_w
+	stz status_r
+
+	; The CMD specification uses 3 bytes for the
+	; start LBA and the size, allowing for disks
+	; up to 8 GB. We are extending this to 4 bytes,
+	; for disks up to 2 TB.
+	;
+	; For this, the extra 8 bits are stored at offsets:
+	; * 18 - start LBA: this used to be last (16th)
+	;        character of the partition name
+	; * 25 - size: this used to be reserved
+
+	ldx #0
+	lda partition_type  ;     0 -     partition type (same as MBR type)
+	sta statusbuffer,x
+	lda #$00 ;                1 -     reserved (0)
+	sta statusbuffer+1,x
+	lda #$01 ;                2 -     partition number
+	sta statusbuffer+2,x
+	lda #'F' ;                3 - 17  partition name
+	sta statusbuffer+3,x
+	lda #'A'
+	sta statusbuffer+4,x
+	lda #'T'
+	sta statusbuffer+5,x
+	lda #'3'
+	sta statusbuffer+6,x
+	lda #'2'
+	sta statusbuffer+7,x
+	lda #$a0 ; terminator
+	sta statusbuffer+8,x
+	sta statusbuffer+9,x
+	sta statusbuffer+10,x
+	sta statusbuffer+11,x
+	sta statusbuffer+12,x
+	sta statusbuffer+13,x
+	sta statusbuffer+14,x
+	sta statusbuffer+15,x
+	sta statusbuffer+16,x
+	sta statusbuffer+17,x
+	lda lba_partition+3 ;    18 - 21  partition start LBA (big endian)
+	sta statusbuffer+18,x
+	lda lba_partition+2
+	sta statusbuffer+19,x
+	lda lba_partition+1
+	sta statusbuffer+20,x
+	lda lba_partition
+	sta statusbuffer+21,x
+	lda #$00 ;               22 - 25  reserved (0)
+	sta statusbuffer+22,x
+	sta statusbuffer+23,x
+	sta statusbuffer+24,x
+	sta statusbuffer+25,x
+	lda partition_blocks+3 ; 26 - 29  partition size (in 512 byte blocks)
+	sta statusbuffer+26,x
+	lda partition_blocks+2
+	sta statusbuffer+27,x
+	lda partition_blocks+1
+	sta statusbuffer+28,x
+	lda partition_blocks
+	sta statusbuffer+29,x
+
+	lda #0
+	rts
+
+;---------------------------------------------------------------
 ; memory_read
 ;
 ; In:   x/y  address

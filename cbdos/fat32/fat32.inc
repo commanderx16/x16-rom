@@ -43,6 +43,10 @@
 .global sync_sector_buffer
 .global fat32_errno
 
+.global lba_partition
+.global partition_type
+.global partition_blocks
+
 ; TODO:
 ; fat32_seek
 

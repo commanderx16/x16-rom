@@ -48,6 +48,8 @@ rootdir_cluster:     .dword 0      ; Cluster of root directory
 sectors_per_cluster: .byte 0       ; Sectors per cluster
 cluster_shift:       .byte 0       ; Log2 of sectors_per_cluster
 lba_partition:       .dword 0      ; Start sector of FAT32 partition
+partition_type:      .byte 0       ; MBR Partition type
+partition_blocks:    .dword 0      ; Number of blocks in partition
 fat_size:            .dword 0      ; Size in sectors of each FAT table
 lba_fat:             .dword 0      ; Start sector of first FAT table
 lba_data:            .dword 0      ; Start sector of first data cluster
@@ -1032,6 +1034,7 @@ fat32_init:
 
 @2a:	; Check partition type of first partition
 	lda sector_buffer + $1BE + 4
+	sta partition_type
 	cmp #$0B
 	beq @3
 	cmp #$0C
@@ -1042,6 +1045,7 @@ fat32_init:
 @3:
 	; Get LBA of first partition
 	set32 lba_partition, sector_buffer + $1BE + 8
+	set32 partition_blocks, sector_buffer + $1BE + 12
 
 	; Read first sector of partition
 	set32 cur_context + context::lba, lba_partition

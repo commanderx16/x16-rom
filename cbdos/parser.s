@@ -721,10 +721,7 @@ cmd_g:
 	ldx r0s
 	inx
 	lda buffer,x
-	cmp #'P'
-	bne :+
-	jmp cmd_gp
-:	cmp #'-'
+	cmp #'-'
 	beq @minus
 	lda #$31 ; syntax error: unknown command
 	clc
@@ -732,6 +729,10 @@ cmd_g:
 @minus:
 	inx
 	lda buffer,x
+	cmp #'P'
+	bne :+
+	jmp cmd_gp
+:	lda buffer,x
 	cmp #'D'
 	bne :+
 	jmp cmd_gd
@@ -1587,9 +1588,19 @@ cmd_u0:
 ; GP - get partition [CMD]
 ;---------------------------------------------------------------
 cmd_gp:
-	; TODO
-	lda #$31
-	clc
+	lda #$ff
+
+	ldx buffer_len
+	cpx #4
+	bcc @1
+	lda buffer+3
+
+@1:	jsr get_partition
+	cmp #0
+	bne :+
+
+	lda #$ff ; don't set status
+:	clc
 	rts
 
 ;---------------------------------------------------------------
