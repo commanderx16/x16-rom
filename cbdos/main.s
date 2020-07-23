@@ -139,8 +139,8 @@ cbdos_init:
 	lda #$73
 	jsr set_status
 
+	; TODO error handling
 	jsr fat32_init
-	; XXX error
 
 	ply
 	plx
@@ -627,15 +627,17 @@ set_errno_status:
 	jmp set_status
 
 status_from_errno:
-	.byte $00 ; ERRNO_OK               = 0 -> OK
-	.byte $20 ; ERRNO_READ             = 1 -> READ ERROR
-	.byte $25 ; ERRNO_WRITE            = 2 -> WRITE ERROR
-	.byte $33 ; ERRNO_ILLEGAL_FILENAME = 3 -> SYNTAX ERROR
-	.byte $63 ; ERRNO_FILE_EXISTS      = 4 -> FILE EXISTS
-	.byte $62 ; ERRNO_FILE_NOT_FOUND   = 5 -> FILE NOT FOUND
-	.byte $63 ; ERRNO_DIR_NOT_EMPTY    = 6 -> FILE EXISTS (XXX)
-	.byte $74 ; ERRNO_NO_MEDIA         = 7 -> DRIVE NOT READY
-	.byte $71 ; ERRNO_FS_INCONSISTENT  = 8 -> DIRECTORY ERROR
+	.byte $00 ; ERRNO_OK               = 0  -> OK
+	.byte $20 ; ERRNO_READ             = 1  -> READ ERROR
+	.byte $25 ; ERRNO_WRITE            = 2  -> WRITE ERROR
+	.byte $33 ; ERRNO_ILLEGAL_FILENAME = 3  -> SYNTAX ERROR
+	.byte $63 ; ERRNO_FILE_EXISTS      = 4  -> FILE EXISTS
+	.byte $62 ; ERRNO_FILE_NOT_FOUND   = 5  -> FILE NOT FOUND
+	.byte $63 ; ERRNO_DIR_NOT_EMPTY    = 6  -> FILE EXISTS (XXX)
+	.byte $74 ; ERRNO_NO_MEDIA         = 7  -> DRIVE NOT READY
+	.byte $74 ; ERRNO_NO_FS            = 8  -> DRIVE NOT READY
+	.byte $71 ; ERRNO_FS_INCONSISTENT  = 9  -> DIRECTORY ERROR
+	.byte $26 ; ERRNO_WRITE_PROTECT_ON = 10 -> WRITE PROTECT ON
 
 .segment "IRQB"
 	.word banked_irq

@@ -1016,16 +1016,19 @@ fat32_init:
 	; Read partition table (sector 0)
 	; cur_context::lba already 0
 	jsr load_sector_buffer
-	bcc @error
+	bcs @2a
+@error:	clc
+	rts
 
-	; Check partition type of first partition
+@2a:	; Check partition type of first partition
 	lda sector_buffer + $1BE + 4
 	cmp #$0B
 	beq @3
 	cmp #$0C
 	beq @3
-@error:	clc
-	rts
+	lda #ERRNO_NO_FS
+	jmp set_errno
+
 @3:
 	; Get LBA of first partition
 	set32 lba_partition, sector_buffer + $1BE + 8
@@ -1038,22 +1041,25 @@ fat32_init:
 	; Some sanity checks
 	lda sector_buffer + 510 ; Check signature
 	cmp #$55
-	bne @error
-	lda sector_buffer + 511
+	beq :+
+@fs_inconsistent:
+	lda #ERRNO_FS_INCONSISTENT
+	jmp set_errno
+:	lda sector_buffer + 511
 	cmp #$AA
-	bne @error
+	bne @fs_inconsistent
 	lda sector_buffer + 16 ; # of FATs should be 2
 	cmp #2
-	bne @error
+	bne @fs_inconsistent
 	lda sector_buffer + 17 ; Root entry count = 0 for FAT32
-	bne @error
+	bne @fs_inconsistent
 	lda sector_buffer + 18
-	bne @error
+	bne @fs_inconsistent
 
 	; Get sectors per cluster
 	lda sector_buffer + 13
 	sta sectors_per_cluster
-	beq @error
+	beq @fs_inconsistent
 
 	; Calculate shift amount based on sectors per cluster
 	; cluster_shift already 0
