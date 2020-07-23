@@ -93,10 +93,8 @@ _fat32_bss_end:
 ;-----------------------------------------------------------------------------
 ; set_errno
 ;
-; Only set errno if it wasn't already set. This is important, because e.g.
-; opening a file could cause a read error when looking up the directory entry,
-; so of the two errors "read error" and "file not found error", only the first
-; one is useful.
+; Only set errno if it wasn't already set.
+; If a read error causes a file not found error, it's still a read error.
 ;-----------------------------------------------------------------------------
 set_errno:
 	clc
