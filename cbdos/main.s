@@ -616,9 +616,13 @@ open_file:
 	rts
 
 ;---------------------------------------------------------------
-set_errno_status:
+convert_errno_status:
 	ldx fat32_errno
 	lda status_from_errno,x
+	rts
+
+set_errno_status:
+	jsr convert_errno_status
 	jmp set_status
 
 status_from_errno:
