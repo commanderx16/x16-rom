@@ -1480,6 +1480,44 @@ fat32_rename:
 	jmp save_sector_buffer
 
 ;-----------------------------------------------------------------------------
+; fat32_set_attribute
+;
+; A: File attribute
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_set_attribute:
+	stz fat32_errno
+
+	and #$ff-$10 ; clear directory bit
+	sta tmp_buf
+
+	; Check if context is free
+	lda cur_context + context::flags
+	beq @0
+@error:	clc
+	rts
+
+@0:
+	; Find file
+	jsr find_dirent
+	bcs @3
+	lda #ERRNO_FILE_NOT_FOUND
+	jmp set_errno
+
+@3:
+	; Set attribute
+	set16 fat32_bufptr, cur_context + context::dirent_bufptr
+	ldy #11
+	lda (fat32_bufptr), y
+	and #$10 ; preserve directory bit
+	ora tmp_buf
+	sta (fat32_bufptr), y
+
+	; Write sector buffer to disk
+	jmp save_sector_buffer
+
+;-----------------------------------------------------------------------------
 ; fat32_delete
 ;-----------------------------------------------------------------------------
 fat32_delete:

@@ -15,6 +15,9 @@
 ; main.s
 .import set_errno_status
 
+; functions.s
+.import create_fat32_path_only_dir, create_fat32_path_only_name
+
 .import create_unix_path
 .import unix_path
 .import soft_check_medium_a
@@ -72,27 +75,8 @@ open_dir:
 	jmp @open_dir_err
 :
 
-	; pass in just the path, not the name
-	ldx r0e
-	cpx r0s
-	beq @no_path
-	stz buffer,x
-	lda r0s
-	clc
-	adc #<buffer
-	sta fat32_ptr + 0
-	lda #>buffer
-	adc #0
-	sta fat32_ptr + 1
-	bra @nempty
+	jsr create_fat32_path_only_dir
 
-@no_path:
-	; current directory
-	lda #0
-	sta fat32_ptr
-	sta fat32_ptr + 1
-
-@nempty:
 	jsr fat32_open_dir
 	bcs :+
 	jsr set_errno_status
@@ -179,25 +163,9 @@ read_dir_entry:
 	rts
 
 @read_entry:
-	; pass in just the name, not the path
-	ldx r1e
-	cpx r1s
-	beq @no_name
-	stz buffer,x
-	lda r1s
-	clc
-	adc #<buffer
-	sta fat32_ptr + 0
-	lda #>buffer
-	adc #0
-	sta fat32_ptr + 1
-	bra @read_cont
 
-@no_name:
-	stz fat32_ptr
-	stz fat32_ptr + 1
+	jsr create_fat32_path_only_name
 
-@read_cont:
 	jsr fat32_read_dirent_filtered
 	bcs @found
 	lda fat32_errno

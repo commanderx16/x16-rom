@@ -18,6 +18,10 @@
 .export soft_check_medium_a
 .import convert_errno_status
 
+.export create_fat32_path_only_dir, create_fat32_path_only_name
+
+.import buffer
+
 .macro debug_print text
 	ldx #0
 :	lda @txt,x
@@ -45,11 +49,9 @@
 
 .bss
 
-context_src:
+tmp0:
 	.byte 0
 context_dst:
-	.byte 0
-scratch_counter:
 	.byte 0
 
 .code
@@ -75,6 +77,54 @@ create_fat32_path_x2:
 	sta fat32_ptr2 + 1
 
 	jmp create_unix_path_b
+
+;---------------------------------------------------------------
+create_fat32_path_only_dir:
+	; pass in just the path, not the name
+	ldx r0e
+	cpx r0s
+	beq @no_path
+	stz buffer,x
+	lda r0s
+	clc
+	adc #<buffer
+	sta fat32_ptr + 0
+	lda #>buffer
+	adc #0
+	sta fat32_ptr + 1
+	bra @nempty
+
+@no_path:
+	; current directory
+	stz fat32_ptr
+	stz fat32_ptr + 1
+
+@nempty:
+	rts
+
+;---------------------------------------------------------------
+create_fat32_path_only_name:
+	; pass in just the name, not the path
+	ldx r1e
+	cpx r1s
+	beq @no_name
+	stz buffer,x
+	lda r1s
+	clc
+	adc #<buffer
+	sta fat32_ptr + 0
+	lda #>buffer
+	adc #0
+	sta fat32_ptr + 1
+	bra @read_cont
+
+@no_name:
+	stz fat32_ptr
+	stz fat32_ptr + 1
+
+@read_cont:
+	rts
+
 
 ;---------------------------------------------------------------
 check_medium:
@@ -173,9 +223,10 @@ new:
 ; Out:  x             number of files scratched
 ;---------------------------------------------------------------
 scratch:
+@scratch_counter  = tmp0
 	jsr check_medium
 
-	stz scratch_counter
+	stz @scratch_counter
 
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
@@ -188,7 +239,7 @@ scratch:
 	; and call fat32_delete on specific filenames.
 	jsr fat32_delete
 	bcc :+
-	inc scratch_counter
+	inc @scratch_counter
 	bra @loop
 
 :	lda fat32_errno
@@ -202,12 +253,12 @@ scratch:
 
 	FAT32_CONTEXT_END
 	jsr convert_errno_status
-	ldx scratch_counter
+	ldx @scratch_counter
 	rts
 
 @end:
 	FAT32_CONTEXT_END
-	ldx scratch_counter
+	ldx @scratch_counter
 	lda #0
 	rts
 
@@ -450,11 +501,12 @@ copy_start:
 
 ;---------------------------------------------------------------
 copy_do:
+@context_src = tmp0
 	jsr check_medium
 
 	jsr fat32_alloc_context
 	bcc @error_70
-	sta context_src
+	sta @context_src
 	jsr fat32_set_context
 	bcc @error_errno
 
@@ -464,7 +516,7 @@ copy_do:
 
 @cloop:
 	; read
-	lda context_src
+	lda @context_src
 	jsr fat32_set_context
 	bcc @error_errno
 	lda #<unix_path
@@ -498,12 +550,12 @@ copy_do:
 
 @done:
 	; close source
-	lda context_src
+	lda @context_src
 	jsr fat32_set_context
 	bcc @error_errno
 	jsr fat32_close
 	bcc @error_errno
-	lda context_src
+	lda @context_src
 	jsr fat32_free_context
 
 	lda #0
@@ -516,10 +568,10 @@ copy_do:
 @error_errno:
 	jsr convert_errno_status
 	pha
-	lda context_src
+	lda @context_src
 	jsr fat32_set_context
 	jsr fat32_close
-	lda context_src
+	lda @context_src
 	jsr fat32_free_context
 	pla
 	rts
@@ -588,10 +640,18 @@ duplicate:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 file_lock:
+	lda #1
+file_lock_unlock:
+	sta tmp0
 	jsr check_medium
-
-	; TODO: set read-only flag
-	lda #$31
+	FAT32_CONTEXT_START
+	jsr create_fat32_path
+	lda tmp0
+	jsr fat32_set_attribute
+	bcs :+
+	jmp convert_status_end_context
+:	FAT32_CONTEXT_END
+	lda #0
 	rts
 
 ;---------------------------------------------------------------
@@ -600,11 +660,50 @@ file_lock:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 file_unlock:
+	lda #0
+	bra file_lock_unlock
+
+;---------------------------------------------------------------
+; file_lock_toggle
+;
+; In:   medium/r0/r1  medium/path/name
+;---------------------------------------------------------------
+file_lock_toggle:
 	jsr check_medium
 
-	; TODO: clear read-only flag
-	lda #$31
+	FAT32_CONTEXT_START
+	jsr create_fat32_path_only_dir
+	jsr fat32_open_dir
+	bcc @error_errno
+
+	jsr create_fat32_path_only_name
+	jsr fat32_read_dirent_filtered
+	php
+	jsr fat32_close ; can't fail
+	plp
+	bcs :+
+	lda fat32_errno
+	bne @error_errno
+	bra @error_file_not_found
+:
+	jsr create_fat32_path
+	lda fat32_dirent + dirent::attributes
+	eor #1
+	jsr fat32_set_attribute
+	bcs :+
+	jmp convert_status_end_context
+
+:	FAT32_CONTEXT_END
+	lda #0
 	rts
+
+@error_file_not_found:
+	FAT32_CONTEXT_END
+	lda #$62 ; file not found
+	rts
+
+@error_errno:
+	jmp convert_status_end_context
 
 ;---------------------------------------------------------------
 ; file_restore

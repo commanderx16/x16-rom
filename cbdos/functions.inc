@@ -17,6 +17,7 @@
 .global copy_all
 .global duplicate
 .global file_lock
+.global file_lock_toggle
 .global file_unlock
 .global file_restore
 .global set_sector_interleave

@@ -23,6 +23,7 @@
 
 .global fat32_chdir             ; Change to directory with path in fat32_ptr
 .global fat32_rename            ; Rename file with path in fat32_ptr to fat32_ptr2
+.global fat32_set_attribute     ; Set attribute of file with path in fat32_ptr
 .global fat32_delete            ; Delete file with path in fat32_ptr
 .global fat32_mkdir             ; Create new directory with path in fat32_ptr
 .global fat32_rmdir             ; Delete empty directory with path in fat32_ptr

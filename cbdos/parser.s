@@ -856,7 +856,7 @@ cmds:
 	          ; 'CP'  change partition
 	          ; 'CD'  change directory
 	.byte 'D' ; duplicate
-	.byte 'L' ; lock
+	.byte 'L' ; toggle lock
 	.byte 'G' ; 'GP'  get partition
 	          ; 'G-D' get disk change
 	.byte 'M' ; 'MD'  make directory
@@ -1137,7 +1137,7 @@ cmd_scratch:
 	rts
 
 ;---------------------------------------------------------------
-; MD - make directory
+; MD - make directory [CMD]
 ;---------------------------------------------------------------
 cmd_md:
 	jsr consume_get_path_and_name_remove_options
@@ -1158,7 +1158,7 @@ cmd_md:
 	rts
 
 ;---------------------------------------------------------------
-; RD - remove directory
+; RD - remove directory [CMD]
 ;---------------------------------------------------------------
 cmd_rd:
 	jsr consume_get_path_and_name_remove_options
@@ -1170,7 +1170,7 @@ cmd_rd:
 	rts
 
 ;---------------------------------------------------------------
-; CD - change directory
+; CD - change directory [CMD]
 ;---------------------------------------------------------------
 cmd_cd:
 	jsr consume_get_path_and_name_remove_options
@@ -1182,7 +1182,7 @@ cmd_cd:
 	rts
 
 ;---------------------------------------------------------------
-; R-H - rename header
+; R-H - rename header [CMD]
 ;---------------------------------------------------------------
 cmd_rh:
 	jsr consume_get_path_and_name_remove_options
@@ -1203,7 +1203,7 @@ cmd_rh:
 	rts
 
 ;---------------------------------------------------------------
-; R-P - rename partition
+; R-P - rename partition [CMD]
 ;---------------------------------------------------------------
 cmd_rp:
 	; remove part before ':'
@@ -1256,8 +1256,8 @@ cmd_rp:
 	rts
 
 ;---------------------------------------------------------------
-; S-8 - switch to drive #8
-; U0>8 - set primary address to 8
+; S-8 - switch to drive #8 [CMD]
+; U0>8 - set primary address to 8 [1571]
 ;---------------------------------------------------------------
 cmd_s8:
 	lda #8
@@ -1266,8 +1266,8 @@ cmd_s8:
 	rts
 
 ;---------------------------------------------------------------
-; S-9 - switch to drive #9
-; U0>9 - set primary address to 9
+; S-9 - switch to drive #9 [CMD]
+; U0>9 - set primary address to 9 [1571]
 ;---------------------------------------------------------------
 cmd_s9:
 	lda #9
@@ -1276,7 +1276,7 @@ cmd_s9:
 	rts
 
 ;---------------------------------------------------------------
-; S-D - switch to default drive number
+; S-D - switch to default drive number [CMD]
 ;---------------------------------------------------------------
 cmd_sd:
 	lda #8
@@ -1285,7 +1285,7 @@ cmd_sd:
 	rts
 
 ;---------------------------------------------------------------
-; CP - change partition (decimal)
+; CP - change partition (decimal) [CMD]
 ;---------------------------------------------------------------
 cmd_cp_decimal:
 	jsr consume_cmd
@@ -1295,7 +1295,7 @@ cmd_cp_decimal:
 	rts
 
 ;---------------------------------------------------------------
-; CP - change partition (binary)
+; CP - change partition (binary) [CMD]
 ;---------------------------------------------------------------
 cmd_cp_binary:
 	ldx r0s
@@ -1463,37 +1463,69 @@ cmd_d:
 	rts
 
 ;---------------------------------------------------------------
-; L - lock
-; F-L - file lock
+; L - lock [CMD]
 ;---------------------------------------------------------------
 cmd_l:
+	jsr consume_get_path_and_name_remove_options
+	bcs @error
+	lda r1s
+	cmp r1e
+	beq @error_empty
+	jsr file_lock_toggle
+	clc
+	rts
+@error:	sec
+	rts
+
+@error_empty:
+	lda #$34 ; syntax error (empty filename)
+	clc
+	rts
+
+;---------------------------------------------------------------
+; F-L - file lock [C65]
+;---------------------------------------------------------------
 cmd_fl:
 	; TODO: support a list of files
 	jsr consume_get_path_and_name_remove_options
 	bcs @error
-	; TODO: empty filename: error 34
+	lda r1s
+	cmp r1e
+	beq @error_empty
 	jsr file_lock
 	clc
 	rts
 @error:	sec
 	rts
 
+@error_empty:
+	lda #$34 ; syntax error (empty filename)
+	clc
+	rts
+
 ;---------------------------------------------------------------
-; F-U - file unlock
+; F-U - file unlock [C65]
 ;---------------------------------------------------------------
 cmd_fu:
 	; TODO: support a list of files
 	jsr consume_get_path_and_name_remove_options
 	bcs @error
-	; TODO: empty filename: error 34
+	lda r1s
+	cmp r1e
+	beq @error_empty
 	jsr file_unlock
 	clc
 	rts
 @error:	sec
 	rts
 
+@error_empty:
+	lda #$34 ; syntax error (empty filename)
+	clc
+	rts
+
 ;---------------------------------------------------------------
-; F-R - file restore
+; F-R - file restore [C65]
 ;---------------------------------------------------------------
 cmd_fr:
 	; TODO: support a list of files
@@ -1503,7 +1535,9 @@ cmd_fr:
 	jsr find_wildcards
 	bcs @error_wildcards
 
-	; TODO: empty filename: error 34
+	lda r1s
+	cmp r1e
+	beq @error_empty
 	jsr file_restore
 	clc
 	rts
@@ -1512,6 +1546,11 @@ cmd_fr:
 
 @error_wildcards:
 	lda #$33; syntax error (wildcards)
+	clc
+	rts
+
+@error_empty:
+	lda #$34 ; syntax error (empty filename)
 	clc
 	rts
 
@@ -1541,7 +1580,7 @@ cmd_u0:
 	rts
 
 ;---------------------------------------------------------------
-; GP - get partition
+; GP - get partition [CMD]
 ;---------------------------------------------------------------
 cmd_gp:
 	; TODO
@@ -1550,7 +1589,7 @@ cmd_gp:
 	rts
 
 ;---------------------------------------------------------------
-; G-D - get disk change
+; G-D - get disk change [CMD]
 ;---------------------------------------------------------------
 cmd_gd:
 	; TODO
@@ -1586,7 +1625,7 @@ cmd_me:
 	rts
 
 ;---------------------------------------------------------------
-; U0>S - set sector interleave
+; U0>S - set sector interleave [1571]
 ;---------------------------------------------------------------
 cmd_u0_s:
 	ldx r0s
@@ -1596,7 +1635,7 @@ cmd_u0_s:
 	rts
 
 ;---------------------------------------------------------------
-; U0>R - set retries
+; U0>R - set retries [1571]
 ;---------------------------------------------------------------
 cmd_u0_r:
 	ldx r0s
@@ -1606,7 +1645,7 @@ cmd_u0_r:
 	rts
 
 ;---------------------------------------------------------------
-; U0>T - test ROM checksum
+; U0>T - test ROM checksum [1571]
 ;---------------------------------------------------------------
 cmd_u0_t:
 	jsr test_rom_checksum
@@ -1614,7 +1653,7 @@ cmd_u0_t:
 	rts
 
 ;---------------------------------------------------------------
-; U0>B - enable/disable fast serial
+; U0>B - enable/disable fast serial [1581]
 ;---------------------------------------------------------------
 cmd_u0_b:
 	ldx r0s
@@ -1624,7 +1663,7 @@ cmd_u0_b:
 	rts
 
 ;---------------------------------------------------------------
-; U0>V - enable/disable verify
+; U0>V - enable/disable verify [1581]
 ;---------------------------------------------------------------
 cmd_u0_v:
 	ldx r0s
@@ -1634,7 +1673,7 @@ cmd_u0_v:
 	rts
 
 ;---------------------------------------------------------------
-; U0>D - set directory sector interleave
+; U0>D - set directory sector interleave [C65]
 ;---------------------------------------------------------------
 cmd_u0_d:
 	ldx r0s
@@ -1644,7 +1683,7 @@ cmd_u0_d:
 	rts
 
 ;---------------------------------------------------------------
-; U0>L - enable/disable large REL file support
+; U0>L - enable/disable large REL file support [C65]
 ;---------------------------------------------------------------
 cmd_u0_l:
 	ldx r0s
@@ -1654,7 +1693,7 @@ cmd_u0_l:
 	rts
 
 ;---------------------------------------------------------------
-; U0>MR - burst memory read
+; U0>MR - burst memory read [1571]
 ;---------------------------------------------------------------
 cmd_u0_mr:
 	; TODO
@@ -1663,7 +1702,7 @@ cmd_u0_mr:
 	rts
 
 ;---------------------------------------------------------------
-; U0>MW - burst memory write
+; U0>MW - burst memory write [1571]
 ;---------------------------------------------------------------
 cmd_u0_mw:
 	; TODO
