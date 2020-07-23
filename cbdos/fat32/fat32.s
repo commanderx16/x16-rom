@@ -1375,7 +1375,7 @@ fat32_read_dirent:
 ;-----------------------------------------------------------------------------
 ; fat32_read_dirent_filtered
 ;
-; Only returns dirents that match the name in (fat32_ptr)
+; Returns next dirent that matches the name/pattern in (fat32_ptr)
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
