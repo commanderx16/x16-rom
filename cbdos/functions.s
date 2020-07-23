@@ -509,7 +509,16 @@ copy:
 	pla
 	pla
 @error:
-	jmp convert_status_end_context
+
+	lda context_src
+	jsr fat32_set_context
+	jsr fat32_close
+
+	lda context_dst
+	jsr fat32_set_context
+	jsr fat32_close
+
+	jmp convert_errno_status
 
 ;---------------------------------------------------------------
 ; copy_all
