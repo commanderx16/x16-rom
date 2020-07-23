@@ -1668,6 +1668,8 @@ create_dir_entry:
 
 ;-----------------------------------------------------------------------------
 ; fat32_create
+;
+; Create file. Delete it if it already exists.
 ;-----------------------------------------------------------------------------
 fat32_create:
 	stz fat32_errno
@@ -1680,8 +1682,12 @@ fat32_create:
 @1:
 	; Check if directory entry already exists?
 	jsr find_dirent
-	bcc @ok
+	bcs @exists
+	lda fat32_errno
+	bne @error
+	bra @ok
 
+@exists:
 	; Delete file first if it exists
 	jsr delete_file
 	bcc @error
