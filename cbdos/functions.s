@@ -245,10 +245,12 @@ scratch:
 :	lda fat32_errno
 	cmp #ERRNO_FILE_NOT_FOUND ; no more files
 	beq @end
-	cmp #ERRNO_WRITE_PROTECT_ON ; no more files
+	cmp #ERRNO_WRITE_PROTECT_ON
 	; XXX locked files should be skipped, but because of the
 	; issue described above, "beq @loop" would cause an infinite
 	; loop
+	beq @end
+	cmp #ERRNO_FILE_READ_ONLY
 	beq @end
 
 	FAT32_CONTEXT_END

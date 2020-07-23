@@ -280,8 +280,6 @@ cbdos_ciout:
 	bcs @ciout_end
 
 ; write error
-	ldx #$26 ; XXX different error!
-	jsr set_status
 	lda #1
 	sta ieee_status
 	bra @ciout_end
@@ -570,13 +568,13 @@ open_file:
 @1:	lda fat32_errno
 	beq @open_create
 	jsr set_errno_status
-	bra @open_file_err
+	bra @open_file_err2
 
 @open_create:
 	jsr fat32_create
 	bcs :+
 	jsr set_errno_status
-	bra @open_file_err
+	bra @open_file_err2
 
 :	ldx channel
 	lda #$80 ; write
@@ -587,7 +585,7 @@ open_file:
 	jsr fat32_open
 	bcs :+
 	jsr set_errno_status
-	bra @open_file_err
+	bra @open_file_err2
 
 :	ldx channel
 	lda #$40 ; read
@@ -611,6 +609,7 @@ open_file:
 
 @open_file_err:
 	jsr set_status
+@open_file_err2:
 	pla ; context number
 	jsr fat32_free_context
 	sec
@@ -633,11 +632,12 @@ status_from_errno:
 	.byte $33 ; ERRNO_ILLEGAL_FILENAME = 3  -> SYNTAX ERROR
 	.byte $63 ; ERRNO_FILE_EXISTS      = 4  -> FILE EXISTS
 	.byte $62 ; ERRNO_FILE_NOT_FOUND   = 5  -> FILE NOT FOUND
-	.byte $63 ; ERRNO_DIR_NOT_EMPTY    = 6  -> FILE EXISTS (XXX)
-	.byte $74 ; ERRNO_NO_MEDIA         = 7  -> DRIVE NOT READY
-	.byte $74 ; ERRNO_NO_FS            = 8  -> DRIVE NOT READY
-	.byte $71 ; ERRNO_FS_INCONSISTENT  = 9  -> DIRECTORY ERROR
-	.byte $26 ; ERRNO_WRITE_PROTECT_ON = 10 -> WRITE PROTECT ON
+	.byte $26 ; ERRNO_FILE_READ_ONLY   = 6  -> WRITE PROTECT ON
+	.byte $63 ; ERRNO_DIR_NOT_EMPTY    = 7  -> FILE EXISTS (XXX)
+	.byte $74 ; ERRNO_NO_MEDIA         = 8  -> DRIVE NOT READY
+	.byte $74 ; ERRNO_NO_FS            = 9  -> DRIVE NOT READY
+	.byte $71 ; ERRNO_FS_INCONSISTENT  = 10 -> DIRECTORY ERROR
+	.byte $26 ; ERRNO_WRITE_PROTECT_ON = 11 -> WRITE PROTECT ON
 
 .segment "IRQB"
 	.word banked_irq

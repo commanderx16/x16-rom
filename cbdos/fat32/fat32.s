@@ -962,8 +962,18 @@ delete_file:
 	jsr find_file
 	bcc @error
 
-	; Mark file as deleted
 	set16 fat32_bufptr, cur_context + context::dirent_bufptr
+
+	ldy #11
+	lda (fat32_bufptr),y
+	and #1
+	beq @1
+
+	; read-only file
+	lda #ERRNO_FILE_READ_ONLY
+	jmp set_errno
+
+@1:	; Mark file as deleted
 	lda #$E5
 	sta (fat32_bufptr)
 
