@@ -92,10 +92,22 @@ _fat32_bss_end:
 
 ;-----------------------------------------------------------------------------
 ; set_errno
+;
+; Only set errno if it wasn't already set. This is important, because e.g.
+; opening a file could cause a read error when looking up the directory entry,
+; so of the two errors "read error" and "file not found error", only the first
+; one is useful.
 ;-----------------------------------------------------------------------------
 set_errno:
 	sec
+	pha
+	lda fat32_errno
+	bne @1
+	pla
 	sta fat32_errno
+	rts
+
+@1:	pla
 	rts
 
 ;-----------------------------------------------------------------------------
@@ -897,6 +909,8 @@ find_dirent:
 ; find_file
 ;
 ; Same as find_dirent, but with file type check
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 find_file:
 	; Find directory entry
@@ -919,6 +933,8 @@ find_file:
 ; find_dir
 ;
 ; Same as find_dirent, but with directory type check
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 find_dir:
 	; Find directory entry
@@ -941,6 +957,7 @@ find_dir:
 ; delete_file
 ;
 ; * c=0: failure; sets errno
+; * does not set errno = ERRNO_FILE_NOT_FOUND!
 ;-----------------------------------------------------------------------------
 delete_file:
 	; Find file
@@ -972,8 +989,11 @@ fat32_init:
 
 	; Initialize SD card
 	jsr sdcard_init
-	bcc @error
+	bcs @0
+	lda #ERRNO_NO_MEDIA
+	jmp set_errno
 
+@0:
 	; Clear FAT32 BSS
 	set16_val fat32_bufptr, _fat32_bss_start
 	lda #0
@@ -1188,7 +1208,11 @@ fat32_open_dir:
 
 	; Find directory and use it
 	jsr find_dir
-	bcc @error
+	bcs @1
+	lda #ERRNO_FILE_NOT_FOUND
+	jmp set_errno
+
+@1:
 	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
 	bra @open
 
@@ -1226,6 +1250,8 @@ fat32_find_dirent:
 
 ;-----------------------------------------------------------------------------
 ; fat32_read_dirent
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_read_dirent:
 	stz fat32_errno
@@ -1374,8 +1400,11 @@ fat32_chdir:
 
 	; Find directory
 	jsr find_dir
-	bcc @error
+	bcs @1
+	lda #ERRNO_FILE_NOT_FOUND
+	jmp set_errno
 
+@1:
 	; Set as current directory
 	set32 fat32_cwd_cluster, fat32_dirent + dirent::cluster
 
@@ -1444,11 +1473,15 @@ fat32_delete:
 
 	; Check if context is free
 	lda cur_context + context::flags
-	beq @1
-	clc
-	rts
-@1:
-	jmp delete_file
+	bne @error
+
+	jsr delete_file
+	bcs @1
+	lda #ERRNO_FILE_NOT_FOUND
+	jmp set_errno
+
+@error:	clc
+@1:	rts
 
 ;-----------------------------------------------------------------------------
 ; fat32_rmdir
@@ -1466,8 +1499,11 @@ fat32_rmdir:
 @1:
 	; Find directory
 	jsr find_dir
-	bcc @error
+	bcs @2
+	lda #ERRNO_FILE_NOT_FOUND
+	jmp set_errno
 
+@2:
 	; Open directory
 	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
 	jsr open_cluster
@@ -1475,8 +1511,13 @@ fat32_rmdir:
 
 	; Make sure directory is empty
 @next:	jsr fat32_read_dirent
-	bcc @done
-	lda fat32_dirent + dirent::name
+	bcs @3
+	lda fat32_errno
+	beq @done
+	clc
+	rts
+
+@3:	lda fat32_dirent + dirent::name
 	cmp #'.'	; Allow for dot-entries
 	beq @next
 	bra @error
@@ -1514,8 +1555,11 @@ fat32_open:
 
 	; Find file
 	jsr find_file
-	bcc @error
+	bcs @1
+	lda #ERRNO_FILE_NOT_FOUND
+	jmp set_errno
 
+@1:
 	; Open file
 	set32_val cur_context + context::file_offset, 0
 	set32 cur_context + context::file_size, fat32_dirent + dirent::size

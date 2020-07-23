@@ -30,6 +30,8 @@ ERRNO_READ             = 1
 ERRNO_ILLEGAL_FILENAME = 2
 ERRNO_FILE_EXISTS      = 3
 ERRNO_FILE_NOT_FOUND   = 4
+ERRNO_DIR_NOT_EMPTY    = 5
+ERRNO_NO_MEDIA         = 6
 
 ;-----------------------------------------------------------------------------
 ; Register bits
