@@ -193,7 +193,12 @@ scratch:
 	bra @loop
 
 :	lda fat32_errno
-	cmp #ERRNO_FILE_NOT_FOUND
+	cmp #ERRNO_FILE_NOT_FOUND ; no more files
+	beq @end
+	cmp #ERRNO_WRITE_PROTECT_ON ; no more files
+	; XXX locked files should be skipped, but because of the
+	; issue described above, "beq @loop" would cause an infinite
+	; loop
 	beq @end
 
 	FAT32_CONTEXT_END

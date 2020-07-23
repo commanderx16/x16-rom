@@ -34,6 +34,7 @@ ERRNO_FILE_NOT_FOUND   = 5
 ERRNO_DIR_NOT_EMPTY    = 6
 ERRNO_NO_MEDIA         = 7
 ERRNO_FS_INCONSISTENT  = 8
+ERRNO_WRITE_PROTECT_ON = 8
 
 ;-----------------------------------------------------------------------------
 ; Register bits
