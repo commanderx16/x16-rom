@@ -8,8 +8,9 @@
 .import fat32_init
 .import fat32_dirent
 .import sync_sector_buffer
-
 .importzp krn_ptr1, read_blkptr, bank_save
+
+.export convert_errno_status, set_errno_status
 
 ; cmdch.s
 .import execute_command, set_status, acptr_status
@@ -138,8 +139,8 @@ cbdos_init:
 	lda #$73
 	jsr set_status
 
+	; TODO error handling
 	jsr fat32_init
-	; XXX error
 
 	ply
 	plx
@@ -226,7 +227,9 @@ cbdos_secnd:
 @close_file:
 	pha
 	jsr fat32_close
-	pla
+	bcs :+
+	jsr set_errno_status
+:	pla
 	jsr fat32_free_context
 	ldx channel
 	lda #CONTEXT_NONE
@@ -271,7 +274,9 @@ cbdos_ciout:
 ; write to file
 	pha
 	jsr fat32_write_byte
-	pla
+	bcs :+
+	jsr set_errno_status
+:	pla
 	bcs @ciout_end
 
 ; write error
@@ -466,6 +471,8 @@ acptr_file:
 	jsr fat32_read_byte
 	bcs @acptr_file_neof
 
+	jsr set_errno_status
+
 @acptr_file_not_open:
 	; EOF
 	ldx channel
@@ -516,7 +523,7 @@ open_file:
 	cmp r1e
 	bne :+
 	lda #$34 ; syntax error (empty filename)
-	bra @open_file_err
+	jmp @open_file_err
 :
 	ldy #0
 	jsr create_unix_path
@@ -555,15 +562,20 @@ open_file:
 :	lda overwrite_flag
 	bne @open_create
 	jsr fat32_find_dirent
-	bcc @open_create
+	bcc @1
 	; exists, but don't overwrite
 	lda #$63
+	bra @open_file_err
+
+@1:	lda fat32_errno
+	beq @open_create
+	jsr set_errno_status
 	bra @open_file_err
 
 @open_create:
 	jsr fat32_create
 	bcs :+
-	lda #$26 ; write protect on - XXX be more specific!
+	jsr set_errno_status
 	bra @open_file_err
 
 :	ldx channel
@@ -574,7 +586,7 @@ open_file:
 @open_read:
 	jsr fat32_open
 	bcs :+
-	lda #$62 ; file not found
+	jsr set_errno_status
 	bra @open_file_err
 
 :	ldx channel
@@ -583,6 +595,7 @@ open_file:
 
 	jsr fat32_read_byte
 	bcs :+
+	jsr set_errno_status
 	lda #0 ; of EOF then make the only byte a 0
 
 :	ldx channel
@@ -602,6 +615,29 @@ open_file:
 	jsr fat32_free_context
 	sec
 	rts
+
+;---------------------------------------------------------------
+convert_errno_status:
+	ldx fat32_errno
+	lda status_from_errno,x
+	rts
+
+set_errno_status:
+	jsr convert_errno_status
+	jmp set_status
+
+status_from_errno:
+	.byte $00 ; ERRNO_OK               = 0  -> OK
+	.byte $20 ; ERRNO_READ             = 1  -> READ ERROR
+	.byte $25 ; ERRNO_WRITE            = 2  -> WRITE ERROR
+	.byte $33 ; ERRNO_ILLEGAL_FILENAME = 3  -> SYNTAX ERROR
+	.byte $63 ; ERRNO_FILE_EXISTS      = 4  -> FILE EXISTS
+	.byte $62 ; ERRNO_FILE_NOT_FOUND   = 5  -> FILE NOT FOUND
+	.byte $63 ; ERRNO_DIR_NOT_EMPTY    = 6  -> FILE EXISTS (XXX)
+	.byte $74 ; ERRNO_NO_MEDIA         = 7  -> DRIVE NOT READY
+	.byte $74 ; ERRNO_NO_FS            = 8  -> DRIVE NOT READY
+	.byte $71 ; ERRNO_FS_INCONSISTENT  = 9  -> DIRECTORY ERROR
+	.byte $26 ; ERRNO_WRITE_PROTECT_ON = 10 -> WRITE PROTECT ON
 
 .segment "IRQB"
 	.word banked_irq

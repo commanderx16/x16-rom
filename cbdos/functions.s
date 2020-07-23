@@ -4,15 +4,11 @@
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
 .include "functions.inc"
+.include "fat32/fat32.inc"
+.include "fat32/regs.inc"
 
 ; main.s
 .import cbdos_init
-
-; fat32.s
-.import fat32_ptr, fat32_ptr2, fat32_size
-.import fat32_alloc_context, fat32_free_context, fat32_set_context
-.import fat32_mkdir, fat32_rmdir, fat32_chdir, fat32_rename, fat32_delete
-.import fat32_open, fat32_close, fat32_read, fat32_write, fat32_create
 
 ; parser.s
 .import medium, medium1, unix_path, unix_path2, create_unix_path, create_unix_path_b
@@ -20,7 +16,7 @@
 
 ; main.s
 .export soft_check_medium_a
-
+.import convert_errno_status
 
 .macro debug_print text
 	ldx #0
@@ -192,9 +188,24 @@ scratch:
 	; directories. Or maybe we should enumerate the directory
 	; and call fat32_delete on specific filenames.
 	jsr fat32_delete
-	bcc @end
+	bcc :+
 	inc scratch_counter
 	bra @loop
+
+:	lda fat32_errno
+	cmp #ERRNO_FILE_NOT_FOUND ; no more files
+	beq @end
+	cmp #ERRNO_WRITE_PROTECT_ON ; no more files
+	; XXX locked files should be skipped, but because of the
+	; issue described above, "beq @loop" would cause an infinite
+	; loop
+	beq @end
+
+	FAT32_CONTEXT_END
+	jsr convert_errno_status
+	ldx scratch_counter
+	rts
+
 @end:
 	FAT32_CONTEXT_END
 	ldx scratch_counter
@@ -212,16 +223,14 @@ make_directory:
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_mkdir
-	bcs :+
-	jmp write_error
-:	FAT32_CONTEXT_END
+	bcc convert_status_end_context
+	FAT32_CONTEXT_END
 	lda #0
 	rts
 
-write_error:
+convert_status_end_context:
 	FAT32_CONTEXT_END
-	lda #$26 ; XXX write protect on
-	rts
+	jmp convert_errno_status
 
 ;---------------------------------------------------------------
 ;
@@ -235,9 +244,8 @@ remove_directory:
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_rmdir
-	bcs :+
-	jmp write_error
-:	FAT32_CONTEXT_END
+	bcc convert_status_end_context
+	FAT32_CONTEXT_END
 	lda #0
 	rts
 
@@ -266,14 +274,9 @@ change_directory:
 
 @regular_cd:
 	jsr fat32_chdir
-	bcc fnf_error
+	bcc convert_status_end_context
 	FAT32_CONTEXT_END
 	lda #0
-	rts
-
-fnf_error:
-	FAT32_CONTEXT_END
-	lda #$62 ; file not found
 	rts
 
 ;---------------------------------------------------------------
@@ -353,7 +356,7 @@ rename:
 	jsr create_fat32_path_x2
 	jsr fat32_rename
 	bcs :+
-	jmp write_error
+	jmp convert_status_end_context
 :	FAT32_CONTEXT_END
 	lda #0
 	rts
@@ -438,14 +441,15 @@ copy:
 	lda fat32_ptr2 + 1
 	pha
 
-	jsr fat32_alloc_context
+	jsr fat32_alloc_context ; XXX error handling
 	sta context_dst
-	jsr fat32_alloc_context
+	jsr fat32_alloc_context ; XXX error handling
 	sta context_src
 
 	; open source
 	jsr fat32_set_context
 	jsr fat32_open
+	bcc @error2
 
 	; create destination
 	lda context_dst
@@ -456,10 +460,12 @@ copy:
 	pla
 	sta fat32_ptr
 	jsr fat32_create
+	bcc @error
 
 @loop:
 	lda context_src
 	jsr fat32_set_context
+	bcc @error
 
 	lda #<unix_path
 	sta fat32_ptr
@@ -469,6 +475,7 @@ copy:
 	lda #1
 	sta fat32_size + 1
 	jsr fat32_read
+	bcc @error
 
 	lda fat32_size
 	ora fat32_size + 1
@@ -476,16 +483,38 @@ copy:
 
 	lda context_dst
 	jsr fat32_set_context
+	bcc @error
 
 	lda #<unix_path
 	sta fat32_ptr
 	lda #>unix_path
 	sta fat32_ptr + 1
 	jsr fat32_write
+	bcc @error
 
 	bra @loop
 
 @done:
+	lda context_src
+	jsr fat32_set_context
+	bcc @error
+	jsr fat32_close
+	bcc @error
+
+	lda context_dst
+	jsr fat32_set_context
+	bcc @error
+	jsr fat32_close
+	bcc @error
+
+	lda #0
+	rts
+
+@error2:
+	pla
+	pla
+@error:
+
 	lda context_src
 	jsr fat32_set_context
 	jsr fat32_close
@@ -494,8 +523,7 @@ copy:
 	jsr fat32_set_context
 	jsr fat32_close
 
-	lda #0
-	rts
+	jmp convert_errno_status
 
 ;---------------------------------------------------------------
 ; copy_all

@@ -12,6 +12,9 @@
 .import fat32_dirent, fat32_get_free_space, fat32_size
 .import fat32_read_dirent_filtered
 
+; main.s
+.import set_errno_status
+
 .import create_unix_path
 .import unix_path
 .import soft_check_medium_a
@@ -91,10 +94,11 @@ open_dir:
 
 @nempty:
 	jsr fat32_open_dir
-	lda #$62 ; file not found
-	bcc @open_dir_err
+	bcs :+
+	jsr set_errno_status
+	bra @open_dir_err2
 
-	ldy #0
+:	ldy #0
 	lda #<DIRSTART
 	jsr storedir
 	lda #>DIRSTART
@@ -140,6 +144,7 @@ open_dir:
 
 @open_dir_err:
 	jsr set_status
+@open_dir_err2:
 	lda context
 	jsr fat32_free_context
 	lda #1
@@ -194,10 +199,13 @@ read_dir_entry:
 
 @read_cont:
 	jsr fat32_read_dirent_filtered
-	bcs :+
-	jmp @read_dir_entry_end
+	bcs @found
+	lda fat32_errno
+	beq :+
+	jsr set_errno_status
+:	jmp @read_dir_entry_end
 
-:	lda fat32_dirent + dirent::name
+@found:	lda fat32_dirent + dirent::name
 	cmp #'.' ; hide "." and ".."
 	beq @read_entry
 
@@ -370,7 +378,7 @@ read_dir_entry:
 	; the final 0 is missing, because the character transmission
 	; function will send one extra 0 with EOI
 
-	jsr fat32_close
+	jsr fat32_close ; can't fail
 	lda context
 	jsr fat32_free_context
 

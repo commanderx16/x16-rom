@@ -205,7 +205,7 @@ status_26:
 status_30: ; generic
 status_31: ; invalid command
 status_32: ; command buffer overflow
-status_33: ; illegal wildcard use
+status_33: ; illegal filename
 status_34: ; empty file name
 	.byte "SYNTAX ERROR" ,0
 
