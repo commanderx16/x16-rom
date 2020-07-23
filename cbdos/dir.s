@@ -12,6 +12,9 @@
 .import fat32_dirent, fat32_get_free_space, fat32_size
 .import fat32_read_dirent_filtered
 
+; main.s
+.import set_errno_status
+
 .import create_unix_path
 .import unix_path
 .import soft_check_medium_a

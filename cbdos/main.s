@@ -8,8 +8,9 @@
 .import fat32_init
 .import fat32_dirent
 .import sync_sector_buffer
-
 .importzp krn_ptr1, read_blkptr, bank_save
+
+.export convert_errno_status, set_errno_status
 
 ; cmdch.s
 .import execute_command, set_status, acptr_status
@@ -522,7 +523,7 @@ open_file:
 	cmp r1e
 	bne :+
 	lda #$34 ; syntax error (empty filename)
-	bra @open_file_err
+	jmp @open_file_err
 :
 	ldy #0
 	jsr create_unix_path
@@ -632,7 +633,7 @@ status_from_errno:
 	.byte $33 ; ERRNO_ILLEGAL_FILENAME = 3 -> SYNTAX ERROR
 	.byte $63 ; ERRNO_FILE_EXISTS      = 4 -> FILE EXISTS
 	.byte $62 ; ERRNO_FILE_NOT_FOUND   = 5 -> FILE NOT FOUND
-	.byte $xx ; ERRNO_DIR_NOT_EMPTY    = 6 -> ???
+	.byte $63 ; ERRNO_DIR_NOT_EMPTY    = 6 -> FILE EXISTS (XXX)
 	.byte $74 ; ERRNO_NO_MEDIA         = 7 -> DRIVE NOT READY
 	.byte $71 ; ERRNO_FS_INCONSISTENT  = 8 -> DIRECTORY ERROR
 

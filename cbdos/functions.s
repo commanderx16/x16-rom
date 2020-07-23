@@ -4,15 +4,11 @@
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
 .include "functions.inc"
+.include "fat32/fat32.inc"
+.include "fat32/regs.inc"
 
 ; main.s
 .import cbdos_init
-
-; fat32.s
-.import fat32_ptr, fat32_ptr2, fat32_size
-.import fat32_alloc_context, fat32_free_context, fat32_set_context
-.import fat32_mkdir, fat32_rmdir, fat32_chdir, fat32_rename, fat32_delete
-.import fat32_open, fat32_close, fat32_read, fat32_write, fat32_create
 
 ; parser.s
 .import medium, medium1, unix_path, unix_path2, create_unix_path, create_unix_path_b
@@ -20,7 +16,7 @@
 
 ; main.s
 .export soft_check_medium_a
-
+.import convert_errno_status
 
 .macro debug_print text
 	ldx #0

@@ -40,6 +40,7 @@
 .global fat32_size
 .global fat32_dirent
 .global sync_sector_buffer
+.global fat32_errno
 
 ; TODO:
 ; fat32_seek
