@@ -654,6 +654,8 @@ open_cluster:
 
 ;-----------------------------------------------------------------------------
 ; clear_cluster
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 clear_cluster:
 	; Fill sector buffer with 0
@@ -1393,8 +1395,11 @@ fat32_rename:
 
 	; Check if context is free
 	lda cur_context + context::flags
-	bne @error
+	beq @0
+@error:	clc
+	rts
 
+@0:
 	; Save first argument
 	set16 tmp_buf, fat32_ptr
 
@@ -1402,8 +1407,10 @@ fat32_rename:
 	set16 fat32_ptr, fat32_ptr2
 	jsr find_dirent
 	bcc @1
-@error:	clc	; Error, file exists
-	rts
+	; Error, file exists
+	lda #ERRNO_FILE_EXISTS
+	jmp set_errno
+
 @1:
 	; Convert target filename into directory entry format
 	jsr convert_filename
@@ -1412,8 +1419,11 @@ fat32_rename:
 	; Find file to rename
 	set16 fat32_ptr, tmp_buf
 	jsr find_dirent
-	bcc @error
+	bcs @3
+	lda #ERRNO_FILE_NOT_FOUND
+	jmp set_errno
 
+@3:
 	; Copy new filename into sector buffer
 	set16 fat32_bufptr, cur_context + context::dirent_bufptr
 	ldy #0
@@ -1640,8 +1650,12 @@ fat32_mkdir:
 
 	; Check if directory doesn't exist yet
 	jsr find_dirent
-	bcs @error
+	bcc @0
+	lda #ERRNO_FILE_EXISTS
+	jsr set_errno
+	bra @error
 
+@0:
 	; Create directory entry
 	lda #$10
 	jsr create_dir_entry

@@ -28,6 +28,8 @@ FAT32_CONTEXTS = 4
 ERRNO_OK               = 0
 ERRNO_READ             = 1
 ERRNO_ILLEGAL_FILENAME = 2
+ERRNO_FILE_EXISTS      = 3
+ERRNO_FILE_NOT_FOUND   = 4
 
 ;-----------------------------------------------------------------------------
 ; Register bits
