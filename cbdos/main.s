@@ -216,15 +216,23 @@ cbdos_secnd:
 	cmp #$f0
 	beq @secnd_open
 	cmp #$e0
-	bne @secnd_rts
+	beq @second_close
+
+	ldx channel
+	lda context_for_channel,x
+	; XXX test
+	jsr fat32_set_context
+
+	bra @secnd_rts
 
 ;---------------------------------------------------------------
 ; CLOSE
+@second_close:
 	ldx channel
 	lda context_for_channel,x
 	bmi @secnd_rts
+	jsr fat32_set_context
 
-@close_file:
 	pha
 	jsr fat32_close
 	bcs :+
