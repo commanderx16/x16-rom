@@ -491,6 +491,17 @@ copy_start:
 	jsr fat32_set_context
 
 	jsr create_fat32_path
+
+;;;
+	jsr fat32_find_dirent
+	bcc @1
+	; exists, but don't overwrite
+	lda #$63
+	bra @copy_err
+@1:	lda fat32_errno
+	bne @copy_err2
+;;;
+
 	jsr fat32_create
 	bcc @error_errno
 
@@ -502,7 +513,18 @@ copy_start:
 	rts
 
 @error_errno:
+	lda context_dst
+	jsr fat32_free_context
 	jmp convert_errno_status
+
+@copy_err2:
+	jsr convert_errno_status
+@copy_err:
+	pha
+	lda context_dst
+	jsr fat32_free_context
+	pla
+	rts
 
 ;---------------------------------------------------------------
 copy_do:

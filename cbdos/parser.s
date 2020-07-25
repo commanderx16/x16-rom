@@ -1350,6 +1350,8 @@ cmd_copy:
 
 	; open target for writing
 	jsr copy_start
+	cmp #0
+	bne @error_start_pop2
 
 	pla
 	sta r0e
@@ -1425,6 +1427,14 @@ cmd_copy:
 	pha
 	jsr copy_end
 	pla
+	clc
+	rts
+
+@error_start_pop2:
+	tax
+	pla
+	pla
+	txa
 	clc
 	rts
 
