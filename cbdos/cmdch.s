@@ -3,35 +3,25 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.export set_status, acptr_status
+.export set_status, cmdch_read
+.export cmdch_exec
 
-; parse.s
-.export buffer, buffer_len, buffer_overflow
+; parser.s
+.import parse_command
 
 ; zeropage.s
 .importzp krn_ptr1
 
-; sdcard.s
-.import sdcard_init
-
 ; functions.s
-.export statusbuffer, status_w, status_r
+.export status_clear, status_put
 
 MAX_STATUS_LEN = 40
 
 .segment "cbdos_data"
 
-; buffer for filenames and commands
-buffer:
-	.res 256, 0
-
 statusbuffer:
 	.res MAX_STATUS_LEN, 0
 
-buffer_len:
-	.byte 0
-buffer_overflow:
-	.byte 0
 
 status_r:
 	.byte 0
@@ -39,6 +29,18 @@ status_w:
 	.byte 0
 
 .segment "cbdos"
+
+;---------------------------------------------------------------
+status_clear:
+	stz status_w
+	stz status_r
+	rts
+
+status_put:
+	ldx status_w
+	sta statusbuffer,x
+	inc status_w
+	rts
 
 ;---------------------------------------------------------------
 set_status_ok:
@@ -55,14 +57,14 @@ set_status_74:
 
 set_status:
 	cmp #$01   ; FILES SCRATCHED
-	beq @clr_y
+	beq @keep_x
 	cmp #$02   ; PARTITION SELECTED
-	beq @clr_y
+	beq @keep_x
 	cmp #$77   ; SELECTED PARTITION ILLEGAL
-	beq @clr_y
+	beq @keep_x
 
 	ldx #0
-@clr_y:
+@keep_x:
 	ldy #0
 	phy
 	phx
@@ -103,43 +105,58 @@ set_status:
 	iny
 	inx
 	bne :-
-:	lda #','
-	sta statusbuffer + 0,x
-	pla ; first arg
-	jsr bin_to_bcd
-	pha
-	lsr
-	lsr
-	lsr
-	lsr
-	ora #$30
-	sta statusbuffer + 1,x
-	pla
-	and #$0f
-	ora #$30
-	sta statusbuffer + 2,x
-	lda #','
-	sta statusbuffer + 3,x
+:	pla ; first arg
+	jsr add_decimal
 	pla ; second arg
-	jsr bin_to_bcd
-	pha
-	lsr
-	lsr
-	lsr
-	lsr
-	ora #$30
-	sta statusbuffer + 4,x
-	pla
-	and #$0f
-	ora #$30
-	sta statusbuffer + 5,x
+	jsr add_decimal
 
 	txa
-	clc
-	adc #6
 	sta status_w
 	stz status_r
 	rts
+
+add_decimal:
+	pha
+
+	lda #','
+	sta statusbuffer,x
+	inx
+
+	pla
+	pha
+	cmp #100
+	bcc @lt_100
+	cmp #200
+	bcc @lt_200
+	lda #'2'
+	bra @add
+@lt_200:
+	lda #'1'
+@add:
+	sta statusbuffer,x
+	inx
+
+@lt_100:
+	pla
+	jsr bin_to_bcd
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	ora #$30
+	sta statusbuffer,x
+	inx
+	pla
+	and #$0f
+	ora #$30
+	sta statusbuffer,x
+	inx
+	rts
+
+get_hundreds:
+	rts
+
 
 bin_to_bcd:
 	tay
@@ -155,7 +172,7 @@ bin_to_bcd:
 	rts
 
 stcodes:
-	.byte $00, $01, $02, $20, $25, $26, $30, $31, $32, $33, $34, $49, $62, $63, $70, $71, $72, $73, $74, $77
+	.byte $00, $01, $02, $20, $25, $26, $30, $31, $32, $33, $34, $39, $49, $62, $63, $70, $71, $72, $73, $74, $77
 stcodes_end:
 
 ststrs:
@@ -170,6 +187,7 @@ ststrs:
 	.word status_32
 	.word status_33
 	.word status_34
+	.word status_39
 	.word status_49
 	.word status_62
 	.word status_63
@@ -184,7 +202,7 @@ ststrs:
 ; $0x: Informational
 ;---------------------------------------------------------------
 status_00:
-	.byte "OK", 0
+	.byte " OK", 0
 status_01:
 	.byte " FILES SCRATCHED", 0
 status_02:
@@ -210,6 +228,7 @@ status_31: ; invalid command
 status_32: ; command buffer overflow
 status_33: ; illegal filename
 status_34: ; empty file name
+status_39: ; subdirectory not found
 	.byte "SYNTAX ERROR" ,0
 
 ;---------------------------------------------------------------
@@ -276,18 +295,33 @@ status_77:
 ;   $51     OVERFLOW IN RECORD
 ;   $52     FILE TOO LARGE
 
-acptr_status:
+;---------------------------------------------------------------
+cmdch_read:
 	ldy status_r
 	cpy status_w
-	beq @acptr_status_eoi
+	beq @cmdch_read_eoi
 
 	lda statusbuffer,y
 	inc status_r
 	clc ; !eof
 	rts
 
-@acptr_status_eoi:
+@cmdch_read_eoi:
 	jsr set_status_ok
 	lda #$0d
 	sec ; eof
 	rts
+
+;---------------------------------------------------------------
+cmdch_exec:
+	jsr parse_command
+	bcc @1
+	lda #$30 ; generic syntax error
+	jmp set_status
+
+@1:	cmp #$ff ; command has already put data into the status buffer
+	beq @rts
+	jmp set_status
+
+@rts:	rts
+

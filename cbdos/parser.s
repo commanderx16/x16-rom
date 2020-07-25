@@ -7,38 +7,31 @@
 
 .include "functions.inc"
 
-.export execute_command
 .export parse_cbmdos_filename
-.import buffer, buffer_len, buffer_overflow
-.import set_status
+.export buffer, buffer_len, buffer_overflow
+
+; cmdch.s
+.export parse_command
 
 ; functions.s
-.export medium, medium1, unix_path, create_unix_path, create_unix_path_b
-.export r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e, file_mode
+.export medium, medium1, unix_path, create_unix_path, append_unix_path_b
+.export create_unix_path_only_dir, create_unix_path_only_name, is_filename_empty
 
-; main.s
+.export file_mode
+
+; file.s
 .export overwrite_flag
 .export find_wildcards
 
-.code
-
-execute_command:
-	ldx #0
-	ldy buffer_len
-	beq @rts ; empty
-
-	jsr parse_command
-	bcc @1
-	lda #$30 ; generic syntax error
-	jmp set_status
-
-@1:	cmp #$ff ; command has already put data into the status buffer
-	beq @rts
-	jmp set_status
-
-@rts:	rts
-
 .bss
+
+; buffer for filenames and commands
+buffer:
+	.res 256, 0
+buffer_len:
+	.byte 0
+buffer_overflow:
+	.byte 0
 
 overwrite_flag:
 	.byte 0
@@ -51,7 +44,6 @@ file_type:
 file_mode:
 	.byte 0
 
-.if 1
 unix_path:
 	.res 256, 0
 r0s:	.byte 0
@@ -62,18 +54,6 @@ r2s:	.byte 0
 r2e:	.byte 0
 r3s:	.byte 0
 r3e:	.byte 0
-.else
-unix_path = $0200
-
-r0s = 2
-r0e = 3
-r1s = 4
-r1e = 5
-r2s = 6
-r2e = 7
-r3s = 8
-r3e = 9
-.endif
 
 ; temp variables, must only be used in leaf functions
 tmp0:	.byte 0
@@ -211,6 +191,83 @@ get_src_dst_numbers:
 	pla
 @error:	sec
 	rts
+
+;---------------------------------------------------------------
+; skip_spaces
+;
+;---------------------------------------------------------------
+skip_spaces:
+	ldx r0s
+	cpx r0e
+	beq @end
+	lda buffer,x
+	cmp #' '
+	beq @space
+	cmp #$a0 ; SHIFT + SPACE
+	beq @space
+	cmp #$1d ; CSR RIGHT
+	beq @space
+	cmp #';'
+	beq @space
+@end:	rts
+@space:
+	inc r0s
+	bra skip_spaces
+
+;---------------------------------------------------------------
+; get_c_m_t_s
+;
+; Get channel, medium, track, sector starting from offset 3,
+; separated by SPACEs or similar.
+;---------------------------------------------------------------
+get_c_m_t_s:
+	lda #3
+	sta r0s
+	jsr skip_spaces
+	jsr get_number ; channel
+	stx r0s
+	bcs @error
+@get_c_m_t_s2:
+	pha
+	jsr skip_spaces
+	jsr get_number ; medium
+	stx r0s
+	bcs @error2
+	sta medium
+	jsr skip_spaces
+	jsr get_number ; track
+	stx r0s
+	pha
+	bcs @error
+	jsr skip_spaces
+	jsr get_number ; sector
+	stx r0s
+	bcs @error3
+	ldx r0s
+	cpx r0e
+	bne @error3
+	tay
+	plx
+	pla
+	rts
+
+@error3:
+	pla
+@error2:
+	pla
+@error:
+	pla
+	pla
+	lda #$31
+	clc
+	rts
+
+get_c_m_t_s2 = @get_c_m_t_s2
+
+get_m_t_s:
+	lda #3
+	sta r0s
+	bra get_c_m_t_s2
 
 ;---------------------------------------------------------------
 ; copy_chars
@@ -466,6 +523,7 @@ parse_path:
 ;       y          points to after terminating zero
 ;---------------------------------------------------------------
 create_unix_path:
+	ldy #0
 	ldx r0s
 	lda r0e
 	jsr copy_chars
@@ -476,7 +534,8 @@ create_unix_path:
 	sta unix_path,y
 	iny
 	rts
-create_unix_path_b:
+
+append_unix_path_b:
 	ldx r2s
 	lda r2e
 	jsr copy_chars
@@ -486,6 +545,31 @@ create_unix_path_b:
 	lda #0
 	sta unix_path,y
 	iny
+	rts
+
+create_unix_path_only_dir:
+	ldy #0
+	ldx r0s
+	lda r0e
+	jsr copy_chars
+	lda #0
+	sta unix_path,y
+	iny
+	rts
+
+create_unix_path_only_name:
+	ldy #0
+	ldx r1s
+	lda r1e
+	jsr copy_chars
+	lda #0
+	sta unix_path,y
+	iny
+	rts
+
+is_filename_empty:
+	lda r1s
+	cmp r1e
 	rts
 
 ;---------------------------------------------------------------
@@ -619,6 +703,15 @@ parse_cbmdos_filename:
 ;
 ;---------------------------------------------------------------
 parse_command:
+	ldx #0
+	ldy buffer_len
+	bne @nempty
+
+	lda #$ff ; don't set status
+	clc
+	rts
+
+@nempty:
 	stx r0s
 	sty r0e
 	; zero terminate, so we don't have to worry
@@ -647,7 +740,6 @@ parse_command:
 ; R* dispatcher
 ;---------------------------------------------------------------
 cmd_r:
-	nop
 	ldx r0s
 	inx
 	lda buffer,x
@@ -772,6 +864,46 @@ cmd_m:
 	rts
 
 ;---------------------------------------------------------------
+; B* dispatcher
+;---------------------------------------------------------------
+cmd_b:
+	ldx r0s
+	inx
+	lda buffer,x
+	cmp #'-'
+	beq @minus
+	lda #$31 ; syntax error: unknown command
+	clc
+	rts
+@minus:
+	inx
+	lda buffer,x
+	cmp #'P'
+	bne :+
+	jmp cmd_bp
+:	cmp #'A'
+	bne :+
+	jmp cmd_ba
+:	cmp #'F'
+	bne :+
+	jmp cmd_bf
+:	cmp #'S'
+	bne :+
+	jmp cmd_bs
+:	cmp #'R'
+	bne :+
+	jmp cmd_br
+:	cmp #'W'
+	bne :+
+	jmp cmd_bw
+:	cmp #'E'
+	bne :+
+	jmp cmd_be
+:	lda #$31 ; syntax error: unknown command
+	clc
+	rts
+
+;---------------------------------------------------------------
 ; F* dispatcher
 ;---------------------------------------------------------------
 cmd_f:
@@ -865,20 +997,20 @@ cmds:
 	.byte 'G' ; 'GP'  get partition
 	          ; 'G-D' get disk change
 	.byte 'M' ; 'MD'  make directory
-	          ; 'M-R' memory read      [unsupported]
-	          ; 'M-W' memory write     [unsupported]
-	          ; 'M-E' memory execute   [unsupported]
-;	.byte 'B' ; 'B-P' buffer pointer   [unsupported]
-	          ; 'B-A' block allocate   [unsupported]
-	          ; 'B-F' block free       [unsupported]
-	          ; 'B-S' block status     [unsupported]
-	          ; 'B-R' block read       [unsupported]
-	          ; 'B-W' block write      [unsupported]
-	          ; 'B-E' block execute    [unsupported]
+	          ; 'M-R' memory read
+	          ; 'M-W' memory write
+	          ; 'M-E' memory execute
+	.byte 'B' ; 'B-P' buffer pointer   TODO
+	          ; 'B-A' block allocate   TODO
+	          ; 'B-F' block free       TODO
+	          ; 'B-S' block status     TODO
+	          ; 'B-R' block read       TODO
+	          ; 'B-W' block write      TODO
+	          ; 'B-E' block execute    TODO
 	.byte 'U' ; 'Ux'  user
 	.byte 'F' ; 'F-L' file lock
 	          ; 'F-U' file unlock
-	          ; 'F-R' file restore     [unsupported]
+	          ; 'F-R' file restore     TODO
 cmds_end:
 cmd_ptrs:
 	.word cmd_i
@@ -891,7 +1023,7 @@ cmd_ptrs:
 	.word cmd_l
 	.word cmd_g
 	.word cmd_m
-;	.word cmd_b
+	.word cmd_b
 	.word cmd_u
 	.word cmd_f
 
@@ -1351,6 +1483,8 @@ cmd_copy:
 
 	; open target for writing
 	jsr copy_start
+	cmp #0
+	bne @error_start_pop2
 
 	pla
 	sta r0e
@@ -1426,6 +1560,14 @@ cmd_copy:
 	pha
 	jsr copy_end
 	pla
+	clc
+	rts
+
+@error_start_pop2:
+	tax
+	pla
+	pla
+	txa
 	clc
 	rts
 
@@ -1560,6 +1702,91 @@ cmd_fr:
 	rts
 
 ;---------------------------------------------------------------
+; B-P - buffer pointer
+;---------------------------------------------------------------
+cmd_bp:
+	lda #3
+	sta r0s
+	jsr skip_spaces
+	jsr get_number ; channel
+	stx r0s
+	bcs @error
+	pha
+	jsr skip_spaces
+	jsr get_number ; offset
+	stx r0s
+	bcs @error2
+	ldx r0s
+	cpx r0e
+	bne @error2
+	tax
+	pla
+	jsr set_buffer_pointer
+	clc
+	rts
+
+@error2:
+	pla
+@error:
+	lda #$30
+	clc
+	rts
+
+;---------------------------------------------------------------
+; B-A - block allocate
+;---------------------------------------------------------------
+cmd_ba:
+	jsr get_m_t_s
+	jsr block_allocate
+	clc
+	rts
+
+;---------------------------------------------------------------
+; B-F - block free
+;---------------------------------------------------------------
+cmd_bf:
+	jsr get_m_t_s
+	jsr block_free
+	clc
+	rts
+
+;---------------------------------------------------------------
+; B-S - block status [C65]
+;---------------------------------------------------------------
+cmd_bs:
+	jsr get_c_m_t_s
+	jsr block_status
+	clc
+	rts
+
+;---------------------------------------------------------------
+; B-R - block read
+;---------------------------------------------------------------
+cmd_br:
+	jsr get_c_m_t_s
+	jsr block_read
+	clc
+	rts
+
+;---------------------------------------------------------------
+; B-W - block write
+;---------------------------------------------------------------
+cmd_bw:
+	jsr get_c_m_t_s
+	jsr block_write
+	clc
+	rts
+
+;---------------------------------------------------------------
+; B-E - block execute
+;---------------------------------------------------------------
+cmd_be:
+	jsr get_c_m_t_s
+	jsr block_execute
+	clc
+	rts
+
+;---------------------------------------------------------------
 ; U
 ;---------------------------------------------------------------
 cmd_u:
@@ -1567,6 +1794,10 @@ cmd_u:
 	lda buffer+1,x
 	and #$0f
 	beq cmd_u0
+	cmp #1
+	beq cmd_u1
+	cmp #2
+	beq cmd_u2
 	jsr user
 	clc
 	rts
@@ -1585,6 +1816,25 @@ cmd_u0:
 	rts
 
 ;---------------------------------------------------------------
+; U1
+;---------------------------------------------------------------
+cmd_u1:
+	jsr get_c_m_t_s
+	jsr block_read_u1
+	clc
+	rts
+
+;---------------------------------------------------------------
+; U2
+;---------------------------------------------------------------
+cmd_u2:
+	jsr get_c_m_t_s
+	jsr block_write_u2
+	clc
+	rts
+
+
+;---------------------------------------------------------------
 ; GP - get partition [CMD]
 ;---------------------------------------------------------------
 cmd_gp:
@@ -1599,16 +1849,14 @@ cmd_gp:
 	cmp #0
 	bne :+
 
-	lda #$ff ; don't set status
 :	clc
 	rts
 
 ;---------------------------------------------------------------
-; G-D - get disk change [CMD]
+; G-D - get diskchange [CMD]
 ;---------------------------------------------------------------
 cmd_gd:
-	; TODO
-	lda #$31
+	jsr get_diskchange
 	clc
 	rts
 
@@ -1620,7 +1868,6 @@ cmd_mr:
 	ldy buffer+4
 	lda buffer+5
 	jsr memory_read
-	lda #$ff ; don't set status
 	clc
 	rts
 
@@ -1718,7 +1965,7 @@ cmd_u0_l:
 ; U0>MR - burst memory read [1571]
 ;---------------------------------------------------------------
 cmd_u0_mr:
-	; TODO
+	; unsupported
 	lda #$31
 	clc
 	rts
@@ -1727,7 +1974,7 @@ cmd_u0_mr:
 ; U0>MW - burst memory write [1571]
 ;---------------------------------------------------------------
 cmd_u0_mw:
-	; TODO
+	; unsupported
 	lda #$31
 	clc
 	rts

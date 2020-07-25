@@ -335,7 +335,7 @@ sdcard_read_sector:
 
 	; Start first read transfer
 	lda SPI_DATA			; Auto-tx
-	nop				; 2
+	ldy #0				; 2
 
 	; Efficiently read first 256 bytes (hide SPI transfer time)
  	ldy #0				; 2

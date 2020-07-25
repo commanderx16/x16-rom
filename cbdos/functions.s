@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; CBDOS Functions
+; CBDOS Command Implementations
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
@@ -11,36 +11,32 @@
 .import cbdos_init
 
 ; parser.s
-.import medium, medium1, unix_path, unix_path2, create_unix_path, create_unix_path_b
-.import r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e
+.import medium, medium1, unix_path, unix_path2, create_unix_path, append_unix_path_b
 
 ; main.s
 .export soft_check_medium_a
 .import convert_errno_status
 
 ; cmdch.s
-.import statusbuffer, status_w, status_r
+.import status_clear, status_put
+
+; match.s
+.import skip_mask
 
 .export create_fat32_path_only_dir, create_fat32_path_only_name
 
-.import buffer
+.import create_unix_path_only_dir, create_unix_path_only_name
 
-.macro debug_print text
-	ldx #0
-:	lda @txt,x
-	beq :+
-	jsr bsout
-	inx
-	bra :-
-:	lda #$0d
-	jsr bsout
-	bra :+
-@txt:	.asciiz text
-:
-.endmacro
+.import buffer
 
 .macro FAT32_CONTEXT_START
 	jsr fat32_alloc_context
+	bcs @alloc_ok
+
+	lda #$70
+	rts
+
+@alloc_ok:
 	pha
 	jsr fat32_set_context
 .endmacro
@@ -65,7 +61,6 @@ create_fat32_path:
 	sta fat32_ptr + 0
 	lda #>unix_path
 	sta fat32_ptr + 1
-	ldy #0
 	jmp create_unix_path
 
 create_fat32_path_x2:
@@ -79,54 +74,33 @@ create_fat32_path_x2:
 	adc #0
 	sta fat32_ptr2 + 1
 
-	jmp create_unix_path_b
+	jmp append_unix_path_b
 
 ;---------------------------------------------------------------
 create_fat32_path_only_dir:
-	; pass in just the path, not the name
-	ldx r0e
-	cpx r0s
-	beq @no_path
-	stz buffer,x
-	lda r0s
-	clc
-	adc #<buffer
+	lda #<unix_path
 	sta fat32_ptr + 0
-	lda #>buffer
-	adc #0
+	lda #>unix_path
 	sta fat32_ptr + 1
-	bra @nempty
-
-@no_path:
-	; current directory
-	stz fat32_ptr
+	jsr create_unix_path_only_dir
+	lda unix_path
+	bne @1
+	stz fat32_ptr + 0
 	stz fat32_ptr + 1
-
-@nempty:
-	rts
+@1:	rts
 
 ;---------------------------------------------------------------
 create_fat32_path_only_name:
-	; pass in just the name, not the path
-	ldx r1e
-	cpx r1s
-	beq @no_name
-	stz buffer,x
-	lda r1s
-	clc
-	adc #<buffer
+	lda #<unix_path
 	sta fat32_ptr + 0
-	lda #>buffer
-	adc #0
+	lda #>unix_path
 	sta fat32_ptr + 1
-	bra @read_cont
-
-@no_name:
-	stz fat32_ptr
+	jsr create_unix_path_only_name
+	lda unix_path
+	bne @1
+	stz fat32_ptr + 0
 	stz fat32_ptr + 1
-
-@read_cont:
-	rts
+@1:	rts
 
 
 ;---------------------------------------------------------------
@@ -159,7 +133,7 @@ soft_check_medium_a:
 ;---------------------------------------------------------------
 ; for all these implementations:
 ;
-; Out:  a  status
+; Out:  a  status ($ff = don't set status)
 ;       c  (unused)
 ;---------------------------------------------------------------
 
@@ -173,7 +147,7 @@ soft_check_medium_a:
 ;---------------------------------------------------------------
 initialize:
 	jsr check_medium
-	; TODO
+	; TODO: (re-)mount
 	lda #0
 	rts
 
@@ -188,7 +162,7 @@ initialize:
 validate:
 	jsr check_medium
 
-	; TODO
+	; TODO: fsck
 	lda #$31
 	rts
 
@@ -215,7 +189,7 @@ validate:
 new:
 	jsr check_medium
 
-	; TODO
+	; TODO: mkfs
 	lda #$31
 	rts
 
@@ -234,26 +208,16 @@ scratch:
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 @loop:
-	; TODO:
-	; If there are wildcards in the name, and the first match
-	; is a directory, this call will fail, and deleting
-	; will end here. fat32_delete needs an option to skip
-	; directories. Or maybe we should enumerate the directory
-	; and call fat32_delete on specific filenames.
+	lda #$11
+	sta skip_mask
 	jsr fat32_delete
+	stz skip_mask
 	bcc :+
 	inc @scratch_counter
 	bra @loop
 
 :	lda fat32_errno
 	cmp #ERRNO_FILE_NOT_FOUND ; no more files
-	beq @end
-	cmp #ERRNO_WRITE_PROTECT_ON
-	; XXX locked files should be skipped, but because of the
-	; issue described above, "beq @loop" would cause an infinite
-	; loop
-	beq @end
-	cmp #ERRNO_FILE_READ_ONLY
 	beq @end
 
 	FAT32_CONTEXT_END
@@ -299,9 +263,23 @@ remove_directory:
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_rmdir
-	bcc convert_status_end_context
+	bcc @error
 	FAT32_CONTEXT_END
-	lda #0
+	lda #1 ; files scratched
+	tax
+	rts
+@error:
+	FAT32_CONTEXT_END
+	lda fat32_errno
+	cmp #ERRNO_FILE_NOT_FOUND
+	beq @not_found
+	cmp #ERRNO_DIR_NOT_EMPTY
+	beq @not_found
+	jmp convert_errno_status
+
+@not_found:
+	lda #1
+	ldx #0
 	rts
 
 ;---------------------------------------------------------------
@@ -381,13 +359,13 @@ user:
 
 ; U1/UA - read block
 @user_1:
-	; TODO
+	; TODO: read block
 	lda #$31
 	rts
 
 ; U2/UB - write block
 @user_2:
-	; TODO
+	; TODO: write block
 	lda #$31
 	rts
 
@@ -435,8 +413,8 @@ rename:
 rename_header:
 	jsr check_medium
 
-	lda r0s
-	cmp r0e
+	jsr create_unix_path_only_dir
+	lda unix_path
 	bne @rename_subdir_header
 
 ; TODO: set volume name
@@ -468,7 +446,7 @@ rename_partition:
 ; In:   a  unit number
 ;---------------------------------------------------------------
 change_unit:
-	; TODO
+	; TODO: change unit
 	lda #$31
 	rts
 
@@ -476,9 +454,6 @@ change_unit:
 ; copy_start
 ;
 ; Open destination file for writing.
-;
-; TODO:
-; * create mode: fail if file exists
 ;
 ; In:   medium/r0/r1   destination
 ;---------------------------------------------------------------
@@ -491,6 +466,17 @@ copy_start:
 	jsr fat32_set_context
 
 	jsr create_fat32_path
+
+;;; XXX unify duplicate code
+	jsr fat32_find_dirent
+	bcc @1
+	; exists, but don't overwrite
+	lda #$63
+	bra @copy_err
+@1:	lda fat32_errno
+	bne @copy_err2
+;;;
+
 	jsr fat32_create
 	bcc @error_errno
 
@@ -502,7 +488,18 @@ copy_start:
 	rts
 
 @error_errno:
+	lda context_dst
+	jsr fat32_free_context
 	jmp convert_errno_status
+
+@copy_err2:
+	jsr convert_errno_status
+@copy_err:
+	pha
+	lda context_dst
+	jsr fat32_free_context
+	pla
+	rts
 
 ;---------------------------------------------------------------
 copy_do:
@@ -721,7 +718,7 @@ file_lock_toggle:
 file_restore:
 	jsr check_medium
 
-	; TODO:
+	; TODO: undelete
 	; FAT32 keeps the directory entry and the FAT links,
 	; but overwrites the first character. The user provides
 	; the full filename to this function though.
@@ -742,9 +739,7 @@ get_partition:
 	rts
 :
 
-	lda #30
-	sta status_w
-	stz status_r
+	jsr status_clear
 
 	; The CMD specification uses 3 bytes for the
 	; start LBA and the size, allowing for disks
@@ -758,55 +753,72 @@ get_partition:
 
 	ldx #0
 	lda partition_type  ;     0 -     partition type (same as MBR type)
-	sta statusbuffer,x
+	jsr status_put
 	lda #$00 ;                1 -     reserved (0)
-	sta statusbuffer+1,x
+	jsr status_put
 	lda #$01 ;                2 -     partition number
-	sta statusbuffer+2,x
+	jsr status_put
 	lda #'F' ;                3 - 17  partition name
-	sta statusbuffer+3,x
+	jsr status_put
 	lda #'A'
-	sta statusbuffer+4,x
+	jsr status_put
 	lda #'T'
-	sta statusbuffer+5,x
+	jsr status_put
 	lda #'3'
-	sta statusbuffer+6,x
+	jsr status_put
 	lda #'2'
-	sta statusbuffer+7,x
+	jsr status_put
 	lda #$a0 ; terminator
-	sta statusbuffer+8,x
-	sta statusbuffer+9,x
-	sta statusbuffer+10,x
-	sta statusbuffer+11,x
-	sta statusbuffer+12,x
-	sta statusbuffer+13,x
-	sta statusbuffer+14,x
-	sta statusbuffer+15,x
-	sta statusbuffer+16,x
-	sta statusbuffer+17,x
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
 	lda lba_partition+3 ;    18 - 21  partition start LBA (big endian)
-	sta statusbuffer+18,x
+	jsr status_put
 	lda lba_partition+2
-	sta statusbuffer+19,x
+	jsr status_put
 	lda lba_partition+1
-	sta statusbuffer+20,x
+	jsr status_put
 	lda lba_partition
-	sta statusbuffer+21,x
+	jsr status_put
 	lda #$00 ;               22 - 25  reserved (0)
-	sta statusbuffer+22,x
-	sta statusbuffer+23,x
-	sta statusbuffer+24,x
-	sta statusbuffer+25,x
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
 	lda partition_blocks+3 ; 26 - 29  partition size (in 512 byte blocks)
-	sta statusbuffer+26,x
+	jsr status_put
 	lda partition_blocks+2
-	sta statusbuffer+27,x
+	jsr status_put
 	lda partition_blocks+1
-	sta statusbuffer+28,x
+	jsr status_put
 	lda partition_blocks
-	sta statusbuffer+29,x
+	jsr status_put
 
-	lda #0
+	lda #$ff ; don't set status
+	rts
+
+;---------------------------------------------------------------
+; get_diskchange
+;
+; Return a single byte indicating whether a disk change has
+; happened (=0: no, 1-255: yes), followed by a CR. [CMD FD docs]
+; * The CMD FD has a bug where the first byte is followed by
+;   lots of garbage.
+; * The CMD HD does not support this command.
+; * We implement the spec here.
+;---------------------------------------------------------------
+get_diskchange:
+	jsr status_clear
+	lda #1
+	jsr status_put
+	lda #$ff ; don't set status
 	rts
 
 ;---------------------------------------------------------------
@@ -818,17 +830,18 @@ get_partition:
 memory_read:
 	stx fat32_ptr
 	sty fat32_ptr + 1
-	sta status_w
+	sta fat32_ptr2
+
+	jsr status_clear
 
 	ldy #0
 @1:	lda (fat32_ptr),y
-	sta statusbuffer,y
+	jsr status_put
 	iny
-	cpy status_w
+	cpy fat32_ptr2
 	bne @1
 
-	stz status_r
-	lda #0
+	lda #$ff ; don't set status
 	rts
 
 ;---------------------------------------------------------------
@@ -910,9 +923,16 @@ set_retries:
 ; In:   -
 ;---------------------------------------------------------------
 test_rom_checksum:
-	; do nothing
+	ldx #0
+@1:	lda contexts_inuse,x
+	bne @bad
+	inx
+	cpx #FAT32_CONTEXTS
+	bne @1
 	lda #0
 	rts
+@bad:	nop
+	jmp *
 
 ;---------------------------------------------------------------
 ; set_fast_serial
@@ -956,4 +976,94 @@ set_directory_interleave:
 set_large_rel_support:
 	lda #$31 ; unsupported
 	rts
+
+;---------------------------------------------------------------
+; set_buffer_pointer
+;
+; In:   a  channel
+;       x  pointer
+;---------------------------------------------------------------
+set_buffer_pointer:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_allocate
+;
+; In:   x  track
+;       y  sector
+;       medium  medium
+;---------------------------------------------------------------
+block_allocate:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_free
+;
+; In:   x  track
+;       y  sector
+;       medium  medium
+;---------------------------------------------------------------
+block_free:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_status
+;
+; In:   x  track
+;       y  sector
+;       medium  medium
+;---------------------------------------------------------------
+block_status:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_read
+;
+; In:   a       channel
+;       x       track
+;       y       sector
+;       medium  medium
+;---------------------------------------------------------------
+block_read:
+	lda #$31 ; unsupported
+	rts
+
+block_read_u1:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_write
+;
+; In:   a       channel
+;       x       track
+;       y       sector
+;       medium  medium
+;---------------------------------------------------------------
+block_write:
+	lda #$31 ; unsupported
+	rts
+
+block_write_u2:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_execute
+;
+; In:   a       channel
+;       x       track
+;       y       sector
+;       medium  medium
+;---------------------------------------------------------------
+block_execute:
+	lda #$31 ; unsupported
+	rts
+
+
+
 

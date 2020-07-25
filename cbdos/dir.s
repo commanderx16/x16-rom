@@ -3,28 +3,20 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.export open_dir, acptr_dir
+.export dir_open, dir_read
 
 ; cmdch.s
 .import set_status
 
-; fat32.s
-.import fat32_dirent, fat32_get_free_space, fat32_size
-.import fat32_read_dirent_filtered
-
-; main.s
+; file.s
 .import set_errno_status
 
 ; functions.s
 .import create_fat32_path_only_dir, create_fat32_path_only_name
 
-.import create_unix_path
-.import unix_path
 .import soft_check_medium_a
 .import medium
 .import parse_cbmdos_filename
-.import buffer
-.import r0s, r0e, r1s, r1e
 
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"
@@ -52,27 +44,36 @@ dir_eof:
 
 ;---------------------------------------------------------------
 ;---------------------------------------------------------------
-open_dir:
+dir_open:
 	pha ; filename length
+
+	jsr fat32_alloc_context
+	bcs @alloc_ok
+
+	pla
+	lda #$70
+	jsr set_status
+	sec
+	rts
+
+@alloc_ok:
+	sta context
+	jsr fat32_set_context
 
 	lda #0
 	jsr set_status
-
-	jsr fat32_alloc_context
-	sta context
-	jsr fat32_set_context
 
 	ldx #1
 	ply ; filename length
 	jsr parse_cbmdos_filename
 	bcc :+
 	lda #$30 ; syntax error
-	jmp @open_dir_err
+	jmp @dir_open_err
 :	lda medium
 	jsr soft_check_medium_a
 	bcc :+
 	lda #$74 ; drive not ready
-	jmp @open_dir_err
+	jmp @dir_open_err
 :
 
 	jsr create_fat32_path_only_dir
@@ -80,7 +81,7 @@ open_dir:
 	jsr fat32_open_dir
 	bcs :+
 	jsr set_errno_status
-	bra @open_dir_err2
+	bra @dir_open_err2
 
 :	ldy #0
 	lda #<DIRSTART
@@ -126,9 +127,9 @@ open_dir:
 	clc ; ok
 	rts
 
-@open_dir_err:
+@dir_open_err:
 	jsr set_status
-@open_dir_err2:
+@dir_open_err2:
 	lda context
 	jsr fat32_free_context
 	lda #1
@@ -138,7 +139,7 @@ open_dir:
 
 ;---------------------------------------------------------------
 ;---------------------------------------------------------------
-acptr_dir:
+dir_read:
 	ldx dirbuffer_r
 	cpx dirbuffer_w
 	beq @acptr_empty
@@ -150,7 +151,7 @@ acptr_dir:
 
 @acptr_empty:
 	jsr read_dir_entry
-	bcc acptr_dir
+	bcc dir_read
 	lda #0
 	rts ; C = 1
 

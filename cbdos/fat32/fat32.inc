@@ -47,6 +47,9 @@
 .global partition_type
 .global partition_blocks
 
+; debug
+.global contexts_inuse
+
 ; TODO:
 ; fat32_seek
 

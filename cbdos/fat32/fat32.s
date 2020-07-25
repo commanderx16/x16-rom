@@ -13,6 +13,8 @@
 
 	.import sector_buffer, sector_buffer_end, sector_lba
 
+	.import match_name, match_type
+
 CONTEXT_SIZE = 32
 
 FLAG_IN_USE = 1<<0  ; Context in use
@@ -441,6 +443,7 @@ fat32_alloc_context:
 	cpx #FAT32_CONTEXTS
 	bne @1
 
+@fat32_alloc_context_error:
 	clc
 	rts
 
@@ -449,6 +452,7 @@ fat32_alloc_context:
 	sta contexts_inuse, x
 	txa
 	sec
+@fat32_alloc_context_ok:
 	rts
 
 ;-----------------------------------------------------------------------------
@@ -782,50 +786,6 @@ next_sector:
 	jmp @read_cluster
 
 ;-----------------------------------------------------------------------------
-; match_name
-;
-; Check if name matches
-;-----------------------------------------------------------------------------
-match_name:
-	ldx #0
-	ldy name_offset
-@1:	lda (fat32_ptr), y
-	beq @match
-	cmp #'?'
-	beq @char_match
-	cmp #'*'
-	beq @asterisk
-	cmp #'/'
-	beq @match
-	jsr to_upper
-	cmp fat32_dirent + dirent::name, x
-	bne @no
-@char_match:
-	inx
-	iny
-	bra @1
-
-; '*' found: consume excess characters in input until '/' or end
-@asterisk:
-	iny
-	lda (fat32_ptr), y
-	beq @yes
-	cmp #'/'
-	bne @asterisk
-	bra @yes
-
-@match:	; Search string also at end?
-	lda fat32_dirent + dirent::name, x
-	bne @no
-
-@yes:
-	sec
-	rts
-@no:
-	clc
-	rts
-
-;-----------------------------------------------------------------------------
 ; find_dirent
 ;
 ; Find directory entry with path specified in string pointed to by fat32_ptr
@@ -875,6 +835,7 @@ find_dirent:
 	jsr fat32_read_dirent
 	bcc @error
 
+	ldy name_offset
 	jsr match_name
 	bcc @next
 
@@ -882,6 +843,10 @@ find_dirent:
 	lda (fat32_ptr), y
 	cmp #'/'
 	beq @chdir
+
+	lda fat32_dirent + dirent::attributes
+	jsr match_type
+	bcc @next
 
 @found:	; Found
 	sec
@@ -1403,7 +1368,7 @@ fat32_read_dirent_filtered:
 
 	cmp16_z fat32_ptr, @ok
 
-	stz name_offset
+	ldy #0
 	jsr match_name
 	bcc fat32_read_dirent_filtered
 @ok:

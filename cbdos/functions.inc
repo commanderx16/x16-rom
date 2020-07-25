@@ -21,6 +21,7 @@
 .global file_unlock
 .global file_restore
 .global get_partition
+.global get_diskchange
 .global memory_read
 .global memory_write
 .global memory_execute
@@ -31,4 +32,12 @@
 .global set_verify
 .global set_directory_interleave
 .global set_large_rel_support
-
+.global set_buffer_pointer
+.global block_allocate
+.global block_free
+.global block_status
+.global block_read
+.global block_read_u1
+.global block_write
+.global block_write_u2
+.global block_execute
