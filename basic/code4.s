@@ -2,7 +2,6 @@ newstt	jsr iscntc
 	lda txtptr
 	ldy txtptr+1
 	cpy #bufpag
-	nop
 	beq dircon
 	sta oldtxt
 	sty oldtxt+1

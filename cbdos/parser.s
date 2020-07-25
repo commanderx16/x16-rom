@@ -647,7 +647,6 @@ parse_command:
 ; R* dispatcher
 ;---------------------------------------------------------------
 cmd_r:
-	nop
 	ldx r0s
 	inx
 	lda buffer,x

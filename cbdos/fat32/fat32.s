@@ -441,6 +441,7 @@ fat32_alloc_context:
 	cpx #FAT32_CONTEXTS
 	bne @1
 
+@fat32_alloc_context_error:
 	clc
 	rts
 
@@ -449,6 +450,7 @@ fat32_alloc_context:
 	sta contexts_inuse, x
 	txa
 	sec
+@fat32_alloc_context_ok:
 	rts
 
 ;-----------------------------------------------------------------------------

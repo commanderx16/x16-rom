@@ -910,9 +910,16 @@ set_retries:
 ; In:   -
 ;---------------------------------------------------------------
 test_rom_checksum:
-	; do nothing
+	ldx #0
+@1:	lda contexts_inuse,x
+	bne @bad
+	inx
+	cpx #FAT32_CONTEXTS
+	bne @1
 	lda #0
 	rts
+@bad:	nop
+	jmp *
 
 ;---------------------------------------------------------------
 ; set_fast_serial

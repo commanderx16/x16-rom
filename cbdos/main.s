@@ -231,9 +231,9 @@ cbdos_secnd:
 	ldx channel
 	lda context_for_channel,x
 	bmi @secnd_rts
+	pha
 	jsr fat32_set_context
 
-	pha
 	jsr fat32_close
 	bcs :+
 	jsr set_errno_status
