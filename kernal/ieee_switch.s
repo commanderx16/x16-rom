@@ -117,7 +117,12 @@ talk:
 
 cbdos_detect:
 	pha
-	phx
+	lda cbdos_enabled
+	beq :+
+	pla
+	rts
+
+:	phx
 	phy
 
 	php
