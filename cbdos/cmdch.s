@@ -155,7 +155,7 @@ bin_to_bcd:
 	rts
 
 stcodes:
-	.byte $00, $01, $02, $20, $25, $26, $30, $31, $32, $33, $34, $49, $62, $63, $70, $71, $72, $73, $74, $77
+	.byte $00, $01, $02, $20, $25, $26, $30, $31, $32, $33, $34, $39, $49, $62, $63, $70, $71, $72, $73, $74, $77
 stcodes_end:
 
 ststrs:
@@ -170,6 +170,7 @@ ststrs:
 	.word status_32
 	.word status_33
 	.word status_34
+	.word status_39
 	.word status_49
 	.word status_62
 	.word status_63
@@ -210,6 +211,7 @@ status_31: ; invalid command
 status_32: ; command buffer overflow
 status_33: ; illegal filename
 status_34: ; empty file name
+status_39: ; subdirectory not found
 	.byte "SYNTAX ERROR" ,0
 
 ;---------------------------------------------------------------
