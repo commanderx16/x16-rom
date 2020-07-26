@@ -299,9 +299,21 @@ remove_directory:
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_rmdir
-	bcc convert_status_end_context
+	bcc @error
 	FAT32_CONTEXT_END
-	lda #0
+	lda #1 ; files scratched
+	tax
+	rts
+@error:
+	FAT32_CONTEXT_END
+	lda fat32_errno
+	cmp #ERRNO_FILE_NOT_FOUND
+	beq @not_found
+	jmp convert_errno_status
+
+@not_found:
+	lda #1
+	ldx #0
 	rts
 
 ;---------------------------------------------------------------
