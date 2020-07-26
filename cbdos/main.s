@@ -614,7 +614,7 @@ open_file:
 	jsr fat32_read_byte
 	bcs :+
 	jsr set_errno_status
-	lda #0 ; of EOF then make the only byte a 0
+	lda #0 ; if EOF then make the only byte a 0
 
 :	ldx channel
 	sta next_byte_for_channel,x
