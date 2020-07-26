@@ -342,14 +342,8 @@ cbdos_unlsn:
 ; OPEN directory
 	lda buffer_len ; filename length
 	jsr open_dir
-	bcc @open_ok
+	bcs @unlsn_end
 
-@open_err:
-	lda #$02 ; timeout/file not found
-	sta ieee_status
-	bra @unlsn_end
-
-@open_ok:
 	lda #CONTEXT_DIR
 	ldx channel
 	sta context_for_channel,x
@@ -359,7 +353,6 @@ cbdos_unlsn:
 ; OPEN file
 @unlsn_open_file:
 	jsr open_file
-	bcs @open_err
 	bra @unlsn_end
 
 ;---------------------------------------------------------------
@@ -402,9 +395,9 @@ cbdos_tksa: ; after talk
 
 	tax
 	lda context_for_channel,x
-	; XXX test
+	bmi :+
 	jsr fat32_set_context
-
+:
 	ply
 	plx
 	BANKING_END
@@ -421,30 +414,33 @@ cbdos_acptr:
 
 	ldx channel
 	cpx #15
-	beq @acptr_status
+	bne @nacptr_status
 
+; *** STATUS
+	jsr acptr_status
+	bra @acptr_eval
+
+@nacptr_status:
 	lda context_for_channel,x
 	bpl @acptr_file ; actual file
 
 	cmp #CONTEXT_DIR
-	beq @acptr_dir
+	bne @acptr_none
 
-	; #CONTEXT_NONE
-	lda #$02 ; timeout/file not found
-	ora ieee_status
-	sta ieee_status
-	lda #0
-	sec
-	bra @acptr_end
-
-@acptr_dir:
+; *** DIR
 	jsr acptr_dir
 	bra @acptr_eval
 
-@acptr_status:
-	jsr acptr_status
-	bra @acptr_eval
+; *** NONE
+@acptr_none:
+	; #CONTEXT_NONE
+	lda #$42 ; EOI + timeout/file not found
+	ora ieee_status
+	sta ieee_status
+	lda #199
+	bra @acptr_end
 
+; *** FILE
 @acptr_file:
 	jsr acptr_file
 
@@ -455,14 +451,30 @@ cbdos_acptr:
 	lda #$40 ; EOI
 	ora ieee_status
 	sta ieee_status
+
+	ldx channel
+	lda context_for_channel,x
+	bmi @skip_special
+
+	pha
+	jsr fat32_close
+	bcs :+
+	jsr set_errno_status
+:	pla
+	jsr fat32_free_context
+
+	ldx channel
+	lda #CONTEXT_NONE
+	sta context_for_channel,x
+
+@skip_special:
 	pla
-	bra @acptr_end2
+	bra @acptr_end
 
 @acptr_end_neoi:
 	stz ieee_status
-@acptr_end2:
-	clc
 @acptr_end:
+	clc
 	ply
 	plx
 	BANKING_END
@@ -612,16 +624,13 @@ open_file:
 	sta context_for_channel,x
 	lda #0
 	jsr set_status
-	clc
 	rts
 
 @open_file_err:
 	jsr set_status
 @open_file_err2:
 	pla ; context number
-	jsr fat32_free_context
-	sec
-	rts
+	jmp fat32_free_context
 
 ;---------------------------------------------------------------
 convert_errno_status:
