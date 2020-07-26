@@ -103,43 +103,58 @@ set_status:
 	iny
 	inx
 	bne :-
-:	lda #','
-	sta statusbuffer + 0,x
-	pla ; first arg
-	jsr bin_to_bcd
-	pha
-	lsr
-	lsr
-	lsr
-	lsr
-	ora #$30
-	sta statusbuffer + 1,x
-	pla
-	and #$0f
-	ora #$30
-	sta statusbuffer + 2,x
-	lda #','
-	sta statusbuffer + 3,x
+:	pla ; first arg
+	jsr add_decimal
 	pla ; second arg
-	jsr bin_to_bcd
-	pha
-	lsr
-	lsr
-	lsr
-	lsr
-	ora #$30
-	sta statusbuffer + 4,x
-	pla
-	and #$0f
-	ora #$30
-	sta statusbuffer + 5,x
+	jsr add_decimal
 
 	txa
-	clc
-	adc #6
 	sta status_w
 	stz status_r
 	rts
+
+add_decimal:
+	pha
+
+	lda #','
+	sta statusbuffer,x
+	inx
+
+	pla
+	pha
+	cmp #100
+	bcc @lt_100
+	cmp #200
+	bcc @lt_200
+	lda #'2'
+	bra @add
+@lt_200:
+	lda #'1'
+@add:
+	sta statusbuffer,x
+	inx
+
+@lt_100:
+	pla
+	jsr bin_to_bcd
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	ora #$30
+	sta statusbuffer,x
+	inx
+	pla
+	and #$0f
+	ora #$30
+	sta statusbuffer,x
+	inx
+	rts
+
+get_hundreds:
+	rts
+
 
 bin_to_bcd:
 	tay
