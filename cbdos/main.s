@@ -277,7 +277,7 @@ cbdos_ciout:
 	; ignore if channel is not for writing
 	ldx channel
 	bit mode_for_channel,x
-	bpl @ciout_end
+	bpl @ciout_not_present
 
 ; write to file
 	pha
@@ -289,6 +289,11 @@ cbdos_ciout:
 
 ; write error
 	lda #1
+	sta ieee_status
+	bra @ciout_end
+
+@ciout_not_present:
+	lda #128 ; device not present
 	sta ieee_status
 	bra @ciout_end
 

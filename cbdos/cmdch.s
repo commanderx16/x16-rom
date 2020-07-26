@@ -200,7 +200,7 @@ ststrs:
 ; $0x: Informational
 ;---------------------------------------------------------------
 status_00:
-	.byte "OK", 0
+	.byte " OK", 0
 status_01:
 	.byte " FILES SCRATCHED", 0
 status_02:
