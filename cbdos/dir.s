@@ -47,12 +47,21 @@ dir_eof:
 dir_open:
 	pha ; filename length
 
-	lda #0
-	jsr set_status
-
 	jsr fat32_alloc_context
+	bcs @alloc_ok
+
+	pla
+	lda #$70
+	jsr set_status
+	sec
+	rts
+
+@alloc_ok:
 	sta context
 	jsr fat32_set_context
+
+	lda #0
+	jsr set_status
 
 	ldx #1
 	ply ; filename length

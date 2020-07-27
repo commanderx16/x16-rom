@@ -51,6 +51,12 @@ file_second:
 ;---------------------------------------------------------------
 file_open:
 	jsr fat32_alloc_context
+	bcs @alloc_ok
+
+	lda #$70
+	jmp set_status
+
+@alloc_ok:
 	pha
 	jsr fat32_set_context
 

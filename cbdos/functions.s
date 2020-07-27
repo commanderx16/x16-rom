@@ -42,6 +42,12 @@
 
 .macro FAT32_CONTEXT_START
 	jsr fat32_alloc_context
+	bcs @alloc_ok
+
+	lda #$70
+	rts
+
+@alloc_ok:
 	pha
 	jsr fat32_set_context
 .endmacro
