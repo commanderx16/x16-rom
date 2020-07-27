@@ -14,12 +14,9 @@
 ; functions.s
 .import create_fat32_path_only_dir, create_fat32_path_only_name
 
-.import create_unix_path
-.import unix_path
 .import soft_check_medium_a
 .import medium
 .import parse_cbmdos_filename
-.import r0s, r0e, r1s, r1e
 
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"

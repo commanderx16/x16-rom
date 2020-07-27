@@ -14,14 +14,13 @@
 .import file_mode
 .import unix_path
 .import create_unix_path
-.import r1e
-.import r1s
 .import soft_check_medium_a
 .import medium
 .import parse_cbmdos_filename
 .import buffer_len
 .import context_for_channel
 .import channel
+.import is_filename_empty
 
 .bss
 
@@ -62,8 +61,7 @@ file_open:
 	lda #$74 ; drive not ready
 	jmp @open_file_err
 :
-	lda r1s
-	cmp r1e
+	jsr is_filename_empty
 	bne :+
 	lda #$34 ; syntax error (empty filename)
 	jmp @open_file_err

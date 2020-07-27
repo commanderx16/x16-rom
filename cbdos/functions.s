@@ -12,7 +12,6 @@
 
 ; parser.s
 .import medium, medium1, unix_path, unix_path2, create_unix_path, append_unix_path_b
-.import r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e
 
 ; main.s
 .export soft_check_medium_a
@@ -429,8 +428,8 @@ rename:
 rename_header:
 	jsr check_medium
 
-	lda r0s
-	cmp r0e
+	jsr create_unix_path_only_dir
+	lda unix_path
 	bne @rename_subdir_header
 
 ; TODO: set volume name

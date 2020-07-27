@@ -15,9 +15,9 @@
 
 ; functions.s
 .export medium, medium1, unix_path, create_unix_path, append_unix_path_b
-.export create_unix_path_only_dir, create_unix_path_only_name
+.export create_unix_path_only_dir, create_unix_path_only_name, is_filename_empty
 
-.export r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e, file_mode
+.export file_mode
 
 ; file.s
 .export overwrite_flag
@@ -44,7 +44,6 @@ file_type:
 file_mode:
 	.byte 0
 
-.if 1
 unix_path:
 	.res 256, 0
 r0s:	.byte 0
@@ -55,18 +54,6 @@ r2s:	.byte 0
 r2e:	.byte 0
 r3s:	.byte 0
 r3e:	.byte 0
-.else
-unix_path = $0200
-
-r0s = 2
-r0e = 3
-r1s = 4
-r1e = 5
-r2s = 6
-r2e = 7
-r3s = 8
-r3e = 9
-.endif
 
 ; temp variables, must only be used in leaf functions
 tmp0:	.byte 0
@@ -503,6 +490,10 @@ create_unix_path_only_name:
 	iny
 	rts
 
+is_filename_empty:
+	lda r1s
+	cmp r1e
+	rts
 
 ;---------------------------------------------------------------
 ; find_wildcards
