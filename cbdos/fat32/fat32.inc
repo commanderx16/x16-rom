@@ -46,6 +46,7 @@
 .global lba_partition
 .global partition_type
 .global partition_blocks
+.global skip_mask
 
 ; debug
 .global contexts_inuse

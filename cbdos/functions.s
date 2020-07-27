@@ -213,26 +213,16 @@ scratch:
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 @loop:
-	; TODO:
-	; If there are wildcards in the name, and the first match
-	; is a directory, this call will fail, and deleting
-	; will end here. fat32_delete needs an option to skip
-	; directories. Or maybe we should enumerate the directory
-	; and call fat32_delete on specific filenames.
+	lda #$11
+	sta skip_mask
 	jsr fat32_delete
+	stz skip_mask
 	bcc :+
 	inc @scratch_counter
 	bra @loop
 
 :	lda fat32_errno
 	cmp #ERRNO_FILE_NOT_FOUND ; no more files
-	beq @end
-	cmp #ERRNO_WRITE_PROTECT_ON
-	; XXX locked files should be skipped, but because of the
-	; issue described above, "beq @loop" would cause an infinite
-	; loop
-	beq @end
-	cmp #ERRNO_FILE_READ_ONLY
 	beq @end
 
 	FAT32_CONTEXT_END

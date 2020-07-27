@@ -71,6 +71,8 @@ tmp_sector_lba:      .dword 0      ; Used by next_sector
 name_offset:         .byte 0
 tmp_dir_cluster:     .dword 0
 
+skip_mask:           .byte 0
+
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
 cur_context:         .tag context  ; Current file descriptor state
@@ -884,6 +886,10 @@ find_dirent:
 	lda (fat32_ptr), y
 	cmp #'/'
 	beq @chdir
+
+	lda fat32_dirent + dirent::attributes
+	bit skip_mask
+	bne @next
 
 @found:	; Found
 	sec
