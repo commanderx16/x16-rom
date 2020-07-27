@@ -29,20 +29,6 @@
 
 .import buffer
 
-.macro debug_print text
-	ldx #0
-:	lda @txt,x
-	beq :+
-	jsr bsout
-	inx
-	bra :-
-:	lda #$0d
-	jsr bsout
-	bra :+
-@txt:	.asciiz text
-:
-.endmacro
-
 .macro FAT32_CONTEXT_START
 	jsr fat32_alloc_context
 	bcs @alloc_ok
