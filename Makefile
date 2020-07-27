@@ -139,6 +139,7 @@ CBDOS_SOURCES = \
 	cbdos/fat32/sdcard.s \
 	cbdos/fat32/text_input.s \
 	cbdos/zeropage.s \
+	cbdos/jumptab.s \
 	cbdos/main.s \
 	cbdos/file.s \
 	cbdos/cmdch.s \

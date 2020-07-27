@@ -29,6 +29,11 @@
 .export CONTEXT_NONE ; XXX
 .export channel, context_for_channel, ieee_status
 
+; jumptab.s
+.export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk
+.export cbdos_sdcard_detect
+
+
 .include "banks.inc"
 
 .include "fat32/fat32.inc"
@@ -73,27 +78,6 @@ CONTEXT_NONE = $ff
 CONTEXT_DIR  = $fd
 
 .segment "cbdos"
-; $C000
-
-	jmp cbdos_secnd
-	jmp cbdos_tksa
-	jmp cbdos_acptr
-	jmp cbdos_ciout
-	jmp cbdos_untlk
-	jmp cbdos_unlsn
-	jmp cbdos_listn
-	jmp cbdos_talk
-; GEOS
-	jmp cbmdos_OpenDisk
-	jmp cbmdos_ReadBuff
-	jmp cbmdos_ReadBlock
-	jmp cbmdos_GetDirHead
-	jmp cbmdos_CalcBlksFree
-	jmp cbmdos_Get1stDirEntry
-	jmp cbmdos_GetNxtDirEntry
-
-; detection
-	jmp cbdos_sdcard_detect
 
 ;---------------------------------------------------------------
 ; Initialize CBDOS data structures

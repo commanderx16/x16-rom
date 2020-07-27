@@ -6,10 +6,11 @@ MEMORY {
 }
 
 SEGMENTS {
-	ZPCBDOS:    load = ZPCBDOS,  type = zp;
-	cbdos:      load = CBDOS,    type = ro;
-	CODE:       load = CBDOS,    type = ro;
-	cbdos_data: load = CBDOSDAT, type = bss;
-	BSS:        load = CBDOSDAT, type = bss;
-	IRQB:       load = IRQB,     type = ro;
+	ZPCBDOS:      load = ZPCBDOS,  type = zp;
+	cbdos_jmptab: load = CBDOS,    type = ro;
+	cbdos:        load = CBDOS,    type = ro;
+	CODE:         load = CBDOS,    type = ro;
+	cbdos_data:   load = CBDOSDAT, type = bss;
+	BSS:          load = CBDOSDAT, type = bss;
+	IRQB:         load = IRQB,     type = ro;
 }
