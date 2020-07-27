@@ -365,25 +365,15 @@ cbdos_acptr:
 
 	ldx channel
 	cpx #15
-	bne @nacptr_status
+	beq @acptr_status
 
-; *** STATUS
-	jsr cmdch_read
-	bra @acptr_eval
-
-@nacptr_status:
 	lda context_for_channel,x
 	bpl @acptr_file ; actual file
 
 	cmp #CONTEXT_DIR
-	bne @acptr_none
-
-; *** DIR
-	jsr dir_read
-	bra @acptr_eval
+	beq @acptr_dir
 
 ; *** NONE
-@acptr_none:
 	; #CONTEXT_NONE
 	lda #$42 ; EOI + timeout/file not found
 	ora ieee_status
@@ -394,26 +384,8 @@ cbdos_acptr:
 ; *** FILE
 @acptr_file:
 	jsr file_read
-
-@acptr_eval:
-	bcc @acptr_end_neoi
-
-	pha
-	lda #$40 ; EOI
-	ora ieee_status
-	sta ieee_status
-
-	ldx channel
-	lda context_for_channel,x
-	bmi @nfile_close
-
-	jsr file_close2
-
-@nfile_close:
-	pla
-	bra @acptr_end
-
-@acptr_end_neoi:
+	bcs @acptr_end_file_eoi
+@acptr_end_ok:
 	stz ieee_status
 @acptr_end:
 	clc
@@ -421,6 +393,37 @@ cbdos_acptr:
 	plx
 	BANKING_END
 	rts
+
+@acptr_end_file_eoi:
+	ldx channel
+	ldy context_for_channel,x
+	bmi @acptr_eoi
+
+	pha ; data byte
+	tya
+	jsr file_close
+
+@acptr_eoi:
+	lda #$40 ; EOI
+	ora ieee_status
+	sta ieee_status
+	pla ; data byte
+	bra @acptr_end
+
+@acptr_dir:
+; *** DIR
+	jsr dir_read
+	bra @acptr_eval
+
+; *** STATUS
+@acptr_status:
+	jsr cmdch_read
+
+@acptr_eval:
+	bcc @acptr_end_ok
+	pha
+	bra @acptr_eoi
+
 
 ;---------------------------------------------------------------
 ; UNTALK

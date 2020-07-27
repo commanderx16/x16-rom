@@ -6,21 +6,28 @@
 .include "fat32/regs.inc"
 .include "file.inc"
 
-.import ieee_status
-.importzp CONTEXT_NONE
+; cmdch.s
 .import set_status
-.import overwrite_flag
+
+; parser.s
 .import find_wildcards
 .import file_mode
 .import unix_path
 .import create_unix_path
-.import soft_check_medium_a
 .import medium
 .import parse_cbmdos_filename
 .import buffer_len
+.import is_filename_empty
+.import overwrite_flag
+
+; function.s
+.import soft_check_medium_a
+
+; main.s
 .import context_for_channel
 .import channel
-.import is_filename_empty
+.import ieee_status
+.importzp CONTEXT_NONE
 
 .bss
 
@@ -174,20 +181,6 @@ file_close:
 	stz mode_for_channel,x
 	rts
 
-
-;---------------------------------------------------------------
-file_close2:
-	pha
-	jsr fat32_close
-	bcs :+
-	jsr set_errno_status
-:	pla
-	jsr fat32_free_context
-
-	ldx channel
-	lda #CONTEXT_NONE
-	sta context_for_channel,x
-	rts
 
 ;---------------------------------------------------------------
 file_read:
