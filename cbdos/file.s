@@ -1,6 +1,7 @@
 ;----------------------------------------------------------------------
 ; CBDOS File Handling
 ;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
 
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"
@@ -27,7 +28,6 @@
 .import context_for_channel
 .import channel
 .import ieee_status
-.importzp CONTEXT_NONE
 
 .bss
 
@@ -176,8 +176,6 @@ file_close:
 :	pla
 	jsr fat32_free_context
 	ldx channel
-	lda #CONTEXT_NONE
-	sta context_for_channel,x
 	stz mode_for_channel,x
 	rts
 

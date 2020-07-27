@@ -1,5 +1,7 @@
-;
-; GEOS
+;----------------------------------------------------------------------
+; CBDOS GEOS Support
+;----------------------------------------------------------------------
+; (C)2020 Michael Steil, License: 2-clause BSD
 ;
 ; TODO: The SD card driver is using zero page and other memory
 ;       locations that are also used by GEOS! We need too find

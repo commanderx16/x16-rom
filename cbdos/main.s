@@ -26,7 +26,6 @@
 .import buffer_len, buffer_overflow
 
 ; file.s
-.export CONTEXT_NONE ; XXX
 .export channel, context_for_channel, ieee_status
 
 ; jumptab.s
@@ -194,7 +193,7 @@ cbdos_secnd:
 	lda context_for_channel,x
 	bmi @secnd_rts
 
-	jsr file_close
+	jsr file_close_clr_channel
 	bra @secnd_rts
 
 ;---------------------------------------------------------------
@@ -385,7 +384,7 @@ cbdos_acptr:
 
 	pha ; data byte
 	tya
-	jsr file_close
+	jsr file_close_clr_channel
 
 @acptr_eoi:
 	lda #$40 ; EOI
@@ -408,6 +407,14 @@ cbdos_acptr:
 	pha
 	bra @acptr_eoi
 
+
+;---------------------------------------------------------------
+file_close_clr_channel:
+	jsr file_close
+	ldx channel
+	lda #CONTEXT_NONE
+	sta context_for_channel,x
+	rts
 
 ;---------------------------------------------------------------
 ; UNTALK
