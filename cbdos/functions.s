@@ -977,3 +977,93 @@ set_large_rel_support:
 	lda #$31 ; unsupported
 	rts
 
+;---------------------------------------------------------------
+; set_buffer_pointer
+;
+; In:   a  channel
+;       x  pointer
+;---------------------------------------------------------------
+set_buffer_pointer:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_allocate
+;
+; In:   x  track
+;       y  sector
+;       medium  medium
+;---------------------------------------------------------------
+block_allocate:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_free
+;
+; In:   x  track
+;       y  sector
+;       medium  medium
+;---------------------------------------------------------------
+block_free:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_status
+;
+; In:   x  track
+;       y  sector
+;       medium  medium
+;---------------------------------------------------------------
+block_status:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_read
+;
+; In:   a       channel
+;       x       track
+;       y       sector
+;       medium  medium
+;---------------------------------------------------------------
+block_read:
+	lda #$31 ; unsupported
+	rts
+
+block_read_u1:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_write
+;
+; In:   a       channel
+;       x       track
+;       y       sector
+;       medium  medium
+;---------------------------------------------------------------
+block_write:
+	lda #$31 ; unsupported
+	rts
+
+block_write_u2:
+	lda #$31 ; unsupported
+	rts
+
+;---------------------------------------------------------------
+; block_execute
+;
+; In:   a       channel
+;       x       track
+;       y       sector
+;       medium  medium
+;---------------------------------------------------------------
+block_execute:
+	lda #$31 ; unsupported
+	rts
+
+
+
+
