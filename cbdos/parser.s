@@ -1613,11 +1613,11 @@ cmd_gp:
 	rts
 
 ;---------------------------------------------------------------
-; G-D - get disk change [CMD]
+; G-D - get diskchange [CMD]
 ;---------------------------------------------------------------
 cmd_gd:
-	; TODO
-	lda #$31
+	jsr get_diskchange
+	lda #$ff ; don't set status
 	clc
 	rts
 

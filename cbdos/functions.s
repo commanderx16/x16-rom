@@ -309,6 +309,8 @@ remove_directory:
 	lda fat32_errno
 	cmp #ERRNO_FILE_NOT_FOUND
 	beq @not_found
+	cmp #ERRNO_DIR_NOT_EMPTY
+	beq @not_found
 	jmp convert_errno_status
 
 @not_found:
@@ -840,6 +842,24 @@ get_partition:
 	lda partition_blocks
 	sta statusbuffer+29,x
 
+	lda #0
+	rts
+
+;---------------------------------------------------------------
+; get_diskchange
+;
+; Return a single byte indicating whether a disk change has
+; happened (=0: no, 1-255: yes), followed by a CR. [CMD FD docs]
+; * The CMD FD has a bug where the first byte is followed by
+;   lots of garbage.
+; * The CMD HD does not support this command.
+; * We implement the spec here.
+;---------------------------------------------------------------
+get_diskchange:
+	lda #1
+	sta status_w
+	stz statusbuffer ; not changed
+	stz status_r
 	lda #0
 	rts
 

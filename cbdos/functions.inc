@@ -21,6 +21,7 @@
 .global file_unlock
 .global file_restore
 .global get_partition
+.global get_diskchange
 .global memory_read
 .global memory_write
 .global memory_execute

@@ -218,9 +218,10 @@ cbdos_secnd:
 	cmp #$e0
 	beq @second_close
 
+; switch to context
 	ldx channel
 	lda context_for_channel,x
-	; XXX test
+	bmi @secnd_rts ; not a file context
 	jsr fat32_set_context
 
 	bra @secnd_rts
@@ -338,10 +339,11 @@ cbdos_unlsn:
 
 ;---------------------------------------------------------------
 ; Execute OPEN with filename
-	; XXX '$' only on channel 0!
 	lda buffer
 	cmp #'$'
 	bne @unlsn_open_file
+	lda channel
+	bne @unlsn_open_file ; only on channel 0
 
 ;---------------------------------------------------------------
 ; OPEN directory
@@ -655,7 +657,7 @@ status_from_errno:
 	.byte $63 ; ERRNO_FILE_EXISTS      = 4  -> FILE EXISTS
 	.byte $62 ; ERRNO_FILE_NOT_FOUND   = 5  -> FILE NOT FOUND
 	.byte $26 ; ERRNO_FILE_READ_ONLY   = 6  -> WRITE PROTECT ON
-	.byte $63 ; ERRNO_DIR_NOT_EMPTY    = 7  -> FILE EXISTS (XXX)
+	.byte $ff ; ERRNO_DIR_NOT_EMPTY    = 7  -> (not used)
 	.byte $74 ; ERRNO_NO_MEDIA         = 8  -> DRIVE NOT READY
 	.byte $74 ; ERRNO_NO_FS            = 9  -> DRIVE NOT READY
 	.byte $71 ; ERRNO_FS_INCONSISTENT  = 10 -> DIRECTORY ERROR
