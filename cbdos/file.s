@@ -50,8 +50,6 @@ file_second:
 
 ;---------------------------------------------------------------
 file_open:
-	; XXX check if channel already open
-
 	jsr fat32_alloc_context
 	pha
 	jsr fat32_set_context

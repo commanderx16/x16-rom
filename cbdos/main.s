@@ -15,9 +15,6 @@
 ; dir.s
 .import dir_open, dir_read
 
-; geos.s
-.import cbmdos_GetNxtDirEntry, cbmdos_Get1stDirEntry, cbmdos_CalcBlksFree, cbmdos_GetDirHead, cbmdos_ReadBlock, cbmdos_ReadBuff, cbmdos_OpenDisk
-
 ; functions.s
 .export cbdos_init
 
@@ -32,10 +29,8 @@
 .export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk
 .export cbdos_sdcard_detect
 
-
 .include "banks.inc"
 
-.include "fat32/fat32.inc"
 .include "file.inc"
 
 ieee_status = status
@@ -74,7 +69,7 @@ is_receiving_filename:
 context_for_channel:
 	.res 16, 0
 CONTEXT_NONE = $ff
-CONTEXT_DIR  = $fd
+CONTEXT_DIR  = $fe
 
 .segment "cbdos"
 
@@ -289,6 +284,13 @@ cbdos_unlsn:
 ;---------------------------------------------------------------
 ; OPEN file
 @unlsn_open_file:
+	ldx channel
+	lda context_for_channel,x
+	bmi @not_open
+
+	jsr file_close
+
+@not_open:
 	jsr file_open
 	bra @unlsn_end
 
