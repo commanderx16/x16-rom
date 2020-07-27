@@ -1740,7 +1740,7 @@ cmd_u0_l:
 ; U0>MR - burst memory read [1571]
 ;---------------------------------------------------------------
 cmd_u0_mr:
-	; TODO
+	; unsupported
 	lda #$31
 	clc
 	rts
@@ -1749,7 +1749,7 @@ cmd_u0_mr:
 ; U0>MW - burst memory write [1571]
 ;---------------------------------------------------------------
 cmd_u0_mw:
-	; TODO
+	; unsupported
 	lda #$31
 	clc
 	rts

@@ -152,7 +152,7 @@ soft_check_medium_a:
 ;---------------------------------------------------------------
 initialize:
 	jsr check_medium
-	; TODO
+	; TODO: (re-)mount
 	lda #0
 	rts
 
@@ -167,7 +167,7 @@ initialize:
 validate:
 	jsr check_medium
 
-	; TODO
+	; TODO: fsck
 	lda #$31
 	rts
 
@@ -194,7 +194,7 @@ validate:
 new:
 	jsr check_medium
 
-	; TODO
+	; TODO: mkfs
 	lda #$31
 	rts
 
@@ -364,13 +364,13 @@ user:
 
 ; U1/UA - read block
 @user_1:
-	; TODO
+	; TODO: read block
 	lda #$31
 	rts
 
 ; U2/UB - write block
 @user_2:
-	; TODO
+	; TODO: write block
 	lda #$31
 	rts
 
@@ -451,7 +451,7 @@ rename_partition:
 ; In:   a  unit number
 ;---------------------------------------------------------------
 change_unit:
-	; TODO
+	; TODO: change unit
 	lda #$31
 	rts
 
@@ -459,9 +459,6 @@ change_unit:
 ; copy_start
 ;
 ; Open destination file for writing.
-;
-; TODO:
-; * create mode: fail if file exists
 ;
 ; In:   medium/r0/r1   destination
 ;---------------------------------------------------------------
@@ -475,7 +472,7 @@ copy_start:
 
 	jsr create_fat32_path
 
-;;;
+;;; XXX unify duplicate code
 	jsr fat32_find_dirent
 	bcc @1
 	; exists, but don't overwrite
@@ -726,7 +723,7 @@ file_lock_toggle:
 file_restore:
 	jsr check_medium
 
-	; TODO:
+	; TODO: undelete
 	; FAT32 keeps the directory entry and the FAT links,
 	; but overwrites the first character. The user provides
 	; the full filename to this function though.

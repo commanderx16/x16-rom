@@ -106,6 +106,8 @@ file_open:
 	bra @open_file_err
 :	lda overwrite_flag
 	bne @open_create
+
+;;; XXX unify duplicate code
 	jsr fat32_find_dirent
 	bcc @1
 	; exists, but don't overwrite
@@ -114,6 +116,8 @@ file_open:
 
 @1:	lda fat32_errno
 	beq @open_create
+;;;
+
 	jsr set_errno_status
 	bra @open_file_err2
 
