@@ -7,10 +7,11 @@
 
 .include "functions.inc"
 
-.export execute_command
 .export parse_cbmdos_filename
-.import buffer, buffer_len, buffer_overflow
-.import set_status
+.import buffer, buffer_len
+
+; cmdch.s
+.export parse_command
 
 ; functions.s
 .export medium, medium1, unix_path, create_unix_path, create_unix_path_b
@@ -19,24 +20,6 @@
 ; main.s
 .export overwrite_flag
 .export find_wildcards
-
-.code
-
-execute_command:
-	ldx #0
-	ldy buffer_len
-	beq @rts ; empty
-
-	jsr parse_command
-	bcc @1
-	lda #$30 ; generic syntax error
-	jmp set_status
-
-@1:	cmp #$ff ; command has already put data into the status buffer
-	beq @rts
-	jmp set_status
-
-@rts:	rts
 
 .bss
 

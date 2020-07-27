@@ -19,7 +19,7 @@
 .import convert_errno_status
 
 ; cmdch.s
-.import statusbuffer, status_w, status_r
+.import status_clear, status_put
 
 .export create_fat32_path_only_dir, create_fat32_path_only_name
 
@@ -778,9 +778,7 @@ get_partition:
 	rts
 :
 
-	lda #30
-	sta status_w
-	stz status_r
+	jsr status_clear
 
 	; The CMD specification uses 3 bytes for the
 	; start LBA and the size, allowing for disks
@@ -794,53 +792,53 @@ get_partition:
 
 	ldx #0
 	lda partition_type  ;     0 -     partition type (same as MBR type)
-	sta statusbuffer,x
+	jsr status_put
 	lda #$00 ;                1 -     reserved (0)
-	sta statusbuffer+1,x
+	jsr status_put
 	lda #$01 ;                2 -     partition number
-	sta statusbuffer+2,x
+	jsr status_put
 	lda #'F' ;                3 - 17  partition name
-	sta statusbuffer+3,x
+	jsr status_put
 	lda #'A'
-	sta statusbuffer+4,x
+	jsr status_put
 	lda #'T'
-	sta statusbuffer+5,x
+	jsr status_put
 	lda #'3'
-	sta statusbuffer+6,x
+	jsr status_put
 	lda #'2'
-	sta statusbuffer+7,x
+	jsr status_put
 	lda #$a0 ; terminator
-	sta statusbuffer+8,x
-	sta statusbuffer+9,x
-	sta statusbuffer+10,x
-	sta statusbuffer+11,x
-	sta statusbuffer+12,x
-	sta statusbuffer+13,x
-	sta statusbuffer+14,x
-	sta statusbuffer+15,x
-	sta statusbuffer+16,x
-	sta statusbuffer+17,x
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
 	lda lba_partition+3 ;    18 - 21  partition start LBA (big endian)
-	sta statusbuffer+18,x
+	jsr status_put
 	lda lba_partition+2
-	sta statusbuffer+19,x
+	jsr status_put
 	lda lba_partition+1
-	sta statusbuffer+20,x
+	jsr status_put
 	lda lba_partition
-	sta statusbuffer+21,x
+	jsr status_put
 	lda #$00 ;               22 - 25  reserved (0)
-	sta statusbuffer+22,x
-	sta statusbuffer+23,x
-	sta statusbuffer+24,x
-	sta statusbuffer+25,x
+	jsr status_put
+	jsr status_put
+	jsr status_put
+	jsr status_put
 	lda partition_blocks+3 ; 26 - 29  partition size (in 512 byte blocks)
-	sta statusbuffer+26,x
+	jsr status_put
 	lda partition_blocks+2
-	sta statusbuffer+27,x
+	jsr status_put
 	lda partition_blocks+1
-	sta statusbuffer+28,x
+	jsr status_put
 	lda partition_blocks
-	sta statusbuffer+29,x
+	jsr status_put
 
 	lda #0
 	rts
@@ -856,10 +854,9 @@ get_partition:
 ; * We implement the spec here.
 ;---------------------------------------------------------------
 get_diskchange:
+	jsr status_clear
 	lda #1
-	sta status_w
-	stz statusbuffer ; not changed
-	stz status_r
+	jsr status_put
 	lda #0
 	rts
 
@@ -872,16 +869,17 @@ get_diskchange:
 memory_read:
 	stx fat32_ptr
 	sty fat32_ptr + 1
-	sta status_w
+	sta fat32_ptr2
+
+	jsr status_clear
 
 	ldy #0
 @1:	lda (fat32_ptr),y
-	sta statusbuffer,y
+	jsr status_put
 	iny
-	cpy status_w
+	cpy fat32_ptr2
 	bne @1
 
-	stz status_r
 	lda #0
 	rts
 

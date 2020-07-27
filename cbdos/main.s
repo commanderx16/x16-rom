@@ -6,15 +6,14 @@
 .import sdcard_init
 
 .import fat32_init
-.import fat32_dirent
 .import sync_sector_buffer
-.importzp krn_ptr1, read_blkptr, bank_save
+.importzp bank_save
 
 ; cmdch.s
-.import execute_command, set_status, acptr_status
+.import cmdch_exec, set_status, cmdch_read
 
 ; dir.s
-.import open_dir, acptr_dir
+.import dir_open, dir_read
 
 ; geos.s
 .import cbmdos_GetNxtDirEntry, cbmdos_Get1stDirEntry, cbmdos_CalcBlksFree, cbmdos_GetDirHead, cbmdos_ReadBlock, cbmdos_ReadBuff, cbmdos_OpenDisk
@@ -23,13 +22,8 @@
 .export cbdos_init
 
 ; parser.s
-.import parse_cbmdos_filename, create_unix_path, unix_path, buffer, overwrite_flag
-.import find_wildcards
-.import file_mode, buffer_len, buffer_overflow
-.import r1s, r1e
-
-; functions.s
-.import medium, soft_check_medium_a
+.import buffer
+.import buffer_len, buffer_overflow
 
 ; file.s
 .export CONTEXT_NONE ; XXX
@@ -37,17 +31,7 @@
 
 .include "banks.inc"
 
-;.include "common.inc"
-IMPORTED_FROM_MAIN=1
-
-.feature labels_without_colons
-
 .include "fat32/fat32.inc"
-.include "fat32/regs.inc"
-.include "fcntl.inc"
-;.include "65c02.inc"
-
-
 .include "file.inc"
 
 ieee_status = status
@@ -311,7 +295,7 @@ cbdos_unlsn:
 ;---------------------------------------------------------------
 ; OPEN directory
 	lda buffer_len ; filename length
-	jsr open_dir
+	jsr dir_open
 	bcs @unlsn_end
 
 	lda #CONTEXT_DIR
@@ -331,7 +315,7 @@ cbdos_unlsn:
 ; UNLISTEN on command channel will ignore whether it was
 ; and OPEN command; it will always trigger command execution
 @unlisten_cmdch:
-	jsr execute_command
+	jsr cmdch_exec
 
 @unlsn_end:
 	stz buffer_len
@@ -384,7 +368,7 @@ cbdos_acptr:
 	bne @nacptr_status
 
 ; *** STATUS
-	jsr acptr_status
+	jsr cmdch_read
 	bra @acptr_eval
 
 @nacptr_status:
@@ -395,7 +379,7 @@ cbdos_acptr:
 	bne @acptr_none
 
 ; *** DIR
-	jsr acptr_dir
+	jsr dir_read
 	bra @acptr_eval
 
 ; *** NONE

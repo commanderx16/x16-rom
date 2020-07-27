@@ -3,19 +3,18 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.export set_status, acptr_status
+.export set_status, cmdch_read
+.export cmdch_exec
 
-; parse.s
+; parser.s
 .export buffer, buffer_len, buffer_overflow
+.import parse_command
 
 ; zeropage.s
 .importzp krn_ptr1
 
-; sdcard.s
-.import sdcard_init
-
 ; functions.s
-.export statusbuffer, status_w, status_r
+.export status_clear, status_put
 
 MAX_STATUS_LEN = 40
 
@@ -39,6 +38,35 @@ status_w:
 	.byte 0
 
 .segment "cbdos"
+
+;---------------------------------------------------------------
+cmdch_exec:
+	ldx #0
+	ldy buffer_len
+	beq @rts ; empty
+
+	jsr parse_command
+	bcc @1
+	lda #$30 ; generic syntax error
+	jmp set_status
+
+@1:	cmp #$ff ; command has already put data into the status buffer
+	beq @rts
+	jmp set_status
+
+@rts:	rts
+
+;---------------------------------------------------------------
+status_clear:
+	stz status_w
+	stz status_r
+	rts
+
+status_put:
+	ldx status_w
+	sta statusbuffer,x
+	inc status_w
+	rts
 
 ;---------------------------------------------------------------
 set_status_ok:
@@ -293,17 +321,17 @@ status_77:
 ;   $51     OVERFLOW IN RECORD
 ;   $52     FILE TOO LARGE
 
-acptr_status:
+cmdch_read:
 	ldy status_r
 	cpy status_w
-	beq @acptr_status_eoi
+	beq @cmdch_read_eoi
 
 	lda statusbuffer,y
 	inc status_r
 	clc ; !eof
 	rts
 
-@acptr_status_eoi:
+@cmdch_read_eoi:
 	jsr set_status_ok
 	lda #$0d
 	sec ; eof
