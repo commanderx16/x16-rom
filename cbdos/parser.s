@@ -8,20 +8,30 @@
 .include "functions.inc"
 
 .export parse_cbmdos_filename
-.import buffer, buffer_len
+.export buffer, buffer_len, buffer_overflow
 
 ; cmdch.s
 .export parse_command
 
 ; functions.s
-.export medium, medium1, unix_path, create_unix_path, create_unix_path_b
+.export medium, medium1, unix_path, create_unix_path, append_unix_path_b
+.export create_unix_path_only_dir, create_unix_path_only_name
+
 .export r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e, file_mode
 
-; main.s
+; file.s
 .export overwrite_flag
 .export find_wildcards
 
 .bss
+
+; buffer for filenames and commands
+buffer:
+	.res 256, 0
+buffer_len:
+	.byte 0
+buffer_overflow:
+	.byte 0
 
 overwrite_flag:
 	.byte 0
@@ -449,6 +459,7 @@ parse_path:
 ;       y          points to after terminating zero
 ;---------------------------------------------------------------
 create_unix_path:
+	ldy #0
 	ldx r0s
 	lda r0e
 	jsr copy_chars
@@ -459,7 +470,8 @@ create_unix_path:
 	sta unix_path,y
 	iny
 	rts
-create_unix_path_b:
+
+append_unix_path_b:
 	ldx r2s
 	lda r2e
 	jsr copy_chars
@@ -470,6 +482,27 @@ create_unix_path_b:
 	sta unix_path,y
 	iny
 	rts
+
+create_unix_path_only_dir:
+	ldy #0
+	ldx r0s
+	lda r0e
+	jsr copy_chars
+	lda #0
+	sta unix_path,y
+	iny
+	rts
+
+create_unix_path_only_name:
+	ldy #0
+	ldx r1s
+	lda r1e
+	jsr copy_chars
+	lda #0
+	sta unix_path,y
+	iny
+	rts
+
 
 ;---------------------------------------------------------------
 ; find_wildcards
@@ -602,6 +635,15 @@ parse_cbmdos_filename:
 ;
 ;---------------------------------------------------------------
 parse_command:
+	ldx #0
+	ldy buffer_len
+	bne @nempty
+
+	lda #$ff ; don't set status
+	clc
+	rts
+
+@nempty:
 	stx r0s
 	sty r0e
 	; zero terminate, so we don't have to worry
@@ -1591,7 +1633,6 @@ cmd_gp:
 	cmp #0
 	bne :+
 
-	lda #$ff ; don't set status
 :	clc
 	rts
 
@@ -1600,7 +1641,6 @@ cmd_gp:
 ;---------------------------------------------------------------
 cmd_gd:
 	jsr get_diskchange
-	lda #$ff ; don't set status
 	clc
 	rts
 
@@ -1612,7 +1652,6 @@ cmd_mr:
 	ldy buffer+4
 	lda buffer+5
 	jsr memory_read
-	lda #$ff ; don't set status
 	clc
 	rts
 

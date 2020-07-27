@@ -8,11 +8,7 @@
 ; cmdch.s
 .import set_status
 
-; fat32.s
-.import fat32_dirent, fat32_get_free_space, fat32_size
-.import fat32_read_dirent_filtered
-
-; main.s
+; file.s
 .import set_errno_status
 
 ; functions.s
@@ -23,7 +19,6 @@
 .import soft_check_medium_a
 .import medium
 .import parse_cbmdos_filename
-.import buffer
 .import r0s, r0e, r1s, r1e
 
 .include "fat32/fat32.inc"

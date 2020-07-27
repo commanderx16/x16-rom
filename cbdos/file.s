@@ -68,7 +68,6 @@ file_open:
 	lda #$34 ; syntax error (empty filename)
 	jmp @open_file_err
 :
-	ldy #0
 	jsr create_unix_path
 	lda #<unix_path
 	sta fat32_ptr + 0

@@ -11,7 +11,7 @@
 .import cbdos_init
 
 ; parser.s
-.import medium, medium1, unix_path, unix_path2, create_unix_path, create_unix_path_b
+.import medium, medium1, unix_path, unix_path2, create_unix_path, append_unix_path_b
 .import r0s, r0e, r1s, r1e, r2s, r2e, r3s, r3e
 
 ; main.s
@@ -22,6 +22,8 @@
 .import status_clear, status_put
 
 .export create_fat32_path_only_dir, create_fat32_path_only_name
+
+.import create_unix_path_only_dir, create_unix_path_only_name
 
 .import buffer
 
@@ -65,7 +67,6 @@ create_fat32_path:
 	sta fat32_ptr + 0
 	lda #>unix_path
 	sta fat32_ptr + 1
-	ldy #0
 	jmp create_unix_path
 
 create_fat32_path_x2:
@@ -79,54 +80,33 @@ create_fat32_path_x2:
 	adc #0
 	sta fat32_ptr2 + 1
 
-	jmp create_unix_path_b
+	jmp append_unix_path_b
 
 ;---------------------------------------------------------------
 create_fat32_path_only_dir:
-	; pass in just the path, not the name
-	ldx r0e
-	cpx r0s
-	beq @no_path
-	stz buffer,x
-	lda r0s
-	clc
-	adc #<buffer
+	lda #<unix_path
 	sta fat32_ptr + 0
-	lda #>buffer
-	adc #0
+	lda #>unix_path
 	sta fat32_ptr + 1
-	bra @nempty
-
-@no_path:
-	; current directory
-	stz fat32_ptr
+	jsr create_unix_path_only_dir
+	lda unix_path
+	bne @1
+	stz fat32_ptr + 0
 	stz fat32_ptr + 1
-
-@nempty:
-	rts
+@1:	rts
 
 ;---------------------------------------------------------------
 create_fat32_path_only_name:
-	; pass in just the name, not the path
-	ldx r1e
-	cpx r1s
-	beq @no_name
-	stz buffer,x
-	lda r1s
-	clc
-	adc #<buffer
+	lda #<unix_path
 	sta fat32_ptr + 0
-	lda #>buffer
-	adc #0
+	lda #>unix_path
 	sta fat32_ptr + 1
-	bra @read_cont
-
-@no_name:
-	stz fat32_ptr
+	jsr create_unix_path_only_name
+	lda unix_path
+	bne @1
+	stz fat32_ptr + 0
 	stz fat32_ptr + 1
-
-@read_cont:
-	rts
+@1:	rts
 
 
 ;---------------------------------------------------------------
@@ -159,7 +139,7 @@ soft_check_medium_a:
 ;---------------------------------------------------------------
 ; for all these implementations:
 ;
-; Out:  a  status
+; Out:  a  status ($ff = don't set status)
 ;       c  (unused)
 ;---------------------------------------------------------------
 
@@ -840,7 +820,7 @@ get_partition:
 	lda partition_blocks
 	jsr status_put
 
-	lda #0
+	lda #$ff ; don't set status
 	rts
 
 ;---------------------------------------------------------------
@@ -857,7 +837,7 @@ get_diskchange:
 	jsr status_clear
 	lda #1
 	jsr status_put
-	lda #0
+	lda #$ff ; don't set status
 	rts
 
 ;---------------------------------------------------------------
@@ -880,7 +860,7 @@ memory_read:
 	cpy fat32_ptr2
 	bne @1
 
-	lda #0
+	lda #$ff ; don't set status
 	rts
 
 ;---------------------------------------------------------------

@@ -7,7 +7,6 @@
 .export cmdch_exec
 
 ; parser.s
-.export buffer, buffer_len, buffer_overflow
 .import parse_command
 
 ; zeropage.s
@@ -20,17 +19,9 @@ MAX_STATUS_LEN = 40
 
 .segment "cbdos_data"
 
-; buffer for filenames and commands
-buffer:
-	.res 256, 0
-
 statusbuffer:
 	.res MAX_STATUS_LEN, 0
 
-buffer_len:
-	.byte 0
-buffer_overflow:
-	.byte 0
 
 status_r:
 	.byte 0
@@ -38,23 +29,6 @@ status_w:
 	.byte 0
 
 .segment "cbdos"
-
-;---------------------------------------------------------------
-cmdch_exec:
-	ldx #0
-	ldy buffer_len
-	beq @rts ; empty
-
-	jsr parse_command
-	bcc @1
-	lda #$30 ; generic syntax error
-	jmp set_status
-
-@1:	cmp #$ff ; command has already put data into the status buffer
-	beq @rts
-	jmp set_status
-
-@rts:	rts
 
 ;---------------------------------------------------------------
 status_clear:
@@ -83,14 +57,14 @@ set_status_74:
 
 set_status:
 	cmp #$01   ; FILES SCRATCHED
-	beq @clr_y
+	beq @keep_x
 	cmp #$02   ; PARTITION SELECTED
-	beq @clr_y
+	beq @keep_x
 	cmp #$77   ; SELECTED PARTITION ILLEGAL
-	beq @clr_y
+	beq @keep_x
 
 	ldx #0
-@clr_y:
+@keep_x:
 	ldy #0
 	phy
 	phx
@@ -321,6 +295,7 @@ status_77:
 ;   $51     OVERFLOW IN RECORD
 ;   $52     FILE TOO LARGE
 
+;---------------------------------------------------------------
 cmdch_read:
 	ldy status_r
 	cpy status_w
@@ -336,3 +311,17 @@ cmdch_read:
 	lda #$0d
 	sec ; eof
 	rts
+
+;---------------------------------------------------------------
+cmdch_exec:
+	jsr parse_command
+	bcc @1
+	lda #$30 ; generic syntax error
+	jmp set_status
+
+@1:	cmp #$ff ; command has already put data into the status buffer
+	beq @rts
+	jmp set_status
+
+@rts:	rts
+

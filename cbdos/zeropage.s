@@ -1,4 +1,4 @@
-.global krn_ptr1, read_blkptr, buffer, bank_save
+.global krn_ptr1, read_blkptr, bank_save
 .global fat32_bufptr, fat32_ptr, fat32_ptr2
 
 .segment "ZPCBDOS" : zeropage
