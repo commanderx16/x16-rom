@@ -141,6 +141,7 @@ CBDOS_SOURCES = \
 	cbdos/zeropage.s \
 	cbdos/jumptab.s \
 	cbdos/main.s \
+	cbdos/match.s \
 	cbdos/file.s \
 	cbdos/cmdch.s \
 	cbdos/dir.s \

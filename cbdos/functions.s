@@ -20,6 +20,9 @@
 ; cmdch.s
 .import status_clear, status_put
 
+; match.s
+.import skip_mask
+
 .export create_fat32_path_only_dir, create_fat32_path_only_name
 
 .import create_unix_path_only_dir, create_unix_path_only_name
