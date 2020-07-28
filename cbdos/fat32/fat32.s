@@ -1262,7 +1262,14 @@ fat32_read_dirent:
 @error:	clc     ; Indicate error
 	rts
 @1:
-
+	; Skip volume label entries
+	ldy #11
+	lda (fat32_bufptr), y
+	sta fat32_dirent + dirent::attributes
+	cmp #8
+	bne @2
+	jmp @next_entry
+@2:
 	; Last entry?
 	ldy #0
 	lda (fat32_bufptr), y
@@ -1274,19 +1281,17 @@ fat32_read_dirent:
 	jmp @next_entry_clear_lfn_buffer
 @3:
 
-	; Skip volume label entries
-	ldy #11
-	lda (fat32_bufptr), y
-	sta fat32_dirent + dirent::attributes
-	cmp #8
-	bne @2
-	jmp @next_entry_clear_lfn_buffer
-@2:
-
 	; check for LFN entry
+	lda fat32_dirent + dirent::attributes
 	cmp #$0f
+.if 0
 	beq @lfn_entry
 	bra @short_entry
+.else
+	bne :+
+	jmp @next_entry_clear_lfn_buffer
+:	jmp @short_entry
+.endif
 @lfn_entry:
 
 	; does it have the right index?
@@ -1417,7 +1422,7 @@ fat32_read_dirent:
 	cmp #' '
 	beq @name_done
 	bit tmp_sfn_case
-	bpl @ucase1
+	bpl @ucase2
 	jsr to_lower
 @ucase2:
 	sta fat32_dirent + dirent::name, x
