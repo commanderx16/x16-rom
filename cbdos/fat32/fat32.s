@@ -73,6 +73,9 @@ tmp_sector_lba:      .dword 0      ; Used by next_sector
 name_offset:         .byte 0
 tmp_dir_cluster:     .dword 0
 
+last_lfn_index:      .byte 0
+lfn_checksum:        .byte 0
+
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
 cur_context:         .tag context  ; Current file descriptor state
@@ -89,6 +92,9 @@ contexts:            .res CONTEXT_SIZE * FAT32_CONTEXTS
 .if .sizeof(context) > CONTEXT_SIZE
 .error "Context too big"
 .endif
+
+lfnbuffer:
+	.res 20*32 ; 20 directory entries (13 chars * 20 > 255 chars)
 
 _fat32_bss_end:
 
@@ -1250,14 +1256,7 @@ fat32_read_dirent:
 @error:	clc     ; Indicate error
 	rts
 @1:
-	; Skip volume label entries
-	ldy #11
-	lda (fat32_bufptr), y
-	sta fat32_dirent + dirent::attributes
-	and #8
-	beq @2
-	jmp @next_entry
-@2:
+
 	; Last entry?
 	ldy #0
 	lda (fat32_bufptr), y
@@ -1266,8 +1265,86 @@ fat32_read_dirent:
 	; Skip empty entries
 	cmp #$E5
 	bne @3
-	jmp @next_entry
+	jmp @next_entry_clear_lfn_buffer
 @3:
+
+	; Skip volume label entries
+	ldy #11
+	lda (fat32_bufptr), y
+	sta fat32_dirent + dirent::attributes
+	cmp #8
+	bne @2
+	jmp @next_entry_clear_lfn_buffer
+@2:
+
+	; check for LFN entry
+	cmp #$0f
+	beq @lfn_entry
+	bra @short_entry
+@lfn_entry:
+
+	; does it have the right index?
+	jsr check_lfn_index
+	bcs @index_ok
+	jmp @next_entry_clear_lfn_buffer
+@index_ok:
+
+	; first LFN entry?
+	lda last_lfn_index
+	bne @not_first_lfn_entry
+
+; first LFN entry
+	; init buffer
+	set16_val fat32_lfn_bufptr, lfnbuffer
+
+	; add entry to buffer
+	jsr add_lfn_entry
+
+	; save checksum
+	ldy #13
+	lda (fat32_bufptr), y
+	sta lfn_checksum
+
+	; prepare expected index
+	lda (fat32_bufptr)
+	and #$1f
+	sta last_lfn_index
+
+	; continue with next entry
+	jmp @next_entry
+
+; followup LFN entry
+@not_first_lfn_entry:
+
+	; compare checksum
+	ldy #13
+	lda (fat32_bufptr), y
+	cmp lfn_checksum
+	beq @checksum_ok
+	jmp @next_entry_clear_lfn_buffer
+
+@checksum_ok:
+	; add entry to buffer
+	jsr add_lfn_entry
+
+	dec last_lfn_index
+
+	; continue with next entry
+	jmp @next_entry
+
+
+;*******
+@short_entry:
+	; is there a LFN?
+	lda last_lfn_index
+	cmp #1
+	bne @is_short
+
+	; XXX TODO compare checksum
+
+	brk
+
+@is_short:
 	; Copy first part of file name
 	ldy #0
 @4:	lda (fat32_bufptr), y
@@ -1348,9 +1425,50 @@ fat32_read_dirent:
 	sec
 	rts
 
+@next_entry_clear_lfn_buffer:
+	stz last_lfn_index
+
 @next_entry:
 	add16_val fat32_bufptr, fat32_bufptr, 32
 	jmp fat32_read_dirent
+
+;-----------------------------------------------------------------------------
+; check_lfn_index
+;
+; * c=1: ok
+;-----------------------------------------------------------------------------
+check_lfn_index:
+	lda last_lfn_index
+	bne @followup
+
+	; expected start
+	lda (fat32_bufptr)
+	asl
+	asl ; bit #6 -> C
+	rts
+
+@followup:
+	lda last_lfn_index
+	dec
+	cmp (fat32_bufptr)
+	beq @yes
+	clc
+@yes:	rts
+
+
+;-----------------------------------------------------------------------------
+; add_lfn_entry
+;-----------------------------------------------------------------------------
+add_lfn_entry:
+	ldy #31
+:	lda (fat32_bufptr),y
+	sta (fat32_lfn_bufptr),y
+	dey
+	bpl :-
+	add16_val fat32_lfn_bufptr, fat32_bufptr, 32
+	rts
+
+
 
 
 ;-----------------------------------------------------------------------------
