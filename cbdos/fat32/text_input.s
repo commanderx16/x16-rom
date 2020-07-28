@@ -20,3 +20,17 @@ to_upper:
 	; Make uppercase
 	and #$DF
 @done:	rts
+
+;-----------------------------------------------------------------------------
+; to_lower
+;-----------------------------------------------------------------------------
+to_lower:
+	; Lower case character?
+	cmp #'A'
+	bcc @done
+	cmp #'Z'+1
+	bcs @done
+
+	; Make lowercase
+	ora #$20
+@done:	rts

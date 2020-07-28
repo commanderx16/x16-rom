@@ -78,6 +78,8 @@ num_lfn_components:  .byte 0
 lfn_checksum:        .byte 0
 lfn_char_count:      .byte 0
 
+tmp_sfn_case = num_lfn_components
+
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
 cur_context:         .tag context  ; Current file descriptor state
@@ -1367,11 +1369,23 @@ fat32_read_dirent:
 	bra @name_done2
 
 @is_short:
+	; get upper/lower case flags
+	ldy #12
+	lda (fat32_bufptr), y
+	asl
+	asl
+	asl ; bits 7 and 6
+	sta tmp_sfn_case
+
 	; Copy first part of file name
 	ldy #0
 @4:	lda (fat32_bufptr), y
 	cmp #' '
 	beq @skip_spaces
+	bit tmp_sfn_case
+	bvc @ucase1
+	jsr to_lower
+@ucase1:
 	sta fat32_dirent + dirent::name, y
 	iny
 	cpy #8
@@ -1402,6 +1416,10 @@ fat32_read_dirent:
 @7:	lda (fat32_bufptr), y
 	cmp #' '
 	beq @name_done
+	bit tmp_sfn_case
+	bpl @ucase1
+	jsr to_lower
+@ucase2:
 	sta fat32_dirent + dirent::name, x
 	iny
 	inx
