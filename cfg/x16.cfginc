@@ -14,8 +14,8 @@
 /* zero page */
 /*        start = $0000, size = $0080; # available to the user (or GEOS) */
 ZPKERNAL: start = $0080, size = $0012; # KERNAL
-ZPCBDOS:  start = $0092, size = $000B; # CBDOS
-/*        start = $009D, size = $000C; # reserved for CBDOS or BASIC growth */
+ZPCBDOS:  start = $0092, size = $000D; # CBDOS
+/*        start = $009F, size = $000A; # reserved for CBDOS or BASIC growth */
 ZPFPLIB:  start = $00A9, size = $002B; # FPLIB
 ZPBASIC:  start = $00D4, size = $002B; # BASIC (last byte used: $FE)
 

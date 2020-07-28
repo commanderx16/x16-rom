@@ -1,6 +1,6 @@
 .include "../vera.inc"
 
-.importzp fat32_bufptr, fat32_ptr, fat32_ptr2
+.importzp fat32_bufptr, fat32_lfn_bufptr, fat32_ptr, fat32_ptr2
 
 ;-----------------------------------------------------------------------------
 ; Registers
@@ -12,7 +12,7 @@ SPI_DATA      = VERA_SPI_DATA
 ; Kernel variables
 ;-----------------------------------------------------------------------------
 .struct dirent
-name       .res 13
+name       .res 256
 attributes .byte
 size       .dword
 cluster    .dword

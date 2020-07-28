@@ -22,12 +22,11 @@
 .include "fat32/regs.inc"
 
 DIRSTART = $0801 ; load address of directory
-MAX_DIRLINE_LEN = 40
 
 .segment "cbdos_data"
 
 dirbuffer:
-	.res MAX_DIRLINE_LEN, 0
+	.res 256, 0
 
 dirbuffer_r:
 	.byte 0
@@ -174,9 +173,9 @@ read_dir_entry:
 	jsr set_errno_status
 :	jmp @read_dir_entry_end
 
-@found:	lda fat32_dirent + dirent::name
-	cmp #'.' ; hide "." and ".."
-	beq @read_entry
+@found:	;lda fat32_dirent + dirent::name
+	;cmp #'.' ; hide "." and ".."
+	;beq @read_entry
 
 	ldy #0
 	lda #1
@@ -272,7 +271,7 @@ read_dir_entry:
 :	jsr storedir
 	inx
 	cpx #16
-	bne :-
+	bcc :-
 
 	lda fat32_dirent + dirent::attributes
 	bit #$10 ; = directory

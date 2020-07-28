@@ -8,15 +8,15 @@
 	.code
 
 ;-----------------------------------------------------------------------------
-; to_upper
+; to_lower
 ;-----------------------------------------------------------------------------
-to_upper:
+to_lower:
 	; Lower case character?
-	cmp #'a'
+	cmp #'A'
 	bcc @done
-	cmp #'z'+1
+	cmp #'Z'+1
 	bcs @done
 
-	; Make uppercase
-	and #$DF
+	; Make lowercase
+	ora #$20
 @done:	rts

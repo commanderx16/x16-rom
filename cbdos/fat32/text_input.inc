@@ -16,6 +16,5 @@ MAX_LINE_LEN = 254
 .global split_line
 .global next_line_part
 
-.global to_upper
 .global to_lower
 

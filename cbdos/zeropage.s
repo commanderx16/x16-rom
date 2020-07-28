@@ -1,5 +1,5 @@
 .global krn_ptr1, read_blkptr, bank_save
-.global fat32_bufptr, fat32_ptr, fat32_ptr2
+.global fat32_bufptr, fat32_lfn_bufptr, fat32_ptr, fat32_ptr2
 
 .segment "ZPCBDOS" : zeropage
 
@@ -13,6 +13,8 @@ bank_save:
 
 ; FAT 32
 fat32_bufptr:
+	.res 2 ; word - Internally used by FAT32 code
+fat32_lfn_bufptr:
 	.res 2 ; word - Internally used by FAT32 code
 fat32_ptr:
 	.res 2 ; word - Buffer pointer to various functions

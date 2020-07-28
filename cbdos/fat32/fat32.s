@@ -13,7 +13,7 @@
 
 	.import sector_buffer, sector_buffer_end, sector_lba
 
-	.import match_name, match_type
+	.import filename_char_16_to_8, filename_char_8_to_16, match_name, match_type
 
 CONTEXT_SIZE = 32
 
@@ -41,7 +41,7 @@ fat32_size:
 fat32_cwd_cluster:
 	.res 4 ; dword - Cluster of current directory
 fat32_dirent:
-	.res 22 ; 22 bytes - Buffer containing decoded directory entry
+	.res .sizeof(dirent) ; Buffer containing decoded directory entry
 fat32_errno:
 	.byte 0 ; byte - last error
 
@@ -73,6 +73,21 @@ tmp_sector_lba:      .dword 0      ; Used by next_sector
 name_offset:         .byte 0
 tmp_dir_cluster:     .dword 0
 
+; LFN
+lfn_index:           .byte 0       ; counter when collecting/decoding LFN entries
+lfn_count:           .byte 0       ; number of LFN dir entries when reading/creating
+lfn_checksum:        .byte 0       ; created or expected LFN checksum
+lfn_char_count:      .byte 0       ; counter when decoding LFN characters
+lfn_name_index:      .byte 0       ; counter when decoding LFN characters
+tmp_sfn_case:        .byte 0       ; flags when decoding SFN characters
+free_entry_count:    .byte 0       ; counter when looking for contig. free dir entries
+marked_entry_lba:    .res 4        ; mark/rewind data for directory entries
+marked_entry_cluster:.res 4
+marked_entry_offset: .res 2
+tmp_entry:           .res 21       ; SFN fields except name, saved during rename
+
+tmp_attrib:          .byte 0       ; temporary: attribute when creating a dir entry
+
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
 cur_context:         .tag context  ; Current file descriptor state
@@ -89,6 +104,10 @@ contexts:            .res CONTEXT_SIZE * FAT32_CONTEXTS
 .if .sizeof(context) > CONTEXT_SIZE
 .error "Context too big"
 .endif
+
+; LFN
+lfnbuffer:
+	.res 20*32 ; 20 directory entries (13 chars * 20 > 255 chars)
 
 _fat32_bss_end:
 
@@ -526,121 +545,100 @@ allocate_cluster:
 ; validate_char
 ;-----------------------------------------------------------------------------
 validate_char:
-	; Allowed: 33, 35-41, 45, 48-57, 64-90, 94-96, 123, 125, 126
-	cmp #33
-	beq @ok
-	cmp #35
-	bcc @not_ok
-	cmp #41+1
-	bcc @ok
-	cmp #45
-	beq @ok
-	cmp #48
-	bcc @not_ok
-	cmp #57+1
-	bcc @ok
-	cmp #64
-	bcc @not_ok
-	cmp #90+1
-	bcc @ok
-	cmp #94
-	bcc @not_ok
-	cmp #96
-	bcc @ok
-	cmp #123
-	beq @ok
-	cmp #125
-	beq @ok
-	cmp #126
-	beq @ok
-
-@not_ok:
-	clc
-	rts
-@ok:	sec
-	rts
-
-;-----------------------------------------------------------------------------
-; convert_filename
-;
-; * c=0: failure; sets errno
-;-----------------------------------------------------------------------------
-convert_filename:
-	ldy name_offset
-
-	; Disallow empty string or string starting with '.'
-	lda (fat32_ptr), y
+	cmp #$22 ; quote
 	beq @not_ok
-	cmp #'.'
+	cmp #'*'
+	beq @not_ok
+	cmp #'/'
+	beq @not_ok
+	cmp #':'
+	beq @not_ok
+	cmp #'<'
+	beq @not_ok
+	cmp #'>'
+	beq @not_ok
+	cmp #'?'
+	beq @not_ok
+	cmp #'\'
+	beq @not_ok
+	cmp #'|'
 	beq @not_ok
 
-	; Copy name part
-	ldx #0
-@loop1:	lda (fat32_ptr), y
-	beq @name_pad
-	cmp #'.'
-	beq @name_pad
-	jsr to_upper
-	jsr validate_char
-	bcc @not_ok
-	sta filename_buf, x
-	inx
-	iny
-	cpx #8
-	bne @loop1
-
-	; Pad name with spaces
-@name_pad:
-	lda #' '
-@loop2:	cpx #8
-	beq @name_pad_done
-	sta filename_buf, x
-	inx
-	bra @loop2
-@name_pad_done:
-
-	; Check next character
-	lda (fat32_ptr), y
-	beq @ext_pad
-	cmp #'.'
-	beq @ext
-	bra @not_ok
-
-	; Copy extension part
-@ext:	iny	; Skip '.'
-
-@loop3:	lda (fat32_ptr), y
-	beq @ext_pad
-	jsr to_upper
-	jsr validate_char
-	bcc @not_ok
-	sta filename_buf, x
-	inx
-	iny
-	cpx #11
-	bne @loop3
-
-	; Check for end of string
-	lda (fat32_ptr), y
-	bne @not_ok
-
-	; Pad extension with spaces
-@ext_pad:
-	lda #' '
-@loop4:	cpx #11
-	beq @ext_pad_done
-	sta filename_buf, x
-	inx
-	bra @loop4
-@ext_pad_done:
-
-	; Done
 	sec
 	rts
 
 @not_ok:
-	lda #ERRNO_ILLEGAL_FILENAME
-	jmp set_errno
+	clc
+	rts
+
+;-----------------------------------------------------------------------------
+; create_shortname
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+create_shortname:
+	ldx #0
+	lda marked_entry_lba + 3
+	jsr hexbuf8
+	lda marked_entry_lba + 2
+	jsr hexbuf8
+	lda marked_entry_lba + 1
+	jsr hexbuf8
+	lda marked_entry_lba + 0
+	jsr hexbuf8
+	lda #'~'
+	sta filename_buf, x
+	inx
+	lda fat32_bufptr + 0
+	sec
+	sbc #<sector_buffer
+	pha
+	lda fat32_bufptr + 1
+	sbc #>sector_buffer
+	lsr
+	pla
+	ror
+	lsr
+	lsr
+	lsr
+	lsr
+	jsr hexbuf4
+	lda #'~'
+	sta filename_buf, x
+
+	; Checksum
+	lda #0
+	tay
+@checksum_loop:
+	tax
+	lsr
+	txa
+	ror
+	clc
+	adc filename_buf, y
+	iny
+	cpy #11
+	bne @checksum_loop
+	sta lfn_checksum
+	rts
+
+hexbuf8:
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	jsr hexbuf4
+	pla
+hexbuf4:
+	and #$0f
+	cmp #$0a
+	bcc :+
+	adc #$66
+:	eor #$30
+	sta filename_buf, x
+	inx
+	rts
 
 ;-----------------------------------------------------------------------------
 ; open_cluster
@@ -919,17 +917,19 @@ find_dir:
 	rts
 
 ;-----------------------------------------------------------------------------
-; delete_file
+; delete_entry
+;
+; Delete a directory entry. Requires one of find_dirent/find_file/find_dir to
+; be called before.
+;
+; C: 1= ignore read-only bit
 ;
 ; * c=0: failure; sets errno
-; * does not set errno = ERRNO_FILE_NOT_FOUND!
 ;-----------------------------------------------------------------------------
-delete_file:
-	; Find file
-	jsr find_file
-	bcc @error
-
+delete_entry:
 	set16 fat32_bufptr, cur_context + context::dirent_bufptr
+
+	bcs @1 ; ignore read-only
 
 	ldy #11
 	lda (fat32_bufptr),y
@@ -940,19 +940,59 @@ delete_file:
 	lda #ERRNO_FILE_READ_ONLY
 	jmp set_errno
 
-@1:	; Mark file as deleted
+@1:
+	lda lfn_count
+	beq @delete_lfn_loop
+
+	; rewind to first LFN entry
+	jsr rewind_dir_entry
+
+@delete_lfn_loop:
 	lda #$E5
 	sta (fat32_bufptr)
 
-	; Write sector buffer to disk
 	jsr save_sector_buffer
-	bcc @error
+	bcc @ret
 
+	dec lfn_count
+	bmi @end ; lfn_count + 1 iterations (#LFNs + 1 SFN)
+
+	add16_val fat32_bufptr, fat32_bufptr, 32
+	cmp16_val_ne fat32_bufptr, sector_buffer_end, @delete_lfn_loop
+
+	lda #0
+	jsr next_sector
+	bcs @delete_lfn_loop
+	rts
+
+@end:
+	sec
+@ret:
+	rts
+
+;-----------------------------------------------------------------------------
+; delete_file
+;
+; * c=0: failure; sets errno
+; * does not set errno = ERRNO_FILE_NOT_FOUND!
+;-----------------------------------------------------------------------------
+delete_file:
+	; Find file
+	jsr find_file
+	bcs @0
+@error:
+	rts
+
+@0:
+	clc ; respect read-only bit
+	jsr delete_entry
+	bcs @1
+	rts
+
+@1:
 	; Unlink cluster chain
 	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
 	jmp unlink_cluster_chain
-
-@error:	rts
 
 ;-----------------------------------------------------------------------------
 ; fat32_init
@@ -1241,7 +1281,10 @@ fat32_find_dirent:
 ;-----------------------------------------------------------------------------
 fat32_read_dirent:
 	stz fat32_errno
+	stz lfn_index
+	stz lfn_count
 
+@fat32_read_dirent_loop:
 	; Load next sector if at end of buffer
 	cmp16_val_ne fat32_bufptr, sector_buffer_end, @1
 	lda #0
@@ -1254,8 +1297,8 @@ fat32_read_dirent:
 	ldy #11
 	lda (fat32_bufptr), y
 	sta fat32_dirent + dirent::attributes
-	and #8
-	beq @2
+	cmp #8
+	bne @2
 	jmp @next_entry
 @2:
 	; Last entry?
@@ -1266,13 +1309,140 @@ fat32_read_dirent:
 	; Skip empty entries
 	cmp #$E5
 	bne @3
-	jmp @next_entry
+	jmp @next_entry_clear_lfn_buffer
 @3:
+
+	; check for LFN entry
+	lda fat32_dirent + dirent::attributes
+	cmp #$0f
+	beq @lfn_entry
+	bra @short_entry
+
+@lfn_entry:
+
+	; does it have the right index?
+	jsr check_lfn_index
+	bcs @index_ok
+	jmp @next_entry_clear_lfn_buffer
+@index_ok:
+
+	; first LFN entry?
+	lda lfn_index
+	bne @not_first_lfn_entry
+
+; first LFN entry
+	; init buffer
+	set16_val fat32_lfn_bufptr, lfnbuffer
+
+	; save checksum
+	ldy #13
+	lda (fat32_bufptr), y
+	sta lfn_checksum
+
+	; prepare expected index
+	lda (fat32_bufptr)
+	and #$1f
+	sta lfn_index
+	sta lfn_count
+
+	; add entry to buffer
+	jsr add_lfn_entry
+
+	; remember dir entry
+	jsr mark_dir_entry
+
+	; continue with next entry
+	jmp @next_entry
+
+; followup LFN entry
+@not_first_lfn_entry:
+
+	; compare checksum
+	ldy #13
+	lda (fat32_bufptr), y
+	cmp lfn_checksum
+	beq @checksum_ok
+	jmp @next_entry_clear_lfn_buffer
+
+@checksum_ok:
+	dec lfn_index
+
+	; add entry to buffer
+	jsr add_lfn_entry
+
+	; continue with next entry
+	jmp @next_entry
+
+
+;*******
+@short_entry:
+	; is there a LFN?
+	lda lfn_index
+	cmp #1
+	bne @is_short
+
+	; Compare checksum
+	lda #0
+	tay
+@checksum_loop:
+	tax
+	lsr
+	txa
+	ror
+	clc
+	adc (fat32_bufptr), y
+	iny
+	cpy #11
+	bne @checksum_loop
+
+	cmp lfn_checksum
+	bne @is_short
+
+	lda lfn_count
+	sta lfn_index
+
+	ldx #0
+@decode_lfn_loop:
+	sub16_val fat32_lfn_bufptr, fat32_lfn_bufptr, 32
+
+	ldy #1
+	lda #5
+	jsr decode_lfn_chars
+	bcc @name_done2
+	ldy #14
+	lda #6
+	jsr decode_lfn_chars
+	bcc @name_done2
+	ldy #28
+	lda #2
+	jsr decode_lfn_chars
+	dec lfn_index
+	bne @decode_lfn_loop
+@name_done2:
+	bra @name_done ; yes, we need to zero terminate!
+
+@is_short:
+	; get upper/lower case flags
+	ldy #12
+	lda (fat32_bufptr), y
+	asl
+	asl
+	asl ; bits 7 and 6
+	sta tmp_sfn_case
+
 	; Copy first part of file name
 	ldy #0
 @4:	lda (fat32_bufptr), y
 	cmp #' '
 	beq @skip_spaces
+	bit tmp_sfn_case
+	bvc @ucase1
+	jsr to_lower
+@ucase1:
+	; Convert CP1252 character to UCS-2
+	jsr cp1252_to_ucs2
+	; Convert UCS-2 character to private 8 bit encoding
+	jsr filename_char_16_to_8
 	sta fat32_dirent + dirent::name, y
 	iny
 	cpy #8
@@ -1303,6 +1473,16 @@ fat32_read_dirent:
 @7:	lda (fat32_bufptr), y
 	cmp #' '
 	beq @name_done
+	bit tmp_sfn_case
+	bpl @ucase2
+	jsr to_lower
+@ucase2:
+	phx
+	; Convert CP1252 character to UCS-2
+	jsr cp1252_to_ucs2
+	; Convert UCS-2 character to private 8 bit encoding
+	jsr filename_char_16_to_8
+	plx
 	sta fat32_dirent + dirent::name, x
 	iny
 	inx
@@ -1311,8 +1491,7 @@ fat32_read_dirent:
 
 @name_done:
 	; Add zero-termination to output
-	lda #0
-	sta fat32_dirent + dirent::name, x
+	stz fat32_dirent + dirent::name, x
 
 	; Copy file size
 	ldy #28
@@ -1348,10 +1527,275 @@ fat32_read_dirent:
 	sec
 	rts
 
+@next_entry_clear_lfn_buffer:
+	stz lfn_index
+
 @next_entry:
 	add16_val fat32_bufptr, fat32_bufptr, 32
-	jmp fat32_read_dirent
+	jmp @fat32_read_dirent_loop
 
+;-----------------------------------------------------------------------------
+; cp1252_to_ucs2
+;
+; In:   a  CP1252 encoded char
+; Out:  a  USC-2 encoded char high
+;       x  USC-2 encoded char low
+;-----------------------------------------------------------------------------
+cp1252_to_ucs2:
+	cmp #$80
+	bne @1
+	ldx #$ac
+	lda #$20 ; U20AC '€'
+	rts
+@1:	cmp #$8a
+	bne @2
+	ldx #$60
+	lda #$01 ; U0160 'Š'
+	rts
+@2:	cmp #$9a
+	bne @3
+	ldx #$61
+	lda #$01 ; U0161 'š'
+	rts
+@3:	cmp #$8e
+	bne @4
+	ldx #$7d
+	lda #$01 ; U017D 'Ž'
+	rts
+@4:	cmp #$9e
+	bne @5
+	ldx #$7e
+	lda #$01 ; U017E 'ž'
+	rts
+@5:	cmp #$8c
+	bne @6
+	ldx #$52
+	lda #$01 ; U0152 'Œ'
+	rts
+@6:	cmp #$9c
+	bne @7
+	ldx #$53
+	lda #$01 ; U0153 'œ'
+	rts
+@7:	cmp #$9f
+	bne @8
+	ldx #$78
+	lda #$01 ; U0178 'Ÿ'
+	rts
+@8:
+	; CP1252 matches ISO-8859-1
+	tax
+	lda #0
+	rts
+
+;-----------------------------------------------------------------------------
+; check_lfn_index
+;
+; * c=1: ok
+;-----------------------------------------------------------------------------
+check_lfn_index:
+	lda lfn_index
+	beq @expect_start
+
+	lda lfn_index
+	dec
+	cmp (fat32_bufptr)
+	beq @ok
+
+	stz lfn_index
+@expect_start:
+	lda (fat32_bufptr)
+	asl
+	asl ; bit #6 -> C
+	rts
+
+@ok:
+	sec
+	rts
+
+;-----------------------------------------------------------------------------
+; add_lfn_entry
+;-----------------------------------------------------------------------------
+add_lfn_entry:
+	ldy #31
+:	lda (fat32_bufptr), y
+	sta (fat32_lfn_bufptr), y
+	dey
+	bpl :-
+	add16_val fat32_lfn_bufptr, fat32_lfn_bufptr, 32
+	rts
+
+;-----------------------------------------------------------------------------
+; decode_lfn_chars
+;
+; Convert 16 bit UCS-2-encoded LFN characters to private 8 bit encoding.
+;
+; In:   a  number of characters
+;       x  target index (offset in fat32_dirent + dirent::name)
+;       y  source index (offset in (fat32_lfn_bufptr))
+; Out:  x  updated target index
+;       y  updated source index
+;       c  =0: terminating 0 character encountered
+;-----------------------------------------------------------------------------
+decode_lfn_chars:
+	stx lfn_name_index
+	sta lfn_char_count
+@loop:
+ 	lda (fat32_lfn_bufptr), y
+ 	iny
+ 	pha
+ 	pha
+ 	lda (fat32_lfn_bufptr), y
+	iny
+ 	plx
+ 	pha
+	; Convert UCS-2 character to private 8 bit encoding
+ 	jsr filename_char_16_to_8
+	ldx lfn_name_index
+	sta fat32_dirent + dirent::name, x
+	inc lfn_name_index
+ 	pla
+ 	plx
+ 	bne @cont
+ 	tax
+ 	beq @end
+@cont:
+	dec lfn_char_count
+	bne @loop
+	ldx lfn_name_index
+	sec
+	rts
+@end:	ldx lfn_name_index
+	clc
+	rts
+
+;-----------------------------------------------------------------------------
+; encode_lfn_chars
+;
+; Convert characters in private 8 bit encoding to 16 bit UCS-2 (LFN) encoding.
+;
+; In:   a  number of characters
+;       x  target index (offset in (fat32_lfn_bufptr))
+;       y  source index (offset in (fat32_ptr))
+; Out:  x  updated target index
+;       y  updated source index
+;       c  =0: terminating 0 character encountered
+;-----------------------------------------------------------------------------
+encode_lfn_chars:
+	sta lfn_char_count
+@loop:
+ 	lda (fat32_ptr), y
+ 	pha
+ 	phy
+
+ 	phx
+	; Convert character in private 8 bit encoding to UCS-2
+ 	jsr filename_char_8_to_16
+ 	ply
+	sta (fat32_lfn_bufptr), y
+	iny
+	txa
+	sta (fat32_lfn_bufptr), y
+	iny
+ 	phy
+ 	plx
+
+ 	ply
+	pla
+	beq @end
+	iny
+	dec lfn_char_count
+	bne @loop
+	sec
+	rts
+@end:	clc
+	rts
+
+;-----------------------------------------------------------------------------
+; create_lfn
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+create_lfn:
+	; validate that filename is legal
+	ldy name_offset
+@validate_loop:
+	lda (fat32_ptr), y
+	beq @validate_ok
+	jsr validate_char
+	iny
+	bcs @validate_loop
+	lda #ERRNO_ILLEGAL_FILENAME
+	jmp set_errno
+
+@validate_ok:
+	; init buffer
+	set16_val fat32_lfn_bufptr, lfnbuffer
+
+	lda #1
+	sta lfn_index
+
+	ldy name_offset
+
+@create_lfn_loop:
+	phy
+
+	; create FLN template
+
+	; fill remainder bytes with $FF
+	ldy #31
+:	lda #$ff
+	sta (fat32_lfn_bufptr), y
+	dey
+	bne :-
+
+	; fill in special bytes
+	ldy #0
+	lda lfn_index
+	sta (fat32_lfn_bufptr), y
+	ldy #11
+	lda #$0f
+	sta (fat32_lfn_bufptr), y
+	iny
+	lda #0
+	sta (fat32_lfn_bufptr), y
+	; leave checksum at offset 13 empty for now
+	ldy #26
+	lda #0
+	sta (fat32_lfn_bufptr), y
+	iny
+	sta (fat32_lfn_bufptr), y
+
+	ply
+
+	; put 13 chars into entry
+	ldx #1
+	lda #5
+	jsr encode_lfn_chars
+	bcc @name_done
+	ldx #14
+	lda #6
+	jsr encode_lfn_chars
+	bcc @name_done
+	ldx #28
+	lda #2
+	jsr encode_lfn_chars
+	bcc @name_done
+
+	add16_val fat32_lfn_bufptr, fat32_lfn_bufptr, 32
+
+	inc lfn_index
+
+	bra @create_lfn_loop
+
+@name_done:
+	lda (fat32_lfn_bufptr)
+	sta lfn_count
+	ora #$40
+	sta (fat32_lfn_bufptr)
+
+	sec
+	rts
 
 ;-----------------------------------------------------------------------------
 ; fat32_read_dirent_filtered
@@ -1434,10 +1878,6 @@ fat32_rename:
 	jmp set_errno
 
 @1:
-	; Convert target filename into directory entry format
-	jsr convert_filename
-	bcc @error
-
 	; Find file to rename
 	set16 fat32_ptr, tmp_buf
 	jsr find_dirent
@@ -1446,14 +1886,52 @@ fat32_rename:
 	jmp set_errno
 
 @3:
-	; Copy new filename into sector buffer
+	; rescue shortname entry
 	set16 fat32_bufptr, cur_context + context::dirent_bufptr
+
+	ldy #11
+@loop:	lda (fat32_bufptr), y
+	sta tmp_entry - 11, y
+	iny
+	cpy #32
+	bne @loop
+
+	; delete
+	sec ; ignore read-only bit
+	jsr delete_entry
+	bcs @4
+	rts
+@4:
+
+	; target name
+	set16 fat32_ptr, fat32_ptr2
+
+	; Find space
+	jsr find_space_for_lfn
+	bcc @error
+
+	; Create short name
+	jsr create_shortname
+	bcc @error
+
+	; Write LFN entries
+	jsr write_lfn_entries
+	bcc @error
+
+	; Copy new filename into sector buffer
 	ldy #0
 @2:	lda filename_buf, y
 	sta (fat32_bufptr), y
 	iny
 	cpy #11
 	bne @2
+
+	; restore remainder of short name entry
+@5:	lda tmp_entry - 11, y
+	sta (fat32_bufptr), y
+	iny
+	cpy #32
+	bne @5
 
 	; Write sector buffer to disk
 	jmp save_sector_buffer
@@ -1548,9 +2026,18 @@ fat32_rmdir:
 	clc
 	rts
 
-@3:	lda fat32_dirent + dirent::name
-	cmp #'.'	; Allow for dot-entries
+@3:	; Allow for '.' and '..' entries
+	lda fat32_dirent + dirent::name
+	cmp #'.'
+	bne @not_dot
+	lda fat32_dirent + dirent::name + 1
 	beq @next
+	cmp #'.'
+	bne @not_dot
+	lda fat32_dirent + dirent::name + 2
+	beq @next
+
+@not_dot:
 	lda #ERRNO_DIR_NOT_EMPTY
 	jmp set_errno
 
@@ -1559,15 +2046,12 @@ fat32_rmdir:
 	jsr find_dir
 	bcc @error
 
-	; Mark file as deleted
-	set16 fat32_bufptr, cur_context + context::dirent_bufptr
-	lda #$E5
-	sta (fat32_bufptr)
+	clc ; respect read-only bit
+	jsr delete_entry
+	bcs @4
+	rts
 
-	; Write sector buffer to disk
-	jsr save_sector_buffer
-	bcc @error
-
+@4:
 	; Unlink cluster chain
 	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
 	jmp unlink_cluster_chain
@@ -1612,18 +2096,16 @@ fat32_open:
 	rts
 
 ;-----------------------------------------------------------------------------
-; create_dir_entry
-;
-; A: File attribute
+; find_space_for_lfn
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
-create_dir_entry:
-	sta tmp_buf
-
-	; Convert file name
-	jsr convert_filename
+find_space_for_lfn:
+	; Create LFN
+	jsr create_lfn
 	bcc @error
+
+	stz free_entry_count
 
 	; Find free directory entry
 	set32 cur_context + context::cluster, tmp_dir_cluster
@@ -1645,12 +2127,168 @@ create_dir_entry:
 	cmp #$E5
 	beq @free_entry
 
+	stz free_entry_count
+
+@try_next:
 	; Increment buffer pointer to next entry
 	add16_val fat32_bufptr, fat32_bufptr, 32
 	bra @next_entry
 
 	; Free directory entry found
 @free_entry:
+	lda free_entry_count
+	bne @not_first_free_entry
+
+	; remember where the first free one was
+	jsr mark_dir_entry
+
+@not_first_free_entry:
+	lda free_entry_count
+	inc free_entry_count
+	cmp lfn_count
+	bne @try_next ; not reached lfn_count+1 yet
+
+	; enough consecutive entries found
+	; -> set pointer to first free entry
+	jmp rewind_dir_entry
+
+;-----------------------------------------------------------------------------
+; mark_dir_entry
+;
+; Save current cluster, LBA and directory entry index.
+;-----------------------------------------------------------------------------
+mark_dir_entry:
+	; save cluster
+	lda cur_context + context::cluster + 0
+	sta marked_entry_cluster + 0
+	lda cur_context + context::cluster + 1
+	sta marked_entry_cluster + 1
+	lda cur_context + context::cluster + 2
+	sta marked_entry_cluster + 2
+	lda cur_context + context::cluster + 3
+	sta marked_entry_cluster + 3
+	; save LBA
+	lda cur_context + context::lba + 0
+	sta marked_entry_lba + 0
+	lda cur_context + context::lba + 1
+	sta marked_entry_lba + 1
+	lda cur_context + context::lba + 2
+	sta marked_entry_lba + 2
+	lda cur_context + context::lba + 3
+	sta marked_entry_lba + 3
+	; save offset
+	lda fat32_bufptr + 0
+	sta marked_entry_offset + 0
+	lda fat32_bufptr + 1
+	sta marked_entry_offset + 1
+	rts
+
+;-----------------------------------------------------------------------------
+; rewind_dir_entry
+;
+; Restore cluster, LBA and directory entry index.
+;-----------------------------------------------------------------------------
+rewind_dir_entry:
+	; restore cluster
+	lda marked_entry_cluster + 0
+	sta cur_context + context::cluster + 0
+	lda marked_entry_cluster + 1
+	sta cur_context + context::cluster + 1
+	lda marked_entry_cluster + 2
+	sta cur_context + context::cluster + 2
+	lda marked_entry_cluster + 3
+	sta cur_context + context::cluster + 3
+	; restore LBA
+	lda marked_entry_lba + 0
+	sta cur_context + context::lba + 0
+	lda marked_entry_lba + 1
+	sta cur_context + context::lba + 1
+	lda marked_entry_lba + 2
+	sta cur_context + context::lba + 2
+	lda marked_entry_lba + 3
+	sta cur_context + context::lba + 3
+	; restore entry
+	lda marked_entry_offset + 0
+	sta fat32_bufptr + 0
+	lda marked_entry_offset + 1
+	sta fat32_bufptr + 1
+
+	; load
+	jmp load_sector_buffer
+
+;-----------------------------------------------------------------------------
+; write_lfn_entries
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+write_lfn_entries:
+@write_lfn_entries_loop:
+	dec lfn_count
+	bpl @1
+	sec
+	rts
+
+@1:
+	; Copy LFN entry
+	ldy #31
+@2b:	lda (fat32_lfn_bufptr), y
+	sta (fat32_bufptr), y
+	dey
+	bpl @2b
+
+	; set checksum
+	ldy #13
+	lda lfn_checksum
+	sta (fat32_bufptr), y
+
+	jsr save_sector_buffer
+	bcs @ok
+@error:
+	clc
+	rts
+
+@ok:
+	add16_val fat32_bufptr, fat32_bufptr, 32
+	sub16_val fat32_lfn_bufptr, fat32_lfn_bufptr, 32
+
+	cmp16_val_ne fat32_bufptr, sector_buffer_end, @1b
+	lda #0
+	jsr next_sector
+	bcc @error
+@1b:
+	bra @write_lfn_entries_loop
+
+@write_lfn_entries_end:
+	rts
+
+;-----------------------------------------------------------------------------
+; create_dir_entry
+;
+; A: File attribute
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+create_dir_entry:
+	sta tmp_attrib
+
+	; Find space
+	jsr find_space_for_lfn
+	bcs @1
+@error:
+	clc
+	rts
+
+@1:
+	; Create short name
+	jsr create_shortname
+	bcc @error
+
+	; Write LFN entries
+	jsr write_lfn_entries
+	bcc @error
+
+	; Write short name entry
+
 	; Copy filename in new entry
 	ldy #0
 @2:	lda filename_buf, y
@@ -1660,7 +2298,7 @@ create_dir_entry:
 	bne @2
 
 	; File attribute
-	lda tmp_buf
+	lda tmp_attrib
 	sta (fat32_bufptr), y
 	iny
 
