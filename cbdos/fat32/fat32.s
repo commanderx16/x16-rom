@@ -74,7 +74,9 @@ name_offset:         .byte 0
 tmp_dir_cluster:     .dword 0
 
 last_lfn_index:      .byte 0
+num_lfn_components:  .byte 0
 lfn_checksum:        .byte 0
+lfn_char_count:      .byte 0
 
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
@@ -1309,6 +1311,7 @@ fat32_read_dirent:
 	lda (fat32_bufptr)
 	and #$1f
 	sta last_lfn_index
+	sta num_lfn_components
 
 	; continue with next entry
 	jmp @next_entry
@@ -1342,7 +1345,24 @@ fat32_read_dirent:
 
 	; XXX TODO compare checksum
 
-	brk
+	ldx #0
+@decode_lfn_loop:
+	sub16_val fat32_lfn_bufptr, fat32_lfn_bufptr, 32
+
+	ldy #1
+	lda #5
+	jsr decode_lfn_chars
+	bcc @name_done2
+	ldy #14
+	lda #6
+	jsr decode_lfn_chars
+	bcc @name_done2
+	ldy #28
+	lda #2
+	jsr decode_lfn_chars
+	dec num_lfn_components
+	bne @decode_lfn_loop
+	bra @name_done2
 
 @is_short:
 	; Copy first part of file name
@@ -1391,6 +1411,7 @@ fat32_read_dirent:
 	lda #0
 	sta fat32_dirent + dirent::name, x
 
+@name_done2:
 	; Copy file size
 	ldy #28
 	ldx #0
@@ -1461,14 +1482,31 @@ check_lfn_index:
 ;-----------------------------------------------------------------------------
 add_lfn_entry:
 	ldy #31
-:	lda (fat32_bufptr),y
-	sta (fat32_lfn_bufptr),y
+:	lda (fat32_bufptr), y
+	sta (fat32_lfn_bufptr), y
 	dey
 	bpl :-
-	add16_val fat32_lfn_bufptr, fat32_bufptr, 32
+	add16_val fat32_lfn_bufptr, fat32_lfn_bufptr, 32
 	rts
 
-
+;-----------------------------------------------------------------------------
+; decode_lfn_chars
+;-----------------------------------------------------------------------------
+decode_lfn_chars:
+	sta lfn_char_count
+@loop:
+ 	lda (fat32_lfn_bufptr), y
+	sta fat32_dirent + dirent::name, x
+	beq @end
+	iny
+	iny
+	inx
+	dec lfn_char_count
+	bne @loop
+	sec
+	rts
+@end:	clc
+	rts
 
 
 ;-----------------------------------------------------------------------------

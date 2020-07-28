@@ -12,7 +12,7 @@ SPI_DATA      = VERA_SPI_DATA
 ; Kernel variables
 ;-----------------------------------------------------------------------------
 .struct dirent
-name       .res 13
+name       .res 256
 attributes .byte
 size       .dword
 cluster    .dword

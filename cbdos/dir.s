@@ -272,7 +272,7 @@ read_dir_entry:
 :	jsr storedir
 	inx
 	cpx #16
-	bne :-
+	bcc :-
 
 	lda fat32_dirent + dirent::attributes
 	bit #$10 ; = directory
