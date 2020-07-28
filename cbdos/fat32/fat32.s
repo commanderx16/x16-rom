@@ -41,7 +41,7 @@ fat32_size:
 fat32_cwd_cluster:
 	.res 4 ; dword - Cluster of current directory
 fat32_dirent:
-	.res 22 ; 22 bytes - Buffer containing decoded directory entry
+	.res .sizeof(dirent) ; Buffer containing decoded directory entry
 fat32_errno:
 	.byte 0 ; byte - last error
 
@@ -1284,14 +1284,9 @@ fat32_read_dirent:
 	; check for LFN entry
 	lda fat32_dirent + dirent::attributes
 	cmp #$0f
-.if 0
 	beq @lfn_entry
 	bra @short_entry
-.else
-	bne :+
-	jmp @next_entry_clear_lfn_buffer
-:	jmp @short_entry
-.endif
+
 @lfn_entry:
 
 	; does it have the right index?
