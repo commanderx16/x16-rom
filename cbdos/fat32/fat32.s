@@ -1249,7 +1249,9 @@ fat32_find_dirent:
 ;-----------------------------------------------------------------------------
 fat32_read_dirent:
 	stz fat32_errno
+	stz last_lfn_index
 
+@fat32_read_dirent_loop:
 	; Load next sector if at end of buffer
 	cmp16_val_ne fat32_bufptr, sector_buffer_end, @1
 	lda #0
@@ -1451,7 +1453,7 @@ fat32_read_dirent:
 
 @next_entry:
 	add16_val fat32_bufptr, fat32_bufptr, 32
-	jmp fat32_read_dirent
+	jmp @fat32_read_dirent_loop
 
 ;-----------------------------------------------------------------------------
 ; check_lfn_index
