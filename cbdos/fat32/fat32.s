@@ -73,12 +73,12 @@ tmp_sector_lba:      .dword 0      ; Used by next_sector
 name_offset:         .byte 0
 tmp_dir_cluster:     .dword 0
 
-last_lfn_index:      .byte 0
-num_lfn_components:  .byte 0
+; LFN
+lfn_index:           .byte 0
+lfn_count:           .byte 0
 lfn_checksum:        .byte 0
 lfn_char_count:      .byte 0
-
-tmp_sfn_case = num_lfn_components
+tmp_sfn_case = lfn_count
 
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
@@ -97,8 +97,13 @@ contexts:            .res CONTEXT_SIZE * FAT32_CONTEXTS
 .error "Context too big"
 .endif
 
+; LFN
 lfnbuffer:
 	.res 20*32 ; 20 directory entries (13 chars * 20 > 255 chars)
+lfnlbas:
+	.res 20*4
+lfnoffsets:
+	.res 20*2
 
 _fat32_bss_end:
 
@@ -937,8 +942,11 @@ find_dir:
 delete_file:
 	; Find file
 	jsr find_file
-	bcc @error
+	bcs @0
+@error:
+	rts
 
+@0:
 	set16 fat32_bufptr, cur_context + context::dirent_bufptr
 
 	ldy #11
@@ -958,11 +966,56 @@ delete_file:
 	jsr save_sector_buffer
 	bcc @error
 
+	; delete LFN directory entries
+	lda lfn_count
+	beq @skip_lfn
+
+	ldx #0
+@delete_lfn_loop:
+	txa
+	asl
+	asl ; * 4
+	tay
+	lda lfnlbas + 0, y
+	sta cur_context + context::lba + 0
+	lda lfnlbas + 1, y
+	sta cur_context + context::lba + 1
+	lda lfnlbas + 2, y
+	sta cur_context + context::lba + 2
+	lda lfnlbas + 3, y
+	sta cur_context + context::lba + 3
+	phx
+	jsr load_sector_buffer
+	plx
+	bcs @ok1
+	rts
+@ok1:
+
+	txa
+	asl ; * 2
+	tay
+	lda lfnoffsets + 0, y
+	sta fat32_bufptr
+	lda lfnoffsets + 1, y
+	sta fat32_bufptr + 1
+	lda #$e5
+	sta (fat32_bufptr)
+
+	phx
+	jsr save_sector_buffer
+	plx
+	bcs @ok2
+	rts
+@ok2:
+
+	inx
+	cpx lfn_count
+	bne @delete_lfn_loop
+
+@skip_lfn:
 	; Unlink cluster chain
 	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
 	jmp unlink_cluster_chain
-
-@error:	rts
 
 ;-----------------------------------------------------------------------------
 ; fat32_init
@@ -1251,7 +1304,7 @@ fat32_find_dirent:
 ;-----------------------------------------------------------------------------
 fat32_read_dirent:
 	stz fat32_errno
-	stz last_lfn_index
+	stz lfn_index
 
 @fat32_read_dirent_loop:
 	; Load next sector if at end of buffer
@@ -1296,15 +1349,12 @@ fat32_read_dirent:
 @index_ok:
 
 	; first LFN entry?
-	lda last_lfn_index
+	lda lfn_index
 	bne @not_first_lfn_entry
 
 ; first LFN entry
 	; init buffer
 	set16_val fat32_lfn_bufptr, lfnbuffer
-
-	; add entry to buffer
-	jsr add_lfn_entry
 
 	; save checksum
 	ldy #13
@@ -1314,8 +1364,11 @@ fat32_read_dirent:
 	; prepare expected index
 	lda (fat32_bufptr)
 	and #$1f
-	sta last_lfn_index
-	sta num_lfn_components
+	sta lfn_index
+	sta lfn_count
+
+	; add entry to buffer
+	jsr add_lfn_entry
 
 	; continue with next entry
 	jmp @next_entry
@@ -1331,10 +1384,10 @@ fat32_read_dirent:
 	jmp @next_entry_clear_lfn_buffer
 
 @checksum_ok:
+	dec lfn_index
+
 	; add entry to buffer
 	jsr add_lfn_entry
-
-	dec last_lfn_index
 
 	; continue with next entry
 	jmp @next_entry
@@ -1343,11 +1396,14 @@ fat32_read_dirent:
 ;*******
 @short_entry:
 	; is there a LFN?
-	lda last_lfn_index
+	lda lfn_index
 	cmp #1
 	bne @is_short
 
 	; XXX TODO compare checksum
+
+	lda lfn_count
+	sta lfn_index
 
 	ldx #0
 @decode_lfn_loop:
@@ -1364,7 +1420,7 @@ fat32_read_dirent:
 	ldy #28
 	lda #2
 	jsr decode_lfn_chars
-	dec num_lfn_components
+	dec lfn_index
 	bne @decode_lfn_loop
 	bra @name_done2
 
@@ -1467,7 +1523,7 @@ fat32_read_dirent:
 	rts
 
 @next_entry_clear_lfn_buffer:
-	stz last_lfn_index
+	stz lfn_index
 
 @next_entry:
 	add16_val fat32_bufptr, fat32_bufptr, 32
@@ -1479,7 +1535,7 @@ fat32_read_dirent:
 ; * c=1: ok
 ;-----------------------------------------------------------------------------
 check_lfn_index:
-	lda last_lfn_index
+	lda lfn_index
 	bne @followup
 
 	; expected start
@@ -1489,7 +1545,7 @@ check_lfn_index:
 	rts
 
 @followup:
-	lda last_lfn_index
+	lda lfn_index
 	dec
 	cmp (fat32_bufptr)
 	beq @yes
@@ -1507,6 +1563,31 @@ add_lfn_entry:
 	dey
 	bpl :-
 	add16_val fat32_lfn_bufptr, fat32_lfn_bufptr, 32
+
+	; save offset within sector
+	lda lfn_index
+	dec
+	asl ; * 2
+	tax
+	pha
+	lda fat32_bufptr + 0
+	sta lfnoffsets + 0, x
+	lda fat32_bufptr + 1
+	sta lfnoffsets + 1, x
+	pla
+
+	; save LBA of sector
+	asl ; * 4
+	tax
+	lda cur_context + context::lba + 0
+	sta lfnlbas + 0, x
+	lda cur_context + context::lba + 1
+	sta lfnlbas + 1, x
+	lda cur_context + context::lba + 2
+	sta lfnlbas + 2, x
+	lda cur_context + context::lba + 3
+	sta lfnlbas + 3, x
+
 	rts
 
 ;-----------------------------------------------------------------------------
