@@ -580,6 +580,7 @@ validate_char:
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
+.if 0
 convert_filename:
 	ldy name_offset
 
@@ -656,6 +657,19 @@ convert_filename:
 @not_ok:
 	lda #ERRNO_ILLEGAL_FILENAME
 	jmp set_errno
+.else
+convert_filename:
+	ldx #10
+:	lda filename_tpl, x
+	sta filename_buf, x
+	dex
+	bpl :-
+	sec
+	rts
+
+filename_tpl:
+	.byte "SHORT   DAT"
+.endif
 
 ;-----------------------------------------------------------------------------
 ; open_cluster
@@ -1626,6 +1640,123 @@ decode_lfn_chars:
 @end:	clc
 	rts
 
+;-----------------------------------------------------------------------------
+; encode_lfn_chars
+;-----------------------------------------------------------------------------
+encode_lfn_chars:
+	sta lfn_char_count
+@loop:
+ 	lda (fat32_ptr), y
+ 	phx
+ 	phy
+ 	plx
+ 	ply
+	sta (fat32_lfn_bufptr), y
+	iny
+	pha
+	lda #0
+	sta (fat32_lfn_bufptr), y
+	pla
+ 	phx
+ 	phy
+ 	plx
+ 	ply
+	cmp #0
+	beq @end
+	inx
+	iny
+	dec lfn_char_count
+	bne @loop
+	sec
+	rts
+@end:	clc
+	rts
+
+;-----------------------------------------------------------------------------
+; create_lfn
+;-----------------------------------------------------------------------------
+create_lfn:
+	; init buffer
+	set16_val fat32_lfn_bufptr, lfnbuffer
+
+	lda #1
+	sta lfn_index
+
+	; Checksum
+	lda #0
+	tay
+@checksum_loop:
+	tax
+	lsr
+	txa
+	ror
+	clc
+	adc filename_buf, y
+	iny
+	cpy #11
+	bne @checksum_loop
+	sta lfn_checksum
+
+	ldy name_offset
+
+@create_lfn_loop:
+	phy
+
+	; create FLN template
+
+	ldy #31
+:	lda #$ee
+	sta (fat32_lfn_bufptr), y
+	dey
+	bne :- ; XXX debug
+
+	ldy #0
+	lda lfn_index
+	sta (fat32_lfn_bufptr), y
+	ldy #11
+	lda #$0f
+	sta (fat32_lfn_bufptr), y
+	iny
+	lda #0
+	sta (fat32_lfn_bufptr), y
+	iny
+	lda lfn_checksum
+	sta (fat32_lfn_bufptr), y
+	ldy #26
+	lda #0
+	sta (fat32_lfn_bufptr), y
+	iny
+	sta (fat32_lfn_bufptr), y
+
+	ply
+
+	; put 13 chars into entry
+	ldx #1
+	lda #5
+	jsr encode_lfn_chars
+	bcc @name_done
+	ldx #14
+	lda #6
+	jsr encode_lfn_chars
+	bcc @name_done
+	ldx #28
+	lda #2
+	jsr encode_lfn_chars
+	bcc @name_done
+
+	add16_val fat32_lfn_bufptr, fat32_lfn_bufptr, 32
+
+	inc lfn_index
+
+	bra @create_lfn_loop
+
+@name_done:
+	lda (fat32_lfn_bufptr)
+	sta lfn_count
+	ora #$40
+	sta (fat32_lfn_bufptr)
+
+	rts
 
 ;-----------------------------------------------------------------------------
 ; fat32_read_dirent_filtered
@@ -1907,6 +2038,9 @@ create_dir_entry:
 	; Convert file name
 	jsr convert_filename
 	bcc @error
+
+	; Create LFN
+	jsr create_lfn
 
 	; Find free directory entry
 	set32 cur_context + context::cluster, tmp_dir_cluster
