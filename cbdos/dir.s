@@ -173,9 +173,9 @@ read_dir_entry:
 	jsr set_errno_status
 :	jmp @read_dir_entry_end
 
-@found:	lda fat32_dirent + dirent::name
-	cmp #'.' ; hide "." and ".."
-	beq @read_entry
+@found:	;lda fat32_dirent + dirent::name
+	;cmp #'.' ; hide "." and ".."
+	;beq @read_entry
 
 	ldy #0
 	lda #1

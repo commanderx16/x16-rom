@@ -1807,9 +1807,18 @@ fat32_rmdir:
 	clc
 	rts
 
-@3:	lda fat32_dirent + dirent::name
-	cmp #'.'	; Allow for dot-entries
+@3:	; Allow for '.' and '..' entries
+	lda fat32_dirent + dirent::name
+	cmp #'.'
+	bne @not_dot
+	lda fat32_dirent + dirent::name + 1
 	beq @next
+	cmp #'.'
+	bne @not_dot
+	lda fat32_dirent + dirent::name + 2
+	beq @next
+
+@not_dot:
 	lda #ERRNO_DIR_NOT_EMPTY
 	jmp set_errno
 
