@@ -1305,6 +1305,7 @@ fat32_find_dirent:
 fat32_read_dirent:
 	stz fat32_errno
 	stz lfn_index
+	stz lfn_count
 
 @fat32_read_dirent_loop:
 	; Load next sector if at end of buffer
