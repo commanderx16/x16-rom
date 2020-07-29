@@ -80,6 +80,9 @@ lfn_checksum:        .byte 0
 lfn_char_count:      .byte 0
 tmp_sfn_case:        .byte 0
 
+first_free_entry_lba: .res 4
+first_free_entry_offset: .res 2
+
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
 cur_context:         .tag context  ; Current file descriptor state
@@ -2042,6 +2045,8 @@ create_dir_entry:
 	; Create LFN
 	jsr create_lfn
 
+	stz free_entry_count
+
 	; Find free directory entry
 	set32 cur_context + context::cluster, tmp_dir_cluster
 	jsr open_cluster
@@ -2062,12 +2067,60 @@ create_dir_entry:
 	cmp #$E5
 	beq @free_entry
 
+@try_next:
 	; Increment buffer pointer to next entry
 	add16_val fat32_bufptr, fat32_bufptr, 32
+	stz free_entry_count
 	bra @next_entry
 
 	; Free directory entry found
 @free_entry:
+	lda free_entry_count
+	bne @not_first_free_entry
+
+	; remember where the first free one was
+	lda cur_context + context::lba + 0
+	sta first_free_entry_lba + 0
+	lda cur_context + context::lba + 1
+	sta first_free_entry_lba + 1
+	lda cur_context + context::lba + 2
+	sta first_free_entry_lba + 2
+	lda cur_context + context::lba + 3
+	sta first_free_entry_lba + 3
+
+	lda fat32_bufptr + 0
+	sta first_free_entry_offset + 0
+	lda fat32_bufptr + 1
+	sta first_free_entry_offset + 1
+
+@not_first_free_entry:
+	lda free_entry_count
+	inc free_entry_count
+	cmp lfn_count
+	bne @try_next ; not reached lfn_count+1 yet
+
+	; Rewind
+	lda first_free_entry_lba + 0
+	sta cur_context + context::lba + 0
+	lda first_free_entry_lba + 1
+	sta cur_context + context::lba + 1
+	lda first_free_entry_lba + 2
+	sta cur_context + context::lba + 2
+	lda first_free_entry_lba + 3
+	sta cur_context + context::lba + 3
+	lda first_free_entry_offset + 0
+	sta fat32_bufptr + 0
+	lda first_free_entry_offset + 1
+	sta fat32_bufptr + 1
+
+	; Copy LFN entries
+	; XXX TODO
+
+
+
+
+	
+
 	; Copy filename in new entry
 	ldy #0
 @2:	lda filename_buf, y
