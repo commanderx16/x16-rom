@@ -34,7 +34,6 @@ match_name:
 	beq @asterisk
 	cmp #'/'
 	beq @match
-	jsr to_upper
 	cmp fat32_dirent + dirent::name, x
 	bne @no
 @char_match:
