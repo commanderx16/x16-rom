@@ -78,7 +78,7 @@ lfn_index:           .byte 0
 lfn_count:           .byte 0
 lfn_checksum:        .byte 0
 lfn_char_count:      .byte 0
-tmp_sfn_case = lfn_count
+tmp_sfn_case:        .byte 0
 
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
@@ -998,7 +998,7 @@ delete_file:
 	sta fat32_bufptr
 	lda lfnoffsets + 1, y
 	sta fat32_bufptr + 1
-	lda #$e5
+	lda #$E5
 	sta (fat32_bufptr)
 
 	phx
@@ -1422,6 +1422,7 @@ fat32_read_dirent:
 	jsr decode_lfn_chars
 	dec lfn_index
 	bne @decode_lfn_loop
+	stz fat32_dirent + dirent::name, x ; yes, we need to zero terminate!
 	bra @name_done2
 
 @is_short:
