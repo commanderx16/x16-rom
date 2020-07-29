@@ -1401,7 +1401,22 @@ fat32_read_dirent:
 	cmp #1
 	bne @is_short
 
-	; XXX TODO compare checksum
+	; Compare checksum
+	lda #0
+	tay
+@checksum_loop:
+	tax
+	lsr
+	txa
+	ror
+	clc
+	adc (fat32_bufptr), y
+	iny
+	cpy #11
+	bne @checksum_loop
+
+	cmp lfn_checksum
+	bne @is_short
 
 	lda lfn_count
 	sta lfn_index
