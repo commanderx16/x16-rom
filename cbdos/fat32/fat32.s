@@ -82,6 +82,7 @@ tmp_sfn_case:        .byte 0
 
 free_entry_count:    .byte 0
 first_free_entry_lba: .res 4
+first_free_entry_cluster: .res 4
 first_free_entry_offset: .res 2
 tmp_attrib:          .byte 0
 
@@ -682,6 +683,7 @@ convert_filename:
 	lsr
 	pla
 	ror
+	lsr
 	lsr
 	lsr
 	lsr
@@ -1742,12 +1744,14 @@ create_lfn:
 
 	; create FLN template
 
+	; fill remainder bytes with $FF
 	ldy #31
-:	lda #$ee
+:	lda #$ff
 	sta (fat32_lfn_bufptr), y
 	dey
-	bne :- ; XXX debug
+	bne :-
 
+	; fill in special bytes
 	ldy #0
 	lda lfn_index
 	sta (fat32_lfn_bufptr), y
@@ -2117,6 +2121,14 @@ create_dir_entry:
 	sta first_free_entry_lba + 2
 	lda cur_context + context::lba + 3
 	sta first_free_entry_lba + 3
+	lda cur_context + context::cluster + 0
+	sta first_free_entry_cluster + 0
+	lda cur_context + context::cluster + 1
+	sta first_free_entry_cluster + 1
+	lda cur_context + context::cluster + 2
+	sta first_free_entry_cluster + 2
+	lda cur_context + context::cluster + 3
+	sta first_free_entry_cluster + 3
 
 	lda fat32_bufptr + 0
 	sta first_free_entry_offset + 0
@@ -2140,14 +2152,27 @@ create_dir_entry:
 	sta cur_context + context::lba + 2
 	lda first_free_entry_lba + 3
 	sta cur_context + context::lba + 3
+
+	lda first_free_entry_cluster + 0
+	sta cur_context + context::cluster + 0
+	lda first_free_entry_cluster + 1
+	sta cur_context + context::cluster + 1
+	lda first_free_entry_cluster + 2
+	sta cur_context + context::cluster + 2
+	lda first_free_entry_cluster + 3
+	sta cur_context + context::cluster + 3
+
 	lda first_free_entry_offset + 0
 	sta fat32_bufptr + 0
 	lda first_free_entry_offset + 1
 	sta fat32_bufptr + 1
 
+	jsr load_sector_buffer
+	bcc @error2
+
 	; Convert file name
 	jsr convert_filename
-	bcc @error
+	bcc @error2
 
 @write_lfn_entries_loop:
 	dec lfn_count
@@ -2176,7 +2201,7 @@ create_dir_entry:
 	sub16_val fat32_lfn_bufptr, fat32_lfn_bufptr, 32
 
 	cmp16_val_ne fat32_bufptr, sector_buffer_end, @1b
-	lda #3
+	lda #0
 	jsr next_sector
 	bcc @error2
 @1b:
