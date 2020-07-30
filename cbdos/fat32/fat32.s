@@ -664,16 +664,64 @@ convert_filename:
 	jmp set_errno
 .else
 convert_filename:
-	ldx #10
-:	lda filename_tpl, x
-	sta filename_buf, x
-	dex
-	bpl :-
+	ldx #0
+	lda first_free_entry_lba + 3
+	jsr hexbuf
+	lda first_free_entry_lba + 2
+	jsr hexbuf
+	lda first_free_entry_lba + 1
+	jsr hexbuf
+	lda first_free_entry_lba + 0
+	jsr hexbuf
+	lda fat32_bufptr + 0
 	sec
+	sbc #<sector_buffer
+	pha
+	lda fat32_bufptr + 1
+	sbc #>sector_buffer
+	lsr
+	pla
+	ror
+	lsr
+	lsr
+	lsr
+	jsr hexbuf
+	lda #$20
+	sta filename_buf, x
+
+	; Checksum
+	lda #0
+	tay
+@checksum_loop:
+	tax
+	lsr
+	txa
+	ror
+	clc
+	adc filename_buf, y
+	iny
+	cpy #11
+	bne @checksum_loop
+	sta lfn_checksum
 	rts
 
-filename_tpl:
-	.byte "SHORT   DAT"
+hexbuf:
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	jsr :+
+	pla
+	and #$0f
+:	cmp #$0a
+	bcc :+
+	adc #$66
+:	eor #$30
+	sta filename_buf, x
+	inx
+	rts
+
 .endif
 
 ;-----------------------------------------------------------------------------
@@ -1687,21 +1735,6 @@ create_lfn:
 	lda #1
 	sta lfn_index
 
-	; Checksum
-	lda #0
-	tay
-@checksum_loop:
-	tax
-	lsr
-	txa
-	ror
-	clc
-	adc filename_buf, y
-	iny
-	cpy #11
-	bne @checksum_loop
-	sta lfn_checksum
-
 	ldy name_offset
 
 @create_lfn_loop:
@@ -1724,9 +1757,7 @@ create_lfn:
 	iny
 	lda #0
 	sta (fat32_lfn_bufptr), y
-	iny
-	lda lfn_checksum
-	sta (fat32_lfn_bufptr), y
+	; leave checksum at offset 13 empty for now
 	ldy #26
 	lda #0
 	sta (fat32_lfn_bufptr), y
@@ -2040,10 +2071,6 @@ fat32_open:
 create_dir_entry:
 	sta tmp_attrib
 
-	; Convert file name
-	jsr convert_filename
-	bcc @error
-
 	; Create LFN
 	jsr create_lfn
 
@@ -2102,6 +2129,8 @@ create_dir_entry:
 	cmp lfn_count
 	bne @try_next ; not reached lfn_count+1 yet
 
+; enough consecutive entries found
+
 	; Rewind
 	lda first_free_entry_lba + 0
 	sta cur_context + context::lba + 0
@@ -2116,6 +2145,10 @@ create_dir_entry:
 	lda first_free_entry_offset + 1
 	sta fat32_bufptr + 1
 
+	; Convert file name
+	jsr convert_filename
+	bcc @error
+
 @write_lfn_entries_loop:
 	dec lfn_count
 	bmi @write_lfn_entries_end
@@ -2126,6 +2159,11 @@ create_dir_entry:
 	sta (fat32_bufptr), y
 	dey
 	bpl @2b
+
+	; set checksum
+	ldy #13
+	lda lfn_checksum
+	sta (fat32_bufptr), y
 
 	jsr save_sector_buffer
 	bcs @ok
