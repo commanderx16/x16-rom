@@ -667,13 +667,16 @@ convert_filename:
 convert_filename:
 	ldx #0
 	lda first_free_entry_lba + 3
-	jsr hexbuf
+	jsr hexbuf8
 	lda first_free_entry_lba + 2
-	jsr hexbuf
+	jsr hexbuf8
 	lda first_free_entry_lba + 1
-	jsr hexbuf
+	jsr hexbuf8
 	lda first_free_entry_lba + 0
-	jsr hexbuf
+	jsr hexbuf8
+	lda #'~'
+	sta filename_buf, x
+	inx
 	lda fat32_bufptr + 0
 	sec
 	sbc #<sector_buffer
@@ -687,8 +690,8 @@ convert_filename:
 	lsr
 	lsr
 	lsr
-	jsr hexbuf
-	lda #$20
+	jsr hexbuf4
+	lda #'~'
 	sta filename_buf, x
 
 	; Checksum
@@ -707,14 +710,15 @@ convert_filename:
 	sta lfn_checksum
 	rts
 
-hexbuf:
+hexbuf8:
 	pha
 	lsr
 	lsr
 	lsr
 	lsr
-	jsr :+
+	jsr hexbuf4
 	pla
+hexbuf4:
 	and #$0f
 :	cmp #$0a
 	bcc :+
