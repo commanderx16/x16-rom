@@ -80,8 +80,10 @@ lfn_checksum:        .byte 0
 lfn_char_count:      .byte 0
 tmp_sfn_case:        .byte 0
 
+free_entry_count:    .byte 0
 first_free_entry_lba: .res 4
 first_free_entry_offset: .res 2
+tmp_attrib:          .byte 0
 
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
@@ -2036,7 +2038,7 @@ fat32_open:
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 create_dir_entry:
-	sta tmp_buf
+	sta tmp_attrib
 
 	; Convert file name
 	jsr convert_filename
@@ -2067,10 +2069,11 @@ create_dir_entry:
 	cmp #$E5
 	beq @free_entry
 
+	stz free_entry_count
+
 @try_next:
 	; Increment buffer pointer to next entry
 	add16_val fat32_bufptr, fat32_bufptr, 32
-	stz free_entry_count
 	bra @next_entry
 
 	; Free directory entry found
@@ -2113,13 +2116,36 @@ create_dir_entry:
 	lda first_free_entry_offset + 1
 	sta fat32_bufptr + 1
 
-	; Copy LFN entries
-	; XXX TODO
+@write_lfn_entries_loop:
+	dec lfn_count
+	bmi @write_lfn_entries_end
 
+	; Copy LFN entry
+	ldy #31
+@2b:	lda (fat32_lfn_bufptr), y
+	sta (fat32_bufptr), y
+	dey
+	bpl @2b
 
+	jsr save_sector_buffer
+	bcs @ok
+@error2:
+	clc
+	rts
 
+@ok:
+	add16_val fat32_bufptr, fat32_bufptr, 32
+	sub16_val fat32_lfn_bufptr, fat32_lfn_bufptr, 32
 
-	
+	cmp16_val_ne fat32_bufptr, sector_buffer_end, @1b
+	lda #3
+	jsr next_sector
+	bcc @error2
+@1b:
+
+	bra @write_lfn_entries_loop
+
+@write_lfn_entries_end:
 
 	; Copy filename in new entry
 	ldy #0
@@ -2130,7 +2156,7 @@ create_dir_entry:
 	bne @2
 
 	; File attribute
-	lda tmp_buf
+	lda tmp_attrib
 	sta (fat32_bufptr), y
 	iny
 
@@ -2147,7 +2173,7 @@ create_dir_entry:
 
 	; Write sector buffer to disk
 	jsr save_sector_buffer
-	bcc @error
+	bcc @error2
 
 	; Set context as in-use
 	lda #FLAG_IN_USE
