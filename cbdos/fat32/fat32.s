@@ -86,6 +86,8 @@ first_free_entry_cluster: .res 4
 first_free_entry_offset: .res 2
 tmp_attrib:          .byte 0
 
+tmp_entry:           .res 32
+
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
 cur_context:         .tag context  ; Current file descriptor state
@@ -582,12 +584,12 @@ validate_char:
 	rts
 
 ;-----------------------------------------------------------------------------
-; convert_filename
+; create_shortname
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 .if 0
-convert_filename:
+create_shortname:
 	ldy name_offset
 
 	; Disallow empty string or string starting with '.'
@@ -664,7 +666,7 @@ convert_filename:
 	lda #ERRNO_ILLEGAL_FILENAME
 	jmp set_errno
 .else
-convert_filename:
+create_shortname:
 	ldx #0
 	lda first_free_entry_lba + 3
 	jsr hexbuf8
@@ -720,7 +722,7 @@ hexbuf8:
 	pla
 hexbuf4:
 	and #$0f
-:	cmp #$0a
+	cmp #$0a
 	bcc :+
 	adc #$66
 :	eor #$30
@@ -1007,20 +1009,19 @@ find_dir:
 	rts
 
 ;-----------------------------------------------------------------------------
-; delete_file
+; delete_entry
+;
+; Delete a directory entry. Requires one of find_dirent/find_file/find_dir to
+; be called before.
+;
+; C: 1= ignore read-only bit
 ;
 ; * c=0: failure; sets errno
-; * does not set errno = ERRNO_FILE_NOT_FOUND!
 ;-----------------------------------------------------------------------------
-delete_file:
-	; Find file
-	jsr find_file
-	bcs @0
-@error:
-	rts
-
-@0:
+delete_entry:
 	set16 fat32_bufptr, cur_context + context::dirent_bufptr
+
+	bcs @1 ; ignore real-only
 
 	ldy #11
 	lda (fat32_bufptr),y
@@ -1037,8 +1038,11 @@ delete_file:
 
 	; Write sector buffer to disk
 	jsr save_sector_buffer
-	bcc @error
+	bcs @ok0
+	clc
+	rts
 
+@ok0:
 	; delete LFN directory entries
 	lda lfn_count
 	beq @skip_lfn
@@ -1086,6 +1090,28 @@ delete_file:
 	bne @delete_lfn_loop
 
 @skip_lfn:
+	rts
+
+;-----------------------------------------------------------------------------
+; delete_file
+;
+; * c=0: failure; sets errno
+; * does not set errno = ERRNO_FILE_NOT_FOUND!
+;-----------------------------------------------------------------------------
+delete_file:
+	; Find file
+	jsr find_file
+	bcs @0
+@error:
+	rts
+
+@0:
+	clc ; respect read-only bit
+	jsr delete_entry
+	bcs @1
+	rts
+
+@1:
 	; Unlink cluster chain
 	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
 	jmp unlink_cluster_chain
@@ -1883,10 +1909,6 @@ fat32_rename:
 	jmp set_errno
 
 @1:
-	; Convert target filename into directory entry format
-	jsr convert_filename
-	bcc @error
-
 	; Find file to rename
 	set16 fat32_ptr, tmp_buf
 	jsr find_dirent
@@ -1895,14 +1917,51 @@ fat32_rename:
 	jmp set_errno
 
 @3:
-	; Copy new filename into sector buffer
+	; rescue shortname entry
 	set16 fat32_bufptr, cur_context + context::dirent_bufptr
+
+	ldy #31
+@loop:	lda (fat32_bufptr), y
+	sta tmp_entry, y
+	dey
+	bpl @loop
+
+	; delete
+	sec ; ignore read-only bit
+	jsr delete_entry
+	bcs @4
+	rts
+@4:
+
+	; target name
+	set16 fat32_ptr, fat32_ptr2
+
+	; Find space
+	jsr find_space_for_lfn
+	bcc @error
+
+	; Create short name
+	jsr create_shortname
+	bcc @error
+
+	; Write LFN entries
+	jsr write_lfn_entries
+	bcc @error
+
+	; Copy new filename into sector buffer
 	ldy #0
 @2:	lda filename_buf, y
 	sta (fat32_bufptr), y
 	iny
 	cpy #11
 	bne @2
+
+	; restore remainder of short name entry
+@5:	lda tmp_entry, y
+	sta (fat32_bufptr), y
+	iny
+	cpy #32
+	bne @5
 
 	; Write sector buffer to disk
 	jmp save_sector_buffer
@@ -2069,16 +2128,16 @@ fat32_open:
 @error:	clc
 	rts
 
+
+
+
+
 ;-----------------------------------------------------------------------------
-; create_dir_entry
-;
-; A: File attribute
+; find_space_for_lfn
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
-create_dir_entry:
-	sta tmp_attrib
-
+find_space_for_lfn:
 	; Create LFN
 	jsr create_lfn
 
@@ -2171,17 +2230,21 @@ create_dir_entry:
 	lda first_free_entry_offset + 1
 	sta fat32_bufptr + 1
 
-	jsr load_sector_buffer
-	bcc @error2
+	jmp load_sector_buffer
 
-	; Convert file name
-	jsr convert_filename
-	bcc @error2
-
+;-----------------------------------------------------------------------------
+; write_lfn_entries
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+write_lfn_entries:
 @write_lfn_entries_loop:
 	dec lfn_count
-	bmi @write_lfn_entries_end
+	bpl @1
+	sec
+	rts
 
+@1:
 	; Copy LFN entry
 	ldy #31
 @2b:	lda (fat32_lfn_bufptr), y
@@ -2196,7 +2259,7 @@ create_dir_entry:
 
 	jsr save_sector_buffer
 	bcs @ok
-@error2:
+@error:
 	clc
 	rts
 
@@ -2207,12 +2270,40 @@ create_dir_entry:
 	cmp16_val_ne fat32_bufptr, sector_buffer_end, @1b
 	lda #0
 	jsr next_sector
-	bcc @error2
+	bcc @error
 @1b:
-
 	bra @write_lfn_entries_loop
 
 @write_lfn_entries_end:
+	rts
+
+;-----------------------------------------------------------------------------
+; create_dir_entry
+;
+; A: File attribute
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+create_dir_entry:
+	sta tmp_attrib
+
+	; Find space
+	jsr find_space_for_lfn
+	bcs @1
+@error:
+	clc
+	rts
+
+@1:
+	; Create short name
+	jsr create_shortname
+	bcc @error
+
+	; Write LFN entries
+	jsr write_lfn_entries
+	bcc @error
+
+	; Write short name entry
 
 	; Copy filename in new entry
 	ldy #0
@@ -2240,7 +2331,7 @@ create_dir_entry:
 
 	; Write sector buffer to disk
 	jsr save_sector_buffer
-	bcc @error2
+	bcc @error
 
 	; Set context as in-use
 	lda #FLAG_IN_USE
