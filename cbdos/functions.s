@@ -467,16 +467,7 @@ copy_start:
 
 	jsr create_fat32_path
 
-;;; XXX unify duplicate code
-	jsr fat32_find_dirent
-	bcc @1
-	; exists, but don't overwrite
-	lda #$63
-	bra @copy_err
-@1:	lda fat32_errno
-	bne @copy_err2
-;;;
-
+	clc ; don't overwrite
 	jsr fat32_create
 	bcc @error_errno
 

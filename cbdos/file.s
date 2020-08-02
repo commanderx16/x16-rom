@@ -111,23 +111,7 @@ file_open:
 	lda #$33; syntax error (wildcards)
 	bra @open_file_err
 :	lda overwrite_flag
-	bne @open_create
-
-;;; XXX unify duplicate code
-	jsr fat32_find_dirent
-	bcc @1
-	; exists, but don't overwrite
-	lda #$63
-	bra @open_file_err
-
-@1:	lda fat32_errno
-	beq @open_create
-;;;
-
-	jsr set_errno_status
-	bra @open_file_err2
-
-@open_create:
+	lsr
 	jsr fat32_create
 	bcs :+
 	jsr set_errno_status

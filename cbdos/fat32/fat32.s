@@ -979,11 +979,11 @@ delete_entry:
 delete_file:
 	; Find file
 	jsr find_file
-	bcs @0
+	bcs delete_file2
 @error:
 	rts
 
-@0:
+delete_file2:
 	clc ; respect read-only bit
 	jsr delete_entry
 	bcs @1
@@ -2330,27 +2330,39 @@ create_dir_entry:
 ;-----------------------------------------------------------------------------
 ; fat32_create
 ;
-; Create file. Delete it if it already exists.
+; Create file.
+;
+; c=1: Delete it if it already exists.
 ;-----------------------------------------------------------------------------
 fat32_create:
+	php ; overwrite flag
 	stz fat32_errno
 
 	; Check if context is free
 	lda cur_context + context::flags
 	beq @1
+	plp ; overwrite flag
 @error:	clc
 	rts
 @1:
 	; Check if directory entry already exists?
 	jsr find_dirent
 	bcs @exists
+	plp ; overwrite flag
 	lda fat32_errno
 	bne @error
 	bra @ok
 
 @exists:
+	plp ; overwrite flag
+	bcs @overwrite
+
+	lda #ERRNO_FILE_EXISTS
+	jmp set_errno
+
+@overwrite:
 	; Delete file first if it exists
-	jsr delete_file
+	jsr delete_file2
 	bcc @error
 
 @ok:	; Create directory entry
