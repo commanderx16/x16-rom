@@ -82,11 +82,11 @@ tmp_sfn_case:        .byte 0
 lfn_name_index:      .byte 0
 
 free_entry_count:    .byte 0
-first_free_entry_lba: .res 4
-first_free_entry_cluster: .res 4
-first_free_entry_offset: .res 2
-tmp_attrib:          .byte 0
+marked_entry_lba:    .res 4
+marked_entry_cluster:.res 4
+marked_entry_offset: .res 2
 
+tmp_attrib:          .byte 0
 tmp_entry:           .res 32
 
 ; Contexts
@@ -109,10 +109,6 @@ contexts:            .res CONTEXT_SIZE * FAT32_CONTEXTS
 ; LFN
 lfnbuffer:
 	.res 20*32 ; 20 directory entries (13 chars * 20 > 255 chars)
-lfnlbas:
-	.res 20*4
-lfnoffsets:
-	.res 20*2
 
 _fat32_bss_end:
 
@@ -669,13 +665,13 @@ create_shortname:
 .else
 create_shortname:
 	ldx #0
-	lda first_free_entry_lba + 3
+	lda marked_entry_lba + 3
 	jsr hexbuf8
-	lda first_free_entry_lba + 2
+	lda marked_entry_lba + 2
 	jsr hexbuf8
-	lda first_free_entry_lba + 1
+	lda marked_entry_lba + 1
 	jsr hexbuf8
-	lda first_free_entry_lba + 0
+	lda marked_entry_lba + 0
 	jsr hexbuf8
 	lda #'~'
 	sta filename_buf, x
@@ -1022,7 +1018,7 @@ find_dir:
 delete_entry:
 	set16 fat32_bufptr, cur_context + context::dirent_bufptr
 
-	bcs @1 ; ignore real-only
+	bcs @1 ; ignore read-only
 
 	ldy #11
 	lda (fat32_bufptr),y
@@ -1046,51 +1042,31 @@ delete_entry:
 @ok0:
 	; delete LFN directory entries
 	lda lfn_count
-	beq @skip_lfn
+	beq @end
 
-	ldx #0
+	jsr rewind_dir_entry
+
 @delete_lfn_loop:
-	txa
-	asl
-	asl ; * 4
-	tay
-	lda lfnlbas + 0, y
-	sta cur_context + context::lba + 0
-	lda lfnlbas + 1, y
-	sta cur_context + context::lba + 1
-	lda lfnlbas + 2, y
-	sta cur_context + context::lba + 2
-	lda lfnlbas + 3, y
-	sta cur_context + context::lba + 3
-	phx
-	jsr load_sector_buffer
-	plx
-	bcs @ok1
-	rts
-@ok1:
-
-	txa
-	asl ; * 2
-	tay
-	lda lfnoffsets + 0, y
-	sta fat32_bufptr
-	lda lfnoffsets + 1, y
-	sta fat32_bufptr + 1
 	lda #$E5
 	sta (fat32_bufptr)
 
-	phx
 	jsr save_sector_buffer
-	plx
-	bcs @ok2
+	bcc @error
+
+	dec lfn_count
+	beq @end
+
+	add16_val fat32_bufptr, fat32_bufptr, 32
+
+	cmp16_val_ne fat32_bufptr, sector_buffer_end, @delete_lfn_loop
+	lda #0
+	jsr next_sector
+	bcs @delete_lfn_loop
+@error:
 	rts
-@ok2:
 
-	inx
-	cpx lfn_count
-	bne @delete_lfn_loop
-
-@skip_lfn:
+@end:
+	sec
 	rts
 
 ;-----------------------------------------------------------------------------
@@ -1471,6 +1447,9 @@ fat32_read_dirent:
 	; add entry to buffer
 	jsr add_lfn_entry
 
+	; remember dir entry
+	jsr mark_dir_entry
+
 	; continue with next entry
 	jmp @next_entry
 
@@ -1690,31 +1669,6 @@ add_lfn_entry:
 	dey
 	bpl :-
 	add16_val fat32_lfn_bufptr, fat32_lfn_bufptr, 32
-
-	; save offset within sector
-	lda lfn_index
-	dec
-	asl ; * 2
-	tax
-	pha
-	lda fat32_bufptr + 0
-	sta lfnoffsets + 0, x
-	lda fat32_bufptr + 1
-	sta lfnoffsets + 1, x
-	pla
-
-	; save LBA of sector
-	asl ; * 4
-	tax
-	lda cur_context + context::lba + 0
-	sta lfnlbas + 0, x
-	lda cur_context + context::lba + 1
-	sta lfnlbas + 1, x
-	lda cur_context + context::lba + 2
-	sta lfnlbas + 2, x
-	lda cur_context + context::lba + 3
-	sta lfnlbas + 3, x
-
 	rts
 
 ;-----------------------------------------------------------------------------
@@ -2174,10 +2128,6 @@ fat32_open:
 @error:	clc
 	rts
 
-
-
-
-
 ;-----------------------------------------------------------------------------
 ; find_space_for_lfn
 ;
@@ -2222,27 +2172,7 @@ find_space_for_lfn:
 	bne @not_first_free_entry
 
 	; remember where the first free one was
-	lda cur_context + context::lba + 0
-	sta first_free_entry_lba + 0
-	lda cur_context + context::lba + 1
-	sta first_free_entry_lba + 1
-	lda cur_context + context::lba + 2
-	sta first_free_entry_lba + 2
-	lda cur_context + context::lba + 3
-	sta first_free_entry_lba + 3
-	lda cur_context + context::cluster + 0
-	sta first_free_entry_cluster + 0
-	lda cur_context + context::cluster + 1
-	sta first_free_entry_cluster + 1
-	lda cur_context + context::cluster + 2
-	sta first_free_entry_cluster + 2
-	lda cur_context + context::cluster + 3
-	sta first_free_entry_cluster + 3
-
-	lda fat32_bufptr + 0
-	sta first_free_entry_offset + 0
-	lda fat32_bufptr + 1
-	sta first_free_entry_offset + 1
+	jsr mark_dir_entry
 
 @not_first_free_entry:
 	lda free_entry_count
@@ -2251,31 +2181,64 @@ find_space_for_lfn:
 	bne @try_next ; not reached lfn_count+1 yet
 
 ; enough consecutive entries found
+	jmp rewind_dir_entry
 
-	; Rewind
-	lda first_free_entry_lba + 0
+;-----------------------------------------------------------------------------
+mark_dir_entry:
+	; save LBA
+	lda cur_context + context::lba + 0
+	sta marked_entry_lba + 0
+	lda cur_context + context::lba + 1
+	sta marked_entry_lba + 1
+	lda cur_context + context::lba + 2
+	sta marked_entry_lba + 2
+	lda cur_context + context::lba + 3
+	sta marked_entry_lba + 3
+	; save cluster
+	lda cur_context + context::cluster + 0
+	sta marked_entry_cluster + 0
+	lda cur_context + context::cluster + 1
+	sta marked_entry_cluster + 1
+	lda cur_context + context::cluster + 2
+	sta marked_entry_cluster + 2
+	lda cur_context + context::cluster + 3
+	sta marked_entry_cluster + 3
+	; save offset
+	lda fat32_bufptr + 0
+	sta marked_entry_offset + 0
+	lda fat32_bufptr + 1
+	sta marked_entry_offset + 1
+	rts
+
+;-----------------------------------------------------------------------------
+rewind_dir_entry:
+	; restore LBA
+	lda marked_entry_lba + 0
 	sta cur_context + context::lba + 0
-	lda first_free_entry_lba + 1
+	lda marked_entry_lba + 1
 	sta cur_context + context::lba + 1
-	lda first_free_entry_lba + 2
+	lda marked_entry_lba + 2
 	sta cur_context + context::lba + 2
-	lda first_free_entry_lba + 3
+	lda marked_entry_lba + 3
 	sta cur_context + context::lba + 3
 
-	lda first_free_entry_cluster + 0
+	; restore cluster
+	lda marked_entry_cluster + 0
 	sta cur_context + context::cluster + 0
-	lda first_free_entry_cluster + 1
+	lda marked_entry_cluster + 1
 	sta cur_context + context::cluster + 1
-	lda first_free_entry_cluster + 2
+	lda marked_entry_cluster + 2
 	sta cur_context + context::cluster + 2
-	lda first_free_entry_cluster + 3
+	lda marked_entry_cluster + 3
 	sta cur_context + context::cluster + 3
 
-	lda first_free_entry_offset + 0
+	; restore entry
+	lda marked_entry_offset + 0
 	sta fat32_bufptr + 0
-	lda first_free_entry_offset + 1
+	lda marked_entry_offset + 1
 	sta fat32_bufptr + 1
 
+	; load
 	jmp load_sector_buffer
 
 ;-----------------------------------------------------------------------------
