@@ -20,4 +20,3 @@ fat32_ptr:
 	.res 2 ; word - Buffer pointer to various functions
 fat32_ptr2:
 	.res 2 ; word - Buffer pointer to various functions
-

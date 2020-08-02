@@ -74,20 +74,19 @@ name_offset:         .byte 0
 tmp_dir_cluster:     .dword 0
 
 ; LFN
-lfn_index:           .byte 0
-lfn_count:           .byte 0
-lfn_checksum:        .byte 0
-lfn_char_count:      .byte 0
-tmp_sfn_case:        .byte 0
-lfn_name_index:      .byte 0
-
-free_entry_count:    .byte 0
-marked_entry_lba:    .res 4
+lfn_index:           .byte 0       ; counter when collecting/decoding LFN entries
+lfn_count:           .byte 0       ; number of LFN dir entries when reading/creating
+lfn_checksum:        .byte 0       ; created or expected LFN checksum
+lfn_char_count:      .byte 0       ; counter when decoding LFN characters
+lfn_name_index:      .byte 0       ; counter when decoding LFN characters
+tmp_sfn_case:        .byte 0       ; flags when decoding SFN characters
+free_entry_count:    .byte 0       ; counter when looking for contig. free dir entries
+marked_entry_lba:    .res 4        ; mark/rewind data for directory entries
 marked_entry_cluster:.res 4
 marked_entry_offset: .res 2
+tmp_entry:           .res 21       ; SFN fields except name, saved during rename
 
-tmp_attrib:          .byte 0
-tmp_entry:           .res 32
+tmp_attrib:          .byte 0       ; temporary: attribute when creating a dir entry
 
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
@@ -1890,11 +1889,12 @@ fat32_rename:
 	; rescue shortname entry
 	set16 fat32_bufptr, cur_context + context::dirent_bufptr
 
-	ldy #31
+	ldy #11
 @loop:	lda (fat32_bufptr), y
-	sta tmp_entry, y
-	dey
-	bpl @loop
+	sta tmp_entry - 11, y
+	iny
+	cpy #32
+	bne @loop
 
 	; delete
 	sec ; ignore read-only bit
@@ -1927,7 +1927,7 @@ fat32_rename:
 	bne @2
 
 	; restore remainder of short name entry
-@5:	lda tmp_entry, y
+@5:	lda tmp_entry - 11, y
 	sta (fat32_bufptr), y
 	iny
 	cpy #32
