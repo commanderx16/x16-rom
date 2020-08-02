@@ -1527,18 +1527,17 @@ fat32_read_dirent:
 	ldy #1
 	lda #5
 	jsr decode_lfn_chars
-	bcc @name_done2
+	bcc @name_done
 	ldy #14
 	lda #6
 	jsr decode_lfn_chars
-	bcc @name_done2
+	bcc @name_done
 	ldy #28
 	lda #2
 	jsr decode_lfn_chars
 	dec lfn_index
 	bne @decode_lfn_loop
-	stz fat32_dirent + dirent::name, x ; yes, we need to zero terminate!
-	bra @name_done2
+	bra @name_done ; yes, we need to zero terminate!
 
 @is_short:
 	; get upper/lower case flags
@@ -1600,10 +1599,8 @@ fat32_read_dirent:
 
 @name_done:
 	; Add zero-termination to output
-	lda #0
-	sta fat32_dirent + dirent::name, x
+	stz fat32_dirent + dirent::name, x
 
-@name_done2:
 	; Copy file size
 	ldy #28
 	ldx #0
