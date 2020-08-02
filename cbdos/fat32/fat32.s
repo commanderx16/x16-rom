@@ -2046,15 +2046,12 @@ fat32_rmdir:
 	jsr find_dir
 	bcc @error
 
-	; Mark file as deleted
-	set16 fat32_bufptr, cur_context + context::dirent_bufptr
-	lda #$E5
-	sta (fat32_bufptr)
+	clc ; respect read-only bit
+	jsr delete_entry
+	bcs @4
+	rts
 
-	; Write sector buffer to disk
-	jsr save_sector_buffer
-	bcc @error
-
+@4:
 	; Unlink cluster chain
 	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
 	jmp unlink_cluster_chain
