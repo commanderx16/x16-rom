@@ -13,7 +13,7 @@
 
 	.import sector_buffer, sector_buffer_end, sector_lba
 
-	.import match_name, match_type
+	.import filename_char_16_to_8, filename_char_8_to_16, match_name, match_type
 
 CONTEXT_SIZE = 32
 
@@ -79,6 +79,7 @@ lfn_count:           .byte 0
 lfn_checksum:        .byte 0
 lfn_char_count:      .byte 0
 tmp_sfn_case:        .byte 0
+lfn_name_index:      .byte 0
 
 free_entry_count:    .byte 0
 first_free_entry_lba: .res 4
@@ -1527,16 +1528,17 @@ fat32_read_dirent:
 	ldy #1
 	lda #5
 	jsr decode_lfn_chars
-	bcc @name_done
+	bcc @name_done2
 	ldy #14
 	lda #6
 	jsr decode_lfn_chars
-	bcc @name_done
+	bcc @name_done2
 	ldy #28
 	lda #2
 	jsr decode_lfn_chars
 	dec lfn_index
 	bne @decode_lfn_loop
+@name_done2:
 	bra @name_done ; yes, we need to zero terminate!
 
 @is_short:
@@ -1705,21 +1707,42 @@ add_lfn_entry:
 
 ;-----------------------------------------------------------------------------
 ; decode_lfn_chars
+;
+; Convert 16 bit LFN-encoded to 8 bit encoding.
+;
+; In:   a  number of characters
+;       x  target index (offset in fat32_dirent + dirent::name)
+;       y  source index (offset in (fat32_lfn_bufptr))
 ;-----------------------------------------------------------------------------
 decode_lfn_chars:
+	stx lfn_name_index
 	sta lfn_char_count
 @loop:
  	lda (fat32_lfn_bufptr), y
+ 	iny
+ 	pha
+ 	pha
+ 	lda (fat32_lfn_bufptr), y
+	iny
+ 	plx
+ 	pha
+ 	jsr filename_char_16_to_8
+	ldx lfn_name_index
 	sta fat32_dirent + dirent::name, x
-	beq @end
-	iny
-	iny
-	inx
+	inc lfn_name_index
+ 	pla
+ 	plx
+ 	bne @cont
+ 	tax
+ 	beq @end
+@cont:
 	dec lfn_char_count
 	bne @loop
+	ldx lfn_name_index
 	sec
 	rts
-@end:	clc
+@end:	ldx lfn_name_index
+	clc
 	rts
 
 ;-----------------------------------------------------------------------------
@@ -1729,23 +1752,27 @@ encode_lfn_chars:
 	sta lfn_char_count
 @loop:
  	lda (fat32_ptr), y
- 	phx
+ 	pha
+
  	phy
- 	plx
+
+ 	phx
+ 	jsr filename_char_8_to_16
  	ply
+
 	sta (fat32_lfn_bufptr), y
 	iny
-	pha
-	lda #0
+	txa
 	sta (fat32_lfn_bufptr), y
-	pla
- 	phx
+	iny
+
  	phy
  	plx
+
  	ply
-	cmp #0
+
+	pla
 	beq @end
-	inx
 	iny
 	dec lfn_char_count
 	bne @loop

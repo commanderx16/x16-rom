@@ -7,13 +7,35 @@
 .include "fat32/regs.inc"
 .include "fat32/text_input.inc"
 
-.export match_name, match_type, skip_mask
+.export filename_char_16_to_8, filename_char_8_to_16, match_name, match_type, skip_mask
 
 .bss
 
 skip_mask:           .byte 0
 
 .code
+
+;-----------------------------------------------------------------------------
+; filename_char_16_to_8
+;
+; In:   a  16 bit char high
+;       x  16 bit char low
+; Out:  a  8 bit char
+;-----------------------------------------------------------------------------
+filename_char_16_to_8:
+	txa
+	rts
+
+;-----------------------------------------------------------------------------
+; filename_char_8_to_16
+;
+; In:   a  8 bit char
+; Out:  a  16 bit char low
+;       x  16 bit char high
+;-----------------------------------------------------------------------------
+filename_char_8_to_16:
+	ldx #0
+	rts
 
 ;-----------------------------------------------------------------------------
 ; match_name
