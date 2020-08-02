@@ -1528,9 +1528,8 @@ fat32_read_dirent:
 	bvc @ucase1
 	jsr to_lower
 @ucase1:
-	; assume ISO-8859-1 short names, convert to USC-2
-	tax
-	lda #0
+	; Convert CP1252 character to UCS-2
+	jsr cp1252_to_ucs2
 	; Convert UCS-2 character to private 8 bit encoding
 	jsr filename_char_16_to_8
 	sta fat32_dirent + dirent::name, y
@@ -1568,9 +1567,8 @@ fat32_read_dirent:
 	jsr to_lower
 @ucase2:
 	phx
-	; assume ISO-8859-1 short names, convert to USC-2
-	tax
-	lda #0
+	; Convert CP1252 character to UCS-2
+	jsr cp1252_to_ucs2
 	; Convert UCS-2 character to private 8 bit encoding
 	jsr filename_char_16_to_8
 	plx
@@ -1624,6 +1622,60 @@ fat32_read_dirent:
 @next_entry:
 	add16_val fat32_bufptr, fat32_bufptr, 32
 	jmp @fat32_read_dirent_loop
+
+;-----------------------------------------------------------------------------
+; cp1252_to_ucs2
+;
+; In:   a  CP1252 encoded char
+; Out:  a  USC-2 encoded char high
+;       x  USC-2 encoded char low
+;-----------------------------------------------------------------------------
+cp1252_to_ucs2:
+	cmp #$80
+	bne @1
+	ldx #$ac
+	lda #$20 ; U20AC '€'
+	rts
+@1:	cmp #$8a
+	bne @2
+	ldx #$60
+	lda #$01 ; U0160 'Š'
+	rts
+@2:	cmp #$9a
+	bne @3
+	ldx #$61
+	lda #$01 ; U0161 'š'
+	rts
+@3:	cmp #$8e
+	bne @4
+	ldx #$7d
+	lda #$01 ; U017D 'Ž'
+	rts
+@4:	cmp #$9e
+	bne @5
+	ldx #$7e
+	lda #$01 ; U017E 'ž'
+	rts
+@5:	cmp #$8c
+	bne @6
+	ldx #$52
+	lda #$01 ; U0152 'Œ'
+	rts
+@6:	cmp #$9c
+	bne @7
+	ldx #$53
+	lda #$01 ; U0153 'œ'
+	rts
+@7:	cmp #$9f
+	bne @8
+	ldx #$78
+	lda #$01 ; U0178 'Ÿ'
+	rts
+@8:
+	; CP1252 matches ISO-8859-1
+	tax
+	lda #0
+	rts
 
 ;-----------------------------------------------------------------------------
 ; check_lfn_index
