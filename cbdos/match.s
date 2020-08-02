@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; CBDOS Name Matching
+; CBDOS Character Encoding, Name Matching
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
@@ -18,6 +18,8 @@ skip_mask:           .byte 0
 ;-----------------------------------------------------------------------------
 ; filename_char_16_to_8
 ;
+; Convert UCS-2 character to private 8 bit encoding
+;
 ; In:   a  16 bit char high
 ;       x  16 bit char low
 ; Out:  a  8 bit char
@@ -28,6 +30,8 @@ filename_char_16_to_8:
 
 ;-----------------------------------------------------------------------------
 ; filename_char_8_to_16
+;
+; Convert character in private 8 bit encoding to UCS-2
 ;
 ; In:   a  8 bit char
 ; Out:  a  16 bit char low

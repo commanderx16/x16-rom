@@ -1559,6 +1559,11 @@ fat32_read_dirent:
 	bvc @ucase1
 	jsr to_lower
 @ucase1:
+	; assume ISO-8859-1 short names, convert to USC-2
+	tax
+	lda #0
+	; Convert UCS-2 character to private 8 bit encoding
+	jsr filename_char_16_to_8
 	sta fat32_dirent + dirent::name, y
 	iny
 	cpy #8
@@ -1593,6 +1598,13 @@ fat32_read_dirent:
 	bpl @ucase2
 	jsr to_lower
 @ucase2:
+	phx
+	; assume ISO-8859-1 short names, convert to USC-2
+	tax
+	lda #0
+	; Convert UCS-2 character to private 8 bit encoding
+	jsr filename_char_16_to_8
+	plx
 	sta fat32_dirent + dirent::name, x
 	iny
 	inx
@@ -1708,11 +1720,14 @@ add_lfn_entry:
 ;-----------------------------------------------------------------------------
 ; decode_lfn_chars
 ;
-; Convert 16 bit LFN-encoded to 8 bit encoding.
+; Convert 16 bit UCS-2-encoded LFN characters to private 8 bit encoding.
 ;
 ; In:   a  number of characters
 ;       x  target index (offset in fat32_dirent + dirent::name)
 ;       y  source index (offset in (fat32_lfn_bufptr))
+; Out:  x  updated target index
+;       y  updated source index
+;       c  =0: terminating 0 character encountered
 ;-----------------------------------------------------------------------------
 decode_lfn_chars:
 	stx lfn_name_index
@@ -1726,6 +1741,7 @@ decode_lfn_chars:
 	iny
  	plx
  	pha
+	; Convert UCS-2 character to private 8 bit encoding
  	jsr filename_char_16_to_8
 	ldx lfn_name_index
 	sta fat32_dirent + dirent::name, x
@@ -1747,30 +1763,36 @@ decode_lfn_chars:
 
 ;-----------------------------------------------------------------------------
 ; encode_lfn_chars
+;
+; Convert characters in private 8 bit encoding to 16 bit UCS-2 (LFN) encoding.
+;
+; In:   a  number of characters
+;       x  target index (offset in (fat32_lfn_bufptr))
+;       y  source index (offset in (fat32_ptr))
+; Out:  x  updated target index
+;       y  updated source index
+;       c  =0: terminating 0 character encountered
 ;-----------------------------------------------------------------------------
 encode_lfn_chars:
 	sta lfn_char_count
 @loop:
  	lda (fat32_ptr), y
  	pha
-
  	phy
 
  	phx
+	; Convert character in private 8 bit encoding to UCS-2
  	jsr filename_char_8_to_16
  	ply
-
 	sta (fat32_lfn_bufptr), y
 	iny
 	txa
 	sta (fat32_lfn_bufptr), y
 	iny
-
  	phy
  	plx
 
  	ply
-
 	pla
 	beq @end
 	iny
