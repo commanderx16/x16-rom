@@ -1,9 +1,12 @@
 ;-----------------------------------------------------------------------------
 ; fat32.s
 ; Copyright (C) 2020 Frank van den Hoef
+; Copyright (C) 2020 Michael Steil
 ;
 ; TODO:
 ; - implement fat32_seek
+; - implement timestamps
+; - implement volume label
 ;-----------------------------------------------------------------------------
 
 	.include "fat32.inc"
