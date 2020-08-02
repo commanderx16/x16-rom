@@ -1596,22 +1596,23 @@ cp1252_to_ucs2:
 ;-----------------------------------------------------------------------------
 check_lfn_index:
 	lda lfn_index
-	bne @followup
+	beq @expect_start
 
-	; expected start
+	lda lfn_index
+	dec
+	cmp (fat32_bufptr)
+	beq @ok
+
+	stz lfn_index
+@expect_start:
 	lda (fat32_bufptr)
 	asl
 	asl ; bit #6 -> C
 	rts
 
-@followup:
-	lda lfn_index
-	dec
-	cmp (fat32_bufptr)
-	beq @yes
-	clc
-@yes:	rts
-
+@ok:
+	sec
+	rts
 
 ;-----------------------------------------------------------------------------
 ; add_lfn_entry
