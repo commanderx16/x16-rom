@@ -1029,21 +1029,11 @@ delete_entry:
 	lda #ERRNO_FILE_READ_ONLY
 	jmp set_errno
 
-@1:	; Mark file as deleted
-	lda #$E5
-	sta (fat32_bufptr)
-
-	; Write sector buffer to disk
-	jsr save_sector_buffer
-	bcs @ok0
-	clc
-	rts
-
-@ok0:
-	; delete LFN directory entries
+@1:
 	lda lfn_count
-	beq @end
+	beq @delete_lfn_loop
 
+	; rewind to first LFN entry
 	jsr rewind_dir_entry
 
 @delete_lfn_loop:
@@ -1051,22 +1041,22 @@ delete_entry:
 	sta (fat32_bufptr)
 
 	jsr save_sector_buffer
-	bcc @error
+	bcc @ret
 
 	dec lfn_count
-	beq @end
+	bmi @end ; lfn_count + 1 iterations (#LFNs + 1 SFN)
 
 	add16_val fat32_bufptr, fat32_bufptr, 32
-
 	cmp16_val_ne fat32_bufptr, sector_buffer_end, @delete_lfn_loop
+
 	lda #0
 	jsr next_sector
 	bcs @delete_lfn_loop
-@error:
 	rts
 
 @end:
 	sec
+@ret:
 	rts
 
 ;-----------------------------------------------------------------------------
@@ -2180,20 +2170,16 @@ find_space_for_lfn:
 	cmp lfn_count
 	bne @try_next ; not reached lfn_count+1 yet
 
-; enough consecutive entries found
+	; enough consecutive entries found
+	; -> set pointer to first free entry
 	jmp rewind_dir_entry
 
 ;-----------------------------------------------------------------------------
+; mark_dir_entry
+;
+; Save current cluster, LBA and directory entry index.
+;-----------------------------------------------------------------------------
 mark_dir_entry:
-	; save LBA
-	lda cur_context + context::lba + 0
-	sta marked_entry_lba + 0
-	lda cur_context + context::lba + 1
-	sta marked_entry_lba + 1
-	lda cur_context + context::lba + 2
-	sta marked_entry_lba + 2
-	lda cur_context + context::lba + 3
-	sta marked_entry_lba + 3
 	; save cluster
 	lda cur_context + context::cluster + 0
 	sta marked_entry_cluster + 0
@@ -2203,6 +2189,15 @@ mark_dir_entry:
 	sta marked_entry_cluster + 2
 	lda cur_context + context::cluster + 3
 	sta marked_entry_cluster + 3
+	; save LBA
+	lda cur_context + context::lba + 0
+	sta marked_entry_lba + 0
+	lda cur_context + context::lba + 1
+	sta marked_entry_lba + 1
+	lda cur_context + context::lba + 2
+	sta marked_entry_lba + 2
+	lda cur_context + context::lba + 3
+	sta marked_entry_lba + 3
 	; save offset
 	lda fat32_bufptr + 0
 	sta marked_entry_offset + 0
@@ -2211,17 +2206,11 @@ mark_dir_entry:
 	rts
 
 ;-----------------------------------------------------------------------------
+; rewind_dir_entry
+;
+; Restore cluster, LBA and directory entry index.
+;-----------------------------------------------------------------------------
 rewind_dir_entry:
-	; restore LBA
-	lda marked_entry_lba + 0
-	sta cur_context + context::lba + 0
-	lda marked_entry_lba + 1
-	sta cur_context + context::lba + 1
-	lda marked_entry_lba + 2
-	sta cur_context + context::lba + 2
-	lda marked_entry_lba + 3
-	sta cur_context + context::lba + 3
-
 	; restore cluster
 	lda marked_entry_cluster + 0
 	sta cur_context + context::cluster + 0
@@ -2231,7 +2220,15 @@ rewind_dir_entry:
 	sta cur_context + context::cluster + 2
 	lda marked_entry_cluster + 3
 	sta cur_context + context::cluster + 3
-
+	; restore LBA
+	lda marked_entry_lba + 0
+	sta cur_context + context::lba + 0
+	lda marked_entry_lba + 1
+	sta cur_context + context::lba + 1
+	lda marked_entry_lba + 2
+	sta cur_context + context::lba + 2
+	lda marked_entry_lba + 3
+	sta cur_context + context::lba + 3
 	; restore entry
 	lda marked_entry_offset + 0
 	sta fat32_bufptr + 0
