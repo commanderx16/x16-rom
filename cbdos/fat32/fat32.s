@@ -546,38 +546,30 @@ allocate_cluster:
 ; validate_char
 ;-----------------------------------------------------------------------------
 validate_char:
-	; Allowed: 33, 35-41, 45, 48-57, 64-90, 94-96, 123, 125, 126
-	cmp #33
-	beq @ok
-	cmp #35
-	bcc @not_ok
-	cmp #41+1
-	bcc @ok
-	cmp #45
-	beq @ok
-	cmp #48
-	bcc @not_ok
-	cmp #57+1
-	bcc @ok
-	cmp #64
-	bcc @not_ok
-	cmp #90+1
-	bcc @ok
-	cmp #94
-	bcc @not_ok
-	cmp #96
-	bcc @ok
-	cmp #123
-	beq @ok
-	cmp #125
-	beq @ok
-	cmp #126
-	beq @ok
+	cmp #$22 ; quote
+	beq @not_ok
+	cmp #'*'
+	beq @not_ok
+	cmp #'/'
+	beq @not_ok
+	cmp #':'
+	beq @not_ok
+	cmp #'<'
+	beq @not_ok
+	cmp #'>'
+	beq @not_ok
+	cmp #'?'
+	beq @not_ok
+	cmp #'\'
+	beq @not_ok
+	cmp #'|'
+	beq @not_ok
+
+	sec
+	rts
 
 @not_ok:
 	clc
-	rts
-@ok:	sec
 	rts
 
 ;-----------------------------------------------------------------------------
@@ -585,84 +577,6 @@ validate_char:
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
-.if 0
-create_shortname:
-	ldy name_offset
-
-	; Disallow empty string or string starting with '.'
-	lda (fat32_ptr), y
-	beq @not_ok
-	cmp #'.'
-	beq @not_ok
-
-	; Copy name part
-	ldx #0
-@loop1:	lda (fat32_ptr), y
-	beq @name_pad
-	cmp #'.'
-	beq @name_pad
-	jsr to_upper
-	jsr validate_char
-	bcc @not_ok
-	sta filename_buf, x
-	inx
-	iny
-	cpx #8
-	bne @loop1
-
-	; Pad name with spaces
-@name_pad:
-	lda #' '
-@loop2:	cpx #8
-	beq @name_pad_done
-	sta filename_buf, x
-	inx
-	bra @loop2
-@name_pad_done:
-
-	; Check next character
-	lda (fat32_ptr), y
-	beq @ext_pad
-	cmp #'.'
-	beq @ext
-	bra @not_ok
-
-	; Copy extension part
-@ext:	iny	; Skip '.'
-
-@loop3:	lda (fat32_ptr), y
-	beq @ext_pad
-	jsr to_upper
-	jsr validate_char
-	bcc @not_ok
-	sta filename_buf, x
-	inx
-	iny
-	cpx #11
-	bne @loop3
-
-	; Check for end of string
-	lda (fat32_ptr), y
-	bne @not_ok
-
-	; Pad extension with spaces
-@ext_pad:
-	lda #' '
-@loop4:	cpx #11
-	beq @ext_pad_done
-	sta filename_buf, x
-	inx
-	bra @loop4
-@ext_pad_done:
-
-	; Done
-	sec
-	rts
-
-@not_ok:
-	lda #ERRNO_ILLEGAL_FILENAME
-	jmp set_errno
-.else
 create_shortname:
 	ldx #0
 	lda marked_entry_lba + 3
@@ -726,8 +640,6 @@ hexbuf4:
 	sta filename_buf, x
 	inx
 	rts
-
-.endif
 
 ;-----------------------------------------------------------------------------
 ; open_cluster
@@ -1801,8 +1713,22 @@ encode_lfn_chars:
 
 ;-----------------------------------------------------------------------------
 ; create_lfn
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 create_lfn:
+	; validate that filename is legal
+	ldy name_offset
+@validate_loop:
+	lda (fat32_ptr), y
+	beq @validate_ok
+	jsr validate_char
+	iny
+	bcs @validate_loop
+	lda #ERRNO_ILLEGAL_FILENAME
+	jmp set_errno
+
+@validate_ok:
 	; init buffer
 	set16_val fat32_lfn_bufptr, lfnbuffer
 
@@ -1868,6 +1794,7 @@ create_lfn:
 	ora #$40
 	sta (fat32_lfn_bufptr)
 
+	sec
 	rts
 
 ;-----------------------------------------------------------------------------
@@ -2178,6 +2105,7 @@ fat32_open:
 find_space_for_lfn:
 	; Create LFN
 	jsr create_lfn
+	bcc @error
 
 	stz free_entry_count
 
