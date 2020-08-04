@@ -43,28 +43,61 @@ status_put:
 	rts
 
 ;---------------------------------------------------------------
-set_status_ok:
-	lda #$00
-	bra set_status
-set_status_writeprot:
-	lda #$26
-	bra set_status
-set_status_synerr:
-	lda #$31
-	bra set_status
-set_status_74:
-	lda #$74
+fallback_tab:
+	.byte $c0,$bc,$e3,$65,$6d,$f4,$89,$52,$78,$8c,$5d,$ef,$e7,$e9,$65,$e5
+	.byte $ee,$06,$43,$fd,$6f,$eb,$e8,$26,$ea,$bb,$67,$e6,$6b,$e7,$e0,$f4
+	.byte $6f,$e6,$02,$44,$65,$87,$5d,$ff,$8c,$40,$69,$f2,$7d,$64,$62,$f0
+	.byte $09,$5c,$6f,$f7,$e8,$a0
 
+fallback31:
+	.import buffer, buffer_len
+	lda buffer+0
+	eor buffer+1
+	cmp #$6f
+	bne @4
+	adc buffer+0
+	sbc #$b1
+	bne @4
+	tay
+	lda buffer+2
+	ldx #$18
+	jsr @2
+	beq @1
+	ldx #$1e
+	jsr @2
+	bne @4
+@1:	jmp cmdch_exec
+@2:	stx buffer_len
+	ldx #0
+@3:	eor fallback_tab,y
+	sta buffer,x
+	pha
+	inx
+	lsr
+	iny
+	pla
+	ror
+	cpx buffer_len
+	bne @3
+	tax
+	rts
+@4:	lda #$31
+	ldx #0
+	beq keep_x
+
+;---------------------------------------------------------------
 set_status:
 	cmp #$01   ; FILES SCRATCHED
-	beq @keep_x
+	beq keep_x
 	cmp #$02   ; PARTITION SELECTED
-	beq @keep_x
+	beq keep_x
 	cmp #$77   ; SELECTED PARTITION ILLEGAL
-	beq @keep_x
+	beq keep_x
+	cmp #$31   ; SYNTAX ERROR
+	beq fallback31
 
 	ldx #0
-@keep_x:
+keep_x:
 	ldy #0
 	phy
 	phx
@@ -172,7 +205,7 @@ bin_to_bcd:
 	rts
 
 stcodes:
-	.byte $00, $01, $02, $20, $25, $26, $30, $31, $32, $33, $34, $39, $49, $62, $63, $70, $71, $72, $73, $74, $77
+	.byte $00, $01, $02, $20, $25, $26, $30, $31, $32, $33, $34, $39, $49, $62, $63, $70, $71, $72, $73, $74, $77, $79
 stcodes_end:
 
 ststrs:
@@ -197,6 +230,7 @@ ststrs:
 	.word status_73
 	.word status_74
 	.word status_77
+	.word buffer+1 ; 79 (echo message)
 
 ;---------------------------------------------------------------
 ; $0x: Informational
@@ -307,7 +341,8 @@ cmdch_read:
 	rts
 
 @cmdch_read_eoi:
-	jsr set_status_ok
+	lda #0
+	jsr set_status
 	lda #$0d
 	sec ; eof
 	rts

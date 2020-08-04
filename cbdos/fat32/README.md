@@ -71,6 +71,11 @@ All calls of the following sections require a context allocated and set.
 * `fat32_mkdir`: Make subdirectory. Pass path in `fat32_ptr`.
 * `fat32_rmdir`: Remove subdirectory. Pass path in `fat32_ptr`.
 
+### Other
+
+* `fat32_get_vollabel`: Get volume label. Returns label in `fat32_dirent::name`.
+* `fat32_set_vollabel`: Set volume label. Pass in `fat32_ptr`.
+
 ### Callbacks
 
 Some following functions need to be implemented in user code.

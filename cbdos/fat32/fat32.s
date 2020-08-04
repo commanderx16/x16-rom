@@ -16,7 +16,9 @@
 
 	.import sector_buffer, sector_buffer_end, sector_lba
 
-	.import filename_char_16_to_8, filename_char_8_to_16, match_name, match_type
+	.import filename_char_ucs2_to_internal, filename_char_internal_to_ucs2
+	.import filename_cp437_to_internal, filename_char_internal_to_cp437
+	.import match_name, match_type
 
 CONTEXT_SIZE = 32
 
@@ -90,6 +92,7 @@ marked_entry_offset: .res 2
 tmp_entry:           .res 21       ; SFN fields except name, saved during rename
 
 tmp_attrib:          .byte 0       ; temporary: attribute when creating a dir entry
+tmp_dirent_flag:     .byte 0
 
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
@@ -654,10 +657,12 @@ open_cluster:
 	ora cur_context + context::cluster + 1
 	ora cur_context + context::cluster + 2
 	ora cur_context + context::cluster + 3
-	bne @readsector
+	bne readsector
+
+open_rootdir:
 	set32 cur_context + context::cluster, rootdir_cluster
 
-@readsector:
+readsector:
 	; Read first sector of cluster
 	jsr calc_cluster_lba
 	jsr load_sector_buffer
@@ -1284,6 +1289,21 @@ fat32_find_dirent:
 ;-----------------------------------------------------------------------------
 fat32_read_dirent:
 	stz fat32_errno
+
+	sec
+	jmp read_dirent
+
+;-----------------------------------------------------------------------------
+; read_dirent
+;
+; In:   c=1: return next file entry
+;       c=0: return next volume label entry
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+read_dirent:
+	ror
+	sta tmp_dirent_flag
 	stz lfn_index
 	stz lfn_count
 
@@ -1296,17 +1316,8 @@ fat32_read_dirent:
 @error:	clc     ; Indicate error
 	rts
 @1:
-	; Skip volume label entries
-	ldy #11
-	lda (fat32_bufptr), y
-	sta fat32_dirent + dirent::attributes
-	cmp #8
-	bne @2
-	jmp @next_entry
-@2:
 	; Last entry?
-	ldy #0
-	lda (fat32_bufptr), y
+	lda (fat32_bufptr)
 	beq @error
 
 	; Skip empty entries
@@ -1315,6 +1326,21 @@ fat32_read_dirent:
 	jmp @next_entry_clear_lfn_buffer
 @3:
 
+	; Volume label entry?
+	ldy #11
+	lda (fat32_bufptr), y
+	sta fat32_dirent + dirent::attributes
+	cmp #8
+	bne @2
+	bit tmp_dirent_flag
+	bpl @2b
+@2a:
+	jmp @next_entry
+@2:
+	bit tmp_dirent_flag
+	bpl @2a
+
+@2b:
 	; check for LFN entry
 	lda fat32_dirent + dirent::attributes
 	cmp #$0f
@@ -1425,7 +1451,13 @@ fat32_read_dirent:
 	bra @name_done ; yes, we need to zero terminate!
 
 @is_short:
-	; get upper/lower case flags
+	; Volume label decoding
+	bit tmp_dirent_flag
+	bmi @4b
+	jsr decode_volume_label
+	bra @name_done_z
+
+@4b:	; get upper/lower case flags
 	ldy #12
 	lda (fat32_bufptr), y
 	asl
@@ -1442,10 +1474,7 @@ fat32_read_dirent:
 	bvc @ucase1
 	jsr to_lower
 @ucase1:
-	; Convert CP1252 character to UCS-2
-	jsr cp1252_to_ucs2
-	; Convert UCS-2 character to private 8 bit encoding
-	jsr filename_char_16_to_8
+	jsr filename_cp437_to_internal
 	sta fat32_dirent + dirent::name, y
 	iny
 	cpy #8
@@ -1481,10 +1510,7 @@ fat32_read_dirent:
 	jsr to_lower
 @ucase2:
 	phx
-	; Convert CP1252 character to UCS-2
-	jsr cp1252_to_ucs2
-	; Convert UCS-2 character to private 8 bit encoding
-	jsr filename_char_16_to_8
+	jsr filename_cp437_to_internal
 	plx
 	sta fat32_dirent + dirent::name, x
 	iny
@@ -1496,6 +1522,7 @@ fat32_read_dirent:
 	; Add zero-termination to output
 	stz fat32_dirent + dirent::name, x
 
+@name_done_z:
 	; Copy file size
 	ldy #28
 	ldx #0
@@ -1538,57 +1565,25 @@ fat32_read_dirent:
 	jmp @fat32_read_dirent_loop
 
 ;-----------------------------------------------------------------------------
-; cp1252_to_ucs2
-;
-; In:   a  CP1252 encoded char
-; Out:  a  USC-2 encoded char high
-;       x  USC-2 encoded char low
+; decode_volume_label
 ;-----------------------------------------------------------------------------
-cp1252_to_ucs2:
-	cmp #$80
+decode_volume_label:
+	ldy #0
+@1:	lda (fat32_bufptr), y
+	jsr filename_cp437_to_internal
+	sta fat32_dirent + dirent::name, y
+	iny
+	cpy #11
 	bne @1
-	ldx #$ac
-	lda #$20 ; U20AC '€'
-	rts
-@1:	cmp #$8a
-	bne @2
-	ldx #$60
-	lda #$01 ; U0160 'Š'
-	rts
-@2:	cmp #$9a
+	dey
+	lda #$20
+@2:	cmp fat32_dirent + dirent::name, y
 	bne @3
-	ldx #$61
-	lda #$01 ; U0161 'š'
-	rts
-@3:	cmp #$8e
-	bne @4
-	ldx #$7d
-	lda #$01 ; U017D 'Ž'
-	rts
-@4:	cmp #$9e
-	bne @5
-	ldx #$7e
-	lda #$01 ; U017E 'ž'
-	rts
-@5:	cmp #$8c
-	bne @6
-	ldx #$52
-	lda #$01 ; U0152 'Œ'
-	rts
-@6:	cmp #$9c
-	bne @7
-	ldx #$53
-	lda #$01 ; U0153 'œ'
-	rts
-@7:	cmp #$9f
-	bne @8
-	ldx #$78
-	lda #$01 ; U0178 'Ÿ'
-	rts
-@8:
-	; CP1252 matches ISO-8859-1
-	tax
+	dey
+	bpl @2
+@3:	iny
 	lda #0
+	sta fat32_dirent + dirent::name, y
 	rts
 
 ;-----------------------------------------------------------------------------
@@ -1652,8 +1647,7 @@ decode_lfn_chars:
 	iny
  	plx
  	pha
-	; Convert UCS-2 character to private 8 bit encoding
- 	jsr filename_char_16_to_8
+ 	jsr filename_char_ucs2_to_internal
 	ldx lfn_name_index
 	sta fat32_dirent + dirent::name, x
 	inc lfn_name_index
@@ -1692,8 +1686,7 @@ encode_lfn_chars:
  	phy
 
  	phx
-	; Convert character in private 8 bit encoding to UCS-2
- 	jsr filename_char_8_to_16
+	jsr filename_char_internal_to_ucs2
  	ply
 	sta (fat32_lfn_bufptr), y
 	iny
@@ -2900,4 +2893,118 @@ fat32_next_sector:
 fat32_get_offset:
 	set32 fat32_size, cur_context + context::file_offset
 	sec
+	rts
+
+;-----------------------------------------------------------------------------
+; fat32_get_vollabel
+;
+; Get the "volume label", i.e. the name of the filesystem.
+;
+; Out: fat32_dirent::name  name
+;
+; * If a directory volume label exists, it will be returned.
+; * Otherwise, the boot sector volume label will be returned.
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_get_vollabel:
+	stz fat32_errno
+
+	; Check if context is free
+	lda cur_context + context::flags
+	bne @error
+
+	; Get directory volume label
+	jsr open_rootdir
+	bcc @error
+	clc
+	jsr read_dirent
+	bcc @no_dir_vollabel
+
+	sec
+	rts
+
+	; Fall back to boot sector volume label
+@no_dir_vollabel:
+	; Read first sector of partition
+	set32 cur_context + context::lba, lba_partition
+	jsr load_sector_buffer
+	bcc @error
+
+	set16_val fat32_bufptr, (sector_buffer + $47)
+	jsr decode_volume_label
+	sec
+	rts
+
+@error:	clc
+	rts
+
+;-----------------------------------------------------------------------------
+; fat32_set_vollabel
+;
+; Set the "volume label", i.e. the name of the filesystem.
+;
+; In:  fat32_ptr  name
+;
+; * The string can be up to 11 characters; extra characters will be ignored.
+; * Allowed characters:
+;   - Context: Windows and Mac encode it as CP437 on disk, Mac does not allow
+;     non-ASCII characters, Windows does, but converts them to uppercase.
+;   - This function allows all CP437-encodable characters, without a case
+;     change.
+;   - Non-encodable characters will cause an error.
+; * The volume label will always be written into the boot sector. If a
+;   directory volume label exists, it will be removed.
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_set_vollabel:
+	stz fat32_errno
+
+	; Check if context is free
+	lda cur_context + context::flags
+	bne @error
+
+	; Get directory volume label
+	jsr open_rootdir
+	bcc @error
+	clc
+	jsr read_dirent
+	bcc @no_dir_vollabel
+
+	sec ; ignore read-only bit
+	jsr delete_entry
+	bcc @error
+
+@no_dir_vollabel:
+	; Read first sector of partition
+	set32 cur_context + context::lba, lba_partition
+	jsr load_sector_buffer
+	bcc @error
+
+	ldy #0
+@1:	lda (fat32_ptr), y
+	beq @2
+	jsr filename_char_internal_to_cp437
+	beq @fn_error
+	sta sector_buffer + $47, y
+	iny
+	cpy #11
+	bne @1
+
+	; pad with spaces
+@2:	cpy #11
+	beq @3
+	lda #$20
+	sta sector_buffer + $47, y
+	iny
+	bra @2
+
+@3:	jmp save_sector_buffer
+
+@fn_error:
+	lda #ERRNO_ILLEGAL_FILENAME
+	jmp set_errno
+
+@error:	clc
 	rts

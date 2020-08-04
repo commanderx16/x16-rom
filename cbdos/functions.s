@@ -398,7 +398,7 @@ rename:
 ; rename_header
 ;
 ; This is the "R-H" command, which should set the name of
-;   * the filesystem (i.e. FAT volume name), if no path
+;   * the filesystem (i.e. FAT volume label), if no path
 ;     is given.
 ;   * the "header" of a subdirectory, if a path is given.
 ;     FAT doesn't have any such concept, so this part must
@@ -417,12 +417,19 @@ rename_header:
 	lda unix_path
 	bne @rename_subdir_header
 
-; TODO: set volume name
-	lda #$31 ; unsupported
+	FAT32_CONTEXT_START
+
+	jsr create_fat32_path
+	jsr fat32_set_vollabel
+@xxx1:	bcs :+
+	jmp convert_status_end_context
+:	FAT32_CONTEXT_END
+	lda #0
 	rts
 
 @rename_subdir_header:
-	lda #$31 ; unsupported; FAT can't do this
+	; unsupported; FAT can't do this
+	lda #$39 ; illegal path
 	rts
 
 ;---------------------------------------------------------------

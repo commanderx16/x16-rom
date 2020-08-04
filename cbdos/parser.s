@@ -1011,6 +1011,7 @@ cmds:
 	.byte 'F' ; 'F-L' file lock
 	          ; 'F-U' file unlock
 	          ; 'F-R' file restore     TODO
+	.byte 255 ; echo (internal)
 cmds_end:
 cmd_ptrs:
 	.word cmd_i
@@ -1026,6 +1027,7 @@ cmd_ptrs:
 	.word cmd_b
 	.word cmd_u
 	.word cmd_f
+	.word cmd_255 ; echo (internal)
 
 ;---------------------------------------------------------------
 u0ext_cmds:
@@ -1698,6 +1700,14 @@ cmd_fr:
 
 @error_empty:
 	lda #$34 ; syntax error (empty filename)
+	clc
+	rts
+
+;---------------------------------------------------------------
+; CHR$(255) - echo message (internal)
+;---------------------------------------------------------------
+cmd_255:
+	lda #$79
 	clc
 	rts
 

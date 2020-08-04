@@ -65,24 +65,20 @@ dir_open:
 	ldx #1
 	ply ; filename length
 	jsr parse_cbmdos_filename
-	bcc :+
+	bcc @1
 	lda #$30 ; syntax error
 	jmp @dir_open_err
-:	lda medium
+@1:	lda medium
 	jsr soft_check_medium_a
-	bcc :+
+	bcc @2
 	lda #$74 ; drive not ready
 	jmp @dir_open_err
-:
+@2:
 
-	jsr create_fat32_path_only_dir
+	jsr fat32_get_vollabel
+	bcc @dir_open_err3
 
-	jsr fat32_open_dir
-	bcs :+
-	jsr set_errno_status
-	bra @dir_open_err2
-
-:	ldy #0
+	ldy #0
 	lda #<DIRSTART
 	jsr storedir
 	lda #>DIRSTART
@@ -97,11 +93,22 @@ dir_open:
 	jsr storedir
 	lda #$22 ; quote
 	jsr storedir
-	ldx #16
-	lda #' '
-:	jsr storedir
-	dex
-	bne :-
+
+	ldx #0
+@3:	lda fat32_dirent + dirent::name,x
+	beq @4
+	jsr storedir
+	inx
+	bne @3
+
+@4:	cpx #16
+	bcs @5
+	lda #$20
+	jsr storedir
+	inx
+	bra @4
+@5:
+
 	lda #$22 ; quote
 	jsr storedir
 	lda #' '
@@ -118,6 +125,13 @@ dir_open:
 	jsr storedir
 	lda #0 ; end of line
 	jsr storedir
+	phy
+
+	jsr create_fat32_path_only_dir
+
+	jsr fat32_open_dir
+	ply
+	bcc @dir_open_err3
 
 	sty dirbuffer_w
 	stz dirbuffer_r
@@ -126,6 +140,9 @@ dir_open:
 	clc ; ok
 	rts
 
+@dir_open_err3:
+	jsr set_errno_status
+	bra @dir_open_err2
 @dir_open_err:
 	jsr set_status
 @dir_open_err2:
@@ -270,7 +287,7 @@ read_dir_entry:
 	lda #' '
 :	jsr storedir
 	inx
-	cpx #16
+	cpx #17
 	bcc :-
 
 	lda fat32_dirent + dirent::attributes
