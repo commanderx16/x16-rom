@@ -2901,3 +2901,46 @@ fat32_get_offset:
 	set32 fat32_size, cur_context + context::file_offset
 	sec
 	rts
+
+;-----------------------------------------------------------------------------
+; fat32_get_vollabel
+;-----------------------------------------------------------------------------
+fat32_get_vollabel:
+	stz fat32_errno
+
+	; Check if context is free
+	lda cur_context + context::flags
+	bne @error
+
+	; Read first sector of partition
+	set32 cur_context + context::lba, lba_partition
+	jsr load_sector_buffer
+	bcc @error
+
+	ldy #0
+@1:	lda sector_buffer + $47, y
+	; Convert CP1252 character to UCS-2
+	jsr cp1252_to_ucs2
+	; Convert UCS-2 character to private 8 bit encoding
+	jsr filename_char_16_to_8
+	sta fat32_dirent + dirent::name, y
+	iny
+	cpy #11
+	bne @1
+
+	dey
+	lda #$20
+@2:	cmp fat32_dirent + dirent::name, y
+	bne @3
+	dey
+	bpl @2
+@3:	iny
+	lda #0
+	sta fat32_dirent + dirent::name, y
+
+	sec
+	rts
+
+@error:
+	clc
+	rts
