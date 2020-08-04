@@ -2952,7 +2952,7 @@ fat32_get_vollabel:
 ;     non-ASCII characters, Windows does, but converts them to uppercase.
 ;   - This function allows all CP437-encodable characters, without a case
 ;     change.
-;   - Non-encodable characters will be replaced with spaces.
+;   - Non-encodable characters will cause an error.
 ; * The volume label will always be written into the boot sector. If a
 ;   directory volume label exists, it will be removed.
 ;
@@ -2986,9 +2986,8 @@ fat32_set_vollabel:
 @1:	lda (fat32_ptr), y
 	beq @2
 	jsr filename_char_internal_to_cp437
-	bne @1b
-	lda #' '
-@1b:	sta sector_buffer + $47, y
+	beq @fn_error
+	sta sector_buffer + $47, y
 	iny
 	cpy #11
 	bne @1
@@ -3002,6 +3001,10 @@ fat32_set_vollabel:
 	bra @2
 
 @3:	jmp save_sector_buffer
+
+@fn_error:
+	lda #ERRNO_ILLEGAL_FILENAME
+	jmp set_errno
 
 @error:	clc
 	rts
