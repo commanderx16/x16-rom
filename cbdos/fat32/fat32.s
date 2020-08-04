@@ -2936,8 +2936,7 @@ fat32_get_vollabel:
 	sec
 	rts
 
-@error:
-	clc
+@error:	clc
 	rts
 
 ;-----------------------------------------------------------------------------
@@ -2948,9 +2947,12 @@ fat32_get_vollabel:
 ; In:  fat32_ptr  name
 ;
 ; * The string can be up to 11 characters; extra characters will be ignored.
-; * Windows and Mac encode it as CP437 on disk, Mac does not allow non-ASCII
-;   characters, Windows does, but converts them to uppercase. This function
-;   allows all CP437-encodable characters, without a case change.
+; * Allowed characters:
+;   - Context: Windows and Mac encode it as CP437 on disk, Mac does not allow
+;     non-ASCII characters, Windows does, but converts them to uppercase.
+;   - This function allows all CP437-encodable characters, without a case
+;     change.
+;   - Non-encodable characters will be replaced with spaces.
 ; * The volume label will always be written into the boot sector. If a
 ;   directory volume label exists, it will be removed.
 ;
@@ -2984,7 +2986,9 @@ fat32_set_vollabel:
 @1:	lda (fat32_ptr), y
 	beq @2
 	jsr filename_char_internal_to_cp437
-	sta sector_buffer + $47, y
+	bne @1b
+	lda #' '
+@1b:	sta sector_buffer + $47, y
 	iny
 	cpy #11
 	bne @1
@@ -2999,6 +3003,5 @@ fat32_set_vollabel:
 
 @3:	jmp save_sector_buffer
 
-@error:
-	clc
+@error:	clc
 	rts
