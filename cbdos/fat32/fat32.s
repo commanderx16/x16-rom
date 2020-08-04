@@ -1451,7 +1451,13 @@ read_dirent:
 	bra @name_done ; yes, we need to zero terminate!
 
 @is_short:
-	; get upper/lower case flags
+	; Volume label decoding
+	bit tmp_dirent_flag
+	bmi @4b
+	jsr decode_volume_label
+	bra @name_done_z
+
+@4b:	; get upper/lower case flags
 	ldy #12
 	lda (fat32_bufptr), y
 	asl
@@ -1468,7 +1474,6 @@ read_dirent:
 	bvc @ucase1
 	jsr to_lower
 @ucase1:
-	; Convert CP437 character to private 8 bit encoding
 	jsr filename_cp437_to_8
 	sta fat32_dirent + dirent::name, y
 	iny
@@ -1492,12 +1497,10 @@ read_dirent:
 	beq @name_done
 
 	; Add dot to output
-	bit tmp_dirent_flag ; skip if volume label
-	bpl @6b
 	lda #'.'
 	sta fat32_dirent + dirent::name, x
 	inx
-@6b:
+
 	; Copy extension part of file name
 @7:	lda (fat32_bufptr), y
 	cmp #' '
@@ -1507,7 +1510,6 @@ read_dirent:
 	jsr to_lower
 @ucase2:
 	phx
-	; Convert CP437 character to private 8 bit encoding
 	jsr filename_cp437_to_8
 	plx
 	sta fat32_dirent + dirent::name, x
@@ -1520,6 +1522,7 @@ read_dirent:
 	; Add zero-termination to output
 	stz fat32_dirent + dirent::name, x
 
+@name_done_z:
 	; Copy file size
 	ldy #28
 	ldx #0
@@ -1560,6 +1563,28 @@ read_dirent:
 @next_entry:
 	add16_val fat32_bufptr, fat32_bufptr, 32
 	jmp @fat32_read_dirent_loop
+
+;-----------------------------------------------------------------------------
+; decode_volume_label
+;-----------------------------------------------------------------------------
+decode_volume_label:
+	ldy #0
+@1:	lda (fat32_bufptr), y
+	jsr filename_cp437_to_8
+	sta fat32_dirent + dirent::name, y
+	iny
+	cpy #11
+	bne @1
+	dey
+	lda #$20
+@2:	cmp fat32_dirent + dirent::name, y
+	bne @3
+	dey
+	bpl @2
+@3:	iny
+	lda #0
+	sta fat32_dirent + dirent::name, y
+	rts
 
 ;-----------------------------------------------------------------------------
 ; check_lfn_index
@@ -1622,7 +1647,6 @@ decode_lfn_chars:
 	iny
  	plx
  	pha
-	; Convert UCS-2 character to private 8 bit encoding
  	jsr filename_char_16_to_8
 	ldx lfn_name_index
 	sta fat32_dirent + dirent::name, x
@@ -1662,7 +1686,6 @@ encode_lfn_chars:
  	phy
 
  	phx
-	; Convert character in private 8 bit encoding to UCS-2
 	jsr filename_char_8_to_16
  	ply
 	sta (fat32_lfn_bufptr), y
@@ -2875,6 +2898,13 @@ fat32_get_offset:
 ;-----------------------------------------------------------------------------
 ; fat32_get_vollabel
 ;
+; Get the "volume label", i.e. the name of the filesystem.
+;
+; Out: fat32_dirent::name  name
+;
+; * If a directory volume label exists, it will be returned.
+; * Otherwise, the boot sector volume label will be returned.
+;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_get_vollabel:
@@ -2901,25 +2931,8 @@ fat32_get_vollabel:
 	jsr load_sector_buffer
 	bcc @error
 
-	ldy #0
-@1:	lda sector_buffer + $47, y
-	; Convert CP437 character to private 8 bit encoding
-	jsr filename_cp437_to_8
-	sta fat32_dirent + dirent::name, y
-	iny
-	cpy #11
-	bne @1
-
-	dey
-	lda #$20
-@2:	cmp fat32_dirent + dirent::name, y
-	bne @3
-	dey
-	bpl @2
-@3:	iny
-	lda #0
-	sta fat32_dirent + dirent::name, y
-
+	set16_val fat32_bufptr, (sector_buffer + $47)
+	jsr decode_volume_label
 	sec
 	rts
 
@@ -2929,6 +2942,17 @@ fat32_get_vollabel:
 
 ;-----------------------------------------------------------------------------
 ; fat32_set_vollabel
+;
+; Set the "volume label", i.e. the name of the filesystem.
+;
+; In:  fat32_ptr  name
+;
+; * The string can be up to 11 characters; extra characters will be ignored.
+; * Windows and Mac encode it as CP437 on disk, Mac does not allow non-ASCII
+;   characters, Windows does, but converts them to uppercase. This function
+;   allows all CP437-encodable characters, without a case change.
+; * The volume label will always be written into the boot sector. If a
+;   directory volume label exists, it will be removed.
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
@@ -2959,7 +2983,6 @@ fat32_set_vollabel:
 	ldy #0
 @1:	lda (fat32_ptr), y
 	beq @2
-	; Convert character in private 8 bit encoding to CP437
 	jsr filename_char_8_to_cp437
 	sta sector_buffer + $47, y
 	iny
@@ -2974,8 +2997,7 @@ fat32_set_vollabel:
 	iny
 	bra @2
 
-@3:
-	jmp save_sector_buffer
+@3:	jmp save_sector_buffer
 
 @error:
 	clc
