@@ -16,8 +16,8 @@
 
 	.import sector_buffer, sector_buffer_end, sector_lba
 
-	.import filename_char_16_to_8, filename_char_8_to_16
-	.import filename_cp437_to_8, filename_char_8_to_cp437
+	.import filename_char_ucs2_to_internal, filename_char_internal_to_ucs2
+	.import filename_cp437_to_internal, filename_char_internal_to_cp437
 	.import match_name, match_type
 
 CONTEXT_SIZE = 32
@@ -1474,7 +1474,7 @@ read_dirent:
 	bvc @ucase1
 	jsr to_lower
 @ucase1:
-	jsr filename_cp437_to_8
+	jsr filename_cp437_to_internal
 	sta fat32_dirent + dirent::name, y
 	iny
 	cpy #8
@@ -1510,7 +1510,7 @@ read_dirent:
 	jsr to_lower
 @ucase2:
 	phx
-	jsr filename_cp437_to_8
+	jsr filename_cp437_to_internal
 	plx
 	sta fat32_dirent + dirent::name, x
 	iny
@@ -1570,7 +1570,7 @@ read_dirent:
 decode_volume_label:
 	ldy #0
 @1:	lda (fat32_bufptr), y
-	jsr filename_cp437_to_8
+	jsr filename_cp437_to_internal
 	sta fat32_dirent + dirent::name, y
 	iny
 	cpy #11
@@ -1647,7 +1647,7 @@ decode_lfn_chars:
 	iny
  	plx
  	pha
- 	jsr filename_char_16_to_8
+ 	jsr filename_char_ucs2_to_internal
 	ldx lfn_name_index
 	sta fat32_dirent + dirent::name, x
 	inc lfn_name_index
@@ -1686,7 +1686,7 @@ encode_lfn_chars:
  	phy
 
  	phx
-	jsr filename_char_8_to_16
+	jsr filename_char_internal_to_ucs2
  	ply
 	sta (fat32_lfn_bufptr), y
 	iny
@@ -2983,7 +2983,7 @@ fat32_set_vollabel:
 	ldy #0
 @1:	lda (fat32_ptr), y
 	beq @2
-	jsr filename_char_8_to_cp437
+	jsr filename_char_internal_to_cp437
 	sta sector_buffer + $47, y
 	iny
 	cpy #11

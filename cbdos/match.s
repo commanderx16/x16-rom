@@ -7,8 +7,8 @@
 .include "fat32/regs.inc"
 .include "fat32/text_input.inc"
 
-.export filename_char_16_to_8, filename_char_8_to_16
-.export filename_cp437_to_8, filename_char_8_to_cp437
+.export filename_char_ucs2_to_internal, filename_char_internal_to_ucs2
+.export filename_cp437_to_internal, filename_char_internal_to_cp437
 .export match_name, match_type
 
 .export skip_mask
@@ -20,15 +20,15 @@ skip_mask:           .byte 0
 .code
 
 ;-----------------------------------------------------------------------------
-; filename_char_16_to_8
+; filename_char_ucs2_to_internal
 ;
-; Convert UCS-2 character to private 8 bit encoding (ISO-8859-15)
+; Convert UCS-2 character to internal 8 bit encoding (ISO-8859-15)
 ;
 ; In:   a  16 bit char high
 ;       x  16 bit char low
 ; Out:  a  8 bit char
 ;-----------------------------------------------------------------------------
-filename_char_16_to_8:
+filename_char_ucs2_to_internal:
 	cmp #0
 	beq @from_latin_1
 
@@ -102,15 +102,15 @@ filename_char_16_to_8:
 	rts
 
 ;-----------------------------------------------------------------------------
-; filename_char_8_to_16
+; filename_char_internal_to_ucs2
 ;
-; Convert character in private 8 bit encoding (ISO-8859-15) to UCS-2
+; Convert character in internal 8 bit encoding (ISO-8859-15) to UCS-2
 ;
 ; In:   a  8 bit char
 ; Out:  a  16 bit char low
 ;       x  16 bit char high
 ;-----------------------------------------------------------------------------
-filename_char_8_to_16:
+filename_char_internal_to_ucs2:
 	cmp #$a4
 	bne @1
 	lda #$ac
@@ -157,27 +157,27 @@ filename_char_8_to_16:
 	rts
 
 ;-----------------------------------------------------------------------------
-; filename_cp437_to_8
+; filename_cp437_to_internal
 ;
-; Convert CP437 character to private 8 bit encoding (ISO-8859-15)
+; Convert CP437 character to internal 8 bit encoding (ISO-8859-15)
 ;
 ; In:   a  CP437 char
 ; Out:  a  8 bit char (0= no mapping exists)
 ;-----------------------------------------------------------------------------
-filename_cp437_to_8:
+filename_cp437_to_internal:
 	tax
 	lda cp437_to_iso8859_15_tab,x
 	rts
 
 ;-----------------------------------------------------------------------------
-; filename_char_8_to_cp437
+; filename_char_internal_to_cp437
 ;
-; Convert character in private 8 bit encoding (ISO-8859-15) to CP437
+; Convert character in internal 8 bit encoding (ISO-8859-15) to CP437
 ;
 ; In:   a  8 bit char
 ; Out:  a  CP437 char (0= no mapping exists)
 ;-----------------------------------------------------------------------------
-filename_char_8_to_cp437:
+filename_char_internal_to_cp437:
 	ldx #0
 @1:	cmp cp437_to_iso8859_15_tab,x
 	beq @2
