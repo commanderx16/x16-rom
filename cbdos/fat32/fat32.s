@@ -1320,6 +1320,12 @@ read_dirent:
 	lda (fat32_bufptr)
 	beq @error
 
+	; Skip empty entries
+	cmp #$E5
+	bne @3
+	jmp @next_entry_clear_lfn_buffer
+@3:
+
 	; Volume label entry?
 	ldy #11
 	lda (fat32_bufptr), y
@@ -1335,12 +1341,6 @@ read_dirent:
 	bpl @2a
 
 @2b:
-	; Skip empty entries
-	cmp #$E5
-	bne @3
-	jmp @next_entry_clear_lfn_buffer
-@3:
-
 	; check for LFN entry
 	lda fat32_dirent + dirent::attributes
 	cmp #$0f
@@ -2884,9 +2884,9 @@ fat32_get_vollabel:
 	lda cur_context + context::flags
 	bne @error
 
+	; Get directory volume label
 	jsr open_rootdir
 	bcc @error
-
 	clc
 	jsr read_dirent
 	bcc @no_dir_vollabel
@@ -2894,6 +2894,7 @@ fat32_get_vollabel:
 	sec
 	rts
 
+	; Fall back to boot sector volume label
 @no_dir_vollabel:
 	; Read first sector of partition
 	set32 cur_context + context::lba, lba_partition
@@ -2938,6 +2939,18 @@ fat32_set_vollabel:
 	lda cur_context + context::flags
 	bne @error
 
+	; Get directory volume label
+	jsr open_rootdir
+	bcc @error
+	clc
+	jsr read_dirent
+	bcc @no_dir_vollabel
+
+	sec ; ignore read-only bit
+	jsr delete_entry
+	bcc @error
+
+@no_dir_vollabel:
 	; Read first sector of partition
 	set32 cur_context + context::lba, lba_partition
 	jsr load_sector_buffer
