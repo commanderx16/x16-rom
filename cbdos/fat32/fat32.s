@@ -92,6 +92,7 @@ marked_entry_offset: .res 2
 tmp_entry:           .res 21       ; SFN fields except name, saved during rename
 
 tmp_attrib:          .byte 0       ; temporary: attribute when creating a dir entry
+tmp_dirent_flag:     .byte 0
 
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
@@ -656,10 +657,12 @@ open_cluster:
 	ora cur_context + context::cluster + 1
 	ora cur_context + context::cluster + 2
 	ora cur_context + context::cluster + 3
-	bne @readsector
+	bne readsector
+
+open_rootdir:
 	set32 cur_context + context::cluster, rootdir_cluster
 
-@readsector:
+readsector:
 	; Read first sector of cluster
 	jsr calc_cluster_lba
 	jsr load_sector_buffer
@@ -1286,6 +1289,21 @@ fat32_find_dirent:
 ;-----------------------------------------------------------------------------
 fat32_read_dirent:
 	stz fat32_errno
+
+	sec
+	jmp read_dirent
+
+;-----------------------------------------------------------------------------
+; read_dirent
+;
+; In:   c=1: return next file entry
+;       c=0: return next volume label entry
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+read_dirent:
+	ror
+	sta tmp_dirent_flag
 	stz lfn_index
 	stz lfn_count
 
@@ -1298,19 +1316,25 @@ fat32_read_dirent:
 @error:	clc     ; Indicate error
 	rts
 @1:
-	; Skip volume label entries
+	; Last entry?
+	lda (fat32_bufptr)
+	beq @error
+
+	; Volume label entry?
 	ldy #11
 	lda (fat32_bufptr), y
 	sta fat32_dirent + dirent::attributes
 	cmp #8
 	bne @2
+	bit tmp_dirent_flag
+	bpl @2b
+@2a:
 	jmp @next_entry
 @2:
-	; Last entry?
-	ldy #0
-	lda (fat32_bufptr), y
-	beq @error
+	bit tmp_dirent_flag
+	bpl @2a
 
+@2b:
 	; Skip empty entries
 	cmp #$E5
 	bne @3
@@ -1468,10 +1492,12 @@ fat32_read_dirent:
 	beq @name_done
 
 	; Add dot to output
+	bit tmp_dirent_flag ; skip if volume label
+	bpl @6b
 	lda #'.'
 	sta fat32_dirent + dirent::name, x
 	inx
-
+@6b:
 	; Copy extension part of file name
 @7:	lda (fat32_bufptr), y
 	cmp #' '
@@ -2858,6 +2884,17 @@ fat32_get_vollabel:
 	lda cur_context + context::flags
 	bne @error
 
+	jsr open_rootdir
+	bcc @error
+
+	clc
+	jsr read_dirent
+	bcc @no_dir_vollabel
+
+	sec
+	rts
+
+@no_dir_vollabel:
 	; Read first sector of partition
 	set32 cur_context + context::lba, lba_partition
 	jsr load_sector_buffer
