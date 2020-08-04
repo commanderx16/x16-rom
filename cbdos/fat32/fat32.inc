@@ -14,6 +14,8 @@
 .global fat32_set_context       ; Set current context to idx in A (0..FAT32_CONTEXTS-1)
 .global fat32_get_context       ; Get current context, result in A
 .global fat32_get_free_space    ; Get free space, result in KiB in fat32_size (32-bit)
+.global fat32_get_vollabel      ; Get volume label (fat32_dirent::name)
+.global fat32_set_vollabel      ; Set volume label (fat32_dirent::name)
 
 ; Directory operations
 .global fat32_open_dir          ; Open directory with path in fat32_ptr
@@ -37,8 +39,6 @@
 .global fat32_write_byte        ; Write byte in A
 .global fat32_write             ; Write fat32_size (16-bit) bytes from fat32_ptr
 .global fat32_get_offset        ; Get current file offset, result in fat32_size
-
-.global fat32_get_vollabel
 
 .global fat32_size
 .global fat32_dirent

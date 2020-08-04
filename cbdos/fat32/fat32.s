@@ -1592,6 +1592,66 @@ cp1252_to_ucs2:
 	rts
 
 ;-----------------------------------------------------------------------------
+; ucs2_to_cp1252
+;
+; In:   a  USC-2 encoded char low
+;       x  USC-2 encoded char high
+; Out:  a  CP1252 encoded char
+;-----------------------------------------------------------------------------
+ucs2_to_cp1252:
+	cpx #0
+	bne @0
+	; ISO-8859-1 non-control codes match CP1252
+	rts
+
+@0:
+	; non ISO-8859-1 Unicode
+	cpx #$20
+	bne @not_20
+	cmp #$ac
+	bne @unsupported
+
+	lda #$80 ; U20AC '€'
+	rts
+
+@not_20:
+	cpx #$01
+	bne @unsupported
+
+	cmp #$60
+	bne @1
+	lda #$8a ; U0160 'Š'
+	rts
+@1:	cmp #$61
+	bne @2
+	lda #$9a ; U0161 'š'
+	rts
+@2:	cmp #$7d
+	bne @3
+	lda #$8e ; U017D 'Ž'
+	rts
+@3:	cmp #$7e
+	bne @4
+	lda #$9e ; U017E 'ž'
+	rts
+@4:	cmp #$52
+	bne @5
+	lda #$8c ; U0152 'Œ'
+	rts
+@5:	cmp #$53
+	bne @6
+	lda #$9c ; U0153 'œ'
+	rts
+@6:	cmp #$78
+	bne @unsupported
+	lda #$9f ; U0178 'Ÿ'
+	rts
+
+@unsupported:
+	lda #'?'
+	rts
+
+;-----------------------------------------------------------------------------
 ; check_lfn_index
 ;
 ; * c=1: ok
@@ -1693,7 +1753,7 @@ encode_lfn_chars:
 
  	phx
 	; Convert character in private 8 bit encoding to UCS-2
- 	jsr filename_char_8_to_16
+	jsr filename_char_8_to_16
  	ply
 	sta (fat32_lfn_bufptr), y
 	iny
@@ -2904,6 +2964,8 @@ fat32_get_offset:
 
 ;-----------------------------------------------------------------------------
 ; fat32_get_vollabel
+;
+; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_get_vollabel:
 	stz fat32_errno
@@ -2940,6 +3002,50 @@ fat32_get_vollabel:
 
 	sec
 	rts
+
+@error:
+	clc
+	rts
+
+;-----------------------------------------------------------------------------
+; fat32_set_vollabel
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_set_vollabel:
+	stz fat32_errno
+
+	; Check if context is free
+	lda cur_context + context::flags
+	bne @error
+
+	; Read first sector of partition
+	set32 cur_context + context::lba, lba_partition
+	jsr load_sector_buffer
+	bcc @error
+
+	ldy #0
+@1:	lda (fat32_ptr), y
+	beq @2
+	; Convert character in private 8 bit encoding to UCS-2
+	jsr filename_char_8_to_16
+	; Convert UCS-2 character to CP1252
+	jsr ucs2_to_cp1252
+	sta sector_buffer + $47, y
+	iny
+	cpy #11
+	bne @1
+
+	; pad with spaces
+@2:	cpy #11
+	beq @3
+	lda #$20
+	sta sector_buffer + $47, y
+	iny
+	bra @2
+
+@3:
+	jmp save_sector_buffer
 
 @error:
 	clc

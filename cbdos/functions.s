@@ -417,8 +417,14 @@ rename_header:
 	lda unix_path
 	bne @rename_subdir_header
 
-; TODO: set volume name
-	lda #$31 ; unsupported
+	FAT32_CONTEXT_START
+
+	jsr create_fat32_path
+	jsr fat32_set_vollabel
+	bcs :+
+	jmp convert_status_end_context
+:	FAT32_CONTEXT_END
+	lda #0
 	rts
 
 @rename_subdir_header:
