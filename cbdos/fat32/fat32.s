@@ -1134,9 +1134,7 @@ fat32_init:
 fat32_mount:
 	pha ; partition number
 
-	; Read partition table (sector 0)
-	set32_val cur_context + context::lba, 0
-	jsr load_sector_buffer
+	jsr load_mbr_sector
 	pla
 	bcs @2a
 @error:	clc
@@ -3118,4 +3116,87 @@ fat32_set_vollabel:
 	jmp set_errno
 
 @error:	clc
+	rts
+
+;-----------------------------------------------------------------------------
+; load_mbr_sector
+;
+; Read partition table (sector 0)
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+load_mbr_sector:
+	set32_val cur_context + context::lba, 0
+	jmp load_sector_buffer
+
+;-----------------------------------------------------------------------------
+; fat32_open_ptable
+;
+; Open partition table
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_open_ptable:
+	stz fat32_errno
+
+	stz fat32_bufptr
+	sec
+	rts
+
+;-----------------------------------------------------------------------------
+; fat32_ptable_entry
+;
+; Returns next partition table entry that matches the name/pattern
+; in (fat32_ptr)
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_ptable_entry:
+	stz fat32_errno
+
+	lda fat32_lfn_bufptr
+	cmp #$40
+	beq @error ; end of list
+
+	jsr load_mbr_sector
+	bcs @1
+@error:	clc
+	rts
+
+@1:	ldx fat32_lfn_bufptr
+
+	; size
+	ldy #0
+@2:	lda sector_buffer + $1BE + 12, x
+	sta fat32_dirent + dirent::size, y
+	inx
+	iny
+	cpy #3
+	bne @2
+
+	; type
+	lda sector_buffer + $1BE + 4, x
+	sta fat32_dirent + dirent::attributes, x
+
+	; Read first sector of partition
+	lda sector_buffer + $1BE + 8 + 0, x
+	sta cur_context + context::lba + 0
+	lda sector_buffer + $1BE + 8 + 1, x
+	sta cur_context + context::lba + 1
+	lda sector_buffer + $1BE + 8 + 2, x
+	sta cur_context + context::lba + 2
+	lda sector_buffer + $1BE + 8 + 3, x
+	sta cur_context + context::lba + 3
+	jsr load_sector_buffer
+	bcc @error
+
+	set16_val fat32_bufptr, (sector_buffer + $47)
+	jsr decode_volume_label
+
+	lda fat32_lfn_bufptr
+	clc
+	adc #$10
+	sta fat32_lfn_bufptr
+
+	sec
 	rts

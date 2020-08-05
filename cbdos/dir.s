@@ -17,6 +17,7 @@
 .import soft_check_medium_a
 .import medium
 .import parse_cbmdos_filename
+.import buffer
 
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"
@@ -37,6 +38,8 @@ num_blocks:
 context:
 	.byte 0
 dir_eof:
+	.byte 0
+is_part_dir:
 	.byte 0
 
 .segment "cbdos"
@@ -62,8 +65,38 @@ dir_open:
 	lda #0
 	jsr set_status
 
+	stz is_part_dir
+
+	lda buffer+1
+	cmp #'='
+	bne @not_part_dir
+	lda buffer+2
+	cmp #'P'
+	bne @not_part_dir
+
+	lda #$80
+	sta is_part_dir
+
+	; partition directory
+	lda buffer+3
+	cmp #':'
+	bne @no_filter
+
+	ldx #4
+	ply ; filename length
+	bra @cont1
+
+@no_filter:
+	ply ; filename length
+	ldx #1
+	ldy #1
+	bra @cont1
+
+@not_part_dir:
+
 	ldx #1
 	ply ; filename length
+@cont1:
 	jsr parse_cbmdos_filename
 	bcc @1
 	lda #$30 ; syntax error
@@ -75,9 +108,6 @@ dir_open:
 	jmp @dir_open_err
 @2:
 
-	jsr fat32_get_vollabel
-	bcc @dir_open_err3
-
 	ldy #0
 	lda #<DIRSTART
 	jsr storedir
@@ -86,13 +116,36 @@ dir_open:
 	lda #1
 	jsr storedir ; link
 	jsr storedir
+
 	lda #0
-	jsr storedir ; line 0
+	bit is_part_dir
+	bpl @not_part1
+	lda #255
+@not_part1:
+	jsr storedir ; header line number
+	lda #0
 	jsr storedir
 	lda #$12 ; reverse
 	jsr storedir
 	lda #$22 ; quote
 	jsr storedir
+
+	bit is_part_dir
+	bpl @not_part2
+
+	ldx #0
+@3b:	lda part_dir_header,x
+	beq @4
+	jsr storedir
+	inx
+	bne @3b
+	bra @4
+
+@not_part2:
+	phy
+	jsr fat32_get_vollabel
+	ply
+	bcc @dir_open_err3
 
 	ldx #0
 @3:	lda fat32_dirent + dirent::name,x
@@ -129,7 +182,14 @@ dir_open:
 
 	jsr create_fat32_path_only_dir
 
+	bit is_part_dir
+	bpl @not_part3
+	jsr fat32_open_ptable
+	bra @cont3
+
+@not_part3:
 	jsr fat32_open_dir
+@cont3:
 	ply
 	bcc @dir_open_err3
 
@@ -183,7 +243,14 @@ read_dir_entry:
 
 	jsr create_fat32_path_only_name
 
+	bit is_part_dir
+	bpl @not_part1
+	jsr fat32_ptable_entry
+	bra @cont1
+
+@not_part1:
 	jsr fat32_read_dirent_filtered
+@cont1:
 	bcs @found
 	lda fat32_errno
 	beq :+
@@ -391,6 +458,9 @@ read_dir_entry:
 txt_free:
 	.byte "B FREE."
 txt_free_end:
+
+part_dir_header:
+	.byte "CBDOS MBR", 0
 
 storedir:
 	sta dirbuffer,y
