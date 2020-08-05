@@ -131,14 +131,18 @@ _fat32_bss_end:
 	.code
 
 ;-----------------------------------------------------------------------------
-; set_volume
+; fat32_set_volume
 ;
 ; * c=0: failure
 ;-----------------------------------------------------------------------------
+fat32_set_volume:
 	; Already selected?
 	cmp volume_idx
-	beq @done
+	bne @0
+	sec
+	rts
 
+@0:
 	; Valid volume index?
 	cmp #FAT32_VOLUMES
 	bcc @ok
@@ -151,7 +155,7 @@ _fat32_bss_end:
 	pha
 
 	.assert FS_SIZE = 64, error
-	; Copy current context back
+	; Copy current volume back
 	lda volume_idx   ; X=A*64
 	asl
 	asl
@@ -171,8 +175,8 @@ _fat32_bss_end:
 
 	; Copy new volume to current
 	pla              ; Get new volume idx
-	sta context_idx  ; X=A*64
-	asl
+	pha
+	asl ; X=A*64
 	asl
 	asl
 	asl
@@ -188,9 +192,17 @@ _fat32_bss_end:
 	cpy #(.sizeof(fs))
 	bne @2
 
+	pla
 .endif
 
-@done:	sec
+fat32_set_volume_init:
+	sta volume_idx
+	ldx cur_volume + fs::mounted
+	bne @done
+	lda volume_idx
+	jmp fat32_mount
+@done:
+	sec
 	rts
 
 ;-----------------------------------------------------------------------------
@@ -1108,11 +1120,9 @@ fat32_init:
 	lda #$FF
 	sta sector_lba
 
-	jmp fat32_mount
-
-	sec
-	rts
-
+	; mount volume #0
+	lda #0
+	jmp fat32_set_volume_init
 
 ;-----------------------------------------------------------------------------
 ; fat32_mount
@@ -1122,6 +1132,12 @@ fat32_init:
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_mount:
+	cmp #0
+	beq @ok1
+	clc
+	rts
+
+@ok1:
 	; Read partition table (sector 0)
 	set32_val cur_context + context::lba, 0
 	jsr load_sector_buffer

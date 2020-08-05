@@ -124,10 +124,15 @@ check_medium:
 ;           =1: medium invalid (partition does not exist)
 ;---------------------------------------------------------------
 soft_check_medium_a:
-	; Since partitions are not currently supported,
-	; only partitions 0 (current) and 1 (single partition)
-	; are supported
-	cmp #2
+	cmp #0
+	bne @1
+@ok:	clc
+	rts
+
+@1:	dec
+	jsr fat32_set_volume
+	bcs @ok
+	sec
 	rts
 
 ;---------------------------------------------------------------
@@ -318,7 +323,9 @@ change_directory:
 ; In:   a  partition
 ;---------------------------------------------------------------
 change_partition:
+	pha
 	jsr soft_check_medium_a
+	pla
 	bcs @ill_part
 	cmp #0
 	beq @ill_part

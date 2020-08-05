@@ -9,6 +9,7 @@
 
 ; Global operations
 .global fat32_init              ; Initialize FAT32 driver and SD card
+.global fat32_set_volume
 .global fat32_alloc_context     ; Allocate context, result in A if C set
 .global fat32_free_context      ; Free context in A, C set on success
 .global fat32_set_context       ; Set current context to idx in A (0..FAT32_CONTEXTS-1)
@@ -44,6 +45,7 @@
 .global fat32_dirent
 .global sync_sector_buffer
 .global fat32_errno
+
 
 ; debug
 .global contexts_inuse
