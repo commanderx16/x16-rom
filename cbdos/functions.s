@@ -431,7 +431,7 @@ rename_header:
 
 	jsr create_fat32_path
 	jsr fat32_set_vollabel
-@xxx1:	bcs :+
+	bcs :+
 	jmp convert_status_end_context
 :	FAT32_CONTEXT_END
 	lda #0

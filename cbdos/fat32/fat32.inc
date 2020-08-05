@@ -12,7 +12,6 @@
 .global fat32_set_volume
 
 .global fat32_ptable_entry
-.global fat32_open_ptable
 
 
 .global fat32_alloc_context     ; Allocate context, result in A if C set

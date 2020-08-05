@@ -39,7 +39,7 @@ context:
 	.byte 0
 dir_eof:
 	.byte 0
-is_part_dir:
+part_index:
 	.byte 0
 
 .segment "cbdos"
@@ -65,7 +65,8 @@ dir_open:
 	lda #0
 	jsr set_status
 
-	stz is_part_dir
+	lda #$80
+	sta part_index ; flag: files index, not partition index
 
 	lda buffer+1
 	cmp #'='
@@ -74,8 +75,7 @@ dir_open:
 	cmp #'P'
 	bne @not_part_dir
 
-	lda #$80
-	sta is_part_dir
+	stz part_index
 
 	; partition directory
 	lda buffer+3
@@ -118,8 +118,8 @@ dir_open:
 	jsr storedir
 
 	lda #0
-	bit is_part_dir
-	bpl @not_part1
+	bit part_index
+	bmi @not_part1
 	lda #255
 @not_part1:
 	jsr storedir ; header line number
@@ -130,8 +130,8 @@ dir_open:
 	lda #$22 ; quote
 	jsr storedir
 
-	bit is_part_dir
-	bpl @not_part2
+	bit part_index
+	bmi @not_part2
 
 	ldx #txt_part_dir_header - txt_tables
 	jsr storetxt
@@ -165,8 +165,8 @@ dir_open:
 	jsr storedir
 
 	ldx #txt_fat32 - txt_tables
-	bit is_part_dir
-	bpl @not_part4
+	bit part_index
+	bmi @not_part4
 	ldx #txt_mbr - txt_tables
 @not_part4:
 	jsr storetxt
@@ -176,12 +176,9 @@ dir_open:
 
 	jsr create_fat32_path_only_dir
 
-	bit is_part_dir
-	bpl @not_part3
-	jsr fat32_open_ptable
-	bra @cont3
+	bit part_index
+	bpl @cont3
 
-@not_part3:
 	jsr fat32_open_dir
 @cont3:
 	ply
@@ -230,6 +227,7 @@ dir_read:
 read_dir_entry:
 	lda dir_eof
 	beq @read_entry
+@error:
 	sec
 	rts
 
@@ -237,9 +235,16 @@ read_dir_entry:
 
 	jsr create_fat32_path_only_name
 
-	bit is_part_dir
-	bpl @not_part1
+	bit part_index
+	bmi @not_part1
+	lda part_index
+	inc part_index
+	cmp #4
+	beq @dir_end2
 	jsr fat32_ptable_entry
+	bcc @error
+	lda fat32_dirent + dirent::attributes
+	beq @read_entry
 	bra @cont1
 
 @not_part1:
@@ -249,10 +254,11 @@ read_dir_entry:
 	lda fat32_errno
 	beq :+
 	jsr set_errno_status
-:	bit is_part_dir
+:	bit part_index
 	bmi :+
-	jmp @read_dir_entry_end
-:	jmp @dir_end
+@dir_end2:
+	jmp @dir_end
+:	jmp @read_dir_entry_end
 
 @found:	;lda fat32_dirent + dirent::name
 	;cmp #'.' ; hide "." and ".."
@@ -263,7 +269,14 @@ read_dir_entry:
 	jsr storedir ; link
 	jsr storedir
 
-@xxx2:	tya
+	lda part_index
+	bmi @file1
+
+	sta num_blocks
+	stz num_blocks + 1
+	bra @file1_cont
+
+@file1:	tya
 	tax
 	lda fat32_dirent + dirent::size + 0
 	clc
@@ -283,6 +296,7 @@ read_dir_entry:
 :	txa
 	tay
 
+@file1_cont:
 	lda num_blocks
 	jsr storedir
 	lda num_blocks + 1
@@ -356,8 +370,8 @@ read_dir_entry:
 
 	lda fat32_dirent + dirent::attributes
 
-	bit is_part_dir
-	bpl @not_part2
+	bit part_index
+	bmi @not_part2
 	ldx #txt_fat32 - txt_tables
 	cmp #$0b
 	beq @c1
@@ -382,6 +396,9 @@ read_dir_entry:
 	jsr storedir
 
 @read_dir_eol:
+	bit part_index
+	bmi :+
+:
 
 	lda #0 ; end of line
 	jsr storedir

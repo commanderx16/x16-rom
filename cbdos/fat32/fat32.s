@@ -3130,59 +3130,41 @@ load_mbr_sector:
 	jmp load_sector_buffer
 
 ;-----------------------------------------------------------------------------
-; fat32_open_ptable
-;
-; Open partition table
-;
-; * c=0: failure; sets errno
-;-----------------------------------------------------------------------------
-fat32_open_ptable:
-	stz fat32_errno
-	stz fat32_bufptr
-	sec
-	rts
-
-;-----------------------------------------------------------------------------
 ; fat32_ptable_entry
 ;
-; Returns next partition table entry that matches the name/pattern
-; in (fat32_ptr)
+; Returns a partition table entry
+;
+; In:  a  index
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_ptable_entry:
 	stz fat32_errno
 
-@0:
-	lda fat32_lfn_bufptr
-	cmp #$40
-	beq @error ; end of list
+	cmp #$4
+	bcs @error ; end of list
+
+	asl
+	asl
+	asl
+	asl
+	pha
 
 	jsr load_mbr_sector
+	plx
 	bcs @1
 @error:	clc
 	rts
 
-@1:	ldx fat32_lfn_bufptr
-
-	; type
+@1:	; type
 	lda sector_buffer + $1BE + 4, x
-	bne @3
-
-	lda fat32_lfn_bufptr
-	clc
-	adc #$10
-	sta fat32_lfn_bufptr
-	bra @0
-
-@3:
 	sta fat32_dirent + dirent::attributes
 
 	; size
 	phx
 	ldy #0
 @2:	lda sector_buffer + $1BE + 12, x
-@xxx1:	sta fat32_dirent + dirent::size, y
+	sta fat32_dirent + dirent::size, y
 	inx
 	iny
 	cpy #4
@@ -3203,11 +3185,6 @@ fat32_ptable_entry:
 
 	set16_val fat32_bufptr, (sector_buffer + $47)
 	jsr decode_volume_label
-
-	lda fat32_lfn_bufptr
-	clc
-	adc #$10
-	sta fat32_lfn_bufptr
 
 	sec
 	rts
