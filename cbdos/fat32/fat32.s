@@ -85,6 +85,7 @@ marked_entry_lba:    .res 4        ; mark/rewind data for directory entries
 marked_entry_cluster:.res 4
 marked_entry_offset: .res 2
 tmp_entry:           .res 21       ; SFN entry fields except name, saved during rename
+lfn_buf:             .res 20*32    ; create/collect LFN; 20 dirents (13c * 20 > 255c)
 
 ; API arguments and return data
 fat32_dirent:        .tag dirent   ; Buffer containing decoded directory entry
@@ -108,9 +109,6 @@ contexts:            .res CONTEXT_SIZE * FAT32_CONTEXTS
 .error "Context too big"
 .endif
 
-canary1:             .res 256
-lfn_buf:             .res 20*32    ; create/collect LFN; 	20 dirents (13c * 20 > 255c)
-canary2:             .res 256
 
 _fat32_bss_end:
 
@@ -1027,13 +1025,6 @@ fat32_init:
 	ldx fat32_bufptr + 1
 	cpx #>_fat32_bss_end
 	bne @1
-
-	ldx #0
-	lda #$aa
-:	sta canary1,x
-	sta canary2,x
-	inx
-	bne :-
 
 	; Make sure sector_lba is non-zero
 	lda #$FF
