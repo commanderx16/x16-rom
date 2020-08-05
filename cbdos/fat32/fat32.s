@@ -49,6 +49,7 @@ CONTEXT_SIZE = 32
 
 .struct fs
 ; Static filesystem parameters
+mounted              .byte         ; Flag to indicate the volume is mounted
 rootdir_cluster      .dword        ; Cluster of root directory
 sectors_per_cluster  .byte         ; Sectors per cluster
 cluster_shift        .byte         ; Log2 of sectors_per_cluster
@@ -58,9 +59,6 @@ lba_fat              .dword        ; Start sector of first FAT table
 lba_data             .dword        ; Start sector of first data cluster
 cluster_count        .dword        ; Total number of cluster on volume
 lba_fsinfo           .dword        ; Sector number of FS info
-; Static - not used by library, but exposed to user
-partition_type       .byte         ; MBR Partition type
-partition_blocks     .dword        ; Number of blocks in partition
 ; Variables
 free_clusters        .dword        ; Number of free clusters (from FS info)
 free_cluster         .dword        ; Cluster to start search for free clusters, also holds result of find_free_cluster
@@ -1084,15 +1082,6 @@ delete_file2:
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_init:
-	stz fat32_errno
-
-	; Initialize SD card
-	jsr sdcard_init
-	bcs @0
-	lda #ERRNO_NO_MEDIA
-	jmp set_errno
-
-@0:
 	; Clear FAT32 BSS
 	set16_val fat32_bufptr, _fat32_bss_start
 	lda #0
@@ -1107,15 +1096,34 @@ fat32_init:
 	cpx #>_fat32_bss_end
 	bne @1
 
+	; Initialize SD card
+	jsr sdcard_init
+	bcs @0
+	lda #ERRNO_NO_MEDIA
+	jmp set_errno
+@0:
+
 	; Make sure sector_lba is non-zero
+	; (was overwritten by sdcard_init)
 	lda #$FF
 	sta sector_lba
 
-	; Set initial start point for free cluster search
-	set32_val cur_volume + fs::free_cluster, 2
+	jmp fat32_mount
 
+	sec
+	rts
+
+
+;-----------------------------------------------------------------------------
+; fat32_mount
+;
+; In:  a  partition number (0+)
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_mount:
 	; Read partition table (sector 0)
-	; cur_context::lba already 0
+	set32_val cur_context + context::lba, 0
 	jsr load_sector_buffer
 	bcs @2a
 @error:	clc
@@ -1123,7 +1131,6 @@ fat32_init:
 
 @2a:	; Check partition type of first partition
 	lda sector_buffer + $1BE + 4
-	sta cur_volume + fs::partition_type
 	cmp #$0B
 	beq @3
 	cmp #$0C
@@ -1134,7 +1141,6 @@ fat32_init:
 @3:
 	; Get LBA of first partition
 	set32 cur_volume + fs::lba_partition, sector_buffer + $1BE + 8
-	set32 cur_volume + fs::partition_blocks, sector_buffer + $1BE + 12
 
 	; Read first sector of partition
 	set32 cur_context + context::lba, cur_volume + fs::lba_partition
@@ -1204,6 +1210,9 @@ fat32_init:
 @8:
 	; Get number of free clusters
 	set32 cur_volume + fs::free_clusters, sector_buffer + 488
+
+	; Set initial start point for free cluster search
+	set32_val cur_volume + fs::free_cluster, 2
 
 	; Success
 	sec

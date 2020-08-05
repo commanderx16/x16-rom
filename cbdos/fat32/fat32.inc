@@ -45,10 +45,6 @@
 .global sync_sector_buffer
 .global fat32_errno
 
-; XXX .global lba_partition
-; XXX .global partition_type
-; XXX .global partition_blocks
-
 ; debug
 .global contexts_inuse
 
