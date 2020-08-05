@@ -166,6 +166,21 @@ dir_open:
 	jsr storedir
 	lda #' '
 	jsr storedir
+
+	bit is_part_dir
+	bpl @not_part4
+	lda #' '
+	jsr storedir
+	lda #'M'
+	jsr storedir
+	lda #'B'
+	jsr storedir
+	lda #'R'
+	jsr storedir
+	lda #' '
+	bra @cont4
+
+@not_part4:
 	lda #'F'
 	jsr storedir
 	lda #'A'
@@ -175,6 +190,7 @@ dir_open:
 	lda #'3'
 	jsr storedir
 	lda #'2'
+@cont4:
 	jsr storedir
 	lda #0 ; end of line
 	jsr storedir
@@ -255,7 +271,10 @@ read_dir_entry:
 	lda fat32_errno
 	beq :+
 	jsr set_errno_status
-:	jmp @read_dir_entry_end
+:	bit is_part_dir
+	bmi :+
+	jmp @read_dir_entry_end
+:	jmp @dir_end
 
 @found:	;lda fat32_dirent + dirent::name
 	;cmp #'.' ; hide "." and ".."
@@ -432,11 +451,12 @@ read_dir_entry:
 	jsr storedir
 	ldx #0
 :	lda txt_free,x
+	beq @dir_end
 	jsr storedir
 	inx
-	cpx #txt_free_end - txt_free
 	bne :-
 
+@dir_end:
 	lda #0
 	jsr storedir
 	jsr storedir
@@ -456,11 +476,10 @@ read_dir_entry:
 
 
 txt_free:
-	.byte "B FREE."
-txt_free_end:
+	.byte "B FREE.", 0
 
 part_dir_header:
-	.byte "CBDOS MBR", 0
+	.byte "CBDOS SDCARD", 0
 
 storedir:
 	sta dirbuffer,y
