@@ -133,12 +133,9 @@ dir_open:
 	bit is_part_dir
 	bpl @not_part2
 
-	ldx #0
-@3b:	lda part_dir_header,x
-	beq @4
-	jsr storedir
-	inx
-	bne @3b
+	ldx #txt_part_dir_header - txt_tables
+	jsr storetxt
+	ldx #txt_part_dir_header_end - txt_part_dir_header
 	bra @4
 
 @not_part2:
@@ -167,31 +164,12 @@ dir_open:
 	lda #' '
 	jsr storedir
 
+	ldx #txt_fat32 - txt_tables
 	bit is_part_dir
 	bpl @not_part4
-	lda #' '
-	jsr storedir
-	lda #'M'
-	jsr storedir
-	lda #'B'
-	jsr storedir
-	lda #'R'
-	jsr storedir
-	lda #' '
-	bra @cont4
-
+	ldx #txt_mbr - txt_tables
 @not_part4:
-	lda #'F'
-	jsr storedir
-	lda #'A'
-	jsr storedir
-	lda #'T'
-	jsr storedir
-	lda #'3'
-	jsr storedir
-	lda #'2'
-@cont4:
-	jsr storedir
+	jsr storetxt
 	lda #0 ; end of line
 	jsr storedir
 	phy
@@ -285,7 +263,7 @@ read_dir_entry:
 	jsr storedir ; link
 	jsr storedir
 
-	tya
+@xxx2:	tya
 	tax
 	lda fat32_dirent + dirent::size + 0
 	clc
@@ -377,32 +355,33 @@ read_dir_entry:
 	bcc :-
 
 	lda fat32_dirent + dirent::attributes
+
+	bit is_part_dir
+	bpl @not_part2
+	ldx #txt_fat32 - txt_tables
+	cmp #$0b
+	beq @c1
+	cmp #$0c
+	beq @c1
+	ldx #txt_unknown - txt_tables
+@c1:	jsr storetxt
+	bra @read_dir_eol
+
+@not_part2:
+	ldx #txt_prg - txt_tables
 	bit #$10 ; = directory
-	bne @read_dir_entry_dir
-
-	lda #'P'
-	jsr storedir
-	lda #'R'
-	jsr storedir
-	lda #'G'
-	jsr storedir
-	bra @read_dir_cont
-
-@read_dir_entry_dir:
-	lda #'D'
-	jsr storedir
-	lda #'I'
-	jsr storedir
-	lda #'R'
-	jsr storedir
-
+	beq @read_dir_cont
+	ldx #txt_dir - txt_tables
 @read_dir_cont:
+	jsr storetxt
+
 	lda fat32_dirent + dirent::attributes
 	lsr
-	bcc :+
+	bcc @read_dir_eol
 	lda #'<' ; write protect indicator
 	jsr storedir
-:
+
+@read_dir_eol:
 
 	lda #0 ; end of line
 	jsr storedir
@@ -449,12 +428,9 @@ read_dir_entry:
 	jsr storedir
 	pla
 	jsr storedir
-	ldx #0
-:	lda txt_free,x
-	beq @dir_end
-	jsr storedir
-	inx
-	bne :-
+
+	lda #txt_free - txt_tables
+	jsr storetxt
 
 @dir_end:
 	lda #0
@@ -475,11 +451,31 @@ read_dir_entry:
 	rts
 
 
+txt_tables:
+
 txt_free:
 	.byte "B FREE.", 0
-
-part_dir_header:
+txt_part_dir_header:
 	.byte "CBDOS SDCARD", 0
+txt_part_dir_header_end:
+txt_mbr:
+	.byte " MBR ", 0
+txt_fat32:
+	.byte "FAT32", 0
+txt_prg:
+	.byte "PRG", 0
+txt_dir:
+	.byte "DIR", 0
+txt_unknown:
+	.byte "???", 0
+
+storetxt:
+	lda txt_tables,x
+	beq @1
+	jsr storedir
+	inx
+	bne storetxt
+@1:	rts
 
 storedir:
 	sta dirbuffer,y

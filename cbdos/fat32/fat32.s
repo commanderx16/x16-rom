@@ -3138,7 +3138,6 @@ load_mbr_sector:
 ;-----------------------------------------------------------------------------
 fat32_open_ptable:
 	stz fat32_errno
-
 	stz fat32_bufptr
 	sec
 	rts
@@ -3165,18 +3164,20 @@ fat32_ptable_entry:
 
 @1:	ldx fat32_lfn_bufptr
 
-	; size
-	ldy #0
-@2:	lda sector_buffer + $1BE + 12, x
-	sta fat32_dirent + dirent::size, y
-	inx
-	iny
-	cpy #3
-	bne @2
-
 	; type
 	lda sector_buffer + $1BE + 4, x
-	sta fat32_dirent + dirent::attributes, x
+	sta fat32_dirent + dirent::attributes
+
+	; size
+	phx
+	ldy #0
+@2:	lda sector_buffer + $1BE + 12, x
+@xxx1:	sta fat32_dirent + dirent::size, y
+	inx
+	iny
+	cpy #4
+	bne @2
+	plx
 
 	; Read first sector of partition
 	lda sector_buffer + $1BE + 8 + 0, x
