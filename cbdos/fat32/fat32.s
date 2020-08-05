@@ -55,30 +55,33 @@ rootdir_cluster:     .dword 0      ; Cluster of root directory
 sectors_per_cluster: .byte 0       ; Sectors per cluster
 cluster_shift:       .byte 0       ; Log2 of sectors_per_cluster
 lba_partition:       .dword 0      ; Start sector of FAT32 partition
-partition_type:      .byte 0       ; MBR Partition type
-partition_blocks:    .dword 0      ; Number of blocks in partition
 fat_size:            .dword 0      ; Size in sectors of each FAT table
 lba_fat:             .dword 0      ; Start sector of first FAT table
 lba_data:            .dword 0      ; Start sector of first data cluster
 cluster_count:       .dword 0      ; Total number of cluster on volume
 lba_fsinfo:          .dword 0      ; Sector number of FS info
 
+; Static - not used by library, but exposed to user
+partition_type:      .byte 0       ; MBR Partition type
+partition_blocks:    .dword 0      ; Number of blocks in partition
+
 ; Variables
 free_clusters:       .dword 0      ; Number of free clusters (from FS info)
 free_cluster:        .dword 0      ; Cluster to start search for free clusters, also holds result of find_free_cluster
-filename_buf:        .res 11       ; Used for filename conversion
 
-; Temp buffers
+; Temp
 bytecnt:             .word 0       ; Used by fat32_write
 tmp_buf:             .res 4        ; Used by save_sector_buffer, fat32_rename
 next_sector_arg:     .byte 0       ; Used by next_sector to store argument
 tmp_bufptr:          .word 0       ; Used by next_sector
 tmp_sector_lba:      .dword 0      ; Used by next_sector
-
 name_offset:         .byte 0
 tmp_dir_cluster:     .dword 0
+tmp_attrib:          .byte 0       ; temporary: attribute when creating a dir entry
+tmp_dirent_flag:     .byte 0
+shortname_buf:       .res 11       ; Used for shortname creation
 
-; LFN
+; Temp - LFN
 lfn_index:           .byte 0       ; counter when collecting/decoding LFN entries
 lfn_count:           .byte 0       ; number of LFN dir entries when reading/creating
 lfn_checksum:        .byte 0       ; created or expected LFN checksum
@@ -89,10 +92,7 @@ free_entry_count:    .byte 0       ; counter when looking for contig. free dir e
 marked_entry_lba:    .res 4        ; mark/rewind data for directory entries
 marked_entry_cluster:.res 4
 marked_entry_offset: .res 2
-tmp_entry:           .res 21       ; SFN fields except name, saved during rename
-
-tmp_attrib:          .byte 0       ; temporary: attribute when creating a dir entry
-tmp_dirent_flag:     .byte 0
+tmp_entry:           .res 21       ; SFN entry fields except name, saved during rename
 
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
@@ -593,7 +593,7 @@ create_shortname:
 	lda marked_entry_lba + 0
 	jsr hexbuf8
 	lda #'~'
-	sta filename_buf, x
+	sta shortname_buf, x
 	inx
 	lda fat32_bufptr + 0
 	sec
@@ -610,7 +610,7 @@ create_shortname:
 	lsr
 	jsr hexbuf4
 	lda #'~'
-	sta filename_buf, x
+	sta shortname_buf, x
 
 	; Checksum
 	lda #0
@@ -621,7 +621,7 @@ create_shortname:
 	txa
 	ror
 	clc
-	adc filename_buf, y
+	adc shortname_buf, y
 	iny
 	cpy #11
 	bne @checksum_loop
@@ -642,7 +642,7 @@ hexbuf4:
 	bcc :+
 	adc #$66
 :	eor #$30
-	sta filename_buf, x
+	sta shortname_buf, x
 	inx
 	rts
 
@@ -1914,9 +1914,9 @@ fat32_rename:
 	jsr write_lfn_entries
 	bcc @error
 
-	; Copy new filename into sector buffer
+	; Copy new shortname into sector buffer
 	ldy #0
-@2:	lda filename_buf, y
+@2:	lda shortname_buf, y
 	sta (fat32_bufptr), y
 	iny
 	cpy #11
@@ -2285,9 +2285,9 @@ create_dir_entry:
 
 	; Write short name entry
 
-	; Copy filename in new entry
+	; Copy shortname in new entry
 	ldy #0
-@2:	lda filename_buf, y
+@2:	lda shortname_buf, y
 	sta (fat32_bufptr), y
 	iny
 	cpy #11
