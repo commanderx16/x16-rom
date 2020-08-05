@@ -377,7 +377,15 @@ read_dir_entry:
 	beq @c1
 	cmp #$0c
 	beq @c1
-	ldx #txt_unknown - txt_tables
+	ldx #txt_exfat - txt_tables
+	cmp #$07
+	beq @c1
+	pha
+	lda #'T'
+	jsr storedir
+	pla
+	jsr storehex8
+	bra @read_dir_eol
 @c1:	jsr storetxt
 	bra @read_dir_eol
 
@@ -479,12 +487,29 @@ txt_mbr:
 	.byte " MBR ", 0
 txt_fat32:
 	.byte "FAT32", 0
+txt_exfat:
+	.byte "EXFAT", 0
 txt_prg:
 	.byte "PRG", 0
 txt_dir:
 	.byte "DIR", 0
-txt_unknown:
-	.byte "???", 0
+
+storehex8:
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	jsr storehex4
+	pla
+storehex4:
+	and #$0f
+	cmp #$0a
+	bcc :+
+	adc #$66
+:	eor #$30
+	jsr storedir
+	rts
 
 storetxt:
 	lda txt_tables,x

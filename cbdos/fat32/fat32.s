@@ -3156,11 +3156,7 @@ fat32_ptable_entry:
 @error:	clc
 	rts
 
-@1:	; type
-	lda sector_buffer + $1BE + 4, x
-	sta fat32_dirent + dirent::attributes
-
-	; size
+@1:	; size
 	phx
 	ldy #0
 @2:	lda sector_buffer + $1BE + 12, x
@@ -3171,6 +3167,18 @@ fat32_ptable_entry:
 	bne @2
 	plx
 
+	; type
+	lda sector_buffer + $1BE + 4, x
+	sta fat32_dirent + dirent::attributes
+
+	stz fat32_dirent + dirent::name
+
+	cmp #$0b
+	beq @read_name
+	cmp #$0c
+	bne @done
+
+@read_name:
 	; Read first sector of partition
 	lda sector_buffer + $1BE + 8 + 0, x
 	sta cur_context + context::lba + 0
@@ -3186,5 +3194,6 @@ fat32_ptable_entry:
 	set16_val fat32_bufptr, (sector_buffer + $47)
 	jsr decode_volume_label
 
+@done:
 	sec
 	rts
