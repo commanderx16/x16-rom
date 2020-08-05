@@ -958,8 +958,8 @@ find_dirent:
 
 	sty name_offset
 
-	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
-	set32 tmp_dir_cluster, fat32_dirent + dirent::cluster
+	set32 cur_context + context::cluster, fat32_dirent + dirent::start
+	set32 tmp_dir_cluster, fat32_dirent + dirent::start
 	jmp @open
 
 ;-----------------------------------------------------------------------------
@@ -1085,7 +1085,7 @@ delete_file2:
 
 @1:
 	; Unlink cluster chain
-	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
+	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	jmp unlink_cluster_chain
 
 ;-----------------------------------------------------------------------------
@@ -1357,7 +1357,7 @@ fat32_open_dir:
 	jmp set_errno
 
 @1:
-	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
+	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	bra @open
 
 @cur_dir:
@@ -1646,16 +1646,16 @@ read_dirent:
 	; Copy cluster
 	ldy #26
 	lda (fat32_bufptr), y
-	sta fat32_dirent + dirent::cluster + 0
+	sta fat32_dirent + dirent::start + 0
 	iny
 	lda (fat32_bufptr), y
-	sta fat32_dirent + dirent::cluster + 1
+	sta fat32_dirent + dirent::start + 1
 	ldy #20
 	lda (fat32_bufptr), y
-	sta fat32_dirent + dirent::cluster + 2
+	sta fat32_dirent + dirent::start + 2
 	iny
 	lda (fat32_bufptr), y
-	sta fat32_dirent + dirent::cluster + 3
+	sta fat32_dirent + dirent::start + 3
 
 	; Save lba + fat32_bufptr
 	set32 cur_context + context::dirent_lba,    cur_context + context::lba
@@ -1949,7 +1949,7 @@ fat32_chdir:
 
 @1:
 	; Set as current directory
-	set32 cur_volume + fs::cwd_cluster, fat32_dirent + dirent::cluster
+	set32 cur_volume + fs::cwd_cluster, fat32_dirent + dirent::start
 
 	sec
 	rts
@@ -2120,7 +2120,7 @@ fat32_rmdir:
 
 @2:
 	; Open directory
-	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
+	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	jsr open_cluster
 	bcc @error
 
@@ -2159,7 +2159,7 @@ fat32_rmdir:
 
 @4:
 	; Unlink cluster chain
-	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
+	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	jmp unlink_cluster_chain
 
 ;-----------------------------------------------------------------------------
@@ -2186,7 +2186,7 @@ fat32_open:
 	; Open file
 	set32_val cur_context + context::file_offset, 0
 	set32 cur_context + context::file_size, fat32_dirent + dirent::size
-	set32 cur_context + context::cluster, fat32_dirent + dirent::cluster
+	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	jsr open_cluster
 	bcc @error
 
@@ -3156,15 +3156,26 @@ fat32_ptable_entry:
 @error:	clc
 	rts
 
-@1:	; size
+@1:	; start LBA
 	phx
 	ldy #0
-@2:	lda sector_buffer + $1BE + 12, x
-	sta fat32_dirent + dirent::size, y
+@2:	lda sector_buffer + $1BE + 8, x
+	sta fat32_dirent + dirent::start, y
 	inx
 	iny
 	cpy #4
 	bne @2
+	plx
+
+	; size
+	phx
+	ldy #0
+@3:	lda sector_buffer + $1BE + 12, x
+	sta fat32_dirent + dirent::size, y
+	inx
+	iny
+	cpy #4
+	bne @3
 	plx
 
 	; type
@@ -3180,14 +3191,7 @@ fat32_ptable_entry:
 
 @read_name:
 	; Read first sector of partition
-	lda sector_buffer + $1BE + 8 + 0, x
-	sta cur_context + context::lba + 0
-	lda sector_buffer + $1BE + 8 + 1, x
-	sta cur_context + context::lba + 1
-	lda sector_buffer + $1BE + 8 + 2, x
-	sta cur_context + context::lba + 2
-	lda sector_buffer + $1BE + 8 + 3, x
-	sta cur_context + context::lba + 3
+	set32 cur_context + context::lba, fat32_dirent + dirent::start
 	jsr load_sector_buffer
 	bcc @error
 
