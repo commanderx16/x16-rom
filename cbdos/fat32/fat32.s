@@ -41,15 +41,6 @@ dirent_bufptr   .word    ; Offset to start of directory entry
 	.bss
 _fat32_bss_start:
 
-fat32_size:
-	.res 4 ; dword - Used for fat32_get_free_space result
-fat32_cwd_cluster:
-	.res 4 ; dword - Cluster of current directory
-fat32_dirent:
-	.res .sizeof(dirent) ; Buffer containing decoded directory entry
-fat32_errno:
-	.byte 0 ; byte - last error
-
 ; Static filesystem parameters
 rootdir_cluster:     .dword 0      ; Cluster of root directory
 sectors_per_cluster: .byte 0       ; Sectors per cluster
@@ -68,6 +59,7 @@ partition_blocks:    .dword 0      ; Number of blocks in partition
 ; Variables
 free_clusters:       .dword 0      ; Number of free clusters (from FS info)
 free_cluster:        .dword 0      ; Cluster to start search for free clusters, also holds result of find_free_cluster
+cwd_cluster:         .dword 0      ; Cluster of current directory
 
 ; Temp
 bytecnt:             .word 0       ; Used by fat32_write
@@ -94,6 +86,11 @@ marked_entry_cluster:.res 4
 marked_entry_offset: .res 2
 tmp_entry:           .res 21       ; SFN entry fields except name, saved during rename
 
+; API arguments and return data
+fat32_dirent:        .tag dirent   ; Buffer containing decoded directory entry
+fat32_size:          .res 4        ; Used for fat32_read, fat32_write, fat32_get_offset, fat32_get_free_space
+fat32_errno:         .byte 0       ; Last error
+
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
 cur_context:         .tag context  ; Current file descriptor state
@@ -104,16 +101,16 @@ contexts:            .res CONTEXT_SIZE * FAT32_CONTEXTS
 .endif
 
 .if CONTEXT_SIZE * FAT32_CONTEXTS > 256
-.error "FAT32_CONTEXTS > 8"
+.error "Too many FAT32_CONTEXTS to fit into 256 bytes!"
 .endif
 
 .if .sizeof(context) > CONTEXT_SIZE
 .error "Context too big"
 .endif
 
-; LFN
-lfnbuffer:
-	.res 20*32 ; 20 directory entries (13 chars * 20 > 255 chars)
+canary1:             .res 256
+lfn_buf:             .res 20*32    ; create/collect LFN; 	20 dirents (13c * 20 > 255c)
+canary2:             .res 256
 
 _fat32_bss_end:
 
@@ -830,7 +827,7 @@ find_dirent:
 	rts
 
 @use_current:
-	set32 cur_context + context::cluster, fat32_cwd_cluster
+	set32 cur_context + context::cluster, cwd_cluster
 
 @open:	set32 tmp_dir_cluster, cur_context + context::cluster
 
@@ -1031,6 +1028,13 @@ fat32_init:
 	cpx #>_fat32_bss_end
 	bne @1
 
+	ldx #0
+	lda #$aa
+:	sta canary1,x
+	sta canary2,x
+	inx
+	bne :-
+
 	; Make sure sector_lba is non-zero
 	lda #$FF
 	sta sector_lba
@@ -1164,6 +1168,7 @@ fat32_set_context:
 	; Put zero page variables in current context
 	set16 cur_context + context::bufptr, fat32_bufptr
 
+	.assert CONTEXT_SIZE = 32, error
 	; Copy current context back
 	lda context_idx   ; X=A*32
 	asl
@@ -1252,7 +1257,7 @@ fat32_open_dir:
 
 @cur_dir:
 	; Open current directory
-	set32 cur_context + context::cluster, fat32_cwd_cluster
+	set32 cur_context + context::cluster, cwd_cluster
 
 @open:	jsr open_cluster
 	bcc @error
@@ -1361,7 +1366,7 @@ read_dirent:
 
 ; first LFN entry
 	; init buffer
-	set16_val fat32_lfn_bufptr, lfnbuffer
+	set16_val fat32_lfn_bufptr, lfn_buf
 
 	; save checksum
 	ldy #13
@@ -1726,7 +1731,7 @@ create_lfn:
 
 @validate_ok:
 	; init buffer
-	set16_val fat32_lfn_bufptr, lfnbuffer
+	set16_val fat32_lfn_bufptr, lfn_buf
 
 	lda #1
 	sta lfn_index
@@ -1839,7 +1844,7 @@ fat32_chdir:
 
 @1:
 	; Set as current directory
-	set32 fat32_cwd_cluster, fat32_dirent + dirent::cluster
+	set32 cwd_cluster, fat32_dirent + dirent::cluster
 
 	sec
 	rts
@@ -2218,7 +2223,6 @@ rewind_dir_entry:
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 write_lfn_entries:
-@write_lfn_entries_loop:
 	dec lfn_count
 	bpl @1
 	sec
@@ -2252,7 +2256,7 @@ write_lfn_entries:
 	jsr next_sector
 	bcc @error
 @1b:
-	bra @write_lfn_entries_loop
+	bra write_lfn_entries
 
 @write_lfn_entries_end:
 	rts
