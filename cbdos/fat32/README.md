@@ -4,17 +4,16 @@ This is a generic and reusable FAT32 filesystem read/write library written in 65
 
 ## Features
 
-* MBR partitioning
 * read and write support
 * subdirectories
 * long filenames
 * SD card interface included
+* multiple MBR partitions mounted at the same time
 
 ## Missing Features
 
 * time stamps
 * seek
-* volume label
 
 ## API
 
@@ -34,12 +33,12 @@ All API calls return C=1 for success and C=0 for error. If C=1, the `fat32_errno
 
 ### Contexts
 
-* `fat32_alloc_context`: Allocate a context. Returns context in A.
+* `fat32_alloc_context`: Allocate a context. Pass partition number (0-3, or $FF for none) in A. Returns context in A.
 * `fat32_free_context`: Free a context. Pass context in A.
 * `fat32_set_context`: Set current context. Pass context in A.
 * `fat32_get_context`: Get current context. Returns context in A.
 
-All calls of the following sections require a context allocated and set. 
+Contexts are associated with a partition. All calls of the following sections require a context allocated and set.
 
 ### File Contents
 
@@ -75,6 +74,10 @@ All calls of the following sections require a context allocated and set.
 
 * `fat32_get_vollabel`: Get volume label. Returns label in `fat32_dirent::name`.
 * `fat32_set_vollabel`: Set volume label. Pass in `fat32_ptr`.
+
+### Partition Table
+
+* `fat32_get_ptable_entry`: Get partition table entry. Requires a context with no partition allocated (A = $FF). Pass index (0-3) in A. Returns name, type, start LBA and size in sectors in `fat32_dirent`.
 
 ### Callbacks
 

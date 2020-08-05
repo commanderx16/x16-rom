@@ -9,14 +9,14 @@
 .import set_status
 
 ; file.s
-.import set_errno_status
+.import set_errno_status, convert_errno_status
 
 ; functions.s
 .import create_fat32_path_only_dir, create_fat32_path_only_name
+.import alloc_context
 
-.import soft_check_medium_a
-.import medium
 .import parse_cbmdos_filename
+.import buffer
 
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"
@@ -38,6 +38,8 @@ context:
 	.byte 0
 dir_eof:
 	.byte 0
+part_index:
+	.byte 0
 
 .segment "cbdos"
 
@@ -46,37 +48,65 @@ dir_eof:
 dir_open:
 	pha ; filename length
 
-	jsr fat32_alloc_context
-	bcs @alloc_ok
-
-	pla
-	lda #$70
+	lda #0
 	jsr set_status
+
+	ply ; filename length
+	lda #0
+	sta buffer, y ; zero terminate
+
+	lda #$80
+	sta part_index ; flag: files index, not partition index
+
+	lda buffer+1
+	cmp #'='
+	bne @not_part_dir
+	lda buffer+2
+	cmp #'P'
+	bne @not_part_dir
+
+	stz part_index
+
+	; partition directory
+	lda buffer+3
+	cmp #':'
+	bne @no_filter
+
+	ldx #4
+	bra @cont1
+
+@no_filter:
+	ldx #1
+	ldy #1
+	bra @cont1
+
+@not_part_dir:
+
+	ldx #1
+@cont1:
+	jsr parse_cbmdos_filename
+	bcc @1
+	lda #$30 ; syntax error
+	jmp @dir_open_err
+@1:	
+
+	bit part_index
+	bmi @not_part0
+	lda #$ff
+	jsr fat32_alloc_context
+	bra @cont0
+
+@not_part0:
+	jsr alloc_context
+@cont0:
+	bcs @alloc_ok
+	jsr set_errno_status
 	sec
 	rts
 
 @alloc_ok:
 	sta context
 	jsr fat32_set_context
-
-	lda #0
-	jsr set_status
-
-	ldx #1
-	ply ; filename length
-	jsr parse_cbmdos_filename
-	bcc @1
-	lda #$30 ; syntax error
-	jmp @dir_open_err
-@1:	lda medium
-	jsr soft_check_medium_a
-	bcc @2
-	lda #$74 ; drive not ready
-	jmp @dir_open_err
-@2:
-
-	jsr fat32_get_vollabel
-	bcc @dir_open_err3
 
 	ldy #0
 	lda #<DIRSTART
@@ -86,13 +116,33 @@ dir_open:
 	lda #1
 	jsr storedir ; link
 	jsr storedir
+
 	lda #0
-	jsr storedir ; line 0
+	bit part_index
+	bmi @not_part1
+	lda #255
+@not_part1:
+	jsr storedir ; header line number
+	lda #0
 	jsr storedir
 	lda #$12 ; reverse
 	jsr storedir
 	lda #$22 ; quote
 	jsr storedir
+
+	bit part_index
+	bmi @not_part2
+
+	ldx #txt_part_dir_header - txt_tables
+	jsr storetxt
+	ldx #txt_part_dir_header_end - txt_part_dir_header
+	bra @4
+
+@not_part2:
+	phy
+	jsr fat32_get_vollabel
+	ply
+	bcc @dir_open_err3
 
 	ldx #0
 @3:	lda fat32_dirent + dirent::name,x
@@ -113,23 +163,24 @@ dir_open:
 	jsr storedir
 	lda #' '
 	jsr storedir
-	lda #'F'
-	jsr storedir
-	lda #'A'
-	jsr storedir
-	lda #'T'
-	jsr storedir
-	lda #'3'
-	jsr storedir
-	lda #'2'
-	jsr storedir
+
+	ldx #txt_fat32 - txt_tables
+	bit part_index
+	bmi @not_part4
+	ldx #txt_mbr - txt_tables
+@not_part4:
+	jsr storetxt
 	lda #0 ; end of line
 	jsr storedir
 	phy
 
 	jsr create_fat32_path_only_dir
 
+	bit part_index
+	bpl @cont3
+
 	jsr fat32_open_dir
+@cont3:
 	ply
 	bcc @dir_open_err3
 
@@ -176,6 +227,7 @@ dir_read:
 read_dir_entry:
 	lda dir_eof
 	beq @read_entry
+@error:
 	sec
 	rts
 
@@ -183,11 +235,29 @@ read_dir_entry:
 
 	jsr create_fat32_path_only_name
 
+	bit part_index
+	bmi @not_part1
+	lda part_index
+	inc part_index
+	cmp #4
+	beq @dir_end2
+	jsr fat32_get_ptable_entry
+	bcc @error
+	lda fat32_dirent + dirent::attributes
+	beq @read_entry
+	bra @cont1
+
+@not_part1:
 	jsr fat32_read_dirent_filtered
+@cont1:
 	bcs @found
 	lda fat32_errno
 	beq :+
 	jsr set_errno_status
+:	bit part_index
+	bmi :+
+@dir_end2:
+	jmp @dir_end
 :	jmp @read_dir_entry_end
 
 @found:	;lda fat32_dirent + dirent::name
@@ -199,7 +269,14 @@ read_dir_entry:
 	jsr storedir ; link
 	jsr storedir
 
-	tya
+	lda part_index
+	bmi @file1
+
+	sta num_blocks
+	stz num_blocks + 1
+	bra @file1_cont
+
+@file1:	tya
 	tax
 	lda fat32_dirent + dirent::size + 0
 	clc
@@ -219,6 +296,7 @@ read_dir_entry:
 :	txa
 	tay
 
+@file1_cont:
 	lda num_blocks
 	jsr storedir
 	lda num_blocks + 1
@@ -291,31 +369,43 @@ read_dir_entry:
 	bcc :-
 
 	lda fat32_dirent + dirent::attributes
+
+	bit part_index
+	bmi @not_part2
+	ldx #txt_fat32 - txt_tables
+	cmp #$0b
+	beq @c1
+	cmp #$0c
+	beq @c1
+	ldx #txt_exfat - txt_tables
+	cmp #$07
+	beq @c1
+	pha
+	lda #'T'
+	jsr storedir
+	pla
+	jsr storehex8
+	bra @read_dir_eol
+@c1:	jsr storetxt
+	bra @read_dir_eol
+
+@not_part2:
+	ldx #txt_prg - txt_tables
 	bit #$10 ; = directory
-	bne @read_dir_entry_dir
-
-	lda #'P'
-	jsr storedir
-	lda #'R'
-	jsr storedir
-	lda #'G'
-	jsr storedir
-	bra @read_dir_cont
-
-@read_dir_entry_dir:
-	lda #'D'
-	jsr storedir
-	lda #'I'
-	jsr storedir
-	lda #'R'
-	jsr storedir
-
+	beq @read_dir_cont
+	ldx #txt_dir - txt_tables
 @read_dir_cont:
+	jsr storetxt
+
 	lda fat32_dirent + dirent::attributes
 	lsr
-	bcc :+
+	bcc @read_dir_eol
 	lda #'<' ; write protect indicator
 	jsr storedir
+
+@read_dir_eol:
+	bit part_index
+	bmi :+
 :
 
 	lda #0 ; end of line
@@ -363,13 +453,11 @@ read_dir_entry:
 	jsr storedir
 	pla
 	jsr storedir
-	ldx #0
-:	lda txt_free,x
-	jsr storedir
-	inx
-	cpx #txt_free_end - txt_free
-	bne :-
 
+	lda #txt_free - txt_tables
+	jsr storetxt
+
+@dir_end:
 	lda #0
 	jsr storedir
 	jsr storedir
@@ -388,9 +476,48 @@ read_dir_entry:
 	rts
 
 
+txt_tables:
+
 txt_free:
-	.byte "B FREE."
-txt_free_end:
+	.byte "B FREE.", 0
+txt_part_dir_header:
+	.byte "CBDOS SDCARD", 0
+txt_part_dir_header_end:
+txt_mbr:
+	.byte " MBR ", 0
+txt_fat32:
+	.byte "FAT32", 0
+txt_exfat:
+	.byte "EXFAT", 0
+txt_prg:
+	.byte "PRG", 0
+txt_dir:
+	.byte "DIR", 0
+
+storehex8:
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	jsr storehex4
+	pla
+storehex4:
+	and #$0f
+	cmp #$0a
+	bcc :+
+	adc #$66
+:	eor #$30
+	jsr storedir
+	rts
+
+storetxt:
+	lda txt_tables,x
+	beq @1
+	jsr storedir
+	inx
+	bne storetxt
+@1:	rts
 
 storedir:
 	sta dirbuffer,y

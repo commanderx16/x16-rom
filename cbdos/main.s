@@ -17,6 +17,7 @@
 
 ; functions.s
 .export cbdos_init
+.import cur_medium
 
 ; parser.s
 .import buffer
@@ -101,6 +102,9 @@ cbdos_init:
 	; TODO error handling
 	jsr fat32_init
 
+	lda #1
+	sta cur_medium
+
 	ply
 	plx
 	rts
@@ -114,6 +118,7 @@ cbdos_sdcard_detect:
 	BANKING_START
 	jsr cbdos_init
 
+.if 0
 	; re-init the SD card
 	; * first write back any dirty sectors
 	jsr sync_sector_buffer
@@ -123,6 +128,9 @@ cbdos_sdcard_detect:
 	lda #0
 	rol
 	eor #1          ; Z=0: error
+.else
+	lda #0
+.endif
 	BANKING_END
 	rts
 

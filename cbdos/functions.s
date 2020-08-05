@@ -14,7 +14,7 @@
 .import medium, medium1, unix_path, unix_path2, create_unix_path, append_unix_path_b
 
 ; main.s
-.export soft_check_medium_a
+.export cur_medium
 .import convert_errno_status
 
 ; cmdch.s
@@ -23,18 +23,18 @@
 ; match.s
 .import skip_mask
 
-.export create_fat32_path_only_dir, create_fat32_path_only_name
+.export alloc_context
 
+.export create_fat32_path_only_dir, create_fat32_path_only_name
 .import create_unix_path_only_dir, create_unix_path_only_name
 
 .import buffer
 
 .macro FAT32_CONTEXT_START
-	jsr fat32_alloc_context
+	jsr alloc_context
 	bcs @alloc_ok
 
-	lda #$70
-	rts
+	jmp convert_errno_status
 
 @alloc_ok:
 	pha
@@ -48,12 +48,22 @@
 
 .bss
 
+cur_medium:
+	.byte 0
 tmp0:
 	.byte 0
 context_dst:
 	.byte 0
 
 .code
+
+;---------------------------------------------------------------
+alloc_context:
+	lda medium
+	bne :+
+	lda cur_medium
+:	dec
+	jmp fat32_alloc_context
 
 ;---------------------------------------------------------------
 create_fat32_path:
@@ -104,33 +114,6 @@ create_fat32_path_only_name:
 
 
 ;---------------------------------------------------------------
-check_medium:
-	lda medium
-	jsr soft_check_medium_a
-	bcc :+
-	pla
-	pla
-	lda #$74
-:	rts
-
-;---------------------------------------------------------------
-; soft_check_medium_a
-;
-; Checks whether a medium is valid, i.e. whether a partition
-; exists.
-;
-; In:   a   medium
-; Out:  c   =0: medium valid (partition exists)
-;           =1: medium invalid (partition does not exist)
-;---------------------------------------------------------------
-soft_check_medium_a:
-	; Since partitions are not currently supported,
-	; only partitions 0 (current) and 1 (single partition)
-	; are supported
-	cmp #2
-	rts
-
-;---------------------------------------------------------------
 ; for all these implementations:
 ;
 ; Out:  a  status ($ff = don't set status)
@@ -146,8 +129,9 @@ soft_check_medium_a:
 ; In:   medium  medium
 ;---------------------------------------------------------------
 initialize:
-	jsr check_medium
+	FAT32_CONTEXT_START
 	; TODO: (re-)mount
+	FAT32_CONTEXT_END
 	lda #0
 	rts
 
@@ -160,8 +144,6 @@ initialize:
 ; In:   medium  medium
 ;---------------------------------------------------------------
 validate:
-	jsr check_medium
-
 	; TODO: fsck
 	lda #$31
 	rts
@@ -187,8 +169,6 @@ validate:
 ;       a       format (1st char)
 ;---------------------------------------------------------------
 new:
-	jsr check_medium
-
 	; TODO: mkfs
 	lda #$31
 	rts
@@ -201,8 +181,6 @@ new:
 ;---------------------------------------------------------------
 scratch:
 @scratch_counter  = tmp0
-	jsr check_medium
-
 	stz @scratch_counter
 
 	FAT32_CONTEXT_START
@@ -237,8 +215,6 @@ scratch:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 make_directory:
-	jsr check_medium
-
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_mkdir
@@ -258,8 +234,6 @@ convert_status_end_context:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 remove_directory:
-	jsr check_medium
-
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	jsr fat32_rmdir
@@ -288,8 +262,6 @@ remove_directory:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 change_directory:
-	jsr check_medium
-
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 
@@ -318,17 +290,22 @@ change_directory:
 ; In:   a  partition
 ;---------------------------------------------------------------
 change_partition:
-	jsr soft_check_medium_a
-	bcs @ill_part
+	sta medium
 	cmp #0
 	beq @ill_part
-	tax
+	dec
+	jsr fat32_alloc_context
+	bcc @ill_part
+	ldx medium
+	stx cur_medium
+	jsr fat32_free_context
+	ldx cur_medium
 	lda #$02
 	rts
 
 @ill_part:
-	tax
-	lda #$77
+	ldx medium
+	lda #$77 ; XXX distinguish between nonexistant and unformatted
 	rts
 
 ;---------------------------------------------------------------
@@ -385,6 +362,9 @@ user:
 ;       medium1/r2/r3  new medium/path/name
 ;---------------------------------------------------------------
 rename:
+	lda medium
+	cmp medium1
+	bne @error
 	FAT32_CONTEXT_START
 	jsr create_fat32_path_x2
 	jsr fat32_rename
@@ -392,6 +372,9 @@ rename:
 	jmp convert_status_end_context
 :	FAT32_CONTEXT_END
 	lda #0
+	rts
+@error:
+	lda #$31 ; SYNTAX ERROR
 	rts
 
 ;---------------------------------------------------------------
@@ -411,8 +394,6 @@ rename:
 ;       r1      new name
 ;---------------------------------------------------------------
 rename_header:
-	jsr check_medium
-
 	jsr create_unix_path_only_dir
 	lda unix_path
 	bne @rename_subdir_header
@@ -421,7 +402,7 @@ rename_header:
 
 	jsr create_fat32_path
 	jsr fat32_set_vollabel
-@xxx1:	bcs :+
+	bcs :+
 	jmp convert_status_end_context
 :	FAT32_CONTEXT_END
 	lda #0
@@ -465,9 +446,7 @@ change_unit:
 ; In:   medium/r0/r1   destination
 ;---------------------------------------------------------------
 copy_start:
-	jsr check_medium
-
-	jsr fat32_alloc_context
+	jsr alloc_context
 	bcc @error_70
 	sta context_dst
 	jsr fat32_set_context
@@ -502,9 +481,7 @@ copy_start:
 ;---------------------------------------------------------------
 copy_do:
 @context_src = tmp0
-	jsr check_medium
-
-	jsr fat32_alloc_context
+	jsr alloc_context
 	bcc @error_70
 	sta @context_src
 	jsr fat32_set_context
@@ -643,7 +620,6 @@ file_lock:
 	lda #1
 file_lock_unlock:
 	sta tmp0
-	jsr check_medium
 	FAT32_CONTEXT_START
 	jsr create_fat32_path
 	lda tmp0
@@ -669,8 +645,6 @@ file_unlock:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 file_lock_toggle:
-	jsr check_medium
-
 	FAT32_CONTEXT_START
 	jsr create_fat32_path_only_dir
 	jsr fat32_open_dir
@@ -714,8 +688,6 @@ file_lock_toggle:
 ; In:   medium/r0/r1  medium/path/name
 ;---------------------------------------------------------------
 file_restore:
-	jsr check_medium
-
 	; TODO: undelete
 	; FAT32 keeps the directory entry and the FAT links,
 	; but overwrites the first character. The user provides
@@ -729,15 +701,48 @@ file_restore:
 ; In:   a    partition number (0 = "system"; 255 = current)
 ;---------------------------------------------------------------
 get_partition:
-	cmp #255
-	beq :+
-	jsr soft_check_medium_a
-	bcc :+
-	lda #$74
-	rts
-:
+	sta medium
 
 	jsr status_clear
+
+	lda medium
+	cmp #255
+	bne @1
+	lda cur_medium
+@1:	sta medium
+	lda #$ff
+ 	jsr fat32_alloc_context
+	bcs @ok
+	lda #$ff
+	pha
+	bra @error
+
+@ok: 	pha
+	lda medium
+	dec
+	jsr fat32_get_ptable_entry
+	bcs @2
+@error:
+	; In the error case (read error or illegal partition),
+	; we are supposed to return an empty structure, with
+	; just the medium populated. Otherwise, the user would
+	; have a hard time distingushing a valid result from
+	; a status channel string.
+	lda #0
+	jsr status_put
+	jsr status_put
+	lda medium
+	jsr status_put
+	ldy #27
+	lda #0
+@6:	jsr status_put
+	dey
+	bne @6
+	jmp @done
+
+@2:
+	lda fat32_dirent + dirent::attributes
+	beq @error
 
 	; The CMD specification uses 3 bytes for the
 	; start LBA and the size, allowing for disks
@@ -750,56 +755,56 @@ get_partition:
 	; * 25 - size: this used to be reserved
 
 	ldx #0
-	lda partition_type  ;     0 -     partition type (same as MBR type)
-	jsr status_put
+	lda fat32_dirent + dirent::attributes
+	jsr status_put;           0 -     partition type (same as MBR type)
 	lda #$00 ;                1 -     reserved (0)
 	jsr status_put
-	lda #$01 ;                2 -     partition number
+	lda medium ;              2 -     partition number
 	jsr status_put
-	lda #'F' ;                3 - 17  partition name
+
+	;                         3 - 17  partition name
+	ldy #0
+@3:	lda fat32_dirent + dirent::name, y
+	beq @4
 	jsr status_put
-	lda #'A'
+	iny
+	cpy #15
+	bne @3
+
+@4:	cpy #15
+	beq @5
+	lda #$a0 ; terminator/padding
 	jsr status_put
-	lda #'T'
+	iny
+	bra @4
+
+@5:	lda fat32_dirent + dirent::start+3
+	jsr status_put;          18 - 21  partition start LBA (big endian)
+	lda fat32_dirent + dirent::start+2
 	jsr status_put
-	lda #'3'
+	lda fat32_dirent + dirent::start+1
 	jsr status_put
-	lda #'2'
-	jsr status_put
-	lda #$a0 ; terminator
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	lda lba_partition+3 ;    18 - 21  partition start LBA (big endian)
-	jsr status_put
-	lda lba_partition+2
-	jsr status_put
-	lda lba_partition+1
-	jsr status_put
-	lda lba_partition
+	lda fat32_dirent + dirent::start+0
 	jsr status_put
 	lda #$00 ;               22 - 25  reserved (0)
 	jsr status_put
 	jsr status_put
 	jsr status_put
 	jsr status_put
-	lda partition_blocks+3 ; 26 - 29  partition size (in 512 byte blocks)
+	lda fat32_dirent + dirent::size+3
+	jsr status_put;          26 - 29  partition size (in 512 byte blocks)
+	lda fat32_dirent + dirent::size+2
 	jsr status_put
-	lda partition_blocks+2
+	lda fat32_dirent + dirent::size+1
 	jsr status_put
-	lda partition_blocks+1
-	jsr status_put
-	lda partition_blocks
+	lda fat32_dirent + dirent::size+0
 	jsr status_put
 
-	lda #$ff ; don't set status
+@done:
+	pla
+	bmi @7 ; no context allocated
+	jsr fat32_free_context
+@7:	lda #$ff ; don't set status
 	rts
 
 ;---------------------------------------------------------------
