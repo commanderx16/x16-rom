@@ -3153,6 +3153,7 @@ fat32_open_ptable:
 fat32_ptable_entry:
 	stz fat32_errno
 
+@0:
 	lda fat32_lfn_bufptr
 	cmp #$40
 	beq @error ; end of list
@@ -3166,6 +3167,15 @@ fat32_ptable_entry:
 
 	; type
 	lda sector_buffer + $1BE + 4, x
+	bne @3
+
+	lda fat32_lfn_bufptr
+	clc
+	adc #$10
+	sta fat32_lfn_bufptr
+	bra @0
+
+@3:
 	sta fat32_dirent + dirent::attributes
 
 	; size
