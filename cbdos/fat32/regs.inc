@@ -22,6 +22,9 @@ cluster    .dword
 ; Optionally, fat32_alloc_context / fat32_free_context can be used to manage contexts
 FAT32_CONTEXTS = 4
 
+; Maximum number of partitions
+FAT32_VOLUMES = 4
+
 ;-----------------------------------------------------------------------------
 ; errno
 ;-----------------------------------------------------------------------------
