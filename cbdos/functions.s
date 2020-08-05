@@ -750,7 +750,7 @@ get_partition:
 	; * 25 - size: this used to be reserved
 
 	ldx #0
-	lda partition_type  ;     0 -     partition type (same as MBR type)
+	lda #0; XXX lda partition_type  ;     0 -     partition type (same as MBR type)
 	jsr status_put
 	lda #$00 ;                1 -     reserved (0)
 	jsr status_put
@@ -777,26 +777,26 @@ get_partition:
 	jsr status_put
 	jsr status_put
 	jsr status_put
-	lda lba_partition+3 ;    18 - 21  partition start LBA (big endian)
+	lda #0; XXX lda lba_partition+3 ;    18 - 21  partition start LBA (big endian)
 	jsr status_put
-	lda lba_partition+2
+	lda #0; XXX lda lba_partition+2
 	jsr status_put
-	lda lba_partition+1
+	lda #0; XXX lda lba_partition+1
 	jsr status_put
-	lda lba_partition
+	lda #0; XXX lda lba_partition
 	jsr status_put
 	lda #$00 ;               22 - 25  reserved (0)
 	jsr status_put
 	jsr status_put
 	jsr status_put
 	jsr status_put
-	lda partition_blocks+3 ; 26 - 29  partition size (in 512 byte blocks)
+	lda #0; XXX lda partition_blocks+3 ; 26 - 29  partition size (in 512 byte blocks)
 	jsr status_put
-	lda partition_blocks+2
+	lda #0; XXX lda partition_blocks+2
 	jsr status_put
-	lda partition_blocks+1
+	lda #0; XXX lda partition_blocks+1
 	jsr status_put
-	lda partition_blocks
+	lda #0; XXX lda partition_blocks
 	jsr status_put
 
 	lda #$ff ; don't set status
