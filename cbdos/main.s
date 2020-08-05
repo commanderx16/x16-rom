@@ -17,6 +17,7 @@
 
 ; functions.s
 .export cbdos_init
+.import cur_medium
 
 ; parser.s
 .import buffer
@@ -100,6 +101,9 @@ cbdos_init:
 
 	; TODO error handling
 	jsr fat32_init
+
+	lda #1
+	sta cur_medium
 
 	ply
 	plx

@@ -15,6 +15,7 @@
 
 ; main.s
 .export soft_check_medium_a
+.export cur_medium
 .import convert_errno_status
 
 ; cmdch.s
@@ -48,6 +49,8 @@
 
 .bss
 
+cur_medium:
+	.byte 0
 tmp0:
 	.byte 0
 context_dst:
@@ -126,15 +129,14 @@ check_medium:
 soft_check_medium_a:
 	cmp #0
 	bne @1
-@ok:	clc
-	rts
-
+	lda cur_medium
 @1:	dec
 	jsr fat32_set_volume
-	bcs @ok
-	sec
+	bcc @error
+	clc
 	rts
-
+@error:	sec
+	rts
 ;---------------------------------------------------------------
 ; for all these implementations:
 ;
@@ -323,12 +325,13 @@ change_directory:
 ; In:   a  partition
 ;---------------------------------------------------------------
 change_partition:
+	cmp #0
+	beq @ill_part
 	pha
 	jsr soft_check_medium_a
 	pla
 	bcs @ill_part
-	cmp #0
-	beq @ill_part
+	sta cur_medium
 	tax
 	lda #$02
 	rts

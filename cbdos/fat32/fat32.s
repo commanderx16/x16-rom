@@ -1132,21 +1132,24 @@ fat32_init:
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_mount:
-	cmp #0
-	beq @ok1
-	clc
-	rts
+	pha ; partition number
 
-@ok1:
 	; Read partition table (sector 0)
 	set32_val cur_context + context::lba, 0
 	jsr load_sector_buffer
+	pla
 	bcs @2a
 @error:	clc
 	rts
 
-@2a:	; Check partition type of first partition
-	lda sector_buffer + $1BE + 4
+@2a:	asl ; *16
+	asl
+	asl
+	asl
+	tax
+
+	; Check partition type
+	lda sector_buffer + $1BE + 4, x
 	cmp #$0B
 	beq @3
 	cmp #$0C
@@ -1155,8 +1158,15 @@ fat32_mount:
 	jmp set_errno
 
 @3:
-	; Get LBA of first partition
-	set32 cur_volume + fs::lba_partition, sector_buffer + $1BE + 8
+	; Get LBA of partition
+	lda sector_buffer + $1BE + 8 + 0, x
+	sta cur_volume + fs::lba_partition + 0
+	lda sector_buffer + $1BE + 8 + 1, x
+	sta cur_volume + fs::lba_partition + 1
+	lda sector_buffer + $1BE + 8 + 2, x
+	sta cur_volume + fs::lba_partition + 2
+	lda sector_buffer + $1BE + 8 + 3, x
+	sta cur_volume + fs::lba_partition + 3
 
 	; Read first sector of partition
 	set32 cur_context + context::lba, cur_volume + fs::lba_partition
