@@ -65,6 +65,10 @@ dir_open:
 	lda #0
 	jsr set_status
 
+	ply ; filename length
+	lda #0
+	sta buffer, y ; zero terminate
+
 	lda #$80
 	sta part_index ; flag: files index, not partition index
 
@@ -83,11 +87,9 @@ dir_open:
 	bne @no_filter
 
 	ldx #4
-	ply ; filename length
 	bra @cont1
 
 @no_filter:
-	ply ; filename length
 	ldx #1
 	ldy #1
 	bra @cont1
@@ -95,7 +97,6 @@ dir_open:
 @not_part_dir:
 
 	ldx #1
-	ply ; filename length
 @cont1:
 	jsr parse_cbmdos_filename
 	bcc @1

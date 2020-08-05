@@ -3132,7 +3132,7 @@ load_mbr_sector:
 ;-----------------------------------------------------------------------------
 ; fat32_ptable_entry
 ;
-; Returns a partition table entry
+; Returns a given partition table entry
 ;
 ; In:  a  index
 ;
