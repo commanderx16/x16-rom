@@ -134,24 +134,23 @@ _fat32_bss_end:
 
 ;-----------------------------------------------------------------------------
 ; set_volume
+;
+; * c=0: failure
 ;-----------------------------------------------------------------------------
-	stz fat32_errno
-
 	; Already selected?
 	cmp volume_idx
 	beq @done
 
 	; Valid volume index?
 	cmp #FAT32_VOLUMES
-	bcs @error
+	bcc @ok
+	clc
+	rts
 
+@ok:
 .if ::FAT32_VOLUMES > 1
 	; Save new volume index
 	pha
-
-	; Save dirty sector
-	jsr sync_sector_buffer
-	bcc @error
 
 	.assert FS_SIZE = 64, error
 	; Copy current context back
@@ -194,8 +193,6 @@ _fat32_bss_end:
 .endif
 
 @done:	sec
-	rts
-@error:	clc
 	rts
 
 ;-----------------------------------------------------------------------------
