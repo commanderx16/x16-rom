@@ -3130,7 +3130,7 @@ load_mbr_sector:
 	jmp load_sector_buffer
 
 ;-----------------------------------------------------------------------------
-; fat32_ptable_entry
+; fat32_get_ptable_entry
 ;
 ; Returns a given partition table entry
 ;
@@ -3138,7 +3138,7 @@ load_mbr_sector:
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
-fat32_ptable_entry:
+fat32_get_ptable_entry:
 	stz fat32_errno
 
 	cmp #$4

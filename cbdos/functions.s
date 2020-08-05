@@ -739,15 +739,39 @@ file_restore:
 ; In:   a    partition number (0 = "system"; 255 = current)
 ;---------------------------------------------------------------
 get_partition:
-	cmp #255
-	beq :+
-	jsr soft_check_medium_a
-	bcc :+
-	lda #$74
-	rts
-:
+	sta medium
+	FAT32_CONTEXT_START
 
 	jsr status_clear
+
+	lda medium
+	cmp #255
+	bne @1
+	lda cur_medium
+@1:	dec
+	jsr fat32_get_ptable_entry
+	bcs @2
+@error:
+	; In the error case (read error or illegal partition),
+	; we are supposed to return an empty structure, with
+	; just the medium populated. Otherwise, the user would
+	; have a hard time distingushing a valid result from
+	; a status channel string.
+	lda #0
+	jsr status_put
+	jsr status_put
+	lda medium
+	jsr status_put
+	ldy #27
+	lda #0
+@6:	jsr status_put
+	dey
+	bne @6
+	jmp @done
+
+@2:
+	lda fat32_dirent + dirent::attributes
+	beq @error
 
 	; The CMD specification uses 3 bytes for the
 	; start LBA and the size, allowing for disks
@@ -760,55 +784,53 @@ get_partition:
 	; * 25 - size: this used to be reserved
 
 	ldx #0
-	lda #0; XXX lda partition_type  ;     0 -     partition type (same as MBR type)
-	jsr status_put
+	lda fat32_dirent + dirent::attributes
+	jsr status_put;           0 -     partition type (same as MBR type)
 	lda #$00 ;                1 -     reserved (0)
 	jsr status_put
-	lda #$01 ;                2 -     partition number
+	lda medium ;              2 -     partition number
 	jsr status_put
-	lda #'F' ;                3 - 17  partition name
+
+	;                         3 - 17  partition name
+	ldy #0
+@3:	lda fat32_dirent + dirent::name, y
+	beq @4
 	jsr status_put
-	lda #'A'
+	iny
+	cpy #15
+	bne @3
+
+@4:	cpy #15
+	beq @5
+	lda #$a0 ; terminator/padding
 	jsr status_put
-	lda #'T'
+	iny
+	bra @4
+
+@5:	lda fat32_dirent + dirent::start+3
+	jsr status_put;          18 - 21  partition start LBA (big endian)
+	lda fat32_dirent + dirent::start+2
 	jsr status_put
-	lda #'3'
+	lda fat32_dirent + dirent::start+1
 	jsr status_put
-	lda #'2'
-	jsr status_put
-	lda #$a0 ; terminator
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	jsr status_put
-	lda #0; XXX lda lba_partition+3 ;    18 - 21  partition start LBA (big endian)
-	jsr status_put
-	lda #0; XXX lda lba_partition+2
-	jsr status_put
-	lda #0; XXX lda lba_partition+1
-	jsr status_put
-	lda #0; XXX lda lba_partition
+	lda fat32_dirent + dirent::start+0
 	jsr status_put
 	lda #$00 ;               22 - 25  reserved (0)
 	jsr status_put
 	jsr status_put
 	jsr status_put
 	jsr status_put
-	lda #0; XXX lda partition_blocks+3 ; 26 - 29  partition size (in 512 byte blocks)
+	lda fat32_dirent + dirent::size+3
+	jsr status_put;          26 - 29  partition size (in 512 byte blocks)
+	lda fat32_dirent + dirent::size+2
 	jsr status_put
-	lda #0; XXX lda partition_blocks+2
+	lda fat32_dirent + dirent::size+1
 	jsr status_put
-	lda #0; XXX lda partition_blocks+1
-	jsr status_put
-	lda #0; XXX lda partition_blocks
+	lda fat32_dirent + dirent::size+0
 	jsr status_put
 
+@done:
+	FAT32_CONTEXT_END
 	lda #$ff ; don't set status
 	rts
 

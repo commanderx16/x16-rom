@@ -242,7 +242,7 @@ read_dir_entry:
 	inc part_index
 	cmp #4
 	beq @dir_end2
-	jsr fat32_ptable_entry
+	jsr fat32_get_ptable_entry
 	bcc @error
 	lda fat32_dirent + dirent::attributes
 	beq @read_entry

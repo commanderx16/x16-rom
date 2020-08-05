@@ -11,7 +11,7 @@
 .global fat32_init              ; Initialize FAT32 driver and SD card
 .global fat32_set_volume
 
-.global fat32_ptable_entry
+.global fat32_get_ptable_entry
 
 
 .global fat32_alloc_context     ; Allocate context, result in A if C set
