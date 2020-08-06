@@ -586,8 +586,9 @@ fat32_alloc_context:
 	tya
 	sta volume_for_context, x
 	phx
+	cmp #$ff
 	sec
-	bmi @2
+	beq @2
 	jsr set_volume
 @2:	pla
 	bcs @rts
@@ -1356,7 +1357,8 @@ fat32_set_context:
 
 	ldx context_idx
 	lda volume_for_context, x
-	bmi @no_volume
+	cmp #$ff
+	beq @no_volume
 	jsr set_volume
 	bcc @error
 
