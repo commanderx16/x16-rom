@@ -295,8 +295,8 @@ change_partition:
 	dec
 	jsr fat32_alloc_context
 	bcc @ill_part
-	lda medium
-	sta cur_medium
+	ldx medium
+	stx cur_medium
 	jsr fat32_free_context
 	ldx cur_medium
 	lda #$02
