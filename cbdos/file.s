@@ -26,6 +26,9 @@
 .import channel
 .import ieee_status
 
+; functions.s
+.import alloc_context
+
 .bss
 
 next_byte_for_channel:
@@ -47,8 +50,7 @@ file_second:
 
 ;---------------------------------------------------------------
 file_open:
-	lda medium
-	jsr fat32_alloc_context
+	jsr alloc_context
 	bcs @alloc_ok
 
 	jmp convert_errno_status

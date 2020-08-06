@@ -23,16 +23,15 @@
 ; match.s
 .import skip_mask
 
-.export create_fat32_path_only_dir, create_fat32_path_only_name
+.export alloc_context
 
+.export create_fat32_path_only_dir, create_fat32_path_only_name
 .import create_unix_path_only_dir, create_unix_path_only_name
 
 .import buffer
 
 .macro FAT32_CONTEXT_START
-	lda medium
-	dec
-	jsr fat32_alloc_context
+	jsr alloc_context
 	bcs @alloc_ok
 
 	jmp convert_errno_status
@@ -57,6 +56,15 @@ context_dst:
 	.byte 0
 
 .code
+
+;---------------------------------------------------------------
+alloc_context:
+	lda medium
+	bne :+
+	lda cur_medium
+:	dec
+	jsr fat32_alloc_context
+	rts
 
 ;---------------------------------------------------------------
 create_fat32_path:
@@ -431,8 +439,7 @@ change_unit:
 ; In:   medium/r0/r1   destination
 ;---------------------------------------------------------------
 copy_start:
-	lda medium
-	jsr fat32_alloc_context
+	jsr alloc_context
 	bcc @error_70
 	sta context_dst
 	jsr fat32_set_context
@@ -467,8 +474,7 @@ copy_start:
 ;---------------------------------------------------------------
 copy_do:
 @context_src = tmp0
-	lda medium
-	jsr fat32_alloc_context
+	jsr alloc_context
 	bcc @error_70
 	sta @context_src
 	jsr fat32_set_context
