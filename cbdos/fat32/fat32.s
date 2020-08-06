@@ -204,8 +204,8 @@ set_volume:
 .endif
 
 	sta volume_idx
-	ldx cur_volume + fs::mounted
-	bne @done
+	bit cur_volume + fs::mounted
+	bmi @done
 	lda volume_idx
 	jmp fat32_mount
 @done:
@@ -314,7 +314,7 @@ save_sector_buffer:
 ; calc_cluster_lba
 ;-----------------------------------------------------------------------------
 calc_cluster_lba:
-	; lba = lba_data + ((cluster - 2) << cur_volume + fs::cluster_shift)
+	; lba = lba_data + ((cluster - 2) << cluster_shift)
 	sub32_val cur_context + context::lba, cur_context + context::cluster, 2
 	ldy cur_volume + fs::cluster_shift
 	beq @shift_done
@@ -1378,7 +1378,6 @@ fat32_set_context:
 	pla
 @error:	clc
 	rts
-
 
 ;-----------------------------------------------------------------------------
 ; fat32_get_context

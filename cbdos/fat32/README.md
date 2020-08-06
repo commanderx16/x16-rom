@@ -4,17 +4,16 @@ This is a generic and reusable FAT32 filesystem read/write library written in 65
 
 ## Features
 
-* MBR partitioning
 * read and write support
 * subdirectories
 * long filenames
 * SD card interface included
+* multiple MBR partitions mounted at the same time
 
 ## Missing Features
 
 * time stamps
 * seek
-* volume label
 
 ## API
 
