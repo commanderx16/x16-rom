@@ -40,6 +40,7 @@ ERRNO_NO_MEDIA         = 8
 ERRNO_NO_FS            = 9
 ERRNO_FS_INCONSISTENT  = 10
 ERRNO_WRITE_PROTECT_ON = 11
+ERRNO_OUT_OF_RESOURCES = 12
 
 ;-----------------------------------------------------------------------------
 ; Register bits

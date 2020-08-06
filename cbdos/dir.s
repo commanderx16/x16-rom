@@ -9,12 +9,11 @@
 .import set_status
 
 ; file.s
-.import set_errno_status
+.import set_errno_status, convert_errno_status
 
 ; functions.s
 .import create_fat32_path_only_dir, create_fat32_path_only_name
 
-.import soft_check_medium_a
 .import medium
 .import parse_cbmdos_filename
 .import buffer
@@ -49,11 +48,12 @@ part_index:
 dir_open:
 	pha ; filename length
 
+	lda medium
 	jsr fat32_alloc_context
 	bcs @alloc_ok
 
 	pla
-	lda #$70
+	jsr convert_errno_status
 	jsr set_status
 	sec
 	rts
@@ -102,12 +102,7 @@ dir_open:
 	bcc @1
 	lda #$30 ; syntax error
 	jmp @dir_open_err
-@1:	lda medium
-	jsr soft_check_medium_a
-	bcc @2
-	lda #$74 ; drive not ready
-	jmp @dir_open_err
-@2:
+@1:	
 
 	ldy #0
 	lda #<DIRSTART

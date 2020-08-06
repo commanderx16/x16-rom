@@ -35,6 +35,9 @@ file_size       .dword   ; Size of current file
 file_offset     .dword   ; Offset in current file
 dirent_lba      .dword   ; Sector containing directory entry for this file
 dirent_bufptr   .word    ; Offset to start of directory entry 
+.if ::FAT32_VOLUMES > 1
+volume          .byte    ; Volume associcated with this context
+.endif
 .endstruct
 
 CONTEXT_SIZE = 32
@@ -131,11 +134,13 @@ _fat32_bss_end:
 	.code
 
 ;-----------------------------------------------------------------------------
-; fat32_set_volume
+; set_volume
+;
+; In:  a volume
 ;
 ; * c=0: failure
 ;-----------------------------------------------------------------------------
-fat32_set_volume:
+set_volume:
 	; Already selected?
 	cmp volume_idx
 	bne @0
@@ -146,8 +151,9 @@ fat32_set_volume:
 	; Valid volume index?
 	cmp #FAT32_VOLUMES
 	bcc @ok
-	clc
-	rts
+
+	lda #ERRNO_NO_FS
+	jmp set_errno
 
 @ok:
 .if ::FAT32_VOLUMES > 1
@@ -156,8 +162,9 @@ fat32_set_volume:
 
 	.assert FS_SIZE = 64, error
 	; Copy current volume back
-	lda volume_idx   ; X=A*64
-	asl
+	lda volume_idx
+	bmi @dont_write_back ; < 0 = no current volume
+	asl ; X=A*64
 	asl
 	asl
 	asl
@@ -173,6 +180,7 @@ fat32_set_volume:
 	cpy #(.sizeof(fs))
 	bne @1
 
+@dont_write_back:
 	; Copy new volume to current
 	pla              ; Get new volume idx
 	pha
@@ -195,7 +203,6 @@ fat32_set_volume:
 	pla
 .endif
 
-fat32_set_volume_init:
 	sta volume_idx
 	ldx cur_volume + fs::mounted
 	bne @done
@@ -545,8 +552,22 @@ find_free_cluster:
 
 ;-----------------------------------------------------------------------------
 ; fat32_alloc_context
+;
+; In:  a     volume
+; Out: a     context
+;      c     =0: failure
+;      errno =ERRNO_OUT_OF_RESOURCES: all contexts in use
+;            =ERRNO_READ            : error mounting volume
+;            =ERRNO_WRITE           : error mounting volume
+;            =ERRNO_NO_FS           : error mounting volume
+;            =ERRNO_FS_INCONSISTENT : error mounting volume
 ;-----------------------------------------------------------------------------
 fat32_alloc_context:
+	stz fat32_errno
+
+.if FAT32_VOLUMES > 1
+	tay ; volume
+.endif
 	ldx #0
 @1:	lda contexts_inuse, x
 	beq @found_free
@@ -554,20 +575,35 @@ fat32_alloc_context:
 	cpx #FAT32_CONTEXTS
 	bne @1
 
-@fat32_alloc_context_error:
-	clc
-	rts
+	lda #ERRNO_OUT_OF_RESOURCES
+	jmp set_errno
 
 @found_free:
 	lda #1
 	sta contexts_inuse, x
+
+.if FAT32_VOLUMES > 1
+	phx
+	tya
+	sta cur_context + context::volume
+	jsr set_volume
+	pla
+	bcs @rts
+	jsr fat32_free_context
+	clc
+	rts
+.else
 	txa
 	sec
-@fat32_alloc_context_ok:
+.endif
+@rts:
 	rts
 
 ;-----------------------------------------------------------------------------
 ; fat32_free_context
+;
+; In:  a     context
+; Out: c     =0: failure
 ;-----------------------------------------------------------------------------
 fat32_free_context:
 	cmp #FAT32_CONTEXTS
@@ -1120,9 +1156,11 @@ fat32_init:
 	lda #$FF
 	sta sector_lba
 
-	; mount volume #0
-	lda #0
-	jmp fat32_set_volume_init
+	; No current volume
+	sta volume_idx
+
+	sec
+	rts
 
 ;-----------------------------------------------------------------------------
 ; fat32_mount
@@ -1239,6 +1277,8 @@ fat32_mount:
 	set32_val cur_volume + fs::free_cluster, 2
 
 	; Success
+	lda #$80
+	sta cur_volume + fs::mounted
 	sec
 	rts
 
@@ -1311,6 +1351,10 @@ fat32_set_context:
 
 	; Restore zero page variables from current context
 	set16 fat32_bufptr, cur_context + context::bufptr
+
+	lda cur_context + context::volume
+	jsr set_volume
+	bcc @error
 
 	; Reload sector
 	lda cur_context + context::flags

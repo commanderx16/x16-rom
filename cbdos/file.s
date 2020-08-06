@@ -21,9 +21,6 @@
 .import is_filename_empty
 .import overwrite_flag
 
-; function.s
-.import soft_check_medium_a
-
 ; main.s
 .import context_for_channel
 .import channel
@@ -50,11 +47,11 @@ file_second:
 
 ;---------------------------------------------------------------
 file_open:
+	lda medium
 	jsr fat32_alloc_context
 	bcs @alloc_ok
 
-	lda #$70
-	jmp set_status
+	jmp convert_errno_status
 
 @alloc_ok:
 	pha
@@ -66,13 +63,7 @@ file_open:
 	bcc :+
 	lda #$30 ; syntax error
 	jmp @open_file_err
-:	lda medium
-	jsr soft_check_medium_a
-	bcc :+
-	lda #$74 ; drive not ready
-	jmp @open_file_err
-:
-	jsr is_filename_empty
+:	jsr is_filename_empty
 	bne :+
 	lda #$34 ; syntax error (empty filename)
 	jmp @open_file_err
@@ -250,5 +241,6 @@ status_from_errno:
 	.byte $74 ; ERRNO_NO_FS            = 9  -> DRIVE NOT READY
 	.byte $71 ; ERRNO_FS_INCONSISTENT  = 10 -> DIRECTORY ERROR
 	.byte $26 ; ERRNO_WRITE_PROTECT_ON = 11 -> WRITE PROTECT ON
+	.byte $70 ; ERRNO_OUT_OF_RESOURCES = 12 -> NO CHANNEL
 
 
