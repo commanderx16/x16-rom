@@ -586,8 +586,10 @@ fat32_alloc_context:
 	tya
 	sta volume_for_context, x
 	phx
+	sec
+	bmi @2
 	jsr set_volume
-	pla
+@2:	pla
 	bcs @rts
 	jsr fat32_free_context
 	clc
