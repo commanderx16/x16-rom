@@ -90,7 +90,15 @@ dir_open:
 	jmp @dir_open_err
 @1:	
 
-	jsr alloc_context ; XXX partitioning doesn't need volume
+	bit part_index
+	bmi @not_part0
+	lda #$ff
+	jsr fat32_alloc_context
+	bra @cont0
+
+@not_part0:
+	jsr alloc_context
+@cont0:
 	bcs @alloc_ok
 	jsr set_errno_status
 	sec

@@ -1354,9 +1354,11 @@ fat32_set_context:
 
 	ldx context_idx
 	lda volume_for_context, x
+	bmi @no_volume
 	jsr set_volume
 	bcc @error
 
+@no_volume:
 	; Reload sector
 	lda cur_context + context::flags
 	bit #FLAG_IN_USE

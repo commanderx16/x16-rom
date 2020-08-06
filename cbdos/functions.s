@@ -63,8 +63,7 @@ alloc_context:
 	bne :+
 	lda cur_medium
 :	dec
-	jsr fat32_alloc_context
-	rts
+	jmp fat32_alloc_context
 
 ;---------------------------------------------------------------
 create_fat32_path:
@@ -705,7 +704,14 @@ get_partition:
 	bne @1
 	lda cur_medium
 @1:	sta medium
-	FAT32_CONTEXT_START ; XXX should not try to mount partition!
+	lda #$ff
+ 	jsr fat32_alloc_context
+	bcs @ok
+	lda #$ff
+	pha
+	bra @error
+
+@ok: 	pha
 	lda medium
 	dec
 	jsr fat32_get_ptable_entry
@@ -789,8 +795,10 @@ get_partition:
 	jsr status_put
 
 @done:
-	FAT32_CONTEXT_END
-	lda #$ff ; don't set status
+	pla
+	bmi @7 ; no context allocated
+	jsr fat32_free_context
+@7:	lda #$ff ; don't set status
 	rts
 
 ;---------------------------------------------------------------
