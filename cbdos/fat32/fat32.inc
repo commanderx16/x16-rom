@@ -9,11 +9,6 @@
 
 ; Global operations
 .global fat32_init              ; Initialize FAT32 driver and SD card
-.global fat32_set_volume
-
-.global fat32_get_ptable_entry
-
-
 .global fat32_alloc_context     ; Allocate context, result in A if C set
 .global fat32_free_context      ; Free context in A, C set on success
 .global fat32_set_context       ; Set current context to idx in A (0..FAT32_CONTEXTS-1)
@@ -21,6 +16,9 @@
 .global fat32_get_free_space    ; Get free space, result in KiB in fat32_size (32-bit)
 .global fat32_get_vollabel      ; Get volume label (fat32_dirent::name)
 .global fat32_set_vollabel      ; Set volume label (fat32_ptr)
+
+; Partition table operations
+.global fat32_get_ptable_entry  ; Get partition table entry in A (0+) into fat32_dirent
 
 ; Directory operations
 .global fat32_open_dir          ; Open directory with path in fat32_ptr
