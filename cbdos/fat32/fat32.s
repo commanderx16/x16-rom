@@ -35,9 +35,6 @@ file_size       .dword   ; Size of current file
 file_offset     .dword   ; Offset in current file
 dirent_lba      .dword   ; Sector containing directory entry for this file
 dirent_bufptr   .word    ; Offset to start of directory entry 
-.if ::FAT32_VOLUMES > 1
-volume          .byte    ; Volume associcated with this context
-.endif
 .endstruct
 
 CONTEXT_SIZE = 32
@@ -116,6 +113,9 @@ fat32_errno:         .byte 0       ; Last error
 context_idx:         .byte 0       ; Index of current context
 cur_context:         .tag context  ; Current file descriptor state
 contexts_inuse:      .res FAT32_CONTEXTS
+.if ::FAT32_VOLUMES > 1
+volume_for_context:  .res FAT32_CONTEXTS
+.endif
 
 ; Volumes
 volume_idx:          .byte 0       ; Index of current filesystem
@@ -583,9 +583,9 @@ fat32_alloc_context:
 	sta contexts_inuse, x
 
 .if FAT32_VOLUMES > 1
-	phx
 	tya
-	sta cur_context + context::volume
+	sta volume_for_context, x
+	phx
 	jsr set_volume
 	pla
 	bcs @rts
@@ -1308,7 +1308,7 @@ fat32_set_context:
 
 	; Save dirty sector
 	jsr sync_sector_buffer
-	bcc @error
+	bcc @error2
 
 	; Put zero page variables in current context
 	set16 cur_context + context::bufptr, fat32_bufptr
@@ -1352,7 +1352,8 @@ fat32_set_context:
 	; Restore zero page variables from current context
 	set16 fat32_bufptr, cur_context + context::bufptr
 
-	lda cur_context + context::volume
+	ldx context_idx
+	lda volume_for_context, x
 	jsr set_volume
 	bcc @error
 
@@ -1367,8 +1368,11 @@ fat32_set_context:
 
 @done:	sec
 	rts
+@error2:
+	pla
 @error:	clc
 	rts
+
 
 ;-----------------------------------------------------------------------------
 ; fat32_get_context
