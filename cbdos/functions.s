@@ -130,8 +130,10 @@ create_fat32_path_only_name:
 ; In:   medium  medium
 ;---------------------------------------------------------------
 initialize:
+	FAT32_CONTEXT_START
 	; TODO: (re-)mount
-	lda #$31
+	FAT32_CONTEXT_END
+	lda #0
 	rts
 
 ;---------------------------------------------------------------
@@ -703,7 +705,7 @@ get_partition:
 	bne @1
 	lda cur_medium
 @1:	sta medium
-	FAT32_CONTEXT_START
+	FAT32_CONTEXT_START ; XXX should not try to mount partition!
 	lda medium
 	dec
 	jsr fat32_get_ptable_entry

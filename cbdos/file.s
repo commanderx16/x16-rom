@@ -50,6 +50,17 @@ file_second:
 
 ;---------------------------------------------------------------
 file_open:
+	ldx #0
+	ldy buffer_len
+	jsr parse_cbmdos_filename
+	bcc :+
+	lda #$30 ; syntax error
+	jmp @open_file_err3
+:	jsr is_filename_empty
+	bne :+
+	lda #$34 ; syntax error (empty filename)
+	jmp @open_file_err3
+:
 	jsr alloc_context
 	bcs @alloc_ok
 
@@ -59,17 +70,6 @@ file_open:
 	pha
 	jsr fat32_set_context
 
-	ldx #0
-	ldy buffer_len
-	jsr parse_cbmdos_filename
-	bcc :+
-	lda #$30 ; syntax error
-	jmp @open_file_err
-:	jsr is_filename_empty
-	bne :+
-	lda #$34 ; syntax error (empty filename)
-	jmp @open_file_err
-:
 	jsr create_unix_path
 	lda #<unix_path
 	sta fat32_ptr + 0
@@ -144,6 +144,10 @@ file_open:
 	jsr set_status
 @open_file_err2:
 	pla ; context number
+	jmp fat32_free_context
+
+@open_file_err3:
+	jsr set_status
 	jmp fat32_free_context
 
 ;---------------------------------------------------------------

@@ -15,7 +15,6 @@
 .import create_fat32_path_only_dir, create_fat32_path_only_name
 .import alloc_context
 
-.import medium
 .import parse_cbmdos_filename
 .import buffer
 
@@ -48,19 +47,6 @@ part_index:
 ;---------------------------------------------------------------
 dir_open:
 	pha ; filename length
-
-	jsr alloc_context
-	bcs @alloc_ok
-
-	pla
-	jsr convert_errno_status
-	jsr set_status
-	sec
-	rts
-
-@alloc_ok:
-	sta context
-	jsr fat32_set_context
 
 	lda #0
 	jsr set_status
@@ -103,6 +89,16 @@ dir_open:
 	lda #$30 ; syntax error
 	jmp @dir_open_err
 @1:	
+
+	jsr alloc_context ; XXX partitioning doesn't need volume
+	bcs @alloc_ok
+	jsr set_errno_status
+	sec
+	rts
+
+@alloc_ok:
+	sta context
+	jsr fat32_set_context
 
 	ldy #0
 	lda #<DIRSTART
