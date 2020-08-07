@@ -112,7 +112,6 @@ create_fat32_path_only_name:
 	stz fat32_ptr + 1
 @1:	rts
 
-
 ;---------------------------------------------------------------
 ; for all these implementations:
 ;

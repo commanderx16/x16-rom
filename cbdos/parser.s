@@ -17,7 +17,7 @@
 .export medium, medium1, unix_path, create_unix_path, append_unix_path_b
 .export create_unix_path_only_dir, create_unix_path_only_name, is_filename_empty
 
-.export file_mode
+.export file_type, file_mode, filter0, filter1
 
 ; file.s
 .export overwrite_flag
@@ -43,6 +43,10 @@ file_type:
 	.byte 0
 file_mode:
 	.byte 0
+filter0:
+	.byte 0
+filter1:
+	.byte 0
 
 unix_path:
 	.res 256, 0
@@ -54,6 +58,11 @@ r2s:	.byte 0
 r2e:	.byte 0
 r3s:	.byte 0
 r3e:	.byte 0
+
+tmp_parse0:
+	.byte 0
+tmp_parse1:
+	.byte 0
 
 ; temp variables, must only be used in leaf functions
 tmp0:	.byte 0
@@ -272,10 +281,12 @@ get_m_t_s:
 ;---------------------------------------------------------------
 ; copy_chars
 ;
+; Copy a substring of buffer into unix_path.
+;
 ; In:   x/a   source
 ;       y     target start
 ; Out:  x     source end + 1
-; Out:  y     target end + 1
+;       y     target end + 1
 ;---------------------------------------------------------------
 copy_chars:
 	sta tmp0
@@ -291,7 +302,7 @@ copy_chars:
 ;---------------------------------------------------------------
 ; split
 ;
-; Split buffer into two parts using delimiter
+; Split buffer into two parts using delimiter.
 ;
 ; In:   a    delimiter
 ;       r0   input buffer
@@ -610,14 +621,17 @@ find_wildcards:
 ; parse_cbmdos_filename
 ;
 ; Converts a CBMDOS filename into medium, UNIX file path, file
-; type, file mode
+; type, file mode, filters.
 ;
 ; In:   x->y       input buffer
 ; Out:  medium     medium (0-255; defaults to 0)
 ;       r0         CBMDOS path
 ;       r1         CBMDOS file
-;       file_type  file type (defaults to 'S')
-;       file_mode  file mode (defaults to 'R')
+;       file_type  file type (defaults to 0)
+;       file_mode  file mode (defaults to 0)
+;       filter0    first filter (defaults to 0)
+;       filter1    second filter (defaults to 0)
+;       overwrite_flag
 ;       c          =1: syntax error
 ;---------------------------------------------------------------
 parse_cbmdos_filename:
@@ -626,10 +640,6 @@ parse_cbmdos_filename:
 
 	; defaults
 	stz overwrite_flag
-	lda #'S'
-	sta file_type
-	lda #'R'
-	sta file_mode
 
 	lda #':'
 	clc
@@ -651,46 +661,76 @@ parse_cbmdos_filename:
 	jsr parse_path
 	bcs @syntax_error
 
+	; extract filter options from name
+	lda #'='
+	jsr parse_options
+	stx filter0
+	sty filter1
+
 	; extract options from name
-	ldx r1s
-	ldy r1e
 	lda #','
-	jsr search_char
-	bcs @no_comma
+	jsr parse_options
+	stx file_type
+	sty file_mode
 
-	phx ; end of filename
-
-	inx ; skip over comma
-	cpx r1e
-	beq @comma_done
-	lda buffer,x
-	cmp #','
-	beq :+
-	sta file_type
-:
-	ldy r1e
-	lda #','
-	jsr search_char
-	bcs @comma_done
-	inx ; skip over comma
-	cpx r1e
-	beq @comma_done
-	lda buffer,x
-	cmp #','
-	beq :+
-	sta file_mode
-:
-
-@comma_done:
-	plx
-	stx r1e
-
-@no_comma:
 	clc
 	rts
 
 @syntax_error:
 	sec
+	rts
+
+;---------------------------------------------------------------
+; parse_options
+;
+; Find separator charactor, extract two comma-separated options
+; from right part, and truncate left part.
+;
+; This is used to extract the options from strings like
+; "FILE,P,W" and "*=A,B".
+;
+; In:  a  separator
+; Out: x  option 0 (0 if not specified)
+;      y  option 1 (0 if not specified)
+;---------------------------------------------------------------
+parse_options:
+	ldx r1s
+	ldy r1e
+	jsr search_char
+	bcc @1
+	ldx #0
+	ldy #0
+	rts
+
+@1:
+	phx ; end of filename
+
+	inx ; skip over comma
+	cpx r1e
+	beq @2
+	lda buffer,x
+	cmp #','
+	bne :+
+	lda #0
+:	sta tmp_parse0
+	ldy r1e
+	lda #','
+	jsr search_char
+	bcs @2
+	inx ; skip over comma
+	cpx r1e
+	beq @2
+	lda buffer,x
+	cmp #','
+	bne :+
+	lda #0
+:	sta tmp_parse1
+
+@2:
+	plx
+	stx r1e
+	ldx tmp_parse0
+	ldy tmp_parse1
 	rts
 
 ;***************************************************************
