@@ -479,6 +479,10 @@ copy_start:
 	rts
 
 ;---------------------------------------------------------------
+; copy_do
+;
+; Append one file to destination file.
+;---------------------------------------------------------------
 copy_do:
 @context_src = tmp0
 	jsr alloc_context
@@ -553,6 +557,10 @@ copy_do:
 	pla
 	rts
 
+;---------------------------------------------------------------
+; copy_end
+;
+; Close destination file.
 ;---------------------------------------------------------------
 copy_end:
 	lda context_dst
