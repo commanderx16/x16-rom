@@ -2168,10 +2168,15 @@ fat32_rmdir:
 	; Find directory
 	jsr find_dir
 	bcs @2
+@fnf:
 	lda #ERRNO_FILE_NOT_FOUND
 	jmp set_errno
 
 @2:
+	; make sure user isn't trying to remove '.' or '..' entries
+	jsr check_dot_or_dotdot
+	bcs @fnf
+
 	; Open directory
 	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	jsr open_cluster
@@ -2186,17 +2191,8 @@ fat32_rmdir:
 	rts
 
 @3:	; Allow for '.' and '..' entries
-	lda fat32_dirent + dirent::name
-	cmp #'.'
-	bne @not_dot
-	lda fat32_dirent + dirent::name + 1
-	beq @next
-	cmp #'.'
-	bne @not_dot
-	lda fat32_dirent + dirent::name + 2
-	beq @next
-
-@not_dot:
+	jsr check_dot_or_dotdot
+	bcs @next
 	lda #ERRNO_DIR_NOT_EMPTY
 	jmp set_errno
 
@@ -2214,6 +2210,21 @@ fat32_rmdir:
 	; Unlink cluster chain
 	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	jmp unlink_cluster_chain
+
+check_dot_or_dotdot:
+	lda fat32_dirent + dirent::name
+	cmp #'.'
+	bne @no
+	lda fat32_dirent + dirent::name + 1
+	beq @yes
+	cmp #'.'
+	bne @no
+	lda fat32_dirent + dirent::name + 2
+	beq @yes
+@no:	clc
+	rts
+@yes:	sec
+	rts
 
 ;-----------------------------------------------------------------------------
 ; fat32_open
