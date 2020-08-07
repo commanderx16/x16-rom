@@ -47,7 +47,7 @@
 .global fat32_dirent
 .global sync_sector_buffer
 .global fat32_errno
-
+.global fat32_readonly
 
 ; debug
 .global contexts_inuse

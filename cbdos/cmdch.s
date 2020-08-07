@@ -324,7 +324,7 @@ status_77:
 ; unknown
 ;   $60     WRITE FILE OPEN
 ;   $61     FILE NOT OPEN
-; TODO: REL files
+; REL files
 ;   $50     RECORD NOT PRESENT
 ;   $51     OVERFLOW IN RECORD
 ;   $52     FILE TOO LARGE

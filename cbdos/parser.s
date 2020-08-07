@@ -1040,17 +1040,18 @@ cmds:
 	          ; 'M-R' memory read
 	          ; 'M-W' memory write
 	          ; 'M-E' memory execute
-	.byte 'B' ; 'B-P' buffer pointer   TODO
-	          ; 'B-A' block allocate   TODO
-	          ; 'B-F' block free       TODO
-	          ; 'B-S' block status     TODO
-	          ; 'B-R' block read       TODO
-	          ; 'B-W' block write      TODO
-	          ; 'B-E' block execute    TODO
+	.byte 'B' ; 'B-P' buffer pointer
+	          ; 'B-A' block allocate
+	          ; 'B-F' block free
+	          ; 'B-S' block status
+	          ; 'B-R' block read
+	          ; 'B-W' block write
+	          ; 'B-E' block execute
 	.byte 'U' ; 'Ux'  user
 	.byte 'F' ; 'F-L' file lock
 	          ; 'F-U' file unlock
-	          ; 'F-R' file restore     TODO
+	          ; 'F-R' file restore     
+	.byte 'W' ; 'W-n' write protect
 	.byte 255 ; echo (internal)
 cmds_end:
 cmd_ptrs:
@@ -1067,6 +1068,7 @@ cmd_ptrs:
 	.word cmd_b
 	.word cmd_u
 	.word cmd_f
+	.word cmd_w
 	.word cmd_255 ; echo (internal)
 
 ;---------------------------------------------------------------
@@ -1740,6 +1742,36 @@ cmd_fr:
 
 @error_empty:
 	lda #$34 ; syntax error (empty filename)
+	clc
+	rts
+
+;---------------------------------------------------------------
+; W-n - write protect [CMD]
+;---------------------------------------------------------------
+cmd_w:
+	ldx r0s
+	inx
+	lda buffer,x
+	cmp #'-'
+	beq @minus
+	lda #$31 ; syntax error: unknown command
+	clc
+	rts
+@minus:
+	inx
+	lda buffer,x
+	cmp #'0'
+	bne :+
+	lda #0
+@wp:
+	jsr write_protect
+	clc
+	rts
+:	cmp #'1'
+	beq @wp
+	lda #1
+	bra @wp
+:	lda #$31 ; syntax error: unknown command
 	clc
 	rts
 
