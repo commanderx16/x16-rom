@@ -108,6 +108,7 @@ lfn_buf:             .res 20*32    ; create/collect LFN; 20 dirents (13c * 20 > 
 fat32_dirent:        .tag dirent   ; Buffer containing decoded directory entry
 fat32_size:          .res 4        ; Used for fat32_read, fat32_write, fat32_get_offset, fat32_get_free_space
 fat32_errno:         .byte 0       ; Last error
+fat32_readonly:      .byte 0       ; User-accessible read-only flag
 
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
@@ -268,6 +269,19 @@ load_sector_buffer:
 	jmp set_errno
 
 ;-----------------------------------------------------------------------------
+; write_sector
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+write_sector:
+	lda fat32_readonly
+	bne @error
+	jmp sdcard_write_sector
+
+@error:	lda #ERRNO_WRITE_PROTECT_ON
+	jmp set_errno
+
+;-----------------------------------------------------------------------------
 ; save_sector_buffer
 ;
 ; * c=0: failure; sets errno
@@ -288,14 +302,14 @@ save_sector_buffer:
 	; Write second FAT
 	set32 tmp_buf, sector_lba
 	add32 sector_lba, sector_lba, cur_volume + fs::fat_size
-	jsr sdcard_write_sector
+	jsr write_sector
 	php
 	set32 sector_lba, tmp_buf
 	plp
 	bcc @error_write
 
 @normal:
-	jsr sdcard_write_sector
+	jsr write_sector
 	bcc @error_write
 
 	; Clear dirty bit
@@ -816,7 +830,7 @@ clear_cluster:
 	; Write sectors
 	jsr calc_cluster_lba
 @2:	set32 sector_lba, cur_context + context::lba
-	jsr sdcard_write_sector
+	jsr write_sector
 	bcs @3
 	rts
 @3:	lda cur_context + context::cluster_sector

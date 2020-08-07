@@ -129,7 +129,8 @@ create_fat32_path_only_name:
 ;---------------------------------------------------------------
 initialize:
 	FAT32_CONTEXT_START
-	; TODO: (re-)mount
+	; just allocating the context with the medium
+	; will trigger a mount
 	FAT32_CONTEXT_END
 	lda #0
 	rts
@@ -161,6 +162,9 @@ validate:
 ;   message (code $0x) explains what's going on.
 ; * The "N" command has to be sent twice. The first time, an
 ;   informational status message explains what's going on.
+; * As an extension to the "W-0"/"W-1" commands, a "W-N" command
+;   could be added, which enables formatting in the very next
+;   command only.
 ;
 ; In:   medium  medium
 ;       r0      name
@@ -169,7 +173,7 @@ validate:
 ;---------------------------------------------------------------
 new:
 	; TODO: mkfs
-	lda #$31
+	lda #$26 ; write protect on (=formatting not allowed)
 	rts
 
 ;---------------------------------------------------------------
@@ -700,6 +704,17 @@ file_restore:
 	; but overwrites the first character. The user provides
 	; the full filename to this function though.
 	lda #$31
+	rts
+
+;---------------------------------------------------------------
+; write_protect
+;
+; In:   a    =0: write protect off
+;            =1: write protect on
+;---------------------------------------------------------------
+write_protect:
+	sta fat32_readonly
+	lda #0
 	rts
 
 ;---------------------------------------------------------------

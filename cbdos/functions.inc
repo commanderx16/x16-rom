@@ -20,6 +20,7 @@
 .global file_lock_toggle
 .global file_unlock
 .global file_restore
+.global write_protect
 .global get_partition
 .global get_diskchange
 .global memory_read
