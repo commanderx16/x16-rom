@@ -12,7 +12,7 @@
 
 ; parser.s
 .import find_wildcards
-.import file_mode
+.import file_type, file_mode
 .import unix_path
 .import create_unix_path
 .import medium
@@ -61,6 +61,18 @@ file_open:
 	lda #$34 ; syntax error (empty filename)
 	jmp @open_file_err3
 :
+
+	; type and mode defaults
+	lda file_type
+	bne :+
+	lda #'S'
+	sta file_type
+:	lda file_mode
+	bne :+
+	lda #'R'
+	sta file_mode
+:
+
 	jsr alloc_context
 	bcs @alloc_ok
 

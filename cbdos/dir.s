@@ -17,6 +17,7 @@
 
 .import parse_cbmdos_filename
 .import buffer
+.import file_type, filter0, filter1
 
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"
@@ -232,7 +233,8 @@ read_dir_entry:
 	rts
 
 @read_entry:
-
+	; XXX this assumes the filename or command are not
+	; XXX overwritten while reading a directory
 	jsr create_fat32_path_only_name
 
 	bit part_index
@@ -260,9 +262,35 @@ read_dir_entry:
 	jmp @dir_end
 :	jmp @read_dir_entry_end
 
-@found:	;lda fat32_dirent + dirent::name
-	;cmp #'.' ; hide "." and ".."
-	;beq @read_entry
+@found:
+	; Skip hidden entries unless option 'A' ("ALL") is given
+	lda fat32_dirent + dirent::attributes
+	and #2
+	beq @show1
+	lda #'A'
+	jsr has_filter
+	bne @read_entry
+@show1:
+
+	; Skip files if type is 'D' ("DIR")
+	lda fat32_dirent + dirent::attributes
+	and #$10
+	bne @show2
+	lda #'D'
+	jsr has_filter
+	beq @read_entry
+@show2:
+
+	; Skip directories if type is 'P' ("PRG")
+	lda fat32_dirent + dirent::attributes
+	and #$10
+	beq @show3
+	lda #'P'
+	jsr has_filter
+	beq @read_entry
+@show3:
+
+
 
 	ldy #0
 	lda #1
@@ -475,6 +503,11 @@ read_dir_entry:
 	clc ; ok
 	rts
 
+has_filter:
+	cmp filter0
+	beq @yes
+	cmp filter1
+@yes:	rts
 
 txt_tables:
 
