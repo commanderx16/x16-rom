@@ -186,11 +186,12 @@ fat32_mkfs:
 	sta sector_buffer + $1ff
 
 	; Calculate free clusters
-	; ceil((sector_count - 2 * fat_size) / sectors_per_cluster)
+	; ceil((sector_count - 2 * fat_size - RESERV_SECT - 1) / sectors_per_cluster)
 
 	; sector_count - 2 * fat_size
 	sub32 sector_buffer + $1e8, fat32_dirent + dirent::size, fat_size
 	sub32 sector_buffer + $1e8, sector_buffer + $1e8, fat_size
+@xxx1:	sub32_val sector_buffer + $1e8, sector_buffer + $1e8, RESERV_SECT + 1
 
 	; divide by sectors_per_cluster
 	ldx sectors_per_cluster_shift

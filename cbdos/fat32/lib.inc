@@ -60,16 +60,16 @@
 .endmacro
 
 .macro set16_val dst, val
-.if .const(val) && <val = 0
+.if .const(val) && <(val) = 0
 	stz dst + 0
 .else
-	lda #<val
+	lda #<(val)
 	sta dst + 0
 .endif
-.if .const(val) && >val = 0
+.if .const(val) && >(val) = 0
 	stz dst + 1
 .else
-	lda #>val
+	lda #>(val)
 	sta dst + 1
 .endif
 .endmacro
@@ -112,10 +112,10 @@
 .macro add16_val dst, src, val
 	clc
 	lda src + 0
-	adc #<val
+	adc #<(val)
 	sta dst + 0
 	lda src + 1
-	adc #>val
+	adc #>(val)
 	sta dst + 1
 .endmacro
 
@@ -139,11 +139,11 @@
 .macro sub16_val dst, src, val
 	sec
 	lda src + 0
-	sbc #<val
+	sbc #<(val)
 	sta dst + 0
 
 	lda src + 1
-	sbc #>val
+	sbc #>(val)
 	sta dst + 1
 .endmacro
 
@@ -233,13 +233,13 @@
 ;-----------------------------------------------------------------------------
 .macro cmp16_val_ne src, val, lbl_not_equal
 	lda src + 0
-.if !(.const(val) && <val = 0)
-	cmp #<val
+.if !(.const(val) && <(val) = 0)
+	cmp #<(val)
 .endif
 	bne lbl_not_equal
 	lda src + 1
-.if !(.const(val) && >val = 0)
-	cmp #>val
+.if !(.const(val) && >(val) = 0)
+	cmp #>(val)
 .endif
 	bne lbl_not_equal
 .endmacro
@@ -247,13 +247,13 @@
 .macro cmp16_val_eq src, val, lbl_equal
 	.local @1
 	lda src + 0
-.if !(.const(val) && <val = 0)
-	cmp #<val
+.if !(.const(val) && <(val) = 0)
+	cmp #<(val)
 .endif
 	bne @1
 	lda src + 1
-.if !(.const(val) && >val = 0)
-	cmp #>val
+.if !(.const(val) && >(val) = 0)
+	cmp #>(val)
 .endif
 	beq lbl_equal
 @1:
@@ -262,11 +262,11 @@
 .macro cmp16_val_lt src, val, lbl
 	.local @1
 	lda src + 1
-	cmp #>val
+	cmp #>(val)
 	bcc lbl
 	bne @1
 	lda src + 0
-	cmp #<val
+	cmp #<(val)
 	bcc lbl
 @1:
 .endmacro
@@ -274,11 +274,11 @@
 .macro cmp16_val_ge src, val, lbl
 	.local @1
 	lda src + 1
-	cmp #>val
+	cmp #>(val)
 	bcc @1
 	bne lbl
 	lda src + 0
-	cmp #<val
+	cmp #<(val)
 	bcs lbl
 @1:
 .endmacro
@@ -302,22 +302,22 @@
 ; Set 32-bit variable
 ;-----------------------------------------------------------------------------
 .macro set32_val dst, val
-.if .const(val) && <val = 0
+.if .const(val) && <(val) = 0
 	stz dst + 0
 .else
-	lda #<val
+	lda #<(val)
 	sta dst + 0
 .endif
-.if .const(val) && >val = 0
+.if .const(val) && >(val) = 0
 	stz dst + 1
 .else
-	lda #>val
+	lda #>(val)
 	sta dst + 1
 .endif
-.if .const(val) && ^val = 0
+.if .const(val) && ^(val) = 0
 	stz dst + 2
 .else
-	lda #^val
+	lda #^(val)
 	sta dst + 2
 .endif
 .if .const(val) && (.hibyte(.hiword(val))) = 0
@@ -353,15 +353,15 @@
 .macro add32_val dst, src, val
 	clc
 	lda src + 0
-	adc #<val
+	adc #<(val)
 	sta dst + 0
 
 	lda src + 1
-	adc #>val
+	adc #>(val)
 	sta dst + 1
 
 	lda src + 2
-	adc #^val
+	adc #^(val)
 	sta dst + 2
 
 	lda src + 3
@@ -464,15 +464,15 @@
 .macro sub32_val dst, src, val
 	sec
 	lda src + 0
-	sbc #<val
+	sbc #<(val)
 	sta dst + 0
 
 	lda src + 1
-	sbc #>val
+	sbc #>(val)
 	sta dst + 1
 
 	lda src + 2
-	sbc #^val
+	sbc #^(val)
 	sta dst + 2
 
 	lda src + 3
@@ -548,10 +548,10 @@
 .endmacro
 
 .macro set24_val dst, val
-	lda #<val
+	lda #<(val)
 	sta dst + 0
-	lda #>val
+	lda #>(val)
 	sta dst + 1
-	lda #^val
+	lda #^(val)
 	sta dst + 2
 .endmacro
