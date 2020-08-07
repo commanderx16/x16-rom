@@ -13,37 +13,6 @@ fat32_mkfs:
 	bcs @error
 	set32 cur_volume + fs::lba_partition, fat32_dirent + dirent::start
 
-	; $0000   3  $eb, $58, $90
-	; $0003   8  OEM name
-	; $000b   2  bytes per sector ($00, $02)
-	; $000d   1 *sectors per cluster
-	; $000e   2  reserved sectors ($20, $00)
-	; $0010   1  number of FATs ($02)
-	; $0011   2  unused ($00, $00)
-	; $0013   2  unused ($00, $00)
-	; $0015   1  media descriptor ($f8)
-	; $0016   2  unused ($00, $00)
-	; $0018   2 *sectors per track
-	; $001A   2 *heads
-	; $001C   4  hidden sectors ($00, $00, $00, $00)
-	; $0020   4 *total sectors
-	; $0024   4 *sectors per FAT
-	; $0028   2  drive description ($00, $00)
-	; $002A   2  version ($00, $00)
-	; $002C   4  root dir start cluster ($02, $00, $00, $00)
-	; $0030   2  LBA FS Information Sector ($01, $00)
-	; $0032   2  LBA boot sectors copy ($06, $00)
-	; $0034  12  reserved ($00, ...)
-	; $0040   1  physical drive number ($80)
-	; $0041   1  unused ($00)
-	; $0042   1  extended boot signature ($29)
-	; $0043   4 *volume ID
-	; $0047  11 *volume label
-	; $0052   8  filesystem type ($46, $41, $54, $33, $32, $20, $20, $20)
-	; $01FE   2  signature ($55, $AA)
-
-	jsr clear_buffer
-
 	; heads/sectors
 	; * <= 1M sectors: 64 heads and 32 sectors
 	; * >  1M sectors: 255 heads and 63 sectors
@@ -63,11 +32,57 @@ fat32_mkfs:
 	sty sectors
 
 	; Calculate sectors per cluster
+	lda #1
+	sta sectors_per_cluster
 
+	; Calculate sectors per FAT
 
+	; Create bootsector template
+	jsr clear_buffer
+	ldx #bootsector_template_size
+@tpl:	lda bootsector_template, x
+	sta buffer, x
+	dex
+	bpl @tpl
 
 	rts
 
 @error:
 	clc
 	rts
+
+bootsector_template:
+	.byte $eb, $58, $90 ; $0000   3  x86 jump
+	.byte "CBDOS   "    ; $0003   8  OEM name
+	.word 512           ; $000b   2  bytes per sector
+	.byte 0             ; $000d   1 *sectors per cluster
+	.word 32            ; $000e   2  reserved sectors
+	.byte 2             ; $0010   1  number of FATs
+	.word 0             ; $0011   2  unused
+	.word 0             ; $0013   2  unused
+	.byte $f8           ; $0015   1  media descriptor
+	.word 0             ; $0016   2  unused
+o_sectors_per_track = * - bootsector_template
+	.word 0             ; $0018   2 *sectors per track
+o_heads = * - bootsector_template
+	.word 0             ; $001A   2 *heads
+	.dword 0            ; $001C   4  hidden sectors
+o_sector_count = * - bootsector_template
+	.dword 0            ; $0020   4 *total sectors
+o_fat_size = * - bootsector_template
+	.dword 0            ; $0024   4 *sectors per FAT
+	.word 0             ; $0028   2  drive description
+	.word 0             ; $002A   2  version
+	.dword 2            ; $002C   4  root dir start cluster
+	.word 1             ; $0030   2  LBA FS Information Sector
+	.word 6             ; $0032   2  LBA boot sectors copy
+	.res 12, 0          ; $0034  12  reserved
+	.byte $80           ; $0040   1  physical drive number
+	.byte 0             ; $0041   1  unused
+	.byte $29           ; $0042   1  extended boot signature
+o_vol_id = * - bootsector_template
+	.dword 0            ; $0043   4 *volume ID
+o_vol_label = * - bootsector_template
+	.res 11, 0          ; $0047  11 *volume label
+	.byte "FAT32   "    ; $0052   8  filesystem type
+bootsector_template_size = * - bootsector_template
