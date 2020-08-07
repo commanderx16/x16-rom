@@ -174,12 +174,21 @@ validate:
 new:
 	;lda #$26 ; write protect on (=formatting not allowed)
 
-	FAT32_CONTEXT_START
+	lda #$ff
+	jsr fat32_alloc_context
+	bcc @error1
+	pha
 	jsr fat32_mkdir
-	bcc convert_status_end_context
-	FAT32_CONTEXT_END
+	pla
+	bcc @error2
+	jsr fat32_free_context
 	lda #0
 	rts
+
+@error2:
+	jsr fat32_free_context
+@error1:
+	jmp convert_errno_status
 
 ;---------------------------------------------------------------
 ; scratch

@@ -3,20 +3,54 @@
 ; Copyright (C) 2020 Michael Steil
 ;-----------------------------------------------------------------------------
 
-.import load_mbr_sector, clear_buffer
+.include "lib.inc"
+
+; sdcard.s
+.import sector_lba, sector_buffer
+
+; fat32.s
+.import load_mbr_sector, write_sector, clear_buffer, fat32_dirent, fat32_get_ptable_entry
+
+.bss
+
+sectors_per_cluster_shift:
+	.byte 0
+lba_partition:
+	.dword 0
+
+.code
 
 fat32_mkfs:
-
 	; Get start and size of partition
 	lda #0  ; XXX MBR primary partition 1
 	jsr fat32_get_ptable_entry
-	bcs @error
-	set32 cur_volume + fs::lba_partition, fat32_dirent + dirent::start
+	bcs @ok
+@error:
+	clc
+	rts
 
-	; heads/sectors
+@ok:	set32 lba_partition, fat32_dirent + dirent::start
+
+	; Create bootsector template
+	jsr clear_buffer
+	ldx #bootsector_template_size
+@tpl:	lda bootsector_template, x
+	sta sector_buffer, x
+	dex
+	bpl @tpl
+
+	; Set signature
+	lda #$55
+	sta sector_buffer + $1fe
+	asl
+	sta sector_buffer + $1ff
+
+	; Set sector count
+	set32 sector_buffer + o_sector_count, fat32_dirent + dirent::size
+
+	; Calculate heads/sectors
 	; * <= 1M sectors: 64 heads and 32 sectors
 	; * >  1M sectors: 255 heads and 63 sectors
-
 	lda fat32_dirent + dirent::size + 2
 	sec
 	sbc #$10
@@ -28,33 +62,89 @@ fat32_mkfs:
 	bra @hs2
 @hs1:	ldx #255
 	ldy #63
-@hs2:	stx heads
-	sty sectors
+@hs2:	stx sector_buffer + o_heads
+	sty o_heads + o_sectors_per_track
 
 	; Calculate sectors per cluster
+	ldx #0 ; XXX fixed: 1
+	stx sectors_per_cluster_shift
 	lda #1
-	sta sectors_per_cluster
+@spc1:	cpx #0
+	beq @spc2
+	asl
+	dex
+	bra @spc1
+@spc2:	sta sector_buffer + o_sectors_per_cluster
 
 	; Calculate sectors per FAT
+	; naive formula:
+	; * cluster_count = ceil(sector_count / sectors_per_cluster)
+	; * fat_size = ceil(cluster_count / 128)
 
-	; Create bootsector template
-	jsr clear_buffer
-	ldx #bootsector_template_size
-@tpl:	lda bootsector_template, x
-	sta buffer, x
-	dex
-	bpl @tpl
-
-	rts
-
-@error:
+	; add sectors_per_cluster - 1
+	lda sector_buffer + o_sector_count + 0
+	dec sector_buffer + o_sectors_per_cluster
 	clc
+	adc sector_buffer + o_sectors_per_cluster
+	inc sector_buffer + o_sectors_per_cluster
+	sta sector_buffer + o_fat_size + 0
+	lda sector_buffer + o_sector_count + 1
+	adc #0
+	sta sector_buffer + o_fat_size + 1
+	lda sector_buffer + o_sector_count + 2
+	adc #0
+	sta sector_buffer + o_fat_size + 2
+	lda sector_buffer + o_sector_count + 3
+	adc #0
+	sta sector_buffer + o_fat_size + 3
+
+	; divide by sectors_per_cluster
+	ldx sectors_per_cluster_shift
+@spf1:	cpx #0
+	beq @spf2
+	lsr sector_buffer + o_fat_size + 3
+	ror sector_buffer + o_fat_size + 2
+	ror sector_buffer + o_fat_size + 1
+	ror sector_buffer + o_fat_size + 0
+	dex
+	bra @spf1
+@spf2:
+
+	; add 127, divide by 128
+	lda sector_buffer + o_fat_size
+	clc
+	adc #127
+	tax
+	lda sector_buffer + o_fat_size + 1
+	adc #0
+	sta sector_buffer + o_fat_size
+	lda sector_buffer + o_fat_size + 2
+	adc #0
+	sta sector_buffer + o_fat_size + 1
+	lda sector_buffer + o_fat_size + 3
+	adc #0
+	sta sector_buffer + o_fat_size + 2
+	stz sector_buffer + o_fat_size + 2
+	txa
+	asl
+	rol sector_buffer + o_fat_size
+	rol sector_buffer + o_fat_size + 1
+	rol sector_buffer + o_fat_size + 2
+	rol sector_buffer + o_fat_size + 3
+
+	; write boot sector
+	set32 sector_lba, lba_partition
+	jsr write_sector
+;	bcc @error
+
 	rts
+
 
 bootsector_template:
 	.byte $eb, $58, $90 ; $0000   3  x86 jump
 	.byte "CBDOS   "    ; $0003   8  OEM name
 	.word 512           ; $000b   2  bytes per sector
+o_sectors_per_cluster = * - bootsector_template
 	.byte 0             ; $000d   1 *sectors per cluster
 	.word 32            ; $000e   2  reserved sectors
 	.byte 2             ; $0010   1  number of FATs
