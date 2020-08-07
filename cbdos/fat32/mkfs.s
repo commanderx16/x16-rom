@@ -186,12 +186,13 @@ fat32_mkfs:
 	sta sector_buffer + $1ff
 
 	; Calculate free clusters
-	; ceil((sector_count - 2 * fat_size - RESERV_SECT - 1) / sectors_per_cluster)
+	; floor((sector_count - RESERV_SECT - 2 * fat_size) / sectors_per_cluster) - 1
+	;                                                        directory cluster ^^^
 
-	; sector_count - 2 * fat_size
+	; sector_count - 2 * fat_size - RESERV_SECT
 	sub32 sector_buffer + $1e8, fat32_dirent + dirent::size, fat_size
 	sub32 sector_buffer + $1e8, sector_buffer + $1e8, fat_size
-@xxx1:	sub32_val sector_buffer + $1e8, sector_buffer + $1e8, RESERV_SECT + 1
+	sub32_val sector_buffer + $1e8, sector_buffer + $1e8, RESERV_SECT
 
 	; divide by sectors_per_cluster
 	ldx sectors_per_cluster_shift
@@ -204,6 +205,8 @@ fat32_mkfs:
 	dex
 	bra @fc1
 @fc2:
+	; - 1 (directory cluster)
+	dec32 sector_buffer + $1e8
 
 	; Set last allocated data cluster
 	lda #2
