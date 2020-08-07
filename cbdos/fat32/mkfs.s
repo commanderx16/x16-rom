@@ -206,9 +206,44 @@ fat32_mkfs:
 	lda #2
 	sta sector_buffer + $1ec
 
-
 	; write FS information sector
 	add32_val sector_lba, lba_partition, 1
+	jsr write_sector
+	bcs :+
+	jmp @error2
+:
+	; FAT
+	jsr clear_buffer
+	; FAT ID: F8 FF FF 0F
+	lda #$f8
+	sta sector_buffer + 0
+	lda #$ff
+	sta sector_buffer + 1
+	sta sector_buffer + 2
+	lda #$0f
+	sta sector_buffer + 3
+	; End of chain indicator: FF FF FF 0F
+	lda #$ff
+	sta sector_buffer + 4
+	sta sector_buffer + 5
+	sta sector_buffer + 6
+	lda #$0f
+	sta sector_buffer + 7
+	; F8 FF FF 0F
+	lda #$f8
+	sta sector_buffer + 8
+	lda #$ff
+	sta sector_buffer + 9
+	sta sector_buffer + 10
+	lda #$0f
+	sta sector_buffer + 11
+
+	; Write FAT
+	add32_val sector_lba, lba_partition, 32
+	jsr write_sector
+	bcc @error2
+
+	add32 sector_lba, lba_partition, fat_size
 	jsr write_sector
 	bcc @error2
 
