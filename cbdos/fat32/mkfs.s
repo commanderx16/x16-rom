@@ -65,7 +65,7 @@ fat32_mkfs:
 @hs1:	ldx #255
 	ldy #63
 @hs2:	stx sector_buffer + o_heads
-	sty o_heads + o_sectors_per_track
+	sty sector_buffer + o_sectors_per_track
 
 	; Calculate sectors per cluster
 	ldx #0 ; XXX fixed: 1
