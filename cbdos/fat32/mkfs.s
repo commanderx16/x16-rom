@@ -23,6 +23,8 @@ lba_partition:
 	.dword 0
 fat_size:
 	.dword 0
+fat_size_count:
+	.dword 0
 
 .code
 
@@ -244,13 +246,25 @@ fat32_mkfs:
 	lda #$0f
 	sta sector_buffer + 11
 
-	; Write FAT
+	; Write first sector of FAT
 	add32_val sector_lba, lba_partition, RESERV_SECT
 	jsr write_sector
 	bcc @error2
 
-	; Write second FAT
+	; Write first sector of second FAT
 	add32 sector_lba, sector_lba, fat_size
+	jsr write_sector
+	bcc @error2
+
+	; Clear remainder of FAT
+	jsr clear_buffer
+	add32_val sector_lba, lba_partition, RESERV_SECT
+	jsr write_empty_fat_sectors
+	bcc @error2
+	jsr write_empty_fat_sectors
+	bcc @error2
+
+	; Clear root directory
 	jsr write_sector
 	bcc @error2
 
@@ -259,6 +273,18 @@ fat32_mkfs:
 @error2:
 	clc
 	rts
+
+write_empty_fat_sectors:
+	set32 fat_size_count, fat_size
+@ef1:	inc32 sector_lba
+	dec32 fat_size_count
+	cmp32_z fat_size_count, @ef2
+	jsr write_sector
+	bcc @error
+	bra @ef1
+@ef2:	sec
+@error:	rts
+
 
 bootsector_template:
 	.byte $eb, $58, $90 ; $0000   3  x86 jump
