@@ -348,6 +348,28 @@
 .endmacro
 
 ;-----------------------------------------------------------------------------
+; Add immediate value to 32-bit variable
+;-----------------------------------------------------------------------------
+.macro add32_val dst, src, val
+	clc
+	lda src + 0
+	adc #<val
+	sta dst + 0
+
+	lda src + 1
+	adc #>val
+	sta dst + 1
+
+	lda src + 2
+	adc #^val
+	sta dst + 2
+
+	lda src + 3
+	adc #(.hibyte(.hiword(val)))
+	sta dst + 3
+.endmacro
+
+;-----------------------------------------------------------------------------
 ; Compare two 32-bit variables
 ;-----------------------------------------------------------------------------
 .macro cmp32_ne src_a, src_b, lbl_not_equal

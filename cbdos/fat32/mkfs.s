@@ -155,9 +155,14 @@ fat32_mkfs:
 	set32 sector_lba, lba_partition
 	jsr write_sector
 	bcs @ok2
+@error3:
 	rts
+@ok2:
+	add32_val sector_lba, sector_lba, 6
+	jsr write_sector
+	bcc @error3
 
-@ok2:	; FS Information Sector
+	; FS Information Sector
 	jsr clear_buffer
 	lda #$52
 	sta sector_buffer + 0
@@ -203,7 +208,7 @@ fat32_mkfs:
 
 
 	; write FS information sector
-	inc32 sector_lba
+	add32_val sector_lba, lba_partition, 1
 	jsr write_sector
 	bcc @error2
 
