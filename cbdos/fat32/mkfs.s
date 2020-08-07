@@ -11,6 +11,8 @@
 ; fat32.s
 .import load_mbr_sector, write_sector, clear_buffer, fat32_dirent, fat32_get_ptable_entry
 
+.export fat32_mkfs
+
 .bss
 
 sectors_per_cluster_shift:

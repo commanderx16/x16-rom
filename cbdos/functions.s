@@ -178,7 +178,7 @@ new:
 	jsr fat32_alloc_context
 	bcc @error1
 	pha
-	jsr fat32_mkdir
+	jsr fat32_mkfs
 	pla
 	bcc @error2
 	jsr fat32_free_context
