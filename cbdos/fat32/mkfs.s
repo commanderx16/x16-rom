@@ -13,6 +13,8 @@
 
 .export fat32_mkfs
 
+RESERV_SECT = 32
+
 .bss
 
 sectors_per_cluster_shift:
@@ -139,7 +141,7 @@ fat32_mkfs:
 	set32 sector_buffer + o_fat_size, fat_size
 
 	; Set volume label
-@xxx1:	lda fat32_ptr
+	lda fat32_ptr
 	ora fat32_ptr + 1
 	beq @vl2
 	ldy #0
@@ -239,11 +241,12 @@ fat32_mkfs:
 	sta sector_buffer + 11
 
 	; Write FAT
-	add32_val sector_lba, lba_partition, 32
+	add32_val sector_lba, lba_partition, RESERV_SECT
 	jsr write_sector
 	bcc @error2
 
-	add32 sector_lba, lba_partition, fat_size
+	; Write second FAT
+	add32 sector_lba, sector_lba, fat_size
 	jsr write_sector
 	bcc @error2
 
@@ -259,7 +262,7 @@ bootsector_template:
 	.word 512           ; $000b   2  bytes per sector
 o_sectors_per_cluster = * - bootsector_template
 	.byte 0             ; $000d   1 *sectors per cluster
-	.word 32            ; $000e   2  reserved sectors
+	.word RESERV_SECT   ; $000e   2  reserved sectors
 	.byte 2             ; $0010   1  number of FATs
 	.word 0             ; $0011   2  unused
 	.word 0             ; $0013   2  unused
