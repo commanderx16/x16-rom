@@ -172,8 +172,13 @@ validate:
 ;       a       format (1st char)
 ;---------------------------------------------------------------
 new:
-	; TODO: mkfs
-	lda #$26 ; write protect on (=formatting not allowed)
+	;lda #$26 ; write protect on (=formatting not allowed)
+
+	FAT32_CONTEXT_START
+	jsr fat32_mkdir
+	bcc convert_status_end_context
+	FAT32_CONTEXT_END
+	lda #0
 	rts
 
 ;---------------------------------------------------------------

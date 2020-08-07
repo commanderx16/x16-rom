@@ -6,7 +6,6 @@
 ; TODO:
 ; - implement fat32_seek
 ; - implement timestamps
-; - implement volume label
 ;-----------------------------------------------------------------------------
 
 	.include "fat32.inc"
@@ -814,18 +813,25 @@ readsector:
 @done:	rts
 
 ;-----------------------------------------------------------------------------
+; clear_buffer
+;-----------------------------------------------------------------------------
+clear_buffer:
+	ldy #0
+	tya
+@1:	sta sector_buffer, y
+	sta sector_buffer + 256, y
+	iny
+	bne @1
+	rts
+
+;-----------------------------------------------------------------------------
 ; clear_cluster
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 clear_cluster:
 	; Fill sector buffer with 0
-	lda #0
-	ldy #0
-@1:	sta sector_buffer, y
-	sta sector_buffer + 256, y
-	iny
-	bne @1
+	jsr clear_buffer
 
 	; Write sectors
 	jsr calc_cluster_lba
@@ -3279,3 +3285,6 @@ fat32_get_ptable_entry:
 @done:
 	sec
 	rts
+
+; mkfs.s
+.export load_mbr_sector, clear_buffer

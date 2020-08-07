@@ -19,6 +19,7 @@
 
 ; Partition table operations
 .global fat32_get_ptable_entry  ; Get partition table entry in A (0+) into fat32_dirent
+.global fat32_mkdir
 
 ; Directory operations
 .global fat32_open_dir          ; Open directory with path in fat32_ptr
