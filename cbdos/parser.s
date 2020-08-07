@@ -15,9 +15,10 @@
 
 ; functions.s
 .export medium, medium1, unix_path, create_unix_path, append_unix_path_b
-.export create_unix_path_only_dir, create_unix_path_only_name, is_filename_empty
+.export create_unix_path_only_dir, create_unix_path_only_name, append_unix_path_only_name, is_filename_empty
 
 .export file_type, file_mode, filter0, filter1
+.export r2s, r2e
 
 ; file.s
 .export overwrite_flag
@@ -570,6 +571,7 @@ create_unix_path_only_dir:
 
 create_unix_path_only_name:
 	ldy #0
+append_unix_path_only_name:
 	ldx r1s
 	lda r1e
 	jsr copy_chars
@@ -1148,7 +1150,7 @@ cmd_n:
 	sec
 	jsr split
 
-	; remove [,FMT] from ID
+	; split ID[,FMT] into ID and FMT
 	; and extract first char of FMT
 	ldx r1s
 	ldy r1e
@@ -1160,11 +1162,14 @@ cmd_n:
 	inx
 	cpx r1e
 	beq @no_fmt
-	lda buffer,x
+	stx r2s
+	sty r2e
 	bra @end
 
 @no_fmt:
-	lda #0 ; no FMT
+	stz r2s
+	stz r2e
+
 @end:	jsr new
 	clc
 	rts

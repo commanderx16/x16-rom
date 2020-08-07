@@ -136,6 +136,7 @@ KEYMAP_SOURCES = \
 
 CBDOS_SOURCES = \
 	cbdos/fat32/fat32.s \
+	cbdos/fat32/mkfs.s \
 	cbdos/fat32/sdcard.s \
 	cbdos/fat32/text_input.s \
 	cbdos/zeropage.s \

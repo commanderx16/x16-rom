@@ -12,6 +12,7 @@
 
 ; parser.s
 .import medium, medium1, unix_path, unix_path2, create_unix_path, append_unix_path_b
+.import r2s, r2e
 
 ; main.s
 .export cur_medium
@@ -26,7 +27,7 @@
 .export alloc_context
 
 .export create_fat32_path_only_dir, create_fat32_path_only_name
-.import create_unix_path_only_dir, create_unix_path_only_name
+.import create_unix_path_only_dir, create_unix_path_only_name, append_unix_path_only_name
 
 .import buffer
 
@@ -73,9 +74,12 @@ create_fat32_path:
 	sta fat32_ptr + 1
 	jmp create_unix_path
 
-create_fat32_path_x2:
-	jsr create_fat32_path
-
+create_fat32_path_r0r1:
+	lda #<unix_path
+	sta fat32_ptr + 0
+	lda #>unix_path
+	sta fat32_ptr + 1
+	jsr create_unix_path_only_dir
 	tya
 	clc
 	adc #<unix_path
@@ -83,7 +87,17 @@ create_fat32_path_x2:
 	lda #>unix_path
 	adc #0
 	sta fat32_ptr2 + 1
+	jmp append_unix_path_only_name
 
+create_fat32_path_x2:
+	jsr create_fat32_path
+	tya
+	clc
+	adc #<unix_path
+	sta fat32_ptr2 + 0
+	lda #>unix_path
+	adc #0
+	sta fat32_ptr2 + 1
 	jmp append_unix_path_b
 
 ;---------------------------------------------------------------
@@ -151,30 +165,88 @@ validate:
 ;---------------------------------------------------------------
 ; new
 ;
-; This is the "N" command, which should initialize a filesystem.
+; This is the "N" command, which initializes a filesystem.
 ; FAT32 filesystems are large, so formatting is a rarely used
 ; and very dangerous function. Therefore, the standard syntax
-; (NAME or NAME,ID) should not initialize the filesystem just
-; yet. Here are a few ideas:
-; * There has to be a format argument: "NAME,ID,FORMAT" - the
-;   function is only actually performed if the format is 'Y'.
-;   (as in "Yes, I'm sure.") Otherwise, an informational status
-;   message (code $0x) explains what's going on.
-; * The "N" command has to be sent twice. The first time, an
-;   informational status message explains what's going on.
-; * As an extension to the "W-0"/"W-1" commands, a "W-N" command
-;   could be added, which enables formatting in the very next
-;   command only.
+; ("NAME" or "NAME,ID") should not initialize the filesystem
+; just yet. CMD devices add an optional ",FORMAT" argument,
+; which is madatory in this implementation and has to say
+; "FAT32", with an optional CHR$(sectors_per_cluster) appended.
 ;
 ; In:   medium  medium
 ;       r0      name
 ;       r1      id
-;       a       format (1st char)
+;       r2      format
 ;---------------------------------------------------------------
 new:
-	; TODO: mkfs
-	lda #$26 ; write protect on (=formatting not allowed)
+@sectors_per_cluster  = tmp0
+	jsr create_fat32_path_r0r1
+
+	; for safety, formatting current partition is not allowed
+	ldx medium
+	bne @1
+	lda #$77 ; selected partition illegal
 	rts
+@1:
+
+	; Check for "FAT32" format
+	ldx r2s
+	ldy #0
+@2:	cpy #txt_fat32_len
+	beq @ok
+	cpx r2e
+	beq @error_format
+	lda buffer,x
+	cmp txt_fat32,y
+	bne @error_format
+	inx
+	iny
+	bra @2
+@ok:
+
+	lda #0 ; default number of sectors per cluster
+	cpx r2e
+	beq @3
+	lda buffer,x
+@3:	sta @sectors_per_cluster
+
+	lda #$ff
+	jsr fat32_alloc_context
+	bcc @error1
+	pha
+
+	lda #<txt_oemname
+	sta fat32_bufptr
+	lda #>txt_oemname
+	sta fat32_bufptr + 1
+
+	lda medium
+	dec
+	ldx @sectors_per_cluster
+	jsr fat32_mkfs
+	pla
+	bcc @error2
+	jsr fat32_free_context
+	lda #0
+	rts
+
+@error2:
+	jsr fat32_free_context
+@error1:
+	lda fat32_errno
+	cmp #ERRNO_FS_INCONSISTENT
+	beq @error_format
+	jmp convert_errno_status
+
+@error_format:
+	lda #$75 ; format error
+	rts
+
+txt_fat32:
+	.byte "FAT32"
+txt_fat32_len = * - txt_fat32
+txt_oemname:
+	.byte "CBDOS1.0", 0
 
 ;---------------------------------------------------------------
 ; scratch

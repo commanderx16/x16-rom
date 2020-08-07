@@ -6,7 +6,6 @@
 ; TODO:
 ; - implement fat32_seek
 ; - implement timestamps
-; - implement volume label
 ;-----------------------------------------------------------------------------
 
 	.include "fat32.inc"
@@ -19,6 +18,9 @@
 	.import filename_char_ucs2_to_internal, filename_char_internal_to_ucs2
 	.import filename_cp437_to_internal, filename_char_internal_to_cp437
 	.import match_name, match_type
+
+	; mkfs.s
+	.export load_mbr_sector, write_sector, clear_buffer, set_errno
 
 
 FLAG_IN_USE = 1<<0  ; Context in use
@@ -814,18 +816,25 @@ readsector:
 @done:	rts
 
 ;-----------------------------------------------------------------------------
+; clear_buffer
+;-----------------------------------------------------------------------------
+clear_buffer:
+	ldy #0
+	tya
+@1:	sta sector_buffer, y
+	sta sector_buffer + 256, y
+	iny
+	bne @1
+	rts
+
+;-----------------------------------------------------------------------------
 ; clear_cluster
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 clear_cluster:
 	; Fill sector buffer with 0
-	lda #0
-	ldy #0
-@1:	sta sector_buffer, y
-	sta sector_buffer + 256, y
-	iny
-	bne @1
+	jsr clear_buffer
 
 	; Write sectors
 	jsr calc_cluster_lba

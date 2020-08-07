@@ -17,7 +17,7 @@
 
 .import parse_cbmdos_filename
 .import buffer
-.import file_type, filter0, filter1
+.import file_type, filter0, filter1, medium
 
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"
@@ -118,7 +118,7 @@ dir_open:
 	jsr storedir ; link
 	jsr storedir
 
-	lda #0
+	lda medium
 	bit part_index
 	bmi @not_part1
 	lda #255
@@ -565,6 +565,7 @@ shr10:
 	sta fat32_size + 1
 	lda fat32_size + 3
 	sta fat32_size + 2
+	stz fat32_size + 3
 
 	; >> 2
 	lsr fat32_size + 2
@@ -574,8 +575,4 @@ shr10:
 	ror fat32_size + 1
 	ror fat32_size + 0
 
-	lda fat32_size + 0
-	lda fat32_size + 1
-	lda fat32_size + 2
-	lda fat32_size + 3
 	rts

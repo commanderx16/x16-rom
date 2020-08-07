@@ -60,16 +60,16 @@
 .endmacro
 
 .macro set16_val dst, val
-.if .const(val) && <val = 0
+.if .const(val) && <(val) = 0
 	stz dst + 0
 .else
-	lda #<val
+	lda #<(val)
 	sta dst + 0
 .endif
-.if .const(val) && >val = 0
+.if .const(val) && >(val) = 0
 	stz dst + 1
 .else
-	lda #>val
+	lda #>(val)
 	sta dst + 1
 .endif
 .endmacro
@@ -112,10 +112,10 @@
 .macro add16_val dst, src, val
 	clc
 	lda src + 0
-	adc #<val
+	adc #<(val)
 	sta dst + 0
 	lda src + 1
-	adc #>val
+	adc #>(val)
 	sta dst + 1
 .endmacro
 
@@ -139,11 +139,11 @@
 .macro sub16_val dst, src, val
 	sec
 	lda src + 0
-	sbc #<val
+	sbc #<(val)
 	sta dst + 0
 
 	lda src + 1
-	sbc #>val
+	sbc #>(val)
 	sta dst + 1
 .endmacro
 
@@ -233,13 +233,13 @@
 ;-----------------------------------------------------------------------------
 .macro cmp16_val_ne src, val, lbl_not_equal
 	lda src + 0
-.if !(.const(val) && <val = 0)
-	cmp #<val
+.if !(.const(val) && <(val) = 0)
+	cmp #<(val)
 .endif
 	bne lbl_not_equal
 	lda src + 1
-.if !(.const(val) && >val = 0)
-	cmp #>val
+.if !(.const(val) && >(val) = 0)
+	cmp #>(val)
 .endif
 	bne lbl_not_equal
 .endmacro
@@ -247,13 +247,13 @@
 .macro cmp16_val_eq src, val, lbl_equal
 	.local @1
 	lda src + 0
-.if !(.const(val) && <val = 0)
-	cmp #<val
+.if !(.const(val) && <(val) = 0)
+	cmp #<(val)
 .endif
 	bne @1
 	lda src + 1
-.if !(.const(val) && >val = 0)
-	cmp #>val
+.if !(.const(val) && >(val) = 0)
+	cmp #>(val)
 .endif
 	beq lbl_equal
 @1:
@@ -262,11 +262,11 @@
 .macro cmp16_val_lt src, val, lbl
 	.local @1
 	lda src + 1
-	cmp #>val
+	cmp #>(val)
 	bcc lbl
 	bne @1
 	lda src + 0
-	cmp #<val
+	cmp #<(val)
 	bcc lbl
 @1:
 .endmacro
@@ -274,11 +274,11 @@
 .macro cmp16_val_ge src, val, lbl
 	.local @1
 	lda src + 1
-	cmp #>val
+	cmp #>(val)
 	bcc @1
 	bne lbl
 	lda src + 0
-	cmp #<val
+	cmp #<(val)
 	bcs lbl
 @1:
 .endmacro
@@ -302,22 +302,22 @@
 ; Set 32-bit variable
 ;-----------------------------------------------------------------------------
 .macro set32_val dst, val
-.if .const(val) && <val = 0
+.if .const(val) && <(val) = 0
 	stz dst + 0
 .else
-	lda #<val
+	lda #<(val)
 	sta dst + 0
 .endif
-.if .const(val) && >val = 0
+.if .const(val) && >(val) = 0
 	stz dst + 1
 .else
-	lda #>val
+	lda #>(val)
 	sta dst + 1
 .endif
-.if .const(val) && ^val = 0
+.if .const(val) && ^(val) = 0
 	stz dst + 2
 .else
-	lda #^val
+	lda #^(val)
 	sta dst + 2
 .endif
 .if .const(val) && (.hibyte(.hiword(val))) = 0
@@ -344,6 +344,28 @@
 	sta dst + 2
 	lda src_a + 3
 	adc src_b + 3
+	sta dst + 3
+.endmacro
+
+;-----------------------------------------------------------------------------
+; Add immediate value to 32-bit variable
+;-----------------------------------------------------------------------------
+.macro add32_val dst, src, val
+	clc
+	lda src + 0
+	adc #<(val)
+	sta dst + 0
+
+	lda src + 1
+	adc #>(val)
+	sta dst + 1
+
+	lda src + 2
+	adc #^(val)
+	sta dst + 2
+
+	lda src + 3
+	adc #(.hibyte(.hiword(val)))
 	sta dst + 3
 .endmacro
 
@@ -405,6 +427,47 @@
 .endmacro
 
 ;-----------------------------------------------------------------------------
+; Add 32-bit and 16-bit variable
+;-----------------------------------------------------------------------------
+.macro add32_8 dst, src_a, src_b
+	clc
+
+	lda src_a + 0
+	adc src_b + 0
+	sta dst + 0
+
+	lda src_a + 1
+	adc #0
+	sta dst + 1
+
+	lda src_a + 2
+	adc #0
+	sta dst + 2
+
+	lda src_a + 3
+	adc #0
+	sta dst + 3
+.endmacro
+
+;-----------------------------------------------------------------------------
+; Add 8-bit variable to 32-bit variable
+;-----------------------------------------------------------------------------
+.macro add2_32_8 dst, src
+	.local @1
+	clc
+	lda dst
+	adc src
+	sta dst
+	bcc @1
+	inc dst + 1
+	bne @1
+	inc dst + 2
+	bne @1
+	inc dst + 3
+@1:
+.endmacro
+
+;-----------------------------------------------------------------------------
 ; Increment 32-bit variable
 ;-----------------------------------------------------------------------------
 .macro inc32 dst
@@ -442,15 +505,15 @@
 .macro sub32_val dst, src, val
 	sec
 	lda src + 0
-	sbc #<val
+	sbc #<(val)
 	sta dst + 0
 
 	lda src + 1
-	sbc #>val
+	sbc #>(val)
 	sta dst + 1
 
 	lda src + 2
-	sbc #^val
+	sbc #^(val)
 	sta dst + 2
 
 	lda src + 3
@@ -477,6 +540,28 @@
 
 	lda src_a + 3
 	sbc src_b + 3
+	sta dst + 3
+.endmacro
+
+;-----------------------------------------------------------------------------
+; Subtract two 32-bit variables
+;-----------------------------------------------------------------------------
+.macro sub2_32_8 dst, src
+	sec
+	lda dst + 0
+	sbc src
+	sta dst + 0
+
+	lda dst + 1
+	sbc #0
+	sta dst + 1
+
+	lda dst + 2
+	sbc #0
+	sta dst + 2
+
+	lda dst + 3
+	sbc #0
 	sta dst + 3
 .endmacro
 
@@ -526,10 +611,10 @@
 .endmacro
 
 .macro set24_val dst, val
-	lda #<val
+	lda #<(val)
 	sta dst + 0
-	lda #>val
+	lda #>(val)
 	sta dst + 1
-	lda #^val
+	lda #^(val)
 	sta dst + 2
 .endmacro
