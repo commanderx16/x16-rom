@@ -178,6 +178,7 @@ new:
 	jsr fat32_alloc_context
 	bcc @error1
 	pha
+	jsr create_fat32_path_only_dir
 	jsr fat32_mkfs
 	pla
 	bcc @error2

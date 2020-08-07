@@ -19,6 +19,8 @@ sectors_per_cluster_shift:
 	.byte 0
 lba_partition:
 	.dword 0
+fat_size:
+	.dword 0
 
 .code
 
@@ -89,58 +91,127 @@ fat32_mkfs:
 	clc
 	adc sector_buffer + o_sectors_per_cluster
 	inc sector_buffer + o_sectors_per_cluster
-	sta sector_buffer + o_fat_size + 0
+	sta fat_size + 0
 	lda sector_buffer + o_sector_count + 1
 	adc #0
-	sta sector_buffer + o_fat_size + 1
+	sta fat_size + 1
 	lda sector_buffer + o_sector_count + 2
 	adc #0
-	sta sector_buffer + o_fat_size + 2
+	sta fat_size + 2
 	lda sector_buffer + o_sector_count + 3
 	adc #0
-	sta sector_buffer + o_fat_size + 3
+	sta fat_size + 3
 
 	; divide by sectors_per_cluster
 	ldx sectors_per_cluster_shift
 @spf1:	cpx #0
 	beq @spf2
-	lsr sector_buffer + o_fat_size + 3
-	ror sector_buffer + o_fat_size + 2
-	ror sector_buffer + o_fat_size + 1
-	ror sector_buffer + o_fat_size + 0
+	lsr fat_size + 3
+	ror fat_size + 2
+	ror fat_size + 1
+	ror fat_size + 0
 	dex
 	bra @spf1
 @spf2:
 
 	; add 127, divide by 128
-	lda sector_buffer + o_fat_size
+	lda fat_size
 	clc
 	adc #127
 	tax
-	lda sector_buffer + o_fat_size + 1
+	lda fat_size + 1
 	adc #0
-	sta sector_buffer + o_fat_size
-	lda sector_buffer + o_fat_size + 2
+	sta fat_size
+	lda fat_size + 2
 	adc #0
-	sta sector_buffer + o_fat_size + 1
-	lda sector_buffer + o_fat_size + 3
+	sta fat_size + 1
+	lda fat_size + 3
 	adc #0
-	sta sector_buffer + o_fat_size + 2
-	stz sector_buffer + o_fat_size + 2
+	sta fat_size + 2
+	stz fat_size + 2
 	txa
 	asl
-	rol sector_buffer + o_fat_size
-	rol sector_buffer + o_fat_size + 1
-	rol sector_buffer + o_fat_size + 2
-	rol sector_buffer + o_fat_size + 3
+	rol fat_size
+	rol fat_size + 1
+	rol fat_size + 2
+	rol fat_size + 3
 
-	; write boot sector
+	set32 sector_buffer + o_fat_size, fat_size
+
+	; Set volume label
+@xxx1:	lda fat32_ptr
+	ora fat32_ptr + 1
+	beq @vl2
+	ldy #0
+@vl1:	lda (fat32_ptr), y
+	beq @vl2
+	sta sector_buffer + o_vol_label, y
+	iny
+	cpy #11
+	bne @vl1
+@vl2:
+
+	; Write boot sector
 	set32 sector_lba, lba_partition
 	jsr write_sector
-;	bcc @error
+	bcs @ok2
+	rts
+
+@ok2:	; FS Information Sector
+	jsr clear_buffer
+	lda #$52
+	sta sector_buffer + 0
+	sta sector_buffer + 1
+	lda #$61
+	sta sector_buffer + 2
+	lda #$41
+	sta sector_buffer + 3
+	lda #$72
+	sta sector_buffer + $1e4
+	sta sector_buffer + $1e5
+	lda #$41
+	sta sector_buffer + $1e6
+	lda #$61
+	sta sector_buffer + $1e7
+	lda #$55
+	sta sector_buffer + $1fe
+	asl
+	sta sector_buffer + $1ff
+
+	; Calculate free clusters
+	; ceil((sector_count - 2 * fat_size) / sectors_per_cluster)
+
+	; sector_count - 2 * fat_size
+	sub32 sector_buffer + $1e8, fat32_dirent + dirent::size, fat_size
+	sub32 sector_buffer + $1e8, sector_buffer + $1e8, fat_size
+
+	; divide by sectors_per_cluster
+	ldx sectors_per_cluster_shift
+@fc1:	cpx #0
+	beq @fc2
+	lsr sector_buffer + $1e8 + 3
+	ror sector_buffer + $1e8 + 2
+	ror sector_buffer + $1e8 + 1
+	ror sector_buffer + $1e8 + 0
+	dex
+	bra @fc1
+@fc2:
+
+	; Set last allocated data cluster
+	lda #2
+	sta sector_buffer + $1ec
+
+
+	; write FS information sector
+	inc32 sector_lba
+	jsr write_sector
+	bcc @error2
 
 	rts
 
+@error2:
+	clc
+	rts
 
 bootsector_template:
 	.byte $eb, $58, $90 ; $0000   3  x86 jump
@@ -175,6 +246,6 @@ o_fat_size = * - bootsector_template
 o_vol_id = * - bootsector_template
 	.dword 0            ; $0043   4 *volume ID
 o_vol_label = * - bootsector_template
-	.res 11, 0          ; $0047  11 *volume label
+	.byte "           " ; $0047  11 *volume label
 	.byte "FAT32   "    ; $0052   8  filesystem type
 bootsector_template_size = * - bootsector_template
