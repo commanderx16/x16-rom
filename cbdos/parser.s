@@ -18,6 +18,7 @@
 .export create_unix_path_only_dir, create_unix_path_only_name, append_unix_path_only_name, is_filename_empty
 
 .export file_type, file_mode, filter0, filter1
+.export r2s, r2e
 
 ; file.s
 .export overwrite_flag
@@ -2064,5 +2065,3 @@ cmd_u0_mw:
 	lda #$31
 	clc
 	rts
-
-.export r2s, r2e ; XXX

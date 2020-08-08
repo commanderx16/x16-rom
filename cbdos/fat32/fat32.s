@@ -19,6 +19,9 @@
 	.import filename_cp437_to_internal, filename_char_internal_to_cp437
 	.import match_name, match_type
 
+	; mkfs.s
+	.export load_mbr_sector, write_sector, clear_buffer, set_errno
+
 
 FLAG_IN_USE = 1<<0  ; Context in use
 FLAG_DIRTY  = 1<<1  ; Buffer is dirty
@@ -3285,6 +3288,3 @@ fat32_get_ptable_entry:
 @done:
 	sec
 	rts
-
-; mkfs.s
-.export load_mbr_sector, write_sector, clear_buffer, set_errno

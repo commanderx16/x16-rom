@@ -12,6 +12,7 @@
 
 ; parser.s
 .import medium, medium1, unix_path, unix_path2, create_unix_path, append_unix_path_b
+.import r2s, r2e
 
 ; main.s
 .export cur_medium
@@ -189,7 +190,6 @@ new:
 @1:
 
 	; Check for "FAT32" format
-	.import r2s, r2e
 	ldx r2s
 	ldy #0
 @2:	cpy #txt_fat32_len
