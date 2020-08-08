@@ -15,6 +15,9 @@
 ; functions.s
 .export status_clear, status_put
 
+; dir.s
+.export bin_to_bcd
+
 MAX_STATUS_LEN = 40
 
 .segment "cbdos_data"
