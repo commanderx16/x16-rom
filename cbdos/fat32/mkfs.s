@@ -209,7 +209,7 @@ fat32_mkfs:
 	lda fat_size + 3
 	adc #0
 	sta fat_size + 2
-	stz fat_size + 2
+	stz fat_size + 3
 	txa
 	asl
 	rol fat_size
