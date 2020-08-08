@@ -53,6 +53,8 @@ tmp:
 fat32_mkfs:
 	stz fat32_errno
 
+	stx sectors_per_cluster
+
 	; Get start and size of partition
 	jsr fat32_get_ptable_entry
 	bcs @ok0
@@ -116,6 +118,19 @@ fat32_mkfs:
 	jmp set_errno
 @mfs1:
 
+	; Verify user-passed sectors per cluster value
+	lda sectors_per_cluster
+	beq @usc3 ; user wants default
+	ldx #0
+@usc1:	lsr
+	bcs @usc2
+	inx
+	bra @usc1
+@usc2:	tay
+	bne @error_inconsistent ; not a power of two
+	bra @spc3
+
+@usc3:
 	; Calculate sectors per cluster
 	; Higher sectors per cluster values waste space, but speed up access
 	; (fewer FAT lookups), and significantly speed up formatting.
