@@ -80,6 +80,13 @@ FS_SIZE      = 64
 	.bss
 _fat32_bss_start:
 
+time_year:           .byte 0
+time_month:          .byte 0
+time_day:            .byte 0
+time_hours:          .byte 0
+time_minutes:        .byte 0
+time_seconds:        .byte 0
+
 ; Temp
 bytecnt:             .word 0       ; Used by fat32_write
 tmp_buf:             .res 4        ; Used by save_sector_buffer, fat32_rename
@@ -2709,17 +2716,20 @@ fat32_close:
 	stz fat32_errno
 
 	lda cur_context + context::flags
-	beq @done
-
+	bne :+
+	jmp @done
+:
 	; Write current sector if dirty
 	jsr sync_sector_buffer
-	bcc error_clear_context
-
+	bcs :+
+	jmp error_clear_context
+:
 	; Update directory entry with new size if needed
 	lda cur_context + context::flags
 	bit #FLAG_DIRENT
-	beq @done
-	and #(FLAG_DIRENT ^ $FF)	; Clear bit
+	bne :+
+	jmp @done
+:	and #(FLAG_DIRENT ^ $FF)	; Clear bit
 	sta cur_context + context::flags
 
 	; Load sector of directory entry
@@ -2740,6 +2750,53 @@ fat32_close:
 	sta (fat32_bufptr), y
 	iny
 	lda cur_context + context::file_size + 3
+	sta (fat32_bufptr), y
+
+	; Encode timestamp
+	ldy #$16
+	lda time_minutes
+	tax
+	asl
+	asl
+	asl
+	asl
+	asl
+	sta (fat32_bufptr), y
+	lda time_seconds
+	lsr
+	ora (fat32_bufptr), y
+	sta (fat32_bufptr), y
+	iny
+	txa
+	lsr
+	lsr
+	lsr
+	sta (fat32_bufptr), y
+	lda time_hours
+	asl
+	asl
+	asl
+	ora (fat32_bufptr), y
+	sta (fat32_bufptr), y
+	iny
+	lda time_month
+	tax
+	asl
+	asl
+	asl
+	asl
+	asl
+	ora time_day
+	sta (fat32_bufptr), y
+	iny
+	txa
+	lsr
+	lsr
+	lsr
+	sta (fat32_bufptr), y
+	lda time_year
+	asl
+	ora (fat32_bufptr), y
 	sta (fat32_bufptr), y
 
 	; Write directory sector

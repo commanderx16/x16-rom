@@ -50,6 +50,13 @@
 .global fat32_errno
 .global fat32_readonly
 
+.global time_year
+.global time_month
+.global time_day
+.global time_hours
+.global time_minutes
+.global time_seconds
+
 ; debug
 .global contexts_inuse
 

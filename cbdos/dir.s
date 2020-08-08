@@ -550,7 +550,7 @@ read_dir_entry:
 	pla
 	jsr storedir
 
-	lda #txt_free - txt_tables
+	ldx #txt_free - txt_tables
 	jsr storetxt
 
 @dir_end:
