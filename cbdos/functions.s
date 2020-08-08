@@ -154,31 +154,48 @@ validate:
 ; This is the "N" command, which should initialize a filesystem.
 ; FAT32 filesystems are large, so formatting is a rarely used
 ; and very dangerous function. Therefore, the standard syntax
-; (NAME or NAME,ID) should not initialize the filesystem just
-; yet. Here are a few ideas:
-; * There has to be a format argument: "NAME,ID,FORMAT" - the
-;   function is only actually performed if the format is 'Y'.
-;   (as in "Yes, I'm sure.") Otherwise, an informational status
-;   message (code $0x) explains what's going on.
-; * The "N" command has to be sent twice. The first time, an
-;   informational status message explains what's going on.
-; * As an extension to the "W-0"/"W-1" commands, a "W-N" command
-;   could be added, which enables formatting in the very next
-;   command only.
+; ("NAME" or "NAME,ID") should not initialize the filesystem
+; just yet. CMD devices add an optional ",FORMAT" argument,
+; which will be madatory and has to say "FAT32".
 ;
 ; In:   medium  medium
 ;       r0      name
 ;       r1      id
-;       a       format (1st char)
+;       r2      format
 ;---------------------------------------------------------------
 new:
-	;lda #$26 ; write protect on (=formatting not allowed)
+	jsr create_fat32_path_only_dir
+
+	; for safety, formatting current partition is not allowed
+	ldx medium
+	bne @1
+	lda #$77 ; selected partition illegal
+	rts
+@1:
+
+	; Check for "FAT32" format
+	.import r2s, r2e
+	ldx r2s
+	ldy #0
+@2:	cpy #txt_fat32_len
+	beq @ok
+	cpx r2e
+	beq @error_format
+	lda buffer,x
+	cmp txt_fat32,y
+	bne @error_format
+	inx
+	iny
+	bra @2
+@ok:
 
 	lda #$ff
 	jsr fat32_alloc_context
 	bcc @error1
 	pha
-	jsr create_fat32_path_only_dir
+
+	lda medium
+	dec
 	jsr fat32_mkfs
 	pla
 	bcc @error2
@@ -189,7 +206,18 @@ new:
 @error2:
 	jsr fat32_free_context
 @error1:
+	lda fat32_errno
+	cmp #ERRNO_FS_INCONSISTENT
+	beq @error_format
 	jmp convert_errno_status
+
+@error_format:
+	lda #$75 ; format error
+	rts
+
+txt_fat32:
+	.byte "FAT32"
+txt_fat32_len = * - txt_fat32
 
 ;---------------------------------------------------------------
 ; scratch

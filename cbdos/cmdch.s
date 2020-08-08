@@ -205,7 +205,7 @@ bin_to_bcd:
 	rts
 
 stcodes:
-	.byte $00, $01, $02, $20, $25, $26, $30, $31, $32, $33, $34, $39, $49, $62, $63, $70, $71, $72, $73, $74, $77, $79
+	.byte $00, $01, $02, $20, $25, $26, $30, $31, $32, $33, $34, $39, $49, $62, $63, $70, $71, $72, $73, $74, $75, $77, $79
 stcodes_end:
 
 ststrs:
@@ -229,6 +229,7 @@ ststrs:
 	.word status_72
 	.word status_73
 	.word status_74
+	.word status_75
 	.word status_77
 	.word buffer+1 ; 79 (echo message)
 
@@ -302,6 +303,8 @@ status_73:
 	.byte "CBDOS V1.0 X16", 0
 status_74:
 	.byte "DRIVE NOT READY", 0 ; illegal partition for any command but "CP"
+status_75:
+	.byte "FORMAT ERROR", 0
 status_77:
 	.byte "SELECTED PARTITION ILLEGAL",0
 
@@ -315,7 +318,6 @@ status_77:
 ;   $64     FILE TYPE MISMATCH
 ;   $65     NO BLOCK
 ;   $66/$67 ILLEGAL BLOCK
-;   $75     FORMAT ERROR
 ;   $76     HARDWARE ERROR
 ;   $78     SYSTEM ERROR
 ; specific codes of supported strings

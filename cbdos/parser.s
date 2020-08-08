@@ -1148,7 +1148,7 @@ cmd_n:
 	sec
 	jsr split
 
-	; remove [,FMT] from ID
+	; split ID[,FMT] into ID and FMT
 	; and extract first char of FMT
 	ldx r1s
 	ldy r1e
@@ -1160,11 +1160,14 @@ cmd_n:
 	inx
 	cpx r1e
 	beq @no_fmt
-	lda buffer,x
+	stx r2s
+	sty r2e
 	bra @end
 
 @no_fmt:
-	lda #0 ; no FMT
+	stz r2s
+	stz r2e
+
 @end:	jsr new
 	clc
 	rts
@@ -2060,3 +2063,5 @@ cmd_u0_mw:
 	lda #$31
 	clc
 	rts
+
+.export r2s, r2e ; XXX

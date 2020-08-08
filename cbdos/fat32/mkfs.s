@@ -44,14 +44,23 @@ fat32_mkfs:
 	stz fat32_errno
 
 	; Get start and size of partition
-	lda #0  ; XXX MBR primary partition 1
 	jsr fat32_get_ptable_entry
-	bcs @ok
+	bcs @ok0
 @error:
 	clc
 	rts
+@ok0:
 
-@ok:	set32 lba_partition, fat32_dirent + dirent::start
+	; Make sure it's a FAT32 partition
+	lda fat32_dirent + dirent::attributes
+	cmp #$0b
+	beq @ok1
+	cmp #$0c
+	bne @error_inconsistent
+@ok1:
+
+	; Extract number of sectors in partition
+	set32 lba_partition, fat32_dirent + dirent::start
 
 	; Create bootsector template
 	jsr clear_buffer
@@ -92,6 +101,7 @@ fat32_mkfs:
 	lda fat32_dirent + dirent::size + 2
 	ora fat32_dirent + dirent::size + 3
 	bne @mfs1
+@error_inconsistent:
 	lda #ERRNO_FS_INCONSISTENT
 	jmp set_errno
 @mfs1:
