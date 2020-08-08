@@ -1713,6 +1713,21 @@ read_dirent:
 	; Decode timestamp
 	ldy #$16
 	lda (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	bne @ts1
+	stz fat32_dirent + dirent::mtime_seconds
+	stz fat32_dirent + dirent::mtime_minutes
+	stz fat32_dirent + dirent::mtime_hours
+	stz fat32_dirent + dirent::mtime_day
+	lda #$ff ; year 2235 signals "no date"
+	bra @ts2
+@ts1:	ldy #$16
+	lda (fat32_bufptr), y
 	sta tmp_timestamp
 	and #31
 	asl
@@ -1750,7 +1765,7 @@ read_dirent:
 	sta fat32_dirent + dirent::mtime_month
 	lda (fat32_bufptr), y
 	lsr
-	sta fat32_dirent + dirent::mtime_year
+@ts2:	sta fat32_dirent + dirent::mtime_year
 
 	; Copy file size
 	ldy #28

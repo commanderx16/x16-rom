@@ -452,9 +452,13 @@ read_dir_entry:
 	bpl @not_part3
 
 	; timestamp
+	lda fat32_dirent + dirent::mtime_year
+	cmp #$ff
+	beq @not_part3 ; no timestamp
+	pha
 	lda #' '
 	jsr storedir
-	lda fat32_dirent + dirent::mtime_year
+	pla
 	cmp #20
 	bcs @tim1
 	pha
