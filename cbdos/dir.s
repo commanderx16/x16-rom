@@ -565,6 +565,7 @@ shr10:
 	sta fat32_size + 1
 	lda fat32_size + 3
 	sta fat32_size + 2
+	stz fat32_size + 3
 
 	; >> 2
 	lsr fat32_size + 2
@@ -574,8 +575,4 @@ shr10:
 	ror fat32_size + 1
 	ror fat32_size + 0
 
-	lda fat32_size + 0
-	lda fat32_size + 1
-	lda fat32_size + 2
-	lda fat32_size + 3
 	rts
