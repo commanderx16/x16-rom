@@ -969,8 +969,9 @@ find_dirent:
 	stz fat32_dirent + dirent::name + 1
 	lda #$10
 	sta fat32_dirent + dirent::attributes
+	.assert dirent::start < dirent::size, error ; must be next to each other
 	ldx #0
-@clr:	stz fat32_dirent + dirent::size, x
+@clr:	stz fat32_dirent + dirent::start, x
 	inx
 	cpx #8
 	bne @clr
