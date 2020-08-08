@@ -15,7 +15,7 @@
 .export fat32_mkfs
 
 RESERVED_SECTORS_DEFAULT = 32
-MAX_SECTORS_PER_CLUSTER = 64
+MAX_SECTORS_PER_CLUSTER_SHIFT = 7
 
 .bss
 
@@ -110,7 +110,7 @@ fat32_mkfs:
 	beq @spc3
 @spc2:	shr32 tmp
 	inx
-	cpx #MAX_SECTORS_PER_CLUSTER
+	cpx #MAX_SECTORS_PER_CLUSTER_SHIFT
 	bne @spc1
 @spc3:	stx sectors_per_cluster_shift
 	; Calculate derived values
