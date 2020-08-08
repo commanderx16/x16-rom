@@ -128,8 +128,8 @@ fat32_mkfs:
 	bra @usc1
 @usc2:	tay
 	bne @error_inconsistent ; not a power of two
-	; XXX if user-passed value is too high, there might be
-	; XXX fewer than 65525 clusters, which is illegal
+	; XXX User-passed value could either be too low (more than 2^24
+	;     clusters), or too high (less than 65525 clusters).
 	bra @spc3
 
 @usc3:
