@@ -5,7 +5,6 @@
 ;
 ; TODO:
 ; - implement fat32_seek
-; - implement timestamps
 ;-----------------------------------------------------------------------------
 
 	.include "fat32.inc"
@@ -80,6 +79,13 @@ FS_SIZE      = 64
 	.bss
 _fat32_bss_start:
 
+fat32_time_year:     .byte 0
+fat32_time_month:    .byte 0
+fat32_time_day:      .byte 0
+fat32_time_hours:    .byte 0
+fat32_time_minutes:  .byte 0
+fat32_time_seconds:  .byte 0
+
 ; Temp
 bytecnt:             .word 0       ; Used by fat32_write
 tmp_buf:             .res 4        ; Used by save_sector_buffer, fat32_rename
@@ -91,6 +97,7 @@ tmp_dir_cluster:     .dword 0
 tmp_attrib:          .byte 0       ; temporary: attribute when creating a dir entry
 tmp_dirent_flag:     .byte 0
 shortname_buf:       .res 11       ; Used for shortname creation
+tmp_timestamp:       .byte 0
 
 ; Temp - LFN
 lfn_index:           .byte 0       ; counter when collecting/decoding LFN entries
@@ -968,8 +975,9 @@ find_dirent:
 	stz fat32_dirent + dirent::name + 1
 	lda #$10
 	sta fat32_dirent + dirent::attributes
+	.assert dirent::start < dirent::size, error ; must be next to each other
 	ldx #0
-@clr:	stz fat32_dirent + dirent::size, x
+@clr:	stz fat32_dirent + dirent::start, x
 	inx
 	cpx #8
 	bne @clr
@@ -1184,6 +1192,9 @@ fat32_init:
 
 	; No current volume
 	sta volume_idx
+
+	; No time set up
+	sta fat32_time_year
 
 	sec
 	rts
@@ -1709,6 +1720,63 @@ read_dirent:
 	stz fat32_dirent + dirent::name, x
 
 @name_done_z:
+	; Decode mtime timestamp
+	ldy #$16
+	lda (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	bne @ts1
+	stz fat32_dirent + dirent::mtime_seconds
+	stz fat32_dirent + dirent::mtime_minutes
+	stz fat32_dirent + dirent::mtime_hours
+	stz fat32_dirent + dirent::mtime_day
+	lda #$ff ; year 2235 signals "no date"
+	bra @ts2
+@ts1:	ldy #$16
+	lda (fat32_bufptr), y
+	sta tmp_timestamp
+	and #31
+	asl
+	sta fat32_dirent + dirent::mtime_seconds
+	iny
+	lda (fat32_bufptr), y
+	asl tmp_timestamp
+	rol
+	asl tmp_timestamp
+	rol
+	asl tmp_timestamp
+	rol
+	and #63
+	sta fat32_dirent + dirent::mtime_minutes
+	lda (fat32_bufptr), y
+	lsr
+	lsr
+	lsr
+	sta fat32_dirent + dirent::mtime_hours
+	iny
+	lda (fat32_bufptr), y
+	tax
+	and #31
+	sta fat32_dirent + dirent::mtime_day
+	iny
+	lda (fat32_bufptr), y
+	sta tmp_timestamp
+	txa
+	lsr tmp_timestamp
+	ror
+	lsr
+	lsr
+	lsr
+	lsr
+	sta fat32_dirent + dirent::mtime_month
+	lda (fat32_bufptr), y
+	lsr
+@ts2:	sta fat32_dirent + dirent::mtime_year
+
 	; Copy file size
 	ldy #28
 	ldx #0
@@ -2650,24 +2718,28 @@ fat32_close:
 	stz fat32_errno
 
 	lda cur_context + context::flags
-	beq @done
-
+	bne :+
+	jmp @done
+:
 	; Write current sector if dirty
 	jsr sync_sector_buffer
-	bcc error_clear_context
-
-	; Update directory entry with new size if needed
+	bcs :+
+	jmp error_clear_context
+:
+	; Update directory entry with new size and mdate if needed
 	lda cur_context + context::flags
 	bit #FLAG_DIRENT
-	beq @done
-	and #(FLAG_DIRENT ^ $FF)	; Clear bit
+	bne :+
+	jmp @done
+:	and #(FLAG_DIRENT ^ $FF)	; Clear bit
 	sta cur_context + context::flags
 
 	; Load sector of directory entry
 	set32 cur_context + context::lba, cur_context + context::dirent_lba
 	jsr load_sector_buffer
-	bcc error_clear_context
-
+	bcs :+
+	jmp error_clear_context
+:
 	; Write size to directory entry
 	set16 fat32_bufptr, cur_context + context::dirent_bufptr
 	ldy #28
@@ -2682,6 +2754,97 @@ fat32_close:
 	iny
 	lda cur_context + context::file_size + 3
 	sta (fat32_bufptr), y
+
+	; Encode mtime timestamp
+@ts1:	lda fat32_time_year
+	inc
+	bne @ts3
+	; no time set up
+	lda #0
+	ldy #$16
+	sta (fat32_bufptr), y
+	iny
+	sta (fat32_bufptr), y
+	iny
+	sta (fat32_bufptr), y
+	iny
+	sta (fat32_bufptr), y
+	bra @ts2
+
+@ts3:	ldy #$16
+	lda fat32_time_minutes
+	tax
+	asl
+	asl
+	asl
+	asl
+	asl
+	sta (fat32_bufptr), y
+	lda fat32_time_seconds
+	lsr
+	ora (fat32_bufptr), y
+	sta (fat32_bufptr), y
+	iny
+	txa
+	lsr
+	lsr
+	lsr
+	sta (fat32_bufptr), y
+	lda fat32_time_hours
+	asl
+	asl
+	asl
+	ora (fat32_bufptr), y
+	sta (fat32_bufptr), y
+	iny
+	lda fat32_time_month
+	tax
+	asl
+	asl
+	asl
+	asl
+	asl
+	ora fat32_time_day
+	sta (fat32_bufptr), y
+	iny
+	txa
+	lsr
+	lsr
+	lsr
+	sta (fat32_bufptr), y
+	lda fat32_time_year
+	asl
+	ora (fat32_bufptr), y
+	sta (fat32_bufptr), y
+@ts2:
+
+	; Fill creation date if empty
+	ldy #$0e
+	lda (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	bne @ts4
+	ldy #$16
+	lda (fat32_bufptr), y
+	ldy #$0e
+	sta (fat32_bufptr), y
+	ldy #$17
+	lda (fat32_bufptr), y
+	ldy #$0f
+	sta (fat32_bufptr), y
+	ldy #$18
+	lda (fat32_bufptr), y
+	ldy #$10
+	sta (fat32_bufptr), y
+	ldy #$19
+	lda (fat32_bufptr), y
+	ldy #$11
+	sta (fat32_bufptr), y
+@ts4:
 
 	; Write directory sector
 	jsr save_sector_buffer

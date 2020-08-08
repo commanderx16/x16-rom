@@ -15,6 +15,9 @@
 ; functions.s
 .export status_clear, status_put
 
+; dir.s
+.export bin_to_bcd
+
 MAX_STATUS_LEN = 40
 
 .segment "cbdos_data"
@@ -192,6 +195,7 @@ get_hundreds:
 
 
 bin_to_bcd:
+	phy
 	tay
 	lda #0
 	sed
@@ -202,6 +206,7 @@ bin_to_bcd:
 	dey
 	bra @loop
 @end:	cld
+	ply
 	rts
 
 stcodes:

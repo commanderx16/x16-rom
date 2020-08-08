@@ -6,6 +6,7 @@
 .include "banks.inc"
 
 .import jsrfar
+.import clock_get_date_time
 
 .import cbdos_secnd
 .import cbdos_tksa
@@ -45,7 +46,8 @@ secnd:
 	bit cbdos_enabled
 	bmi :+
 	jmp serial_secnd
-:	jsr jsrfar
+:	jsr upload_time
+	jsr jsrfar
 	.word $c000 + 3 * 0
 	.byte BANK_CBDOS
 	rts
@@ -139,5 +141,47 @@ cbdos_detect:
 	plp
 	ply
 	plx
+	pla
+	rts
+
+; Called by SECOND: If it's a CLOSE command, upload the curent time.
+upload_time:
+	pha
+	and #$f0
+	cmp #$e0 ; CLOSE
+	beq @0
+	pla
+	rts
+@0:
+	ldx #2
+@1:	lda 0,x
+	pha
+	inx
+	cpx #9
+	bne @1
+
+	jsr clock_get_date_time
+
+	; convert from 1900 to 1980
+	; 1900 -> no time information (255)
+	lda 2
+	bne @2
+	dec
+	bra @3
+@2:	sec
+	sbc #80
+@3:	sta 2
+
+	jsr jsrfar
+	.word $c000 + 3 * 16
+	.byte BANK_CBDOS
+
+	ldx #8
+@4:	pla
+	sta 0,x
+	dex
+	cpx #1
+	bne @4
+
 	pla
 	rts

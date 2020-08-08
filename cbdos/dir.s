@@ -7,6 +7,7 @@
 
 ; cmdch.s
 .import set_status
+.import bin_to_bcd
 
 ; file.s
 .import set_errno_status, convert_errno_status
@@ -41,6 +42,8 @@ dir_eof:
 	.byte 0
 part_index:
 	.byte 0
+show_timestamps:
+	.byte 0
 
 .segment "cbdos"
 
@@ -52,6 +55,8 @@ dir_open:
 	lda #0
 	jsr set_status
 
+	stz show_timestamps
+
 	ply ; filename length
 	lda #0
 	sta buffer, y ; zero terminate
@@ -61,11 +66,18 @@ dir_open:
 
 	lda buffer+1
 	cmp #'='
-	bne @not_part_dir
+	bne @files_dir
 	lda buffer+2
 	cmp #'P'
-	bne @not_part_dir
+	beq @part_dir
+	cmp #'T'
+	bne @files_dir
+	lda #$80
+	sta show_timestamps
+	ldx #3 ; skip "=T"
+	bra @cont1
 
+@part_dir:
 	stz part_index
 
 	; partition directory
@@ -81,7 +93,7 @@ dir_open:
 	ldy #1
 	bra @cont1
 
-@not_part_dir:
+@files_dir:
 
 	ldx #1
 @cont1:
@@ -427,14 +439,70 @@ read_dir_entry:
 
 	lda fat32_dirent + dirent::attributes
 	lsr
-	bcc @read_dir_eol
+	lda #' '
+	bcc :+
 	lda #'<' ; write protect indicator
-	jsr storedir
+:	jsr storedir
 
 @read_dir_eol:
 	bit part_index
-	bmi :+
-:
+	bpl @not_part3
+
+	bit show_timestamps
+	bpl @not_part3
+
+	; timestamp
+	lda fat32_dirent + dirent::mtime_year
+	cmp #$ff
+	beq @not_part3 ; no timestamp
+	pha
+	lda #' '
+	jsr storedir
+	pla
+	cmp #20
+	bcs @tim1
+	pha
+	lda #'1'
+	jsr storedir
+	lda #'9'
+	jsr storedir
+	pla
+	clc
+	adc #80
+	bra @tim2
+@tim1:	pha
+	lda #'2'
+	jsr storedir
+	lda #'0'
+	jsr storedir
+	pla
+	sec
+	sbc #20
+@tim2:	jsr storedec8
+	lda #'-'
+	jsr storedir
+	lda fat32_dirent + dirent::mtime_month
+	jsr storedec8
+	lda #'-'
+	jsr storedir
+	lda fat32_dirent + dirent::mtime_day
+	jsr storedec8
+	lda #' '
+	jsr storedir
+	lda fat32_dirent + dirent::mtime_hours
+	jsr storedec8
+	lda #':'
+	jsr storedir
+	lda fat32_dirent + dirent::mtime_minutes
+	jsr storedec8
+	lda #':'
+	jsr storedir
+	lda fat32_dirent + dirent::mtime_seconds
+	jsr storedec8
+	lda #' '
+	jsr storedir
+
+@not_part3:
 
 	lda #0 ; end of line
 	jsr storedir
@@ -482,7 +550,7 @@ read_dir_entry:
 	pla
 	jsr storedir
 
-	lda #txt_free - txt_tables
+	ldx #txt_free - txt_tables
 	jsr storetxt
 
 @dir_end:
@@ -527,6 +595,8 @@ txt_prg:
 txt_dir:
 	.byte "DIR", 0
 
+storedec8: ; supports one or two digits only; 0-padded
+	jsr bin_to_bcd
 storehex8:
 	pha
 	lsr

@@ -3,6 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
+.include "fat32/fat32.inc"
+
 .import sdcard_init
 
 .import fat32_init
@@ -28,7 +30,7 @@
 
 ; jumptab.s
 .export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk
-.export cbdos_sdcard_detect
+.export cbdos_sdcard_detect, cbdos_set_time
 
 .include "banks.inc"
 
@@ -131,6 +133,27 @@ cbdos_sdcard_detect:
 .else
 	lda #0
 .endif
+	BANKING_END
+	rts
+
+
+;---------------------------------------------------------------
+; cbdos_set_time
+;---------------------------------------------------------------
+cbdos_set_time:
+	BANKING_START
+	lda 2
+	sta fat32_time_year
+	lda 3
+	sta fat32_time_month
+	lda 4
+	sta fat32_time_day
+	lda 5
+	sta fat32_time_hours
+	lda 6
+	sta fat32_time_minutes
+	lda 7
+	sta fat32_time_seconds
 	BANKING_END
 	rts
 
