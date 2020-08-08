@@ -80,12 +80,12 @@ FS_SIZE      = 64
 	.bss
 _fat32_bss_start:
 
-time_year:           .byte 0
-time_month:          .byte 0
-time_day:            .byte 0
-time_hours:          .byte 0
-time_minutes:        .byte 0
-time_seconds:        .byte 0
+fat32_time_year:     .byte 0
+fat32_time_month:    .byte 0
+fat32_time_day:      .byte 0
+fat32_time_hours:    .byte 0
+fat32_time_minutes:  .byte 0
+fat32_time_seconds:  .byte 0
 
 ; Temp
 bytecnt:             .word 0       ; Used by fat32_write
@@ -119,6 +119,7 @@ fat32_dirent:        .tag dirent   ; Buffer containing decoded directory entry
 fat32_size:          .res 4        ; Used for fat32_read, fat32_write, fat32_get_offset, fat32_get_free_space
 fat32_errno:         .byte 0       ; Last error
 fat32_readonly:      .byte 0       ; User-accessible read-only flag
+fat32_time_callback: .word 0       ; Callback pointer to user for getting the current date/time
 
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
@@ -2735,8 +2736,9 @@ fat32_close:
 	; Load sector of directory entry
 	set32 cur_context + context::lba, cur_context + context::dirent_lba
 	jsr load_sector_buffer
-	bcc error_clear_context
-
+	bcs :+
+	jmp error_clear_context
+:
 	; Write size to directory entry
 	set16 fat32_bufptr, cur_context + context::dirent_bufptr
 	ldy #28
@@ -2752,9 +2754,28 @@ fat32_close:
 	lda cur_context + context::file_size + 3
 	sta (fat32_bufptr), y
 
-	; Encode timestamp
+	; Timestamp?
+@xxx1:	lda fat32_time_callback
+	ora fat32_time_callback + 1
+	bne @ts1
+
+	; Clear timestamp
 	ldy #$16
-	lda time_minutes
+	lda #0
+	sta (fat32_bufptr), y
+	iny
+	sta (fat32_bufptr), y
+	iny
+	sta (fat32_bufptr), y
+	iny
+	sta (fat32_bufptr), y
+	bra @ts2
+
+	; Encode timestamp
+@ts1:	jsr time_callback
+
+	ldy #$16
+	lda fat32_time_minutes
 	tax
 	asl
 	asl
@@ -2762,7 +2783,7 @@ fat32_close:
 	asl
 	asl
 	sta (fat32_bufptr), y
-	lda time_seconds
+	lda fat32_time_seconds
 	lsr
 	ora (fat32_bufptr), y
 	sta (fat32_bufptr), y
@@ -2772,21 +2793,21 @@ fat32_close:
 	lsr
 	lsr
 	sta (fat32_bufptr), y
-	lda time_hours
+	lda fat32_time_hours
 	asl
 	asl
 	asl
 	ora (fat32_bufptr), y
 	sta (fat32_bufptr), y
 	iny
-	lda time_month
+	lda fat32_time_month
 	tax
 	asl
 	asl
 	asl
 	asl
 	asl
-	ora time_day
+	ora fat32_time_day
 	sta (fat32_bufptr), y
 	iny
 	txa
@@ -2794,10 +2815,11 @@ fat32_close:
 	lsr
 	lsr
 	sta (fat32_bufptr), y
-	lda time_year
+	lda fat32_time_year
 	asl
 	ora (fat32_bufptr), y
 	sta (fat32_bufptr), y
+@ts2:
 
 	; Write directory sector
 	jsr save_sector_buffer
@@ -2807,6 +2829,9 @@ fat32_close:
 
 	sec
 	rts
+
+time_callback:
+	jmp (fat32_time_callback)
 
 ;-----------------------------------------------------------------------------
 ; error_clear_context

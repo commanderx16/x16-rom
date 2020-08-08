@@ -3,6 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
+.include "fat32/fat32.inc"
+
 .import sdcard_init
 
 .import fat32_init
@@ -102,11 +104,34 @@ cbdos_init:
 	; TODO error handling
 	jsr fat32_init
 
+	lda #<get_time
+	sta fat32_time_callback + 0
+	lda #>get_time
+	sta fat32_time_callback + 1
+
 	lda #1
 	sta cur_medium
 
 	ply
 	plx
+	rts
+
+;---------------------------------------------------------------
+; get_time
+;---------------------------------------------------------------
+get_time:
+	lda #8
+	sta fat32_time_year
+	lda #4
+	sta fat32_time_month
+	lda #16
+	sta fat32_time_day
+	lda #1
+	sta fat32_time_hours
+	lda #26
+	sta fat32_time_minutes
+	lda #59
+	sta fat32_time_seconds
 	rts
 
 ;---------------------------------------------------------------
