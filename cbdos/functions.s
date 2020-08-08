@@ -215,6 +215,11 @@ new:
 	bcc @error1
 	pha
 
+	lda #<txt_oemname
+	sta fat32_bufptr
+	lda #>txt_oemname
+	sta fat32_bufptr + 1
+
 	lda medium
 	dec
 	ldx @sectors_per_cluster
@@ -240,6 +245,8 @@ new:
 txt_fat32:
 	.byte "FAT32"
 txt_fat32_len = * - txt_fat32
+txt_oemname:
+	.byte "CBDOS1.0", 0
 
 ;---------------------------------------------------------------
 ; scratch

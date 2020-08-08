@@ -37,6 +37,8 @@ reserved_sectors:
 	.byte 0
 tmp:
 	.dword 0
+oemname_ptr:
+	.word 0
 
 .code
 
@@ -45,11 +47,11 @@ tmp:
 ;
 ; Create a FAT32 filesystem.
 ;
-; In:  a           partition (0-3)
-;      x           sectors per cluster (0 = default)
-;      fat32_ptr   volume label (8 chars)
-;      fat32_ptr2  volume ID (4 bytes)
-;      fat32_ptr3  OEM name (8 chars)
+; In:  a             partition (0-3)
+;      x             sectors per cluster (0 = default)
+;      fat32_ptr     volume label (8 chars)
+;      fat32_ptr2    volume ID (4 bytes)
+;      fat32_bufptr  OEM name (8 chars)
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
@@ -57,6 +59,12 @@ fat32_mkfs:
 	stz fat32_errno
 
 	stx sectors_per_cluster
+
+	; Save argument (overwritten by fat32_get_ptable_entry)
+	ldx fat32_bufptr
+	stx oemname_ptr
+	ldx fat32_bufptr + 1
+	stx oemname_ptr + 1
 
 	; Get start and size of partition
 	jsr fat32_get_ptable_entry
@@ -256,7 +264,6 @@ fat32_mkfs:
 	iny
 	cpy #4
 	bne @vi1
-
 @vi2:
 
 	; Set volume label
@@ -271,6 +278,22 @@ fat32_mkfs:
 	cpy #11
 	bne @vl1
 @vl2:
+
+	; Set OEM name
+	lda oemname_ptr
+	sta fat32_bufptr
+	ora oemname_ptr + 1
+	beq @on2
+	lda oemname_ptr + 1
+	sta fat32_bufptr + 1
+	ldy #0
+@on1:	lda (fat32_bufptr), y
+	beq @on2
+	sta sector_buffer + o_oem_name, y
+	iny
+	cpy #8
+	bne @on1
+@on2:
 
 	; Write boot sector
 	set32 sector_lba, lba_partition
@@ -411,7 +434,8 @@ error:	rts
 
 bootsector_template:
 	.byte $eb, $58, $90 ; $0000   3  x86 jump
-	.byte "CBDOS   "    ; $0003   8  OEM name
+o_oem_name = * - bootsector_template
+	.byte "        "    ; $0003   8  OEM name
 	.word 512           ; $000b   2  bytes per sector
 o_sectors_per_cluster = * - bootsector_template
 	.byte 0             ; $000d   1 *sectors per cluster
