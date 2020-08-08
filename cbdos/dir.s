@@ -427,14 +427,44 @@ read_dir_entry:
 
 	lda fat32_dirent + dirent::attributes
 	lsr
-	bcc @read_dir_eol
+	lda #' '
+	bcc :+
 	lda #'<' ; write protect indicator
-	jsr storedir
+:	jsr storedir
 
 @read_dir_eol:
 	bit part_index
-	bmi :+
-:
+	bpl @not_part3
+
+	; timestamp
+	lda #' '
+	jsr storedir
+	lda fat32_dirent + dirent::mtime_year
+	jsr storehex8
+	lda #'-'
+	jsr storedir
+	lda fat32_dirent + dirent::mtime_month
+	jsr storehex8
+	lda #'-'
+	jsr storedir
+	lda fat32_dirent + dirent::mtime_day
+	jsr storehex8
+	lda #' '
+	jsr storedir
+	lda fat32_dirent + dirent::mtime_hours
+	jsr storehex8
+	lda #':'
+	jsr storedir
+	lda fat32_dirent + dirent::mtime_minutes
+	jsr storehex8
+	lda #':'
+	jsr storedir
+	lda fat32_dirent + dirent::mtime_seconds
+	jsr storehex8
+	lda #' '
+	jsr storedir
+
+@not_part3:
 
 	lda #0 ; end of line
 	jsr storedir

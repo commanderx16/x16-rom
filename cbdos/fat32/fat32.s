@@ -91,6 +91,7 @@ tmp_dir_cluster:     .dword 0
 tmp_attrib:          .byte 0       ; temporary: attribute when creating a dir entry
 tmp_dirent_flag:     .byte 0
 shortname_buf:       .res 11       ; Used for shortname creation
+tmp_timestamp:       .byte 0
 
 ; Temp - LFN
 lfn_index:           .byte 0       ; counter when collecting/decoding LFN entries
@@ -1709,6 +1710,48 @@ read_dirent:
 	stz fat32_dirent + dirent::name, x
 
 @name_done_z:
+	; Decode timestamp
+	ldy #$16
+	lda (fat32_bufptr), y
+	sta tmp_timestamp
+	and #31
+	asl
+	sta fat32_dirent + dirent::mtime_seconds
+	iny
+	lda (fat32_bufptr), y
+	asl tmp_timestamp
+	rol
+	asl tmp_timestamp
+	rol
+	asl tmp_timestamp
+	rol
+	and #63
+	sta fat32_dirent + dirent::mtime_minutes
+	lda (fat32_bufptr), y
+	lsr
+	lsr
+	lsr
+	sta fat32_dirent + dirent::mtime_hours
+	iny
+	lda (fat32_bufptr), y
+	tax
+	and #31
+	sta fat32_dirent + dirent::mtime_day
+	iny
+	lda (fat32_bufptr), y
+	sta tmp_timestamp
+	txa
+	lsr tmp_timestamp
+	ror
+	lsr
+	lsr
+	lsr
+	lsr
+	sta fat32_dirent + dirent::mtime_month
+	lda (fat32_bufptr), y
+	lsr
+	sta fat32_dirent + dirent::mtime_year
+
 	; Copy file size
 	ldy #28
 	ldx #0
