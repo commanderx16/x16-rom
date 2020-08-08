@@ -118,6 +118,19 @@ fat32_mkfs:
 	jmp set_errno
 @mfs1:
 
+	; Check maximum FS size
+	; sector count can't be >= $FFFFFF00 (just below 2 TB),
+	; since this would overflow some calculations below.
+	lda #$ff
+	cmp fat32_dirent + dirent::size + 3
+	bne @mfs2
+	cmp fat32_dirent + dirent::size + 2
+	bne @mfs2
+	cmp fat32_dirent + dirent::size + 1
+	beq @error_inconsistent
+
+@mfs2:
+
 	; Verify user-passed sectors per cluster value
 	lda sectors_per_cluster
 	beq @usc3 ; user wants default
