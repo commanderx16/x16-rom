@@ -3287,4 +3287,4 @@ fat32_get_ptable_entry:
 	rts
 
 ; mkfs.s
-.export load_mbr_sector, write_sector, clear_buffer
+.export load_mbr_sector, write_sector, clear_buffer, set_errno

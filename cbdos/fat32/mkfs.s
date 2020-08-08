@@ -10,10 +10,12 @@
 
 ; fat32.s
 .import load_mbr_sector, write_sector, clear_buffer, fat32_dirent, fat32_get_ptable_entry
+.import set_errno, fat32_errno
 
 .export fat32_mkfs
 
 RESERVED_SECTORS_DEFAULT = 32
+MAX_SECTORS_PER_CLUSTER = 64
 
 .bss
 
@@ -33,10 +35,14 @@ fat_size_count:
 	.dword 0
 reserved_sectors:
 	.byte 0
+tmp:
+	.dword 0
 
 .code
 
 fat32_mkfs:
+	stz fat32_errno
+
 	; Get start and size of partition
 	lda #0  ; XXX MBR primary partition 1
 	jsr fat32_get_ptable_entry
@@ -81,16 +87,40 @@ fat32_mkfs:
 @hs2:	stx sector_buffer + o_heads
 	sty sector_buffer + o_sectors_per_track
 
+	; Check minimal FS size
+	; clusters < 65525 is illegal (we cut off at 65536)
+	lda fat32_dirent + dirent::size + 2
+	ora fat32_dirent + dirent::size + 3
+	bne @mfs1
+	lda #ERRNO_FS_INCONSISTENT
+	jmp set_errno
+@mfs1:
+
 	; Calculate sectors per cluster
-	ldx #6 ; XXX 2
-	stx sectors_per_cluster_shift
+	; Higher sectors per cluster values waste space, but speed up access.
+	; We pick the highest legal value. There have to be at least 65525
+	; clusters, so the algorithm is to keep ASLing the number of sectors
+	; until it's $0001xxxx, i.e. between 65536 and 131071.
+	set32 tmp, fat32_dirent + dirent::size
+	ldx #0
+@spc1:	lda tmp + 3
+	bne @spc2
+	lda tmp + 2
+	dec
+	beq @spc3
+@spc2:	shr32 tmp
+	inx
+	cpx #MAX_SECTORS_PER_CLUSTER
+	bne @spc1
+@spc3:	stx sectors_per_cluster_shift
+	; Calculate derived values
 	lda #1
-@spc1:	cpx #0
-	beq @spc2
+@sps1:	cpx #0
+	beq @sps2
 	asl
 	dex
-	bra @spc1
-@spc2:	sta sectors_per_cluster
+	bra @sps1
+@sps2:	sta sectors_per_cluster
 	sta sector_buffer + o_sectors_per_cluster
 	dec
 	sta sectors_per_cluster_minus_1
