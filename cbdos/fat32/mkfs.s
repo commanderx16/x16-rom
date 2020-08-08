@@ -175,10 +175,14 @@ fat32_mkfs:
 	sta sector_buffer + o_reserved_sectors
 
 	; Calculate sectors per FAT
-	; naive formula:
+	;
+	; This is the formula:
 	; * cluster_count = ceil(sector_count / sectors_per_cluster)
-	; * fat_size = ceil(cluster_count / 128)
-	; Then round up to make divisible by sectors_per_cluster.
+	; * fat_size = ceil(cluster_count / 130)
+	; * Then round up to make divisible by sectors_per_cluster.
+	; Dividing by 130 is hard, but dividing by 128 is easy.
+	; We divide by 128 here, which makes the FAT about 1.5% larger
+	; than it should be.
 
 	; add sectors_per_cluster - 1
 	add32_8 fat_size, sector_buffer + o_sector_count, sectors_per_cluster_minus_1
