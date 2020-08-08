@@ -13,7 +13,7 @@
 
 .export fat32_mkfs
 
-RESERV_SECT = 32
+RESERVED_SECTORS_DEFAULT = 32
 
 .bss
 
@@ -31,6 +31,8 @@ fat_size:
 	.dword 0
 fat_size_count:
 	.dword 0
+reserved_sectors:
+	.byte 0
 
 .code
 
@@ -80,7 +82,7 @@ fat32_mkfs:
 	sty sector_buffer + o_sectors_per_track
 
 	; Calculate sectors per cluster
-	ldx #4 ; XXX 16
+	ldx #6 ; XXX 2
 	stx sectors_per_cluster_shift
 	lda #1
 @spc1:	cpx #0
@@ -94,6 +96,15 @@ fat32_mkfs:
 	sta sectors_per_cluster_minus_1
 	eor #$ff
 	sta sectors_per_cluster_mask
+
+	; Calculate reserved sectors
+	; must be at least sectors_per_cluster
+	lda sectors_per_cluster
+	cmp #RESERVED_SECTORS_DEFAULT
+	bcs @rs1
+	lda #RESERVED_SECTORS_DEFAULT
+@rs1:	sta reserved_sectors
+	sta sector_buffer + o_reserved_sectors
 
 	; Calculate sectors per FAT
 	; naive formula:
@@ -151,19 +162,10 @@ fat32_mkfs:
 	rol fat_size + 3
 
 	; Round up to make divisible by sectors_per_cluster
+	add2_32_8 fat_size, sectors_per_cluster_minus_1
 	lda fat_size
-	clc
-	adc sectors_per_cluster_minus_1
 	and sectors_per_cluster_mask
 	sta fat_size
-	bcc @ruf1
-	inc fat_size + 1
-	bne @ruf1
-	inc fat_size + 2
-	bne @ruf1
-	inc fat_size + 3
-@ruf1:
-
 
 	set32 sector_buffer + o_fat_size, fat_size
 
@@ -213,13 +215,13 @@ fat32_mkfs:
 	sta sector_buffer + $1ff
 
 	; Calculate free clusters
-	; floor((sector_count - RESERV_SECT - 2 * fat_size) / sectors_per_cluster) - 1
+	; floor((sector_count - reserved_sectors - 2 * fat_size) / sectors_per_cluster) - 1
 	;                                                        directory cluster ^^^
 
-	; sector_count - 2 * fat_size - RESERV_SECT
+	; sector_count - 2 * fat_size - reserved_sectors
 	sub32 sector_buffer + $1e8, fat32_dirent + dirent::size, fat_size
 	sub32 sector_buffer + $1e8, sector_buffer + $1e8, fat_size
-	sub32_val sector_buffer + $1e8, sector_buffer + $1e8, RESERV_SECT
+	sub2_32_8 sector_buffer + $1e8, reserved_sectors
 
 	; divide by sectors_per_cluster
 	ldx sectors_per_cluster_shift
@@ -272,7 +274,7 @@ fat32_mkfs:
 	sta sector_buffer + 11
 
 	; Write first sector of FAT
-	add32_val sector_lba, lba_partition, RESERV_SECT
+	add32_8 sector_lba, lba_partition, reserved_sectors
 	jsr write_sector
 	bcc @error2
 
@@ -283,7 +285,7 @@ fat32_mkfs:
 
 	; Clear remainder of FAT
 	jsr clear_buffer
-	add32_val sector_lba, lba_partition, RESERV_SECT
+	add32_8 sector_lba, lba_partition, reserved_sectors
 	jsr write_empty_fat_sectors
 	bcc @error2
 	jsr write_empty_fat_sectors
@@ -323,7 +325,8 @@ bootsector_template:
 	.word 512           ; $000b   2  bytes per sector
 o_sectors_per_cluster = * - bootsector_template
 	.byte 0             ; $000d   1 *sectors per cluster
-	.word RESERV_SECT   ; $000e   2  reserved sectors
+o_reserved_sectors = * - bootsector_template
+	.word 0             ; $000e   2  reserved sectors
 	.byte 2             ; $0010   1  number of FATs
 	.word 0             ; $0011   2  unused
 	.word 0             ; $0013   2  unused
@@ -354,5 +357,4 @@ o_vol_label = * - bootsector_template
 	.byte "FAT32   "    ; $0052   8  filesystem type
 bootsector_template_size = * - bootsector_template
 
-; XXX reserved must be >= sectors_per_cluster
 ; XXX number of clusters must be >= 65525

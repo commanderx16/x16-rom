@@ -427,6 +427,47 @@
 .endmacro
 
 ;-----------------------------------------------------------------------------
+; Add 32-bit and 16-bit variable
+;-----------------------------------------------------------------------------
+.macro add32_8 dst, src_a, src_b
+	clc
+
+	lda src_a + 0
+	adc src_b + 0
+	sta dst + 0
+
+	lda src_a + 1
+	adc #0
+	sta dst + 1
+
+	lda src_a + 2
+	adc #0
+	sta dst + 2
+
+	lda src_a + 3
+	adc #0
+	sta dst + 3
+.endmacro
+
+;-----------------------------------------------------------------------------
+; Add 8-bit variable to 32-bit variable
+;-----------------------------------------------------------------------------
+.macro add2_32_8 dst, src
+	.local @1
+	clc
+	lda dst
+	adc src
+	sta dst
+	bcc @1
+	inc dst + 1
+	bne @1
+	inc dst + 2
+	bne @1
+	inc dst + 3
+@1:
+.endmacro
+
+;-----------------------------------------------------------------------------
 ; Increment 32-bit variable
 ;-----------------------------------------------------------------------------
 .macro inc32 dst
@@ -499,6 +540,28 @@
 
 	lda src_a + 3
 	sbc src_b + 3
+	sta dst + 3
+.endmacro
+
+;-----------------------------------------------------------------------------
+; Subtract two 32-bit variables
+;-----------------------------------------------------------------------------
+.macro sub2_32_8 dst, src
+	sec
+	lda dst + 0
+	sbc src
+	sta dst + 0
+
+	lda dst + 1
+	sbc #0
+	sta dst + 1
+
+	lda dst + 2
+	sbc #0
+	sta dst + 2
+
+	lda dst + 3
+	sbc #0
 	sta dst + 3
 .endmacro
 
