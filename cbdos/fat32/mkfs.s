@@ -19,6 +19,12 @@ RESERV_SECT = 32
 
 sectors_per_cluster_shift:
 	.byte 0
+sectors_per_cluster:
+	.byte 0
+sectors_per_cluster_minus_1:
+	.byte 0
+sectors_per_cluster_mask:
+	.byte 0
 lba_partition:
 	.dword 0
 fat_size:
@@ -74,7 +80,7 @@ fat32_mkfs:
 	sty sector_buffer + o_sectors_per_track
 
 	; Calculate sectors per cluster
-	ldx #0 ; XXX fixed: 1
+	ldx #4 ; XXX 16
 	stx sectors_per_cluster_shift
 	lda #1
 @spc1:	cpx #0
@@ -82,19 +88,23 @@ fat32_mkfs:
 	asl
 	dex
 	bra @spc1
-@spc2:	sta sector_buffer + o_sectors_per_cluster
+@spc2:	sta sectors_per_cluster
+	sta sector_buffer + o_sectors_per_cluster
+	dec
+	sta sectors_per_cluster_minus_1
+	eor #$ff
+	sta sectors_per_cluster_mask
 
 	; Calculate sectors per FAT
 	; naive formula:
 	; * cluster_count = ceil(sector_count / sectors_per_cluster)
 	; * fat_size = ceil(cluster_count / 128)
+	; Then round up to make divisible by sectors_per_cluster.
 
 	; add sectors_per_cluster - 1
 	lda sector_buffer + o_sector_count + 0
-	dec sector_buffer + o_sectors_per_cluster
 	clc
-	adc sector_buffer + o_sectors_per_cluster
-	inc sector_buffer + o_sectors_per_cluster
+	adc sectors_per_cluster_minus_1
 	sta fat_size + 0
 	lda sector_buffer + o_sector_count + 1
 	adc #0
@@ -106,7 +116,7 @@ fat32_mkfs:
 	adc #0
 	sta fat_size + 3
 
-	; divide by sectors_per_cluster
+	; Divide by sectors_per_cluster
 	ldx sectors_per_cluster_shift
 @spf1:	cpx #0
 	beq @spf2
@@ -118,7 +128,7 @@ fat32_mkfs:
 	bra @spf1
 @spf2:
 
-	; add 127, divide by 128
+	; Add 127, divide by 128
 	lda fat_size
 	clc
 	adc #127
@@ -139,6 +149,21 @@ fat32_mkfs:
 	rol fat_size + 1
 	rol fat_size + 2
 	rol fat_size + 3
+
+	; Round up to make divisible by sectors_per_cluster
+	lda fat_size
+	clc
+	adc sectors_per_cluster_minus_1
+	and sectors_per_cluster_mask
+	sta fat_size
+	bcc @ruf1
+	inc fat_size + 1
+	bne @ruf1
+	inc fat_size + 2
+	bne @ruf1
+	inc fat_size + 3
+@ruf1:
+
 
 	set32 sector_buffer + o_fat_size, fat_size
 
@@ -265,8 +290,12 @@ fat32_mkfs:
 	bcc @error2
 
 	; Clear root directory
-	jsr write_sector
-	bcc @error2
+	lda sectors_per_cluster + 0
+	sta fat_size_count + 0
+	stz fat_size_count + 1
+	stz fat_size_count + 2
+	stz fat_size_count + 3
+	jsr write_empty_sectors
 
 	rts
 
@@ -276,14 +305,16 @@ fat32_mkfs:
 
 write_empty_fat_sectors:
 	set32 fat_size_count, fat_size
-@ef1:	inc32 sector_lba
+ef1:
+	inc32 sector_lba
 	dec32 fat_size_count
-	cmp32_z fat_size_count, @ef2
+	cmp32_z fat_size_count, ef2
+write_empty_sectors:
 	jsr write_sector
-	bcc @error
-	bra @ef1
-@ef2:	sec
-@error:	rts
+	bcc error
+	bra ef1
+ef2:	sec
+error:	rts
 
 
 bootsector_template:
@@ -322,3 +353,6 @@ o_vol_label = * - bootsector_template
 	.byte "           " ; $0047  11 *volume label
 	.byte "FAT32   "    ; $0052   8  filesystem type
 bootsector_template_size = * - bootsector_template
+
+; XXX reserved must be >= sectors_per_cluster
+; XXX number of clusters must be >= 65525
