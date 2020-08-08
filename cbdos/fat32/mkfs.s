@@ -40,6 +40,16 @@ tmp:
 
 .code
 
+;-----------------------------------------------------------------------------
+; fat32_mkfs
+;
+; Create a FAT32 filesystem.
+;
+; In:  a  partition (0-3)
+;      x  sectors per cluster (0 = default)
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
 fat32_mkfs:
 	stz fat32_errno
 

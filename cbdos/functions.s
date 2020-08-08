@@ -151,12 +151,13 @@ validate:
 ;---------------------------------------------------------------
 ; new
 ;
-; This is the "N" command, which should initialize a filesystem.
+; This is the "N" command, which initializes a filesystem.
 ; FAT32 filesystems are large, so formatting is a rarely used
 ; and very dangerous function. Therefore, the standard syntax
 ; ("NAME" or "NAME,ID") should not initialize the filesystem
 ; just yet. CMD devices add an optional ",FORMAT" argument,
-; which will be madatory and has to say "FAT32".
+; which is madatory in this implementation and has to say
+; "FAT32", with an optional CHR$(sectors_per_cluster) appended.
 ;
 ; In:   medium  medium
 ;       r0      name
@@ -164,6 +165,7 @@ validate:
 ;       r2      format
 ;---------------------------------------------------------------
 new:
+@sectors_per_cluster  = tmp0
 	jsr create_fat32_path_only_dir
 
 	; for safety, formatting current partition is not allowed
@@ -189,6 +191,12 @@ new:
 	bra @2
 @ok:
 
+	lda #0 ; default number of sectors per cluster
+	cpx r2e
+	beq @3
+	lda buffer,x
+@3:	sta @sectors_per_cluster
+
 	lda #$ff
 	jsr fat32_alloc_context
 	bcc @error1
@@ -196,6 +204,7 @@ new:
 
 	lda medium
 	dec
+	ldx @sectors_per_cluster
 	jsr fat32_mkfs
 	pla
 	bcc @error2
