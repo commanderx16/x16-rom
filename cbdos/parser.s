@@ -15,7 +15,7 @@
 
 ; functions.s
 .export medium, medium1, unix_path, create_unix_path, append_unix_path_b
-.export create_unix_path_only_dir, create_unix_path_only_name, is_filename_empty
+.export create_unix_path_only_dir, create_unix_path_only_name, append_unix_path_only_name, is_filename_empty
 
 .export file_type, file_mode, filter0, filter1
 
@@ -570,6 +570,7 @@ create_unix_path_only_dir:
 
 create_unix_path_only_name:
 	ldy #0
+append_unix_path_only_name:
 	ldx r1s
 	lda r1e
 	jsr copy_chars

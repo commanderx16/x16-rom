@@ -45,8 +45,11 @@ tmp:
 ;
 ; Create a FAT32 filesystem.
 ;
-; In:  a  partition (0-3)
-;      x  sectors per cluster (0 = default)
+; In:  a           partition (0-3)
+;      x           sectors per cluster (0 = default)
+;      fat32_ptr   volume label (8 chars)
+;      fat32_ptr2  volume ID (4 bytes)
+;      fat32_ptr3  OEM name (8 chars)
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
@@ -241,6 +244,20 @@ fat32_mkfs:
 	sta fat_size
 
 	set32 sector_buffer + o_fat_size, fat_size
+
+	; Set volume ID
+	lda fat32_ptr2
+	ora fat32_ptr2 + 1
+	beq @vi2
+	ldy #0
+@vi1:	lda (fat32_ptr2), y
+	beq @vi2
+	sta sector_buffer + o_vol_id, y
+	iny
+	cpy #4
+	bne @vi1
+
+@vi2:
 
 	; Set volume label
 	lda fat32_ptr

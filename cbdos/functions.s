@@ -26,7 +26,7 @@
 .export alloc_context
 
 .export create_fat32_path_only_dir, create_fat32_path_only_name
-.import create_unix_path_only_dir, create_unix_path_only_name
+.import create_unix_path_only_dir, create_unix_path_only_name, append_unix_path_only_name
 
 .import buffer
 
@@ -73,9 +73,12 @@ create_fat32_path:
 	sta fat32_ptr + 1
 	jmp create_unix_path
 
-create_fat32_path_x2:
-	jsr create_fat32_path
-
+create_fat32_path_r0r1:
+	lda #<unix_path
+	sta fat32_ptr + 0
+	lda #>unix_path
+	sta fat32_ptr + 1
+	jsr create_unix_path_only_dir
 	tya
 	clc
 	adc #<unix_path
@@ -83,7 +86,17 @@ create_fat32_path_x2:
 	lda #>unix_path
 	adc #0
 	sta fat32_ptr2 + 1
+	jmp append_unix_path_only_name
 
+create_fat32_path_x2:
+	jsr create_fat32_path
+	tya
+	clc
+	adc #<unix_path
+	sta fat32_ptr2 + 0
+	lda #>unix_path
+	adc #0
+	sta fat32_ptr2 + 1
 	jmp append_unix_path_b
 
 ;---------------------------------------------------------------
@@ -166,7 +179,7 @@ validate:
 ;---------------------------------------------------------------
 new:
 @sectors_per_cluster  = tmp0
-	jsr create_fat32_path_only_dir
+	jsr create_fat32_path_r0r1
 
 	; for safety, formatting current partition is not allowed
 	ldx medium
