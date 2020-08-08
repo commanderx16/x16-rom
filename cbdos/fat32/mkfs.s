@@ -113,19 +113,7 @@ fat32_mkfs:
 	; Then round up to make divisible by sectors_per_cluster.
 
 	; add sectors_per_cluster - 1
-	lda sector_buffer + o_sector_count + 0
-	clc
-	adc sectors_per_cluster_minus_1
-	sta fat_size + 0
-	lda sector_buffer + o_sector_count + 1
-	adc #0
-	sta fat_size + 1
-	lda sector_buffer + o_sector_count + 2
-	adc #0
-	sta fat_size + 2
-	lda sector_buffer + o_sector_count + 3
-	adc #0
-	sta fat_size + 3
+	add32_8 fat_size, sector_buffer + o_sector_count, sectors_per_cluster_minus_1
 
 	; Divide by sectors_per_cluster
 	ldx sectors_per_cluster_shift
