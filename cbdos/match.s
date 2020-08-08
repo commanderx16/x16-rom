@@ -15,7 +15,10 @@
 
 .bss
 
-skip_mask:           .byte 0
+skip_mask:
+      .byte 0
+char_tmp:
+	.byte 0
 
 .code
 
@@ -217,13 +220,18 @@ match_name:
 	ldx #0
 @1:	lda (fat32_ptr), y
 	beq @match
+	cmp #'/'
+	beq @match
 	cmp #'?'
 	beq @char_match
 	cmp #'*'
 	beq @asterisk
-	cmp #'/'
-	beq @match
-	cmp fat32_dirent + dirent::name, x
+	jsr to_lower
+	sta char_tmp
+	lda fat32_dirent + dirent::name, x
+	jsr to_lower
+	cmp char_tmp
+	beq @char_match
 	bne @no
 @char_match:
 	inx
