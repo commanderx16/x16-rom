@@ -97,10 +97,11 @@ fat32_mkfs:
 @mfs1:
 
 	; Calculate sectors per cluster
-	; Higher sectors per cluster values waste space, but speed up access.
+	; Higher sectors per cluster values waste space, but speed up access
+	; (fewer FAT lookups), and significantly speed up formatting.
 	; We pick the highest legal value. There have to be at least 65525
 	; clusters, so the algorithm is to keep ASLing the number of sectors
-	; until it's $0001xxxx, i.e. between 65536 and 131071.
+	; until it's $0001nnnn, i.e. between 65536 and 131071.
 	set32 tmp, fat32_dirent + dirent::size
 	ldx #0
 @spc1:	lda tmp + 3
@@ -374,5 +375,3 @@ o_vol_label = * - bootsector_template
 	.byte "           " ; $0047  11 *volume label
 	.byte "FAT32   "    ; $0052   8  filesystem type
 bootsector_template_size = * - bootsector_template
-
-; XXX number of clusters must be >= 65525
