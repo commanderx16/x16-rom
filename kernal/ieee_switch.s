@@ -46,7 +46,8 @@ secnd:
 	bit cbdos_enabled
 	bmi :+
 	jmp serial_secnd
-:	jsr jsrfar
+:	jsr upload_time
+	jsr jsrfar
 	.word $c000 + 3 * 0
 	.byte BANK_CBDOS
 	rts
@@ -91,8 +92,7 @@ unlsn:
 	bit cbdos_enabled
 	bmi :+
 	jmp serial_unlsn
-:	jsr upload_time
-	jsr jsrfar
+:	jsr jsrfar
 	.word $c000 + 3 * 5
 	.byte BANK_CBDOS
 	rts
@@ -144,7 +144,15 @@ cbdos_detect:
 	pla
 	rts
 
+; Called by SECOND: If it's a CLOSE command, upload the curent time.
 upload_time:
+	pha
+	and #$f0
+	cmp #$e0 ; CLOSE
+	beq @0
+	pla
+	rts
+@0:
 	ldx #2
 @1:	lda 0,x
 	pha
@@ -174,4 +182,6 @@ upload_time:
 	dex
 	cpx #1
 	bne @4
+
+	pla
 	rts
