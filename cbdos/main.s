@@ -4,6 +4,7 @@
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
 .include "fat32/fat32.inc"
+.include "fat32/sdcard.inc"
 
 .import sdcard_init
 
@@ -30,7 +31,7 @@
 
 ; jumptab.s
 .export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk
-.export cbdos_sdcard_detect, cbdos_set_time
+.export cbdos_set_time
 
 .include "banks.inc"
 
@@ -59,9 +60,8 @@ via1porta   = via1+1 ; RAM bank
 .segment "cbdos_data"
 
 ; Commodore DOS variables
-initialized:
+sdcard_active:
 	.byte 0
-MAGIC_INITIALIZED  = $7A
 listen_cmd:
 	.byte 0
 channel:
@@ -77,21 +77,59 @@ CONTEXT_DIR  = $fe
 .segment "cbdos"
 
 ;---------------------------------------------------------------
-; Initialize CBDOS data structures
+; Initialize CBDOS
 ;
-; This has to be done once and is triggered by
-; cbdos_sdcard_detect.
+; This is called once on a system RESET.
 ;---------------------------------------------------------------
 cbdos_init:
-	lda #MAGIC_INITIALIZED
-	cmp initialized
-	bne :+
+	BANKING_START
+	; SD card needs detection and init
+	stz sdcard_active
+	; SD card detection will trigger a call to reset_dos
+	BANKING_END
 	rts
 
-:	sta initialized
-	phx
-	phy
+;---------------------------------------------------------------
+; detect
+;
+; This is called by every TALK and LISTEN:
+; * If there is an active SD card, verify it is still present.
+; * If there is no active SD card, try to detect one.
+;
+; Out:  c  =1: SD card is present
+;---------------------------------------------------------------
+detect:
+	bit sdcard_active
+	bpl @not_active
 
+	jmp sdcard_check_alive
+
+@not_active:
+	; no SD card - try to init it.
+	jsr sdcard_init
+	bcs @1
+	; no SD card
+	rts
+
+@1:	lda #$80
+	sta sdcard_active
+	jsr reset_dos
+	; SD card present
+	sec
+	rts
+
+;---------------------------------------------------------------
+; reset_dos
+;
+; Reset CBDOS after a new SD card has been inserted
+;
+; The SD card is considered a drive, not a medium. When there is
+; no SD card, this is the equivalent of an IEEE layer timeout,
+; not a "74,DRIVE NOT READY,00,00".
+; Therefore, whenever an SD card is inserted, all of DOS is
+; reset.
+;---------------------------------------------------------------
+reset_dos:
 	ldx #14
 	lda #CONTEXT_NONE
 :	sta context_for_channel,x
@@ -101,41 +139,12 @@ cbdos_init:
 	lda #$73
 	jsr set_status
 
-	; TODO error handling
 	jsr fat32_init
 
 	lda #1
 	sta cur_medium
 
-	ply
-	plx
 	rts
-
-;---------------------------------------------------------------
-; Detect SD card
-;
-; Returns Z=1 if SD card is present
-;---------------------------------------------------------------
-cbdos_sdcard_detect:
-	BANKING_START
-	jsr cbdos_init
-
-.if 0
-	; re-init the SD card
-	; * first write back any dirty sectors
-	jsr sync_sector_buffer
-	; * then init it
-	jsr sdcard_init
-
-	lda #0
-	rol
-	eor #1          ; Z=0: error
-.else
-	lda #0
-.endif
-	BANKING_END
-	rts
-
 
 ;---------------------------------------------------------------
 ; cbdos_set_time
@@ -162,8 +171,7 @@ cbdos_set_time:
 ;
 ; Nothing to do.
 ;---------------------------------------------------------------
-cbdos_listn:
-	rts
+cbdos_listn = detect
 
 ;---------------------------------------------------------------
 ; SECOND (after LISTEN)
@@ -348,8 +356,7 @@ cbdos_unlsn:
 ;
 ; Nothing to do.
 ;---------------------------------------------------------------
-cbdos_talk:
-	rts
+cbdos_talk = detect
 
 
 ;---------------------------------------------------------------
@@ -457,3 +464,4 @@ cbdos_untlk:
 
 .segment "IRQB"
 	.word banked_irq
+

@@ -3,11 +3,11 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.import cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk, cbdos_set_time
+.import cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk
 
 .import cbmdos_OpenDisk, cbmdos_ReadBuff, cbmdos_ReadBlock, cbmdos_GetDirHead, cbmdos_CalcBlksFree, cbmdos_Get1stDirEntry, cbmdos_GetNxtDirEntry
 
-.import cbdos_sdcard_detect
+.import cbdos_init, cbdos_set_time
 
 .segment "cbdos_jmptab"
 ; $C000
@@ -31,6 +31,6 @@
 	jmp cbmdos_Get1stDirEntry   ; 13
 	jmp cbmdos_GetNxtDirEntry   ; 14
 
-; detection
-	jmp cbdos_sdcard_detect     ; 15
+; init/meta
+	jmp cbdos_init              ; 15
 	jmp cbdos_set_time          ; 16

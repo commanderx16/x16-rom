@@ -12,6 +12,8 @@
 .import memtop
 .import membot
 
+.import ieeeswitch_init
+
 .export ramtas
 .export enter_basic
 .export monitor
@@ -123,7 +125,14 @@ ramtas:
 	lda #1
 	sta d1pra ; RAM bank
 
-	rts
+;
+; initialize CBDOS
+;
+; This is not the perfect spot for this, but we cannot do this
+; any earlier, since it relies on jsrfar.
+;
+	jmp ieeeswitch_init
+
 
 jsrfar:
 .include "jsrfar.inc"

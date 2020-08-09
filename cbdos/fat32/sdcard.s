@@ -489,3 +489,43 @@ sdcard_write_sector:
 	jsr deselect
 	clc
 	rts
+
+;-----------------------------------------------------------------------------
+; sdcard_check_alive
+;
+; Check whether SD card is still present, or whether it has been removed.
+;
+; Out:  c  =1: SD card is alive
+;          =0: SD card has been removed
+;-----------------------------------------------------------------------------
+sdcard_check_alive:
+	; save sector
+	ldx #0
+@1:	lda sector_lba, x
+	pha
+	inx
+	cpx #4
+	bne @1
+
+	send_cmd_inline 8, $1AA
+	bcc @error
+	pha
+	jsr spi_read
+	jsr spi_read
+	jsr spi_read
+	jsr spi_read
+	jsr deselect
+	pla
+	cmp #1	; No error?
+	clc
+	bne @error
+	sec
+@error:
+	; restore sector
+	; (this code preserves the C flag!)
+	ldx #3
+@2:	pla
+	lda sector_lba, x
+	dex
+	bpl @2
+	rts
