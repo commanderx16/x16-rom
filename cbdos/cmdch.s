@@ -195,6 +195,7 @@ get_hundreds:
 
 
 bin_to_bcd:
+	phy
 	tay
 	lda #0
 	sed
@@ -205,6 +206,7 @@ bin_to_bcd:
 	dey
 	bra @loop
 @end:	cld
+	ply
 	rts
 
 stcodes:

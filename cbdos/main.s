@@ -143,12 +143,7 @@ cbdos_sdcard_detect:
 cbdos_set_time:
 	BANKING_START
 	lda 2
-	bne @1
-	dec
-	bra @2
-@1:	sec
-	sbc #80
-@2:	sta fat32_time_year
+	sta fat32_time_year
 	lda 3
 	sta fat32_time_month
 	lda 4

@@ -6,6 +6,7 @@
 .include "banks.inc"
 
 .import jsrfar
+.import clock_get_date_time
 
 .import cbdos_secnd
 .import cbdos_tksa
@@ -151,16 +152,26 @@ upload_time:
 	cpx #9
 	bne @1
 
-	jsr $ff50
+	jsr clock_get_date_time
+
+	; convert from 1900 to 1980
+	; 1900 -> no time information (255)
+	lda 2
+	bne @2
+	dec
+	bra @3
+@2:	sec
+	sbc #80
+@3:	sta 2
 
 	jsr jsrfar
 	.word $c000 + 3 * 16
 	.byte BANK_CBDOS
 
 	ldx #8
-@2:	pla
+@4:	pla
 	sta 0,x
 	dex
 	cpx #1
-	bne @2
+	bne @4
 	rts

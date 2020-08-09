@@ -595,11 +595,8 @@ txt_prg:
 txt_dir:
 	.byte "DIR", 0
 
-storedec8:
-	phy
+storedec8: ; supports one or two digits only; 0-padded
 	jsr bin_to_bcd
-	ply
-
 storehex8:
 	pha
 	lsr
