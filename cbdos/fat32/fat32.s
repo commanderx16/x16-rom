@@ -19,7 +19,7 @@
 	.import match_name, match_type
 
 	; mkfs.s
-	.export load_mbr_sector, write_sector, clear_buffer, set_errno
+	.export load_mbr_sector, write_sector, clear_buffer, set_errno, unmount
 
 
 FLAG_IN_USE = 1<<0  ; Context in use
@@ -146,14 +146,18 @@ _fat32_bss_end:
 ;-----------------------------------------------------------------------------
 ; set_volume
 ;
-; In:  a volume
+; In:  a  volume
+;      c  =1: don't mount
 ;
 ; * c=0: failure
 ;-----------------------------------------------------------------------------
 set_volume:
+	php ; mount flag
+
 	; Already selected?
 	cmp volume_idx
 	bne @0
+	plp
 	sec
 	rts
 
@@ -162,6 +166,7 @@ set_volume:
 	cmp #FAT32_VOLUMES
 	bcc @ok
 
+	plp
 	lda #ERRNO_NO_FS
 	jmp set_errno
 
@@ -214,10 +219,13 @@ set_volume:
 .endif
 
 	sta volume_idx
+
+	plp
+	bcs @done ; don't mount
 	bit cur_volume + fs::mounted
 	bmi @done
 	lda volume_idx
-	jmp fat32_mount
+	jmp mount
 @done:
 	sec
 	rts
@@ -612,6 +620,7 @@ fat32_alloc_context:
 	cmp #$ff
 	sec
 	beq @2
+	clc
 	jsr set_volume
 @2:	pla
 	bcs @rts
@@ -1200,13 +1209,13 @@ fat32_init:
 	rts
 
 ;-----------------------------------------------------------------------------
-; fat32_mount
+; mount
 ;
 ; In:  a  partition number (0+)
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
-fat32_mount:
+mount:
 	pha ; partition number
 
 	jsr load_mbr_sector
@@ -1320,6 +1329,23 @@ fat32_mount:
 	rts
 
 ;-----------------------------------------------------------------------------
+; unmount
+;
+; In:  a  partition number (0+)
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+unmount:
+	sec ; don't mount
+	jsr set_volume
+	; Set unmounted
+	stz cur_volume + fs::mounted
+	; No current volume
+	lda #$ff
+	sta volume_idx
+	rts
+
+;-----------------------------------------------------------------------------
 ; fat32_set_context
 ;
 ; context index in A
@@ -1393,6 +1419,7 @@ fat32_set_context:
 	lda volume_for_context, x
 	cmp #$ff
 	beq @no_volume
+	clc
 	jsr set_volume
 	bcc @error
 

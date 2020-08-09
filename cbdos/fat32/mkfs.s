@@ -10,7 +10,7 @@
 
 ; fat32.s
 .import load_mbr_sector, write_sector, clear_buffer, fat32_dirent, fat32_get_ptable_entry
-.import set_errno, fat32_errno
+.import set_errno, fat32_errno, unmount
 
 .export fat32_mkfs
 
@@ -65,6 +65,11 @@ fat32_mkfs:
 	stx oemname_ptr
 	ldx fat32_bufptr + 1
 	stx oemname_ptr + 1
+
+	pha
+	jsr unmount
+	pla
+	bcc @error
 
 	; Get start and size of partition
 	jsr fat32_get_ptable_entry
