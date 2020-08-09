@@ -26,6 +26,7 @@
 .import serial_listn
 .import serial_talk
 
+.export ieeeswitch_init
 .export secnd
 .export tksa
 .export acptr
@@ -37,14 +38,22 @@
 
 .segment "KVAR"
 
-cbdos_enabled:
+cbdos_unit:
 	.res 1
 
 .segment "IEEESWTCH"
 
+ieeeswitch_init:
+	lda #8
+	sta cbdos_unit
+	jsr jsrfar
+	.word $c000 + 3 * 15 ; cbdos_init
+	.byte BANK_CBDOS
+	rts
+
 secnd:
-	bit cbdos_enabled
-	bmi :+
+	bit cbdos_unit
+	bpl :+
 	jmp serial_secnd
 :	jsr upload_time
 	jsr jsrfar
@@ -53,8 +62,8 @@ secnd:
 	rts
 
 tksa:
-	bit cbdos_enabled
-	bmi :+
+	bit cbdos_unit
+	bpl :+
 	jmp serial_tksa
 :	jsr jsrfar
 	.word $c000 + 3 * 1
@@ -62,8 +71,8 @@ tksa:
 	rts
 
 acptr:
-	bit cbdos_enabled
-	bmi :+
+	bit cbdos_unit
+	bpl :+
 	jmp serial_acptr
 :	jsr jsrfar
 	.word $c000 + 3 * 2
@@ -71,8 +80,8 @@ acptr:
 	rts
 
 ciout:
-	bit cbdos_enabled
-	bmi :+
+	bit cbdos_unit
+	bpl :+
 	jmp serial_ciout
 :	jsr jsrfar
 	.word $c000 + 3 * 3
@@ -80,8 +89,8 @@ ciout:
 	rts
 
 untlk:
-	bit cbdos_enabled
-	bmi :+
+	bit cbdos_unit
+	bpl :+
 	jmp serial_untlk
 :	jsr jsrfar
 	.word $c000 + 3 * 4
@@ -89,8 +98,8 @@ untlk:
 	rts
 
 unlsn:
-	bit cbdos_enabled
-	bmi :+
+	bit cbdos_unit
+	bpl :+
 	jmp serial_unlsn
 :	jsr jsrfar
 	.word $c000 + 3 * 5
@@ -98,51 +107,48 @@ unlsn:
 	rts
 
 listn:
-	jsr cbdos_detect
-	bit cbdos_enabled
-	bmi :+
-	jmp serial_listn
-:	jsr jsrfar
+	asl
+	asl cbdos_unit
+	cmp cbdos_unit
+	php
+	lsr
+	lsr cbdos_unit
+	plp
+	bne @1
+	jsr jsrfar
 	.word $c000 + 3 * 6
 	.byte BANK_CBDOS
-	rts
+	lda cbdos_unit
+	php
+	asl
+	plp
+	ror
+	sta cbdos_unit
+	bpl @2
+@1:	jmp serial_listn
+@2:	rts
 
 talk:
-	jsr cbdos_detect
-	bit cbdos_enabled
-	bmi :+
-	jmp serial_talk
-:	jsr jsrfar
+	asl
+	asl cbdos_unit
+	cmp cbdos_unit
+	php
+	lsr
+	lsr cbdos_unit
+	plp
+	bne @1
+	jsr jsrfar
 	.word $c000 + 3 * 7
 	.byte BANK_CBDOS
-	rts
-
-cbdos_detect:
-	pha
-	lda cbdos_enabled
-	beq :+
-	pla
-	rts
-
-:	phx
-	phy
-
+	lda cbdos_unit
 	php
-	sei
-	jsr jsrfar
-	.word $c000 + 3 * 15
-	.byte BANK_CBDOS
-	beq @detected
-	lda #0
-	bra :+
-@detected:
-	lda #$80
-:	sta cbdos_enabled
+	asl
 	plp
-	ply
-	plx
-	pla
-	rts
+	ror
+	sta cbdos_unit
+	bpl @2
+@1:	jmp serial_talk
+@2:	rts
 
 ; Called by SECOND: If it's a CLOSE command, upload the curent time.
 upload_time:

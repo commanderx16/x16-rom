@@ -1187,13 +1187,6 @@ fat32_init:
 	cpx #>_fat32_bss_end
 	bne @1
 
-	; Initialize SD card
-	jsr sdcard_init
-	bcs @0
-	lda #ERRNO_NO_MEDIA
-	jmp set_errno
-@0:
-
 	; Make sure sector_lba is non-zero
 	; (was overwritten by sdcard_init)
 	lda #$FF

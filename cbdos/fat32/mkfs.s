@@ -19,6 +19,9 @@ MAX_SECTORS_PER_CLUSTER_SHIFT = 7
 
 .bss
 
+; These are temporary and don't carry any state across calls to fat32_mkfs,
+; so don't have to be cleared.
+
 sectors_per_cluster_shift:
 	.byte 0
 sectors_per_cluster:
