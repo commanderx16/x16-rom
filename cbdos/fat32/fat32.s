@@ -5,7 +5,6 @@
 ;
 ; TODO:
 ; - implement fat32_seek
-; - implement timestamps
 ;-----------------------------------------------------------------------------
 
 	.include "fat32.inc"
@@ -119,7 +118,6 @@ fat32_dirent:        .tag dirent   ; Buffer containing decoded directory entry
 fat32_size:          .res 4        ; Used for fat32_read, fat32_write, fat32_get_offset, fat32_get_free_space
 fat32_errno:         .byte 0       ; Last error
 fat32_readonly:      .byte 0       ; User-accessible read-only flag
-fat32_time_callback: .word 0       ; Callback pointer to user for getting the current date/time
 
 ; Contexts
 context_idx:         .byte 0       ; Index of current context
@@ -1195,6 +1193,9 @@ fat32_init:
 	; No current volume
 	sta volume_idx
 
+	; No time set up
+	sta fat32_time_year
+
 	sec
 	rts
 
@@ -1719,7 +1720,7 @@ read_dirent:
 	stz fat32_dirent + dirent::name, x
 
 @name_done_z:
-	; Decode timestamp
+	; Decode mtime timestamp
 	ldy #$16
 	lda (fat32_bufptr), y
 	iny
@@ -2725,7 +2726,7 @@ fat32_close:
 	bcs :+
 	jmp error_clear_context
 :
-	; Update directory entry with new size if needed
+	; Update directory entry with new size and mdate if needed
 	lda cur_context + context::flags
 	bit #FLAG_DIRENT
 	bne :+
@@ -2754,14 +2755,13 @@ fat32_close:
 	lda cur_context + context::file_size + 3
 	sta (fat32_bufptr), y
 
-	; Timestamp?
-@xxx1:	lda fat32_time_callback
-	ora fat32_time_callback + 1
-	bne @ts1
-
-	; Clear timestamp
-	ldy #$16
+	; Encode mtime timestamp
+@ts1:	lda fat32_time_year
+	inc
+	bne @ts3
+	; no time set up
 	lda #0
+	ldy #$16
 	sta (fat32_bufptr), y
 	iny
 	sta (fat32_bufptr), y
@@ -2771,10 +2771,7 @@ fat32_close:
 	sta (fat32_bufptr), y
 	bra @ts2
 
-	; Encode timestamp
-@ts1:	jsr time_callback
-
-	ldy #$16
+@ts3:	ldy #$16
 	lda fat32_time_minutes
 	tax
 	asl
@@ -2821,6 +2818,34 @@ fat32_close:
 	sta (fat32_bufptr), y
 @ts2:
 
+	; Fill creation date if empty
+	ldy #$0e
+	lda (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	iny
+	ora (fat32_bufptr), y
+	bne @ts4
+	ldy #$16
+	lda (fat32_bufptr), y
+	ldy #$0e
+	sta (fat32_bufptr), y
+	ldy #$17
+	lda (fat32_bufptr), y
+	ldy #$0f
+	sta (fat32_bufptr), y
+	ldy #$18
+	lda (fat32_bufptr), y
+	ldy #$10
+	sta (fat32_bufptr), y
+	ldy #$19
+	lda (fat32_bufptr), y
+	ldy #$11
+	sta (fat32_bufptr), y
+@ts4:
+
 	; Write directory sector
 	jsr save_sector_buffer
 	bcc error_clear_context
@@ -2829,9 +2854,6 @@ fat32_close:
 
 	sec
 	rts
-
-time_callback:
-	jmp (fat32_time_callback)
 
 ;-----------------------------------------------------------------------------
 ; error_clear_context

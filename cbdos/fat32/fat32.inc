@@ -50,7 +50,6 @@
 .global fat32_errno
 .global fat32_readonly
 
-.global fat32_time_callback
 .global fat32_time_year
 .global fat32_time_month
 .global fat32_time_day

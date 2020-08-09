@@ -30,7 +30,7 @@
 
 ; jumptab.s
 .export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk
-.export cbdos_sdcard_detect
+.export cbdos_sdcard_detect, cbdos_set_time
 
 .include "banks.inc"
 
@@ -104,34 +104,11 @@ cbdos_init:
 	; TODO error handling
 	jsr fat32_init
 
-	lda #<get_time
-	sta fat32_time_callback + 0
-	lda #>get_time
-	sta fat32_time_callback + 1
-
 	lda #1
 	sta cur_medium
 
 	ply
 	plx
-	rts
-
-;---------------------------------------------------------------
-; get_time
-;---------------------------------------------------------------
-get_time:
-	lda #8
-	sta fat32_time_year
-	lda #4
-	sta fat32_time_month
-	lda #16
-	sta fat32_time_day
-	lda #1
-	sta fat32_time_hours
-	lda #26
-	sta fat32_time_minutes
-	lda #59
-	sta fat32_time_seconds
 	rts
 
 ;---------------------------------------------------------------
@@ -156,6 +133,32 @@ cbdos_sdcard_detect:
 .else
 	lda #0
 .endif
+	BANKING_END
+	rts
+
+
+;---------------------------------------------------------------
+; cbdos_set_time
+;---------------------------------------------------------------
+cbdos_set_time:
+	BANKING_START
+	lda 2
+	bne @1
+	dec
+	bra @2
+@1:	sec
+	sbc #80
+@2:	sta fat32_time_year
+	lda 3
+	sta fat32_time_month
+	lda 4
+	sta fat32_time_day
+	lda 5
+	sta fat32_time_hours
+	lda 6
+	sta fat32_time_minutes
+	lda 7
+	sta fat32_time_seconds
 	BANKING_END
 	rts
 

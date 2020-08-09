@@ -90,7 +90,8 @@ unlsn:
 	bit cbdos_enabled
 	bmi :+
 	jmp serial_unlsn
-:	jsr jsrfar
+:	jsr upload_time
+	jsr jsrfar
 	.word $c000 + 3 * 5
 	.byte BANK_CBDOS
 	rts
@@ -140,4 +141,26 @@ cbdos_detect:
 	ply
 	plx
 	pla
+	rts
+
+upload_time:
+	ldx #2
+@1:	lda 0,x
+	pha
+	inx
+	cpx #9
+	bne @1
+
+	jsr $ff50
+
+	jsr jsrfar
+	.word $c000 + 3 * 16
+	.byte BANK_CBDOS
+
+	ldx #8
+@2:	pla
+	sta 0,x
+	dex
+	cpx #1
+	bne @2
 	rts
