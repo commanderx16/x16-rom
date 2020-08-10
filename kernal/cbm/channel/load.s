@@ -30,7 +30,7 @@ load	jmp (iload)     ;monitor load entry
 ;
 nload	and #$1f
 	sta verck       ;store verify flag
-	dec verck
+	dec verck       ;<0: RAM, =0: VERIFY, >0: VRAM
 	lda #0
 	sta status
 ;
@@ -81,11 +81,30 @@ ld25	ldx sa          ;save sa in .x
 ld30	jsr loding      ;tell user loading
 ;
 	ldy verck       ;are we loading into vram?
-	beq ld40        ;no
-	bmi ld40        ;no
+	beq ld40        ;no (verify)
+	bpl ld35        ;yes
+
+; load into RAM - try block-wise
+	.import bacptr
+bld10	ldx eal
+	ldy eah
+	jsr bacptr
+	bcs ld40        ;not supported, fall back to byte-wise
+	tax
+	beq bld20
+	clc
+	adc eal
+	sta eal
+	bcc bld30
+bld20	inc eah
+bld30	bit status      ;eoi?
+	bvc bld10       ;no...continue load
+	bra ld70
+
 ;
 ;initialize vera registers
 ;
+ld35
 	dey
 	tya
 	and #$01        ;mask the bank number
@@ -146,7 +165,7 @@ ld62	lda #$a0        ;wrap to bottom of high ram
 ld64	bit status      ;eoi?
 	bvc ld40        ;no...continue load
 ;
-	jsr untlk       ;close channel
+ld70	jsr untlk       ;close channel
 	jsr clsei       ;close the file
 	jsr prnto
 ;

@@ -30,7 +30,7 @@
 .export channel, context_for_channel, ieee_status
 
 ; jumptab.s
-.export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk
+.export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk, cbdos_bacptr
 .export cbdos_set_time
 
 .include "banks.inc"
@@ -502,6 +502,18 @@ file_close_clr_channel:
 ; UNTALK
 ;---------------------------------------------------------------
 cbdos_untlk:
+	rts
+
+;---------------------------------------------------------------
+; BLOCK-WISE RECEIVE
+;---------------------------------------------------------------
+cbdos_bacptr:
+	.importzp fat32_bufptr
+	stx fat32_bufptr
+	sty fat32_bufptr + 1
+	jsr cbdos_acptr
+	sta (fat32_bufptr)
+	lda #1
 	rts
 
 .segment "IRQB"
