@@ -182,7 +182,7 @@ listen_cmd:
 	lda #$6f
 	jsr second
 	jsr readst
-	bmi :+
+	bmi device_not_present
 	rts
 device_not_present:
 	ldx #5 ; "DEVICE NOT PRESENT"
@@ -229,8 +229,12 @@ disk_dir
 	ldy #$60        ;sa
 	jsr setlfs
 	jsr open        ;open directory channel
-	bcs disk_done   ;...branch on error
-	ldx #LOGADD
+	jsr readst
+	bpl :+
+	lda #LOGADD
+	jsr close
+	jmp device_not_present
+:	ldx #LOGADD
 	jsr chkin       ;make it an input channel
 
 	jsr crdo
