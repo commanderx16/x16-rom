@@ -35,6 +35,7 @@
 .export unlsn
 .export listn
 .export talk
+.export bacptr
 
 .segment "KVAR"
 
@@ -141,6 +142,18 @@ talk:
 	sta cbdos_flags
 	pla
 	jmp serial_talk
+
+bacptr:
+	bit cbdos_flags
+	bvs :+
+	sec ; error: unsupported
+	rts
+:	jsr jsrfar
+	.word $c000 + 3 * 17
+	.byte BANK_CBDOS
+	clc
+	rts
+
 
 ; Called by SECOND: If it's a CLOSE command, upload the curent time.
 upload_time:

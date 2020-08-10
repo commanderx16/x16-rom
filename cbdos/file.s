@@ -181,6 +181,10 @@ file_close:
 	rts
 
 ;---------------------------------------------------------------
+; file_read
+;
+; Read one byte from the current context.
+;
 ; Out:  a  byte
 ;       c  =1: EOI
 ;---------------------------------------------------------------
@@ -202,6 +206,40 @@ file_read:
 
 @acptr_file_not_open:
 	sec
+	rts
+
+;---------------------------------------------------------------
+; file_read_block
+;
+; Read up to 256 bytes from the current context. The
+; implementation is free to return any number of bytes,
+; optimizing for speed and simplicity.
+; We always read to the end of the next 256 byte page in the
+; file to reduce the amount of work in fat32_read a bit.
+;
+; Out:  (fat32_ptr)  data
+;       a            bytes read (=0: 256 bytes)
+;       c            =1: error or EOF (no bytes received)
+;---------------------------------------------------------------
+file_read_block:
+	jsr fat32_get_offset
+	lda fat32_size + 0
+	eor #$ff
+	inc
+	sta fat32_size + 0
+	stz fat32_size + 1
+	bne @2
+	inc fat32_size + 1
+@2:	jsr fat32_read
+	lda fat32_size
+	bcc @eof_or_error
+@ok:	clc
+	rts
+
+@eof_or_error:
+	bne @ok ; EOF, but data received
+
+@error:	sec ; EOF or error, no data received
 	rts
 
 ;---------------------------------------------------------------

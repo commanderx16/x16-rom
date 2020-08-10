@@ -30,7 +30,7 @@
 .export channel, context_for_channel, ieee_status
 
 ; jumptab.s
-.export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk
+.export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk, cbdos_bacptr
 .export cbdos_set_time
 
 .include "banks.inc"
@@ -249,10 +249,6 @@ cbdos_secnd:
 ;---------------------------------------------------------------
 ; CLOSE
 @second_close:
-	ldx channel
-	lda context_for_channel,x
-	bmi @secnd_rts
-
 	jsr file_close_clr_channel
 	bra @secnd_rts
 
@@ -451,7 +447,6 @@ cbdos_acptr:
 
 @acptr_eval:
 	bcc @acptr_end_ok
-	pha
 	bra @acptr_eoi
 
 @nacptr_status:
@@ -475,15 +470,11 @@ cbdos_acptr:
 
 
 @acptr_end_file_eoi:
-	ldx channel
-	ldy context_for_channel,x
-	bmi @acptr_eoi
-
 	pha ; data byte
-	tya
 	jsr file_close_clr_channel
-
+	pla
 @acptr_eoi:
+	pha
 	lda #$40 ; EOI
 	ora ieee_status
 	sta ieee_status
@@ -492,11 +483,14 @@ cbdos_acptr:
 
 ;---------------------------------------------------------------
 file_close_clr_channel:
+	ldx channel
+	lda context_for_channel,x
+	bmi @1
 	jsr file_close
 	ldx channel
 	lda #CONTEXT_NONE
 	sta context_for_channel,x
-	rts
+@1:	rts
 
 ;---------------------------------------------------------------
 ; UNTALK
@@ -504,6 +498,40 @@ file_close_clr_channel:
 cbdos_untlk:
 	rts
 
+;---------------------------------------------------------------
+; BLOCK-WISE RECEIVE
+;---------------------------------------------------------------
+cbdos_bacptr:
+	.importzp fat32_ptr
+	BANKING_START
+	stx fat32_ptr
+	sty fat32_ptr + 1
+	bit cur_context
+	bmi @1
+
+	jsr file_read_block ; read up to 256 bytes
+	bcs @bacptr_end_file_eoi
+
+	stz ieee_status
+@bacptr_end:
+	BANKING_END
+	rts
+
+@bacptr_end_file_eoi:
+	jsr file_close_clr_channel
+	lda #$40 ; EOI
+	ora ieee_status
+	sta ieee_status
+	bra @bacptr_end
+
+@1:	; not a file - get a single byte
+	jsr cbdos_acptr
+	sta (fat32_ptr)
+	lda #1
+	bra @bacptr_end
+
+
+;---------------------------------------------------------------
 .segment "IRQB"
 	.word banked_irq
 
