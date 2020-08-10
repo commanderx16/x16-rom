@@ -525,7 +525,7 @@ sdcard_check_alive:
 	; (this code preserves the C flag!)
 	ldx #3
 @2:	pla
-	lda sector_lba, x
+	sta sector_lba, x
 	dex
 	bpl @2
 	rts
