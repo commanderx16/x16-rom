@@ -123,7 +123,6 @@ listn:
 	asl
 	plp
 	ror
-	eor #$80
 	sta cbdos_unit
 	bpl @2
 @1:	jmp serial_listn
@@ -146,7 +145,6 @@ talk:
 	asl
 	plp
 	ror
-	eor #$80
 	sta cbdos_unit
 	bpl @2
 @1:	jmp serial_talk

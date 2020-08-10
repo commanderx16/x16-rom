@@ -42,6 +42,7 @@ mode_for_channel:
 
 ;---------------------------------------------------------------
 file_second:
+	stz ieee_status
 	ldx channel
 	lda context_for_channel,x
 	bmi @1 ; not a file context

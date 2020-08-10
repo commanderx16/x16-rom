@@ -91,16 +91,16 @@ cbdos_init:
 	rts
 
 ;---------------------------------------------------------------
-; detect
+; sdcard_check
 ;
 ; This is called by every TALK and LISTEN:
 ; * If there is an active SD card, verify it is still present.
 ; * If there is no active SD card, try to detect one.
 ;
-; Out:  status  =$00: OK
-;               =$80: device not present
+; Out:  c  =0: OK
+;          =1: device not present
 ;---------------------------------------------------------------
-detect:
+sdcard_check:
 	BANKING_START
 	bit no_sdcard_active
 	bmi @not_active
@@ -122,7 +122,7 @@ detect:
 	bra @end
 @no:	lda #$80
 @end:	sta no_sdcard_active
-	sta ieee_status
+	asl
 	BANKING_END
 	rts
 
@@ -180,7 +180,7 @@ cbdos_set_time:
 ; Nothing to do.
 ;---------------------------------------------------------------
 cbdos_listn:
-	jmp detect
+	jmp sdcard_check
 
 ;---------------------------------------------------------------
 ; SECOND (after LISTEN)
@@ -215,8 +215,10 @@ cbdos_secnd:
 ; special-case command channel:
 ; ignore OPEN/CLOSE
 	cmp #15
-	beq @secnd_rts
-
+	bne :+
+	stz ieee_status
+	bra @secnd_rts
+:
 	stz is_receiving_filename
 
 	lda listen_cmd
@@ -366,7 +368,7 @@ cbdos_unlsn:
 ; Nothing to do.
 ;---------------------------------------------------------------
 cbdos_talk:
-	jmp detect
+	jmp sdcard_check
 
 
 ;---------------------------------------------------------------
