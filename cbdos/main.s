@@ -60,7 +60,7 @@ via1porta   = via1+1 ; RAM bank
 .segment "cbdos_data"
 
 ; Commodore DOS variables
-sdcard_active:
+no_sdcard_active: ; $00: SD card active; $80: no SD card active
 	.byte 0
 listen_cmd:
 	.byte 0
@@ -84,7 +84,8 @@ CONTEXT_DIR  = $fe
 cbdos_init:
 	BANKING_START
 	; SD card needs detection and init
-	stz sdcard_active
+	lda #$80
+	sta no_sdcard_active
 	; SD card detection will trigger a call to reset_dos
 	BANKING_END
 	rts
@@ -96,29 +97,33 @@ cbdos_init:
 ; * If there is an active SD card, verify it is still present.
 ; * If there is no active SD card, try to detect one.
 ;
-; Out:  c  =1: SD card is present
+; Out:  status  =$00: OK
+;               =$80: device not present
 ;---------------------------------------------------------------
 detect:
 	BANKING_START
-	bit sdcard_active
-	bpl @not_active
+	bit no_sdcard_active
+	bmi @not_active
 
-	jsr sdcard_check_alive
-	bcs @end
-	stz sdcard_active
-	bra @end
+	; SD card was there - make sure it is still there
+	jsr sdcard_check_alive; cheap, not state destructive
+	bcs @yes
+	bra @no
 
 @not_active:
-	; no SD card - try to init it.
-	jsr sdcard_init
-	bcc @end ; no SD card
+	; no SD card was there - maybe there is now, so
+	; try to init it
+	jsr sdcard_init ; expensive, state destructive
+	bcc @no
 
-@1:	lda #$80
-	sta sdcard_active
 	jsr reset_dos
-	; SD card present
-	sec
-@end:	BANKING_END
+
+@yes:	lda #0
+	bra @end
+@no:	lda #$80
+@end:	sta no_sdcard_active
+	sta ieee_status
+	BANKING_END
 	rts
 
 ;---------------------------------------------------------------
@@ -174,7 +179,8 @@ cbdos_set_time:
 ;
 ; Nothing to do.
 ;---------------------------------------------------------------
-cbdos_listn = detect
+cbdos_listn:
+	jmp detect
 
 ;---------------------------------------------------------------
 ; SECOND (after LISTEN)
@@ -359,7 +365,8 @@ cbdos_unlsn:
 ;
 ; Nothing to do.
 ;---------------------------------------------------------------
-cbdos_talk = detect
+cbdos_talk:
+	jmp detect
 
 
 ;---------------------------------------------------------------
