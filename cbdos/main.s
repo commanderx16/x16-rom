@@ -99,23 +99,26 @@ cbdos_init:
 ; Out:  c  =1: SD card is present
 ;---------------------------------------------------------------
 detect:
+	BANKING_START
 	bit sdcard_active
 	bpl @not_active
 
-	jmp sdcard_check_alive
+	jsr sdcard_check_alive
+	bcs @end
+	stz sdcard_active
+	bra @end
 
 @not_active:
 	; no SD card - try to init it.
 	jsr sdcard_init
-	bcs @1
-	; no SD card
-	rts
+	bcc @end ; no SD card
 
 @1:	lda #$80
 	sta sdcard_active
 	jsr reset_dos
 	; SD card present
 	sec
+@end:	BANKING_END
 	rts
 
 ;---------------------------------------------------------------
