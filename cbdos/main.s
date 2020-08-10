@@ -19,7 +19,7 @@
 .import dir_open, dir_read
 
 ; functions.s
-.export cbdos_init
+.export cbdos_init, cbdos_unit
 .import cur_medium
 
 ; parser.s
@@ -60,6 +60,8 @@ via1porta   = via1+1 ; RAM bank
 .segment "cbdos_data"
 
 ; Commodore DOS variables
+cbdos_unit:
+	.byte 0
 no_sdcard_active: ; $00: SD card active; $80: no SD card active
 	.byte 0
 listen_cmd:
@@ -83,6 +85,8 @@ CONTEXT_DIR  = $fe
 ;---------------------------------------------------------------
 cbdos_init:
 	BANKING_START
+	lda #8
+	sta cbdos_unit
 	; SD card needs detection and init
 	lda #$80
 	sta no_sdcard_active
@@ -102,7 +106,13 @@ cbdos_init:
 ;---------------------------------------------------------------
 sdcard_check:
 	BANKING_START
-	bit no_sdcard_active
+
+	cmp cbdos_unit
+	beq @1
+	sec
+	rts
+
+@1:	bit no_sdcard_active
 	bmi @not_active
 
 	; SD card was there - make sure it is still there

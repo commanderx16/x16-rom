@@ -6,6 +6,7 @@
 .include "functions.inc"
 .include "fat32/fat32.inc"
 .include "fat32/regs.inc"
+.include "banks.inc"
 
 ; main.s
 .import cbdos_init
@@ -16,7 +17,7 @@
 
 ; main.s
 .export cur_medium
-.import convert_errno_status
+.import convert_errno_status, cbdos_unit
 
 ; cmdch.s
 .import status_clear, status_put
@@ -506,11 +507,11 @@ rename_partition:
 ;---------------------------------------------------------------
 ; change_unit
 ;
-; In:   a  unit number
+; In:   a  unit number (already checked for validity)
 ;---------------------------------------------------------------
 change_unit:
-	; TODO: change unit
-	lda #$31
+	sta cbdos_unit
+	lda #0
 	rts
 
 ;---------------------------------------------------------------

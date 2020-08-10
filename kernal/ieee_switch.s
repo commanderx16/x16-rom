@@ -38,22 +38,20 @@
 
 .segment "KVAR"
 
-cbdos_unit:
-	.res 1
+cbdos_flags:   ; bit  6:   =1: CBDOS is talker
+	.res 1 ; bit  7:   =1: CBDOS is listener
 
 .segment "IEEESWTCH"
 
 ieeeswitch_init:
-	lda #8
-	sta cbdos_unit
 	jsr jsrfar
 	.word $c000 + 3 * 15 ; cbdos_init
 	.byte BANK_CBDOS
 	rts
 
 secnd:
-	bit cbdos_unit
-	bpl :+
+	bit cbdos_flags
+	bmi :+
 	jmp serial_secnd
 :	jsr upload_time
 	jsr jsrfar
@@ -62,8 +60,8 @@ secnd:
 	rts
 
 tksa:
-	bit cbdos_unit
-	bpl :+
+	bit cbdos_flags
+	bvs :+
 	jmp serial_tksa
 :	jsr jsrfar
 	.word $c000 + 3 * 1
@@ -71,8 +69,8 @@ tksa:
 	rts
 
 acptr:
-	bit cbdos_unit
-	bpl :+
+	bit cbdos_flags
+	bvs :+
 	jmp serial_acptr
 :	jsr jsrfar
 	.word $c000 + 3 * 2
@@ -80,8 +78,8 @@ acptr:
 	rts
 
 ciout:
-	bit cbdos_unit
-	bpl :+
+	bit cbdos_flags
+	bmi :+
 	jmp serial_ciout
 :	jsr jsrfar
 	.word $c000 + 3 * 3
@@ -89,8 +87,8 @@ ciout:
 	rts
 
 untlk:
-	bit cbdos_unit
-	bpl :+
+	bit cbdos_flags
+	bmi :+
 	jmp serial_untlk
 :	jsr jsrfar
 	.word $c000 + 3 * 4
@@ -98,8 +96,8 @@ untlk:
 	rts
 
 unlsn:
-	bit cbdos_unit
-	bpl :+
+	bit cbdos_flags
+	bvs :+
 	jmp serial_unlsn
 :	jsr jsrfar
 	.word $c000 + 3 * 5
@@ -107,48 +105,42 @@ unlsn:
 	rts
 
 listn:
-	asl
-	asl cbdos_unit
-	cmp cbdos_unit
-	php
-	lsr
-	lsr cbdos_unit
-	plp
-	bne @1
+	pha
 	jsr jsrfar
 	.word $c000 + 3 * 6
 	.byte BANK_CBDOS
-	lda cbdos_unit
-	php
-	asl
-	plp
-	ror
-	sta cbdos_unit
-	bpl @2
-@1:	jmp serial_listn
-@2:	rts
+	bcs @1 ; no CBDOS device
+
+	lda cbdos_flags
+	ora #$80
+	sta cbdos_flags
+	pla
+	rts
+
+@1:	lda cbdos_flags
+	and #$ff-$80
+	sta cbdos_flags
+	pla
+	jmp serial_listn
 
 talk:
-	asl
-	asl cbdos_unit
-	cmp cbdos_unit
-	php
-	lsr
-	lsr cbdos_unit
-	plp
-	bne @1
+	pha
 	jsr jsrfar
 	.word $c000 + 3 * 7
 	.byte BANK_CBDOS
-	lda cbdos_unit
-	php
-	asl
-	plp
-	ror
-	sta cbdos_unit
-	bpl @2
-@1:	jmp serial_talk
-@2:	rts
+	bcs @1 ; no CBDOS device
+
+	lda cbdos_flags
+	ora #$40
+	sta cbdos_flags
+	pla
+	rts
+
+@1:	lda cbdos_flags
+	and #$ff-$40
+	sta cbdos_flags
+	pla
+	jmp serial_talk
 
 ; Called by SECOND: If it's a CLOSE command, upload the curent time.
 upload_time:
