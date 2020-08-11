@@ -238,7 +238,7 @@ cbdos_secnd:
 	beq @second_close
 
 ; switch to context
-	jsr file_second
+	jsr file_second2
 	bra @secnd_rts
 
 ;---------------------------------------------------------------
@@ -352,6 +352,9 @@ cbdos_unlsn:
 
 @not_open:
 	jsr file_open
+	bcs @unlsn_end
+	ldx channel
+	sta context_for_channel,x
 	bra @unlsn_end
 
 ;---------------------------------------------------------------
@@ -392,13 +395,20 @@ cbdos_tksa: ; after talk
 	and #$0f
 	sta channel
 
-	jsr file_second
+	jsr file_second2
 
 	ply
 	plx
 	BANKING_END
 	rts
 
+;---------------------------------------------------------------
+file_second2:
+	ldx channel
+	lda context_for_channel,x
+	bmi @1 ; not a file context
+	jmp file_second
+@1:	rts
 
 ;---------------------------------------------------------------
 ; RECEIVE

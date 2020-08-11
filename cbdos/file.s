@@ -22,7 +22,6 @@
 .import overwrite_flag
 
 ; main.s
-.import context_for_channel
 .import channel
 .import ieee_status
 
@@ -33,21 +32,16 @@
 
 next_byte_for_channel:
 	.res 16, 0
-mode_for_channel:
-	.res 16, 0
-; $80 write
-; $40 read
+mode_for_channel:   ; =$80: write
+	.res 16, 0  ; =$40: read
 
 .code
 
 ;---------------------------------------------------------------
 file_second:
 	stz ieee_status
-	ldx channel
-	lda context_for_channel,x
-	bmi @1 ; not a file context
 	jmp fat32_set_context
-@1:	rts
+	rts
 
 ;---------------------------------------------------------------
 file_open:
@@ -77,7 +71,9 @@ file_open:
 	jsr alloc_context
 	bcs @alloc_ok
 
-	jmp convert_errno_status
+	jsr convert_errno_status
+	sec
+	rts
 
 @alloc_ok:
 	pha
@@ -138,6 +134,7 @@ file_open:
 	lda #$40 ; read
 	sta mode_for_channel,x
 
+	; pre-fetch first byte
 	jsr fat32_read_byte
 	bcs :+
 	jsr set_errno_status
@@ -147,21 +144,25 @@ file_open:
 	sta next_byte_for_channel,x
 
 @open_file_ok:
-	pla ; context number
-	sta context_for_channel,x
 	lda #0
 	jsr set_status
+	pla ; context number
+	clc
 	rts
 
 @open_file_err:
 	jsr set_status
 @open_file_err2:
 	pla ; context number
-	jmp fat32_free_context
+	jsr fat32_free_context
+	sec
+	rts
 
 @open_file_err3:
 	jsr set_status
-	jmp fat32_free_context
+	jsr fat32_free_context
+	sec
+	rts
 
 ;---------------------------------------------------------------
 ; file_close
