@@ -77,6 +77,7 @@ context_for_channel:
 	.res 16, 0
 CONTEXT_NONE = $ff
 CONTEXT_DIR  = $fe
+CONTEXT_CMD  = $fd
 
 .segment "cbdos"
 
@@ -408,11 +409,15 @@ cbdos_tksa: ; after talk
 ;---------------------------------------------------------------
 file_second2:
 	ldx channel
+	cpx #15
+	beq @1
 	lda context_for_channel,x
 	sta cur_context
-	bmi @1 ; not a file context
+	bmi @2 ; not a file context
 	jmp file_second
-@1:	rts
+@1:	lda #CONTEXT_CMD
+	sta cur_context
+@2:	rts
 
 ;---------------------------------------------------------------
 ; RECEIVE
@@ -422,12 +427,15 @@ cbdos_acptr:
 	phx
 	phy
 
-	ldx channel
-	cpx #15
-	beq @acptr_status
+;	ldx channel
+;	cpx #15
+;	beq @acptr_status
 
 	lda cur_context
 	bpl @acptr_file ; actual file
+
+	cmp #CONTEXT_CMD
+	beq @acptr_status
 
 	cmp #CONTEXT_DIR
 	beq @acptr_dir
