@@ -180,13 +180,11 @@ file_close:
 	stz mode_for_channel,x
 	rts
 
-
 ;---------------------------------------------------------------
 ; Out:  a  byte
 ;       c  =1: EOI
 ;---------------------------------------------------------------
 file_read:
-	; ignore if not open for writing
 	bit cur_mode
 	bvc @acptr_file_not_open
 
@@ -194,8 +192,8 @@ file_read:
 	bcc @acptr_file_error
 
 	tay
-	txa
-	lsr ; EOI into C
+	txa ; x==$ff is EOF after this byte, which is the
+	lsr ; same as EOI *now*, so move LSB into C
 	tya
 	rts
 
@@ -206,10 +204,8 @@ file_read:
 	sec
 	rts
 
-
 ;---------------------------------------------------------------
 file_write:
-	; ignore if channel is not for writing
 	bit cur_mode
 	bpl @ciout_not_present
 
