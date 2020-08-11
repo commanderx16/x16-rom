@@ -422,6 +422,13 @@ file_second2:
 ;---------------------------------------------------------------
 cbdos_acptr:
 	sec
+;---------------------------------------------------------------
+; acptr_internal
+;
+; In:  c  =1: read one byte
+;      c  =0: read up to 256 bytes to fat32_ptr
+;             (only works for files!)
+;---------------------------------------------------------------
 acptr_internal:
 	BANKING_START
 	phx
@@ -433,7 +440,7 @@ acptr_internal:
 ;---------------------------------------------------------------
 ; *** FILE
 	bcs @acptr_file_one_byte
-	jsr file_read_block
+	jsr file_read_block ; read up to 256 bytes
 	bcs @acptr_end_file_eoi
 	bra @acptr_end_ok
 
@@ -450,7 +457,7 @@ acptr_internal:
 	rts
 
 @nacptr_file:
-	cmp #CONTEXT_CMD
+	eor #CONTEXT_CMD ; eor -> don't touch C flag!
 	bne @nacptr_status
 
 ;---------------------------------------------------------------
@@ -463,7 +470,7 @@ acptr_internal:
 	bra @acptr_eoi
 
 @nacptr_status:
-	cmp #CONTEXT_DIR
+	eor #CONTEXT_DIR ^ CONTEXT_CMD ; eor -> don't touch C flag!
 	bne @nacptr_dir
 
 ;---------------------------------------------------------------
@@ -519,7 +526,16 @@ cbdos_bacptr:
 	.importzp fat32_ptr
 	stx fat32_ptr
 	sty fat32_ptr + 1
-	clc
+	BANKING_START
+	lda cur_context
+	bpl @1
+	; not a file - get a single byte
+	jsr cbdos_acptr
+	sta (fat32_ptr)
+	lda #1
+	BANKING_END
+	rts
+@1:	clc
 	jmp acptr_internal
 
 .segment "IRQB"
