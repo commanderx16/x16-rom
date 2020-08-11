@@ -33,8 +33,6 @@
 cur_mode:           ; for current channel
 	.byte 0
 
-next_byte_for_channel:
-	.res 16, 0
 mode_for_channel:   ; =$80: write
 	.res 16, 0  ; =$40: read
 
@@ -143,15 +141,6 @@ file_open:
 	lda #$40 ; read
 	sta mode_for_channel,x
 
-	; pre-fetch first byte
-	jsr fat32_read_byte
-	bcs :+
-	jsr set_errno_status
-	lda #0 ; if EOF then make the only byte a 0
-
-:	ldx channel
-	sta next_byte_for_channel,x
-
 @open_file_ok:
 	lda #0
 	jsr set_status
@@ -193,31 +182,27 @@ file_close:
 
 
 ;---------------------------------------------------------------
+; Out:  a  byte
+;       c  =1: EOI
+;---------------------------------------------------------------
 file_read:
 	; ignore if not open for writing
 	bit cur_mode
 	bvc @acptr_file_not_open
 
 	jsr fat32_read_byte
-	bcc @acptr_file_eof
+	bcc @acptr_file_error
 
 	tay
-	ldx channel
-	lda next_byte_for_channel,x
-	pha
+	txa
+	lsr ; EOI into C
 	tya
-	sta next_byte_for_channel,x
-	pla
-	clc
 	rts
 
-@acptr_file_eof:
+@acptr_file_error:
 	jsr set_errno_status
 
 @acptr_file_not_open:
-	; EOF
-	ldx channel
-	lda next_byte_for_channel,x
 	sec
 	rts
 
