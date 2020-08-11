@@ -22,7 +22,6 @@
 .import overwrite_flag
 
 ; main.s
-.import context_for_channel
 .import channel
 .import ieee_status
 
@@ -31,24 +30,28 @@
 
 .bss
 
-next_byte_for_channel:
-	.res 16, 0
-mode_for_channel:
-	.res 16, 0
-; $80 write
-; $40 read
+cur_mode:           ; for current channel
+	.byte 0
+
+mode_for_channel:   ; =$80: write
+	.res 16, 0  ; =$40: read
 
 .code
 
 ;---------------------------------------------------------------
+; In:  a  context
+;---------------------------------------------------------------
 file_second:
 	stz ieee_status
+	jsr fat32_set_context
 	ldx channel
-	lda context_for_channel,x
-	bmi @1 ; not a file context
-	jmp fat32_set_context
-@1:	rts
+	lda mode_for_channel,x
+	sta cur_mode
+	rts
 
+;---------------------------------------------------------------
+; In:  channel       channel
+;      0->buffer_len filename
 ;---------------------------------------------------------------
 file_open:
 	ldx #0
@@ -62,7 +65,6 @@ file_open:
 	lda #$34 ; syntax error (empty filename)
 	jmp @open_file_err3
 :
-
 	; type and mode defaults
 	lda file_type
 	bne :+
@@ -73,11 +75,12 @@ file_open:
 	lda #'R'
 	sta file_mode
 :
-
 	jsr alloc_context
 	bcs @alloc_ok
 
-	jmp convert_errno_status
+	jsr convert_errno_status
+	sec
+	rts
 
 @alloc_ok:
 	pha
@@ -138,30 +141,26 @@ file_open:
 	lda #$40 ; read
 	sta mode_for_channel,x
 
-	jsr fat32_read_byte
-	bcs :+
-	jsr set_errno_status
-	lda #0 ; if EOF then make the only byte a 0
-
-:	ldx channel
-	sta next_byte_for_channel,x
-
 @open_file_ok:
-	pla ; context number
-	sta context_for_channel,x
 	lda #0
 	jsr set_status
+	pla ; context number
+	clc
 	rts
 
 @open_file_err:
 	jsr set_status
 @open_file_err2:
 	pla ; context number
-	jmp fat32_free_context
+	jsr fat32_free_context
+	sec
+	rts
 
 @open_file_err3:
 	jsr set_status
-	jmp fat32_free_context
+	jsr fat32_free_context
+	sec
+	rts
 
 ;---------------------------------------------------------------
 ; file_close
@@ -181,41 +180,33 @@ file_close:
 	stz mode_for_channel,x
 	rts
 
-
+;---------------------------------------------------------------
+; Out:  a  byte
+;       c  =1: EOI
 ;---------------------------------------------------------------
 file_read:
-	; ignore if not open for writing
-	bit mode_for_channel,x
+	bit cur_mode
 	bvc @acptr_file_not_open
 
 	jsr fat32_read_byte
-	bcs @acptr_file_neof
+	bcc @acptr_file_error
 
+	tay
+	txa ; x==$ff is EOF after this byte, which is the
+	lsr ; same as EOI *now*, so move LSB into C
+	tya
+	rts
+
+@acptr_file_error:
 	jsr set_errno_status
 
 @acptr_file_not_open:
-	; EOF
-	ldx channel
-	lda next_byte_for_channel,x
 	sec
-	rts
-
-@acptr_file_neof:
-	tay
-	ldx channel
-	lda next_byte_for_channel,x
-	pha
-	tya
-	sta next_byte_for_channel,x
-	pla
-	clc
 	rts
 
 ;---------------------------------------------------------------
 file_write:
-	; ignore if channel is not for writing
-	ldx channel
-	bit mode_for_channel,x
+	bit cur_mode
 	bpl @ciout_not_present
 
 ; write to file

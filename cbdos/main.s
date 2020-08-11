@@ -68,6 +68,8 @@ listen_cmd:
 	.byte 0
 channel:
 	.byte 0
+cur_context:
+	.byte 0
 is_receiving_filename:
 	.byte 0
 
@@ -75,6 +77,7 @@ context_for_channel:
 	.res 16, 0
 CONTEXT_NONE = $ff
 CONTEXT_DIR  = $fe
+CONTEXT_CMD  = $fd
 
 .segment "cbdos"
 
@@ -153,6 +156,8 @@ reset_dos:
 :	sta context_for_channel,x
 	dex
 	bpl :-
+	lda #CONTEXT_CMD
+	sta context_for_channel + 15
 
 	lda #$73
 	jsr set_status
@@ -238,7 +243,7 @@ cbdos_secnd:
 	beq @second_close
 
 ; switch to context
-	jsr file_second
+	jsr file_second2
 	bra @secnd_rts
 
 ;---------------------------------------------------------------
@@ -315,7 +320,7 @@ cbdos_unlsn:
 
 ; special-case command channel
 	lda channel
-	cmp #$0f
+	cmp #15
 	beq @unlisten_cmdch
 
 	lda listen_cmd
@@ -352,6 +357,9 @@ cbdos_unlsn:
 
 @not_open:
 	jsr file_open
+	bcs @unlsn_end
+	ldx channel
+	sta context_for_channel,x
 	bra @unlsn_end
 
 ;---------------------------------------------------------------
@@ -392,13 +400,22 @@ cbdos_tksa: ; after talk
 	and #$0f
 	sta channel
 
-	jsr file_second
+	jsr file_second2
+
 
 	ply
 	plx
 	BANKING_END
 	rts
 
+;---------------------------------------------------------------
+file_second2:
+	ldx channel
+	lda context_for_channel,x
+	sta cur_context
+	bmi @2 ; not a file context
+	jmp file_second
+@2:	rts
 
 ;---------------------------------------------------------------
 ; RECEIVE
@@ -408,26 +425,11 @@ cbdos_acptr:
 	phx
 	phy
 
-	ldx channel
-	cpx #15
-	beq @acptr_status
+	lda cur_context
+	bmi @nacptr_file
 
-	lda context_for_channel,x
-	bpl @acptr_file ; actual file
-
-	cmp #CONTEXT_DIR
-	beq @acptr_dir
-
-; *** NONE
-	; #CONTEXT_NONE
-	lda #$42 ; EOI + timeout/file not found
-	ora ieee_status
-	sta ieee_status
-	lda #199
-	bra @acptr_end
-
+;---------------------------------------------------------------
 ; *** FILE
-@acptr_file:
 	jsr file_read
 	bcs @acptr_end_file_eoi
 @acptr_end_ok:
@@ -438,6 +440,39 @@ cbdos_acptr:
 	plx
 	BANKING_END
 	rts
+
+@nacptr_file:
+	cmp #CONTEXT_CMD
+	bne @nacptr_status
+
+;---------------------------------------------------------------
+; *** STATUS
+	jsr cmdch_read
+
+@acptr_eval:
+	bcc @acptr_end_ok
+	pha
+	bra @acptr_eoi
+
+@nacptr_status:
+	cmp #CONTEXT_DIR
+	bne @nacptr_dir
+
+;---------------------------------------------------------------
+; *** DIR
+	jsr dir_read
+	bra @acptr_eval
+
+;---------------------------------------------------------------
+; *** NONE
+@nacptr_dir:
+	; #CONTEXT_NONE
+	lda #$42 ; EOI + timeout/file not found
+	ora ieee_status
+	sta ieee_status
+	lda #199
+	bra @acptr_end
+
 
 @acptr_end_file_eoi:
 	ldx channel
@@ -454,21 +489,6 @@ cbdos_acptr:
 	sta ieee_status
 	pla ; data byte
 	bra @acptr_end
-
-@acptr_dir:
-; *** DIR
-	jsr dir_read
-	bra @acptr_eval
-
-; *** STATUS
-@acptr_status:
-	jsr cmdch_read
-
-@acptr_eval:
-	bcc @acptr_end_ok
-	pha
-	bra @acptr_eoi
-
 
 ;---------------------------------------------------------------
 file_close_clr_channel:
