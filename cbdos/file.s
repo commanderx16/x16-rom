@@ -220,8 +220,7 @@ file_read:
 ;       c            =1: error or EOF (no bytes received)
 ;---------------------------------------------------------------
 file_read_block:
-	lda #0
-	sta fat32_size + 0
+	stz fat32_size + 0
 	lda #1
 	sta fat32_size + 1
 

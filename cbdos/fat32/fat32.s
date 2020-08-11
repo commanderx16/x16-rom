@@ -3008,12 +3008,15 @@ fat32_read:
 	set16 bytecnt, tmp_buf
 @5:
 	; Copy bytecnt bytes from buffer
-	ldy #0
+	ldy bytecnt
+	dey
+	beq @6b
 @6:	lda (fat32_bufptr), y
 	sta (fat32_ptr), y
-	iny
-	cpy bytecnt
+	dey
 	bne @6
+@6b:	lda (fat32_bufptr), y
+	sta (fat32_ptr), y
 
 	; fat32_ptr += bytecnt, fat32_bufptr += bytecnt, fat32_size -= bytecnt, file_offset += bytecnt
 	add16 fat32_ptr, fat32_ptr, bytecnt
@@ -3198,12 +3201,15 @@ fat32_write:
 	sta bytecnt + 1
 @3:
 	; Copy bytecnt bytes into buffer
-	ldy #0
+	ldy bytecnt
+	dey
+	beq @4b
 @4:	lda (fat32_ptr), y
 	sta (fat32_bufptr), y
-	iny
-	cpy bytecnt
+	dey
 	bne @4
+@4b:	lda (fat32_ptr), y
+	sta (fat32_bufptr), y
 
 	; fat32_ptr += bytecnt, fat32_bufptr += bytecnt, fat32_size -= bytecnt, file_offset += bytecnt
 	add16 fat32_ptr, fat32_ptr, bytecnt
