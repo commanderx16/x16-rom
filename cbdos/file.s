@@ -217,7 +217,7 @@ file_read:
 ;
 ; Out:  (fat32_ptr)  data
 ;       a            bytes read (=0: 256 bytes)
-;       c            =1: error
+;       c            =1: error or EOF (no bytes received)
 ;---------------------------------------------------------------
 file_read_block:
 	lda #0
@@ -226,12 +226,15 @@ file_read_block:
 	sta fat32_size + 1
 
 	jsr fat32_read
-	bcc @error
 	lda fat32_size
-	clc
+	bcc @eof_or_error
+@ok:	clc
 	rts
 
-@error:	sec
+@eof_or_error:
+	bne @ok ; EOF, but data received
+
+@error:	sec ; EOF or error, no data received
 	rts
 
 ;---------------------------------------------------------------
