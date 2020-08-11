@@ -35,7 +35,8 @@ bufptr          .word    ; Pointer within sector_buffer
 file_size       .dword   ; Size of current file
 file_offset     .dword   ; Offset in current file
 dirent_lba      .dword   ; Sector containing directory entry for this file
-dirent_bufptr   .word    ; Offset to start of directory entry 
+dirent_bufptr   .word    ; Offset to start of directory entry
+eof             .byte    ; =$ff: EOF has been reached
 .endstruct
 
 CONTEXT_SIZE = 32
@@ -2359,6 +2360,7 @@ fat32_open:
 
 @1:
 	; Open file
+	stz cur_context + context::eof
 	set32_val cur_context + context::file_offset, 0
 	set32 cur_context + context::file_size, fat32_dirent + dirent::size
 	set32 cur_context + context::cluster, fat32_dirent + dirent::start
@@ -2889,30 +2891,42 @@ error_clear_context:
 ;-----------------------------------------------------------------------------
 ; fat32_read_byte
 ;
-; * c=0: failure; sets errno
+; Out:  a      byte
+;       x      =$ff: EOF after this byte
+;       c      =0: success
+;              =1: failure (includes reading past EOF)
+;       errno  =0: no error, or reading past EOF
+;              =ERRNO_READ: read error
 ;-----------------------------------------------------------------------------
 fat32_read_byte:
 	stz fat32_errno
 
 	; Bytes remaining?
-	cmp32_ne cur_context + context::file_offset, cur_context + context::file_size, @1
-@error:	clc
-	rts
-@1:
+	bit cur_context + context::eof
+	bmi @error
+
 	; At end of buffer?
 	cmp16_val_ne fat32_bufptr, sector_buffer_end, @2
 	lda #0
 	jsr next_sector
 	bcc @error
 @2:
-	; Decrement bytes remaining
+	; Increment offset within file
 	inc32 cur_context + context::file_offset
 
+	ldx #0   ; no EOF
+	cmp32_ne cur_context + context::file_offset, cur_context + context::file_size, @3
+	ldx #$ff ; EOF
+	stx cur_context + context::eof
+@3:
 	; Get byte from buffer
 	lda (fat32_bufptr)
 	inc16 fat32_bufptr
 
 	sec	; Indicate success
+	rts
+
+@error:	clc
 	rts
 
 ;-----------------------------------------------------------------------------

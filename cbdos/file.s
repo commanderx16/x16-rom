@@ -199,18 +199,8 @@ file_read:
 	bvc @acptr_file_not_open
 
 	jsr fat32_read_byte
-	bcs @acptr_file_neof
+	bcc @acptr_file_eof
 
-	jsr set_errno_status
-
-@acptr_file_not_open:
-	; EOF
-	ldx channel
-	lda next_byte_for_channel,x
-	sec
-	rts
-
-@acptr_file_neof:
 	tay
 	ldx channel
 	lda next_byte_for_channel,x
@@ -220,6 +210,17 @@ file_read:
 	pla
 	clc
 	rts
+
+@acptr_file_eof:
+	jsr set_errno_status
+
+@acptr_file_not_open:
+	; EOF
+	ldx channel
+	lda next_byte_for_channel,x
+	sec
+	rts
+
 
 ;---------------------------------------------------------------
 file_write:
