@@ -421,6 +421,8 @@ file_second2:
 ; RECEIVE
 ;---------------------------------------------------------------
 cbdos_acptr:
+	sec
+acptr_internal:
 	BANKING_START
 	phx
 	phy
@@ -430,6 +432,12 @@ cbdos_acptr:
 
 ;---------------------------------------------------------------
 ; *** FILE
+	bcs @acptr_file_one_byte
+	jsr file_read_block
+	bcs @acptr_end_file_eoi
+	bra @acptr_end_ok
+
+@acptr_file_one_byte:
 	jsr file_read
 	bcs @acptr_end_file_eoi
 @acptr_end_ok:
@@ -511,10 +519,8 @@ cbdos_bacptr:
 	.importzp fat32_ptr
 	stx fat32_ptr
 	sty fat32_ptr + 1
-	jsr cbdos_acptr
-	sta (fat32_ptr)
-	lda #1
-	rts
+	clc
+	jmp acptr_internal
 
 .segment "IRQB"
 	.word banked_irq

@@ -144,9 +144,6 @@ talk:
 	jmp serial_talk
 
 bacptr:
-	sec
-	rts
-	;XXX
 	bit cbdos_flags
 	bvs :+
 	sec ; error

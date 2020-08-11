@@ -181,6 +181,10 @@ file_close:
 	rts
 
 ;---------------------------------------------------------------
+; file_read
+;
+; Read one byte from the current context.
+;
 ; Out:  a  byte
 ;       c  =1: EOI
 ;---------------------------------------------------------------
@@ -202,6 +206,32 @@ file_read:
 
 @acptr_file_not_open:
 	sec
+	rts
+
+;---------------------------------------------------------------
+; file_read_block
+;
+; Read up to 256 bytes from the current context. The
+; implementation is free to return any number of bytes,
+; optimizing for speed and simplicity.
+;
+; Out:  (fat32_ptr)  data
+;       a            bytes read (=0: 256 bytes)
+;       c            =1: error
+;---------------------------------------------------------------
+file_read_block:
+	lda #0
+	sta fat32_size + 0
+	lda #1
+	sta fat32_size + 1
+
+	jsr fat32_read
+	bcc @error
+	lda fat32_size
+	clc
+	rts
+
+@error:	sec
 	rts
 
 ;---------------------------------------------------------------
