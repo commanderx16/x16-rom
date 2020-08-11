@@ -51,58 +51,58 @@ ieeeswitch_init:
 
 secnd:
 	bit cbdos_flags
-	bmi :+
-	jmp serial_secnd
-:	jsr upload_time
+	bpl :+
+	jsr upload_time
 	jsr jsrfar
 	.word $c000 + 3 * 0
 	.byte BANK_CBDOS
 	rts
+:	jmp serial_secnd
 
 tksa:
 	bit cbdos_flags
-	bvs :+
-	jmp serial_tksa
-:	jsr jsrfar
+	bvc :+
+	jsr jsrfar
 	.word $c000 + 3 * 1
 	.byte BANK_CBDOS
 	rts
+:	jmp serial_tksa
 
 acptr:
 	bit cbdos_flags
-	bvs :+
-	jmp serial_acptr
-:	jsr jsrfar
+	bvc :+
+	jsr jsrfar
 	.word $c000 + 3 * 2
 	.byte BANK_CBDOS
 	rts
+:	jmp serial_acptr
 
 ciout:
 	bit cbdos_flags
-	bmi :+
-	jmp serial_ciout
-:	jsr jsrfar
+	bpl :+
+	jsr jsrfar
 	.word $c000 + 3 * 3
 	.byte BANK_CBDOS
 	rts
+:	jmp serial_ciout
 
 untlk:
 	bit cbdos_flags
-	bmi :+
-	jmp serial_untlk
-:	jsr jsrfar
+	bpl :+
+	jsr jsrfar
 	.word $c000 + 3 * 4
 	.byte BANK_CBDOS
 	rts
+:	jmp serial_untlk
 
 unlsn:
 	bit cbdos_flags
-	bvs :+
-	jmp serial_unlsn
-:	jsr jsrfar
+	bvc :+
+	jsr jsrfar
 	.word $c000 + 3 * 5
 	.byte BANK_CBDOS
 	rts
+:	jmp serial_unlsn
 
 listn:
 	pha
