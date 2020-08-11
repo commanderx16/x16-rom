@@ -509,60 +509,12 @@ cbdos_untlk:
 ;---------------------------------------------------------------
 cbdos_bacptr:
 	.importzp fat32_ptr
-	BANKING_START
 	stx fat32_ptr
 	sty fat32_ptr + 1
-
-
-
-
-	ldx channel
-	cpx #15
-	beq @not_file
-
-	lda context_for_channel,x
-	bpl @acptr_file ; actual file
-@not_file:
 	jsr cbdos_acptr
 	sta (fat32_ptr)
 	lda #1
 	rts
-
-@acptr_file:
-	jsr file_read
-	bcs @acptr_end_file_eoi
-@acptr_end_ok:
-	stz ieee_status
-@acptr_end:
-	clc
-	sta (fat32_ptr)
-	lda #1
-	BANKING_END
-	rts
-
-@acptr_end_file_eoi:
-	ldx channel
-	ldy context_for_channel,x
-	bmi @acptr_eoi
-
-	pha ; data byte
-	tya
-	jsr file_close_clr_channel
-
-@acptr_eoi:
-	lda #$40 ; EOI
-	ora ieee_status
-	sta ieee_status
-	pla ; data byte
-	bra @acptr_end
-
-
-
-
-
-
-
-
 
 .segment "IRQB"
 	.word banked_irq
