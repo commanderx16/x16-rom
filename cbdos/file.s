@@ -220,11 +220,22 @@ file_read:
 ;       c            =1: error or EOF (no bytes received)
 ;---------------------------------------------------------------
 file_read_block:
-	stz fat32_size + 0
+	; first time, read $fe bytes, every other time, $100
+	ldx channel
+	lda mode_for_channel,x
+	lsr
+	bcs @1
+	inc mode_for_channel,x
+	lda #$fe
+	sta fat32_size + 0
+	stz fat32_size + 1
+	bra @2
+
+@1:	stz fat32_size + 0
 	lda #1
 	sta fat32_size + 1
 
-	jsr fat32_read
+@2:	jsr fat32_read
 	lda fat32_size
 	bcc @eof_or_error
 @ok:	clc
