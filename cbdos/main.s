@@ -68,6 +68,8 @@ listen_cmd:
 	.byte 0
 channel:
 	.byte 0
+cur_context:
+	.byte 0
 is_receiving_filename:
 	.byte 0
 
@@ -397,6 +399,7 @@ cbdos_tksa: ; after talk
 
 	jsr file_second2
 
+
 	ply
 	plx
 	BANKING_END
@@ -406,6 +409,7 @@ cbdos_tksa: ; after talk
 file_second2:
 	ldx channel
 	lda context_for_channel,x
+	sta cur_context
 	bmi @1 ; not a file context
 	jmp file_second
 @1:	rts
@@ -422,7 +426,7 @@ cbdos_acptr:
 	cpx #15
 	beq @acptr_status
 
-	lda context_for_channel,x
+	lda cur_context
 	bpl @acptr_file ; actual file
 
 	cmp #CONTEXT_DIR
