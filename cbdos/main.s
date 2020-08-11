@@ -508,11 +508,11 @@ cbdos_untlk:
 ; BLOCK-WISE RECEIVE
 ;---------------------------------------------------------------
 cbdos_bacptr:
-	.importzp fat32_bufptr
-	stx fat32_bufptr
-	sty fat32_bufptr + 1
+	.importzp fat32_ptr
+	stx fat32_ptr
+	sty fat32_ptr + 1
 	jsr cbdos_acptr
-	sta (fat32_bufptr)
+	sta (fat32_ptr)
 	lda #1
 	rts
 
