@@ -30,6 +30,9 @@
 
 .bss
 
+cur_mode:           ; for current channel
+	.byte 0
+
 next_byte_for_channel:
 	.res 16, 0
 mode_for_channel:   ; =$80: write
@@ -38,11 +41,19 @@ mode_for_channel:   ; =$80: write
 .code
 
 ;---------------------------------------------------------------
+; In:  a  context
+;---------------------------------------------------------------
 file_second:
 	stz ieee_status
-	jmp fat32_set_context
+	jsr fat32_set_context
+	ldx channel
+	lda mode_for_channel,x
+	sta cur_mode
 	rts
 
+;---------------------------------------------------------------
+; In:  channel       channel
+;      0->buffer_len filename
 ;---------------------------------------------------------------
 file_open:
 	ldx #0
@@ -56,7 +67,6 @@ file_open:
 	lda #$34 ; syntax error (empty filename)
 	jmp @open_file_err3
 :
-
 	; type and mode defaults
 	lda file_type
 	bne :+
@@ -67,7 +77,6 @@ file_open:
 	lda #'R'
 	sta file_mode
 :
-
 	jsr alloc_context
 	bcs @alloc_ok
 
@@ -186,7 +195,7 @@ file_close:
 ;---------------------------------------------------------------
 file_read:
 	; ignore if not open for writing
-	bit mode_for_channel,x
+	bit cur_mode
 	bvc @acptr_file_not_open
 
 	jsr fat32_read_byte
@@ -215,8 +224,7 @@ file_read:
 ;---------------------------------------------------------------
 file_write:
 	; ignore if channel is not for writing
-	ldx channel
-	bit mode_for_channel,x
+	bit cur_mode
 	bpl @ciout_not_present
 
 ; write to file
