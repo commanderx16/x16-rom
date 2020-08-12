@@ -94,6 +94,10 @@ cbdos_init:
 	lda #$80
 	sta no_sdcard_active
 	; SD card detection will trigger a call to reset_dos
+
+	lda #$73
+	jsr set_status
+
 	BANKING_END
 	rts
 
@@ -144,11 +148,8 @@ sdcard_check:
 ;
 ; Reset CBDOS after a new SD card has been inserted
 ;
-; The SD card is considered a drive, not a medium. When there is
-; no SD card, this is the equivalent of an IEEE layer timeout,
-; not a "74,DRIVE NOT READY,00,00".
-; Therefore, whenever an SD card is inserted, all of DOS is
-; reset.
+; Whenever an SD card is inserted, all state is cleared.
+; The status messages is preserved.
 ;---------------------------------------------------------------
 reset_dos:
 	ldx #14
@@ -158,9 +159,6 @@ reset_dos:
 	bpl :-
 	lda #CONTEXT_CMD
 	sta context_for_channel + 15
-
-	lda #$73
-	jsr set_status
 
 	jsr fat32_init
 
@@ -323,6 +321,8 @@ cbdos_unlsn:
 	cmp #$f0
 	bne @unlsn_end; != OPEN? -> UNLISTEN does nothing
 
+	jsr file_close_clr_channel
+
 ;---------------------------------------------------------------
 ; Execute OPEN with filename
 	lda buffer
@@ -345,13 +345,6 @@ cbdos_unlsn:
 ;---------------------------------------------------------------
 ; OPEN file
 @unlsn_open_file:
-	ldx channel
-	lda context_for_channel,x
-	bmi @not_open
-
-	jsr file_close
-
-@not_open:
 	jsr file_open
 	bcs @unlsn_end
 	ldx channel
@@ -487,10 +480,10 @@ file_close_clr_channel:
 	lda context_for_channel,x
 	bmi @1
 	jsr file_close
-	ldx channel
+@1:	ldx channel
 	lda #CONTEXT_NONE
 	sta context_for_channel,x
-@1:	rts
+	rts
 
 ;---------------------------------------------------------------
 ; UNTALK

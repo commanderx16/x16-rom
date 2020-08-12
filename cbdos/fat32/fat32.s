@@ -99,6 +99,7 @@ tmp_attrib:          .byte 0       ; temporary: attribute when creating a dir en
 tmp_dirent_flag:     .byte 0
 shortname_buf:       .res 11       ; Used for shortname creation
 tmp_timestamp:       .byte 0
+tmp_filetype:        .byte 0       ; Used to match file type in find_dirent
 
 ; Temp - LFN
 lfn_index:           .byte 0       ; counter when collecting/decoding LFN entries
@@ -961,9 +962,14 @@ next_sector:
 ;
 ; Find directory entry with path specified in string pointed to by fat32_ptr
 ;
+; In:  a  =$00 allow files and directories
+;         =$80 only allow files
+;         =$40 only allow directories
+;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 find_dirent:
+	sta tmp_filetype
 	stz name_offset
 
 	; If path starts with a slash, use root directory as base,
@@ -1017,7 +1023,16 @@ find_dirent:
 	beq @chdir
 
 	lda fat32_dirent + dirent::attributes
-	jsr match_type
+	bit #$10
+	bne @is_dir
+	; is file
+	bit tmp_filetype
+	bvs @next
+	bra @ok
+@is_dir:
+	bit tmp_filetype
+	bmi @next
+@ok:	jsr match_type
 	bcc @next
 
 @found:	; Found
@@ -1050,21 +1065,8 @@ find_dirent:
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 find_file:
-	; Find directory entry
-	jsr find_dirent
-	bcc @error
-
-	; Check if this is a file
-	lda fat32_dirent + dirent::attributes
-	bit #$10
-	bne @error
-
-	; Success
-	sec
-	rts
-
-@error:	clc
-	rts
+	lda #$80 ; files only
+	jmp find_dirent
 
 ;-----------------------------------------------------------------------------
 ; find_dir
@@ -1074,21 +1076,8 @@ find_file:
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 find_dir:
-	; Find directory entry
-	jsr find_dirent
-	bcc @error
-
-	; Check if this is a directory
-	lda fat32_dirent + dirent::attributes
-	bit #$10
-	beq @error
-
-	; Success
-	sec
-	rts
-
-@error:	clc
-	rts
+	lda #$40 ; directories only
+	jmp find_dirent
 
 ;-----------------------------------------------------------------------------
 ; delete_entry
@@ -1488,10 +1477,12 @@ fat32_open_dir:
 
 ;-----------------------------------------------------------------------------
 ; fat32_find_dirent
+;
+; same args as find_dirent
 ;-----------------------------------------------------------------------------
 fat32_find_dirent:
 	; Check if context is free
-	lda cur_context + context::flags
+	ldx cur_context + context::flags
 	bne @error
 
 	; Open current directory
@@ -2142,6 +2133,7 @@ fat32_rename:
 
 	; Make sure target name doesn't exist
 	set16 fat32_ptr, fat32_ptr2
+	lda #0 ; allow files and directories
 	jsr find_dirent
 	bcc @1
 	; Error, file exists
@@ -2151,6 +2143,7 @@ fat32_rename:
 @1:
 	; Find file to rename
 	set16 fat32_ptr, tmp_buf
+	lda #0 ; allow files and directories
 	jsr find_dirent
 	bcs @3
 	lda #ERRNO_FILE_NOT_FOUND
@@ -2228,6 +2221,7 @@ fat32_set_attribute:
 
 @0:
 	; Find file
+	lda #0 ; allow files and directories
 	jsr find_dirent
 	bcs @3
 	lda #ERRNO_FILE_NOT_FOUND
@@ -2628,6 +2622,7 @@ fat32_create:
 	rts
 @1:
 	; Check if directory entry already exists?
+	lda #0 ; allow files and directories
 	jsr find_dirent
 	bcs @exists
 	plp ; overwrite flag
@@ -2664,6 +2659,7 @@ fat32_mkdir:
 	bne @error
 
 	; Check if directory doesn't exist yet
+	lda #0 ; allow files and directories
 	jsr find_dirent
 	bcc @0
 	lda #ERRNO_FILE_EXISTS
