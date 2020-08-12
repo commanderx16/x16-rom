@@ -99,6 +99,7 @@ tmp_attrib:          .byte 0       ; temporary: attribute when creating a dir en
 tmp_dirent_flag:     .byte 0
 shortname_buf:       .res 11       ; Used for shortname creation
 tmp_timestamp:       .byte 0
+tmp_filetype:        .byte 0       ; Used to match file type in find_dirent
 
 ; Temp - LFN
 lfn_index:           .byte 0       ; counter when collecting/decoding LFN entries
@@ -968,7 +969,7 @@ next_sector:
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 find_dirent:
-	sta match_type
+	sta tmp_filetype
 	stz name_offset
 
 	; If path starts with a slash, use root directory as base,
@@ -1025,11 +1026,11 @@ find_dirent:
 	bit #$10
 	bne @is_dir
 	; is file
-	bit match_type
+	bit tmp_filetype
 	bvs @next
 	bra @ok
 @is_dir:
-	bit match_type
+	bit tmp_filetype
 	bmi @next
 @ok:	jsr match_type
 	bcc @next
