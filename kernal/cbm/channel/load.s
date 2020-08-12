@@ -4,6 +4,8 @@
 ; (C)1983 Commodore Business Machines (CBM)
 ; additions: (C)2020 Michael Steil, License: 2-clause BSD
 
+.import bacptr
+
 ;**********************************
 ;* load ram function              *
 ;*                                *
@@ -80,13 +82,16 @@ ld25	ldx sa          ;save sa in .x
 	sta eah
 ld30	jsr loding      ;tell user loading
 ;
-	ldy verck       ;are we loading into vram?
-	beq ld40        ;no (verify)
-	bpl ld35        ;yes
+	ldy verck       ;load/verify/vram?
+	beq ld40        ;verify
+	bpl ld35        ;loading into vram
 
-; load into RAM - try block-wise
-	.import bacptr
-bld10	ldx eal
+;
+;block-wise load into RAM
+;
+bld10	jsr stop        ;stop key?
+	beq break2
+	ldx eal
 	ldy eah
 	jsr bacptr
 	bcs ld40        ;not supported, fall back to byte-wise
@@ -122,7 +127,7 @@ ld40	lda #$fd        ;mask off timeout
 	jsr stop        ;stop key?
 	bne ld45        ;no...
 ;
-	jmp break       ;stop key pressed
+break2	jmp break       ;stop key pressed
 ;
 ld45	jsr acptr       ;get byte off ieee
 	tax
@@ -149,6 +154,7 @@ ld50	ldy #0
 ld60	inc eal         ;increment store addr
 	bne ld64
 	inc eah
+.if 0 ; DISABLED for now, since block-wise path doesn't support it (yet?)
 ;
 ;if necessary, wrap to next bank
 ;
@@ -161,7 +167,7 @@ ld60	inc eal         ;increment store addr
 ld62	lda #$a0        ;wrap to bottom of high ram
 	sta eah
 	inc $9f61       ;move to next ram bank
-
+.endif
 ld64	bit status      ;eoi?
 	bvc ld40        ;no...continue load
 ;

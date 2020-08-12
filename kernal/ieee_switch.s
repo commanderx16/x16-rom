@@ -146,7 +146,7 @@ talk:
 bacptr:
 	bit cbdos_flags
 	bvs :+
-	sec ; error
+	sec ; error: unsupported
 	rts
 :	jsr jsrfar
 	.word $c000 + 3 * 17
