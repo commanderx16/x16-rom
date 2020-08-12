@@ -249,11 +249,8 @@ cbdos_secnd:
 ;---------------------------------------------------------------
 ; CLOSE
 @second_close:
-	ldx channel
-	lda context_for_channel,x
-	bmi :+
 	jsr file_close_clr_channel
-:	bra @secnd_rts
+	bra @secnd_rts
 
 ;---------------------------------------------------------------
 ; Initiate OPEN
@@ -475,11 +472,8 @@ cbdos_acptr:
 
 @acptr_end_file_eoi:
 	pha ; data byte
-	ldx channel
-	lda context_for_channel,x
-	bmi :+
 	jsr file_close_clr_channel
-:	pla
+	pla
 	pha
 @acptr_eoi:
 	lda #$40 ; EOI
@@ -490,11 +484,14 @@ cbdos_acptr:
 
 ;---------------------------------------------------------------
 file_close_clr_channel:
+	ldx channel
+	lda context_for_channel,x
+	bmi @1
 	jsr file_close
 	ldx channel
 	lda #CONTEXT_NONE
 	sta context_for_channel,x
-	rts
+@1:	rts
 
 ;---------------------------------------------------------------
 ; UNTALK
@@ -522,8 +519,6 @@ cbdos_bacptr:
 	rts
 
 @bacptr_end_file_eoi:
-	ldx channel
-	lda context_for_channel,x
 	jsr file_close_clr_channel
 	lda #$40 ; EOI
 	ora ieee_status
