@@ -51,7 +51,10 @@ ld20	cmp #4
 	ldy fnlen       ;must have file name
 	bne ld25        ;yes...ok
 ;
-	jmp error8      ;missing file name
+	ldx #<fndefault
+	ldy #>fndefault
+	lda #fndefault_end-fndefault
+	jsr setnam
 ;
 ld25	ldx sa          ;save sa in .x
 	jsr luking      ;tell user looking
@@ -255,3 +258,7 @@ prnto	bit msgflg      ;printing messages?
 	beq frmto1      ;skip if verify
 	ldy #ms8-ms1    ;"to $"
 	bne msghex      ;branch always
+
+fndefault
+	.byte ":*"
+fndefault_end
