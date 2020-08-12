@@ -89,7 +89,7 @@ ciout:
 
 untlk:
 	bit cbdos_flags
-	bpl :+
+	bvc :+
 	jsr jsrfar
 	.word $c000 + 3 * 4
 	.byte BANK_CBDOS
@@ -98,7 +98,7 @@ untlk:
 
 unlsn:
 	bit cbdos_flags
-	bvc :+
+	bpl :+
 	jsr jsrfar
 	.word $c000 + 3 * 5
 	.byte BANK_CBDOS
