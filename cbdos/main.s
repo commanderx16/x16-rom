@@ -251,10 +251,9 @@ cbdos_secnd:
 @second_close:
 	ldx channel
 	lda context_for_channel,x
-	bmi @secnd_rts
-
+	bmi :+
 	jsr file_close_clr_channel
-	bra @secnd_rts
+:	bra @secnd_rts
 
 ;---------------------------------------------------------------
 ; Initiate OPEN
@@ -442,7 +441,7 @@ cbdos_acptr:
 	rts
 
 @nacptr_file:
-	eor #CONTEXT_CMD ; eor -> don't touch C flag!
+	cmp #CONTEXT_CMD
 	bne @nacptr_status
 
 ;---------------------------------------------------------------
@@ -455,7 +454,7 @@ cbdos_acptr:
 	bra @acptr_eoi
 
 @nacptr_status:
-	eor #CONTEXT_DIR ^ CONTEXT_CMD ; eor -> don't touch C flag!
+	cmp #CONTEXT_DIR
 	bne @nacptr_dir
 
 ;---------------------------------------------------------------
@@ -475,14 +474,13 @@ cbdos_acptr:
 
 
 @acptr_end_file_eoi:
-	ldx channel
-	ldy context_for_channel,x
-	bmi @acptr_eoi
-
 	pha ; data byte
-	tya
+	ldx channel
+	lda context_for_channel,x
+	bmi :+
 	jsr file_close_clr_channel
-
+:	pla
+	pha
 @acptr_eoi:
 	lda #$40 ; EOI
 	ora ieee_status
@@ -512,44 +510,35 @@ cbdos_bacptr:
 	BANKING_START
 	stx fat32_ptr
 	sty fat32_ptr + 1
-	lda cur_context
+	bit cur_context
 	bmi @1
 
 	jsr file_read_block ; read up to 256 bytes
-	bcs @acptr_end_file_eoi
+	bcs @bacptr_end_file_eoi
 
-@acptr_end_ok:
 	stz ieee_status
-@acptr_end:
-	clc
+@bacptr_end:
 	BANKING_END
 	rts
 
-@acptr_end_file_eoi:
+@bacptr_end_file_eoi:
 	ldx channel
-	ldy context_for_channel,x
-	bmi @acptr_eoi
-
-	pha ; data byte
-	tya
+	lda context_for_channel,x
 	jsr file_close_clr_channel
-
-@acptr_eoi:
 	lda #$40 ; EOI
 	ora ieee_status
 	sta ieee_status
-	pla ; data byte
-	bra @acptr_end
+	bra @bacptr_end
 
 
 @1:	; not a file - get a single byte
 	jsr cbdos_acptr
 	sta (fat32_ptr)
 	lda #1
-	BANKING_END
-	rts
+	bra @bacptr_end
 
 
+;---------------------------------------------------------------
 .segment "IRQB"
 	.word banked_irq
 
