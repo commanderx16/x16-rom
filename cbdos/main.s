@@ -447,7 +447,6 @@ cbdos_acptr:
 
 @acptr_eval:
 	bcc @acptr_end_ok
-	pha
 	bra @acptr_eoi
 
 @nacptr_status:
@@ -474,8 +473,8 @@ cbdos_acptr:
 	pha ; data byte
 	jsr file_close_clr_channel
 	pla
-	pha
 @acptr_eoi:
+	pha
 	lda #$40 ; EOI
 	ora ieee_status
 	sta ieee_status
@@ -524,7 +523,6 @@ cbdos_bacptr:
 	ora ieee_status
 	sta ieee_status
 	bra @bacptr_end
-
 
 @1:	; not a file - get a single byte
 	jsr cbdos_acptr

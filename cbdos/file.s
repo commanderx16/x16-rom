@@ -215,7 +215,7 @@ file_read:
 ; implementation is free to return any number of bytes,
 ; optimizing for speed and simplicity.
 ; We always read to the end of the next 256 byte page in the
-; file, to reduce the amount of work in fat32_read a bit.
+; file to reduce the amount of work in fat32_read a bit.
 ;
 ; Out:  (fat32_ptr)  data
 ;       a            bytes read (=0: 256 bytes)
