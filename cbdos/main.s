@@ -148,11 +148,8 @@ sdcard_check:
 ;
 ; Reset CBDOS after a new SD card has been inserted
 ;
-; The SD card is considered a drive, not a medium. When there is
-; no SD card, this is the equivalent of an IEEE layer timeout,
-; not a "74,DRIVE NOT READY,00,00".
-; Therefore, whenever an SD card is inserted, all of DOS is
-; reset.
+; Whenever an SD card is inserted, all state is cleared.
+; The status messages is preserved.
 ;---------------------------------------------------------------
 reset_dos:
 	ldx #14
