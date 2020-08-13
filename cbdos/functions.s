@@ -17,7 +17,7 @@
 
 ; main.s
 .export cur_medium
-.import convert_errno_status, cbdos_unit
+.import convert_errno_status, cbdos_unit, disk_changed
 
 ; cmdch.s
 .import status_clear, status_put
@@ -914,7 +914,8 @@ get_partition:
 ;---------------------------------------------------------------
 get_diskchange:
 	jsr status_clear
-	lda #1
+	lda disk_changed
+	stz disk_changed
 	jsr status_put
 	lda #$ff ; don't set status
 	rts

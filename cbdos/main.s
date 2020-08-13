@@ -19,7 +19,7 @@
 .import dir_open, dir_read
 
 ; functions.s
-.export cbdos_init, cbdos_unit
+.export cbdos_init, cbdos_unit, disk_changed
 .import cur_medium
 
 ; parser.s
@@ -72,6 +72,8 @@ cur_context:
 	.byte 0
 is_receiving_filename:
 	.byte 0
+disk_changed:
+	.byte 0
 
 context_for_channel:
 	.res 16, 0
@@ -106,6 +108,7 @@ cbdos_init:
 ;
 ; This is called by every TALK and LISTEN:
 ; * If there is an active SD card, verify it is still present.
+;   If no, try to detect one.
 ; * If there is no active SD card, try to detect one.
 ;
 ; Out:  c  =0: OK
@@ -125,9 +128,10 @@ sdcard_check:
 	; SD card was there - make sure it is still there
 	jsr sdcard_check_alive; cheap, not state destructive
 	bcs @yes
-	bra @no
 
 @not_active:
+	lda #1
+	sta disk_changed
 	; no SD card was there - maybe there is now, so
 	; try to init it
 	jsr sdcard_init ; expensive, state destructive

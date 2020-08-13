@@ -493,10 +493,35 @@ sdcard_write_sector:
 ;-----------------------------------------------------------------------------
 ; sdcard_check_alive
 ;
-; Check whether SD card is still present, or whether it has been removed.
+; Check whether the current SD card is still present, or whether it has been
+; removed or replaced with a different card.
 ;
 ; Out:  c  =1: SD card is alive
-;          =0: SD card has been removed
+;          =0: SD card has been removed, or replaced with a different card
+;
+; The SEND_STATUS command (CMD13) sends 16 error bits:
+;  byte 0: 7  always 0
+;          6  parameter error
+;          5  address error
+;          4  erase sequence error
+;          3  com crc error
+;          2  illegal command
+;          1  erase reset
+;          0  in idle state
+;  byte 1: 7  out of range | csd overwrite
+;          6  erase param
+;          5  wp violation
+;          4  card ecc failed
+;          3  CC error
+;          2  error
+;          1  wp erase skip | lock/unlock cmd failed
+;          0  Card is locked
+; Under normal circumstances, all 16 bits should be zero.
+; This command is not legal before the SD card has been initialized.
+; Tests on several cards have shown that this gets respected in practice;
+; the test cards all returned $1F, $FF if sent before CMD0.
+; So we use CMD13 to detect whether we are still talking to the same SD
+; card, or a new card has been attached.
 ;-----------------------------------------------------------------------------
 sdcard_check_alive:
 	; save sector
@@ -507,25 +532,27 @@ sdcard_check_alive:
 	cpx #4
 	bne @1
 
-	send_cmd_inline 8, $1AA
-	bcc @error
-	pha
+	send_cmd_inline 13, 0 ; CMD13: SEND_STATUS
+	bcc @no ; card did not react -> no card
+	tax
+	bne @no ; first byte not $00 -> different card
 	jsr spi_read
-	jsr spi_read
-	jsr spi_read
-	jsr spi_read
-	jsr deselect
-	pla
-	cmp #1	; No error?
-	clc
-	bne @error
+	tax
+	bne @no ; second byte not $00 -> different card
 	sec
-@error:
-	; restore sector
+	bra @yes
+
+@no:	clc
+
+@yes:	; restore sector
 	; (this code preserves the C flag!)
 	ldx #3
 @2:	pla
 	sta sector_lba, x
 	dex
 	bpl @2
+
+	php
+	jsr deselect
+	plp
 	rts
