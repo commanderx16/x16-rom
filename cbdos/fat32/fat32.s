@@ -1679,7 +1679,12 @@ read_dirent:
 @4:	lda (fat32_bufptr), y
 	cmp #' '
 	beq @skip_spaces
-	bit tmp_sfn_case
+	cmp #$05 ; $05 at first character translates into $E5
+	bne @n05
+	cpy #0
+	bne @n05
+	lda #$E5
+@n05:	bit tmp_sfn_case
 	bvc @ucase1
 	jsr to_lower
 @ucase1:
