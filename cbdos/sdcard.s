@@ -79,10 +79,6 @@ sdcard_detect:
 ;
 ;---------------------------------------------------------------------
 sdcard_init:
-			jsr sd_select_card
-			jsr test
-
-
 	jsr spi_deselect
 @init:
       ; 74 SPI clock cycles - !!!Note: spi clock cycle should be in range 100-400Khz!!!
@@ -97,6 +93,7 @@ sdcard_init:
 			beq @next
 			jmp @exit
 @next:
+			jsr test
 
 
 			jsr sd_param_init
@@ -226,19 +223,13 @@ sdcard_init:
 			jmp sd_deselect_card
 
 test:
+	pha
 	lda $1234
 	bne :+
+	pla
 	rts
 
 :	stz $1234
-
-			ldx #>VERA_SPI
-			stx veramid
-			ldx #VERA_SPI >> 16
-			stx verahi
-			ldx #1
-			stx veralo  ; ctrl reg
-			stx veradat ; ss=1
 
 	jsr sd_param_init
 
@@ -266,6 +257,7 @@ test:
 	sta 6
 	jsr spi_r_byte
 	sta 7
+	pla
 	rts
 
 ;---------------------------------------------------------------------
@@ -326,9 +318,8 @@ sd_block_cmd_timeout:
 ;	A - A = 0 on success, error code otherwise
 ;---------------------------------------------------------------------
 sd_read_block:
-;			jsr test
-
 			jsr sd_select_card
+;			jsr test
 
 			jsr sd_cmd_lba
 			lda #cmd17
