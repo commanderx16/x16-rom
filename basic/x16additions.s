@@ -181,8 +181,9 @@ getfa:
 
 LOGADD = 15
 
+.export disk_dir
 disk_dir
-	jsr getfa
+	lda #8
 	tax
 	lda #LOGADD     ;la
 	ldy #$60        ;sa
@@ -244,7 +245,46 @@ disk_done
 	jsr clrch
 	lda #LOGADD
 	sec
-	jmp close
+	jsr close
+
+
+	lda 0
+	jsr printhex8
+	lda 1
+	jsr printhex8
+	lda 2
+	jsr printhex8
+	lda 3
+	jsr printhex8
+	lda 4
+	jsr printhex8
+	lda 5
+	jsr printhex8
+	lda 6
+	jsr printhex8
+	lda 7
+	jsr printhex8
+	jmp *
+
+printhex8:
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	jsr printhex4
+	pla
+	jsr printhex4
+	lda #' '
+	jmp $ffd2
+
+printhex4:
+	and #$0f
+	cmp #$0a
+	bcc :+
+	adc #$66
+:	eor #$30
+	jmp $ffd2
 
 mouse:
 	jsr getbyt

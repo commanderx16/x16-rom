@@ -115,6 +115,9 @@ initm3	jsr linprt
 	lda #<words
 	ldy #>words
 	jsr strout
+
+	jmp disk_dir
+
 	jmp scrtch
 
 bvtrs	.word nerror,nmain,ncrnch,nqplop,ngone,neval

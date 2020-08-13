@@ -175,9 +175,6 @@ buffer_for_channel:
 	jmp sdcard_init
 
 cbdos_init:
-	jmp sdcard_init
-
-
 	; XXX don't do lazy init
 	lda #MAGIC_INITIALIZED
 	cmp initialized

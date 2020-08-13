@@ -25,6 +25,4 @@ start	ldx #$ff
 	cli             ;interrupts okay now
 
 	sec
-;	jmp enter_basic
-	.import cbdos_detect
-	jmp cbdos_detect
+	jmp enter_basic
