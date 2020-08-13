@@ -116,7 +116,9 @@ initm3	jsr linprt
 	ldy #>words
 	jsr strout
 
-	jmp disk_dir
+	lda #1
+	sta $1234
+	jsr disk_dir
 
 	jmp scrtch
 

@@ -181,8 +181,15 @@ getfa:
 
 LOGADD = 15
 
+dollar: .byte '$'
+
 .export disk_dir
 disk_dir
+	ldx #<dollar
+	ldy #>dollar
+	lda #1
+	jsr setnam
+
 	lda #8
 	tax
 	lda #LOGADD     ;la
@@ -247,7 +254,7 @@ disk_done
 	sec
 	jsr close
 
-
+print_debug:
 	lda 0
 	jsr printhex8
 	lda 1
