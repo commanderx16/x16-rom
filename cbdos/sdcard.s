@@ -78,7 +78,17 @@ sdcard_detect:
 ;   out:  Z=1 on success, Z=0 otherwise
 ;
 ;---------------------------------------------------------------------
+.macro DEBUG i
+	php
+	pha
+	lda #i
+	sta 0
+	pla
+	plp
+.endmacro
+
 sdcard_init:
+	DEBUG 0
 	jsr spi_deselect
 @init:
       ; 74 SPI clock cycles - !!!Note: spi clock cycle should be in range 100-400Khz!!!
@@ -93,6 +103,7 @@ sdcard_init:
 			beq @next
 			jmp @exit
 @next:
+	DEBUG 1
 
 			jsr sd_param_init
 
@@ -108,6 +119,7 @@ sdcard_init:
 			beq @l2
 			jmp @exit
 @l2:
+	DEBUG 2
 
 			lda #$01
 			sta sd_cmd_param+2
@@ -139,6 +151,7 @@ sdcard_init:
 			beq @l3
 			jmp @exit
 @l3:
+	DEBUG 3
 
 ;			bne @exit
 
@@ -146,6 +159,7 @@ sdcard_init:
 			jsr spi_r_byte
 			cmp #$aa
 			bne @exit
+	DEBUG 4
 
 			; init card using ACMD41 and parameter $40000000
 			lda #$40
@@ -158,6 +172,7 @@ sdcard_init:
 			cmp #$01
 			bne @exit
 			; Init failed
+	DEBUG 5
 
 
 			lda #acmd41
@@ -172,6 +187,7 @@ sdcard_init:
 
 			cmp sd_cmd_param
 			beq @exit		; acmd41 with $40000000 and $00000000 failed, TODO: try CMD1
+	DEBUG 6
 
 			jsr sd_param_init
 			bra @l5
@@ -179,9 +195,11 @@ sdcard_init:
 @l7:
 			cmp sd_cmd_param
 			beq @cmd16		; acmd41 with $40000000 and $00000000 failed, TODO: try CMD1
+	DEBUG 7
 
 			stz sd_cmd_param
 
+	jmp test
 			lda #cmd58
 			jsr sd_cmd
 			debug "CMD58"
@@ -200,6 +218,7 @@ sdcard_init:
 			and #%01000000
 			bne @l9
 @cmd16:
+	DEBUG 8
 			jsr sd_param_init
 
 			; Set block size to 512 bytes
@@ -212,15 +231,51 @@ sdcard_init:
 			jsr sd_cmd
 			debug "CMD16"
 
+	DEBUG 9
+
+
 
 
 @exit_ok:
 @l9:
+
+
 	; SD card init successful
 			lda #$00
 @exit:
 			jmp sd_deselect_card
 
+test:
+	jsr spi_r_byte
+	jsr spi_r_byte
+	jsr spi_r_byte
+	jsr spi_r_byte
+	jsr spi_r_byte
+	jsr spi_r_byte
+	jsr spi_r_byte
+	jsr spi_r_byte
+
+	jsr sd_param_init
+
+	lda #$40 + 13
+	jsr sd_cmd
+	jsr spi_r_byte
+	sta 0
+	jsr spi_r_byte
+	sta 1
+	jsr spi_r_byte
+	sta 2
+	jsr spi_r_byte
+	sta 3
+	jsr spi_r_byte
+	sta 4
+	jsr spi_r_byte
+	sta 5
+	jsr spi_r_byte
+	sta 6
+	jsr spi_r_byte
+	sta 7
+	rts
 ;---------------------------------------------------------------------
 ; Send SD Card Command
 ; in:

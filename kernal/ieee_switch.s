@@ -115,6 +115,7 @@ talk:
 	.byte BANK_CBDOS
 	rts
 
+.export cbdos_detect
 cbdos_detect:
 	pha
 	phx
@@ -125,6 +126,28 @@ cbdos_detect:
 	jsr jsrfar
 	.word $c000 + 3 * 15
 	.byte BANK_CBDOS
+
+	lda 0
+	jsr printhex8
+	lda 1
+	jsr printhex8
+	lda 2
+	jsr printhex8
+	lda 3
+	jsr printhex8
+	lda 4
+	jsr printhex8
+	lda 5
+	jsr printhex8
+	lda 6
+	jsr printhex8
+	lda 7
+	jsr printhex8
+	jmp *
+
+	
+
+
 	beq @detected
 	lda #0
 	bra :+
@@ -136,3 +159,23 @@ cbdos_detect:
 	plx
 	pla
 	rts
+
+printhex8:
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	jsr printhex4
+	pla
+	jsr printhex4
+	lda #' '
+	jmp $ffd2
+
+printhex4:
+	and #$0f
+	cmp #$0a
+	bcc :+
+	adc #$66
+:	eor #$30
+	jmp $ffd2
