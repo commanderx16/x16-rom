@@ -501,30 +501,26 @@ cbdos_untlk:
 cbdos_bacptr:
 	.importzp fat32_ptr
 	BANKING_START
-	stx fat32_ptr
-	sty fat32_ptr + 1
 	bit cur_context
 	bmi @1
 
-	jsr file_read_block ; read up to 256 bytes
-	bcs @bacptr_end_file_eoi
-
 	stz ieee_status
-@bacptr_end:
-	BANKING_END
-	rts
 
-@bacptr_end_file_eoi:
+	jsr file_read_block ; read up to 256 bytes
+	bcc @bacptr_end
+
 	jsr file_close_clr_channel
 	lda #$40 ; EOI
 	ora ieee_status
 	sta ieee_status
-	bra @bacptr_end
+	clc
 
-@1:	; not a file - get a single byte
-	jsr cbdos_acptr
-	sta (fat32_ptr)
-	lda #1
+@bacptr_end:
+	BANKING_END
+	rts
+
+
+@1:	sec ; error: unsupported
 	bra @bacptr_end
 
 

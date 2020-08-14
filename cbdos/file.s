@@ -217,11 +217,19 @@ file_read:
 ; We always read to the end of the next 256 byte page in the
 ; file to reduce the amount of work in fat32_read a bit.
 ;
-; Out:  (fat32_ptr)  data
-;       a            bytes read (=0: 256 bytes)
+; In:   fat32_ptr    pointer to data
+;       a            number of bytes to read
+;                    =0: implementation decides; up to 512
+; Out:  y:x          number of bytes read
 ;       c            =1: error or EOF (no bytes received)
 ;---------------------------------------------------------------
 file_read_block:
+	stx fat32_ptr
+	sty fat32_ptr + 1
+	tax
+	bne @1
+
+	; A=0: read to end of block
 	jsr fat32_get_offset
 	lda fat32_size + 0
 	eor #$ff
@@ -230,16 +238,26 @@ file_read_block:
 	stz fat32_size + 1
 	bne @2
 	inc fat32_size + 1
+	bra @2
+
+	; A!=0: read A bytes
+@1:	sta fat32_size + 0
+	stz fat32_size + 1
+
+	; Read
 @2:	jsr fat32_read
-	lda fat32_size
-	bcc @eof_or_error
-@ok:	clc
+	bcc @error
+
+@ok:	ldx fat32_size + 0
+	ldy fat32_size + 1
+	clc
 	rts
 
-@eof_or_error:
-	bne @ok ; EOF, but data received
-
-@error:	sec ; EOF or error, no data received
+; EOF or error, no data received
+@error:	jsr set_errno_status
+	ldx #0
+	ldy #0
+	sec
 	rts
 
 ;---------------------------------------------------------------

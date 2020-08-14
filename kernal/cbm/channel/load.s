@@ -96,16 +96,17 @@ bld10	jsr stop        ;stop key?
 	beq break2
 	ldx eal
 	ldy eah
+	lda #0          ;load as many bytes as device wants
 	jsr bacptr
 	bcs ld40        ;not supported, fall back to byte-wise
-	tax
-	beq bld20
+	txa
 	clc
 	adc eal
 	sta eal
-	bcc bld30
-bld20	inc eah
-bld30	bit status      ;eoi?
+	tya
+	adc eah
+	sta eah
+	bit status      ;eoi?
 	bvc bld10       ;no...continue load
 	bra ld70
 
