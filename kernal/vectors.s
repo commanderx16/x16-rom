@@ -5,7 +5,7 @@
 
 .feature labels_without_colons
 
-.import plot, scrorg, iclall, igetin, istop, savesp, loadsp, ibsout, ibasin, iclrch, ickout, ichkin, iclose, iopen, setnam, setlfs, readst, talk, listn, unlsn, untlk, ciout, acptr, settmo, kbd_scan, tksa, secnd, setmsg, ramtas, ioinit, cint, cmpare, stash, indfet, jsrfar, screen_set_charset, screen_set_mode, lkupsa, lkupla, close_all, enter_basic
+.import plot, scrorg, iclall, igetin, istop, savesp, loadsp, ibsout, ibasin, iclrch, ickout, ichkin, iclose, iopen, setnam, setlfs, readst, talk, listn, unlsn, untlk, ciout, acptr, settmo, kbd_scan, tksa, secnd, setmsg, ramtas, ioinit, cint, cmpare, stash, indfet, jsrfar, screen_set_charset, screen_set_mode, lkupsa, lkupla, close_all, enter_basic, macptr
 .import I_FB_move_pixels, I_FB_filter_pixels, I_FB_fill_pixels, I_FB_set_8_pixels_opaque, I_FB_set_8_pixels, I_FB_set_pixels, I_FB_set_pixel, I_FB_get_pixels, I_FB_get_pixel, I_FB_cursor_next_line, I_FB_cursor_position, I_FB_set_palette, I_FB_get_info, I_FB_init
 .import memory_decompress, memory_crc, memory_copy, memory_fill
 .import monitor
@@ -36,7 +36,7 @@
 	.byte 0,0,0            ; $FEC3
 	.byte 0,0,0            ; $FEC6
 	.byte 0,0,0            ; $FEC9
-	.byte 0,0,0            ; $FECC
+	jmp monitor            ; $FECC
 	jmp entropy_get        ; $FECF
 	jmp kbdbuf_put         ; $FED2
 
@@ -92,7 +92,7 @@
 	jmp GRAPH_get_char_size; $FF3E: (byte baseline, byte width, byte height) GRAPH_get_char_size(byte c, byte format);
 	jmp GRAPH_put_char     ; $FF41: void GRAPH_put_char(inout word x, inout word y, byte c);
 
-	jmp monitor            ; $FF44: MONITOR
+	jmp macptr             ; $FF44: macptr - IEEE multiple byte in
 
 ; $FF47-$FF7F contains the extended C128 KERNAL API. We are trying to support as many C128 calls as possible.
 ; Some make no sense on the X16 though, usually because their functionality is C128-specific.

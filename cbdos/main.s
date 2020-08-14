@@ -30,7 +30,7 @@
 .export channel, context_for_channel, ieee_status
 
 ; jumptab.s
-.export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk, cbdos_bacptr
+.export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk, cbdos_macptr
 .export cbdos_set_time
 
 .include "banks.inc"
@@ -497,35 +497,42 @@ cbdos_untlk:
 
 ;---------------------------------------------------------------
 ; BLOCK-WISE RECEIVE
+;
+; In:   y:x  pointer to data
+;       a    number of bytes to read
+;            =0: implementation decides; up to 512
+; Out:  y:x  number of bytes read
+;       c    =1: unsupported
+;       (EOI flag in ieee_status)
 ;---------------------------------------------------------------
-cbdos_bacptr:
+cbdos_macptr:
 	.importzp fat32_ptr
 	BANKING_START
-	stx fat32_ptr
-	sty fat32_ptr + 1
 	bit cur_context
 	bmi @1
 
-	jsr file_read_block ; read up to 256 bytes
-	bcs @bacptr_end_file_eoi
-
 	stz ieee_status
-@bacptr_end:
-	BANKING_END
-	rts
 
-@bacptr_end_file_eoi:
+	jsr file_read_block ; read up to 256 bytes
+	bcc @end
+
+	phx
+	phy
 	jsr file_close_clr_channel
 	lda #$40 ; EOI
 	ora ieee_status
 	sta ieee_status
-	bra @bacptr_end
+	clc
+	ply
+	plx
 
-@1:	; not a file - get a single byte
-	jsr cbdos_acptr
-	sta (fat32_ptr)
-	lda #1
-	bra @bacptr_end
+@end:
+	BANKING_END
+	rts
+
+
+@1:	sec ; error: unsupported
+	bra @end
 
 
 ;---------------------------------------------------------------

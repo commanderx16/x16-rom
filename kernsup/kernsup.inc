@@ -2,7 +2,8 @@
 .byte 0,0,0            ; $FEC3
 .byte 0,0,0            ; $FEC6
 .byte 0,0,0            ; $FEC9
-.byte 0,0,0            ; $FECC
+
+bridge monitor                    ; $FECC
 
 bridge entropy_get                ; $FECF
 
@@ -48,7 +49,7 @@ bridge GRAPH_draw_image    ; $FF38
 bridge GRAPH_set_font      ; $FF3B
 bridge GRAPH_get_char_size ; $FF3E
 bridge GRAPH_put_char      ; $FF41
-bridge monitor             ; $FF44: monitor
+bridge macptr              ; $FF44: macptr
 bridge enter_basic         ; $FF47: enter_basic
 bridge close_all           ; $FF4A: CLOSE_ALL – close all files on a device
 bridge clock_set_date_time ; $FF4D: clock_set_date_time - set date and time

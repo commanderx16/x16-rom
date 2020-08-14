@@ -35,7 +35,7 @@
 .export unlsn
 .export listn
 .export talk
-.export bacptr
+.export macptr
 
 .segment "KVAR"
 
@@ -143,7 +143,7 @@ talk:
 	pla
 	jmp serial_talk
 
-bacptr:
+macptr:
 	bit cbdos_flags
 	bvs :+
 	sec ; error: unsupported
