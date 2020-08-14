@@ -497,6 +497,13 @@ cbdos_untlk:
 
 ;---------------------------------------------------------------
 ; BLOCK-WISE RECEIVE
+;
+; In:   y:x  pointer to data
+;       a    number of bytes to read
+;            =0: implementation decides; up to 512
+; Out:  y:x  number of bytes read
+;       c    =1: unsupported
+;       (EOI flag in ieee_status)
 ;---------------------------------------------------------------
 cbdos_bacptr:
 	.importzp fat32_ptr
@@ -509,11 +516,15 @@ cbdos_bacptr:
 	jsr file_read_block ; read up to 256 bytes
 	bcc @bacptr_end
 
+	phx
+	phy
 	jsr file_close_clr_channel
 	lda #$40 ; EOI
 	ora ieee_status
 	sta ieee_status
 	clc
+	ply
+	plx
 
 @bacptr_end:
 	BANKING_END
