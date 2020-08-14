@@ -4,7 +4,7 @@
 ; (C)1983 Commodore Business Machines (CBM)
 ; additions: (C)2020 Michael Steil, License: 2-clause BSD
 
-.import bacptr
+.import macptr
 
 ;**********************************
 ;* load ram function              *
@@ -97,7 +97,7 @@ bld10	jsr stop        ;stop key?
 	ldx eal
 	ldy eah
 	lda #0          ;load as many bytes as device wants
-	jsr bacptr
+	jsr macptr
 	bcs ld40        ;not supported, fall back to byte-wise
 	txa
 	clc

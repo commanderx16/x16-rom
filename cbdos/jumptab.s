@@ -3,7 +3,7 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.import cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk, cbdos_bacptr
+.import cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk, cbdos_macptr
 
 .import cbmdos_OpenDisk, cbmdos_ReadBuff, cbmdos_ReadBlock, cbmdos_GetDirHead, cbmdos_CalcBlksFree, cbmdos_Get1stDirEntry, cbmdos_GetNxtDirEntry
 
@@ -35,4 +35,4 @@
 	jmp cbdos_init              ; 15
 	jmp cbdos_set_time          ; 16
 
-	jmp cbdos_bacptr            ; 17
+	jmp cbdos_macptr            ; 17

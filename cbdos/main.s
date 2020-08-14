@@ -30,7 +30,7 @@
 .export channel, context_for_channel, ieee_status
 
 ; jumptab.s
-.export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk, cbdos_bacptr
+.export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk, cbdos_macptr
 .export cbdos_set_time
 
 .include "banks.inc"
@@ -505,7 +505,7 @@ cbdos_untlk:
 ;       c    =1: unsupported
 ;       (EOI flag in ieee_status)
 ;---------------------------------------------------------------
-cbdos_bacptr:
+cbdos_macptr:
 	.importzp fat32_ptr
 	BANKING_START
 	bit cur_context
@@ -514,7 +514,7 @@ cbdos_bacptr:
 	stz ieee_status
 
 	jsr file_read_block ; read up to 256 bytes
-	bcc @bacptr_end
+	bcc @end
 
 	phx
 	phy
@@ -526,13 +526,13 @@ cbdos_bacptr:
 	ply
 	plx
 
-@bacptr_end:
+@end:
 	BANKING_END
 	rts
 
 
 @1:	sec ; error: unsupported
-	bra @bacptr_end
+	bra @end
 
 
 ;---------------------------------------------------------------
