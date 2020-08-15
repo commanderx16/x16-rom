@@ -92,7 +92,7 @@
 	jmp GRAPH_get_char_size; $FF3E: (byte baseline, byte width, byte height) GRAPH_get_char_size(byte c, byte format);
 	jmp GRAPH_put_char     ; $FF41: void GRAPH_put_char(inout word x, inout word y, byte c);
 
-	jmp macptr             ; $FF44: macptr
+	jmp macptr             ; $FF44: macptr - IEEE multiple byte in
 
 ; $FF47-$FF7F contains the extended C128 KERNAL API. We are trying to support as many C128 calls as possible.
 ; Some make no sense on the X16 though, usually because their functionality is C128-specific.
