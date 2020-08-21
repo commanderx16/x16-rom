@@ -134,21 +134,21 @@ endif
 KEYMAP_SOURCES = \
 	keymap/keymap.s
 
-CBDOS_SOURCES = \
-	cbdos/fat32/fat32.s \
-	cbdos/fat32/mkfs.s \
-	cbdos/fat32/sdcard.s \
-	cbdos/fat32/text_input.s \
-	cbdos/zeropage.s \
-	cbdos/jumptab.s \
-	cbdos/main.s \
-	cbdos/match.s \
-	cbdos/file.s \
-	cbdos/cmdch.s \
-	cbdos/dir.s \
-	cbdos/parser.s \
-	cbdos/functions.s \
-	cbdos/geos.s
+DOS_SOURCES = \
+	dos/fat32/fat32.s \
+	dos/fat32/mkfs.s \
+	dos/fat32/sdcard.s \
+	dos/fat32/text_input.s \
+	dos/zeropage.s \
+	dos/jumptab.s \
+	dos/main.s \
+	dos/match.s \
+	dos/file.s \
+	dos/cmdch.s \
+	dos/dir.s \
+	dos/parser.s \
+	dos/functions.s \
+	dos/geos.s
 
 GEOS_SOURCES= \
 	geos/kernal/bitmask/bitmask2.s \
@@ -288,15 +288,15 @@ KERNAL_DEPS = \
 KEYMAP_DEPS = \
 	$(GENERIC_DEPS)
 
-CBDOS_DEPS = \
+DOS_DEPS = \
 	$(GENERIC_DEPS) \
-	cbdos/fat32/fat32.inc \
-	cbdos/fat32/lib.inc \
-	cbdos/fat32/regs.inc \
-	cbdos/fat32/sdcard.inc \
-	cbdos/fat32/text_input.inc \
-	cbdos/functions.inc \
-	cbdos/vera.inc
+	dos/fat32/fat32.inc \
+	dos/fat32/lib.inc \
+	dos/fat32/regs.inc \
+	dos/fat32/sdcard.inc \
+	dos/fat32/text_input.inc \
+	dos/functions.inc \
+	dos/vera.inc
 
 GEOS_DEPS= \
 	$(GENERIC_DEPS) \
@@ -324,7 +324,7 @@ CHARSET_DEPS= \
 
 KERNAL_OBJS  = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
 KEYMAP_OBJS  = $(addprefix $(BUILD_DIR)/, $(KEYMAP_SOURCES:.s=.o))
-CBDOS_OBJS   = $(addprefix $(BUILD_DIR)/, $(CBDOS_SOURCES:.s=.o))
+DOS_OBJS     = $(addprefix $(BUILD_DIR)/, $(DOS_SOURCES:.s=.o))
 GEOS_OBJS    = $(addprefix $(BUILD_DIR)/, $(GEOS_SOURCES:.s=.o))
 BASIC_OBJS   = $(addprefix $(BUILD_DIR)/, $(BASIC_SOURCES:.s=.o))
 MONITOR_OBJS = $(addprefix $(BUILD_DIR)/, $(MONITOR_SOURCES:.s=.o))
@@ -336,7 +336,7 @@ else
 	BANK_BINS = \
 		$(BUILD_DIR)/kernal.bin \
 		$(BUILD_DIR)/keymap.bin \
-		$(BUILD_DIR)/cbdos.bin \
+		$(BUILD_DIR)/dos.bin \
 		$(BUILD_DIR)/geos.bin \
 		$(BUILD_DIR)/basic.bin \
 		$(BUILD_DIR)/monitor.bin \
@@ -377,10 +377,10 @@ $(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) $(KEYMAP_DEPS) $(CFG_DIR)/keymap-$(MACHI
 	@mkdir -p $$(dirname $@)
 	$(LD) -C $(CFG_DIR)/keymap-$(MACHINE).cfg $(KEYMAP_OBJS) -o $@ -m $(BUILD_DIR)/keymap.map -Ln $(BUILD_DIR)/keymap.sym
 
-# Bank 2 : CBDOS
-$(BUILD_DIR)/cbdos.bin: $(CBDOS_OBJS) $(CBDOS_DEPS) $(CFG_DIR)/cbdos-$(MACHINE).cfg
+# Bank 2 : DOS
+$(BUILD_DIR)/dos.bin: $(DOS_OBJS) $(DOS_DEPS) $(CFG_DIR)/dos-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C $(CFG_DIR)/cbdos-$(MACHINE).cfg $(CBDOS_OBJS) -o $@ -m $(BUILD_DIR)/cbdos.map -Ln $(BUILD_DIR)/cbdos.sym
+	$(LD) -C $(CFG_DIR)/dos-$(MACHINE).cfg $(DOS_OBJS) -o $@ -m $(BUILD_DIR)/dos.map -Ln $(BUILD_DIR)/dos.sym
 
 # Bank 3 : GEOS
 $(BUILD_DIR)/geos.bin: $(GEOS_OBJS) $(GEOS_DEPS) $(CFG_DIR)/geos-$(MACHINE).cfg
@@ -405,7 +405,7 @@ $(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) $(CFG_DIR)/charset-$(M
 $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
 	./scripts/symbolize.sh 0 build/x16/kernal.sym   > $@
 	./scripts/symbolize.sh 1 build/x16/keymap.sym  >> $@
-	./scripts/symbolize.sh 2 build/x16/cbdos.sym   >> $@
+	./scripts/symbolize.sh 2 build/x16/dos.sym     >> $@
 	./scripts/symbolize.sh 3 build/x16/geos.sym    >> $@
 	./scripts/symbolize.sh 4 build/x16/basic.sym   >> $@
 	./scripts/symbolize.sh 5 build/x16/monitor.sym >> $@

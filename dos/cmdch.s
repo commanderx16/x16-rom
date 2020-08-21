@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; CBDOS Command Channel
+; CMDR-DOS Command Channel
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
@@ -20,7 +20,7 @@
 
 MAX_STATUS_LEN = 40
 
-.segment "cbdos_data"
+.bss
 
 statusbuffer:
 	.res MAX_STATUS_LEN, 0
@@ -31,7 +31,7 @@ status_r:
 status_w:
 	.byte 0
 
-.segment "cbdos"
+.code
 
 ;---------------------------------------------------------------
 status_clear:
@@ -305,7 +305,7 @@ status_72:
 	.byte "PARTITION FULL", 0 ; filesystem full
 
 status_73:
-	.byte "CBDOS V1.0 X16", 0
+	.byte "CMDR-DOS V1.0 X16", 0
 status_74:
 	.byte "DRIVE NOT READY", 0 ; illegal partition for any command but "CP"
 status_75:

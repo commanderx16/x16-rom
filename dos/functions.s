@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; CBDOS Command Implementations
+; CMDR-DOS Command Implementations
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
@@ -9,7 +9,7 @@
 .include "banks.inc"
 
 ; main.s
-.import cbdos_init
+.import dos_init
 
 ; parser.s
 .import medium, medium1, unix_path, unix_path2, create_unix_path, append_unix_path_b
@@ -17,7 +17,7 @@
 
 ; main.s
 .export cur_medium
-.import convert_errno_status, cbdos_unit, disk_changed
+.import convert_errno_status, dos_unit, disk_changed
 
 ; cmdch.s
 .import status_clear, status_put
@@ -247,7 +247,7 @@ txt_fat32:
 	.byte "FAT32"
 txt_fat32_len = * - txt_fat32
 txt_oemname:
-	.byte "CBDOS1.0", 0
+	.byte "CMDR-DOS", 0
 
 ;---------------------------------------------------------------
 ; scratch
@@ -429,7 +429,7 @@ user:
 
 ; U:/UJ - cold RESET
 @user_10:
-	jsr cbdos_init
+	jsr dos_init
 	lda #$73
 	rts
 
@@ -510,7 +510,7 @@ rename_partition:
 ; In:   a  unit number (already checked for validity)
 ;---------------------------------------------------------------
 change_unit:
-	sta cbdos_unit
+	sta dos_unit
 	lda #0
 	rts
 

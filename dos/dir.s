@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; CBDOS Directory Listing
+; CMDR-DOS Directory Listing
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
@@ -16,7 +16,7 @@
 .import create_fat32_path_only_dir, create_fat32_path_only_name
 .import alloc_context
 
-.import parse_cbmdos_filename
+.import parse_dos_filename
 .import buffer
 .import file_type, filter0, filter1, medium
 
@@ -25,7 +25,7 @@
 
 DIRSTART = $0801 ; load address of directory
 
-.segment "cbdos_data"
+.bss
 
 dirbuffer:
 	.res 256, 0
@@ -45,7 +45,7 @@ part_index:
 show_timestamps:
 	.byte 0
 
-.segment "cbdos"
+.code
 
 ;---------------------------------------------------------------
 ;---------------------------------------------------------------
@@ -97,7 +97,7 @@ dir_open:
 
 	ldx #1
 @cont1:
-	jsr parse_cbmdos_filename
+	jsr parse_dos_filename
 	bcc @1
 	lda #$30 ; syntax error
 	jmp @dir_open_err
@@ -582,7 +582,7 @@ txt_tables:
 txt_free:
 	.byte "B FREE.", 0
 txt_part_dir_header:
-	.byte "CBDOS SDCARD", 0
+	.byte "CMDR-DOS SD CARD", 0
 txt_part_dir_header_end:
 txt_mbr:
 	.byte " MBR ", 0

@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; CBDOS Main
+; CMDR-DOS Main
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
@@ -19,7 +19,7 @@
 .import dir_open, dir_read
 
 ; functions.s
-.export cbdos_init, cbdos_unit, disk_changed
+.export dos_init, dos_unit, disk_changed
 .import cur_medium
 
 ; parser.s
@@ -30,8 +30,8 @@
 .export channel, context_for_channel, ieee_status
 
 ; jumptab.s
-.export cbdos_secnd, cbdos_tksa, cbdos_acptr, cbdos_ciout, cbdos_untlk, cbdos_unlsn, cbdos_listn, cbdos_talk, cbdos_macptr
-.export cbdos_set_time
+.export dos_secnd, dos_tksa, dos_acptr, dos_ciout, dos_untlk, dos_unlsn, dos_listn, dos_talk, dos_macptr
+.export dos_set_time
 
 .include "banks.inc"
 
@@ -57,10 +57,10 @@ via1porta   = via1+1 ; RAM bank
 	pla
 .endmacro
 
-.segment "cbdos_data"
+.bss
 
 ; Commodore DOS variables
-cbdos_unit:
+dos_unit:
 	.byte 0
 no_sdcard_active: ; $00: SD card active; $80: no SD card active
 	.byte 0
@@ -81,17 +81,17 @@ CONTEXT_NONE = $ff
 CONTEXT_DIR  = $fe
 CONTEXT_CMD  = $fd
 
-.segment "cbdos"
+.code
 
 ;---------------------------------------------------------------
-; Initialize CBDOS
+; Initialize CMDR-DOS
 ;
 ; This is called once on a system RESET.
 ;---------------------------------------------------------------
-cbdos_init:
+dos_init:
 	BANKING_START
 	lda #8
-	sta cbdos_unit
+	sta dos_unit
 	; SD card needs detection and init
 	lda #$80
 	sta no_sdcard_active
@@ -117,7 +117,7 @@ cbdos_init:
 sdcard_check:
 	BANKING_START
 
-	cmp cbdos_unit
+	cmp dos_unit
 	beq @1
 	sec
 	rts
@@ -150,7 +150,7 @@ sdcard_check:
 ;---------------------------------------------------------------
 ; reset_dos
 ;
-; Reset CBDOS after a new SD card has been inserted
+; Reset CMDR-DOS after a new SD card has been inserted
 ;
 ; Whenever an SD card is inserted, all state is cleared.
 ; The status messages is preserved.
@@ -172,9 +172,9 @@ reset_dos:
 	rts
 
 ;---------------------------------------------------------------
-; cbdos_set_time
+; dos_set_time
 ;---------------------------------------------------------------
-cbdos_set_time:
+dos_set_time:
 	BANKING_START
 	lda 2
 	sta fat32_time_year
@@ -196,7 +196,7 @@ cbdos_set_time:
 ;
 ; Nothing to do.
 ;---------------------------------------------------------------
-cbdos_listn:
+dos_listn:
 	jmp sdcard_check
 
 ;---------------------------------------------------------------
@@ -204,7 +204,7 @@ cbdos_listn:
 ;
 ;   In:   a    secondary address
 ;---------------------------------------------------------------
-cbdos_secnd:
+dos_secnd:
 	BANKING_START
 	phx
 	phy
@@ -269,7 +269,7 @@ cbdos_secnd:
 ;---------------------------------------------------------------
 ; CIOUT (send)
 ;---------------------------------------------------------------
-cbdos_ciout:
+dos_ciout:
 	BANKING_START
 	phx
 	phy
@@ -304,7 +304,7 @@ cbdos_ciout:
 ;---------------------------------------------------------------
 ; UNLISTEN
 ;---------------------------------------------------------------
-cbdos_unlsn:
+dos_unlsn:
 	BANKING_START
 	phx
 	phy
@@ -378,14 +378,14 @@ cbdos_unlsn:
 ;
 ; Nothing to do.
 ;---------------------------------------------------------------
-cbdos_talk:
+dos_talk:
 	jmp sdcard_check
 
 
 ;---------------------------------------------------------------
 ; SECOND (after TALK)
 ;---------------------------------------------------------------
-cbdos_tksa: ; after talk
+dos_tksa: ; after talk
 	BANKING_START
 	phx
 	phy
@@ -413,7 +413,7 @@ file_second2:
 ;---------------------------------------------------------------
 ; RECEIVE
 ;---------------------------------------------------------------
-cbdos_acptr:
+dos_acptr:
 	BANKING_START
 	phx
 	phy
@@ -492,7 +492,7 @@ file_close_clr_channel:
 ;---------------------------------------------------------------
 ; UNTALK
 ;---------------------------------------------------------------
-cbdos_untlk:
+dos_untlk:
 	rts
 
 ;---------------------------------------------------------------
@@ -505,7 +505,7 @@ cbdos_untlk:
 ;       c    =1: unsupported
 ;       (EOI flag in ieee_status)
 ;---------------------------------------------------------------
-cbdos_macptr:
+dos_macptr:
 	.importzp fat32_ptr
 	BANKING_START
 	bit cur_context

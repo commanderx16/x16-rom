@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; CBDOS Character Encoding, Name Matching
+; CMDR-DOS Character Encoding, Name Matching
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 

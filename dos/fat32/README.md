@@ -12,7 +12,7 @@ This is a generic and reusable FAT32 filesystem read/write library written in 65
 * time stamps
 * volume label
 * file system creation
-* SD card driver – just add your own byte transmission code
+* SD card driver – just add your own byte transmission code. e.g. [SPI for VIA 65c22](https://bitbucket.org/steckschwein/steckschwein-code/src/master/steckos/libsrc/spi/)
 * detects swapping SD cards
 * MBR partition table support
 * multiple partitions mounted at the same time

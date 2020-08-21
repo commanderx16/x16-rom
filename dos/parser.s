@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; CBDOS Parser
+; CMDR-DOS Parser
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
@@ -7,7 +7,7 @@
 
 .include "functions.inc"
 
-.export parse_cbmdos_filename
+.export parse_dos_filename
 .export buffer, buffer_len, buffer_overflow
 
 ; cmdch.s
@@ -620,7 +620,7 @@ find_wildcards:
 ;***************************************************************
 
 ;---------------------------------------------------------------
-; parse_cbmdos_filename
+; parse_dos_filename
 ;
 ; Converts a CBMDOS filename into medium, UNIX file path, file
 ; type, file mode, filters.
@@ -636,7 +636,7 @@ find_wildcards:
 ;       overwrite_flag
 ;       c          =1: syntax error
 ;---------------------------------------------------------------
-parse_cbmdos_filename:
+parse_dos_filename:
 	stx r0s
 	sty r0e
 

@@ -1,0 +1,16 @@
+MEMORY {
+	#include "x16.cfginc"
+
+	DOS:      start = $C000, size = $3FFE, fill=yes, fillval=$AA;
+	IRQB:     start = $FFFE, size = $0002, fill=yes, fillval=$AA;
+}
+
+SEGMENTS {
+	ZPDOS:        load = ZPDOS,    type = zp;
+
+	dos_jmptab:   load = DOS,      type = ro;
+	CODE:         load = DOS,      type = ro;
+	IRQB:         load = IRQB,     type = ro;
+
+	BSS:          load = DOSDAT,   type = bss;
+}

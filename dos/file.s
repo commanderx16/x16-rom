@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; CBDOS File Handling
+; CMDR-DOS File Handling
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
@@ -16,7 +16,7 @@
 .import unix_path
 .import create_unix_path
 .import medium
-.import parse_cbmdos_filename
+.import parse_dos_filename
 .import buffer_len
 .import is_filename_empty
 .import overwrite_flag
@@ -56,7 +56,7 @@ file_second:
 file_open:
 	ldx #0
 	ldy buffer_len
-	jsr parse_cbmdos_filename
+	jsr parse_dos_filename
 	bcc :+
 	lda #$30 ; syntax error
 	jmp @open_file_err3
