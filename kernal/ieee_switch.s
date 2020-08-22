@@ -37,10 +37,16 @@
 .export talk
 .export macptr
 
+.export led_update
+
 .segment "KVAR"
 
-cbdos_flags:   ; bit  6:   =1: CBDOS is talker
-	.res 1 ; bit  7:   =1: CBDOS is listener
+_cbdos_flags:  ; bit   7:   =1: CBDOS is listener
+	.res 1 ; bit   6:   =1: CBDOS is talker
+	       ; bit   5:   =1: error
+	       ; bit   4:   =1: active
+	       ; bit 3-0:   blink counter
+.assert _cbdos_flags = cbdos_flags, error
 
 .segment "IEEESWTCH"
 
@@ -196,3 +202,24 @@ upload_time:
 
 	pla
 	rts
+
+led_update:
+	lda cbdos_flags
+	and #$08
+	sta $9fbf
+
+	lda cbdos_flags
+	bit #$20
+	beq @ok
+
+	lda cbdos_flags
+	pha
+	and #$f0
+	sta cbdos_flags
+	pla
+	and #$0f
+	inc
+	ora cbdos_flags
+	sta cbdos_flags
+
+@ok:	rts

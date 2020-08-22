@@ -656,6 +656,23 @@ fat32_free_context:
 	rts
 
 ;-----------------------------------------------------------------------------
+; fat32_get_num_contexts
+;
+; Out: a     number of contexts in use
+;-----------------------------------------------------------------------------
+fat32_get_num_contexts:
+	ldy #0
+	ldx #0
+@1:	lda contexts_inuse,x
+	beq @2
+	iny
+@2:	inx
+	cpx #FAT32_CONTEXTS
+	bne @1
+	tya
+	rts
+
+;-----------------------------------------------------------------------------
 ; update_fs_info
 ;
 ; * c=0: failure; sets errno

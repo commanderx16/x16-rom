@@ -3,6 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
+.include "banks.inc"
+
 .export set_status, cmdch_read
 .export cmdch_exec
 
@@ -17,6 +19,9 @@
 
 ; dir.s
 .export bin_to_bcd
+
+; fat32.s
+.import fat32_get_num_contexts
 
 MAX_STATUS_LEN = 40
 
@@ -104,6 +109,32 @@ keep_x:
 	ldy #0
 	phy
 	phx
+
+	; set disk error flag
+	cmp #$10
+	bcc @st1
+	cmp #$73 ; power-on message is not an error
+	beq @st1
+	pha
+	lda cbdos_flags
+	ora #$20 ; error on
+	bra @st2
+
+@st1:
+	pha
+	lda cbdos_flags
+	and #$ff-$20 ; error off
+@st2:	and #$ff-$10 ; activity off
+	pha
+	jsr fat32_get_num_contexts
+@xxx1:	tax
+	pla
+	cpx #0
+	beq @st3
+	ora #$10 ; activity on
+@st3:	sta cbdos_flags
+	pla
+
 
 	pha
 	pha
@@ -303,7 +334,6 @@ status_71:
 	.byte "DIRECTORY ERROR", 0 ; FAT error
 status_72:
 	.byte "PARTITION FULL", 0 ; filesystem full
-
 status_73:
 	.byte "CMDR-DOS V1.0 X16", 0
 status_74:

@@ -506,7 +506,6 @@ dos_untlk:
 ;       (EOI flag in ieee_status)
 ;---------------------------------------------------------------
 dos_macptr:
-	.importzp fat32_ptr
 	BANKING_START
 	bit cur_context
 	bmi @1

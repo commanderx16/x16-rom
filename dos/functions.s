@@ -1022,12 +1022,9 @@ set_retries:
 ; In:   -
 ;---------------------------------------------------------------
 test_rom_checksum:
-	ldx #0
-@1:	lda contexts_inuse,x
+	jsr fat32_get_num_contexts
+	cmp #0
 	bne @bad
-	inx
-	cpx #FAT32_CONTEXTS
-	bne @1
 	lda #0
 	rts
 @bad:	nop
