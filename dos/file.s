@@ -26,7 +26,7 @@
 .import ieee_status
 
 ; functions.s
-.import alloc_context
+.import alloc_context, free_context
 
 .bss
 
@@ -152,13 +152,13 @@ file_open:
 	jsr set_status
 @open_file_err2:
 	pla ; context number
-	jsr fat32_free_context
+	jsr free_context
 	sec
 	rts
 
 @open_file_err3:
 	jsr set_status
-	jsr fat32_free_context
+	jsr free_context
 	sec
 	rts
 
@@ -175,7 +175,7 @@ file_close:
 	bcs :+
 	jsr set_errno_status
 :	pla
-	jsr fat32_free_context
+	jsr free_context
 	ldx channel
 	stz mode_for_channel,x
 	rts

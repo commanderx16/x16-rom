@@ -37,10 +37,16 @@
 .export talk
 .export macptr
 
+.export led_update
+
 .segment "KVAR"
 
-cbdos_flags:   ; bit  6:   =1: CBDOS is talker
-	.res 1 ; bit  7:   =1: CBDOS is listener
+_cbdos_flags:  ; bit   7:   =1: CBDOS is listener
+	.res 1 ; bit   6:   =1: CBDOS is talker
+	       ; bit   5:   =1: error
+	       ; bit   4:   =1: active
+	       ; bit 3-0:   blink counter
+.assert _cbdos_flags = cbdos_flags, error
 
 .segment "IEEESWTCH"
 
@@ -195,4 +201,30 @@ upload_time:
 	bne @4
 
 	pla
+	rts
+
+; Convert the "active" and "error" flags into a solid or
+; blinking LED. Board revision 1 doesn't have an LED, so
+; we write into a private setting of the emulator for now.
+led_update:
+	lda cbdos_flags
+	bit #$20  ; error?
+	beq @no_error
+
+	pha
+	and #$f0
+	sta cbdos_flags
+	pla
+	inc       ; increment divider counter
+	and #$0f
+	ora cbdos_flags
+	sta cbdos_flags
+	and #$08
+	sta $9fbf ; LED on/off for 8 frames each
+	rts
+
+@no_error:
+	lda cbdos_flags
+	and #$10  ; active?
+	sta $9fbf ; then LED on
 	rts

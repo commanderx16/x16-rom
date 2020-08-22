@@ -25,7 +25,7 @@
 ; match.s
 .import skip_mask
 
-.export alloc_context
+.export alloc_context, alloc_context2, free_context
 
 .export create_fat32_path_only_dir, create_fat32_path_only_name
 .import create_unix_path_only_dir, create_unix_path_only_name, append_unix_path_only_name
@@ -45,7 +45,7 @@
 
 .macro FAT32_CONTEXT_END
 	pla
-	jsr fat32_free_context
+	jsr free_context
 .endmacro
 
 .bss
@@ -65,7 +65,37 @@ alloc_context:
 	bne :+
 	lda cur_medium
 :	dec
-	jmp fat32_alloc_context
+alloc_context2:
+	jsr fat32_alloc_context
+	php
+	pha
+	jsr update_activity
+	pla
+	plp
+	rts
+
+free_context:
+	jsr fat32_free_context
+	php
+	jsr update_activity
+	plp
+	rts
+
+;---------------------------------------------------------------
+; update_activity
+;
+; Set/clear active flag based on whether any contexts are open.
+;---------------------------------------------------------------
+update_activity:
+	jsr fat32_get_num_contexts
+	tax
+	lda cbdos_flags
+	and #$ff-$10 ; clear active flag
+	cpx #0
+	beq :+
+	ora #$10 ; set active flag
+:	sta cbdos_flags
+	rts
 
 ;---------------------------------------------------------------
 create_fat32_path:
@@ -212,7 +242,7 @@ new:
 @3:	sta @sectors_per_cluster
 
 	lda #$ff
-	jsr fat32_alloc_context
+	jsr alloc_context2
 	bcc @error1
 	pha
 
@@ -227,12 +257,12 @@ new:
 	jsr fat32_mkfs
 	pla
 	bcc @error2
-	jsr fat32_free_context
+	jsr free_context
 	lda #0
 	rts
 
 @error2:
-	jsr fat32_free_context
+	jsr free_context
 @error1:
 	lda fat32_errno
 	cmp #ERRNO_FS_INCONSISTENT
@@ -370,11 +400,11 @@ change_partition:
 	cmp #0
 	beq @ill_part
 	dec
-	jsr fat32_alloc_context
+	jsr alloc_context2
 	bcc @ill_part
 	ldx medium
 	stx cur_medium
-	jsr fat32_free_context
+	jsr free_context
 	ldx cur_medium
 	lda #$02
 	rts
@@ -542,7 +572,7 @@ copy_start:
 
 @error_errno:
 	lda context_dst
-	jsr fat32_free_context
+	jsr free_context
 	jmp convert_errno_status
 
 @copy_err2:
@@ -550,7 +580,7 @@ copy_start:
 @copy_err:
 	pha
 	lda context_dst
-	jsr fat32_free_context
+	jsr free_context
 	pla
 	rts
 
@@ -613,7 +643,7 @@ copy_do:
 	jsr fat32_close
 	bcc @error_errno
 	lda @context_src
-	jsr fat32_free_context
+	jsr free_context
 
 	lda #0
 	rts
@@ -629,7 +659,7 @@ copy_do:
 	jsr fat32_set_context
 	jsr fat32_close
 	lda @context_src
-	jsr fat32_free_context
+	jsr free_context
 	pla
 	rts
 
@@ -647,14 +677,14 @@ copy_end:
 	pha
 	jsr fat32_close
 	lda context_dst
-	jsr fat32_free_context
+	jsr free_context
 	pla
 	rts
 
 @1:	jsr fat32_close
 	php
 	lda context_dst
-	jsr fat32_free_context
+	jsr free_context
 	plp
 	bcs @2
 
@@ -806,7 +836,7 @@ get_partition:
 	lda cur_medium
 @1:	sta medium
 	lda #$ff
- 	jsr fat32_alloc_context
+	jsr alloc_context2
 	bcs @ok
 	lda #$ff
 	pha
@@ -898,7 +928,7 @@ get_partition:
 @done:
 	pla
 	bmi @7 ; no context allocated
-	jsr fat32_free_context
+	jsr free_context
 @7:	lda #$ff ; don't set status
 	rts
 
@@ -1022,12 +1052,9 @@ set_retries:
 ; In:   -
 ;---------------------------------------------------------------
 test_rom_checksum:
-	ldx #0
-@1:	lda contexts_inuse,x
+	jsr fat32_get_num_contexts
+	cmp #0
 	bne @bad
-	inx
-	cpx #FAT32_CONTEXTS
-	bne @1
 	lda #0
 	rts
 @bad:	nop

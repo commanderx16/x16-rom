@@ -3,6 +3,8 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
+.include "banks.inc"
+
 .export set_status, cmdch_read
 .export cmdch_exec
 
@@ -17,6 +19,9 @@
 
 ; dir.s
 .export bin_to_bcd
+
+; fat32.s
+.import fat32_get_num_contexts
 
 MAX_STATUS_LEN = 40
 
@@ -47,10 +52,10 @@ status_put:
 
 ;---------------------------------------------------------------
 fallback_tab:
-	.byte $c0,$bc,$e3,$65,$6d,$f4,$89,$52,$78,$8c,$5d,$ef,$e7,$e9,$65,$e5
-	.byte $ee,$06,$43,$fd,$6f,$eb,$e8,$26,$ea,$bb,$67,$e6,$6b,$e7,$e0,$f4
-	.byte $6f,$e6,$02,$44,$65,$87,$5d,$ff,$8c,$40,$69,$f2,$7d,$64,$62,$f0
-	.byte $09,$5c,$6f,$f7,$e8,$a0
+	.byte $c0,$bc,$ec,$e2,$70,$04,$d2,$6d,$f4,$89,$52,$78,$8c,$5d,$ef,$e7
+	.byte $e9,$65,$e5,$ee,$06,$43,$fd,$6f,$eb,$e8,$26,$5d,$bb,$67,$e6,$6b
+	.byte $e7,$e0,$f4,$6f,$e6,$02,$44,$65,$87,$5d,$ff,$8c,$40,$69,$f2,$7d
+	.byte $64,$62,$f0,$09,$5c,$6f,$f7,$e8,$a0
 
 fallback31:
 	.import buffer, buffer_len
@@ -63,7 +68,7 @@ fallback31:
 	bne @4
 	tay
 	lda buffer+2
-	ldx #$18
+	ldx #$1b
 	jsr @2
 	beq @1
 	ldx #$1e
@@ -104,6 +109,18 @@ keep_x:
 	ldy #0
 	phy
 	phx
+
+	; set/clear disk error flag
+	tax
+	lda cbdos_flags
+	and #$ff-$20 ; clear error flag
+	cpx #$10
+	bcc :+
+	cpx #$73 ; power-on message is not an error
+	beq :+
+	ora #$20 ; set error flag
+:	sta cbdos_flags
+	txa
 
 	pha
 	pha
@@ -303,7 +320,6 @@ status_71:
 	.byte "DIRECTORY ERROR", 0 ; FAT error
 status_72:
 	.byte "PARTITION FULL", 0 ; filesystem full
-
 status_73:
 	.byte "CMDR-DOS V1.0 X16", 0
 status_74:
