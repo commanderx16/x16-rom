@@ -9,16 +9,11 @@
 
 .include "../geos/inc/geossym.inc"
 .include "../geos/inc/geosmac.inc"
+.include "fat32/sdcard.inc"
 
-.import sd_read_block_lower, sd_read_block_upper
-.import read_blkptr, sdcard_init
+.import sector_buffer, sector_lba
 
 .export dos_GetNxtDirEntry, dos_Get1stDirEntry, dos_CalcBlksFree, dos_GetDirHead, dos_ReadBlock, dos_ReadBuff, dos_OpenDisk
-
-.bss
-
-lba_addr:
-	.byte 0,0,0,0
 
 .code
 
@@ -55,21 +50,31 @@ GetBlock:
 	adc r1H
 	bcc @l4
 	iny
-@l4:	sta lba_addr+0
-	sty lba_addr+1
-	stz lba_addr+2
-	stz lba_addr+3
-	lsr lba_addr+1 ; / 2
-	ror lba_addr+0
-	lda r4L
-	sta read_blkptr
-	lda r4H
-	sta read_blkptr + 1
+@l4:	sta sector_lba+0
+	sty sector_lba+1
+	stz sector_lba+2
+	stz sector_lba+3
+	lsr sector_lba+1 ; / 2
+	ror sector_lba+0
+
+	php
+	jsr sdcard_read_sector
+	plp
 	bcs @l5
-;XXX	jsr sd_read_block_lower
-	jmp @l6
-@l5:
-;XXX	jsr sd_read_block_upper
+
+	ldy #0
+:	lda sector_buffer,y
+	sta (r4),y
+	iny
+	bne :-
+	bra @l6
+
+@l5:	ldy #0
+:	lda sector_buffer + 256,y
+	sta (r4),y
+	iny
+	bne :-
+
 @l6:	ldx #0 ; no error
 	rts
 
@@ -116,4 +121,3 @@ get_dir_head:
 
 secpertrack:
 	.byte 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 19, 19, 19, 19, 19, 19, 19, 18, 18, 18, 18, 18, 18, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17
-

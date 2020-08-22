@@ -1,12 +1,10 @@
-.global krn_ptr1, read_blkptr, bank_save
+.global krn_ptr1, bank_save
 .global fat32_bufptr, fat32_lfn_bufptr, fat32_ptr, fat32_ptr2
 
 .segment "ZPDOS" : zeropage
 
 ; DOS
 krn_ptr1:
-	.res 2
-read_blkptr:
 	.res 2
 bank_save:
 	.res 1
