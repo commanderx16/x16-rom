@@ -3,7 +3,7 @@
 ;----------------------------------------------------------------------
 ; (C)2020 Michael Steil, License: 2-clause BSD
 
-.export dir_open, dir_read
+.export dir_open, dir_close, dir_read
 
 ; cmdch.s
 .import set_status
@@ -14,7 +14,7 @@
 
 ; functions.s
 .import create_fat32_path_only_dir, create_fat32_path_only_name
-.import alloc_context
+.import alloc_context, alloc_context2, free_context
 
 .import parse_dos_filename
 .import buffer
@@ -106,7 +106,7 @@ dir_open:
 	bit part_index
 	bmi @not_part0
 	lda #$ff
-	jsr fat32_alloc_context
+	jsr alloc_context2
 	bra @cont0
 
 @not_part0:
@@ -211,7 +211,7 @@ dir_open:
 	jsr set_status
 @dir_open_err2:
 	lda context
-	jsr fat32_free_context
+	jsr free_context
 	lda #1
 	sta dir_eof
 	clc ; ok
@@ -560,10 +560,6 @@ read_dir_entry:
 	; the final 0 is missing, because the character transmission
 	; function will send one extra 0 with EOI
 
-	jsr fat32_close ; can't fail
-	lda context
-	jsr fat32_free_context
-
 	inc dir_eof ; = 1
 
 	sty dirbuffer_w
@@ -577,8 +573,14 @@ has_filter:
 	cmp filter1
 @yes:	rts
 
-txt_tables:
+;---------------------------------------------------------------
+dir_close:
+	jsr fat32_close ; can't fail
+	lda context
+	jmp free_context
 
+;---------------------------------------------------------------
+txt_tables:
 txt_free:
 	.byte "B FREE.", 0
 txt_part_dir_header:

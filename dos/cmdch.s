@@ -112,27 +112,19 @@ keep_x:
 
 	; set disk error flag
 	cmp #$10
-	bcc @st1
+	bcc @status_noerr
 	cmp #$73 ; power-on message is not an error
-	beq @st1
+	beq @status_noerr
 	pha
 	lda cbdos_flags
 	ora #$20 ; error on
 	bra @st2
 
-@st1:
+@status_noerr:
 	pha
 	lda cbdos_flags
-	and #$ff-$20 ; error off
-@st2:	and #$ff-$10 ; activity off
-	pha
-	jsr fat32_get_num_contexts
-@xxx1:	tax
-	pla
-	cpx #0
-	beq @st3
-	ora #$10 ; activity on
-@st3:	sta cbdos_flags
+	and #$ff-$2f ; error off
+@st2:	sta cbdos_flags
 	pla
 
 

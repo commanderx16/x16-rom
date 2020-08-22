@@ -205,12 +205,8 @@ upload_time:
 
 led_update:
 	lda cbdos_flags
-	and #$08
-	sta $9fbf
-
-	lda cbdos_flags
-	bit #$20
-	beq @ok
+	bit #$20 ; error
+	beq @no_error
 
 	lda cbdos_flags
 	pha
@@ -221,5 +217,12 @@ led_update:
 	inc
 	ora cbdos_flags
 	sta cbdos_flags
+	and #$08
+	sta $9fbf
+	rts
 
-@ok:	rts
+@no_error:
+	lda cbdos_flags
+	and #$10
+	sta $9fbf
+	rts
