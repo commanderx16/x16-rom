@@ -110,23 +110,17 @@ keep_x:
 	phy
 	phx
 
-	; set disk error flag
-	cmp #$10
-	bcc @status_noerr
-	cmp #$73 ; power-on message is not an error
-	beq @status_noerr
-	pha
+	; set/clear disk error flag
+	tax
 	lda cbdos_flags
-	ora #$20 ; error on
-	bra @st2
-
-@status_noerr:
-	pha
-	lda cbdos_flags
-	and #$ff-$2f ; error off
-@st2:	sta cbdos_flags
-	pla
-
+	and #^$20 ; clear error flag
+	cpx #$10
+	bcc :+
+	cpx #$73 ; power-on message is not an error
+	beq :+
+	ora #$20 ; set error flag
+:	sta cbdos_flags
+	txa
 
 	pha
 	pha

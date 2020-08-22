@@ -82,14 +82,18 @@ free_context:
 	rts
 
 ;---------------------------------------------------------------
+; update_activity
+;
+; Set/clear active flag based on whether any contexts are open.
+;---------------------------------------------------------------
 update_activity:
 	jsr fat32_get_num_contexts
 	tax
 	lda cbdos_flags
-	and #$e0
+	and #^$10 ; clear active flag
 	cpx #0
 	beq :+
-	ora #$10
+	ora #$10 ; set active flag
 :	sta cbdos_flags
 	rts
 

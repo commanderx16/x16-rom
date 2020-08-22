@@ -203,26 +203,28 @@ upload_time:
 	pla
 	rts
 
+; Convert the "active" and "error" flags into a solid or
+; blinking LED. Board revision 1 doesn't have an LED, so
+; we write into a private setting of the emulator for now.
 led_update:
 	lda cbdos_flags
-	bit #$20 ; error
+	bit #$20  ; error?
 	beq @no_error
 
-	lda cbdos_flags
 	pha
 	and #$f0
 	sta cbdos_flags
 	pla
-	inc
+	inc       ; increment divider counter
 	and #$0f
 	ora cbdos_flags
 	sta cbdos_flags
 	and #$08
-	sta $9fbf
+	sta $9fbf ; LED on/off for 8 frames each
 	rts
 
 @no_error:
 	lda cbdos_flags
-	and #$10
-	sta $9fbf
+	and #$10  ; active?
+	sta $9fbf ; then LED on
 	rts
