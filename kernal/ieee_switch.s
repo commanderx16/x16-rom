@@ -213,8 +213,8 @@ led_update:
 	and #$f0
 	sta cbdos_flags
 	pla
-	and #$0f
 	inc
+	and #$0f
 	ora cbdos_flags
 	sta cbdos_flags
 	and #$08
