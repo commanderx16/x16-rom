@@ -113,7 +113,7 @@ keep_x:
 	; set/clear disk error flag
 	tax
 	lda cbdos_flags
-	and #^$20 ; clear error flag
+	and #$ff-$20 ; clear error flag
 	cpx #$10
 	bcc :+
 	cpx #$73 ; power-on message is not an error

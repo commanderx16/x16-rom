@@ -90,7 +90,7 @@ update_activity:
 	jsr fat32_get_num_contexts
 	tax
 	lda cbdos_flags
-	and #^$10 ; clear active flag
+	and #$ff-$10 ; clear active flag
 	cpx #0
 	beq :+
 	ora #$10 ; set active flag
