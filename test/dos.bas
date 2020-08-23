@@ -53,7 +53,7 @@ rem detect second partition
 98 end
 99 goto10
 
-100 print" 1 - create/read file, ',p,x'",,;
+100 print"01 create/read file, ',p,x'",;
 110 open1,8,2,"file,p,w"
 120 print#1,"hello world!"
 130 close1
@@ -65,7 +65,7 @@ rem detect second partition
 190 dos"s:file"
 199 dos"u0>t":print"ok":return
 
-200 print" 2 - create/read file, channels 1/0",;
+200 print"02 create/read file, chan 1/0",;
 210 open1,8,1,"file"
 220 print#1,"hello world!"
 230 close1
@@ -77,7 +77,7 @@ rem detect second partition
 290 dos"s:file"
 299 dos"u0>t":print"ok":return
 
-300 print" 3 - create/read file, channels 1/2",;
+300 print"03 create/read file, chan 1/2",;
 310 open1,8,1,"file"
 320 print#1,"hello world!"
 330 close1
@@ -89,7 +89,7 @@ rem detect second partition
 390 dos"s:file"
 399 dos"u0>t":print"ok":return
 
-400 print" 4 - r/w mult. listen/talk sessions",;
+400 print"04 r/w mult. listen/talk sess",;
 410 open1,8,2,"file,p,w":print#1,"one":print#1,"two":close1
 420 open1,8,2,"file"
 430 input#1,a$:ifa$<>"one"thenstop
@@ -99,7 +99,7 @@ rem detect second partition
 470 dos"s:file"
 499 dos"u0>t":print"ok":return
 
-500 print" 5 - two files open for writing",;
+500 print"05 two files open for writing",;
 510 open1,8,2,"file1,p,w":open2,8,3,"file2,p,w"
 515 print#1,"one":print#2,"two":print#1,"three":print#2,"four"
 520 close1:close2
@@ -116,7 +116,7 @@ rem detect second partition
 580 dos"s:file1,file2"
 599 dos"u0>t":print"ok":return
 
-600 print" 6 - two files open for reading",;
+600 print"06 two files open for reading",;
 610 open1,8,2,"file1,p,w":print#1,"one":print#1,"three":close1
 615 open1,8,2,"file2,p,w":print#1,"two":print#1,"four":close1
 625 open1,8,2,"file1":open2,8,3,"file2"
@@ -130,7 +130,7 @@ rem detect second partition
 665 dos"s:file1,file2"
 699 dos"u0>t":print"ok":return
 
-700 print" 7 - c: copy file",,,;
+700 print"07 c: copy file",,;
 710 open1,8,2,"file1,p,w":print#1,"hello world!":close1
 720 dos"c:file2=file1
 730 open1,8,2,"file2"
@@ -140,7 +140,7 @@ rem detect second partition
 770 dos"s:file1,file2"
 799 dos"u0>t":print"ok":return
 
-800 print" 8 - c: concatenate files",,;
+800 print"08 c: concatenate files",;
 805 open1,8,2,"file1,p,w":print#1,"one":print#1,"two":close1
 810 open1,8,2,"file2,p,w":print#1,"three":print#1,"four":close1
 815 open1,8,2,"file3,p,w":print#1,"five":print#1,"six":close1
@@ -157,13 +157,13 @@ rem detect second partition
 870 dos"s:file1,file2,file3,file4"
 899 dos"u0>t":print"ok":return
 
-900 print" 9 - load non-existent file",,;
+900 print"09 load non-existent file",;
 910 open1,8,2,"nonexist"
 920 open15,8,15:input#15,s,s$,x,y:close15:ifs<>62thenstop
 930 close1
 999 dos"u0>t":print"ok":return
 
-1000 print"10 - rename file",,,;
+1000 print"10 rename file",,;
 1005 open1,8,2,"file1,p,w":print#1,"hello":close1
 1010 dos"r:file2=file1"
 1015 open1,8,2,"file2"
@@ -176,7 +176,7 @@ rem detect second partition
 1050 dos"s:file2"
 1099 dos"u0>t":print"ok":return
 
-1100 print"11 - rename to file that exists",;
+1100 print"11 rename to file that exists",;
 1105 open1,8,2,"file1,p,w":print#1,"hello":close1
 1110 open1,8,2,"file2,p,w":print#1,"hello":close1
 1120 dos"r:file2=file1"
@@ -184,7 +184,7 @@ rem detect second partition
 1140 dos"s:file1,file2"
 1199 dos"u0>t":print"ok":return
 
-1200 print"12 - copy to file that exists",,;
+1200 print"12 copy to file that exists",;
 1205 open1,8,2,"file1,p,w":print#1,"hello":close1
 1210 open1,8,2,"file2,p,w":print#1,"hello":close1
 1220 dos"c:file2=file1"
@@ -192,18 +192,18 @@ rem detect second partition
 1240 dos"s:file1,file2"
 1299 dos"u0>t":print"ok":return
 
-1300 print"13 - ui",,,,;
+1300 print"13 ui",,,;
 1310 dos"ui"
 1320 open15,8,15:input#15,s,s$,x,y:close15:ifs<>73thenstop
 1399 dos"u0>t":print"ok":return
 
-1400 print"14 - scratch non-existent file",;
+1400 print"14 scratch non-existent file",;
 1410 dos"s:nonexist"
 1420 open15,8,15:input#15,s,s$,x,y:close15:ifs<>1thenstop
 1425 ifx<>0thenstop
 1499 dos"u0>t":print"ok":return
 
-1500 print"15 - scratch two files",,;
+1500 print"15 scratch two files",;
 1505 open1,8,2,"file1,p,w":print#1,"hello":close1
 1510 open1,8,2,"file2,p,w":print#1,"hello":close1
 1515 dos"s:file1,file2"
@@ -211,7 +211,7 @@ rem detect second partition
 1525 ifx<>2thenstop
 1599 dos"u0>t":print"ok":return
 
-1600 print"16 - lock file (l)",,,;
+1600 print"16 lock file (l)",,;
 1601 ifnotfand1thenprint"skipped":return
 1605 open1,8,2,"file,p,w":print#1,"hello":close1
 1610 open15,8,15,"l:file":close15
@@ -224,7 +224,7 @@ rem detect second partition
 1645 ifx<>1thenstop
 1699 dos"u0>t":print"ok":return
 
-1700 print"17 - lock file (f-l/f-u)",,;
+1700 print"17 lock file (f-l/f-u)",;
 1701 ifnotfand4thenprint"skipped":return
 1705 open1,8,2,"file,p,w":print#1,"hello":close1
 1710 open15,8,15,"f-l:file":close15
@@ -237,7 +237,7 @@ rem detect second partition
 1745 ifx<>1thenstop
 1799 dos"u0>t":print"ok":return
 
-1800 print"18 - create file, ill. directory",;
+1800 print"18 create file, ill. dir",;
 1801 ifnotfand2thenprint"skipped":return
 1802 iffand8thenprint"known bad":return:rem todo: should return status 39
 1810 open1,8,2,"//dir/:file,p,w":
@@ -245,7 +245,7 @@ rem detect second partition
 1830 close1
 1899 dos"u0>t":print"ok":return
 
-1900 print"19 - make/remove directory",,;
+1900 print"19 make/remove directory",;
 1901 ifnotfand2thenprint"skipped":return
 1905 dos"md:dir"
 1915 open15,8,15:input#15,s,s$,x,y:close15:ifs<>0thenstop
@@ -254,7 +254,7 @@ rem detect second partition
 1930 ifx<>1thenstop
 1999 dos"u0>t":print"ok":return
 
-2000 print"20 - create/read file in subdir",;
+2000 print"20 create/read file in subdir",;
 2001 ifnotfand2thenprint"skipped":return
 2002 ifnotfand8thenprint"skipped":return:rem todo: problem on cmd
 2005 dos"md:dir"
@@ -270,7 +270,7 @@ rem detect second partition
 2065 dos"rd:dir
 2099 dos"u0>t":print"ok":return
 
-2100 print"21 - change dir, read file",,;
+2100 print"21 change dir, read file",;
 2101 ifnotfand2thenprint"skipped":return
 2105 dos"md:dir"
 2110 open1,8,2,"file1,p,w":print#1,"one":close1
@@ -287,7 +287,7 @@ rem detect second partition
 2175 dos"rd:dir
 2199 dos"u0>t":print"ok":return
 
-2200 print"22 - memory write/read",,;
+2200 print"22 memory write/read",;
 2201 ifnotfand8thenprint"skipped":return:rem disabled on non-cmdr-dos
 2205 b=$0200
 2210 open15,8,15,"m-w"+chr$(band255)+chr$(int(b/256))+chr$(5)+"hello":close15
@@ -300,28 +300,28 @@ rem detect second partition
 2245 dos"ui"
 2299 dos"u0>t":print"ok":return
 
-2300 print"23 - change to non-existent dir",;
+2300 print"23 change to non-existent dir",;
 2301 ifnotfand2thenprint"skipped":return
 2302 iffand8thenprint"known bad":return:rem todo: should return status 39
 2310 dos"cd:nonexist
 2320 open15,8,15:input#15,s,s$,x,y:close15:ifs<>39thenstop
 2399 dos"u0>t":print"ok":return
 
-2400 print"24 - change partition",,;
+2400 print"24 change partition",,;
 2401 ifnotfand2thenprint"skipped":return
 2410 dos"cp1
 2420 open15,8,15:input#15,s,s$,x,y:close15:ifs<>2thenstop
 2430 ifx<>1thenstop
 2499 dos"u0>t":print"ok":return
 
-2500 print"25 - change to non-existent partition",;
+2500 print"25 change to non-exist. part",;
 2501 ifnotfand2thenprint"skipped":return
 2510 dos"cp200
 2520 open15,8,15:input#15,s,s$,x,y:close15:ifs<>77thenstop
 2530 ifx<>200thenstop
 2599 dos"u0>t":print"ok":return
 
-2600 print"26 - memory execute",,,;
+2600 print"26 memory execute",,;
 2601 ifnotfand8thenprint"skipped":return:rem disabled on non-cmds-dos
 2605 b=$0200:bl=band255:bh=int(b/256)
 2610 a$="m-w"+chr$(bl)+chr$(bh)+chr$(11)+chr$(169)+chr$(77)+chr$(141)
@@ -338,18 +338,18 @@ rem detect second partition
 2670 close1
 2699 dos"u0>t":print"ok":return
 
-2700 print"27 - initialize",,,;
+2700 print"27 initialize",,;
 2710 dos"i
 2720 open15,8,15:input#15,s,s$,x,y:close15:ifs<>0thenstop
 2799 dos"u0>t":print"ok":return
 
-2800 print"28 - initialize non-existent partition",;
+2800 print"28 initialize non-exist. part",;
 2801 ifnotfand2thenprint"skipped":return
 2810 dos"i200
 2820 open15,8,15:input#15,s,s$,x,y:close15:ifs<>74thenstop
 2899 dos"u0>t":print"ok":return
 
-2900 print"29 - rename, wildcard source",,;
+2900 print"29 rename, wildcard source",;
 2901 ifnotfand8thenprint"skipped":return:rem only supported on cmdr-dos
 2905 open1,8,2,"file1,p,w":print#1,"hello":close1
 2910 open1,8,2,"file2,p,w":print#1,"hello":close1
@@ -358,7 +358,7 @@ rem detect second partition
 2940 dos"s:file1,file2"
 2999 dos"u0>t":print"ok":return
 
-3000 print"30 - read past eof",,,;
+3000 print"30 read past eof",,;
 3005 open1,8,1,"file":print#1,"hi!":close1
 3010 open1,8,0,"file"
 3015 get#1,a$:ifa$<>"h"thenstop
@@ -375,7 +375,7 @@ rem detect second partition
 3070 dos"s:file"
 3099 dos"u0>t":print"ok":return
 
-3100 print"31 - read from file-not-found channel",;
+3100 print"31 read from fnf channel",;
 3110 open1,8,0,"nonexist"
 3120 ifst<>0thenstop
 3130 get#1,a$:ifa$<>chr$(199)thenstop
@@ -385,7 +385,7 @@ rem detect second partition
 3170 close1
 3199 dos"u0>t":print"ok":return
 
-3200 print"32 - read from channel w/o filename",;
+3200 print"32 read from channel w/o fn",;
 3210 open1,8,02
 3220 ifst<>0thenstop
 3230 get#1,a$:ifa$<>chr$(199)thenstop
@@ -395,7 +395,7 @@ rem detect second partition
 3270 close1
 3299 dos"u0>t":print"ok":return
 
-3300 print"33 - status string",,,;
+3300 print"33 status string",,;
 3305 dos"i":open15,8,15
 3310 forj=0to10
 3315 s$="":fori=1to12:get#15,a$:s$=s$+a$
@@ -408,7 +408,7 @@ rem detect second partition
 3350 close15
 3399 dos"u0>t":print"ok":return
 
-3400 print"34 - write to file-not-found channel",;
+3400 print"34 write to fnf channel",;
 3410 open1,8,1,"*"
 3420 ifstthenstop
 3430 print#1,"a";
@@ -418,7 +418,7 @@ rem detect second partition
 3470 close1
 3499 dos"u0>t":print"ok":return
 
-3500 print"35 - write to channel w/o filename",;
+3500 print"35 write to channel w/o fn",;
 3510 open1,8,1
 3520 ifstthenstop
 3530 print#1,"a";
@@ -428,7 +428,7 @@ rem detect second partition
 3570 close1
 3599 dos"u0>t":print"ok":return
 
-3600 print"36 - get diskchange",,,;
+3600 print"36 get diskchange",,;
 3601 ifnotfand2thenprint"skipped":return
 3610 dos"g-d"
 3620 open15,8,15
@@ -440,7 +440,7 @@ rem detect second partition
 3680 close15
 3699 dos"u0>t":print"ok":return
 
-3700 print"37 - get partition info",,;
+3700 print"37 get partition info",;
 3701 ifnotfand8thenprint"skipped":return:rem buggy on cmd
 3710 open15,8,15,"g-p"+chr$(1):close15
 3720 open15,8,15
@@ -451,7 +451,7 @@ rem detect second partition
 3770 close15
 3799 dos"u0>t":print"ok":return
 
-3800 print"38 - re-send name to channel",,;
+3800 print"38 re-send name to channel",;
 3805 open1,8,2,"file1,p,w":print#1,"one":close1
 3810 open1,8,2,"file2,p,w":print#1,"two":close1
 3815 open1,8,2,"file1"
@@ -463,7 +463,7 @@ rem detect second partition
 3865 dos"s:file1,file2
 3899 dos"u0>t":print"ok":return
 
-3900 print"39 - scratch with wildcards",,;
+3900 print"39 scratch with wildcards",;
 3901 ifnotfand2thenprint"skipped":return
 3905 open1,8,2,"nomatch1,p,w":print#1,"hello":close1
 3910 dos"c:file1=nomatch1
@@ -489,7 +489,7 @@ rem detect second partition
 3986 dos"s:nomatch?,file3
 3999 dos"u0>t":print"ok":return
 
-4000 print"40 - overflow buffers",,;
+4000 print"40 overflow buffers",,;
 4005 open1,8,2,"file1,p,w":print#1,"one":close1:dos"md:dir1
 4010 open15,8,15:fori=0to8
 4015 openi+1,8,i+2,mid$(str$(i),2)+",p,w"
@@ -503,17 +503,17 @@ rem detect second partition
 4050 iffand2then:dos"md:dir2":input#15,s,s$,x,y:ifs<>1ands<>70thenstop
 4055 iffand2then:dos"rd:dir1":input#15,s,s$,x,y:ifs<>1ands<>70thenstop
 4060 fori=0to11:closei+1:next:close15
-4070 dos"s:file1":dos"rd:dir1":dos"s:0,1,2,3,4,5,6,7,8,9,10,11
+4070 dos"s:file1":dos"rd:dir1":dos"s:0,1,2,3,4,5,6,7,8
 4099 dos"u0>t":print"ok":return
 
-4100 print"41 - create existing file",,;
+4100 print"41 create existing file",;
 4110 open1,8,2,"file,p,w":print#1,"hello world!":close1
 4140 open1,8,2,"file,p,w":print#1,"hello world!":close1
 4150 open15,8,15:input#15,s,s$,x,y:close15:ifs<>63thenstop
 4160 dos"s:file
 4199 dos"u0>t":print"ok":return
 
-4200 print"42 - overwrite existing file",,;
+4200 print"42 overwrite existing file",;
 4210 open1,8,2,"file,p,w":print#1,"hello":close1
 4240 open1,8,2,"@:file,p,w":print#1,"world!":close1
 4250 open15,8,15:input#15,s,s$,x,y:close15:ifsthenstop
@@ -521,7 +521,7 @@ rem detect second partition
 4260 dos"s:file
 4299 dos"u0>t":print"ok":return
 
-4300 print"43 - create/read on two partitions",;
+4300 print"43 create/read on two part",;
 4301 ifnotp2thenprint"skipped":return
 4310 open1,8,2,"1:file1,p,w":print#1,"one":close1
 4320 open1,8,2,"2:file2,p,w":print#1,"two":close1
@@ -533,7 +533,7 @@ rem detect second partition
 4380 dos"s2:file2":open15,8,15:input#15,s,s$,x,y:close15:ifx<>1thenstop
 4399 dos"u0>t":print"ok":return
 
-4400 print"44 - copy between partitions",,;
+4400 print"44 copy between partitions",;
 4401 ifnotp2thenprint"skipped":return
 4410 open1,8,2,"1:file1,p,w":print#1,"hello world!":close1
 4420 dos"c2:file2=1:file1
@@ -543,7 +543,7 @@ rem detect second partition
 4460 dos"s2:file2":open15,8,15:input#15,s,s$,x,y:close15:ifx<>1thenstop
 4499 dos"u0>t":print"ok":return
 
-4500 print"45 - c: copy non-existent file",;
+4500 print"45 c: copy non-existent file",;
 4502 iffand8thenprint"known bad":return:rem should not create file
 4510 dos"c:file=nonexist
 4520 open15,8,15:input#15,s,s$,x,y:close15:ifs<>62thenstop
@@ -551,7 +551,7 @@ rem detect second partition
 4540 open15,8,15:input#15,s,s$,x,y:close15:ifs<>62thenstop
 4599 dos"u0>t":print"ok":return
 
-4600 print"46 - software write protect",,;
+4600 print"46 software write protect",;
 4601 ifnotp2thenprint"skipped":return
 4610 dos"w-1
 4620 open15,8,15:input#15,s,s$,x,y:close15:ifsthenstop
@@ -561,7 +561,7 @@ rem detect second partition
 4660 open15,8,15:input#15,s,s$,x,y:close15:ifsthenstop
 4699 dos"u0>t":print"ok":return
 
-4700 print"47 - command channel echo",,;
+4700 print"47 command channel echo",;
 4701 ifnotfand8thenprint"skipped":return
 4710 doschr$(255)+"hello"+chr$(0)
 4720 open15,8,15:input#15,s,s$,x,y:close15:ifs<>79ors$<>"hello"thenstop
