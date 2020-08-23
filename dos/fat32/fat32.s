@@ -2,9 +2,6 @@
 ; fat32.s
 ; Copyright (C) 2020 Frank van den Hoef
 ; Copyright (C) 2020 Michael Steil
-;
-; TODO:
-; - implement fat32_seek
 ;-----------------------------------------------------------------------------
 
 	.include "fat32.inc"
@@ -28,6 +25,7 @@ FLAG_DIRENT = 1<<2  ; Directory entry needs to be updated on close
 
 .struct context
 flags           .byte    ; Flag bits
+start_cluster   .dword   ; Start cluster
 cluster         .dword   ; Current cluster
 lba             .dword   ; Sector of current cluster
 cluster_sector  .byte    ; Sector index within current cluster
@@ -2379,6 +2377,7 @@ fat32_open:
 	stz cur_context + context::eof
 	set32_val cur_context + context::file_offset, 0
 	set32 cur_context + context::file_size, fat32_dirent + dirent::size
+	set32 cur_context + context::start_cluster, fat32_dirent + dirent::start
 	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	jsr open_cluster
 	bcc @error
@@ -3093,6 +3092,8 @@ allocate_first_cluster:
 
 	; Set allocated cluster as current
 	set32 cur_context + context::cluster, cur_volume + fs::free_cluster
+	; Set allocated cluster as start cluster
+	set32 cur_context + context::start_cluster, cur_volume + fs::free_cluster
 	sec
 	rts
 
@@ -3508,4 +3509,162 @@ fat32_get_ptable_entry:
 
 @done:
 	sec
+	rts
+
+;-----------------------------------------------------------------------------
+; fat32_seek
+;
+; In:  fat32_size: offset
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_seek:
+	stz fat32_errno
+
+	; Empty file: seek is a no-op
+	lda cur_context + context::file_size + 0
+	ora cur_context + context::file_size + 1
+	ora cur_context + context::file_size + 2
+	ora cur_context + context::file_size + 3
+	bne :+
+	sec
+	rts
+:
+
+	; Set file_offset = MIN(desired_offset, file_size)
+	lda cur_context + context::file_size + 0
+	sec
+	sbc fat32_size + 0
+	lda cur_context + context::file_size + 1
+	sbc fat32_size + 1
+	lda cur_context + context::file_size + 2
+	sbc fat32_size + 2
+	lda cur_context + context::file_size + 3
+	sbc fat32_size + 3
+	bcs @0a
+	set32 fat32_size, cur_context + context::file_size
+@0a:	set32 cur_context + context::file_offset, fat32_size
+
+	; If file_offset == file_size, set EOF flag
+	ldx #0 ; no EOF
+	cmp32_ne fat32_size, cur_context + context::file_size, @0c
+	ldx #$ff ; EOF
+@0c:	stx cur_context + context::eof
+
+	; Special case: bufptr == 0 && eof?
+	; -> Make bufptr point to $0200 of last sector
+	;    instead of $0000 of next (non-existent) sector
+	lda fat32_size + 0
+	bne @a
+	lda fat32_size + 1
+	and #1
+	bne @a
+	bit cur_context + context::eof
+	bpl @a
+
+	; Make bufptr point to end of sector_buffer
+	lda #<(sector_buffer+$200)
+	sta cur_context + context::bufptr + 0
+	lda #>(sector_buffer+$200)
+	sta cur_context + context::bufptr + 1
+	; Decrement sector
+	lda fat32_size + 1
+	sec
+	sbc #2 ; $0200
+	sta fat32_size + 1
+	lda fat32_size + 2
+	sbc #0
+	sta fat32_size + 2
+	lda fat32_size + 3
+	sbc #0
+	sta fat32_size + 3
+	bra @b
+
+@a:	; Extract offset within sector
+	lda fat32_size + 0
+	clc
+	adc #<sector_buffer
+	sta cur_context + context::bufptr + 0 ; temp location
+	lda fat32_size + 1
+	and #1
+	adc #>sector_buffer
+	sta cur_context + context::bufptr + 1
+
+@b:	; Extract sector number
+	lda fat32_size + 1
+	sta fat32_size + 0
+	lda fat32_size + 2
+	sta fat32_size + 1
+	lda fat32_size + 3
+	sta fat32_size + 2
+	stz fat32_size + 3
+	lsr fat32_size + 2
+	ror fat32_size + 1
+	ror fat32_size + 0
+
+	; Extract sector within cluster
+	lda cur_volume + fs::sectors_per_cluster
+	dec
+	and fat32_size + 0
+	pha
+
+	; Calculate cluster index
+	ldx cur_volume + fs::cluster_shift
+	beq @2
+@1:	lsr fat32_size + 2
+	ror fat32_size + 1
+	ror fat32_size + 0
+	dex
+	bne @1
+
+	; TODO: It would be a significant optimization to fast forward from
+	;       the current position, it is lower than the target position.
+
+@2:	; Go to start cluster
+	set32 cur_context + context::cluster, cur_context + context::start_cluster
+
+@2a:	; Fast forward clusters
+	lda fat32_size + 0
+	ora fat32_size + 1
+	ora fat32_size + 2
+	ora fat32_size + 3
+	beq @3
+
+	jsr next_cluster
+	bcc @error1
+	dec32 fat32_size
+	bra @2a
+
+	;
+@3:
+	jsr calc_cluster_lba
+
+	pla
+	sta cur_context + context::cluster_sector
+
+	clc
+	adc cur_context + context::lba
+	sta cur_context + context::lba
+	bcc @4
+	inc cur_context + context::lba + 1
+	bne @4
+	inc cur_context + context::lba + 2
+	bne @4
+	inc cur_context + context::lba + 3
+@4:
+	jsr load_sector_buffer
+	bcc @error
+
+	; Set bufptr
+	lda cur_context + context::bufptr + 0
+	sta fat32_bufptr
+	lda cur_context + context::bufptr + 1
+	sta fat32_bufptr + 1
+
+	sec
+	rts
+
+@error1:
+	pla
+@error:	clc
 	rts

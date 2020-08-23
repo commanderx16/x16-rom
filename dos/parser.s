@@ -113,7 +113,8 @@ search_char:
 ; get_number
 ;
 ; In:   r0  input buffer
-; Out:  x   index of first non-numeric character or end
+; Out:  a   number
+;       x   index of first non-numeric character or end
 ;       c   =1: overflow
 ;---------------------------------------------------------------
 get_number:
@@ -1054,6 +1055,7 @@ cmds:
 	          ; 'F-U' file unlock
 	          ; 'F-R' file restore     
 	.byte 'W' ; 'W-n' write protect
+	.byte 'P' ; 'P'   position
 	.byte 255 ; echo (internal)
 cmds_end:
 cmd_ptrs:
@@ -1071,6 +1073,7 @@ cmd_ptrs:
 	.word cmd_u
 	.word cmd_f
 	.word cmd_w
+	.word cmd_p
 	.word cmd_255 ; echo (internal)
 
 ;---------------------------------------------------------------
@@ -1773,10 +1776,20 @@ cmd_w:
 	clc
 	rts
 :	cmp #'1'
-	beq @wp
+	bne :+
 	lda #1
 	bra @wp
 :	lda #$31 ; syntax error: unknown command
+	clc
+	rts
+
+;---------------------------------------------------------------
+; P - position [sd2iec]
+;---------------------------------------------------------------
+cmd_p:
+	ldx #<(buffer+1)
+	ldy #>(buffer+1)
+	jsr set_position
 	clc
 	rts
 

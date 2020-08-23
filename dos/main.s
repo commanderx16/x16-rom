@@ -453,7 +453,7 @@ dos_acptr:
 
 @nacptr_status:
 	cmp #CONTEXT_DIR
-	bne @nacptr_dir
+	bne @acptr_none
 
 ;---------------------------------------------------------------
 ; *** DIR
@@ -462,7 +462,7 @@ dos_acptr:
 
 ;---------------------------------------------------------------
 ; *** NONE
-@nacptr_dir:
+@acptr_none:
 	; #CONTEXT_NONE
 	lda #$42 ; EOI + timeout/file not found
 	ora ieee_status

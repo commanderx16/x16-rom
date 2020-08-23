@@ -27,6 +27,7 @@
 
 ; functions.s
 .import alloc_context, free_context
+.export file_set_position
 
 .bss
 
@@ -104,41 +105,62 @@ file_open:
 	beq @open_write
 	cmp #'A'
 	beq @open_append
+	cmp #'M'
 	; 'R', nonexistant and illegal modes -> read
-	bra @open_read
+	bne @open_read
 
-@open_append:
-	; TODO: This is blocked on the implementation of fat32_seek
-	;       or fat32_open with an "append" option.
-	lda #$31
-	bra @open_file_err
-
-	; open for writing
-@open_write:
-	jsr find_wildcards
-	bcc :+
-	lda #$33; syntax error (wildcards)
-	bra @open_file_err
-:	lda overwrite_flag
-	lsr
-	jsr fat32_create
-	bcs :+
-	jsr set_errno_status
-	bra @open_file_err2
-
-:	ldx channel
-	lda #$80 ; write
-	sta mode_for_channel,x
-	bra @open_file_ok
-
-@open_read:
+; *** M - open for modify (read/write)
+	; try opening existing file
 	jsr fat32_open
 	bcs :+
-	jsr set_errno_status
-	bra @open_file_err2
+	lda fat32_errno
+	cmp #ERRNO_FILE_NOT_FOUND
+	bne @open_file_err2
+	; otherwise create file - wildcards are not ok
+	jsr find_wildcards
+	bcs @open_file_err_wilcards
+	jsr fat32_create
+	bcc @open_file_err2
 
-:	ldx channel
-	lda #$40 ; read
+:	lda #$c0 ; read & write
+	bra @open_set_mode
+
+; *** A - open for appending
+@open_append:
+	; wildcards are ok
+	jsr fat32_open
+	bcc @open_file_err2
+
+:	lda #$ff ; seek to end of file
+	sta fat32_size + 0
+	sta fat32_size + 1
+	sta fat32_size + 2
+	sta fat32_size + 3
+	jsr fat32_seek
+	bcc @open_file_err2
+	bra @open_set_mode_write
+
+; *** W - open for writing
+@open_write:
+	jsr find_wildcards
+	bcs @open_file_err_wilcards
+	lda overwrite_flag
+	lsr
+	jsr fat32_create
+	bcc @open_file_err2
+
+@open_set_mode_write:
+	lda #$80 ; write
+	bra @open_set_mode
+
+; *** R - open for reading
+@open_read:
+	jsr fat32_open
+	bcc @open_file_err2
+
+:	lda #$40 ; read
+@open_set_mode:
+	ldx channel
 	sta mode_for_channel,x
 
 @open_file_ok:
@@ -148,10 +170,14 @@ file_open:
 	clc
 	rts
 
+@open_file_err2:
+	jsr set_errno_status
+	bra :+
+@open_file_err_wilcards:
+	lda #$33; syntax error (wildcards)
 @open_file_err:
 	jsr set_status
-@open_file_err2:
-	pla ; context number
+:	pla ; context number
 	jsr free_context
 	sec
 	rts
@@ -295,6 +321,42 @@ file_write:
 	lda #128 ; device not present
 	sta ieee_status
 @ciout_end:
+	rts
+
+;---------------------------------------------------------------
+; file_set_position
+;
+; In:   a    context
+;       x/y  structure that contains
+;              offset 0  offset[0:7]
+;              offset 1  offset[8:15]
+;              offset 2  offset[16:23]
+;              offset 3  offset[24:31]
+;---------------------------------------------------------------
+file_set_position:
+	stx fat32_ptr
+	sty fat32_ptr + 1
+	tax
+	bmi @error ; not a file context
+	jsr fat32_set_context
+
+	lda (fat32_ptr)
+	sta fat32_size + 0
+	ldy #1
+	lda (fat32_ptr),y
+	sta fat32_size + 1
+	iny
+	lda (fat32_ptr),y
+	sta fat32_size + 2
+	iny
+	lda (fat32_ptr),y
+	sta fat32_size + 3
+	jsr fat32_seek
+	bcc @error
+	clc
+	rts
+
+@error:	sec
 	rts
 
 ;---------------------------------------------------------------
