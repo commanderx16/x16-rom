@@ -1066,11 +1066,11 @@ cursor_blink:
 runtb	.byt "LOAD",$d,"RUN",$d
 runtb_end:
 
-fkeytb	.byt $8D, "LIST:", 13, 0
-	.byt $8D, "M", 'O' + $80, ":", 13, 0
-	.byt $8D, "RUN:", 13, 0
-	.byt $93, "S", 'C' + $80, "255:", 13, 0
+fkeytb	.byt "LIST", 13, 0
+	.byt "MONITOR", 13, 0
+	.byt "RUN", 13, 0
+	.byt $93, "S", 'C' + $80, "255", 13, 0
 	.byt "LOAD", 13, 0
 	.byt "SAVE", '"', 0
-	.byt $8D, $93, "DOS",'"', "$",13, 0
+	.byt "DOS",'"', "$",13, 0
 	.byt "DOS", '"', 0

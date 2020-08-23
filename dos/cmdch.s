@@ -52,10 +52,10 @@ status_put:
 
 ;---------------------------------------------------------------
 fallback_tab:
-	.byte $c0,$bc,$e3,$65,$6d,$f4,$89,$52,$78,$8c,$5d,$ef,$e7,$e9,$65,$e5
-	.byte $ee,$06,$43,$fd,$6f,$eb,$e8,$26,$ea,$bb,$67,$e6,$6b,$e7,$e0,$f4
-	.byte $6f,$e6,$02,$44,$65,$87,$5d,$ff,$8c,$40,$69,$f2,$7d,$64,$62,$f0
-	.byte $09,$5c,$6f,$f7,$e8,$a0
+	.byte $c0,$bc,$ec,$e2,$70,$04,$d2,$6d,$f4,$89,$52,$78,$8c,$5d,$ef,$e7
+	.byte $e9,$65,$e5,$ee,$06,$43,$fd,$6f,$eb,$e8,$26,$5d,$bb,$67,$e6,$6b
+	.byte $e7,$e0,$f4,$6f,$e6,$02,$44,$65,$87,$5d,$ff,$8c,$40,$69,$f2,$7d
+	.byte $64,$62,$f0,$09,$5c,$6f,$f7,$e8,$a0
 
 fallback31:
 	.import buffer, buffer_len
@@ -68,7 +68,7 @@ fallback31:
 	bne @4
 	tay
 	lda buffer+2
-	ldx #$18
+	ldx #$1b
 	jsr @2
 	beq @1
 	ldx #$1e
