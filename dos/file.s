@@ -178,6 +178,7 @@ file_close:
 	jsr free_context
 	ldx channel
 	stz mode_for_channel,x
+	stz cur_mode
 	rts
 
 ;---------------------------------------------------------------
