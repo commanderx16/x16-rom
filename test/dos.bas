@@ -1,574 +1,575 @@
-rem 0 gosub3000:end
+REM 0 GOSUB3000:END
 
-rem detect drive
-rem 0 = 1541 feature set (base)
-rem 1 = 1571 extra features
-rem 2 = cmd fd/hd extra features
-rem 4 = c65 drive extra features
-rem 8 = cmdr-dos extra features
+REM DETECT DRIVE
+REM 0 = 1541 FEATURE SET (BASE)
+REM 1 = 1571 EXTRA FEATURES
+REM 2 = CMD FD/HD EXTRA FEATURES
+REM 4 = C65 DRIVE EXTRA FEATURES
+REM 8 = CMDR-DOS EXTRA FEATURES
 
-1 dos"ui":open15,8,15:input#15,s,s$,x,y:close15
-2 ifright$(s$,4)="1541"thenf=0:goto8
-3 ifright$(s$,4)="1571"thenf=1:goto8
-4 ifleft$(s$,4)="cmd "thenf=2+1:goto8
-5 ifleft$(s$,12)="cbm c65 1565"thenf=4+2+1:goto8
-6 ifleft$(s$,8)="cmdr-dos"thenf=8+4+2+1:goto8
-7 print"unknown drive":stop
+1 DOS"UI":OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15
+2 IFRIGHT$(S$,4)="1541"THENF=0:GOTO8
+3 IFRIGHT$(S$,4)="1571"THENF=1:GOTO8
+4 IFLEFT$(S$,4)="CMD "THENF=2+1:GOTO8
+5 IFLEFT$(S$,12)="CBM C65 1565"THENF=4+2+1:GOTO8
+6 IFLEFT$(S$,8)="CMDR-DOS"THENF=8+4+2+1:GOTO8
+7 PRINT"UNKNOWN DRIVE":STOP
 
-rem detect second partition
+REM DETECT SECOND PARTITION
 
-8 open15,8,15,"g-p"+chr$(2):get#15,t$:fori=0to29:get#15,a$:next:close15
-9 t=asc(t$+chr$(0)):p2=t=11ort=12
+8 OPEN15,8,15,"G-P"+CHR$(2):GET#15,T$:FORI=0TO29:GET#15,A$:NEXT:CLOSE15
+9 T=ASC(T$+CHR$(0)):P2=T=11ORT=12
 
 
-10 gosub100:gosub200:gosub300:gosub400:gosub500:gosub600:gosub700:gosub800
-11 gosub900:gosub1000:gosub1100:gosub1200:gosub1300:gosub1400:gosub1500
-12 gosub1600
-13 gosub1700
-14 gosub1800
-15 gosub1900
-16 gosub2000
-17 gosub2100
-18 gosub2200
-19 gosub2300
-20 gosub2400:gosub2500
-21 gosub2600             
-22 gosub2700
-23 gosub2800
-24 gosub2900
-25 gosub3000:gosub3100:gosub3200:gosub3300:gosub3400:gosub3500
-26 gosub3600
-27 gosub3700
-28 gosub3800
-29 gosub3900
-30 gosub4000
-31 gosub4100
-32 gosub4200
-34 gosub4300
-35 gosub4400
-36 gosub4500
-37 gosub4600
-38 gosub4700
+10 GOSUB100:GOSUB200:GOSUB300:GOSUB400:GOSUB500:GOSUB600:GOSUB700:GOSUB800
+11 GOSUB900:GOSUB1000:GOSUB1100:GOSUB1200:GOSUB1300:GOSUB1400:GOSUB1500
+12 GOSUB1600
+13 GOSUB1700
+14 GOSUB1800
+15 GOSUB1900
+16 GOSUB2000
+17 GOSUB2100
+18 GOSUB2200
+19 GOSUB2300
+20 GOSUB2400:GOSUB2500
+21 GOSUB2600             
+22 GOSUB2700
+23 GOSUB2800
+24 GOSUB2900
+25 GOSUB3000:GOSUB3100:GOSUB3200:GOSUB3300:GOSUB3400:GOSUB3500
+26 GOSUB3600
+27 GOSUB3700
+28 GOSUB3800
+29 GOSUB3900
+30 GOSUB4000
+31 GOSUB4100
+32 GOSUB4200
+34 GOSUB4300
+35 GOSUB4400
+36 GOSUB4500
+37 GOSUB4600
+38 GOSUB4700
 
-98 end
-99 goto10
+98 END
+99 GOTO10
 
-100 print"01 create/read file, ',p,x'",;
-110 open1,8,2,"file,p,w"
-120 print#1,"hello world!"
-130 close1
-140 open1,8,2,"file,p,r"
-150 input#1,a$
-160 ifa$<>"hello world!"thenstop
-170 ifst<>64thenstop
-180 close1
-190 dos"s:file"
-199 dos"u0>t":print"ok":return
+100 PRINT"01 CREATE/READ FILE, ',P,X'",;
+110 OPEN1,8,2,"FILE,P,W"
+120 PRINT#1,"HELLO WORLD!"
+130 CLOSE1
+140 OPEN1,8,2,"FILE,P,R"
+150 INPUT#1,A$
+160 IFA$<>"HELLO WORLD!"THENSTOP
+170 IFST<>64THENSTOP
+180 CLOSE1
+190 DOS"S:FILE"
+199 DOS"U0>T":PRINT"OK":RETURN
 
-200 print"02 create/read file, chan 1/0",;
-210 open1,8,1,"file"
-220 print#1,"hello world!"
-230 close1
-240 open1,8,0,"file"
-250 input#1,a$
-260 ifa$<>"hello world!"thenstop
-270 ifst<>64thenstop
-280 close1
-290 dos"s:file"
-299 dos"u0>t":print"ok":return
+200 PRINT"02 CREATE/READ FILE, CHAN 1/0",;
+210 OPEN1,8,1,"FILE"
+220 PRINT#1,"HELLO WORLD!"
+230 CLOSE1
+240 OPEN1,8,0,"FILE"
+250 INPUT#1,A$
+260 IFA$<>"HELLO WORLD!"THENSTOP
+270 IFST<>64THENSTOP
+280 CLOSE1
+290 DOS"S:FILE"
+299 DOS"U0>T":PRINT"OK":RETURN
 
-300 print"03 create/read file, chan 1/2",;
-310 open1,8,1,"file"
-320 print#1,"hello world!"
-330 close1
-340 open1,8,2,"file"
-350 input#1,a$
-360 ifa$<>"hello world!"thenstop
-370 ifst<>64thenstop
-380 close1
-390 dos"s:file"
-399 dos"u0>t":print"ok":return
+300 PRINT"03 CREATE/READ FILE, CHAN 1/2",;
+310 OPEN1,8,1,"FILE"
+320 PRINT#1,"HELLO WORLD!"
+330 CLOSE1
+340 OPEN1,8,2,"FILE"
+350 INPUT#1,A$
+360 IFA$<>"HELLO WORLD!"THENSTOP
+370 IFST<>64THENSTOP
+380 CLOSE1
+390 DOS"S:FILE"
+399 DOS"U0>T":PRINT"OK":RETURN
 
-400 print"04 r/w mult. listen/talk sess",;
-410 open1,8,2,"file,p,w":print#1,"one":print#1,"two":close1
-420 open1,8,2,"file"
-430 input#1,a$:ifa$<>"one"thenstop
-440 input#1,a$:ifa$<>"two"thenstop
-450 ifst<>64thenstop
-460 close1
-470 dos"s:file"
-499 dos"u0>t":print"ok":return
+400 PRINT"04 R/W MULT. LISTEN/TALK SESS",;
+410 OPEN1,8,2,"FILE,P,W":PRINT#1,"ONE":PRINT#1,"TWO":CLOSE1
+420 OPEN1,8,2,"FILE"
+430 INPUT#1,A$:IFA$<>"ONE"THENSTOP
+440 INPUT#1,A$:IFA$<>"TWO"THENSTOP
+450 IFST<>64THENSTOP
+460 CLOSE1
+470 DOS"S:FILE"
+499 DOS"U0>T":PRINT"OK":RETURN
 
-500 print"05 two files open for writing",;
-510 open1,8,2,"file1,p,w":open2,8,3,"file2,p,w"
-515 print#1,"one":print#2,"two":print#1,"three":print#2,"four"
-520 close1:close2
-525 open1,8,2,"file1"
-530 input#1,a$:ifa$<>"one"thenstop
-535 input#1,a$:ifa$<>"three"thenstop
-540 ifst<>64thenstop
-545 close1
-550 open1,8,2,"file2"
-555 input#1,a$:ifa$<>"two"thenstop
-560 input#1,a$:ifa$<>"four"thenstop
-565 ifst<>64thenstop
-570 close1
-580 dos"s:file1,file2"
-599 dos"u0>t":print"ok":return
+500 PRINT"05 TWO FILES OPEN FOR WRITING",;
+510 OPEN1,8,2,"FILE1,P,W":OPEN2,8,3,"FILE2,P,W"
+515 PRINT#1,"ONE":PRINT#2,"TWO":PRINT#1,"THREE":PRINT#2,"FOUR"
+520 CLOSE1:CLOSE2
+525 OPEN1,8,2,"FILE1"
+530 INPUT#1,A$:IFA$<>"ONE"THENSTOP
+535 INPUT#1,A$:IFA$<>"THREE"THENSTOP
+540 IFST<>64THENSTOP
+545 CLOSE1
+550 OPEN1,8,2,"FILE2"
+555 INPUT#1,A$:IFA$<>"TWO"THENSTOP
+560 INPUT#1,A$:IFA$<>"FOUR"THENSTOP
+565 IFST<>64THENSTOP
+570 CLOSE1
+580 DOS"S:FILE1,FILE2"
+599 DOS"U0>T":PRINT"OK":RETURN
 
-600 print"06 two files open for reading",;
-610 open1,8,2,"file1,p,w":print#1,"one":print#1,"three":close1
-615 open1,8,2,"file2,p,w":print#1,"two":print#1,"four":close1
-625 open1,8,2,"file1":open2,8,3,"file2"
-630 input#1,a$:ifa$<>"one"thenstop
-635 input#2,a$:ifa$<>"two"thenstop
-640 input#1,a$:ifa$<>"three"thenstop
-645 input#2,a$:ifa$<>"four"thenstop
-650 ifst<>64thenstop
-655 ifst<>64thenstop
-660 close1:close2
-665 dos"s:file1,file2"
-699 dos"u0>t":print"ok":return
+600 PRINT"06 TWO FILES OPEN FOR READING",;
+610 OPEN1,8,2,"FILE1,P,W":PRINT#1,"ONE":PRINT#1,"THREE":CLOSE1
+615 OPEN1,8,2,"FILE2,P,W":PRINT#1,"TWO":PRINT#1,"FOUR":CLOSE1
+625 OPEN1,8,2,"FILE1":OPEN2,8,3,"FILE2"
+630 INPUT#1,A$:IFA$<>"ONE"THENSTOP
+635 INPUT#2,A$:IFA$<>"TWO"THENSTOP
+640 INPUT#1,A$:IFA$<>"THREE"THENSTOP
+645 INPUT#2,A$:IFA$<>"FOUR"THENSTOP
+650 IFST<>64THENSTOP
+655 IFST<>64THENSTOP
+660 CLOSE1:CLOSE2
+665 DOS"S:FILE1,FILE2"
+699 DOS"U0>T":PRINT"OK":RETURN
 
-700 print"07 c: copy file",,;
-710 open1,8,2,"file1,p,w":print#1,"hello world!":close1
-720 dos"c:file2=file1
-730 open1,8,2,"file2"
-740 input#1,a$:ifa$<>"hello world!"thenstop
-750 ifst<>64thenstop
-760 close1
-770 dos"s:file1,file2"
-799 dos"u0>t":print"ok":return
+700 PRINT"07 C: COPY FILE",,;
+710 OPEN1,8,2,"FILE1,P,W":PRINT#1,"HELLO WORLD!":CLOSE1
+720 DOS"C:FILE2=FILE1
+730 OPEN1,8,2,"FILE2"
+740 INPUT#1,A$:IFA$<>"HELLO WORLD!"THENSTOP
+750 IFST<>64THENSTOP
+760 CLOSE1
+770 DOS"S:FILE1,FILE2"
+799 DOS"U0>T":PRINT"OK":RETURN
 
-800 print"08 c: concatenate files",;
-805 open1,8,2,"file1,p,w":print#1,"one":print#1,"two":close1
-810 open1,8,2,"file2,p,w":print#1,"three":print#1,"four":close1
-815 open1,8,2,"file3,p,w":print#1,"five":print#1,"six":close1
-820 dos"c:file4=file1,file2,file3
-825 open1,8,2,"file4"
-830 input#1,a$:ifa$<>"one"thenstop
-835 input#1,a$:ifa$<>"two"thenstop
-840 input#1,a$:ifa$<>"three"thenstop
-845 input#1,a$:ifa$<>"four"thenstop
-850 input#1,a$:ifa$<>"five"thenstop
-855 input#1,a$:ifa$<>"six"thenstop
-860 ifst<>64thenstop
-865 close1
-870 dos"s:file1,file2,file3,file4"
-899 dos"u0>t":print"ok":return
+800 PRINT"08 C: CONCATENATE FILES",;
+805 OPEN1,8,2,"FILE1,P,W":PRINT#1,"ONE":PRINT#1,"TWO":CLOSE1
+810 OPEN1,8,2,"FILE2,P,W":PRINT#1,"THREE":PRINT#1,"FOUR":CLOSE1
+815 OPEN1,8,2,"FILE3,P,W":PRINT#1,"FIVE":PRINT#1,"SIX":CLOSE1
+820 DOS"C:FILE4=FILE1,FILE2,FILE3
+825 OPEN1,8,2,"FILE4"
+830 INPUT#1,A$:IFA$<>"ONE"THENSTOP
+835 INPUT#1,A$:IFA$<>"TWO"THENSTOP
+840 INPUT#1,A$:IFA$<>"THREE"THENSTOP
+845 INPUT#1,A$:IFA$<>"FOUR"THENSTOP
+850 INPUT#1,A$:IFA$<>"FIVE"THENSTOP
+855 INPUT#1,A$:IFA$<>"SIX"THENSTOP
+860 IFST<>64THENSTOP
+865 CLOSE1
+870 DOS"S:FILE1,FILE2,FILE3,FILE4"
+899 DOS"U0>T":PRINT"OK":RETURN
 
-900 print"09 load non-existent file",;
-910 open1,8,2,"nonexist"
-920 open15,8,15:input#15,s,s$,x,y:close15:ifs<>62thenstop
-930 close1
-999 dos"u0>t":print"ok":return
+900 PRINT"09 LOAD NON-EXISTENT FILE",;
+910 OPEN1,8,2,"NONEXIST"
+920 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>62THENSTOP
+930 CLOSE1
+999 DOS"U0>T":PRINT"OK":RETURN
 
-1000 print"10 rename file",,;
-1005 open1,8,2,"file1,p,w":print#1,"hello":close1
-1010 dos"r:file2=file1"
-1015 open1,8,2,"file2"
-1020 input#1,a$:ifa$<>"hello"thenstop
-1025 ifst<>64thenstop
-1030 close1
-1035 open1,8,2,"file1"
-1040 open15,8,15:input#15,s,s$,x,y:close15:ifs<>62thenstop
-1045 close1
-1050 dos"s:file2"
-1099 dos"u0>t":print"ok":return
+1000 PRINT"10 RENAME FILE",,;
+1005 OPEN1,8,2,"FILE1,P,W":PRINT#1,"HELLO":CLOSE1
+1010 DOS"R:FILE2=FILE1"
+1015 OPEN1,8,2,"FILE2"
+1020 INPUT#1,A$:IFA$<>"HELLO"THENSTOP
+1025 IFST<>64THENSTOP
+1030 CLOSE1
+1035 OPEN1,8,2,"FILE1"
+1040 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>62THENSTOP
+1045 CLOSE1
+1050 DOS"S:FILE2"
+1099 DOS"U0>T":PRINT"OK":RETURN
 
-1100 print"11 rename to file that exists",;
-1105 open1,8,2,"file1,p,w":print#1,"hello":close1
-1110 open1,8,2,"file2,p,w":print#1,"hello":close1
-1120 dos"r:file2=file1"
-1130 open15,8,15:input#15,s,s$,x,y:close15:ifs<>63thenstop
-1140 dos"s:file1,file2"
-1199 dos"u0>t":print"ok":return
+1100 PRINT"11 RENAME TO FILE THAT EXISTS",;
+1105 OPEN1,8,2,"FILE1,P,W":PRINT#1,"HELLO":CLOSE1
+1110 OPEN1,8,2,"FILE2,P,W":PRINT#1,"HELLO":CLOSE1
+1120 DOS"R:FILE2=FILE1"
+1130 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>63THENSTOP
+1140 DOS"S:FILE1,FILE2"
+1199 DOS"U0>T":PRINT"OK":RETURN
 
-1200 print"12 copy to file that exists",;
-1205 open1,8,2,"file1,p,w":print#1,"hello":close1
-1210 open1,8,2,"file2,p,w":print#1,"hello":close1
-1220 dos"c:file2=file1"
-1230 open15,8,15:input#15,s,s$,x,y:close15:ifs<>63thenstop
-1240 dos"s:file1,file2"
-1299 dos"u0>t":print"ok":return
+1200 PRINT"12 COPY TO FILE THAT EXISTS",;
+1205 OPEN1,8,2,"FILE1,P,W":PRINT#1,"HELLO":CLOSE1
+1210 OPEN1,8,2,"FILE2,P,W":PRINT#1,"HELLO":CLOSE1
+1220 DOS"C:FILE2=FILE1"
+1230 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>63THENSTOP
+1240 DOS"S:FILE1,FILE2"
+1299 DOS"U0>T":PRINT"OK":RETURN
 
-1300 print"13 ui",,,;
-1310 dos"ui"
-1320 open15,8,15:input#15,s,s$,x,y:close15:ifs<>73thenstop
-1399 dos"u0>t":print"ok":return
+1300 PRINT"13 UI",,,;
+1310 DOS"UI"
+1320 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>73THENSTOP
+1399 DOS"U0>T":PRINT"OK":RETURN
 
-1400 print"14 scratch non-existent file",;
-1410 dos"s:nonexist"
-1420 open15,8,15:input#15,s,s$,x,y:close15:ifs<>1thenstop
-1425 ifx<>0thenstop
-1499 dos"u0>t":print"ok":return
+1400 PRINT"14 SCRATCH NON-EXISTENT FILE",;
+1410 DOS"S:NONEXIST"
+1420 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>1THENSTOP
+1425 IFX<>0THENSTOP
+1499 DOS"U0>T":PRINT"OK":RETURN
 
-1500 print"15 scratch two files",;
-1505 open1,8,2,"file1,p,w":print#1,"hello":close1
-1510 open1,8,2,"file2,p,w":print#1,"hello":close1
-1515 dos"s:file1,file2"
-1520 open15,8,15:input#15,s,s$,x,y:close15:ifs<>1thenstop
-1525 ifx<>2thenstop
-1599 dos"u0>t":print"ok":return
+1500 PRINT"15 SCRATCH TWO FILES",;
+1505 OPEN1,8,2,"FILE1,P,W":PRINT#1,"HELLO":CLOSE1
+1510 OPEN1,8,2,"FILE2,P,W":PRINT#1,"HELLO":CLOSE1
+1515 DOS"S:FILE1,FILE2"
+1520 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>1THENSTOP
+1525 IFX<>2THENSTOP
+1599 DOS"U0>T":PRINT"OK":RETURN
 
-1600 print"16 lock file (l)",,;
-1601 ifnotfand1thenprint"skipped":return
-1605 open1,8,2,"file,p,w":print#1,"hello":close1
-1610 open15,8,15,"l:file":close15
-1615 dos"s:file"
-1620 open15,8,15:input#15,s,s$,x,y:close15:ifs<>1thenstop
-1625 ifx<>0thenstop
-1630 open15,8,15,"l:file":close15
-1635 dos"s:file"
-1640 open15,8,15:input#15,s,s$,x,y:close15:ifs<>1thenstop
-1645 ifx<>1thenstop
-1699 dos"u0>t":print"ok":return
+1600 PRINT"16 LOCK FILE (L)",,;
+1601 IFNOTFAND1THENPRINT"SKIPPED":RETURN
+1605 OPEN1,8,2,"FILE,P,W":PRINT#1,"HELLO":CLOSE1
+1610 OPEN15,8,15,"L:FILE":CLOSE15
+1615 DOS"S:FILE"
+1620 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>1THENSTOP
+1625 IFX<>0THENSTOP
+1630 OPEN15,8,15,"L:FILE":CLOSE15
+1635 DOS"S:FILE"
+1640 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>1THENSTOP
+1645 IFX<>1THENSTOP
+1699 DOS"U0>T":PRINT"OK":RETURN
 
-1700 print"17 lock file (f-l/f-u)",;
-1701 ifnotfand4thenprint"skipped":return
-1705 open1,8,2,"file,p,w":print#1,"hello":close1
-1710 open15,8,15,"f-l:file":close15
-1715 dos"s:file"
-1720 open15,8,15:input#15,s,s$,x,y:close15:ifs<>1thenstop
-1725 ifx<>0thenstop
-1730 open15,8,15,"f-u:file":close15
-1735 dos"s:file"
-1740 open15,8,15:input#15,s,s$,x,y:close15:ifs<>1thenstop
-1745 ifx<>1thenstop
-1799 dos"u0>t":print"ok":return
+1700 PRINT"17 LOCK FILE (F-L/F-U)",;
+1701 IFNOTFAND4THENPRINT"SKIPPED":RETURN
+1705 OPEN1,8,2,"FILE,P,W":PRINT#1,"HELLO":CLOSE1
+1710 OPEN15,8,15,"F-L:FILE":CLOSE15
+1715 DOS"S:FILE"
+1720 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>1THENSTOP
+1725 IFX<>0THENSTOP
+1730 OPEN15,8,15,"F-U:FILE":CLOSE15
+1735 DOS"S:FILE"
+1740 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>1THENSTOP
+1745 IFX<>1THENSTOP
+1799 DOS"U0>T":PRINT"OK":RETURN
 
-1800 print"18 create file, ill. dir",;
-1801 ifnotfand2thenprint"skipped":return
-1802 iffand8thenprint"known bad":return:rem todo: should return status 39
-1810 open1,8,2,"//dir/:file,p,w":
-1820 open15,8,15:input#15,s,s$,x,y:close15:ifs<>39thenstop
-1830 close1
-1899 dos"u0>t":print"ok":return
+1800 PRINT"18 CREATE FILE, ILL. DIR",;
+1801 IFNOTFAND2THENPRINT"SKIPPED":RETURN
+1802 IFFAND8THENPRINT"KNOWN BAD":RETURN:REM TODO: SHOULD RETURN STATUS 39
+1810 OPEN1,8,2,"//DIR/:FILE,P,W":
+1820 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>39THENSTOP
+1830 CLOSE1
+1899 DOS"U0>T":PRINT"OK":RETURN
 
-1900 print"19 make/remove directory",;
-1901 ifnotfand2thenprint"skipped":return
-1905 dos"md:dir"
-1915 open15,8,15:input#15,s,s$,x,y:close15:ifs<>0thenstop
-1920 dos"rd:dir
-1925 open15,8,15:input#15,s,s$,x,y:close15:ifs<>1thenstop
-1930 ifx<>1thenstop
-1999 dos"u0>t":print"ok":return
+1900 PRINT"19 MAKE/REMOVE DIRECTORY",;
+1901 IFNOTFAND2THENPRINT"SKIPPED":RETURN
+1905 DOS"MD:DIR"
+1915 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>0THENSTOP
+1920 DOS"RD:DIR
+1925 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>1THENSTOP
+1930 IFX<>1THENSTOP
+1999 DOS"U0>T":PRINT"OK":RETURN
 
-2000 print"20 create/read file in subdir",;
-2001 ifnotfand2thenprint"skipped":return
-2002 ifnotfand8thenprint"skipped":return:rem todo: problem on cmd
-2005 dos"md:dir"
-2020 open1,8,2,"//dir/:file,p,w"
-2025 open15,8,15:input#15,s,s$,x,y:close15:ifs<>0thenstop
-2030 print#1,"hello":close1
-2035 open1,8,2,"//dir/:file"
-2037 open15,8,15:input#15,s,s$,x,y:close15:ifs<>0thenstop
-2040 input#1,a$:ifa$<>"hello"thenstop
-2045 ifst<>64thenstop
-2050 close1
-2060 dos"s//dir/:file"
-2065 dos"rd:dir
-2099 dos"u0>t":print"ok":return
+2000 PRINT"20 CREATE/READ FILE IN SUBDIR",;
+2001 IFNOTFAND2THENPRINT"SKIPPED":RETURN
+2002 IFNOTFAND8THENPRINT"SKIPPED":RETURN:REM TODO: PROBLEM ON CMD
+2005 DOS"MD:DIR"
+2020 OPEN1,8,2,"//DIR/:FILE,P,W"
+2025 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>0THENSTOP
+2030 PRINT#1,"HELLO":CLOSE1
+2035 OPEN1,8,2,"//DIR/:FILE"
+2037 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>0THENSTOP
+2040 INPUT#1,A$:IFA$<>"HELLO"THENSTOP
+2045 IFST<>64THENSTOP
+2050 CLOSE1
+2060 DOS"S//DIR/:FILE"
+2065 DOS"RD:DIR
+2099 DOS"U0>T":PRINT"OK":RETURN
 
-2100 print"21 change dir, read file",;
-2101 ifnotfand2thenprint"skipped":return
-2105 dos"md:dir"
-2110 open1,8,2,"file1,p,w":print#1,"one":close1
-2115 open1,8,2,"//dir/:file2,p,w":print#1,"two":close1
-2120 dos"cd:dir"
-2135 open1,8,2,"file2"
-2140 input#1,a$:ifa$<>"two"thenstop
-2145 close1
-2150 open1,8,2,"//:file1"
-2155 input#1,a$:ifa$<>"one"thenstop
-2160 close1
-2165 dos"cd:_"
-2170 dos"s//dir/:file2,file1"
-2175 dos"rd:dir
-2199 dos"u0>t":print"ok":return
+2100 PRINT"21 CHANGE DIR, READ FILE",;
+2101 IFNOTFAND2THENPRINT"SKIPPED":RETURN
+2105 DOS"MD:DIR"
+2110 OPEN1,8,2,"FILE1,P,W":PRINT#1,"ONE":CLOSE1
+2115 OPEN1,8,2,"//DIR/:FILE2,P,W":PRINT#1,"TWO":CLOSE1
+2120 DOS"CD:DIR"
+2135 OPEN1,8,2,"FILE2"
+2140 INPUT#1,A$:IFA$<>"TWO"THENSTOP
+2145 CLOSE1
+2150 OPEN1,8,2,"//:FILE1"
+2155 INPUT#1,A$:IFA$<>"ONE"THENSTOP
+2160 CLOSE1
+2165 DOS"CD:_"
+2170 DOS"S//DIR/:FILE2,FILE1"
+2175 DOS"RD:DIR
+2199 DOS"U0>T":PRINT"OK":RETURN
 
-2200 print"22 memory write/read",;
-2201 ifnotfand8thenprint"skipped":return:rem disabled on non-cmdr-dos
-2205 b=$0200
-2210 open15,8,15,"m-w"+chr$(band255)+chr$(int(b/256))+chr$(5)+"hello":close15
-2215 open15,8,15,"m-r"+chr$((b+1)and255)+chr$(int((b+1)/256))+chr$(4):close15
-2220 a$="":open1,8,15
-2225 fori=1to4:get#1,c$:a$=a$+c$:next:ifa$<>"ello"thenstop
-2230 get#1,a$:ifa$<>chr$(13)thenstop
-2235 ifst<>64thenstop
-2240 close1
-2245 dos"ui"
-2299 dos"u0>t":print"ok":return
+2200 PRINT"22 MEMORY WRITE/READ",;
+2201 IFNOTFAND8THENPRINT"SKIPPED":RETURN:REM DISABLED ON NON-CMDR-DOS
+2205 B=$0200
+2210 OPEN15,8,15,"M-W"+CHR$(BAND255)+CHR$(INT(B/256))+CHR$(5)+"HELLO":CLOSE15
+2215 OPEN15,8,15,"M-R"+CHR$((B+1)AND255)+CHR$(INT((B+1)/256))+CHR$(4):CLOSE15
+2220 A$="":OPEN1,8,15
+2225 FORI=1TO4:GET#1,C$:A$=A$+C$:NEXT:IFA$<>"ELLO"THENSTOP
+2230 GET#1,A$:IFA$<>CHR$(13)THENSTOP
+2235 IFST<>64THENSTOP
+2240 CLOSE1
+2245 DOS"UI"
+2299 DOS"U0>T":PRINT"OK":RETURN
 
-2300 print"23 change to non-existent dir",;
-2301 ifnotfand2thenprint"skipped":return
-2302 iffand8thenprint"known bad":return:rem todo: should return status 39
-2310 dos"cd:nonexist
-2320 open15,8,15:input#15,s,s$,x,y:close15:ifs<>39thenstop
-2399 dos"u0>t":print"ok":return
+2300 PRINT"23 CHANGE TO NON-EXISTENT DIR",;
+2301 IFNOTFAND2THENPRINT"SKIPPED":RETURN
+2302 IFFAND8THENPRINT"KNOWN BAD":RETURN:REM TODO: SHOULD RETURN STATUS 39
+2310 DOS"CD:NONEXIST
+2320 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>39THENSTOP
+2399 DOS"U0>T":PRINT"OK":RETURN
 
-2400 print"24 change partition",,;
-2401 ifnotfand2thenprint"skipped":return
-2410 dos"cp1
-2420 open15,8,15:input#15,s,s$,x,y:close15:ifs<>2thenstop
-2430 ifx<>1thenstop
-2499 dos"u0>t":print"ok":return
+2400 PRINT"24 CHANGE PARTITION",,;
+2401 IFNOTFAND2THENPRINT"SKIPPED":RETURN
+2410 DOS"CP1
+2420 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>2THENSTOP
+2430 IFX<>1THENSTOP
+2499 DOS"U0>T":PRINT"OK":RETURN
 
-2500 print"25 change to non-exist. part",;
-2501 ifnotfand2thenprint"skipped":return
-2510 dos"cp200
-2520 open15,8,15:input#15,s,s$,x,y:close15:ifs<>77thenstop
-2530 ifx<>200thenstop
-2599 dos"u0>t":print"ok":return
+2500 PRINT"25 CHANGE TO NON-EXIST. PART",;
+2501 IFNOTFAND2THENPRINT"SKIPPED":RETURN
+2510 DOS"CP200
+2520 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>77THENSTOP
+2530 IFX<>200THENSTOP
+2599 DOS"U0>T":PRINT"OK":RETURN
 
-2600 print"26 memory execute",,;
-2601 ifnotfand8thenprint"skipped":return:rem disabled on non-cmds-dos
-2605 b=$0200:bl=band255:bh=int(b/256)
-2610 a$="m-w"+chr$(bl)+chr$(bh)+chr$(11)+chr$(169)+chr$(77)+chr$(141)
-2615 a$=a$+chr$(bl)+chr$(bh)+chr$(169)+chr$(83)+chr$(141)+chr$(bl+1)
-2620 a$=a$+chr$(bh)+chr$(96)
-2625 open15,8,15,a$:close15
-2630 open15,8,15,"m-e"+chr$(bl)+chr$(bh):close15
-2635 open15,8,15,"m-r"+chr$(bl)+chr$(bh)+chr$(2):close15
-2640 open1,8,15
-2645 get#1,a$:ifa$<>chr$($4d)thenstop
-2650 get#1,a$:ifa$<>chr$($53)thenstop
-2655 get#1,a$:ifa$<>chr$(13)thenstop
-2660 ifst<>64thenstop
-2670 close1
-2699 dos"u0>t":print"ok":return
+2600 PRINT"26 MEMORY EXECUTE",,;
+2601 IFNOTFAND8THENPRINT"SKIPPED":RETURN:REM DISABLED ON NON-CMDS-DOS
+2605 B=$0200:BL=BAND255:BH=INT(B/256)
+2610 A$="M-W"+CHR$(BL)+CHR$(BH)+CHR$(11)+CHR$(169)+CHR$(77)+CHR$(141)
+2615 A$=A$+CHR$(BL)+CHR$(BH)+CHR$(169)+CHR$(83)+CHR$(141)+CHR$(BL+1)
+2620 A$=A$+CHR$(BH)+CHR$(96)
+2625 OPEN15,8,15,A$:CLOSE15
+2630 OPEN15,8,15,"M-E"+CHR$(BL)+CHR$(BH):CLOSE15
+2635 OPEN15,8,15,"M-R"+CHR$(BL)+CHR$(BH)+CHR$(2):CLOSE15
+2640 OPEN1,8,15
+2645 GET#1,A$:IFA$<>CHR$($4D)THENSTOP
+2650 GET#1,A$:IFA$<>CHR$($53)THENSTOP
+2655 GET#1,A$:IFA$<>CHR$(13)THENSTOP
+2660 IFST<>64THENSTOP
+2670 CLOSE1
+2699 DOS"U0>T":PRINT"OK":RETURN
 
-2700 print"27 initialize",,;
-2710 dos"i
-2720 open15,8,15:input#15,s,s$,x,y:close15:ifs<>0thenstop
-2799 dos"u0>t":print"ok":return
+2700 PRINT"27 INITIALIZE",,;
+2710 DOS"I
+2720 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>0THENSTOP
+2799 DOS"U0>T":PRINT"OK":RETURN
 
-2800 print"28 initialize non-exist. part",;
-2801 ifnotfand2thenprint"skipped":return
-2810 dos"i200
-2820 open15,8,15:input#15,s,s$,x,y:close15:ifs<>74thenstop
-2899 dos"u0>t":print"ok":return
+2800 PRINT"28 INITIALIZE NON-EXIST. PART",;
+2801 IFNOTFAND2THENPRINT"SKIPPED":RETURN
+2810 DOS"I200
+2820 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>74THENSTOP
+2899 DOS"U0>T":PRINT"OK":RETURN
 
-2900 print"29 rename, wildcard source",;
-2901 ifnotfand8thenprint"skipped":return:rem only supported on cmdr-dos
-2905 open1,8,2,"file1,p,w":print#1,"hello":close1
-2910 open1,8,2,"file2,p,w":print#1,"hello":close1
-2920 dos"r:file2=?ile1"
-2930 open15,8,15:input#15,s,s$,x,y:close15:ifs<>63thenstop
-2940 dos"s:file1,file2"
-2999 dos"u0>t":print"ok":return
+2900 PRINT"29 RENAME, WILDCARD SOURCE",;
+2901 IFNOTFAND8THENPRINT"SKIPPED":RETURN:REM ONLY SUPPORTED ON CMDR-DOS
+2905 OPEN1,8,2,"FILE1,P,W":PRINT#1,"HELLO":CLOSE1
+2910 OPEN1,8,2,"FILE2,P,W":PRINT#1,"HELLO":CLOSE1
+2920 DOS"R:FILE2=?ILE1"
+2930 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>63THENSTOP
+2940 DOS"S:FILE1,FILE2"
+2999 DOS"U0>T":PRINT"OK":RETURN
 
-3000 print"30 read past eof",,;
-3005 open1,8,1,"file":print#1,"hi!":close1
-3010 open1,8,0,"file"
-3015 get#1,a$:ifa$<>"h"thenstop
-3020 ifstthenstop
-3025 get#1,a$:ifa$<>"i"thenstop
-3030 ifstthenstop
-3035 get#1,a$:ifa$<>"!"thenstop
-3040 ifstthenstop
-3045 get#1,a$:ifa$<>chr$(13)thenstop
-3050 ifst<>64thenstop
-3055 get#1,a$:ifa$<>chr$(199)thenstop
-3060 ifst<>66thenstop
-3065 close1
-3070 dos"s:file"
-3099 dos"u0>t":print"ok":return
+3000 PRINT"30 READ PAST EOF",,;
+3005 OPEN1,8,1,"FILE":PRINT#1,"HI!":CLOSE1
+3010 OPEN1,8,0,"FILE"
+3015 GET#1,A$:IFA$<>"H"THENSTOP
+3020 IFSTTHENSTOP
+3025 GET#1,A$:IFA$<>"I"THENSTOP
+3030 IFSTTHENSTOP
+3035 GET#1,A$:IFA$<>"!"THENSTOP
+3040 IFSTTHENSTOP
+3045 GET#1,A$:IFA$<>CHR$(13)THENSTOP
+3050 IFST<>64THENSTOP
+3055 GET#1,A$:IFA$<>CHR$(199)THENSTOP
+3060 IFST<>66THENSTOP
+3065 CLOSE1
+3070 DOS"S:FILE"
+3099 DOS"U0>T":PRINT"OK":RETURN
 
-3100 print"31 read from fnf channel",;
-3110 open1,8,0,"nonexist"
-3120 ifst<>0thenstop
-3130 get#1,a$:ifa$<>chr$(199)thenstop
-3140 ifst<>66thenstop
-3150 get#1,a$:ifa$<>chr$(199)thenstop
-3160 ifst<>66thenstop
-3170 close1
-3199 dos"u0>t":print"ok":return
+3100 PRINT"31 READ FROM FNF CHANNEL",;
+3110 OPEN1,8,0,"NONEXIST"
+3120 IFST<>0THENSTOP
+3130 GET#1,A$:IFA$<>CHR$(199)THENSTOP
+3140 IFST<>66THENSTOP
+3150 GET#1,A$:IFA$<>CHR$(199)THENSTOP
+3160 IFST<>66THENSTOP
+3170 CLOSE1
+3199 DOS"U0>T":PRINT"OK":RETURN
 
-3200 print"32 read from channel w/o fn",;
-3210 open1,8,02
-3220 ifst<>0thenstop
-3230 get#1,a$:ifa$<>chr$(199)thenstop
-3240 ifst<>66thenstop
-3250 get#1,a$:ifa$<>chr$(199)thenstop
-3260 ifst<>66thenstop
-3270 close1
-3299 dos"u0>t":print"ok":return
+3200 PRINT"32 READ FROM CHANNEL W/O FN",;
+3210 OPEN1,8,02
+3220 IFST<>0THENSTOP
+3230 GET#1,A$:IFA$<>CHR$(199)THENSTOP
+3240 IFST<>66THENSTOP
+3250 GET#1,A$:IFA$<>CHR$(199)THENSTOP
+3260 IFST<>66THENSTOP
+3270 CLOSE1
+3299 DOS"U0>T":PRINT"OK":RETURN
 
-3300 print"33 status string",,;
-3305 dos"i":open15,8,15
-3310 forj=0to10
-3315 s$="":fori=1to12:get#15,a$:s$=s$+a$
-3320 ifstthenstop
-3325 next
-3330 ifs$<>"00, ok,00,00"thenstop
-3335 get#15,a$:ifa$<>chr$(13)thenstop
-3340 ifst<>64thenstop
-3345 next
-3350 close15
-3399 dos"u0>t":print"ok":return
+3300 PRINT"33 STATUS STRING",,;
+3305 DOS"I":OPEN15,8,15
+3310 FORJ=0TO10
+3315 S$="":FORI=1TO12:GET#15,A$:S$=S$+A$
+3320 IFSTTHENSTOP
+3325 NEXT
+3330 IFS$<>"00, OK,00,00"THENSTOP
+3335 GET#15,A$:IFA$<>CHR$(13)THENSTOP
+3340 IFST<>64THENSTOP
+3345 NEXT
+3350 CLOSE15
+3399 DOS"U0>T":PRINT"OK":RETURN
 
-3400 print"34 write to fnf channel",;
-3410 open1,8,1,"*"
-3420 ifstthenstop
-3430 print#1,"a";
-3440 ifst<>-128thenstop
-3450 print#1,"a";
-3460 ifst<>-128thenstop
-3470 close1
-3499 dos"u0>t":print"ok":return
+3400 PRINT"34 WRITE TO FNF CHANNEL",;
+3410 OPEN1,8,1,"*"
+3420 IFSTTHENSTOP
+3430 PRINT#1,"A";
+3440 IFST<>-128THENSTOP
+3450 PRINT#1,"A";
+3460 IFST<>-128THENSTOP
+3470 CLOSE1
+3499 DOS"U0>T":PRINT"OK":RETURN
 
-3500 print"35 write to channel w/o fn",;
-3510 open1,8,1
-3520 ifstthenstop
-3530 print#1,"a";
-3540 ifst<>-128thenstop
-3550 print#1,"a";
-3560 ifst<>-128thenstop
-3570 close1
-3599 dos"u0>t":print"ok":return
+3500 PRINT"35 WRITE TO CHANNEL W/O FN",;
+3510 OPEN1,8,1
+3520 IFSTTHENSTOP
+3530 PRINT#1,"A";
+3540 IFST<>-128THENSTOP
+3550 PRINT#1,"A";
+3560 IFST<>-128THENSTOP
+3570 CLOSE1
+3599 DOS"U0>T":PRINT"OK":RETURN
 
-3600 print"36 get diskchange",,;
-3601 ifnotfand2thenprint"skipped":return
-3610 dos"g-d"
-3620 open15,8,15
-3630 get#15,a$:ifa$<>""anda$<>chr$(1)thenstop
-3640 ifstthenstop
-3650 iff=3goto3699 : rem cmd fd/hd is buggy
-3660 get#15,a$:ifa$<>chr$(13)thenstop
-3670 ifst<>64thenstop
-3680 close15
-3699 dos"u0>t":print"ok":return
+3600 PRINT"36 GET DISKCHANGE",,;
+3601 IFNOTFAND2THENPRINT"SKIPPED":RETURN
+3610 DOS"G-D"
+3620 OPEN15,8,15
+3630 GET#15,A$:IFA$<>""ANDA$<>CHR$(1)THENSTOP
+3640 IFSTTHENSTOP
+3650 IFF=3GOTO3699 : REM CMD FD/HD IS BUGGY
+3660 GET#15,A$:IFA$<>CHR$(13)THENSTOP
+3670 IFST<>64THENSTOP
+3680 CLOSE15
+3699 DOS"U0>T":PRINT"OK":RETURN
 
-3700 print"37 get partition info",;
-3701 ifnotfand8thenprint"skipped":return:rem buggy on cmd
-3710 open15,8,15,"g-p"+chr$(1):close15
-3720 open15,8,15
-3730 fori=0to29:get#15,a$:ifstthenstop
-3740 next
-3750 get#15,a$:ifa$<>chr$(13)thenstop
-3760 ifst<>64thenstop
-3770 close15
-3799 dos"u0>t":print"ok":return
+3700 PRINT"37 GET PARTITION INFO",;
+3701 IFNOTFAND8THENPRINT"SKIPPED":RETURN:REM BUGGY ON CMD
+3710 OPEN15,8,15,"G-P"+CHR$(1):CLOSE15
+3720 OPEN15,8,15
+3730 FORI=0TO29:GET#15,A$:IFSTTHENSTOP
+3740 NEXT
+3750 GET#15,A$:IFA$<>CHR$(13)THENSTOP
+3760 IFST<>64THENSTOP
+3770 CLOSE15
+3799 DOS"U0>T":PRINT"OK":RETURN
 
-3800 print"38 re-send name to channel",;
-3805 open1,8,2,"file1,p,w":print#1,"one":close1
-3810 open1,8,2,"file2,p,w":print#1,"two":close1
-3815 open1,8,2,"file1"
-3825 open2,8,2,"file2"
-3840 input#1,a$:ifa$<>"two"thenstop
-3845 open3,8,2,"file1"
-3855 input#1,a$:ifa$<>"one"thenstop
-3860 close1:close2:close3
-3865 dos"s:file1,file2
-3899 dos"u0>t":print"ok":return
+3800 PRINT"38 RE-SEND NAME TO CHANNEL",;
+3805 OPEN1,8,2,"FILE1,P,W":PRINT#1,"ONE":CLOSE1
+3810 OPEN1,8,2,"FILE2,P,W":PRINT#1,"TWO":CLOSE1
+3815 OPEN1,8,2,"FILE1"
+3825 OPEN2,8,2,"FILE2"
+3840 INPUT#1,A$:IFA$<>"TWO"THENSTOP
+3845 OPEN3,8,2,"FILE1"
+3855 INPUT#1,A$:IFA$<>"ONE"THENSTOP
+3860 CLOSE1:CLOSE2:CLOSE3
+3865 DOS"S:FILE1,FILE2
+3899 DOS"U0>T":PRINT"OK":RETURN
 
-3900 print"39 scratch with wildcards",;
-3901 ifnotfand2thenprint"skipped":return
-3905 open1,8,2,"nomatch1,p,w":print#1,"hello":close1
-3910 dos"c:file1=nomatch1
-3915 dos"md:file2
-3920 dos"c:file3=nomatch1
-3925 dos"l:file3
-3930 dos"c:nomatch2=nomatch1
-3935 dos"c:file4=nomatch1
-3940 dos"s:file?
-3945 open1,8,2,"file1":close1
-3950 close15:open15,8,15:input#15,s,s$,x,y:close15:ifs<>62thenstop
-3955 dos"rd:file2
-3960 open15,8,15:input#15,s,s$,x,y:close15:ifs<>1andx<>1thenstop
-3965 open1,8,2,"file3":close1
-3970 open15,8,15:input#15,s,s$,x,y:close15:ifsthenstop
-3972 open1,8,2,"file4":close1
-3974 open15,8,15:input#15,s,s$,x,y:close15:ifs<>62thenstop
-3976 open1,8,2,"nomatch1":close1
-3978 open15,8,15:input#15,s,s$,x,y:close15:ifsthenstop
-3980 open1,8,2,"nomatch2":close1
-3982 open15,8,15:input#15,s,s$,x,y:close15:ifsthenstop
-3984 dos"l:file3
-3986 dos"s:nomatch?,file3
-3999 dos"u0>t":print"ok":return
+3900 PRINT"39 SCRATCH WITH WILDCARDS",;
+3901 IFNOTFAND2THENPRINT"SKIPPED":RETURN
+3905 OPEN1,8,2,"NOMATCH1,P,W":PRINT#1,"HELLO":CLOSE1
+3910 DOS"C:FILE1=NOMATCH1
+3915 DOS"MD:FILE2
+3920 DOS"C:FILE3=NOMATCH1
+3925 DOS"L:FILE3
+3930 DOS"C:NOMATCH2=NOMATCH1
+3935 DOS"C:FILE4=NOMATCH1
+3940 DOS"S:FILE?
+3945 OPEN1,8,2,"FILE1":CLOSE1
+3950 CLOSE15:OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>62THENSTOP
+3955 DOS"RD:FILE2
+3960 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>1ANDX<>1THENSTOP
+3965 OPEN1,8,2,"FILE3":CLOSE1
+3970 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFSTHENSTOP
+3972 OPEN1,8,2,"FILE4":CLOSE1
+3974 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>62THENSTOP
+3976 OPEN1,8,2,"NOMATCH1":CLOSE1
+3978 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFSTHENSTOP
+3980 OPEN1,8,2,"NOMATCH2":CLOSE1
+3982 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFSTHENSTOP
+3984 DOS"L:FILE3
+3986 DOS"S:NOMATCH?,FILE3
+3999 DOS"U0>T":PRINT"OK":RETURN
 
-4000 print"40 overflow buffers",,;
-4005 open1,8,2,"file1,p,w":print#1,"one":close1:dos"md:dir1
-4010 open15,8,15:fori=0to8
-4015 openi+1,8,i+2,mid$(str$(i),2)+",p,w"
-4020 input#15,s,s$,x,y:ifs=0thennext
-4022 ifs=0goto4060 : rem couldn't overflow buffers!
-4025 iffand2then:dos"l:file1":input#15,s,s$,x,y:ifs<>1ands<>70thenstop
-4030 iffand4then:dos"f-l:file1":input#15,s,s$,x,y:ifs<>1ands<>70thenstop
-4035 iffand4then:dos"f-u:file1":input#15,s,s$,x,y:ifs<>1ands<>70thenstop
-4040 dos"r:file2=file1":input#15,s,s$,x,y:ifs<>0ands<>70thenstop
-4045 dos"s:file1,file2":input#15,s,s$,x,y:ifs<>1ands<>70thenstop
-4050 iffand2then:dos"md:dir2":input#15,s,s$,x,y:ifs<>1ands<>70thenstop
-4055 iffand2then:dos"rd:dir1":input#15,s,s$,x,y:ifs<>1ands<>70thenstop
-4060 fori=0to11:closei+1:next:close15
-4070 dos"s:file1":dos"rd:dir1":dos"s:0,1,2,3,4,5,6,7,8
-4099 dos"u0>t":print"ok":return
+4000 PRINT"40 OVERFLOW BUFFERS",,;
+4005 OPEN1,8,2,"FILE1,P,W":PRINT#1,"ONE":CLOSE1:DOS"MD:DIR1
+4010 OPEN15,8,15:FORI=0TO8
+4015 OPENI+1,8,I+2,MID$(STR$(I),2)+",P,W"
+4020 INPUT#15,S,S$,X,Y:IFS=0THENNEXT
+4022 IFS=0GOTO4060 : REM COULDN'T OVERFLOW BUFFERS!
+4025 IFFAND2THEN:DOS"L:FILE1":INPUT#15,S,S$,X,Y:IFS<>1ANDS<>70THENSTOP
+4030 IFFAND4THEN:DOS"F-L:FILE1":INPUT#15,S,S$,X,Y:IFS<>1ANDS<>70THENSTOP
+4035 IFFAND4THEN:DOS"F-U:FILE1":INPUT#15,S,S$,X,Y:IFS<>1ANDS<>70THENSTOP
+4040 DOS"R:FILE2=FILE1":INPUT#15,S,S$,X,Y:IFS<>0ANDS<>70THENSTOP
+4045 DOS"S:FILE1,FILE2":INPUT#15,S,S$,X,Y:IFS<>1ANDS<>70THENSTOP
+4050 IFFAND2THEN:DOS"MD:DIR2":INPUT#15,S,S$,X,Y:IFS<>1ANDS<>70THENSTOP
+4055 IFFAND2THEN:DOS"RD:DIR1":INPUT#15,S,S$,X,Y:IFS<>1ANDS<>70THENSTOP
+4060 FORI=0TO11:CLOSEI+1:NEXT:CLOSE15
+4070 DOS"S:FILE1":DOS"RD:DIR1"
+4080 DOS"S:0,1,2,3,4":DOS"S:5,6,7,8":REM CMD CAN ONLY SCRATCH 5 AT A TIME
+4099 DOS"U0>T":PRINT"OK":RETURN
 
-4100 print"41 create existing file",;
-4110 open1,8,2,"file,p,w":print#1,"hello world!":close1
-4140 open1,8,2,"file,p,w":print#1,"hello world!":close1
-4150 open15,8,15:input#15,s,s$,x,y:close15:ifs<>63thenstop
-4160 dos"s:file
-4199 dos"u0>t":print"ok":return
+4100 PRINT"41 CREATE EXISTING FILE",;
+4110 OPEN1,8,2,"FILE,P,W":PRINT#1,"HELLO WORLD!":CLOSE1
+4140 OPEN1,8,2,"FILE,P,W":PRINT#1,"HELLO WORLD!":CLOSE1
+4150 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>63THENSTOP
+4160 DOS"S:FILE
+4199 DOS"U0>T":PRINT"OK":RETURN
 
-4200 print"42 overwrite existing file",;
-4210 open1,8,2,"file,p,w":print#1,"hello":close1
-4240 open1,8,2,"@:file,p,w":print#1,"world!":close1
-4250 open15,8,15:input#15,s,s$,x,y:close15:ifsthenstop
-4260 open1,8,2,"file":input#1,a$:close1:ifa$<>"world!"thenstop
-4260 dos"s:file
-4299 dos"u0>t":print"ok":return
+4200 PRINT"42 OVERWRITE EXISTING FILE",;
+4210 OPEN1,8,2,"FILE,P,W":PRINT#1,"HELLO":CLOSE1
+4240 OPEN1,8,2,"@:FILE,P,W":PRINT#1,"WORLD!":CLOSE1
+4250 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFSTHENSTOP
+4260 OPEN1,8,2,"FILE":INPUT#1,A$:CLOSE1:IFA$<>"WORLD!"THENSTOP
+4260 DOS"S:FILE
+4299 DOS"U0>T":PRINT"OK":RETURN
 
-4300 print"43 create/read on two part",;
-4301 ifnotp2thenprint"skipped":return
-4310 open1,8,2,"1:file1,p,w":print#1,"one":close1
-4320 open1,8,2,"2:file2,p,w":print#1,"two":close1
-4330 open1,8,2,"1:file1,p,r":input#1,a$:close1:ifa$<>"one"thenstop
-4340 ifst<>64thenstop
-4350 open1,8,2,"2:file2,p,r":input#1,a$:close1:ifa$<>"two"thenstop
-4360 ifst<>64thenstop
-4370 dos"s1:file1":open15,8,15:input#15,s,s$,x,y:close15:ifx<>1thenstop
-4380 dos"s2:file2":open15,8,15:input#15,s,s$,x,y:close15:ifx<>1thenstop
-4399 dos"u0>t":print"ok":return
+4300 PRINT"43 CREATE/READ ON TWO PART",;
+4301 IFNOTP2THENPRINT"SKIPPED":RETURN
+4310 OPEN1,8,2,"1:FILE1,P,W":PRINT#1,"ONE":CLOSE1
+4320 OPEN1,8,2,"2:FILE2,P,W":PRINT#1,"TWO":CLOSE1
+4330 OPEN1,8,2,"1:FILE1,P,R":INPUT#1,A$:CLOSE1:IFA$<>"ONE"THENSTOP
+4340 IFST<>64THENSTOP
+4350 OPEN1,8,2,"2:FILE2,P,R":INPUT#1,A$:CLOSE1:IFA$<>"TWO"THENSTOP
+4360 IFST<>64THENSTOP
+4370 DOS"S1:FILE1":OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFX<>1THENSTOP
+4380 DOS"S2:FILE2":OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFX<>1THENSTOP
+4399 DOS"U0>T":PRINT"OK":RETURN
 
-4400 print"44 copy between partitions",;
-4401 ifnotp2thenprint"skipped":return
-4410 open1,8,2,"1:file1,p,w":print#1,"hello world!":close1
-4420 dos"c2:file2=1:file1
-4430 open15,8,15:input#15,s,s$,x,y:close15:ifsthenstop
-4440 open1,8,2,"2:file2,p,r":input#1,a$:close1:ifa$<>"hello world!"thenstop
-4450 dos"s1:file1":open15,8,15:input#15,s,s$,x,y:close15:ifx<>1thenstop
-4460 dos"s2:file2":open15,8,15:input#15,s,s$,x,y:close15:ifx<>1thenstop
-4499 dos"u0>t":print"ok":return
+4400 PRINT"44 COPY BETWEEN PARTITIONS",;
+4401 IFNOTP2THENPRINT"SKIPPED":RETURN
+4410 OPEN1,8,2,"1:FILE1,P,W":PRINT#1,"HELLO WORLD!":CLOSE1
+4420 DOS"C2:FILE2=1:FILE1
+4430 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFSTHENSTOP
+4440 OPEN1,8,2,"2:FILE2,P,R":INPUT#1,A$:CLOSE1:IFA$<>"HELLO WORLD!"THENSTOP
+4450 DOS"S1:FILE1":OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFX<>1THENSTOP
+4460 DOS"S2:FILE2":OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFX<>1THENSTOP
+4499 DOS"U0>T":PRINT"OK":RETURN
 
-4500 print"45 c: copy non-existent file",;
-4502 iffand8thenprint"known bad":return:rem should not create file
-4510 dos"c:file=nonexist
-4520 open15,8,15:input#15,s,s$,x,y:close15:ifs<>62thenstop
-4530 open1,8,2,"file":close1
-4540 open15,8,15:input#15,s,s$,x,y:close15:ifs<>62thenstop
-4599 dos"u0>t":print"ok":return
+4500 PRINT"45 C: COPY NON-EXISTENT FILE",;
+4502 IFFAND8THENPRINT"KNOWN BAD":RETURN:REM SHOULD NOT CREATE FILE
+4510 DOS"C:FILE=NONEXIST
+4520 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>62THENSTOP
+4530 OPEN1,8,2,"FILE":CLOSE1
+4540 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>62THENSTOP
+4599 DOS"U0>T":PRINT"OK":RETURN
 
-4600 print"46 software write protect",;
-4601 ifnotp2thenprint"skipped":return
-4610 dos"w-1
-4620 open15,8,15:input#15,s,s$,x,y:close15:ifsthenstop
-4630 open1,8,2,"1:file,p,w":close1
-4640 open15,8,15:input#15,s,s$,x,y:close15:ifs<>26thenstop
-4650 dos"w-0
-4660 open15,8,15:input#15,s,s$,x,y:close15:ifsthenstop
-4699 dos"u0>t":print"ok":return
+4600 PRINT"46 SOFTWARE WRITE PROTECT",;
+4601 IFNOTP2THENPRINT"SKIPPED":RETURN
+4610 DOS"W-1
+4620 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFSTHENSTOP
+4630 OPEN1,8,2,"1:FILE,P,W":CLOSE1
+4640 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>26THENSTOP
+4650 DOS"W-0
+4660 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFSTHENSTOP
+4699 DOS"U0>T":PRINT"OK":RETURN
 
-4700 print"47 command channel echo",;
-4701 ifnotfand8thenprint"skipped":return
-4710 doschr$(255)+"hello"+chr$(0)
-4720 open15,8,15:input#15,s,s$,x,y:close15:ifs<>79ors$<>"hello"thenstop
-4730 doschr$(66)+chr$(45)+chr$(63)+ti$
-4740 open15,8,15:input#15,s,s$,x,y:close15:ifs<>79orlen(s$)<>25thenstop
-4750 doschr$(66)+chr$(45)+chr$(42)+ti$
-4760 open15,8,15:input#15,s,s$,x,y:close15:ifs<>79orlen(s$)<>28thenstop
-4799 dos"u0>t":print"ok":return
+4700 PRINT"47 COMMAND CHANNEL ECHO",;
+4701 IFNOTFAND8THENPRINT"SKIPPED":RETURN
+4710 DOSCHR$(255)+"HELLO"+CHR$(0)
+4720 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>79ORS$<>"HELLO"THENSTOP
+4730 DOSCHR$(66)+CHR$(45)+CHR$(63)+TI$
+4740 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>79ORLEN(S$)<>25THENSTOP
+4750 DOSCHR$(66)+CHR$(45)+CHR$(42)+TI$
+4760 OPEN15,8,15:INPUT#15,S,S$,X,Y:CLOSE15:IFS<>79ORLEN(S$)<>28THENSTOP
+4799 DOS"U0>T":PRINT"OK":RETURN
 
-run
+RUN
