@@ -3525,11 +3525,11 @@ fat32_seek:
 	lda fat32_size + 0
 	clc
 	adc #<sector_buffer
-	sta bufptr + 0
+	sta cur_context + context::bufptr + 0
 	lda fat32_size + 1
 	and #1
 	adc #>sector_buffer
-	sta bufptr + 1
+	sta cur_context + context::bufptr + 1
 
 	; Extract sector number
 	stz tmp_buf + 3

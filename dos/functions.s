@@ -25,6 +25,9 @@
 ; match.s
 .import skip_mask
 
+; file.s
+.import file_set_position
+
 .export alloc_context, alloc_context2, free_context
 
 .export create_fat32_path_only_dir, create_fat32_path_only_name
@@ -1190,6 +1193,32 @@ block_execute:
 	lda #$31 ; unsupported
 	rts
 
+;---------------------------------------------------------------
+; set_position
+;
+; In:   x/y  structure that contains
+;              offset 0  channel
+;              offset 1  offset[0:7]
+;              offset 2  offset[8:15]
+;              offset 3  offset[16:23]
+;              offset 4  offset[24:31]
+;---------------------------------------------------------------
+set_position:
+	.import context_for_channel
+	stx fat32_ptr
+	sty fat32_ptr + 1
+	lda (fat32_ptr) ; channel
+	phx
+	tax
+	lda context_for_channel,x
+	plx
+	inx
+	bne @1
+	iny
+@1:	jsr file_set_position
+	bcs @error
+	lda #0
+	rts
 
-
-
+@error:	lda #$70 ; no channel
+	rts

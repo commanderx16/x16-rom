@@ -27,6 +27,7 @@
 
 ; functions.s
 .import alloc_context, free_context
+.export file_set_position
 
 .bss
 
@@ -295,6 +296,43 @@ file_write:
 	lda #128 ; device not present
 	sta ieee_status
 @ciout_end:
+	rts
+
+;---------------------------------------------------------------
+; file_set_position
+;
+; In:   a    context
+;       x/y  structure that contains
+;              offset 0  offset[0:7]
+;              offset 1  offset[8:15]
+;              offset 2  offset[16:23]
+;              offset 3  offset[24:31]
+;---------------------------------------------------------------
+file_set_position:
+	stx fat32_ptr
+	sty fat32_ptr + 1
+	tax
+	bmi @error ; not a file context
+	jsr fat32_set_context
+
+	lda (fat32_ptr)
+	sta fat32_size + 0
+	ldy #1
+	lda (fat32_ptr),y
+	sta fat32_size + 1
+	iny
+	lda (fat32_ptr),y
+	sta fat32_size + 2
+	iny
+	lda (fat32_ptr),y
+	sta fat32_size + 3
+	jsr fat32_seek
+
+	lda #0
+	rts
+
+@error:
+	lda #$70 ; no channel
 	rts
 
 ;---------------------------------------------------------------

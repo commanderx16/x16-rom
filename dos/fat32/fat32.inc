@@ -44,6 +44,7 @@
 .global fat32_write_byte        ; Write byte in A
 .global fat32_write             ; Write fat32_size (16-bit) bytes from fat32_ptr
 .global fat32_get_offset        ; Get current file offset, result in fat32_size
+.global fat32_seek
 
 .global fat32_size
 .global fat32_dirent
@@ -57,12 +58,6 @@
 .global fat32_time_hours
 .global fat32_time_minutes
 .global fat32_time_seconds
-
-; debug
-.global contexts_inuse
-
-; TODO:
-; fat32_seek
 
 ; Low level fast API
 .global fat32_next_sector
