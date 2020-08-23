@@ -836,7 +836,7 @@ get_partition:
 	lda cur_medium
 @1:	sta medium
 	lda #$ff
- 	jsr alloc_context2
+	jsr alloc_context2
 	bcs @ok
 	lda #$ff
 	pha
