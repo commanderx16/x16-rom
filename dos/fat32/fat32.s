@@ -2,9 +2,6 @@
 ; fat32.s
 ; Copyright (C) 2020 Frank van den Hoef
 ; Copyright (C) 2020 Michael Steil
-;
-; TODO:
-; - implement fat32_seek
 ;-----------------------------------------------------------------------------
 
 	.include "fat32.inc"
@@ -3508,4 +3505,94 @@ fat32_get_ptable_entry:
 
 @done:
 	sec
+	rts
+
+;-----------------------------------------------------------------------------
+; fat32_seek
+;
+; In:  fat32_size: offset
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_seek:
+	stz fat32_errno
+
+	; Set file offset
+	; TODO XXX target_offset = min(target_offset, file_size)
+	set32 cur_context + context::file_offset, fat32_size
+
+	; Extract offset within sector
+	lda fat32_size + 0
+	clc
+	adc #<sector_buffer
+	sta bufptr + 0
+	lda fat32_size + 1
+	and #1
+	adc #>sector_buffer
+	sta bufptr + 1
+
+	; Extract sector number
+	stz tmp_buf + 3
+	lda fat32_size + 3
+	lsr
+	sta tmp_buf + 2
+	lda fat32_size + 2
+	ror
+	sta tmp_buf + 1
+	lda fat32_size + 1
+	ror
+	sta tmp_buf + 0
+
+	; Extract sector within cluster
+	lda cur_volume + fs::sectors_per_cluster
+	dec
+	and tmp_buf + 0
+	pha
+
+	; Calculate cluster index
+	ldx cur_volume + fs::cluster_shift
+	beq @2
+@1:	lsr tmp_buf + 2
+	ror tmp_buf + 1
+	ror tmp_buf + 0
+	dex
+	bra @1
+
+	; Fast forward clusters
+@2:	lda tmp_buf + 0
+	ora tmp_buf + 1
+	ora tmp_buf + 2
+	ora tmp_buf + 3
+	beq @3
+
+	jsr next_cluster
+	bcc @error
+	dec32 tmp_buf
+	bra @2
+
+	;
+@3:
+	jsr calc_cluster_lba
+
+	pla
+ 	sta cur_context + context::cluster_sector
+
+	clc
+	adc cur_context + context::lba
+	sta cur_context + context::lba
+	bcc @4
+	inc cur_context + context::lba + 1
+	bne @4
+	inc cur_context + context::lba + 2
+	bne @4
+	inc cur_context + context::lba + 3
+@4:
+	jsr load_sector_buffer
+	bcc @error
+
+	sec
+	rts
+
+@error:
+	clc
 	rts
