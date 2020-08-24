@@ -3537,9 +3537,11 @@ fat32_seek:
 	sbc fat32_size + 2
 	lda cur_context + context::file_size + 3
 	sbc fat32_size + 3
-	bcs @0
+	bcs @0a
 	set32 cur_context + context::file_offset, cur_context + context::file_size
-@0:	set32 cur_context + context::file_offset, fat32_size
+	bra @0b
+@0a:	set32 cur_context + context::file_offset, fat32_size
+@0b:
 
 	; If file_offset == file_size, set EOF flag
 	ldx #0 ; no EOF
@@ -3615,11 +3617,11 @@ fat32_seek:
 	dex
 	bne @1
 
-	; Go to start cluster
+@2:	; Go to start cluster
 	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 
-	; Fast forward clusters
-@2:	lda tmp_buf + 0
+@2a:	; Fast forward clusters
+	lda tmp_buf + 0
 	ora tmp_buf + 1
 	ora tmp_buf + 2
 	ora tmp_buf + 3
@@ -3628,7 +3630,7 @@ fat32_seek:
 	jsr next_cluster
 	bcc @error1
 	dec32 tmp_buf
-	bra @2
+	bra @2a
 
 	;
 @3:
