@@ -3519,6 +3519,7 @@ fat32_seek:
 
 	; Set file offset
 	; TODO XXX target_offset = min(target_offset, file_size)
+	; TODO XXX set cur_context + context::eof
 	set32 cur_context + context::file_offset, fat32_size
 
 	; Extract offset within sector
@@ -3592,6 +3593,12 @@ fat32_seek:
 @4:
 	jsr load_sector_buffer
 	bcc @error
+
+	; Set bufptr
+	lda cur_context + context::bufptr + 0
+	sta fat32_bufptr
+	lda cur_context + context::bufptr + 1
+	sta fat32_bufptr + 1
 
 	sec
 	rts
