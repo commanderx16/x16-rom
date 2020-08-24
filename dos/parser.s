@@ -1787,8 +1787,8 @@ cmd_w:
 ; P - position [sd2iec]
 ;---------------------------------------------------------------
 cmd_p:
-	ldx #<(buffer+3)
-	ldy #>(buffer+3)
+	ldx #<(buffer+1)
+	ldy #>(buffer+1)
 	jsr set_position
 	clc
 	rts

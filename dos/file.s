@@ -327,12 +327,11 @@ file_set_position:
 	lda (fat32_ptr),y
 	sta fat32_size + 3
 	jsr fat32_seek
-
-	lda #0
+	clc
 	rts
 
 @error:
-	lda #$70 ; no channel
+	sec
 	rts
 
 ;---------------------------------------------------------------

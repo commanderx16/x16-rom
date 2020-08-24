@@ -3556,7 +3556,10 @@ fat32_seek:
 	ror tmp_buf + 1
 	ror tmp_buf + 0
 	dex
-	bra @1
+	bne @1
+
+	; Go to start cluster
+	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 
 	; Fast forward clusters
 @2:	lda tmp_buf + 0
