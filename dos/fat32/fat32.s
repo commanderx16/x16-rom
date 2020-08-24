@@ -3517,12 +3517,66 @@ fat32_get_ptable_entry:
 fat32_seek:
 	stz fat32_errno
 
-	; Set file offset
-	; TODO XXX target_offset = min(target_offset, file_size)
-	; TODO XXX set cur_context + context::eof
-	set32 cur_context + context::file_offset, fat32_size
+	; Empty file: seek is a no-op
+	lda cur_context + context::file_size + 0
+	ora cur_context + context::file_size + 1
+	ora cur_context + context::file_size + 2
+	ora cur_context + context::file_size + 3
+	bne :+
+	sec
+	rts
+:
 
-	; Extract offset within sector
+	; Set file_offset = MIN(desired_offset, file_size)
+	lda cur_context + context::file_size + 0
+	sec
+	sbc fat32_size + 0
+	lda cur_context + context::file_size + 1
+	sbc fat32_size + 1
+	lda cur_context + context::file_size + 2
+	sbc fat32_size + 2
+	lda cur_context + context::file_size + 3
+	sbc fat32_size + 3
+	bcs @0
+	set32 fat32_size, cur_context + context::file_size
+@0:	set32 cur_context + context::file_offset, fat32_size
+
+	; If file_offset == file_size, set EOF flag
+	ldx #0 ; no EOF
+	cmp32_ne cur_context + context::file_offset, cur_context + context::file_size, @0c
+	ldx #$ff ; EOF
+@0c:	stx cur_context + context::eof
+
+	; Special case: bufptr == 0 && eof?
+	; -> Make bufptr point to $0200 of last sector
+	;    instead of $0000 of next (non-existent) sector
+	lda fat32_size + 0
+	bne @a
+	lda fat32_size + 1
+	and #1
+	bne @a
+	bit cur_context + context::eof
+	bpl @a
+
+	; Make bufptr point to end of sector_buffer
+	lda #<(sector_buffer+$200)
+	sta cur_context + context::bufptr + 0
+	lda #>(sector_buffer+$200)
+	sta cur_context + context::bufptr + 1
+	; Decrement sector
+	lda fat32_size + 1
+	sec
+	sbc #2 ; $0200
+	sta fat32_size + 1
+	lda fat32_size + 2
+	sbc #0
+	sta fat32_size + 2
+	lda fat32_size + 3
+	sbc #0
+	sta fat32_size + 3
+	bra @b
+
+@a:	; Extract offset within sector
 	lda fat32_size + 0
 	clc
 	adc #<sector_buffer
@@ -3531,6 +3585,8 @@ fat32_seek:
 	and #1
 	adc #>sector_buffer
 	sta cur_context + context::bufptr + 1
+
+@b:
 
 	; Extract sector number
 	stz tmp_buf + 3
@@ -3570,7 +3626,7 @@ fat32_seek:
 	beq @3
 
 	jsr next_cluster
-	bcc @error
+	bcc @error1
 	dec32 tmp_buf
 	bra @2
 
@@ -3603,6 +3659,7 @@ fat32_seek:
 	sec
 	rts
 
-@error:
-	clc
+@error1:
+	pla
+@error:	clc
 	rts
