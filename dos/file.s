@@ -108,13 +108,23 @@ file_open:
 	; 'R', nonexistant and illegal modes -> read
 	bra @open_read
 
+; *** open for appending
 @open_append:
-	; TODO: This is blocked on the implementation of fat32_seek
-	;       or fat32_open with an "append" option.
-	lda #$31
-	bra @open_file_err
+	; wildcards are ok
+	jsr fat32_open
+	bcs :+
+	jsr set_errno_status
+	bra @open_file_err2
 
-	; open for writing
+:	lda #$ff ; seek to end of file
+	sta fat32_size + 0
+	sta fat32_size + 1
+	sta fat32_size + 2
+	sta fat32_size + 3
+	jsr fat32_seek
+	bra @open_write2
+
+; *** open for writing
 @open_write:
 	jsr find_wildcards
 	bcc :+
@@ -123,15 +133,17 @@ file_open:
 :	lda overwrite_flag
 	lsr
 	jsr fat32_create
-	bcs :+
+	bcs @open_write2
 	jsr set_errno_status
 	bra @open_file_err2
 
-:	ldx channel
+@open_write2:
+	ldx channel
 	lda #$80 ; write
 	sta mode_for_channel,x
 	bra @open_file_ok
 
+; *** open for reading
 @open_read:
 	jsr fat32_open
 	bcs :+
