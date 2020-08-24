@@ -3538,7 +3538,7 @@ fat32_seek:
 	lda cur_context + context::file_size + 3
 	sbc fat32_size + 3
 	bcs @0
-	set32 fat32_size, cur_context + context::file_size
+	set32 cur_context + context::file_offset, cur_context + context::file_size
 @0:	set32 cur_context + context::file_offset, fat32_size
 
 	; If file_offset == file_size, set EOF flag
@@ -3550,9 +3550,9 @@ fat32_seek:
 	; Special case: bufptr == 0 && eof?
 	; -> Make bufptr point to $0200 of last sector
 	;    instead of $0000 of next (non-existent) sector
-	lda fat32_size + 0
+	lda cur_context + context::file_offset + 0
 	bne @a
-	lda fat32_size + 1
+	lda cur_context + context::file_offset + 1
 	and #1
 	bne @a
 	bit cur_context + context::eof
@@ -3564,24 +3564,24 @@ fat32_seek:
 	lda #>(sector_buffer+$200)
 	sta cur_context + context::bufptr + 1
 	; Decrement sector
-	lda fat32_size + 1
+	lda cur_context + context::file_offset + 1
 	sec
 	sbc #2 ; $0200
-	sta fat32_size + 1
-	lda fat32_size + 2
+	sta cur_context + context::file_offset + 1
+	lda cur_context + context::file_offset + 2
 	sbc #0
-	sta fat32_size + 2
-	lda fat32_size + 3
+	sta cur_context + context::file_offset + 2
+	lda cur_context + context::file_offset + 3
 	sbc #0
-	sta fat32_size + 3
+	sta cur_context + context::file_offset + 3
 	bra @b
 
 @a:	; Extract offset within sector
-	lda fat32_size + 0
+	lda cur_context + context::file_offset + 0
 	clc
 	adc #<sector_buffer
 	sta cur_context + context::bufptr + 0
-	lda fat32_size + 1
+	lda cur_context + context::file_offset + 1
 	and #1
 	adc #>sector_buffer
 	sta cur_context + context::bufptr + 1
@@ -3590,13 +3590,13 @@ fat32_seek:
 
 	; Extract sector number
 	stz tmp_buf + 3
-	lda fat32_size + 3
+	lda cur_context + context::file_offset + 3
 	lsr
 	sta tmp_buf + 2
-	lda fat32_size + 2
+	lda cur_context + context::file_offset + 2
 	ror
 	sta tmp_buf + 1
-	lda fat32_size + 1
+	lda cur_context + context::file_offset + 1
 	ror
 	sta tmp_buf + 0
 
