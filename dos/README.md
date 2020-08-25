@@ -53,6 +53,7 @@ Or the core feature set, these are the supported functions:
 | CMD subdirectory syntax   | `//DIR/:`/`/DIR/:`            | yes       |         |
 | Directory listing         | `$`                           | yes       |         |
 | Dir with name filtering   | `$:FIL*`                      | yes       |         |
+| Dir with type filtering   | `$:*=P`/`$:*=D`/`$:*=A`       | yes       |         |
 | Dir with timestamps       | `$=T`                         | yes       | but with ISO syntax |
 | Dir with time filtering   | `$=T<`/`$=T<`                 | not yet   |         |
 | Partition listing         | `$=P`                         | yes       |         |

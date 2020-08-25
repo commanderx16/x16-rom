@@ -105,16 +105,31 @@ file_open:
 	beq @open_write
 	cmp #'A'
 	beq @open_append
+	cmp #'M'
 	; 'R', nonexistant and illegal modes -> read
-	bra @open_read
+	bne @open_read
 
-; *** open for appending
+; *** M - open for modify (read/write)
+	; try opening existing file
+	jsr fat32_open
+	bcs :+
+	lda fat32_errno
+	cmp #ERRNO_FILE_NOT_FOUND
+	bne @open_file_err2
+	; otherwise create file - wildcards are not ok
+	jsr find_wildcards
+	bcs @open_file_err_wilcards
+	jsr fat32_create
+	bcc @open_file_err2
+
+:	lda #$c0 ; read & write
+	bra @open_set_mode
+
+; *** A - open for appending
 @open_append:
 	; wildcards are ok
 	jsr fat32_open
-	bcs :+
-	jsr set_errno_status
-	bra @open_file_err2
+	bcc @open_file_err2
 
 :	lda #$ff ; seek to end of file
 	sta fat32_size + 0
@@ -122,36 +137,29 @@ file_open:
 	sta fat32_size + 2
 	sta fat32_size + 3
 	jsr fat32_seek
-	bra @open_write2
+	bra @open_set_mode_write
 
-; *** open for writing
+; *** W - open for writing
 @open_write:
 	jsr find_wildcards
-	bcc :+
-	lda #$33; syntax error (wildcards)
-	bra @open_file_err
-:	lda overwrite_flag
+	bcs @open_file_err_wilcards
+	lda overwrite_flag
 	lsr
 	jsr fat32_create
-	bcs @open_write2
-	jsr set_errno_status
-	bra @open_file_err2
+	bcc @open_file_err2
 
-@open_write2:
-	ldx channel
+@open_set_mode_write:
 	lda #$80 ; write
-	sta mode_for_channel,x
-	bra @open_file_ok
+	bra @open_set_mode
 
-; *** open for reading
+; *** R - open for reading
 @open_read:
 	jsr fat32_open
-	bcs :+
-	jsr set_errno_status
-	bra @open_file_err2
+	bcc @open_file_err2
 
-:	ldx channel
-	lda #$40 ; read
+:	lda #$40 ; read
+@open_set_mode:
+	ldx channel
 	sta mode_for_channel,x
 
 @open_file_ok:
@@ -161,10 +169,14 @@ file_open:
 	clc
 	rts
 
+@open_file_err2:
+	jsr set_errno_status
+	bra :+
+@open_file_err_wilcards:
+	lda #$33; syntax error (wildcards)
 @open_file_err:
 	jsr set_status
-@open_file_err2:
-	pla ; context number
+:	pla ; context number
 	jsr free_context
 	sec
 	rts

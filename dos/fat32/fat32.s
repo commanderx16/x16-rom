@@ -3615,6 +3615,9 @@ fat32_seek:
 	dex
 	bne @1
 
+	; TODO: It would be a significant optimization to fast forward from
+	;       the current position, it is lower than the target position.
+
 @2:	; Go to start cluster
 	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 
