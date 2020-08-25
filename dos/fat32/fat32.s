@@ -25,6 +25,7 @@ FLAG_DIRENT = 1<<2  ; Directory entry needs to be updated on close
 
 .struct context
 flags           .byte    ;  0 Flag bits
+start_cluster   .dword   ;  1 Start cluster
 cluster         .dword   ;  1 Current cluster
 lba             .dword   ;  5 Sector of current cluster
 cluster_sector  .byte    ;  9 Sector index within current cluster
@@ -2376,6 +2377,7 @@ fat32_open:
 	stz cur_context + context::eof
 	set32_val cur_context + context::file_offset, 0
 	set32 cur_context + context::file_size, fat32_dirent + dirent::size
+	set32 cur_context + context::start_cluster, fat32_dirent + dirent::start
 	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	jsr open_cluster
 	bcc @error
@@ -3090,6 +3092,8 @@ allocate_first_cluster:
 
 	; Set allocated cluster as current
 	set32 cur_context + context::cluster, cur_volume + fs::free_cluster
+	; Set allocated cluster as start cluster
+	set32 cur_context + context::start_cluster, cur_volume + fs::free_cluster
 	sec
 	rts
 
@@ -3586,9 +3590,7 @@ fat32_seek:
 	adc #>sector_buffer
 	sta cur_context + context::bufptr + 1
 
-@b:
-
-	; Extract sector number
+@b:	; Extract sector number
 	stz tmp_buf + 3
 	lda fat32_size + 3
 	lsr
@@ -3619,7 +3621,7 @@ fat32_seek:
 	;       the current position, it is lower than the target position.
 
 @2:	; Go to start cluster
-	set32 cur_context + context::cluster, fat32_dirent + dirent::start
+	set32 cur_context + context::cluster, cur_context + context::start_cluster
 
 @2a:	; Fast forward clusters
 	lda tmp_buf + 0
