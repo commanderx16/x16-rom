@@ -3591,29 +3591,29 @@ fat32_seek:
 	sta cur_context + context::bufptr + 1
 
 @b:	; Extract sector number
-	stz tmp_buf + 3
-	lda fat32_size + 3
-	lsr
-	sta tmp_buf + 2
-	lda fat32_size + 2
-	ror
-	sta tmp_buf + 1
 	lda fat32_size + 1
-	ror
-	sta tmp_buf + 0
+	sta fat32_size + 0
+	lda fat32_size + 2
+	sta fat32_size + 1
+	lda fat32_size + 3
+	sta fat32_size + 2
+	stz fat32_size + 3
+	lsr fat32_size + 2
+	ror fat32_size + 1
+	ror fat32_size + 0
 
 	; Extract sector within cluster
 	lda cur_volume + fs::sectors_per_cluster
 	dec
-	and tmp_buf + 0
+	and fat32_size + 0
 	pha
 
 	; Calculate cluster index
 	ldx cur_volume + fs::cluster_shift
 	beq @2
-@1:	lsr tmp_buf + 2
-	ror tmp_buf + 1
-	ror tmp_buf + 0
+@1:	lsr fat32_size + 2
+	ror fat32_size + 1
+	ror fat32_size + 0
 	dex
 	bne @1
 
@@ -3624,15 +3624,15 @@ fat32_seek:
 	set32 cur_context + context::cluster, cur_context + context::start_cluster
 
 @2a:	; Fast forward clusters
-	lda tmp_buf + 0
-	ora tmp_buf + 1
-	ora tmp_buf + 2
-	ora tmp_buf + 3
+	lda fat32_size + 0
+	ora fat32_size + 1
+	ora fat32_size + 2
+	ora fat32_size + 3
 	beq @3
 
 	jsr next_cluster
 	bcc @error1
-	dec32 tmp_buf
+	dec32 fat32_size
 	bra @2a
 
 	;
