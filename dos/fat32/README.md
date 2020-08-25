@@ -64,7 +64,7 @@ Most API calls require a context to be allocated and set. Contexts are associate
 * `fat32_read_byte`: Read a byte from open file. Returns byte in A.
 * `fat32_write_byte`: Write a byte to open file. Pass byte in A.
 * `fat32_get_offset`: Get current offset in file. Returns value in `fat32_size`.
-* `fat32_seek`: Set current offset in file. Pass value in `fat32_size`.
+* `fat32_seek`: Set current offset in file. Pass value in `fat32_size`. Values greater than the file size will set the pointer to the end of the file.
 
 ### Directory Entry Enumeration
 

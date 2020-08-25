@@ -59,7 +59,7 @@ Or the core feature set, these are the supported functions:
 | Partition listing         | `$=P`                         | yes       |         |
 | Partition filtering       | `$:NAME*=P`                   | no        |         |
 
-And this table shows which commands are supported:
+And this table shows which of the standard commands are supported:
 
 | Name             | Syntax                                                | Description                     | Supported |
 |------------------|-------------------------------------------------------|---------------------------------|-----------|
@@ -131,6 +131,15 @@ And this table shows which commands are supported:
 * <sup>3</sup>: third argument `FAT32` *has* to be passed
 * <sup>4</sup>: CMDR-DOS was architected to run on the main computer, so it shouldn't be DOS that keeps track of the time
 * <sup>5</sup>: Instead of testing the ROM, this command currently verifies that no buffers are allocated, otherwise it halts. This is used by unit tests to detect leaks.
+
+The following added commands and features are specific to CMDR-DOS:
+
+| Feature               | Syntax      | Description                                                                    |
+|-----------------------|-------------|--------------------------------------------------------------------------------|
+| Open for Read & Write | `,?,M`      | Allows arbitrarily reading, writing and setting the position (`P`)<sup>1</sup> |
+| POSITION              | `P` _channel_ _p0_ _p1_ _p2_ _p3_  | Set position within file (like sd2iec); all args binary |
+
+* <sup>1</sup>: once the EOF has been reached while reading, no further reads or writes are possible.
 
 All currently unsupported commands are decoded in `cmdch.s` anyway, but hooked into `31,SYNTAX ERROR,00,00`, so adding features should be as easy as adding the implementation.
 

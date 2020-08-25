@@ -24,17 +24,17 @@ FLAG_DIRTY  = 1<<1  ; Buffer is dirty
 FLAG_DIRENT = 1<<2  ; Directory entry needs to be updated on close
 
 .struct context
-flags           .byte    ;  0 Flag bits
-start_cluster   .dword   ;  1 Start cluster
-cluster         .dword   ;  1 Current cluster
-lba             .dword   ;  5 Sector of current cluster
-cluster_sector  .byte    ;  9 Sector index within current cluster
-bufptr          .word    ; 10 Pointer within sector_buffer
-file_size       .dword   ; 12 Size of current file
-file_offset     .dword   ; 16 Offset in current file
-dirent_lba      .dword   ; 20 Sector containing directory entry for this file
-dirent_bufptr   .word    ; 24 Offset to start of directory entry
-eof             .byte    ; 26 =$ff: EOF has been reached
+flags           .byte    ; Flag bits
+start_cluster   .dword   ; Start cluster
+cluster         .dword   ; Current cluster
+lba             .dword   ; Sector of current cluster
+cluster_sector  .byte    ; Sector index within current cluster
+bufptr          .word    ; Pointer within sector_buffer
+file_size       .dword   ; Size of current file
+file_offset     .dword   ; Offset in current file
+dirent_lba      .dword   ; Sector containing directory entry for this file
+dirent_bufptr   .word    ; Offset to start of directory entry
+eof             .byte    ; =$ff: EOF has been reached
 .endstruct
 
 CONTEXT_SIZE = 32
@@ -3640,7 +3640,7 @@ fat32_seek:
 	jsr calc_cluster_lba
 
 	pla
- 	sta cur_context + context::cluster_sector
+	sta cur_context + context::cluster_sector
 
 	clc
 	adc cur_context + context::lba

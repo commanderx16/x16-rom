@@ -137,6 +137,7 @@ file_open:
 	sta fat32_size + 2
 	sta fat32_size + 3
 	jsr fat32_seek
+	bcc @open_file_err2
 	bra @open_set_mode_write
 
 ; *** W - open for writing
@@ -351,11 +352,11 @@ file_set_position:
 	lda (fat32_ptr),y
 	sta fat32_size + 3
 	jsr fat32_seek
+	bcc @error
 	clc
 	rts
 
-@error:
-	sec
+@error:	sec
 	rts
 
 ;---------------------------------------------------------------
