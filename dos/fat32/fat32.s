@@ -24,16 +24,16 @@ FLAG_DIRTY  = 1<<1  ; Buffer is dirty
 FLAG_DIRENT = 1<<2  ; Directory entry needs to be updated on close
 
 .struct context
-flags           .byte    ; Flag bits
-cluster         .dword   ; Current cluster
-lba             .dword   ; Sector of current cluster
-cluster_sector  .byte    ; Sector index within current cluster
-bufptr          .word    ; Pointer within sector_buffer
-file_size       .dword   ; Size of current file
-file_offset     .dword   ; Offset in current file
-dirent_lba      .dword   ; Sector containing directory entry for this file
-dirent_bufptr   .word    ; Offset to start of directory entry
-eof             .byte    ; =$ff: EOF has been reached
+flags           .byte    ;  0 Flag bits
+cluster         .dword   ;  1 Current cluster
+lba             .dword   ;  5 Sector of current cluster
+cluster_sector  .byte    ;  9 Sector index within current cluster
+bufptr          .word    ; 10 Pointer within sector_buffer
+file_size       .dword   ; 12 Size of current file
+file_offset     .dword   ; 16 Offset in current file
+dirent_lba      .dword   ; 20 Sector containing directory entry for this file
+dirent_bufptr   .word    ; 24 Offset to start of directory entry
+eof             .byte    ; 26 =$ff: EOF has been reached
 .endstruct
 
 CONTEXT_SIZE = 32
@@ -3538,23 +3538,21 @@ fat32_seek:
 	lda cur_context + context::file_size + 3
 	sbc fat32_size + 3
 	bcs @0a
-	set32 cur_context + context::file_offset, cur_context + context::file_size
-	bra @0b
+	set32 fat32_size, cur_context + context::file_size
 @0a:	set32 cur_context + context::file_offset, fat32_size
-@0b:
 
 	; If file_offset == file_size, set EOF flag
 	ldx #0 ; no EOF
-	cmp32_ne cur_context + context::file_offset, cur_context + context::file_size, @0c
+	cmp32_ne fat32_size, cur_context + context::file_size, @0c
 	ldx #$ff ; EOF
 @0c:	stx cur_context + context::eof
 
 	; Special case: bufptr == 0 && eof?
 	; -> Make bufptr point to $0200 of last sector
 	;    instead of $0000 of next (non-existent) sector
-	lda cur_context + context::file_offset + 0
+	lda fat32_size + 0
 	bne @a
-	lda cur_context + context::file_offset + 1
+	lda fat32_size + 1
 	and #1
 	bne @a
 	bit cur_context + context::eof
@@ -3566,24 +3564,24 @@ fat32_seek:
 	lda #>(sector_buffer+$200)
 	sta cur_context + context::bufptr + 1
 	; Decrement sector
-	lda cur_context + context::file_offset + 1
+	lda fat32_size + 1
 	sec
 	sbc #2 ; $0200
-	sta cur_context + context::file_offset + 1
-	lda cur_context + context::file_offset + 2
+	sta fat32_size + 1
+	lda fat32_size + 2
 	sbc #0
-	sta cur_context + context::file_offset + 2
-	lda cur_context + context::file_offset + 3
+	sta fat32_size + 2
+	lda fat32_size + 3
 	sbc #0
-	sta cur_context + context::file_offset + 3
+	sta fat32_size + 3
 	bra @b
 
 @a:	; Extract offset within sector
-	lda cur_context + context::file_offset + 0
+	lda fat32_size + 0
 	clc
 	adc #<sector_buffer
-	sta cur_context + context::bufptr + 0
-	lda cur_context + context::file_offset + 1
+	sta cur_context + context::bufptr + 0 ; temp location
+	lda fat32_size + 1
 	and #1
 	adc #>sector_buffer
 	sta cur_context + context::bufptr + 1
@@ -3592,13 +3590,13 @@ fat32_seek:
 
 	; Extract sector number
 	stz tmp_buf + 3
-	lda cur_context + context::file_offset + 3
+	lda fat32_size + 3
 	lsr
 	sta tmp_buf + 2
-	lda cur_context + context::file_offset + 2
+	lda fat32_size + 2
 	ror
 	sta tmp_buf + 1
-	lda cur_context + context::file_offset + 1
+	lda fat32_size + 1
 	ror
 	sta tmp_buf + 0
 
