@@ -20,8 +20,14 @@ This is a generic and reusable FAT32 filesystem read/write library written in 65
 
 ## Missing Features
 
-* seek
 * there is no way to get the cwd string
+
+## Requirements
+
+* 65C02 CPU (could run on 6502 with help of [65c02inc](https://github.com/commanderx16/x16-rom/blob/68cec17c700bd9666dc49f801e0853af4e417ebf/cbdos/65c02.inc))
+* about 8 KB of code space
+* about 5 KB of RAM
+* 8 bytes in the zero page
 
 ## API
 
