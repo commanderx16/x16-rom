@@ -6,7 +6,7 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 * BASIC is fully compatible with Commodore BASIC V2, with some additions.
 * KERNAL
 	* supports the complete $FF81+ API.
-	* adds lots of new API.
+	* adds lots of new API, including joystick, mouse and bitmap graphics.
 	* supports the same $0300-$0332 vectors as the C64.
 	* does not support tape (device 1) or software RS-232 (device 2).
 * GEOS is fully compatible with the C64 version.
@@ -141,6 +141,47 @@ Credits
 
 Release Notes
 -------------
+
+### Release 38 ("Kyoto")
+
+* KERNAL
+	* new `macptr` API to receive multiple bytes from an IEEE device
+	* `load` uses `macptr` for LOAD speeds from SD card of about 140 KB/sec
+	* hacked (non-functional) Commodore Serial to not hang
+	* LOAD on IEEE without fn defaults to ":*"; changed F5 key to "LOAD"
+	* fixed `screen_set_charset` custom charset [Rebecca G. Bettencourt]
+	* fixed `stash` to preserve A
+	* `entropy_get`: better entropy
+* FPLIB
+	* optimized addition, multiplication and SQR [Michael Jørgensen]
+	* ported over `INT(.9+.1)` = 0 fix from C128
+* BASIC
+	* updated power-on logo to match the real X16 logo better
+	* like LOAD/SAVE, OPEN now also defaults to last IEEE device (or 8)
+	* fixed STOP key when showing directory listing (`DOS"$"`)
+* CHARSET
+	* changed PETSCII screen codes $65/$67 to PET 1/8th blocks
+* DOS
+	* switched to FAT32 library by Frank van den Hoef
+	* rewrote most of DOS ("CMDR-DOS"), almost CMD FD/HD feature parity
+		* write support
+		* new "modify" mode ("M") that allows reading and writing
+		* set-position support in PRG files (like sd2iec)
+		* long filenames, full ISO-8859-15 translation
+		* wildcards
+		* subdirectories
+		* partitions
+		* timestamps
+		* overwriting ("@:")
+		* directory listing filter
+		* partition listing
+		* almost complete set of commands ("scratch", "rename", ...)
+		* formatting a new filesystem ("new")
+		* activity/error LED
+		* detection of SD card presence, fallback to Commodore Serial
+		* support for switching SD cards
+		* details in the [CMDR-DOS README](https://github.com/commanderx16/x16-rom/blob/master/dos/README.md)
+	* misc fixes [Mike Ketchen]
 
 ### Release 37 ("Geneva")
 
