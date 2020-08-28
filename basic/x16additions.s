@@ -54,12 +54,14 @@ monitor:
 	jsr bjsrfar
 	.word $c000
 	.byte BANK_MONITOR
+	; does not return
 
 ;***************
 geos:
 	jsr bjsrfar
 	.word $c000 ; entry
 	.byte BANK_GEOS
+	; does not return
 
 ;***************
 color	jsr getcol ; fg

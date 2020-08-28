@@ -76,6 +76,11 @@ _ResetHandle:
 	.word __drvcbdos_RUN__
 	.word __drvcbdos_SIZE__
 
+	lda #$0f ; iso mode
+	jsr gjsrfar
+	.word bsout
+	.byte BANK_KERNAL
+
 	lda #$80
 	jsr gjsrfar
 	.word screen_set_mode
