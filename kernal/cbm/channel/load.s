@@ -56,7 +56,7 @@ ld20	cmp #4
 	lda #fndefault_end-fndefault
 	jsr setnam
 ;
-ld25	ldx sa          ;save sa in .x
+ld25	ldx sa          ;save sa in stack
 	phx
 	jsr luking      ;tell user looking
 	lda #$60        ;special load command
