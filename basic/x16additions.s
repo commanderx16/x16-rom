@@ -96,15 +96,13 @@ hexd
 	jsr chkopn ; open paren
 	jsr frmadr ; get 16 bit word in Y/A
 	phy        ; start converting to hex string, save lsb
-	ldy #<lofbuf
-	sty poker      ; use ptr in space also used by poke/peek address
-	ldy #>lofbuf
-	sty poker+1
-	ldy #2
-	jsr @converthex
-	ldy #4
+	jsr byte_to_hex_ascii
+	sta lofbuf+1
+	sty lofbuf+2
 	pla
-	jsr @converthex
+	jsr byte_to_hex_ascii
+	sta lofbuf+3
+	sty lofbuf+4
         lda #'$'
 	sta lofbuf
 	stz lofbuf+5
@@ -114,26 +112,23 @@ hexd
         lda #<lofbuf
 	ldy #>lofbuf
 	jmp strlit  ; allocate and return string value
-	
-@converthex:
+
+; TODO the following is copied (almost) verbatim from monitor.s  Can we not just call that somehow?
+byte_to_hex_ascii:     
         pha
-	and #$0f
-	ora #$30
-	cmp #'9'+1
-	bcc :+
-	adc #6
-:	sta (poker),y
-	pla
-	lsr a
-	lsr a
-	lsr a
-	lsr a
-	ora #$30
-	cmp #'9'+1
-	bcc :+
-	adc #6
-:	dey
-        sta (poker),y
+        and     #$0F
+        jsr     @LBCC8
+        tay
+        pla
+        lsr     a
+        lsr     a
+        lsr     a
+        lsr     a
+@LBCC8: clc
+        adc     #$F6
+        bcc     @LBCCF
+        adc     #$06
+@LBCCF: adc     #$3A
         rts
 
 
