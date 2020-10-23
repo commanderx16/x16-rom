@@ -91,24 +91,51 @@ coltab	;this is an unavoidable duplicate from KERNAL
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
 ;***************
-hexd:	.byt $db
+hexd	
 	jsr chrget
-	jsr chkopn ; open parenthesis
-	jsr getbyt ; byte to convert
-	phx	   ; Save byte
-	jsr chkcls ; close parenthesis
-
-	pla
-	ldy #0
-	sta lofbuf,y
-	iny
-	sta lofbuf,y
-	iny
-	lda #0
-	sta lofbuf,y
-	lda #<lofbuf
+	jsr chkopn ; open paren
+	jsr frmadr ; get 16 bit word in Y/A
+	phy        ; start converting to hex string, save lsb
+	ldy #<lofbuf
+	sty poker      ; use ptr in space also used by poke/peek address
 	ldy #>lofbuf
-	jmp strlit
+	sty poker+1
+	ldy #2
+	jsr @converthex
+	ldy #4
+	pla
+	jsr @converthex
+        lda #'$'
+	sta lofbuf
+	stz lofbuf+5
+	jsr chkcls ; end of hex conversion, check closing paren
+	pla        ; remove return address from stack
+	pla
+        lda #<lofbuf
+	ldy #>lofbuf
+	jmp strlit  ; allocate and return string value
+	
+@converthex:
+        pha
+	and #$0f
+	ora #$30
+	cmp #'9'+1
+	bcc :+
+	adc #6
+:	sta (poker),y
+	pla
+	lsr a
+	lsr a
+	lsr a
+	lsr a
+	ora #$30
+	cmp #'9'+1
+	bcc :+
+	adc #6
+:	dey
+        sta (poker),y
+        rts
+
 
 ;***************
 vpeek	jsr chrget
