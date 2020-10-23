@@ -91,21 +91,21 @@ coltab	;this is an unavoidable duplicate from KERNAL
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
 ;***************
-hexd:
+hexd:	.byt $db
 	jsr chrget
-	jsr chkopn ; open paren
-	jsr getbyt ; byte: to convert
+	jsr chkopn
+	jsr getbyt
 	phx
-	jsr chkcls ; closing paren
-	; return a string
-	lda #2     ; 2 char string
-	jsr strspa ; get space
-	pla	   ; byte to convert
-	lda $35    ; Make string "55"
-	sta dsctmp+1
-	sta dsctmp+2
+	jsr chkcls
+	lda #2
+	jsr strspa
+	pla
+	lda #$35
+	ldy #0
+	sta (dsctmp+1),y
+	iny
+	sta (dsctmp+1),y
 	jmp putnew
-
 
 ;***************
 vpeek	jsr chrget
