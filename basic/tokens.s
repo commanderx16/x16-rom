@@ -32,7 +32,7 @@ stmdsp	.word end-1
 	.word list-1
 	.word clear-1
 	.word cmd-1
-	.word csys-1 
+	.word csys-1
 	.word copen-1
 	.word cclos-1
 	.word get-1
@@ -75,7 +75,7 @@ optab	.byt 121
 	.byt 70
 	.word orop-1
 negtab	.byt 125
-	.word negop-1 
+	.word negop-1
 nottab	.byt 90
 	.word notop-1
 ptdorl	.byt 100
@@ -107,6 +107,7 @@ stmdsp2	; statements
 	.word my
 	.word mb
 	.word joy
+	.word hexd
 ;**************************************
 
 reslst	.byt "EN",$c4
@@ -152,4 +153,3 @@ printk	=$99
 	.byt "GE",$d4
 	.byt "NE",$d7
 scratk	=$a2
-

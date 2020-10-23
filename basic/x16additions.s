@@ -91,6 +91,23 @@ coltab	;this is an unavoidable duplicate from KERNAL
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
 ;***************
+hexd:
+	jsr chrget
+	jsr chkopn ; open paren
+	jsr getbyt ; byte: to convert
+	phx
+	jsr chkcls ; closing paren
+	; return a string
+	lda #2     ; 2 char string
+	jsr strspa ; get space
+	pla	   ; byte to convert
+	lda $35    ; Make string "55"
+	sta dsctmp+1
+	sta dsctmp+2
+	jmp putnew
+
+
+;***************
 vpeek	jsr chrget
 	jsr chkopn ; open paren
 	jsr getbyt ; byte: bank
@@ -340,16 +357,16 @@ joy:
 	tay
 	jmp sngflt
 
-reset:	
+reset:
 	ldx #5
-:	lda reset_copy,x 
-	sta $0100,x 
+:	lda reset_copy,x
+	sta $0100,x
 	dex
 	bpl :-
 	jmp $0100
 
 reset_copy:
-	stz d1prb 
+	stz d1prb
 	jmp ($fffc)
 
 cls:
