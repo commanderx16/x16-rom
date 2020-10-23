@@ -93,19 +93,22 @@ coltab	;this is an unavoidable duplicate from KERNAL
 ;***************
 hexd:	.byt $db
 	jsr chrget
-	jsr chkopn
-	jsr getbyt
-	phx
-	jsr chkcls
-	lda #2
-	jsr strspa
+	jsr chkopn ; open parenthesis
+	jsr getbyt ; byte to convert
+	phx	   ; Save byte
+	jsr chkcls ; close parenthesis
+
 	pla
-	lda #$35
 	ldy #0
-	sta (dsctmp+1),y
+	sta lofbuf,y
 	iny
-	sta (dsctmp+1),y
-	jmp putnew
+	sta lofbuf,y
+	iny
+	lda #0
+	sta lofbuf,y
+	lda #<lofbuf
+	ldy #>lofbuf
+	jmp strlit
 
 ;***************
 vpeek	jsr chrget
