@@ -96,15 +96,13 @@ hexd	jsr chrget
 	jsr frmadr ; get 16 bit word in Y/A
 	phy        ; start converting to hex string, save lsb
 	jsr byte_to_hex_ascii
-	sta lofbuf+1
-	sty lofbuf+2
+	sta lofbuf+0
+	sty lofbuf+1
 	pla
 	jsr byte_to_hex_ascii
-	sta lofbuf+3
-	sty lofbuf+4
-        lda #'$'
-	sta lofbuf
-	stz lofbuf+5
+	sta lofbuf+2
+	sty lofbuf+3
+	stz lofbuf+4
 	jsr chkcls ; end of hex conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
