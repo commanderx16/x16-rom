@@ -91,8 +91,7 @@ coltab	;this is an unavoidable duplicate from KERNAL
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
 ;***************
-hexd	
-	jsr chrget
+hexd	jsr chrget
 	jsr chkopn ; open paren
 	jsr frmadr ; get 16 bit word in Y/A
 	phy        ; start converting to hex string, save lsb
@@ -114,7 +113,14 @@ hexd
 	jmp strlit  ; allocate and return string value
 
 ; TODO the following is copied (almost) verbatim from monitor.s  Can we not just call that somehow?
-byte_to_hex_ascii:     
+; - Code can be called from monitor.s like this:
+;	jsr bjsrfar
+;	.word $C829
+;	.byte BANK_MONITOR
+;   I can not figure out how to get the address of the byte_to_hex_ascii
+;   function without compiling the KERNAL and looking at the monitor.sym file.
+;   For now we will leave this in.
+byte_to_hex_ascii:
         pha
         and     #$0F
         jsr     @LBCC8
@@ -130,7 +136,6 @@ byte_to_hex_ascii:
         adc     #$06
 @LBCCF: adc     #$3A
         rts
-
 
 ;***************
 vpeek	jsr chrget
