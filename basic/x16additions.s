@@ -91,19 +91,41 @@ coltab	;this is an unavoidable duplicate from KERNAL
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
 ;***************
+bind	jsr chrget
+	jsr chkopn ; open parent
+	jsr getbyt ; get byte in X
+	txa
+	ldx #6
+@loop:	ror
+	pha
+	lda #'1'
+	bcs :+
+	dec
+:	sta lofbuf+1,x
+	pla
+	dex
+	bpl @loop
+	ror
+	lda #'1'
+	bcs :+
+	dec
+:	sta lofbuf,y
+	stz lofbuf+8
+	bra funend
+
+;***************
 hexd	jsr chrget
 	jsr chkopn ; open paren
-	jsr frmadr ; get 16 bit word in Y/A
-	phy        ; start converting to hex string, save lsb
-	jsr byte_to_hex_ascii
+	jsr getbyt ; get byte in X
+	txa
+	jsr bjsrfar
+	.word $C829
+	.byte BANK_MONITOR
+;	jsr byte_to_hex_ascii
 	sta lofbuf+0
 	sty lofbuf+1
-	pla
-	jsr byte_to_hex_ascii
-	sta lofbuf+2
-	sty lofbuf+3
-	stz lofbuf+4
-	jsr chkcls ; end of hex conversion, check closing paren
+	stz lofbuf+2
+funend:	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
         lda #<lofbuf
@@ -118,22 +140,22 @@ hexd	jsr chrget
 ;   I can not figure out how to get the address of the byte_to_hex_ascii
 ;   function without compiling the KERNAL and looking at the monitor.sym file.
 ;   For now we will leave this in.
-byte_to_hex_ascii:
-        pha
-        and     #$0F
-        jsr     @LBCC8
-        tay
-        pla
-        lsr     a
-        lsr     a
-        lsr     a
-        lsr     a
-@LBCC8: clc
-        adc     #$F6
-        bcc     @LBCCF
-        adc     #$06
-@LBCCF: adc     #$3A
-        rts
+;byte_to_hex_ascii:
+;        txa
+;        and     #$0F
+;        jsr     @LBCC8
+;        tay
+;        txa
+;        lsr     a
+;        lsr     a
+;        lsr     a
+;        lsr     a
+;@LBCC8: clc
+;        adc     #$F6
+;        bcc     @LBCCF
+;        adc     #$06
+;@LBCCF: adc     #$3A
+;        rts
 
 ;***************
 vpeek	jsr chrget

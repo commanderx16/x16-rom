@@ -108,6 +108,7 @@ stmdsp2	; statements
 	.word mb
 	.word joy
 	.word hexd
+	.word bind
 ;**************************************
 
 reslst	.byt "EN",$c4
