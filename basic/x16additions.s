@@ -91,10 +91,14 @@ coltab	;this is an unavoidable duplicate from KERNAL
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
 ;***************
-bind	jsr chrget
-	jsr chkopn ; open parent
-	jsr getbyt ; get byte in X
+binhex_start:.byt $db,$db,$db
+	jsr chrget
+	jsr chkopn
+	jsr getbyt
 	txa
+	rts
+
+bind	jsr binhex_start
 	ldx #6
 @loop:	ror
 	pha
@@ -111,20 +115,18 @@ bind	jsr chrget
 	dec
 :	sta lofbuf,y
 	stz lofbuf+8
-	bra funend
+	bra binhex_end
 
 ;***************
-hexd	jsr chrget
-	jsr chkopn ; open paren
-	jsr getbyt ; get byte in X
-	txa
+hexd	jsr binhex_start
 	jsr bjsrfar
 	.word $C829 ; byte_to_hex_ascii function from monitor.s
 	.byte BANK_MONITOR
 	sta lofbuf+0
 	sty lofbuf+1
 	stz lofbuf+2
-funend:	jsr chkcls ; end of conversion, check closing paren
+binhex_end:
+	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
         lda #<lofbuf
