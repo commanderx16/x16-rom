@@ -91,7 +91,7 @@ coltab	;this is an unavoidable duplicate from KERNAL
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
 ;***************
-binhex_start:.byt $db,$db,$db
+binhex_start:
 	jsr chrget
 	jsr chkopn
 	jsr getbyt
