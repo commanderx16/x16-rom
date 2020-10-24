@@ -91,24 +91,46 @@ coltab	;this is an unavoidable duplicate from KERNAL
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
 ;***************
-hexd:	.byt $db
+hexd	
 	jsr chrget
-	jsr chkopn ; open parenthesis
-	jsr getbyt ; byte to convert
-	phx	   ; Save byte
-	jsr chkcls ; close parenthesis
-
+	jsr chkopn ; open paren
+	jsr frmadr ; get 16 bit word in Y/A
+	phy        ; start converting to hex string, save lsb
+	jsr byte_to_hex_ascii
+	sta lofbuf+1
+	sty lofbuf+2
 	pla
-	ldy #0
-	sta lofbuf,y
-	iny
-	sta lofbuf,y
-	iny
-	lda #0
-	sta lofbuf,y
-	lda #<lofbuf
+	jsr byte_to_hex_ascii
+	sta lofbuf+3
+	sty lofbuf+4
+        lda #'$'
+	sta lofbuf
+	stz lofbuf+5
+	jsr chkcls ; end of hex conversion, check closing paren
+	pla        ; remove return address from stack
+	pla
+        lda #<lofbuf
 	ldy #>lofbuf
-	jmp strlit
+	jmp strlit  ; allocate and return string value
+
+; TODO the following is copied (almost) verbatim from monitor.s  Can we not just call that somehow?
+byte_to_hex_ascii:     
+        pha
+        and     #$0F
+        jsr     @LBCC8
+        tay
+        pla
+        lsr     a
+        lsr     a
+        lsr     a
+        lsr     a
+@LBCC8: clc
+        adc     #$F6
+        bcc     @LBCCF
+        adc     #$06
+@LBCCF: adc     #$3A
+        rts
+
 
 ;***************
 vpeek	jsr chrget
