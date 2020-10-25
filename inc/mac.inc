@@ -20,7 +20,7 @@
 		lda #<(value)
 		sta dest
 	.endif
-	.if .const(value) .and value=0
+	.if (.const(value) .and .hibyte(value)=0)
 		stz dest+1
 	.else
 		.if (.not .const(value)) .or (>(value))<>(<(value))
@@ -145,7 +145,7 @@
 	CmpB source+0, dest+0
 @j:
 .endmacro
-	
+
 .macro CmpWI source, immed
 	.local @j
 	CmpBI source+1, >(immed)
