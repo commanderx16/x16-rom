@@ -14,7 +14,7 @@
 .endmacro
 
 .macro LoadW dest, value
-	.if .const(value) .and value=0
+	.if .const(value) .and .lobyte(value)=0
 		stz dest
 	.else
 		lda #<(value)
