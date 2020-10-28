@@ -20,7 +20,7 @@
 		lda #<(value)
 		sta dest
 	.endif
-	.if (.const(value) .and .hibyte(value)=0)
+	.if .const(value) .and .hibyte(value)=0
 		stz dest+1
 	.else
 		.if (.not .const(value)) .or (>(value))<>(<(value))

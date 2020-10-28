@@ -90,48 +90,70 @@ coltab	;this is an unavoidable duplicate from KERNAL
 	.byt $90,$05,$1c,$9f,$9c,$1e,$1f,$9e
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
-;***************
-binhex_start:
-	jsr chrget
-	jsr chkopn
-	jsr getbyt
+; convert byte to binary in zero terminated string and
+; return it to BASIC
+bind	jsr chrget ; get char
+	jsr chkopn ; check opening paren
+	jsr getbyt ; byte to convert
+; lofbuf starts at address $00FF and continues into
+; page 1 ($0100).
+; zero page,X wraps around (no page crossing).
+; For this reason the returned string starts at
+; lofbuf+1 = $0100 so .X can be used as index
+; without trying to cross page
 	txa
-	rts
-
-bind	jsr binhex_start
-	ldx #6
-@loop:	ror
-	pha
+	ldx #7
+@loop:	lsr        ; low bit to carry
+	tay	   ; save .A for next iteration
 	lda #'1'
 	bcs :+
 	dec
 :	sta lofbuf+1,x
-	pla
+	tya	   ; restore .A
 	dex
 	bpl @loop
-	ror
-	lda #'1'
-	bcs :+
-	dec
-:	sta lofbuf,y
-	stz lofbuf+8
-	bra binhex_end
+	stz lofbuf+9 ; zero terminate string
+	jsr chkcls ; end of conversion, check closing paren
+	pla        ; remove return address from stack
+	pla
+        lda #<(lofbuf+1)
+	ldy #>(lofbuf+1)
+	jmp strlit  ; allocate and return string value
 
-;***************
-hexd	jsr binhex_start
-	jsr bjsrfar
-	.word $C829 ; byte_to_hex_ascii function from monitor.s
-	.byte BANK_MONITOR
+; convert byte to hex in zero terminated string and
+; return it to BASIC
+hexd	jsr chrget ; get char
+	jsr chkopn ; check opening paren
+	jsr getbyt ; byte to convert
+	txa
+	jsr byte_to_hex_ascii
 	sta lofbuf+0
 	sty lofbuf+1
 	stz lofbuf+2
-binhex_end:
 	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
         lda #<lofbuf
 	ldy #>lofbuf
 	jmp strlit  ; allocate and return string value
+
+; convert byte into hex ASCII in A/Y
+; copied from monitor.s, modified to use .X instead of stack
+byte_to_hex_ascii:
+        and     #$0F
+        jsr     @LBCC8
+        tay
+        txa
+        lsr
+        lsr
+        lsr
+        lsr
+@LBCC8: clc
+        adc     #$F6
+        bcc     @LBCCF
+        adc     #$06
+@LBCCF: adc     #$3A
+        rts
 
 ;***************
 vpeek	jsr chrget
