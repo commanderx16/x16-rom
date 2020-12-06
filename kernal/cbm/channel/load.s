@@ -56,8 +56,7 @@ ld20	cmp #4
 	lda #fndefault_end-fndefault
 	jsr setnam
 ;
-ld25	ldx sa          ;save sa in stack
-	phx
+ld25	ldx sa          ;save sa in .x
 	jsr luking      ;tell user looking
 	lda #$60        ;special load command
 	sta sa
@@ -78,7 +77,7 @@ ld25	ldx sa          ;save sa in stack
 	jsr acptr
 	sta eah
 ;
-	plx             ;find out old sa
+	txa             ;find out old sa
 	bne ld30        ;sa<>0 use disk address
 	lda memuss      ;else load where user wants
 	sta eal
