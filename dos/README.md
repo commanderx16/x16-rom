@@ -138,8 +138,16 @@ The following added commands and features are specific to CMDR-DOS:
 |-----------------------|-------------|--------------------------------------------------------------------------------|
 | Open for Read & Write | `,?,M`      | Allows arbitrarily reading, writing and setting the position (`P`)<sup>1</sup> |
 | POSITION              | `P` _channel_ _p0_ _p1_ _p2_ _p3_  | Set position within file (like sd2iec); all args binary |
-
 * <sup>1</sup>: once the EOF has been reached while reading, no further reads or writes are possible.
+
+Note, the _channel_ arg must be values $30-3F. $30 is ACSCII "0", so if you have channel 8 open, you can seek to a position as follows:
+`110 DOS"P8"+CHR$(128)+CHR$(0)+CHR$(0)+CHR$(0)`
+For channel numbers 10-14, use the characters :, ;, <, =, or >.
+
+The _p0_ - _p3_ parameters are a 32-bit binary number, with the low byte first. 
+So 128,0,0,0 corresponds to byte 128 in the file. 0,1,0,0 would be byte 256, and 0,0,1,0 would be byte 65536. Finally, 0,0,0,1 would be byte 1677216 (2^24).
+
+This is not a perfect replacement for REL files, but you can simulate this by using two files, with file acting as an index into the other file.
 
 All currently unsupported commands are decoded in `cmdch.s` anyway, but hooked into `31,SYNTAX ERROR,00,00`, so adding features should be as easy as adding the implementation.
 
