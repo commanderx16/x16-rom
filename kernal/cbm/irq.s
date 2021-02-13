@@ -17,6 +17,7 @@
 .import joystick_scan
 .import cursor_blink
 .import irq_ack
+.import led_update
 .export panic
 
 ; puls - checks for real irq's or breaks
@@ -47,6 +48,7 @@ key
 	jsr clock_update
 	jsr cursor_blink
 	jsr kbd_scan
+	jsr led_update
 
 	jsr irq_ack
 .ifp02

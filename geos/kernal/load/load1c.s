@@ -17,14 +17,8 @@
 .segment "load1c"
 
 DeskTopName:
-.ifdef bsw128
-	.byte "128 DESKTOP", 0
-.elseif .defined(gateway)
-	.byte "GATEWAY", 0
-	.byte 0 ; PADDING
-.elseif .defined(wheels)
-	.byte "DESKTOP", 0
-	.byte 0 ; PADDING
+.if 0
+	.byte "GEOWRITE", 0
 .else
 	.byte "DESK TOP", 0
 .endif

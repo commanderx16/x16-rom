@@ -60,7 +60,13 @@ _EnablSprite:
 ; Destroyed: a, x, y, r6
 ;---------------------------------------------------------------
 _PosSprite:
-	lda #<(VERA_SPRITES_BASE + 2)
+	lda r3L
+	and #7
+	asl
+	asl
+	asl
+	clc
+	adc #<(VERA_SPRITES_BASE + 2)
 	sta VERA_ADDR_L
 	lda #>(VERA_SPRITES_BASE + 2)
 	sta VERA_ADDR_M

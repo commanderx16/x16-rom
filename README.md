@@ -3,12 +3,18 @@ Commander X16 BASIC/KERNAL/DOS/GEOS ROM
 
 This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and KERNAL are derived from the [Commodore 64 versions](https://github.com/mist64/c64rom). GEOS is derived from the [C64/C128 version](https://github.com/mist64/geos).
 
-* BASIC is fully compatible with Commodore BASIC V2.
+* BASIC is fully compatible with Commodore BASIC V2, with some additions.
 * KERNAL
 	* supports the complete $FF81+ API.
-	* has the same zero page and $0200-$033C memory layout as the C64.
-	* does not support tape (device 1).
+	* adds lots of new API, including joystick, mouse and bitmap graphics.
+	* supports the same $0300-$0332 vectors as the C64.
+	* does not support tape (device 1) or software RS-232 (device 2).
 * GEOS is fully compatible with the C64 version.
+* DOS
+	* is compatible with Commodore DOS (`$`, `SCRATCH`, `NEW`, ...).
+	* works on SD cards with FAT32 filesystems.
+	* supports long filenames, timestamps.
+	* supports partitions and subdirectories (CMD-style).
 
 
 Releases and Building
@@ -24,8 +30,8 @@ Each [release of the X16 emulator][emu-releases] includes a compatible build of 
 
 Building this source code requires only [GNU Make] and the [cc65] assembler. GNU Make is almost invariably available as a system package with any Linux distribution; cc65 less often so. 
 
-- Red Hat: `sudo yum install make cc65`
-- Debian: `sudo apt-get install make`
+- Red Hat/CentOS: `sudo yum install make cc65` 
+- Debian/Ubuntu: `sudo apt-get install make cc65`
 
 On macOS, cc65 in [homebrew](https://brew.sh/), which must be installed before issuing the following command:
 
@@ -34,6 +40,8 @@ On macOS, cc65 in [homebrew](https://brew.sh/), which must be installed before i
 If cc65 is not available as a package on your system, you'll need to install or build/install it per the instructions below.
 
 Once the prerequisites are available, type `make` to build `rom.bin`. To use that with the emulator, copy it to the same directory as the `x16emu` binary or use `x16emu -rom .../path/to/rom.bin`.
+
+*Additional Notes: For users of Red Hat Enterprise Linux 8, you will need to have CodeReady builder repositories enabled, for CentOS, this is called PowerTools. Additionally, you will need Fedora EPEL installed as well as cc65 does not come usually within the official repositories.*
 
 ### Building/Installing cc65
 
@@ -83,22 +91,15 @@ New Features
 * Integrated Monitor derived from the [Final Cartridge III](https://github.com/mist64/final_cartridge).
 	* `O00`..`OFF` to switch ROM and RAM banks
 	* `OV0`..`OV4` to switch to video address space
-* FAT32-formatted SD card as drive 8 as a full IEC (TALK/LISTEN & CBM DOS) compatible device:
-	* read directory
-	* load file
-	* send "I" command
-	* read status
-	* everything else is unimplemented
+* FAT32-formatted SD card as drive 8 as a full IEEE-like (TALK/LISTEN & CBM DOS) compatible device
 * Some new KERNAL APIs (to be documented)
 
 
 Big TODOs
 ---------
 
-* DOS needs more features.
 * BASIC needs more features.
-* IEC is not working.
-* PS/2 and SD have issues on real hardware.
+* Commodore Serial Bus is not working.
 
 
 ROM Map
@@ -130,7 +131,7 @@ Credits
 -------
 
 * All new code, and additions to legacy code: &copy;2020 Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
-* FAT32 and SD card drivers: &copy;2018 Thomas Woinke, Marko Lauke, [www.steckschein.de](https://steckschwein.de); MIT License
+* FAT32 and SD card drivers: &copy;2018 Frank van den Hoef; 2-clause BSD license
 * `kernal/open-roms`: &copy;2019 Paul Gardner-Stephen, 2019; GPLv3 license
 * `kernal/cbm`: &copy;1983 Commodore Business Machines (CBM)
 * `basic`: &copy;1977 Microsoft Corp.
@@ -140,6 +141,73 @@ Credits
 
 Release Notes
 -------------
+
+### Release 38 ("Kyoto")
+
+* KERNAL
+	* new `macptr` API to receive multiple bytes from an IEEE device
+	* `load` uses `macptr` for LOAD speeds from SD card of about 140 KB/sec
+	* hacked (non-functional) Commodore Serial to not hang
+	* LOAD on IEEE without fn defaults to ":*"; changed F5 key to "LOAD"
+	* fixed `screen_set_charset` custom charset [Rebecca G. Bettencourt]
+	* fixed `stash` to preserve A
+	* `entropy_get`: better entropy
+* FPLIB
+	* optimized addition, multiplication and SQR [Michael Jørgensen]
+	* ported over `INT(.9+.1)` = 0 fix from C128
+* BASIC
+	* updated power-on logo to match the real X16 logo better
+	* like LOAD/SAVE, OPEN now also defaults to last IEEE device (or 8)
+	* fixed STOP key when showing directory listing (`DOS"$"`)
+* CHARSET
+	* changed PETSCII screen codes $65/$67 to PET 1/8th blocks
+* DOS
+	* switched to FAT32 library by Frank van den Hoef
+	* rewrote most of DOS ("CMDR-DOS"), almost CMD FD/HD feature parity
+		* write support
+		* new "modify" mode ("M") that allows reading and writing
+		* set-position support in PRG files (like sd2iec)
+		* long filenames, full ISO-8859-15 translation
+		* wildcards
+		* subdirectories
+		* partitions
+		* timestamps
+		* overwriting ("@:")
+		* directory listing filter
+		* partition listing
+		* almost complete set of commands ("scratch", "rename", ...)
+		* formatting a new filesystem ("new")
+		* activity/error LED
+		* detection of SD card presence, fallback to Commodore Serial
+		* support for switching SD cards
+		* details in the [CMDR-DOS README](https://github.com/commanderx16/x16-rom/blob/master/dos/README.md)
+	* misc fixes [Mike Ketchen]
+
+### Release 37 ("Geneva")
+
+* API features
+	* console
+		* new: console_put_image (inline images)
+		* new: console_set_paging_message (to pause after a full screen)
+		* now respects window insets
+		* try "TEST1" and "TEST2" in BASIC!
+	* new entropy_get API to get randomness, used by FPLIB/BASIC RND function
+* KERNAL
+	* support for VERA 0.9 register layout (Frank van den Hoef)
+* BASIC
+	* TI$ and DA$ (DATE$) are now connected to the new date/time API
+	* TI is independent of TI$ and can be assigned
+* DOS
+	* enabled partition types 0x0b and 0x0c, should accept more image types
+* Build
+	* separated KERNAL code into core code and drivers
+	* support for building KERNAL for C64
+	* ROM banks are built independently
+	* support to replace CBM channel and editor code with GPLed "open-roms" code by the MEGA65 project
+* bug fixes
+	* LOAD respects target address
+	* FAT32 code no longer overwrites RAM
+	* monitor is not as broken any more
 
 ### Release 36 ("Berlin")
 

@@ -95,11 +95,11 @@ inprt	lda #<intxt
 	ldx curlin
 linprt	sta facho
 	stx facho+1
-	ldx #$90
-	sec
+	ldx #$90	;exponent of 16.
+	sec		;number is positive.
 	jsr floatc
 	jsr foutc
-	jmp strout
+	jmp strout	;print and return.
 
 movvf	ldx forpnt
 	ldy forpnt+1
@@ -113,93 +113,130 @@ finh	bcc fin	; skip test for 0-9
 	bne fin
 finh2	jmp frmevl
 ;**************************************
-fin	ldy #$00
-	ldx #$09+addprc
-finzlp	sty deccnt,x
-	dex
-	bpl finzlp
-	bcc findgq
-	cmp #'-'
-	bne qplus
-	stx sgnflg
-	beq finc
-qplus	cmp #'+'
-	bne fin1
+
+; Floating point input routine.
+;
+; Number input is left in fac. at entry (txtptr) points to the first character
+; in a text buffer. The first character is also in acca. Fin packs the digits
+; into the fac as an integer and keeps track of where the decimal point is.
+; (dptflg) tells whether a dp has been seen. (deccnt ) is the number of digits
+; after the dp. At the end (deccnt) and the exponent are used to determine how
+; many times to multiply or divide by ten to get the correct number.
+
+fin
+	ldy #0		;zero facsgn&sgnflg.
+	ldx #$09+addprc	;zero exp and ho (and moh).
+
+finzlp	sty deccnt,x	;zero mo and lo.
+	dex		;zero tenexp and expsgn.
+	bpl finzlp	;zero deccnt, dptflg.
+
+	bcc findgq	;flags still set from chrget.
+	cmp #'-'	;a negative sign?
+	bne qplus	;no, try plus sign.
+	stx sgnflg	;it's negative. (x=377).
+	beq finc	;always branches.
+
+qplus	cmp #'+'	;plus sign?
+	bne fin1	;yes, skip it.
+
 finc	jsr chrget
+
 findgq	bcc findig
-fin1	cmp #'.'
-	beq findp
-	cmp #'E'
-	bne fine
-	jsr chrget
-	bcc fnedg1
-	cmp #minutk
+
+fin1	cmp #'.'	;the dp?
+	beq findp	;no kidding.
+	cmp #'E'	;exponent follows.
+	bne fine	;no.
+			;here is check for sign of exp.
+	jsr chrget	;yes, get another.
+	bcc fnedg1	;is it a digit. (easier than backing up pointer).
+	cmp #minutk	;minus?
+	beq finec1	;negate.
+	cmp #'-'	;minus sign?
 	beq finec1
-	cmp #'-'
-	beq finec1
-	cmp #plustk
+	cmp #plustk	;plus?
 	beq finec
-	cmp #'+'
+	cmp #'+'	;plus sign?
 	beq finec
 	bne finec2
-finec1	ror expsgn
-finec	jsr chrget
-fnedg1	bcc finedg
+
+finec1	ror expsgn	;turn it on.
+
+finec	jsr chrget	;get another.
+
+fnedg1	bcc finedg	;it is a digit.
 finec2	bit expsgn
 	bpl fine
 	lda #0
 	sec
 	sbc tenexp
 	jmp fine1
+
 findp	ror dptflg
 	bit dptflg
 	bvc finc
-fine	lda tenexp
-fine1	sec
-	sbc deccnt
+fine
+	lda tenexp
+fine1
+	sec
+	sbc deccnt	;get number of palces to shift.
 	sta tenexp
-	beq finqng
-	bpl finmul
-findiv	jsr div10
-	inc tenexp
-	bne findiv
-	beq finqng
-finmul	jsr mul10
-	dec tenexp
-	bne finmul
-finqng	lda sgnflg
-	bmi negxqs
+	beq finqng	;negate?
+	bpl finmul	;positive, so multiply.
+findiv
+	jsr div10
+	inc tenexp	;done?
+	bne findiv	;no.
+	beq finqng	;yes.
+
+finmul
+	jsr mul10
+	dec tenexp	;done?
+	bne finmul	;no.
+finqng
+	lda sgnflg
+	bmi negxqs	;if positive, return.
 	rts
-negxqs	jmp negop
-findig	pha
+
+negxqs
+	jmp negop	;oterwise, negate and return.
+
+
+findig
+	pha
 	bit dptflg
 	bpl findg1
 	inc deccnt
-findg1	jsr mul10
-	pla
+findg1
+	jsr mul10
+	pla		;get it back.
 	sec
 	sbc #'0'
-	jsr finlog
+	jsr finlog	;add it in.
 	jmp finc
 
-finedg	lda tenexp
-	cmp #$0a
+finedg
+	lda tenexp	;get exp so far.
+	cmp #10		;will result be .ge. 100
 	bcc mlex10
-	lda #$64
+	lda #100
 	bit expsgn
-	bmi mlexmi
+	bmi mlexmi	;if neg exp, no chk for overr.
 overr	ldx #errov
 	jmp error
-mlex10	asl a
-	asl a
-	clc
-	adc tenexp
-	asl a
+
+mlex10
+	asl a		;max is 120.
+	asl a		;mult by 2 twice.
+	clc		;possible shift out of high.
+	adc tenexp	;like multiplying by five.
+	asl a		;and now by ten.
 	clc
 	ldy #0
 	adc (txtptr),y
 	sec
 	sbc #'0'
-mlexmi	sta tenexp
+mlexmi
+	sta tenexp	;save result.
 	jmp finec
-

@@ -10,6 +10,7 @@ BANK_CHARSET = 6
 ; XXX these constant RAM addresses are KERNAL
 ; XXX implementation details and need to go away!
 .ifdef MACHINE_X16
+cbdos_flags= $0267
 status     = $0286 ; channel: status byte
 jsrfar3    = $02c4 ; jsrfar: RAM part
 jmpfr      = $02e1 ; jsrfar: core jmp instruction

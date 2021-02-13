@@ -1,77 +1,81 @@
-zerrts	rts
-faddh	lda #<fhalf
-	ldy #>fhalf
-	jmp fadd
+;----------------------------------------------------------------------
+; Floating Point Library for 6502
+;----------------------------------------------------------------------
+; (C)1978 Microsoft
+
+;
+; floating point math package configuration.
+;
+; Throughout the math package the floating point format is as follows:
+;
+;	the sign of the first bit of the mantissa.
+;	the mantissa is 24 bits long.
+;	the binary point is to the left of the msb.
+;	number = mantissa * 2 ~ exponent.
+;	the mantissa is positive with a 1 assumed to be where the sign bit is.
+;	the sign of the exponent is the first bit of the exponent.
+;	the exponent is stored in excess $80, i.e., with a bias of +$80.
+;	so, the exponent is a signed 8 bit number with $80 added to it.
+;	an exponent of zero means the number is zero.
+;	the other bytes may not be assumed to be zero.
+;	to keep the same number in the fac while shifting,
+;	to shift right, exp:=exp+1.
+;	to shift left,  exp:=exp-1.
+;
+; In memory the number looks like this:
+;	the exponent as a signed number +$80.
+;	the sign bit in 7, bits 2-8 of mantissa are bits 6-0.
+;		remember bit 1 of mantissa is always a one.
+;	bits 9-16 of the mantissa.
+;	bits 17-24 of the mantisa.
+;
+; Arithmetic routine calling conventions
+;
+; For one argument functions:
+;	the argument is in the fac.
+;	the result is left in the fac.
+; For two argument operations:
+;	the first argument is in arg (argexp,ho,mo,lo and argsgn).
+;       the second argument is in the fac.
+;	the result is left in the fac.
+;
+; The "t" entry points to the two argument operations have both arguments setup
+; in the respective registers. Before calling arg may have been popped off the
+; stack and into arg, for example. The other entry point assumes (xreg) points
+; to the argument somewhere in memory. it is unpacked into arg by "conupk".
+;
+; On the stack, the sgn is pushed on first, the lo,mo,ho, and finally exp.
+; Note all things are kept unpacked in arg, fac and on the stack.
+;
+; It is only when something is stored away that it is packed to four bytes,
+; the unpacked format has a sn byte reflecting the sign of the ho turned on.
+; The exp is the same as stored format. This is done for speed of operation.
+
+addpr2	=addprc+addprc
+addpr4	=addpr2+addpr2
+addpr8	=addpr4+addpr4
+
 fsub	jsr conupk
+
 fsubt	lda facsgn
-	eor #$ff
+	eor #$ff	;complement it.
 	sta facsgn
-	eor argsgn
+	eor argsgn	;complement arisgn.
 	sta arisgn
-	lda facexp
-	jmp faddt
-fadd5	jsr shiftr
-	bcc fadd4
-fadd	jsr conupk
-faddt	bne *+5
-	jmp movfa
-	ldx facov
-	stx oldov
-	ldx #argexp
-	lda argexp
-faddc	tay
-	beq zerrts
-	sec
-	sbc facexp
-	beq fadd4
-	bcc fadda
-	sty facexp
-	ldy argsgn
-	sty facsgn
-	eor #$ff
-	adc #0
+	lda facexp	;set codes on facexp.
+	jmp faddt	;(y)=argexp.
+
+fadflt
+	bcs normal	;here if signs differ. if carry, fac is set ok.
+	jsr negfac	;negate (fac)
+normal
 	ldy #0
-	sty oldov
-	ldx #fac
-	bne fadd1
-fadda	ldy #0
-	sty facov
-fadd1	cmp #$f9
-	bmi fadd5
-	tay
-	lda facov
-	lsr 1,x
-	jsr rolshf
-fadd4	bit arisgn
-	bpl fadd2
-	ldy #facexp
-	cpx #argexp
-	beq subit
-	ldy #argexp
-subit	sec
-	eor #$ff
-	adc oldov
-	sta facov
-	lda 3+addprc,y
-	sbc 3+addprc,x
-	sta faclo
-	lda addprc+2,y
-	sbc 2+addprc,x
-	sta facmo
-	lda 2,y
-	sbc 2,x
-	sta facmoh
-	lda 1,y
-	sbc 1,x
-	sta facho
-fadflt	bcs normal
-	jsr negfac
-normal	ldy #0
 	tya
 	clc
-norm3	ldx facho
+norm3
+	ldx facho
 	bne norm1
-	ldx facho+1
+	ldx facho+1	;shift 8 bits at a time for speed.
 	stx facho
 	ldx facmoh+1
 	stx facmoh
@@ -80,16 +84,17 @@ norm3	ldx facho
 	ldx facov
 	stx faclo
 	sty facov
-	adc #$08
-addpr2	=addprc+addprc
-addpr4	=addpr2+addpr2
-addpr8	=addpr4+addpr4
+	adc #8
+
 	cmp #$18+addpr8
 	bne norm3
-zerofc	lda #0
-zerof1	sta facexp
-zeroml	sta facsgn
-	rts
+
+zerofc	lda #0		;not needed by normal but by others.
+zerof1	sta facexp	;number must be zero.
+zeroml	sta facsgn	;make sign positive.
+	rts		;all done.
+
+
 fadd2	adc oldov
 	sta facov
 	lda faclo
@@ -104,34 +109,42 @@ fadd2	adc oldov
 	lda facho
 	adc argho
 	sta facho
-	jmp squeez
-norm2	adc #1
-	asl facov
+	jmp squeez	;go round if signs same.
+
+norm2
+	adc #1		;decrement shift counter.
+	asl facov	;shift all left one bit.
 	rol faclo
 	rol facmo
 	rol facmoh
 	rol facho
-norm1	bpl norm2
+norm1
+	bpl norm2	;if msb=0 shift again.
 	sec
 	sbc facexp
 	bcs zerofc
 	eor #$ff
-	adc #1
+	adc #1		;complement.
 	sta facexp
-squeez	bcc rndrts
-rndshf	inc facexp
+squeez
+	bcc rndrts	;bits to shift?
+rndshf
+	inc facexp
 	beq overr
 	ror facho
 	ror facmoh
 	ror facmo
 	ror faclo
 	ror facov
-rndrts	rts
-negfac	lda facsgn
-	eor #$ff
+rndrts	rts		;all done adding.
+
+negfac
+	lda facsgn
+	eor #$ff	;complement fac entirely.
 	sta facsgn
-negfch	lda facho
-	eor #$ff
+negfch
+	lda facho
+	eor #$ff	;complement just the number.
 	sta facho
 	lda facmoh
 	eor #$ff
@@ -147,54 +160,61 @@ negfch	lda facho
 	sta facov
 	inc facov
 	bne incfrt
-incfac	inc faclo
+incfac
+	inc faclo
 	bne incfrt
 	inc facmo
-	bne incfrt
+	bne incfrt	;if no carry, return.
 	inc facmoh
 	bne incfrt
-	inc facho
+	inc facho	;carry complement.
 incfrt	rts
-overr	ldx #errov
-	jmp error
-mulshf	ldx #resho-1
-shftr2	ldy 3+addprc,x
+
+overr
+	ldx #errov
+	jmp error	;tell user.
+
+
+;"shiftr" shifts (x+1:x+3) (-acca) bits right.
+;shifts bits to start with if possible.
+
+mulshf	ldx #resho-1	;entry point for multiplier.
+shftr2	ldy 3+addprc,x	;shift bits first.
 	sty facov
 	ldy 3,x
 	sty 4,x
-	ldy 2,x
-	sty 3,x
-	ldy 1,x
-	sty 2,x
+	ldy 2,x		;get mo.
+	sty 3,x		;store lo.
+	ldy 1,x		;get ho.
+	sty 2,x		;store mo.
 	ldy bits
-	sty 1,x
-shiftr	adc #$08
+	sty 1,x		;store ho.
+shiftr
+	adc #8
 	bmi shftr2
 	beq shftr2
-	sbc #$08
+	sbc #8		;c can be either 1,0 and it works.
 	tay
 	lda facov
-	bcs shftrt
-shftr3	asl 1,x
+	bcs shftrt	;equiv to beq here.
+shftr3
+	asl 1,x
 	bcc shftr4
 	inc 1,x
-shftr4	ror 1,x
+shftr4
 	ror 1,x
-rolshf	ror 2,x
+	ror 1,x 	;yes, two of them.
+rolshf
+	ror 2,x
 	ror 3,x
-	ror 4,x
+	ror 4,x		;one mo time.
 	ror a
 	iny
-	bne shftr3
-shftrt	clc
+	bne shftr3	;$$$ (most expensive!!!)
+shftrt
+	clc		;clear output of facov.
 	rts
-fone	.byt $81,$00,$00,$00,$00
-logcn2	.byt $03,$7f,$5e,$56
-	.byt $cb,$79,$80,$13
-	.byt $9b,$0b,$64,$80
-	.byt $76,$38,$93,$16
-	.byt $82,$38,$aa,$3b,$20
-sqr05	.byt $80,$35,$04,$f3,$34
-sqr20	.byt $81,$35,$04,$f3,$34
-neghlf	.byt $80,$80,$00,$00,$00
-log2	.byt $80,$31,$72,$17,$f8
+
+faddh	lda #<fhalf
+	ldy #>fhalf
+	jmp fadd

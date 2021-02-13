@@ -36,12 +36,12 @@ entropy_init:
 ; third byte:
 ;            a    timer lo
 ;            x    timer hi
-;            y    timer lo XOR timer hi
+;            y    timer lo + timer hi
 ; Timer lo is read twice, so there will be some difference.
 entropy_get:
 	lda d1t1h
 	tax
-	eor d1t1l
+	adc d1t1l ; feed in .C from user
 	tay
 	lda d1t1l
 	rts

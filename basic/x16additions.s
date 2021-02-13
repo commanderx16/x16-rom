@@ -54,12 +54,14 @@ monitor:
 	jsr bjsrfar
 	.word $c000
 	.byte BANK_MONITOR
+	; does not return
 
 ;***************
 geos:
 	jsr bjsrfar
 	.word $c000 ; entry
 	.byte BANK_GEOS
+	; does not return
 
 ;***************
 color	jsr getcol ; fg
@@ -182,7 +184,7 @@ listen_cmd:
 	lda #$6f
 	jsr second
 	jsr readst
-	bmi :+
+	bmi device_not_present
 	rts
 device_not_present:
 	ldx #5 ; "DEVICE NOT PRESENT"
@@ -229,8 +231,12 @@ disk_dir
 	ldy #$60        ;sa
 	jsr setlfs
 	jsr open        ;open directory channel
-	bcs disk_done   ;...branch on error
-	ldx #LOGADD
+	jsr readst
+	bpl :+
+	lda #LOGADD
+	jsr close
+	jmp device_not_present
+:	ldx #LOGADD
 	jsr chkin       ;make it an input channel
 
 	jsr crdo
@@ -276,7 +282,7 @@ disk_dir
 	bcc @d30        ;...loop always
 
 @d40	jsr crdo        ;start a new line
-	jsr cstop
+	jsr stop
 	beq disk_done   ;...branch if user hit STOP
 	ldy #2
 	bne @d20        ;...loop always

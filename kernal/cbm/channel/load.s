@@ -4,6 +4,8 @@
 ; (C)1983 Commodore Business Machines (CBM)
 ; additions: (C)2020 Michael Steil, License: 2-clause BSD
 
+.import macptr
+
 ;**********************************
 ;* load ram function              *
 ;*                                *
@@ -30,7 +32,7 @@ load	jmp (iload)     ;monitor load entry
 ;
 nload	and #$1f
 	sta verck       ;store verify flag
-	dec verck
+	dec verck       ;<0: RAM, =0: VERIFY, >0: VRAM
 	lda #0
 	sta status
 ;
@@ -49,7 +51,10 @@ ld20	cmp #4
 	ldy fnlen       ;must have file name
 	bne ld25        ;yes...ok
 ;
-	jmp error8      ;missing file name
+	ldx #<fndefault
+	ldy #>fndefault
+	lda #fndefault_end-fndefault
+	jsr setnam
 ;
 ld25	ldx sa          ;save sa in .x
 	jsr luking      ;tell user looking
@@ -80,12 +85,35 @@ ld25	ldx sa          ;save sa in .x
 	sta eah
 ld30	jsr loding      ;tell user loading
 ;
-	ldy verck       ;are we loading into vram?
-	beq ld40        ;no
-	bmi ld40        ;no
+	ldy verck       ;load/verify/vram?
+	beq ld40        ;verify
+	bpl ld35        ;loading into vram
+
+;
+;block-wise load into RAM
+;
+bld10	jsr stop        ;stop key?
+	beq break2
+	ldx eal
+	ldy eah
+	lda #0          ;load as many bytes as device wants
+	jsr macptr
+	bcs ld40        ;not supported, fall back to byte-wise
+	txa
+	clc
+	adc eal
+	sta eal
+	tya
+	adc eah
+	sta eah
+	bit status      ;eoi?
+	bvc bld10       ;no...continue load
+	bra ld70
+
 ;
 ;initialize vera registers
 ;
+ld35
 	dey
 	tya
 	and #$01        ;mask the bank number
@@ -103,7 +131,7 @@ ld40	lda #$fd        ;mask off timeout
 	jsr stop        ;stop key?
 	bne ld45        ;no...
 ;
-	jmp break       ;stop key pressed
+break2	jmp break       ;stop key pressed
 ;
 ld45	jsr acptr       ;get byte off ieee
 	tax
@@ -130,6 +158,7 @@ ld50	ldy #0
 ld60	inc eal         ;increment store addr
 	bne ld64
 	inc eah
+.if 0 ; DISABLED for now, since block-wise path doesn't support it (yet?)
 ;
 ;if necessary, wrap to next bank
 ;
@@ -142,11 +171,11 @@ ld60	inc eal         ;increment store addr
 ld62	lda #$a0        ;wrap to bottom of high ram
 	sta eah
 	inc $9f61       ;move to next ram bank
-
+.endif
 ld64	bit status      ;eoi?
 	bvc ld40        ;no...continue load
 ;
-	jsr untlk       ;close channel
+ld70	jsr untlk       ;close channel
 	jsr clsei       ;close the file
 	jsr prnto
 ;
@@ -230,3 +259,7 @@ prnto	bit msgflg      ;printing messages?
 	beq frmto1      ;skip if verify
 	ldy #ms8-ms1    ;"to $"
 	bne msghex      ;branch always
+
+fndefault
+	.byte ":*"
+fndefault_end

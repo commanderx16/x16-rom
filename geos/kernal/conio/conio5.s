@@ -8,7 +8,8 @@
 .include "geosmac.inc"
 .include "config.inc"
 .include "gkernal.inc"
-.include "c64.inc"
+
+.include "io.inc"
 
 .import _DisablSprite
 .import _EnablSprite
@@ -66,58 +67,53 @@ PrmptOff1:
 .endif
 
 _InitTextPrompt:
-	tay
-.if 0
-	START_IO
-	MoveB mob0clr, mob1clr
-	lda moby2
-	and #%11111101
-	sta moby2
+	tay ; height
+
+	LoadB alphaFlag, %10000011
+
+	; init sprite #1
+	lda #1 * 8
+	sta VERA_ADDR_L
+	lda #>VERA_SPRITES_BASE
+	sta VERA_ADDR_M
+	lda #((^VERA_SPRITES_BASE) | $10)
+	sta VERA_ADDR_H
+	lda #<((sprite_addr + $1000) >> 5)
+	sta VERA_DATA0
+	lda #1 << 7 | >((sprite_addr + $1000) >> 5) ; 8 bpp
+	sta VERA_DATA0
+
+	; set size
+	lda #1 * 8 + 7
+	sta VERA_ADDR_L
+	lda #3 << 6 | 0 << 4 ;  8x64 px
+	sta VERA_DATA0
+
+	; create sprite image
+	lda #>(sprite_addr + $1000)
+	sta VERA_ADDR_M
+	lda #<(sprite_addr + $1000)
+	sta VERA_ADDR_L
+	lda #$10 | (sprite_addr >> 16)
+	sta VERA_ADDR_H
 	tya
 	pha
-	LoadB alphaFlag, %10000011
-	ldx #64
-	lda #0
-@1:	sta spr1pic-1,x
+	lda #6 ; blue
+@1:	sta VERA_DATA0
+	ldx #7
+@2:	stz VERA_DATA0 ; translucent
 	dex
-	bne @1
-	pla
-	tay
-.ifdef bsw128
-	cpy #42
-	bcc @X
-	ldy #42
-@X:
-.endif
-	cpy #21
-	bcc @2
-	beq @2
-	tya
-	lsr
-	tay
-	lda moby2
-	ora #2
-	sta moby2
-@2:
-.ifdef bsw128
-	tya
-	ora #$80
-	sta L8A7F
-.endif
-	lda #%10000000
-@3:	sta spr1pic,x
-	inx
-	inx
-	inx
+	bne @2
 	dey
-.ifdef bsw128 ; fix: copied 1 byte too many
+	bne @1
+	ply
+@3:	ldx #8
+@4:	stz VERA_DATA0 ; translucent
+	dex
+	bne @4
+	iny
+	cpy #64
 	bne @3
-.else
-	bpl @3
-.endif
-	END_IO
-.else
-;XXX TODO X16 cursor sprite
-.endif
+
 	rts
 

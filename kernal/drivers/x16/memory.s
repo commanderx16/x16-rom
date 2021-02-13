@@ -12,6 +12,8 @@
 .import memtop
 .import membot
 
+.import ieeeswitch_init
+
 .export ramtas
 .export enter_basic
 .export monitor
@@ -123,7 +125,14 @@ ramtas:
 	lda #1
 	sta d1pra ; RAM bank
 
-	rts
+;
+; initialize CBDOS
+;
+; This is not the perfect spot for this, but we cannot do this
+; any earlier, since it relies on jsrfar.
+;
+	jmp ieeeswitch_init
+
 
 jsrfar:
 .include "jsrfar.inc"
@@ -241,8 +250,8 @@ stash1	=*+1
 _stavec	=*+1
 .assert stavec = _stavec, error, "stavec must be at specific address"
 	sta ($ff),y     ;put the byte ($ff here is a dummy address, 'STAVEC')
-	pla
-	sta d1pra
+	plx
+	stx d1pra
 	rts
 
 .segment "MEMDRV"

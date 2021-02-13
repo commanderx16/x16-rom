@@ -1,3 +1,7 @@
+;----------------------------------------------------------------------
+; Floating Point Library for 6502
+;----------------------------------------------------------------------
+
 ; FBLIB Jump Table
 
 ; http://unusedino.de/ec64/technical/project64/mapping_c64.html "[-mapping-]"
@@ -88,8 +92,10 @@
 	; [do not use, used by BASIC]
 	jmp fmultt  ; $BA2B
 
-	; FAC += .A * ARG
-	jmp mltply ; $BA59 [-mapping-]
+	; [removed]
+   brk
+   brk
+   brk
 
 	; ARG = mem(.Y:.A) (5 bytes)
 	jmp conupk ; $BA8C [-mapping-]

@@ -13,6 +13,7 @@
 
 .import mouse_init
 .import ps2_init
+.import entropy_init
 .import clklo
 
 .segment "MACHINE"
@@ -26,6 +27,7 @@
 ioinit:
 	jsr vera_wait_ready
 	jsr ps2_init    ;inhibit ps/2 communcation
+	jsr entropy_init
 	jsr clklo       ;release the clock line
 	; fallthrough
 

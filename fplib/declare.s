@@ -1,3 +1,7 @@
+;----------------------------------------------------------------------
+; Floating Point Library for 6502: Variables
+;----------------------------------------------------------------------
+
 addprc	=1
 fbuffr	=$100    ; buffer for "fout".
                  ; on page 1 so that string is not copied
@@ -21,7 +25,7 @@ resho	.res 1           ;$26 result of multiplier and divider
 resmoh	.res 1           ;$27
 resmo	.res 1           ;$28
 reslo	.res 1           ;$29
-	.res 1           ;$2A fifth byte for res
+resov	.res 1           ;$2A fifth byte for res
 
 fdecpt	.res 2           ;$47 pointer into power of tens of "fout"
 
@@ -43,6 +47,7 @@ faclo	.res 1           ;$65 least sig byte of mantissa
 facsgn	.res 1           ;$66 sign of fac (0 or -1) when unpacked
 
 degree	.res 1           ;$67 a count used by polynomials
+sgnflg =degree
 
 ; --- the floating argument (unpacked) ---:
 argexp	.res 1           ;$69
@@ -52,6 +57,7 @@ argmo	.res 1           ;$6C
 arglo	.res 1           ;$6D
 argsgn	.res 1           ;$6E
 arisgn	.res 1           ;$6F a sign reflecting the result
+reshop =arisgn
 facov	.res 1           ;$70 overflow byte of the fac
 
 polypt	.res 2           ;$71 pointer into polynomial coefficients.
@@ -62,5 +68,6 @@ fbufpt	=polypt          ;$71 pointer into fbuffr used by fout
 integr	.res 1           ;$07 a one-byte integer from "qint"
 tansgn	.res 1           ;$12 used in determining sign of tangent
 oldov	.res 1           ;$56 the old overflow
+fachop =oldov
 bits	.res 1           ;$68 something for "shiftr" to use
 rndx	.res 5           ;$8B

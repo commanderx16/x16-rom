@@ -61,7 +61,7 @@ primm                        = $ff7d
 ;
 ; X16 additions
 ;
-;monitor                      = $ff44
+macptr                       = $ff44
 enter_basic                  = $ff47
 ;                            = $ff15
 mouse_config                 = $ff68
@@ -127,3 +127,5 @@ console_set_paging_message   = $fed5
 kbdbuf_put                   = $fed2
 
 entropy_get                  = $fecf
+
+;monitor                      = $fecc

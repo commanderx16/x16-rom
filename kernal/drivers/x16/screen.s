@@ -562,12 +562,14 @@ cpypet2:
 	jmp copyv
 
 inicpy:
+	phx
 	ldx #<tilbas
 	stx VERA_ADDR_L
 	ldx #>tilbas
 	stx VERA_ADDR_M
 	ldx #$10 | (tilbas >> 16)
 	stx VERA_ADDR_H
+	plx
 	stz data
 	stz tmp2
 	rts

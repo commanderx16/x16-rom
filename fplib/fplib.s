@@ -1,3 +1,7 @@
+;----------------------------------------------------------------------
+; Floating Point Library for 6502
+;----------------------------------------------------------------------
+
 .feature labels_without_colons, pc_assignment
 
 .include "declare.s"
@@ -16,3 +20,6 @@
 .include "code24.s"
 .include "code25.s"
 .include "trig.s"
+.include "fadd.s"
+.include "fmult.s"
+.include "fsqr.s"

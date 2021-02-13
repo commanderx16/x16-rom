@@ -25,7 +25,7 @@
 .export scatn; [channel]
 .export clklo; [machine init]
 
-sdata	=$ffff ; XXX fill for X16
+sdata	=HACK  ; XXX fill for X16 - now points to #$80, so serial doesn't hang
 d1crb	=$ffff ; XXX fill for X16
 d1icr	=$ffff ; XXX fill for X16
 timrb	=$19            ;6526 crb enable one-shot tb
@@ -39,6 +39,8 @@ bsour1	.res 1           ;$A4 temp used by serial routine
 count	.res 1           ;$A5 temp used by serial routine
 
 	.segment "SERIAL"
+
+HACK	.byte $80
 
 ;command serial bus device to talk
 ;

@@ -1,5 +1,21 @@
 .segment "CHARSET"
 
+; Both the Upper/Graphics and the Upper/Lower character match the
+; C64 charsets, except for these changes:
+;
+; The screen codes
+;   $65 (C= + G)
+;   $67 (C= + M)
+; are 1-pixel vertial lines on the left/right on the PET.
+; Unicode defines these codepoints as
+;   U+258F  LEFT ONE EIGHTH BLOCK
+;   U+2595  RIGHT ONE EIGHTH BLOCK
+; On the C64, the lines became doubled and therefore identical to
+;   $74 (C= + H), U+258E  LEFT ONE QUARTER BLOCK
+;   $6A (C= + N), U+1FB87  RIGHT ONE QUARTER BLOCK
+; These character sets match the PET one in this regard, replacing
+; the duplicates with the missing 1/8th blocks.
+
 ;
 ; Upper/Graphics
 ;
@@ -913,14 +929,15 @@
 .byte %00000000
 .byte %11111111
 
-.byte %11000000
-.byte %11000000
-.byte %11000000
-.byte %11000000
-.byte %11000000
-.byte %11000000
-.byte %11000000
-.byte %11000000
+; Screen code $65
+.byte %10000000
+.byte %10000000
+.byte %10000000
+.byte %10000000
+.byte %10000000
+.byte %10000000
+.byte %10000000
+.byte %10000000
 
 .byte %11001100
 .byte %11001100
@@ -931,14 +948,15 @@
 .byte %00110011
 .byte %00110011
 
-.byte %00000011
-.byte %00000011
-.byte %00000011
-.byte %00000011
-.byte %00000011
-.byte %00000011
-.byte %00000011
-.byte %00000011
+; Screen code $67
+.byte %00000001
+.byte %00000001
+.byte %00000001
+.byte %00000001
+.byte %00000001
+.byte %00000001
+.byte %00000001
+.byte %00000001
 
 .byte %00000000
 .byte %00000000
@@ -2069,14 +2087,15 @@
 .byte %00000000
 .byte %11111111
 
-.byte %11000000
-.byte %11000000
-.byte %11000000
-.byte %11000000
-.byte %11000000
-.byte %11000000
-.byte %11000000
-.byte %11000000
+; Screen code $65
+.byte %10000000
+.byte %10000000
+.byte %10000000
+.byte %10000000
+.byte %10000000
+.byte %10000000
+.byte %10000000
+.byte %10000000
 
 .byte %11001100
 .byte %11001100
@@ -2087,14 +2106,15 @@
 .byte %00110011
 .byte %00110011
 
-.byte %00000011
-.byte %00000011
-.byte %00000011
-.byte %00000011
-.byte %00000011
-.byte %00000011
-.byte %00000011
-.byte %00000011
+; Screen code $67
+.byte %00000001
+.byte %00000001
+.byte %00000001
+.byte %00000001
+.byte %00000001
+.byte %00000001
+.byte %00000001
+.byte %00000001
 
 .byte %00000000
 .byte %00000000

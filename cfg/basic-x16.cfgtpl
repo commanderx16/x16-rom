@@ -1,9 +1,9 @@
 MEMORY {
 	#include "x16.cfginc"
 
-	BASIC:     start = $C000, size = $3900, fill=yes, fillval=$AA;
-	KSUP_CODE: start = $F900, size = $0300, fill=yes, fillval=$AA;
-	FPJMP:     start = $FC00, size = $02C0, fill=yes, fillval=$AA;
+	BASIC:     start = $C000, size = $3B00, fill=yes, fillval=$AA;
+	KSUP_CODE: start = $FB00, size = $0300, fill=yes, fillval=$AA;
+	FPJMP:     start = $FE00, size = $00C0, fill=yes, fillval=$AA;
 	KSUP_VEC:  start = $FEC0, size = $0140, fill=yes, fillval=$AA;
 }
 
