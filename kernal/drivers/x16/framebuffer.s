@@ -176,7 +176,12 @@ FB_get_pixel:
 FB_set_pixels:
 	PushB r0H
 	PushB r1H
+	jsr set_pixels_FG
+	PopB r1H
+	PopB r0H
+	rts
 
+set_pixels_FG:
 	lda r1H
 	beq @a
 
@@ -193,8 +198,6 @@ FB_set_pixels:
 	iny
 	dex
 	bne :-
-	PopB r1H
-	PopB r0H
 	rts
 
 ;---------------------------------------------------------------
