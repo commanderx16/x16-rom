@@ -275,7 +275,11 @@ read_dir_entry:
 :	jmp @read_dir_entry_end
 
 @found:
-	; Skip hidden entries unless option 'A' ("ALL") is given
+; in partition mode, don't evaluate "attributes" (it's the part type!)
+	bit part_index
+	bmi @show3
+
+; Skip hidden entries unless option 'A' ("ALL") is given
 	lda fat32_dirent + dirent::attributes
 	and #2
 	beq @show1
@@ -301,8 +305,6 @@ read_dir_entry:
 	jsr has_filter
 	beq @read_entry
 @show3:
-
-
 
 	ldy #0
 	lda #1
