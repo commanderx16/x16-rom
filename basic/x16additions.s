@@ -101,24 +101,11 @@ bind:	jsr chrget ; get char
 ; from zero page to page $01 when using .X as an index
 	ldx #0
 	phy	   ; save low byte
-	tay
+	tay	   ; save high byte to check for 0 later
 	cmp #0
-	beq @LOWBYTE
-@HIGHLOOP:
-	asl	   ; high bit to carry
-	pha	   ; save .A for next iteration
-	lda #'1'
-	bcs :+
-	dec
-:	sta a:lofbuf,X
-	pla	   ; restore .A
-	inx
-	cpx #8
-	bcc @HIGHLOOP
-@LOWBYTE:
+	bne @LOOP
 	pla
-@LOWLOOP:
-	asl	   ; high bit to carry
+@LOOP:	asl	   ; high bit to carry
 	pha	   ; save .A for next iteration
 	lda #'1'
 	bcs :+
@@ -129,10 +116,14 @@ bind:	jsr chrget ; get char
 	cpy #0
 	bne :+
 	cpx #8
-	bne @LOWLOOP
+	bne @LOOP
 	bra @DONE
+:	cpx #8
+	bcc @LOOP
+	bne :+
+	pla
 :	cpx #16
-	bne @LOWLOOP
+	bne @LOOP
 @DONE:	stz a:lofbuf,X ; zero terminate string
 	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
