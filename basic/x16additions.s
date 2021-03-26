@@ -414,7 +414,7 @@ reset:
 	jmp $0100
 
 reset_copy:
-	stz d1prb
+	stz rom_bank
 	jmp ($fffc)
 
 cls:
