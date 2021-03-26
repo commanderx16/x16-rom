@@ -92,25 +92,48 @@ coltab	;this is an unavoidable duplicate from KERNAL
 
 ; convert byte to binary in zero terminated string and
 ; return it to BASIC
-bind	jsr chrget ; get char
+bind:	jsr chrget ; get char
 	jsr chkopn ; check opening paren
-	jsr getbyt ; byte to convert
+	jsr frmadr ; get 16 bit word in Y/A
 ; lofbuf starts at address $00FF and continues into
 ; page 1 ($0100).
 ; Forcing address size to 16bit allows us to cross
 ; from zero page to page $01 when using .X as an index
-	txa
-	ldx #7
-@loop:	lsr        ; low bit to carry
-	tay	   ; save .A for next iteration
+	ldx #0
+	phy	   ; save low byte
+	tay
+	cmp #0
+	beq @LOWBYTE
+@HIGHLOOP:
+	asl	   ; high bit to carry
+	pha	   ; save .A for next iteration
 	lda #'1'
 	bcs :+
 	dec
-:	sta a:lofbuf,x
-	tya	   ; restore .A
-	dex
-	bpl @loop
-	stz lofbuf+8 ; zero terminate string
+:	sta a:lofbuf,X
+	pla	   ; restore .A
+	inx
+	cpx #8
+	bcc @HIGHLOOP
+@LOWBYTE:
+	pla
+@LOWLOOP:
+	asl	   ; high bit to carry
+	pha	   ; save .A for next iteration
+	lda #'1'
+	bcs :+
+	dec
+:	sta a:lofbuf,X
+	pla	   ; restore .A
+	inx
+	cpy #0
+	bne :+
+	cpx #8
+	bne @LOWLOOP
+	bra @DONE
+:	cpx #16
+	bne @LOWLOOP
+@DONE:	stz a:lofbuf,X ; zero terminate string
 	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
@@ -120,14 +143,28 @@ bind	jsr chrget ; get char
 
 ; convert byte to hex in zero terminated string and
 ; return it to BASIC
-hexd	jsr chrget ; get char
+hexd:	jsr chrget ; get char
 	jsr chkopn ; check opening paren
-	jsr getbyt ; byte to convert
-	txa
+	jsr frmadr ; get 16 bit word in Y/A
+	ldx #0	   ; use .X for indexing
+	phy	   ; Save low byte
+	cmp #0	   ; If high-byte is 0, we only convert low byte
+	beq @LOWBYTE
 	jsr byte_to_hex_ascii
-	sta lofbuf+0
-	sty lofbuf+1
-	stz lofbuf+2
+	sta a:lofbuf,X
+	tya
+	inx
+	sta a:lofbuf,X
+	inx
+@LOWBYTE:
+	pla	   ; restore low byte
+	jsr byte_to_hex_ascii
+	sta a:lofbuf,X
+	tya
+	inx
+	sta a:lofbuf,X
+	inx
+	stz a:lofbuf,X
 	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
@@ -136,12 +173,13 @@ hexd	jsr chrget ; get char
 	jmp strlit  ; allocate and return string value
 
 ; convert byte into hex ASCII in A/Y
-; copied from monitor.s, modified to use .X instead of stack
+; copied from monitor.s
 byte_to_hex_ascii:
+	pha
         and     #$0F
         jsr     @LBCC8
         tay
-        txa
+        pla
         lsr
         lsr
         lsr
