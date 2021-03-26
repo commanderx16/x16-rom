@@ -97,10 +97,8 @@ bind	jsr chrget ; get char
 	jsr getbyt ; byte to convert
 ; lofbuf starts at address $00FF and continues into
 ; page 1 ($0100).
-; zero page,X wraps around (no page crossing).
-; For this reason the returned string starts at
-; lofbuf+1 = $0100 so .X can be used as index
-; without trying to cross page
+; Forcing address size to 16bit allows us to cross
+; from zero page to page $01 when using .X as an index
 	txa
 	ldx #7
 @loop:	lsr        ; low bit to carry
@@ -108,16 +106,16 @@ bind	jsr chrget ; get char
 	lda #'1'
 	bcs :+
 	dec
-:	sta lofbuf+1,x
+:	sta a:lofbuf,x
 	tya	   ; restore .A
 	dex
 	bpl @loop
-	stz lofbuf+9 ; zero terminate string
+	stz lofbuf+8 ; zero terminate string
 	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
-        lda #<(lofbuf+1)
-	ldy #>(lofbuf+1)
+        lda #<(lofbuf)
+	ldy #>(lofbuf)
 	jmp strlit  ; allocate and return string value
 
 ; convert byte to hex in zero terminated string and
