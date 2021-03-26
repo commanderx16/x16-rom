@@ -90,6 +90,98 @@ coltab	;this is an unavoidable duplicate from KERNAL
 	.byt $90,$05,$1c,$9f,$9c,$1e,$1f,$9e
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
+; convert byte to binary in zero terminated string and
+; return it to BASIC
+bind:	jsr chrget ; get char
+	jsr chkopn ; check opening paren
+	jsr frmadr ; get 16 bit word in Y/A
+; lofbuf starts at address $00FF and continues into
+; page 1 ($0100).
+; Forcing address size to 16bit allows us to cross
+; from zero page to page $01 when using .X as an index
+	ldx #0
+	phy	   ; save low byte
+	tay	   ; save high byte to check for 0 later
+	cmp #0
+	bne @LOOP
+	pla
+@LOOP:	asl	   ; high bit to carry
+	pha	   ; save .A for next iteration
+	lda #'1'
+	bcs :+
+	dec
+:	sta a:lofbuf,X
+	pla	   ; restore .A
+	inx
+	cpy #0
+	bne :+
+	cpx #8
+	bne @LOOP
+	bra @DONE
+:	cpx #8
+	bcc @LOOP
+	bne :+
+	pla
+:	cpx #16
+	bne @LOOP
+@DONE:	stz a:lofbuf,X ; zero terminate string
+	jsr chkcls ; end of conversion, check closing paren
+	pla        ; remove return address from stack
+	pla
+        lda #<(lofbuf)
+	ldy #>(lofbuf)
+	jmp strlit  ; allocate and return string value
+
+; convert byte to hex in zero terminated string and
+; return it to BASIC
+hexd:	jsr chrget ; get char
+	jsr chkopn ; check opening paren
+	jsr frmadr ; get 16 bit word in Y/A
+	ldx #0	   ; use .X for indexing
+	phy	   ; Save low byte
+	cmp #0	   ; If high-byte is 0, we only convert low byte
+	beq @LOWBYTE
+	jsr byte_to_hex_ascii
+	sta a:lofbuf,X
+	tya
+	inx
+	sta a:lofbuf,X
+	inx
+@LOWBYTE:
+	pla	   ; restore low byte
+	jsr byte_to_hex_ascii
+	sta a:lofbuf,X
+	tya
+	inx
+	sta a:lofbuf,X
+	inx
+	stz a:lofbuf,X
+	jsr chkcls ; end of conversion, check closing paren
+	pla        ; remove return address from stack
+	pla
+        lda #<lofbuf
+	ldy #>lofbuf
+	jmp strlit  ; allocate and return string value
+
+; convert byte into hex ASCII in A/Y
+; copied from monitor.s
+byte_to_hex_ascii:
+	pha
+        and     #$0F
+        jsr     @LBCC8
+        tay
+        pla
+        lsr
+        lsr
+        lsr
+        lsr
+@LBCC8: clc
+        adc     #$F6
+        bcc     @LBCCF
+        adc     #$06
+@LBCCF: adc     #$3A
+        rts
+
 ;***************
 vpeek	jsr chrget
 	jsr chkopn ; open paren
@@ -340,10 +432,10 @@ joy:
 	tay
 	jmp sngflt
 
-reset:	
+reset:
 	ldx #5
-:	lda reset_copy,x 
-	sta $0100,x 
+:	lda reset_copy,x
+	sta $0100,x
 	dex
 	bpl :-
 	jmp $0100
