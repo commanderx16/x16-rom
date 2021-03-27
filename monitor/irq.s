@@ -40,13 +40,13 @@ LB6D9:  sei
 .segment "monitor_ram_code"
 
 irq_handler:
-	lda d1prb
+	lda rom_bank
 	pha
 	lda #BANK_MONITOR
-	sta d1prb ; ROM bank
+	sta rom_bank
 	jsr irqhandler2
 	pla
-	sta d1prb
+	sta rom_bank
 	rts
 
 .segment "monitor_b"

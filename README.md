@@ -112,7 +112,7 @@ ROM Map
 |2   |CBDOS  |The computer-based CBM-DOS for FAT32 SD cards          |
 |3   |GEOS   |GEOS KERNAL                                            |
 |4   |BASIC  |BASIC interpreter                                      |
-|5-7 |–      |*[Currently unused]*                                   |
+|5-31|–      |*[Currently unused]*                                   |
 
 
 RAM Map

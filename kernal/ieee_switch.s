@@ -113,6 +113,7 @@ unlsn:
 
 listn:
 	pha
+	phx
 	jsr jsrfar
 	.word $c000 + 3 * 6
 	.byte BANK_CBDOS
@@ -121,17 +122,20 @@ listn:
 	lda cbdos_flags
 	ora #$80
 	sta cbdos_flags
+	plx
 	pla
 	rts
 
 @1:	lda cbdos_flags
 	and #$ff-$80
 	sta cbdos_flags
+	plx
 	pla
 	jmp serial_listn
 
 talk:
 	pha
+	phx
 	jsr jsrfar
 	.word $c000 + 3 * 7
 	.byte BANK_CBDOS
@@ -140,12 +144,14 @@ talk:
 	lda cbdos_flags
 	ora #$40
 	sta cbdos_flags
+	plx
 	pla
 	rts
 
 @1:	lda cbdos_flags
 	and #$ff-$40
 	sta cbdos_flags
+	plx
 	pla
 	jmp serial_talk
 

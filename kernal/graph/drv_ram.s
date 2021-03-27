@@ -109,7 +109,7 @@ FB_set_ptr:
 	lsr
 	lsr
 	inc       ; start at bank 1
-	sta d1pra ; RAM bank
+	sta ram_bank
 
 	; add X
 	AddW r0, ptr_bg
@@ -134,7 +134,7 @@ inc_bgpage:
 	beq @1
 	pla
 	rts
-@1:	inc d1pra ; RAM bank
+@1:	inc ram_bank
 	lda #$a0
 	sta ptr_bg+1
 	pla

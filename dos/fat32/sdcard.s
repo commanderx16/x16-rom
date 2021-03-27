@@ -25,8 +25,10 @@ sector_lba:
 
 timeout_cnt:       .byte 0
 
-FAST_READ=1
-FAST_WRITE=1
+; XXX disabled for now; on real hardware, this returns
+; XXX all 0xFE bytes with all tested SD cards
+;FAST_READ=1
+;FAST_WRITE=1
 
 	.code
 

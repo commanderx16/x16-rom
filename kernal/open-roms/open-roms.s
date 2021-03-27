@@ -430,7 +430,7 @@ memuss:	.res 2           ;$C3
 lat:	.res 10          ;
 fat:	.res 10          ;
 sat:	.res 10          ;
-;.assert * = status, error, "status must be at specific address"
+.assert * = status, error, "status must be at specific address"
 status:
 	.res 1           ;$90
 verck:	.res 1           ;$93

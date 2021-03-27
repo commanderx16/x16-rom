@@ -22,9 +22,8 @@ symbol:
 
 ; BASIC's entry into jsrfar
 .setcpu "65c02"
-via1	=$9f60                  ;VIA 6522 #1
-d1prb	=via1+0
-d1pra	=via1+1
+ram_bank = 0
+rom_bank = 1
 .export mjsrfar
 mjsrfar:
 .include "jsrfar.inc"
