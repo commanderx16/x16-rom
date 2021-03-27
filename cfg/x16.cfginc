@@ -21,7 +21,6 @@ ZPBASIC:  start = $00D4, size = $002B; # BASIC (last byte used: $FE)
 
 /* $0200-$02FF: always-available variables and RAM code */
 KVAR:     start = $0200, size = $00BB; # KERNAL
-KEYEVT:   start = $02BB, size = $0002; # KERNAL KEY EVENT HANDLER JUMP VECTOR
 /*        start = $02BB, size = $0009; # reserved for KERNAL growth */
 KERNRAM:  start = $02C4, size = $0020; # KERNAL RAM code
 GDRVVEC:  start = $02E4, size = $001C; # framebuffer driver vectors
