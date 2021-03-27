@@ -16,8 +16,6 @@ SEGMENTS {
 	VARFONTS:   load = KVAR,     type = bss;
 	KVAR2:      load = KVAR2,    type = bss;
 
-	KEYEVT:		load = KEYEVT,	 type = bss;
-
 	GDRVVEC:    load = GDRVVEC,  type = bss;
 	KVECTORS:   load = KVECTORS, type = bss;
 	KVARSB0:    load = KVARSB0,  type = bss, define=yes;
