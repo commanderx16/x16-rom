@@ -16,7 +16,7 @@
 
 .import kbdbuf_put
 .import shflag
-.import keyevtvector
+.import keyhdl
 
 .export kbd_config, kbd_scan, receive_scancode_resume
 
@@ -245,8 +245,7 @@ rcvsc5:	pha
 	sta prefix
 	sta brkflg
 	pla ; lower byte into A
-
-	jmp (keyevtvector)	;Jump to key event handler
+	jmp (keyhdl)	;Jump to key event handler
 receive_scancode_resume:
 	rts
 

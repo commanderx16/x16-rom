@@ -37,7 +37,7 @@ kvswitch_tmp2
 
 	.segment "KVECTORS";rem kernal/os indirects(20)
 
-.export cinv, cbinv, nminv, iopen, iclose, ichkin, ickout, iclrch, ibasin, ibsout, istop, igetin, iclall, usrcmd, iload, isave; [vectors]
+.export cinv, cbinv, nminv, iopen, iclose, ichkin, ickout, iclrch, ibasin, ibsout, istop, igetin, iclall, keyhdl, iload, isave; [vectors]
 
 cinv	.res 2           ;irq ram vector
 cbinv	.res 2           ;brk instr ram vector
@@ -52,6 +52,6 @@ ibsout	.res 2
 istop	.res 2
 igetin	.res 2
 iclall	.res 2
-usrcmd	.res 2
+keyhdl	.res 2
 iload	.res 2
 isave	.res 2           ;savesp
