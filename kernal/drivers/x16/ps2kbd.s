@@ -16,8 +16,9 @@
 
 .import kbdbuf_put
 .import shflag
+.import keyevtvector
 
-.export kbd_config, kbd_scan
+.export kbd_config, kbd_scan, receive_scancode_resume
 
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
@@ -244,6 +245,9 @@ rcvsc5:	pha
 	sta prefix
 	sta brkflg
 	pla ; lower byte into A
+
+	jmp (keyevtvector)	;Jump to key event handler
+receive_scancode_resume:
 	rts
 
 ;****************************************

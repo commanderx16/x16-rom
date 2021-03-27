@@ -8,15 +8,19 @@
 
 .include "io.inc"
 
-.import nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv
+.import nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv, receive_scancode_resume
 .importzp tmp2
-.export iobase, membot, memtop, restor, vector
+.export iobase, membot, memtop, restor, vector, keyevtvector
 
 .segment "KVAR"
 
 memstr	.res 2           ; start of memory
 memsiz	.res 2           ; top of memory
 rambks	.res 1           ; X16: number of ram banks (0 means 256)
+
+.segment "KEYEVT"
+
+keyevtvector .res 2
 
 .segment "MEMORY"
 
@@ -38,6 +42,12 @@ movos2	sta (tmp2),y    ;put in user
 	sta cinv,y      ;put in storage
 	dey
 	bpl movos1
+
+	lda #<receive_scancode_resume
+	sta keyevtvector
+	lda #>receive_scancode_resume
+	sta keyevtvector+1
+
 	rts
 ;
 vectss	.word key,timb,nnmi
