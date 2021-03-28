@@ -8,7 +8,7 @@
 
 .include "io.inc"
 
-.import nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv, receive_scancode_resume, keyhdl
+.import nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv, receive_scancode_resume
 .importzp tmp2
 .export iobase, membot, memtop, restor, vector
 
@@ -38,19 +38,14 @@ movos2	sta (tmp2),y    ;put in user
 	sta cinv,y      ;put in storage
 	dey
 	bpl movos1
-
-	lda #<receive_scancode_resume
-	sta keyhdl
-	lda #>receive_scancode_resume
-	sta keyhdl+1
-
 	rts
 ;
 vectss	.word key,timb,nnmi
 	.word nopen,nclose,nchkin
 	.word nckout,nclrch,nbasin
 	.word nbsout,nstop,ngetin
-	.word nclall,timb ;goto break on a usrcmd jmp
+	.word nclall
+	.word receive_scancode_resume
 	.word nload,nsave
 vectse
 
