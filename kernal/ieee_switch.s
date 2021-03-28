@@ -163,7 +163,6 @@ macptr:
 :	jsr jsrfar
 	.word $c000 + 3 * 17
 	.byte BANK_CBDOS
-	clc
 	rts
 
 
