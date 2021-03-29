@@ -28,6 +28,7 @@ SDA = (1 << 1)
 ;---------------------------------------------------------------
 i2c_read_byte:
 	jsr validate
+
 	php
 	sei
 	phx
@@ -40,6 +41,7 @@ i2c_read_byte:
 	asl
 	pha                ; device * 2
 	jsr i2c_write
+	beq @error
 	plx                ; device * 2
 	pla                ; offset
 	phx                ; device * 2
@@ -59,6 +61,17 @@ i2c_read_byte:
 	plx
 	plp
 	ora #0             ; set flags
+	clc
+	rts
+
+@error:
+	pla                ; device * 2
+	pla                ; offset
+	ply
+	plx
+	plp
+	lda #$ee
+	sec
 	rts
 
 ;---------------------------------------------------------------
@@ -75,6 +88,7 @@ i2c_read_byte:
 ;---------------------------------------------------------------
 i2c_write_byte:
 	jsr validate
+
 	php
 	sei
 	phx
@@ -87,6 +101,7 @@ i2c_write_byte:
 	pla                ; device
 	asl
 	jsr i2c_write
+	beq @error
 	pla                ; offset
 	jsr i2c_write
 	pla                ; value
@@ -97,6 +112,15 @@ i2c_write_byte:
 	plx
 	plp
 	rts
+
+@error:
+	pla                ; offset
+	pla                ; value
+	ply
+	plx
+	plp
+	rts
+
 
 ;
 validate:
