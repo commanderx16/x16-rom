@@ -158,12 +158,12 @@ basin	jmp (ibasin)    ;input from channel
 bsout	jmp (ibsout)    ;output to channel
 	jmp loadsp      ;load from file
 	jmp savesp      ;save to file
-	jmp clock_set_timer ;set internal clock (SETTIM)
-	jmp clock_get_timer ;read internal clock (RDTIM)
+	jmp clock_set_timer ;set timer (SETTIM)
+	jmp clock_get_timer ;read timer (RDTIM)
 stop	jmp (istop)     ;scan stop key
 getin	jmp (igetin)    ;get char from q
 clall	jmp (iclall)    ;close all files
-	jmp clock_update ;increment clock (UDTIM)
+	jmp clock_update ;increment timer (UDTIM)
 jscrog	jmp scrorg      ;screen org
 jplot	jmp plot        ;read/set x,y coord
 jiobas	jmp iobase      ;return i/o base
