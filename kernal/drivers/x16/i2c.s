@@ -22,18 +22,10 @@
 ; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-.export _i2cStart
-.export _i2cStop
-.export _i2cAck
-.export _i2cNack
-.export _i2cWrite
-.export _i2cRead
-
 .include "io.inc"
 
 gpio = d2prb
 ddr  = d2ddrb
-
 SCL = (1 << 0)
 SDA = (1 << 1)
 
@@ -59,24 +51,24 @@ i2c_read_byte:
 
 	phy                ; offset
 	phx                ; device
-	jsr _i2cStart
+	jsr i2c_start
 	pla                ; device
 	asl
 	pha                ; device * 2
-	jsr _i2cWrite
+	jsr i2c_write
 	plx                ; device * 2
 	pla                ; offset
 	phx                ; device * 2
-	jsr _i2cWrite
-	jsr _i2cStop
-	jsr _i2cStart
+	jsr i2c_write
+	jsr i2c_stop
+	jsr i2c_start
 	pla                ; device * 2
 	inc
-	jsr _i2cWrite
-	jsr _i2cRead
+	jsr i2c_write
+	jsr i2c_read
 	pha
-	jsr _i2cNack
-	jsr _i2cStop
+	jsr i2c_nack
+	jsr i2c_stop
 	pla
 
 	ply
@@ -102,21 +94,23 @@ i2c_write_byte:
 	pha                ; value
 	phy                ; offset
 	phx                ; device
-	jsr _i2cStart
+	jsr i2c_start
 	pla                ; device
 	asl
-	jsr _i2cWrite
+	jsr i2c_write
 	pla                ; offset
-	jsr _i2cWrite
+	jsr i2c_write
 	pla                ; value
-	jsr _i2cWrite
-	jsr _i2cStop
+	jsr i2c_write
+	jsr i2c_stop
 
 	ply
 	plx
 	rts
 
-_i2cWrite:
+;---------------------------------------------------------------
+
+i2c_write:
 	ldx #0
 	stx gpio
 	ldx #9
@@ -142,7 +136,7 @@ _i2cWrite:
 @end:	rts
 
 
-_i2cRead:
+i2c_read:
 	lda #0
 	sta gpio
 	pha
@@ -160,6 +154,7 @@ _i2cRead:
 	pla
 	rts
 
+;---------------------------------------------------------------
 
 send_bit:
 	cmp #1                  ; bit in accu
@@ -169,7 +164,7 @@ send_bit:
 	jmp @clock_out
 @set_sda:
 	jsr sda_high
-	jmp	@clock_out
+	jmp @clock_out
 @clock_out:
 	jsr scl_high
 	jsr scl_low
@@ -191,34 +186,38 @@ rec_bit:
 	jsr sda_low
 	rts
 
+;---------------------------------------------------------------
 
-_i2cStart:
+i2c_start:
 	jsr sda_low
 	jsr scl_low
 	rts
 
 
-_i2cStop:
+i2c_stop:
 	jsr scl_high
 	jsr sda_high
 	rts
 
+;---------------------------------------------------------------
 
-_i2cAck:
+.if 0 ; unused - necessary for reading multiple bytes
+i2c_ack:
 	pha
 	lda #0
 	jsr send_bit
 	pla
 	rts
+.endif
 
-
-_i2cNack:
+i2c_nack:
 	pha
 	lda #1
 	jsr send_bit
 	pla
 	rts
 
+;---------------------------------------------------------------
 
 sda_low:
 	pha
@@ -227,7 +226,6 @@ sda_low:
 	sta ddr
 	pla
 	rts
-
 
 sda_high:
 	pha
@@ -238,7 +236,6 @@ sda_high:
 	pla
 	rts
 
-
 scl_low:
 	pha
 	lda ddr
@@ -246,7 +243,6 @@ scl_low:
 	sta ddr
 	pla
 	rts
-
 
 scl_high:
 	pha

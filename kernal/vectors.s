@@ -14,6 +14,7 @@
 .import mouse_config; [mouse]
 .import joystick_scan, joystick_get; [joystick]
 .import clock_update, clock_get_timer, clock_set_timer, clock_get_date_time, clock_set_date_time; [time]
+.import i2c_read_byte, i2c_write_byte
 
 .import GRAPH_init, GRAPH_clear, GRAPH_set_window, GRAPH_set_colors, GRAPH_draw_line, GRAPH_draw_rect, GRAPH_move_rect, GRAPH_draw_oval, GRAPH_draw_image, GRAPH_set_font, GRAPH_get_char_size, GRAPH_put_char
 
@@ -32,13 +33,13 @@
 ; !!! DO NOT RELY ON THEIR ADDRESSES JUST YET !!!
 ;
 
-	.byte 0,0,0            ; $FEC0
-	.byte 0,0,0            ; $FEC3
-	.byte 0,0,0            ; $FEC6
-	.byte 0,0,0            ; $FEC9
-	jmp monitor            ; $FECC
-	jmp entropy_get        ; $FECF
-	jmp kbdbuf_put         ; $FED2
+	.byte 0,0,0                    ; $FEC0
+	.byte 0,0,0                    ; $FEC3
+	jmp i2c_read_byte              ; $FEC6
+	jmp i2c_write_byte             ; $FEC9
+	jmp monitor                    ; $FECC
+	jmp entropy_get                ; $FECF
+	jmp kbdbuf_put                 ; $FED2
 
 	jmp console_set_paging_message ; $FED5
 	jmp console_put_image          ; $FED8

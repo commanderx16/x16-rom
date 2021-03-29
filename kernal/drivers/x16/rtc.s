@@ -3,13 +3,12 @@
 ;----------------------------------------------------------------------
 ; (C)2021 Michael Steil, License: 2-clause BSD
 
-.include "io.inc"
 .include "regs.inc"
 
 .import i2c_read_byte, i2c_write_byte
 .export rtc_get_date_time, rtc_set_date_time
 
-.segment "CLOCK"
+.segment "RTC"
 
 rtc_address = $6f
 
@@ -102,28 +101,23 @@ rtc_set_date_time:
 	lda r0L
 	sec
 	sbc #100
-	jsr bin_to_bcd
-	jsr i2c_write_byte ; 6: year
+	jsr i2c_write_byte_as_bcd ; 6: year
 
 	dey
 	lda r0H
-	jsr bin_to_bcd
-	jsr i2c_write_byte ; 5: month
+	jsr i2c_write_byte_as_bcd ; 5: month
 
 	dey
 	lda r1L
-	jsr bin_to_bcd
-	jsr i2c_write_byte ; 4: day
+	jsr i2c_write_byte_as_bcd ; 4: day
 
 	ldy #2
 	lda r1H
-	jsr bin_to_bcd
-	jsr i2c_write_byte ; 2: hour
+	jsr i2c_write_byte_as_bcd ; 2: hour
 
 	dey
 	lda r2L
-	jsr bin_to_bcd
-	jsr i2c_write_byte ; 1: minutes
+	jsr i2c_write_byte_as_bcd ; 1: minutes
 
 	dey
 	lda r2H
@@ -131,6 +125,9 @@ rtc_set_date_time:
 	ora #$80           ; start the clock
 	jmp i2c_write_byte ; 0: seconds
 
+i2c_write_byte_as_bcd:
+	jsr bin_to_bcd
+	jmp i2c_write_byte
 
 bcd_to_bin:
 	phx
