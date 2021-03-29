@@ -7,6 +7,7 @@
 
 .import jsrfar
 .import clock_get_date_time
+.import smc_set_activity_led
 
 .import cbdos_secnd
 .import cbdos_tksa
@@ -225,11 +226,12 @@ led_update:
 	ora cbdos_flags
 	sta cbdos_flags
 	and #$08
-	sta $9fbf ; LED on/off for 8 frames each
-	rts
+@set_led:
+	beq :+
+	lda #$ff
+:	jmp smc_set_activity_led
 
 @no_error:
 	lda cbdos_flags
 	and #$10  ; active?
-	sta $9fbf ; then LED on
-	rts
+	bra @set_led
