@@ -150,7 +150,7 @@ bank            := ram_code_end + 16
 disable_f_keys  := ram_code_end + 17
 tmp1            := ram_code_end + 18
 tmp2            := ram_code_end + 19
-video_bank_flag := ram_code_end + 20
+video_bank_flag := ram_code_end + 20 ; $80: video, $40: I2C
 
 .segment "monitor"
 
@@ -259,15 +259,18 @@ dump_registers2:
         lda     irq_lo
         jsr     print_hex_byte2 ; IRQ lo
         jsr     print_space
-	lda     video_bank_flag
+	bit     video_bank_flag
 	bpl     :+
         lda     #'V'
-        jsr     bsout
+@1:     jsr     bsout
         lda     bank
         jsr     byte_to_hex_ascii
         tya
         jsr     bsout
         bne     LABEB
+:	bvc	:+
+        lda     #'I'
+        bne     @1
 :
         lda     bank
         jsr     print_hex_byte2 ; bank
@@ -864,8 +867,10 @@ LB244:  rts
 ; loads a byte at (zp1),y from RAM with the correct ROM config
 load_byte:
         sei
-	lda video_bank_flag
-	bne :+
+	bit video_bank_flag
+	bmi @video
+	bvs @i2c
+; RAM
 	stx tmp1
 	ldx bank
 	lda #zp1
@@ -875,7 +880,7 @@ load_byte:
 	ldx tmp1
 	rts
 ; video RAM
-:	tya
+@video:	tya
 	clc
 	adc zp1
 	sta VERA_ADDR_L
@@ -886,11 +891,22 @@ load_byte:
 	sta VERA_ADDR_H
 	lda VERA_DATA0
 	rts
+; I2C
+@i2c:	phx
+	phy
+	jsr get_i2c_addr
+	jsr i2c_read_byte ; $fec6
+	ply
+	plx
+	cli
+	rts
 
 ; stores a byte at (zp1),y in RAM with the correct ROM config
 store_byte:
 	bit video_bank_flag
-	bmi :+
+	bmi @video
+	bvs @i2c
+; RAM
         stx tmp1
 	ldx #zp1
 	stx stavec
@@ -901,7 +917,7 @@ store_byte:
         ldx tmp1
 	rts
 ; video RAM
-:	pha
+@video:	pha
 	tya
 	clc
 	adc zp1
@@ -913,6 +929,26 @@ store_byte:
 	sta VERA_ADDR_H
 	pla
 	sta VERA_DATA0
+	rts
+@i2c:	phx
+	phy
+	pha
+	jsr get_i2c_addr
+	pla
+	bcs :+
+	jsr i2c_write_byte ; $fec9
+:	ply
+	plx
+	rts
+
+get_i2c_addr:
+	tya
+	clc
+	adc zp1
+	tay
+	lda #0
+	adc zp1+1
+	tax
 	rts
 
 ; ----------------------------------------------------------------
@@ -932,7 +968,8 @@ cmd_o:
         beq     :-
         cmp     #'V'
         bne     not_video
-	dec     video_bank_flag
+        lda     #$80
+	sta     video_bank_flag
 video_loop:
         jsr     basin_cmp_cr
 	beq     default_video_bank
@@ -940,12 +977,19 @@ video_loop:
         beq     video_loop
         jsr     hex_digit_to_nybble
         bra		:+
-default_video_bank
+default_video_bank:
 	lda     #0
 :
 	jmp     store_bank
 
 not_video:
+	cmp     #'I'
+	bne     not_i2c
+	lda     #$40
+	sta     video_bank_flag
+	bra     default_video_bank
+
+not_i2c:
         jsr     get_hex_byte2
         bra :+
 LB33F  lda     #DEFAULT_BANK

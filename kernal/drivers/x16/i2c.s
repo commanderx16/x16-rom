@@ -27,6 +27,7 @@ SDA = (1 << 1)
 ;            y    offset (preserved)
 ;---------------------------------------------------------------
 i2c_read_byte:
+	jsr validate
 	php
 	sei
 	phx
@@ -73,6 +74,7 @@ i2c_read_byte:
 ;            y    offset (preserved)
 ;---------------------------------------------------------------
 i2c_write_byte:
+	jsr validate
 	php
 	sei
 	phx
@@ -95,6 +97,20 @@ i2c_write_byte:
 	plx
 	plp
 	rts
+
+;
+validate:
+	cpx #3
+	bcc @bad
+	cpx #120
+	bcs @bad
+	rts
+@bad:
+	pla
+	pla
+	lda #$ee
+	rts
+
 
 ;---------------------------------------------------------------
 ; Copyright (c) 2015, Dieter Hauer
