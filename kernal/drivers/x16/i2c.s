@@ -22,8 +22,6 @@
 ; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-.setcpu		"6502"
-
 .export _i2cStart
 .export _i2cStop
 .export _i2cAck
@@ -31,19 +29,20 @@
 .export _i2cWrite
 .export _i2cRead
 
-VIA1_BASE   = $8100
-PRA  = VIA1_BASE+1
-DDRA = VIA1_BASE+3
+.include "io.inc"
 
-SDA = (1 << 0)
-SCL = (1 << 1)
+gpio = d2prb
+ddr  = d2ddrb
 
-.segment "CODE"
+SCL = (1 << 0)
+SDA = (1 << 1)
+
+.segment "I2C"
 
 
 _i2cWrite:
 	ldx #0
-	stx PRA
+	stx gpio
 	ldx #9
 @loop:	dex
 	beq @ack
@@ -69,7 +68,7 @@ _i2cWrite:
 
 _i2cRead:
 	lda #0
-	sta PRA
+	sta gpio
 	pha
 	ldx #9
 @loop:	dex
@@ -105,7 +104,7 @@ send_bit:
 rec_bit:
 	jsr sda_high
 	jsr scl_high
-	lda PRA
+	lda gpio
 	and #SDA
 	bne @is_one
 	lda #0
@@ -147,9 +146,9 @@ _i2cNack:
 
 sda_low:
 	pha
-	lda DDRA
+	lda ddr
 	ora #SDA
-	sta DDRA
+	sta ddr
 	pla
 	rts
 
@@ -158,17 +157,17 @@ sda_high:
 	pha
 	lda #SDA
 	eor #$FF
-	and DDRA
-	sta DDRA
+	and ddr
+	sta ddr
 	pla
 	rts
 
 
 scl_low:
 	pha
-	lda DDRA
+	lda ddr
 	ora #SCL
-	sta DDRA
+	sta ddr
 	pla
 	rts
 
@@ -177,8 +176,8 @@ scl_high:
 	pha
 	lda #SCL
 	eor #$FF
-	and DDRA
-	sta DDRA
+	and ddr
+	sta ddr
 	pla
 	rts
 

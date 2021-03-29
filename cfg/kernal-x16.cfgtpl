@@ -27,6 +27,7 @@ SEGMENTS {
 	PS2KBD:   load = KERNAL,   type = ro;
 	PS2MOUSE: load = KERNAL,   type = ro;
 	JOYSTICK: load = KERNAL,   type = ro;
+	I2C:      load = KERNAL,   type = ro;
 	IEEESWTCH:load = KERNAL,   type = ro;
 	SERIAL:   load = KERNAL,   type = ro;
 	MEMORY:   load = KERNAL,   type = ro;

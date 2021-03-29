@@ -114,6 +114,8 @@ else ifeq ($(MACHINE),x16)
 		kernal/drivers/x16/framebuffer.s \
 		kernal/drivers/x16/sprites.s \
 		kernal/drivers/x16/entropy.s \
+		kernal/drivers/x16/i2c.s \
+		kernal/drivers/x16/uc.s \
 		kernal/drivers/generic/softclock_timer.s \
 		kernal/drivers/generic/softclock_time.s \
 		kernal/drivers/generic/softclock_date.s
