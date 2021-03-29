@@ -1,3 +1,139 @@
+;----------------------------------------------------------------------
+; I2C Driver
+;----------------------------------------------------------------------
+; (C)2015,2021 Dieter Hauer, Michael Steil, License: 2-clause BSD
+
+.include "io.inc"
+
+pr  = d1prb
+ddr = d1ddrb
+pcr = d1pcr
+SDA = (1 << 2)
+
+.segment "I2C"
+
+.export i2c_read_byte, i2c_write_byte
+
+;---------------------------------------------------------------
+; i2c_read_byte
+;
+; Function:
+;
+; Pass:      x    device
+;            y    offset
+;
+; Return:    a    value
+;            x    device (preserved)
+;            y    offset (preserved)
+;---------------------------------------------------------------
+i2c_read_byte:
+	jsr validate
+
+	php
+	sei
+	phx
+	phy
+
+	jsr i2c_init
+	jsr i2c_start
+	txa                ; device
+	asl
+	pha                ; device * 2
+	jsr i2c_write
+	bcs @error
+	plx                ; device * 2
+	tya                ; offset
+	phx                ; device * 2
+	jsr i2c_write
+	jsr i2c_stop
+	jsr i2c_start
+	pla                ; device * 2
+	inc
+	jsr i2c_write
+	jsr i2c_read
+	pha
+	jsr i2c_nack
+	jsr i2c_stop
+	pla
+
+	ply
+	plx
+	plp
+	ora #0             ; set flags
+	clc
+	rts
+
+@error:
+	pla                ; device * 2
+	ply
+	plx
+	plp
+	lda #$ee
+	sec
+	rts
+
+;---------------------------------------------------------------
+; i2c_write_byte
+;
+; Function:
+;
+; Pass:      a    value
+;            x    device
+;            y    offset
+;
+; Return:    x    device (preserved)
+;            y    offset (preserved)
+;---------------------------------------------------------------
+i2c_write_byte:
+	jsr validate
+
+	php
+	sei
+	phx
+	phy
+
+	pha                ; value
+	jsr i2c_init
+	jsr i2c_start
+	txa                ; device
+	asl
+	jsr i2c_write
+	beq @error
+	tya                ; offset
+	jsr i2c_write
+	pla                ; value
+	jsr i2c_write
+	jsr i2c_stop
+
+	ply
+	plx
+	plp
+	clc
+	rts
+
+@error:
+	pla                ; value
+	ply
+	plx
+	plp
+	sec
+	rts
+
+
+;
+validate:
+	cpx #3
+	bcc @bad
+	cpx #120
+	bcs @bad
+	rts
+@bad:	pla
+	pla
+	lda #$ee
+	sec
+	rts
+
+;---------------------------------------------------------------
 ; Copyright (c) 2015, Dieter Hauer
 ; All rights reserved.
 ;
@@ -21,145 +157,86 @@
 ; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+i2c_write:
+	ldx #8
+@loop:	rol
+	pha
+	jsr send_bit
+	pla
+	dex
+	bne @loop
+	bra rec_bit     ; C = 0: success
 
-			.setcpu		"6502"
+i2c_read:
+	ldx #8
+@loop:	pha
+	jsr rec_bit
+	pla
+	rol
+        dex
+	bne @loop
+	rts
 
-			.export _i2cStart
-			.export _i2cStop
-			.export _i2cAck
-			.export _i2cNack
-			.export _i2cWrite
-			.export _i2cRead
+;---------------------------------------------------------------
 
-			VIA1_BASE   = $8100
-			PRA  = VIA1_BASE+1
-			DDRA = VIA1_BASE+3
+i2c_nack:
+	sec
+; fallthrough
 
-			SDA = (1 << 0)
-			SCL = (1 << 1)
+send_bit:
+	bcs @1
+	jsr sda_low
+	bra @2
+@1:	jsr sda_high
+@2:	jsr scl_high
+	jsr scl_low
+        bra sda_low
 
-			.segment "CODE"
+rec_bit:
+	jsr sda_high
+	jsr scl_high
+	lda pr
+	.assert SDA = 4, error, "update the shift instructions if SDA is not bit #2"
+	lsr
+	lsr
+	lsr             ; bit -> C
+	jsr scl_low
+; fallthrough
 
+sda_low:
+	lda #SDA
+ddr_or:	ora ddr
+ddr_st:	sta ddr
+	rts
 
-_i2cWrite:	ldx #$00
-			stx PRA
-			ldx #$09
-@loop:		dex
-			beq @ack
-			rol
-			bcc @send_zero
-			pha
-			lda #$01
-			jsr send_bit
-			pla
-			jmp @loop
-@send_zero:	pha
-			lda #$00
-			jsr send_bit
-			pla
-			jmp @loop
-@ack:		; ldx #$00 		; x should be zero allready
-			jsr rec_bit		; ack in accu 0 = success
-			eor #$01		; return 1 on success, 0 on fail
-@end:		rts
+i2c_stop:
+	jsr scl_high
+sda_high:
+	lda #$FF-SDA
+ddr_an:	and ddr
+	bra ddr_st
 
+i2c_start:
+	jsr sda_low
+; fallthrough
 
-_i2cRead:	lda #$00
-			sta PRA
-			pha
-			ldx #$09
-@loop:		dex
-			beq @end
-			jsr rec_bit
-			ror
-			pla
-			rol
-			pha
-			jmp @loop
-@end:		; ldx #$00 x should be zero allready
-			pla
-			rts
+scl_low:
+	lda pcr
+	and #%00011111
+	ora #%11000000
+	sta pcr
+	rts
 
+i2c_init:
+	lda pr
+	and #$FF-SDA
+	sta pr
+	bra scl_high
+; fallthrough
 
-send_bit:	cmp #$01		;bit in accu
-			beq @set_sda
-@clear_sda:	jsr sda_low
-			jmp @clock_out
-@set_sda:	jsr sda_high
-			jmp	@clock_out
-@clock_out:	jsr scl_high
-			jsr scl_low
-			jsr sda_low
-			rts
-
-
-rec_bit:	jsr sda_high
-			jsr scl_high
-			lda PRA
-			and #SDA
-			bne @is_one
-			lda #$00
-			jmp @end
-@is_one:	lda #$01
-@end:		jsr scl_low
-			jsr sda_low
-			rts
-
-
-_i2cStart:	jsr sda_low
-			jsr scl_low
-			rts
-
-
-_i2cStop:	jsr scl_high
-			jsr sda_high
-			rts
-
-
-_i2cAck:	pha
-			lda #$00
-			jsr send_bit
-			pla
-			rts
-
-
-_i2cNack:	pha
-			lda #$01
-			jsr send_bit
-			pla
-			rts
-
-
-sda_low:	pha
-			lda DDRA
-			ora #SDA
-			sta DDRA
-			pla
-			rts
-
-
-sda_high:	pha
-			lda #SDA
-			eor #$FF
-			and DDRA
-			sta DDRA
-			pla
-			rts
-
-
-scl_low:	pha
-			lda DDRA
-			ora #SCL
-			sta DDRA
-			pla
-			rts
-
-
-scl_high:	pha
-			lda #SCL
-			eor #$FF
-			and DDRA
-			sta DDRA
-			pla
-			rts
+scl_high:
+	lda pcr
+	ora #%11100000
+	sta pcr
+	rts
 

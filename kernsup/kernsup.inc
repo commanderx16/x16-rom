@@ -1,7 +1,8 @@
 .byte 0,0,0            ; $FEC0
 .byte 0,0,0            ; $FEC3
-.byte 0,0,0            ; $FEC6
-.byte 0,0,0            ; $FEC9
+
+bridge i2c_read_byte              ; $FEC6
+bridge i2c_write_byte             ; $FEC9
 
 bridge monitor                    ; $FECC
 

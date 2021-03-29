@@ -107,12 +107,14 @@ ROM Map
 
 |Bank|Name   |Description                                            |
 |----|-------|-------------------------------------------------------|
-|0   |KERNAL |character sets (uploaded into VRAM), MONITOR, KERNAL   |
+|0   |KERNAL |KERNAL                                                 |
 |1   |KEYBD  |Keyboard layout tables                                 |
 |2   |CBDOS  |The computer-based CBM-DOS for FAT32 SD cards          |
 |3   |GEOS   |GEOS KERNAL                                            |
 |4   |BASIC  |BASIC interpreter                                      |
-|5-31|–      |*[Currently unused]*                                   |
+|5   |MONITOR|Machine language monitor                               |
+|6   |CHARSET|PETSCII and ISO character sets (uploaded into VRAM)    |
+|7-31|–      |*[Currently unused]*                                   |
 
 
 RAM Map
@@ -130,8 +132,9 @@ RAM Map
 Credits
 -------
 
-* All new code, and additions to legacy code: &copy;2020 Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
+* All new code, and additions to legacy code: &copy;2021 Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
 * FAT32 and SD card drivers: &copy;2018 Frank van den Hoef; 2-clause BSD license
+* 6502/6522 i2c driver: &copy;2015 Dieter Hauer; 2-clause BSD license
 * `kernal/open-roms`: &copy;2019 Paul Gardner-Stephen, 2019; GPLv3 license
 * `kernal/cbm`: &copy;1983 Commodore Business Machines (CBM)
 * `basic`: &copy;1977 Microsoft Corp.
