@@ -24,12 +24,5 @@ start	ldx #$ff
 	jsr cint        ;go initilize screen
 	cli             ;interrupts okay now
 
-.import smc_set_power_led, smc_set_activity_led
-
-	lda #0
-	jsr smc_set_power_led
-	lda #$ff
-	jsr smc_set_activity_led
-
 	sec
 	jmp enter_basic

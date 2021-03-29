@@ -15,6 +15,8 @@
 .import ps2_init
 .import entropy_init
 .import clklo
+.import rtc_init
+.import smc_set_power_led, smc_set_activity_led
 
 .segment "MACHINE"
 
@@ -28,6 +30,7 @@ ioinit:
 	jsr vera_wait_ready
 	jsr ps2_init    ;inhibit ps/2 communcation
 	jsr entropy_init
+
 	jsr clklo       ;release the clock line
 	; fallthrough
 

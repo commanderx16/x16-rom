@@ -3,32 +3,15 @@
 ;----------------------------------------------------------------------
 ; (C)2021 Michael Steil, License: 2-clause BSD
 
-.export rtc_get_date_time, rtc_set_date_time
-
 .include "io.inc"
 .include "regs.inc"
 
-.import _i2cStart, _i2cStop, _i2cAck, _i2cNack, _i2cWrite, _i2cRead
-
 .import i2c_read_byte, i2c_write_byte
+.export rtc_get_date_time, rtc_set_date_time
 
 .segment "CLOCK"
 
 rtc_address = $6f
-
-rtc_init:
-	; start clock
-	ldx #rtc_address
-	ldy #0
-	jsr i2c_read_byte
-	ora #$80
-	jsr i2c_write_byte
-	; 24h mode
-	ldy #2
-	jsr i2c_read_byte
-	and #$ff-$20
-	jmp i2c_write_byte
-
 
 ;---------------------------------------------------------------
 ; rtc_set_date_time
@@ -44,18 +27,18 @@ rtc_init:
 ;            r3L  jiffies
 ;---------------------------------------------------------------
 rtc_get_date_time:
-	jsr rtc_init
-
-	stz r3L ; jiffies
-
 	ldx #rtc_address
 	ldy #0
 	jsr i2c_read_byte ; 0: seconds
+	sta r3L           ; remember seconds register contents
 	and #$7f
 	jsr bcd_to_bin
 	sta r2H
 
 	iny
+	jsr i2c_read_byte
+	and #$ff-$20      ; enable 24h mode
+	jsr i2c_write_byte
 	jsr i2c_read_byte ; 1: minutes
 	jsr bcd_to_bin
 	sta r2L
@@ -83,6 +66,15 @@ rtc_get_date_time:
 	clc
 	adc #100
 	sta r0L
+
+	; if seconds have changed since we started
+	; reading, read everything again
+	ldy #0
+	jsr i2c_read_byte
+	cmp r3L
+	bne rtc_get_date_time
+
+	stz r3L ; jiffies
 	rts
 
 ;---------------------------------------------------------------
@@ -99,7 +91,45 @@ rtc_get_date_time:
 ;            r3L  jiffies
 ;---------------------------------------------------------------
 rtc_set_date_time:
-	rts
+	; stop the clock
+	ldx #rtc_address
+	ldy #0
+	jsr i2c_read_byte
+	and #$7f
+	jsr i2c_write_byte
+
+	ldy #6
+	lda r0L
+	sec
+	sbc #100
+	jsr bin_to_bcd
+	jsr i2c_write_byte ; 6: year
+
+	dey
+	lda r0H
+	jsr bin_to_bcd
+	jsr i2c_write_byte ; 5: month
+
+	dey
+	lda r1L
+	jsr bin_to_bcd
+	jsr i2c_write_byte ; 4: day
+
+	ldy #2
+	lda r1H
+	jsr bin_to_bcd
+	jsr i2c_write_byte ; 2: hour
+
+	dey
+	lda r2L
+	jsr bin_to_bcd
+	jsr i2c_write_byte ; 1: minutes
+
+	dey
+	lda r2H
+	jsr bin_to_bcd
+	ora #$80           ; start the clock
+	jmp i2c_write_byte ; 0: seconds
 
 
 bcd_to_bin:
@@ -113,4 +143,19 @@ bcd_to_bin:
 	cld
 	txa
 	plx
+	rts
+
+bin_to_bcd:
+	phy
+	tay
+	lda #0
+	sed
+@loop:	cpy #0
+	beq @end
+	clc
+	adc #1
+	dey
+	bra @loop
+@end:	cld
+	ply
 	rts
