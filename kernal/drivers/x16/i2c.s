@@ -111,6 +111,7 @@ i2c_write_byte:
 	ply
 	plx
 	plp
+	clc
 	rts
 
 @error:
@@ -119,6 +120,7 @@ i2c_write_byte:
 	ply
 	plx
 	plp
+	sec
 	rts
 
 
@@ -133,6 +135,7 @@ validate:
 	pla
 	pla
 	lda #$ee
+	sec
 	rts
 
 
@@ -218,8 +221,7 @@ send_bit:
 @clock_out:
 	jsr scl_high
 	jsr scl_low
-	jsr sda_low
-	rts
+	jmp sda_low
 
 
 rec_bit:
@@ -233,21 +235,18 @@ rec_bit:
 @is_one:
 	lda #1
 @end:	jsr scl_low
-	jsr sda_low
-	rts
+	jmp sda_low
 
 ;---------------------------------------------------------------
 
 i2c_start:
 	jsr sda_low
-	jsr scl_low
-	rts
+	jmp scl_low
 
 
 i2c_stop:
 	jsr scl_high
-	jsr sda_high
-	rts
+	jmp sda_high
 
 ;---------------------------------------------------------------
 

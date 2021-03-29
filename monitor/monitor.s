@@ -150,7 +150,7 @@ bank            := ram_code_end + 16
 disable_f_keys  := ram_code_end + 17
 tmp1            := ram_code_end + 18
 tmp2            := ram_code_end + 19
-video_bank_flag := ram_code_end + 20 ; $80: video, $40: I2C
+bank_flags      := ram_code_end + 20 ; $80: video, $40: I2C
 
 .segment "monitor"
 
@@ -259,7 +259,7 @@ dump_registers2:
         lda     irq_lo
         jsr     print_hex_byte2 ; IRQ lo
         jsr     print_space
-	bit     video_bank_flag
+	bit     bank_flags
 	bpl     :+
         lda     #'V'
 @1:     jsr     bsout
@@ -867,7 +867,7 @@ LB244:  rts
 ; loads a byte at (zp1),y from RAM with the correct ROM config
 load_byte:
         sei
-	bit video_bank_flag
+	bit bank_flags
 	bmi @video
 	bvs @i2c
 ; RAM
@@ -903,7 +903,7 @@ load_byte:
 
 ; stores a byte at (zp1),y in RAM with the correct ROM config
 store_byte:
-	bit video_bank_flag
+	bit bank_flags
 	bmi @video
 	bvs @i2c
 ; RAM
@@ -961,7 +961,7 @@ get_i2c_addr:
 ; ----------------------------------------------------------------
 cmd_o:
 	lda     #0
-	sta     video_bank_flag
+	sta     bank_flags
 :       jsr     basin_cmp_cr
         beq     LB33F ; without arguments: bank 7
         cmp     #' '
@@ -969,7 +969,7 @@ cmd_o:
         cmp     #'V'
         bne     not_video
         lda     #$80
-	sta     video_bank_flag
+	sta     bank_flags
 video_loop:
         jsr     basin_cmp_cr
 	beq     default_video_bank
@@ -986,7 +986,7 @@ not_video:
 	cmp     #'I'
 	bne     not_i2c
 	lda     #$40
-	sta     video_bank_flag
+	sta     bank_flags
 	bra     default_video_bank
 
 not_i2c:
