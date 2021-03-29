@@ -129,3 +129,6 @@ kbdbuf_put                   = $fed2
 entropy_get                  = $fecf
 
 ;monitor                      = $fecc
+
+i2c_read_byte                = $fec6
+i2c_write_byte               = $fec9

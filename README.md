@@ -107,12 +107,14 @@ ROM Map
 
 |Bank|Name   |Description                                            |
 |----|-------|-------------------------------------------------------|
-|0   |KERNAL |character sets (uploaded into VRAM), MONITOR, KERNAL   |
+|0   |KERNAL |KERNAL                                                 |
 |1   |KEYBD  |Keyboard layout tables                                 |
 |2   |CBDOS  |The computer-based CBM-DOS for FAT32 SD cards          |
 |3   |GEOS   |GEOS KERNAL                                            |
 |4   |BASIC  |BASIC interpreter                                      |
-|5-31|–      |*[Currently unused]*                                   |
+|5   |MONITOR|Machine language monitor                               |
+|6   |CHARSET|PETSCII and ISO character sets (uploaded into VRAM)    |
+|7-31|–      |*[Currently unused]*                                   |
 
 
 RAM Map
