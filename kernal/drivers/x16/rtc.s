@@ -10,47 +10,18 @@
 
 .import _i2cStart, _i2cStop, _i2cAck, _i2cNack, _i2cWrite, _i2cRead
 
+.import i2c_read_byte, i2c_write_byte
+
 .segment "CLOCK"
 
-rtc_address = $6f * 2
-
-rtc_read_byte:
-	phx
-	jsr _i2cStart
-	lda #rtc_address
-	jsr _i2cWrite
-	pla
-	jsr _i2cWrite
-	jsr _i2cStop
-	jsr _i2cStart
-	lda #rtc_address + 1
-	jsr _i2cWrite
-	jsr _i2cRead
-	pha
-	jsr _i2cNack
-	pla
-	rts
-
-rtc_write_byte:
-	pha
-	phx
-	jsr _i2cStart
-	lda #rtc_address
-	jsr _i2cWrite
-	pla
-	jsr _i2cWrite
-	pla
-	jsr _i2cWrite
-	jmp _i2cStop
-
+rtc_address = $6f
 
 rtc_init:
-	ldx #0
-	jsr rtc_read_byte
+	ldx #rtc_address
+	ldy #0
+	jsr i2c_read_byte
 	ora #$80
-	ldx #0
-	jmp rtc_write_byte
-
+	jmp i2c_write_byte
 
 ;---------------------------------------------------------------
 ; rtc_set_date_time
@@ -70,44 +41,32 @@ rtc_get_date_time:
 
 	stz r3L ; jiffies
 
-	jsr _i2cStart
-	lda #rtc_address
-	jsr _i2cWrite
-	lda #0
-	jsr _i2cWrite
-	jsr _i2cStop
-	jsr _i2cStart
-	lda #rtc_address + 1
-	jsr _i2cWrite
-
-	jsr _i2cRead ; 0: seconds
+	ldx #rtc_address
+	ldy #0
+	jsr i2c_read_byte ; 0: seconds
 	sta r2H
-	jsr _i2cAck
 
-	jsr _i2cRead ; 1: minutes
+	iny
+	jsr i2c_read_byte ; 1: minutes
 	sta r2L
-	jsr _i2cAck
 
-	jsr _i2cRead ; 2: hour
+	iny
+	jsr i2c_read_byte ; 2: hour
 	sta r1H
-	jsr _i2cAck
 
-	jsr _i2cRead ; 3: day of week
-	; ignore
-	jsr _i2cAck
-
-	jsr _i2cRead ; 4: day
+	iny
+	iny
+	jsr i2c_read_byte ; 4: day
 	sta r1L
-	jsr _i2cAck
 
-	jsr _i2cRead ; 5: month
+	iny
+	jsr i2c_read_byte ; 5: month
 	sta r0H
-	jsr _i2cAck
 
-	jsr _i2cRead ; 6: year
+	iny
+	jsr i2c_read_byte ; 6: year
 	sta r0L
-	jsr _i2cNack
-	jmp _i2cStop
+	rts
 
 ;---------------------------------------------------------------
 ; rtc_set_date_time

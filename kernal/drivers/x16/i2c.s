@@ -39,6 +39,82 @@ SDA = (1 << 1)
 
 .segment "I2C"
 
+.export i2c_read_byte, i2c_write_byte
+
+;---------------------------------------------------------------
+; i2c_read_byte
+;
+; Function:
+;
+; Pass:      x    device
+;            y    offset
+;
+; Return:    a    value
+;            x    device (preserved)
+;            y    offset (preserved)
+;---------------------------------------------------------------
+i2c_read_byte:
+	phx
+	phy
+
+	phy                ; offset
+	phx                ; device
+	jsr _i2cStart
+	pla                ; device
+	asl
+	pha                ; device * 2
+	jsr _i2cWrite
+	plx                ; device * 2
+	pla                ; offset
+	phx                ; device * 2
+	jsr _i2cWrite
+	jsr _i2cStop
+	jsr _i2cStart
+	pla                ; device * 2
+	inc
+	jsr _i2cWrite
+	jsr _i2cRead
+	pha
+	jsr _i2cNack
+	jsr _i2cStop
+	pla
+
+	ply
+	plx
+	rts
+
+;---------------------------------------------------------------
+; i2c_write_byte
+;
+; Function:
+;
+; Pass:      a    value
+;            x    device
+;            y    offset
+;
+; Return:    x    device (preserved)
+;            y    offset (preserved)
+;---------------------------------------------------------------
+i2c_write_byte:
+	phx
+	phy
+
+	pha                ; value
+	phy                ; offset
+	phx                ; device
+	jsr _i2cStart
+	pla                ; device
+	asl
+	jsr _i2cWrite
+	pla                ; offset
+	jsr _i2cWrite
+	pla                ; value
+	jsr _i2cWrite
+	jsr _i2cStop
+
+	ply
+	plx
+	rts
 
 _i2cWrite:
 	ldx #0
