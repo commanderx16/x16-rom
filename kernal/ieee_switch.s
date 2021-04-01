@@ -210,8 +210,7 @@ upload_time:
 	rts
 
 ; Convert the "active" and "error" flags into a solid or
-; blinking LED. Board revision 1 doesn't have an LED, so
-; we write into a private setting of the emulator for now.
+; blinking LED.
 led_update:
 	lda cbdos_flags
 	bit #$20  ; error?

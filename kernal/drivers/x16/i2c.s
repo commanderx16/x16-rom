@@ -27,7 +27,9 @@ SDA = (1 << 1)
 ;            y    offset (preserved)
 ;---------------------------------------------------------------
 i2c_read_byte:
-	jsr validate
+;	jsr validate
+
+    stz gpio
 
 	php
 	sei
@@ -87,7 +89,9 @@ i2c_read_byte:
 ;            y    offset (preserved)
 ;---------------------------------------------------------------
 i2c_write_byte:
-	jsr validate
+;	jsr validate
+
+    stz gpio
 
 	php
 	sei
@@ -166,27 +170,18 @@ validate:
 i2c_write:
 	ldx #0
 	stx gpio
-	ldx #9
-@loop:	dex
-	beq @ack
-	rol
-	bcc @send_zero
-	pha
-	lda #1
-	jsr send_bit
-	pla
-	jmp @loop
-@send_zero:
+	ldx #8
+@loop:	rol
 	pha
 	lda #0
+	rol
 	jsr send_bit
 	pla
-	jmp @loop
-@ack:
-	; ldx #0                ; x should be zero already
+	dex
+	bne @loop
 	jsr rec_bit             ; ack in accu 0 = success
 	eor #1                  ; return 1 on success, 0 on fail
-@end:	rts
+	rts
 
 
 i2c_read:
@@ -201,7 +196,7 @@ i2c_read:
 	pla
 	rol
 	pha
-	jmp @loop
+        bra @loop
 @end:
 	; ldx #0                ; x should be zero already
 	pla
@@ -214,14 +209,14 @@ send_bit:
 	beq @set_sda
 @clear_sda:
 	jsr sda_low
-	jmp @clock_out
+	bra @clock_out
 @set_sda:
 	jsr sda_high
-	jmp @clock_out
+	bra @clock_out
 @clock_out:
 	jsr scl_high
 	jsr scl_low
-	jmp sda_low
+        bra sda_low
 
 
 rec_bit:
@@ -229,24 +224,24 @@ rec_bit:
 	jsr scl_high
 	lda gpio
 	and #SDA
-	bne @is_one
-	lda #0
-	jmp @end
-@is_one:
+	beq @end
 	lda #1
-@end:	jsr scl_low
-	jmp sda_low
+@end:	pha
+        jsr scl_low
+        jsr sda_low
+        pla
+        rts
 
 ;---------------------------------------------------------------
 
 i2c_start:
 	jsr sda_low
-	jmp scl_low
+        bra scl_low
 
 
 i2c_stop:
 	jsr scl_high
-	jmp sda_high
+        bra sda_high
 
 ;---------------------------------------------------------------
 
@@ -260,45 +255,28 @@ i2c_ack:
 .endif
 
 i2c_nack:
-	pha
 	lda #1
 	jsr send_bit
-	pla
 	rts
 
 ;---------------------------------------------------------------
 
 sda_low:
-	pha
-	lda ddr
-	ora #SDA
-	sta ddr
-	pla
-	rts
-
-sda_high:
-	pha
 	lda #SDA
-	eor #$FF
-	and ddr
-	sta ddr
-	pla
+ddr_or:	ora ddr
+ddr_st:	sta ddr
 	rts
 
 scl_low:
-	pha
-	lda ddr
-	ora #SCL
-	sta ddr
-	pla
-	rts
+	lda #SCL
+	bra ddr_or
+
+sda_high:
+	lda #$FF-SDA
+ddr_an:	and ddr
+	bra ddr_st
 
 scl_high:
-	pha
-	lda #SCL
-	eor #$FF
-	and ddr
-	sta ddr
-	pla
-	rts
+	lda #$FF-SCL
+	bra ddr_an
 

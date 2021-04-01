@@ -35,15 +35,12 @@ rtc_get_date_time:
 	sta r2H
 
 	iny
-	jsr i2c_read_byte
-	and #$ff-$20      ; enable 24h mode
-	jsr i2c_write_byte
 	jsr i2c_read_byte ; 1: minutes
 	jsr bcd_to_bin
 	sta r2L
 
 	iny
-	jsr i2c_read_byte ; 2: hour
+	jsr i2c_read_byte ; 2: hour (24h mode)
 	jsr bcd_to_bin
 	sta r1H
 
@@ -93,9 +90,8 @@ rtc_set_date_time:
 	; stop the clock
 	ldx #rtc_address
 	ldy #0
-	jsr i2c_read_byte
-	and #$7f
-	jsr i2c_write_byte
+    tya
+    jsr i2c_write_byte
 
 	ldy #6
 	lda r0L
@@ -113,7 +109,7 @@ rtc_set_date_time:
 
 	ldy #2
 	lda r1H
-	jsr i2c_write_byte_as_bcd ; 2: hour
+	jsr i2c_write_byte_as_bcd ; 2: hour (bit 6: 0 -> 24h mode)
 
 	dey
 	lda r2L
