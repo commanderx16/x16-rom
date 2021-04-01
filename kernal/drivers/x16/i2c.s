@@ -27,9 +27,9 @@ SDA = (1 << 1)
 ;            y    offset (preserved)
 ;---------------------------------------------------------------
 i2c_read_byte:
-;	jsr validate
+	jsr validate
 
-    stz gpio
+	stz gpio
 
 	php
 	sei
@@ -43,7 +43,7 @@ i2c_read_byte:
 	asl
 	pha                ; device * 2
 	jsr i2c_write
-	beq @error
+	bcs @error
 	plx                ; device * 2
 	pla                ; offset
 	phx                ; device * 2
@@ -89,9 +89,9 @@ i2c_read_byte:
 ;            y    offset (preserved)
 ;---------------------------------------------------------------
 i2c_write_byte:
-;	jsr validate
+	jsr validate
 
-    stz gpio
+	stz gpio
 
 	php
 	sei
@@ -135,8 +135,7 @@ validate:
 	cpx #120
 	bcs @bad
 	rts
-@bad:
-	pla
+@bad:	pla
 	pla
 	lda #$ee
 	sec
@@ -168,68 +167,47 @@ validate:
 ; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 i2c_write:
-	ldx #0
-	stx gpio
 	ldx #8
 @loop:	rol
 	pha
-	lda #0
-	rol
 	jsr send_bit
 	pla
 	dex
 	bne @loop
-	jsr rec_bit             ; ack in accu 0 = success
-	eor #1                  ; return 1 on success, 0 on fail
-	rts
+	jmp rec_bit             ; ack in accu 0 = success
 
 
 i2c_read:
-	lda #0
-	sta gpio
-	pha
-	ldx #9
-@loop:	dex
-	beq @end
+	ldx #8
+@loop:	pha
 	jsr rec_bit
-	ror
 	pla
 	rol
-	pha
-        bra @loop
-@end:
-	; ldx #0                ; x should be zero already
-	pla
+        dex
+	bne @loop
 	rts
 
 ;---------------------------------------------------------------
 
 send_bit:
-	cmp #1                  ; bit in accu
-	beq @set_sda
-@clear_sda:
+	bcs @1
 	jsr sda_low
-	bra @clock_out
-@set_sda:
-	jsr sda_high
-	bra @clock_out
-@clock_out:
-	jsr scl_high
+	bra @2
+@1:	jsr sda_high
+@2:	jsr scl_high
 	jsr scl_low
         bra sda_low
-
 
 rec_bit:
 	jsr sda_high
 	jsr scl_high
 	lda gpio
 	and #SDA
-	beq @end
-	lda #1
-@end:	pha
-        jsr scl_low
+	clc
+	beq @1
+	sec
+@1:	jsr scl_low
         jsr sda_low
-        pla
         rts
 
 ;---------------------------------------------------------------
@@ -247,17 +225,13 @@ i2c_stop:
 
 .if 0 ; unused - necessary for reading multiple bytes
 i2c_ack:
-	pha
-	lda #0
-	jsr send_bit
-	pla
-	rts
+	clc
+	bra send_bit
 .endif
 
 i2c_nack:
-	lda #1
-	jsr send_bit
-	rts
+	sec
+	bra send_bit
 
 ;---------------------------------------------------------------
 
