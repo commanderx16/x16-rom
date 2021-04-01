@@ -36,16 +36,14 @@ i2c_read_byte:
 	phx
 	phy
 
-	phy                ; offset
-	phx                ; device
 	jsr i2c_start
-	pla                ; device
+	txa                ; device
 	asl
 	pha                ; device * 2
 	jsr i2c_write
 	bcs @error
 	plx                ; device * 2
-	pla                ; offset
+	tya                ; offset
 	phx                ; device * 2
 	jsr i2c_write
 	jsr i2c_stop
@@ -68,7 +66,6 @@ i2c_read_byte:
 
 @error:
 	pla                ; device * 2
-	pla                ; offset
 	ply
 	plx
 	plp
@@ -99,14 +96,12 @@ i2c_write_byte:
 	phy
 
 	pha                ; value
-	phy                ; offset
-	phx                ; device
 	jsr i2c_start
-	pla                ; device
+	txa                ; device
 	asl
 	jsr i2c_write
 	beq @error
-	pla                ; offset
+	tya                ; offset
 	jsr i2c_write
 	pla                ; value
 	jsr i2c_write
@@ -119,7 +114,6 @@ i2c_write_byte:
 	rts
 
 @error:
-	pla                ; offset
 	pla                ; value
 	ply
 	plx
@@ -174,8 +168,7 @@ i2c_write:
 	pla
 	dex
 	bne @loop
-	jmp rec_bit             ; ack in accu 0 = success
-
+	bra rec_bit     ; C = 0: success
 
 i2c_read:
 	ldx #8
@@ -189,6 +182,8 @@ i2c_read:
 
 ;---------------------------------------------------------------
 
+i2c_nack:
+	sec
 send_bit:
 	bcs @1
 	jsr sda_low
@@ -202,36 +197,11 @@ rec_bit:
 	jsr sda_high
 	jsr scl_high
 	lda gpio
-	and #SDA
-	clc
-	beq @1
-	sec
-@1:	jsr scl_low
-        jsr sda_low
-        rts
-
-;---------------------------------------------------------------
-
-i2c_start:
-	jsr sda_low
-        bra scl_low
-
-
-i2c_stop:
-	jsr scl_high
-        bra sda_high
-
-;---------------------------------------------------------------
-
-.if 0 ; unused - necessary for reading multiple bytes
-i2c_ack:
-	clc
-	bra send_bit
-.endif
-
-i2c_nack:
-	sec
-	bra send_bit
+	.assert SDA = 2, error, "update the shift instructions if SDA is not bit #2"
+	lsr
+	lsr
+	jsr scl_low
+        bra sda_low
 
 ;---------------------------------------------------------------
 
@@ -241,10 +211,14 @@ ddr_or:	ora ddr
 ddr_st:	sta ddr
 	rts
 
+i2c_start:
+	jsr sda_low
 scl_low:
 	lda #SCL
 	bra ddr_or
 
+i2c_stop:
+	jsr scl_high
 sda_high:
 	lda #$FF-SDA
 ddr_an:	and ddr
