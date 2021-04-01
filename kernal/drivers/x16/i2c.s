@@ -29,13 +29,12 @@ SDA = (1 << 1)
 i2c_read_byte:
 	jsr validate
 
-	stz gpio
-
 	php
 	sei
 	phx
 	phy
 
+	jsr i2c_init
 	jsr i2c_start
 	txa                ; device
 	asl
@@ -88,14 +87,13 @@ i2c_read_byte:
 i2c_write_byte:
 	jsr validate
 
-	stz gpio
-
 	php
 	sei
 	phx
 	phy
 
 	pha                ; value
+	jsr i2c_init
 	jsr i2c_start
 	txa                ; device
 	asl
@@ -135,6 +133,11 @@ validate:
 	sec
 	rts
 
+i2c_init:
+	lda gpio
+	and #$FF-SCL-SDA
+	sta gpio
+	rts
 
 ;---------------------------------------------------------------
 ; Copyright (c) 2015, Dieter Hauer
@@ -184,6 +187,7 @@ i2c_read:
 
 i2c_nack:
 	sec
+; fallthrough
 send_bit:
 	bcs @1
 	jsr sda_low
@@ -201,10 +205,7 @@ rec_bit:
 	lsr
 	lsr
 	jsr scl_low
-        bra sda_low
-
-;---------------------------------------------------------------
-
+; fallthrough
 sda_low:
 	lda #SDA
 ddr_or:	ora ddr
