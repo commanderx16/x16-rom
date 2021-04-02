@@ -3,10 +3,14 @@
 ;----------------------------------------------------------------------
 ; (C)2021 Michael Steil, License: 2-clause BSD
 
+.segment "KVAR"
+
+activity_led_state:
+	.res 0
+
 .segment "I2C"
 
 .import i2c_write_byte
-
 .export smc_set_activity_led
 
 uc_address = $42
@@ -19,6 +23,10 @@ uc_address = $42
 ; 0x05 0x00-0xFF - Activity LED Level (PWM)
 
 smc_set_activity_led:
+	cmp activity_led_state
+	beq @rts
+	sta activity_led_state
 	ldx #uc_address
 	ldy #5
 	jmp i2c_write_byte
+@rts:	rts
