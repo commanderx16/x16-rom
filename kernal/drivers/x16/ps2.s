@@ -136,12 +136,18 @@ ramcode:
 	lda d1ifr
 @again:	ldx #1 ; 1 = offset of PA
 	bit #VIA_IFR_CA1
-	bne @cont
-	dex    ; 0 = offset of PB
+	beq @1
+	lda #VIA_IFR_CA1
+	sta d1ifr
+	bra @cont
+@1:	dex    ; 0 = offset of PB
 	bit #VIA_IFR_CA2
-	bne @cont
+	beq @2
+	lda #VIA_IFR_CA2
+	sta d1ifr
+	bra @cont
 	; else: NMI button
-	plx
+@2:	plx
 	pla
 	; TODO
 	rti

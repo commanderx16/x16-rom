@@ -46,9 +46,8 @@ ramtas:
 ;
 ; set up banking
 ;
-	lda #$ff
-	sta d1ddra
-	sta d1ddrb
+	stz ram_bank
+	stz rom_bank
 
 ;
 ; clear kernal variables
