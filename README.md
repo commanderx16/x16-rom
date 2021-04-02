@@ -125,8 +125,8 @@ RAM Map
 	* $0400-$0800 currently unused
 	* $0800-$9F00 BASIC RAM
 * banked RAM:
-	* banks 0-254: free for applications
-	* bank 255: DOS buffers and variables
+	* bank 0: KERNAL and DOS buffers and variables
+	* banks 1-255: free for applications
 
 
 Credits
