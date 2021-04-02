@@ -5,10 +5,10 @@
 
 .include "io.inc"
 
-gpio = d2prb
-ddr  = d2ddrb
-SCL = (1 << 0)
-SDA = (1 << 1)
+pr  = d1prb
+ddr = d1ddrb
+pcr = d1pcr
+SDA = (1 << 2)
 
 .segment "I2C"
 
@@ -133,12 +133,6 @@ validate:
 	sec
 	rts
 
-i2c_init:
-	lda gpio
-	and #$FF-SCL-SDA
-	sta gpio
-	rts
-
 ;---------------------------------------------------------------
 ; Copyright (c) 2015, Dieter Hauer
 ; All rights reserved.
@@ -188,6 +182,7 @@ i2c_read:
 i2c_nack:
 	sec
 ; fallthrough
+
 send_bit:
 	bcs @1
 	jsr sda_low
@@ -200,23 +195,19 @@ send_bit:
 rec_bit:
 	jsr sda_high
 	jsr scl_high
-	lda gpio
-	.assert SDA = 2, error, "update the shift instructions if SDA is not bit #2"
+	lda pr
+	.assert SDA = 4, error, "update the shift instructions if SDA is not bit #2"
 	lsr
 	lsr
+	lsr             ; bit -> C
 	jsr scl_low
 ; fallthrough
+
 sda_low:
 	lda #SDA
 ddr_or:	ora ddr
 ddr_st:	sta ddr
 	rts
-
-i2c_start:
-	jsr sda_low
-scl_low:
-	lda #SCL
-	bra ddr_or
 
 i2c_stop:
 	jsr scl_high
@@ -225,7 +216,27 @@ sda_high:
 ddr_an:	and ddr
 	bra ddr_st
 
+i2c_start:
+	jsr sda_low
+; fallthrough
+
+scl_low:
+	lda pcr
+	and #%00011111
+	ora #%11000000
+	sta pcr
+	rts
+
+i2c_init:
+	lda pr
+	and #$FF-SDA
+	sta pr
+	bra scl_high
+; fallthrough
+
 scl_high:
-	lda #$FF-SCL
-	bra ddr_an
+	lda pcr
+	ora #%11100000
+	sta pcr
+	rts
 
