@@ -14,6 +14,12 @@ SDA = (1 << 2)
 
 .export i2c_read_byte, i2c_write_byte
 
+i2c_read_byte:
+	rts
+i2c_write_byte:
+	rts
+
+.if 0
 ;---------------------------------------------------------------
 ; i2c_read_byte
 ;
@@ -27,6 +33,7 @@ SDA = (1 << 2)
 ;            y    offset (preserved)
 ;---------------------------------------------------------------
 i2c_read_byte:
+	rts
 	jsr validate
 
 	php
@@ -240,3 +247,4 @@ scl_high:
 	sta pcr
 	rts
 
+.endif

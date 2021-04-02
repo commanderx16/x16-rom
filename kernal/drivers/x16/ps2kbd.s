@@ -7,7 +7,6 @@
 .include "io.inc"
 
 ; code
-.import ps2_receive_byte; [ps2]
 .import joystick_from_ps2; [joystick]
 ; data
 .import mode; [declare]
@@ -16,9 +15,8 @@
 
 .import kbdbuf_put
 .import shflag
-.import keyhdl
 
-.export kbd_config, kbd_scan, receive_scancode_resume
+.export kbd_config, kbd_scan
 
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
@@ -211,6 +209,8 @@ is_stop:
 kbdbuf_put2:
 	jmp kbdbuf_put
 
+.import ps2_get_byte
+
 ;****************************************
 ; RECEIVE SCANCODE:
 ; out: X: prefix (E0, E1; 0 = none)
@@ -222,32 +222,33 @@ kbdbuf_put2:
 ;           1: no
 ;****************************************
 receive_scancode:
-	ldx #1
-	jsr ps2_receive_byte
-	bcs rcvsc1 ; parity error
-	bne rcvsc2 ; non-zero code
-rcvsc1:	lda #0
-	rts
-rcvsc2:	cmp #$e0 ; extend prefix 1
-	beq rcvsc3
+	ldx #1 ; port
+	jsr ps2_get_byte
+	beq @rts ; no data
+	bcc @n_error
+
+	; error, clear all flags
+	lda #0
+	bra @reset
+
+@n_error:
+	cmp #$e0 ; extend prefix 1
+	beq @3
 	cmp #$e1 ; extend prefix 2
-	bne rcvsc4
-rcvsc3:	sta prefix
+	bne @4
+@3:	sta prefix
 	beq receive_scancode ; always
-rcvsc4:	cmp #$f0
-	bne rcvsc5
+@4:	cmp #$f0
+	bne @5
 	rol brkflg ; set to 1
 	bne receive_scancode ; always
-rcvsc5:	pha
+@5:	pha
 	lsr brkflg ; break bit into C
 	ldx prefix
-	lda #0
-	sta prefix
-	sta brkflg
 	pla ; lower byte into A
-	jmp (keyhdl)	;Jump to key event handler
-receive_scancode_resume:
-	rts
+@reset:	stz prefix
+	stz brkflg
+@rts:	rts
 
 ;****************************************
 ; RECEIVE SCANCODE AFTER shflag

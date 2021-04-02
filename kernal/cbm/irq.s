@@ -44,10 +44,10 @@ puls1	jmp (cinv)      ;...irq
 ;
 key
 	jsr mouse_scan  ;scan mouse (do this first to avoid sprite tearing)
+	jsr kbd_scan
 	jsr joystick_scan
 	jsr clock_update
 	jsr cursor_blink
-	jsr kbd_scan
 	jsr led_update
 
 	jsr irq_ack

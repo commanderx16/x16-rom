@@ -36,6 +36,6 @@ mjsrfar:
 
 	.byte 0, 0, 0, 0 ; signature
 
-	.word $ffff ; nmi
+	.word $9200; $ffff ; nmi
 	.word $ffff ; reset
 	.word banked_irq

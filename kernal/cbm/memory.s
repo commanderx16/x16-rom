@@ -45,7 +45,7 @@ vectss	.word key,timb,nnmi
 	.word nckout,nclrch,nbasin
 	.word nbsout,nstop,ngetin
 	.word nclall
-	.word receive_scancode_resume
+	.word 0 ; XXX receive_scancode_resume
 	.word nload,nsave
 vectse
 

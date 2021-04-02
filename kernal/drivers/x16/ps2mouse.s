@@ -10,13 +10,15 @@
 
 ; code
 .import ps2_receive_byte; [ps2]
+.import ps2_get_byte
+.import ps2ena, ps2dis
 
 .import screen_save_state
 .import screen_restore_state
 
 .import sprite_set_image, sprite_set_position
 
-.export mouse_init, mouse_config, mouse_scan, mouse_get
+.export mouse_init, mouse_config, mouse_scan, mouse_get, mouse_update_position
 
 .segment "KVARSB0"
 
@@ -29,6 +31,16 @@ mousex:	.res 2           ;    x coordinate
 mousey:	.res 2           ;    y coordinate
 mousebt:
 	.res 1           ;    buttons (1: left, 2: right, 4: third)
+
+tmp_bytes:
+tmp_byte2:
+	.res 1
+tmp_byte1:
+	.res 1
+tmp_byte0:
+	.res 1
+tmp_counter:
+	.res 1
 
 .segment "PS2MOUSE"
 
@@ -51,7 +63,12 @@ _mouse_init:
 	sta mouseb
 	lda #>480
 	sta mouseb+1
-	rts
+
+	lda #3
+	sta tmp_counter
+
+	ldx #0
+	jmp ps2dis
 
 ; "MOUSE" KERNAL call
 ; A: $00 hide mouse
@@ -87,6 +104,9 @@ mous1:	cmp #0
 	and #$7f
 	sta msepar
 
+	ldx #0 ; PB: mouse
+	jsr ps2dis
+
 	PushW r0H
 	lda #$ff
 	sta r0H
@@ -94,7 +114,7 @@ mous1:	cmp #0
 	jsr sprite_set_position
 	PopW r0H
 	rts
-	
+
 ; show mouse
 mous2:	cmp #$ff
 	beq mous3
@@ -117,6 +137,9 @@ mous3:	lda msepar
 	ora #$80 ; flag: mouse on
 	sta msepar
 
+	ldx #0 ; PB: mouse
+	jsr ps2ena
+
 	jmp mouse_update_position
 
 mouse_scan:
@@ -125,60 +148,56 @@ mouse_scan:
 	KVARS_END
 	rts
 
-_mouse_scan:
-	bit msepar ; do nothing if mouse is off
-	bpl @a
-	ldx #0
-	jsr ps2_receive_byte
-	bcs @a ; parity error
-	bne @b ; no data
-@a:	rts
-@b:
-.if 0
-	; heuristic to test we're not out
-	; of sync:
-	; * overflow needs to be 0
-	; * bit #3 needs to be 1
-	; The following codes sent by
-	; the mouse will also be skipped
-	; by this logic:
-	; * $aa: self-test passed
-	; * $fa: command acknowledged
-	tax
-	and #$c8
-	cmp #$08
-	bne @a
-	txa
-.endif
-	sta mousebt
+not_enough_data:
+	rts
 
+
+_mouse_scan:
 	ldx #0
-	jsr ps2_receive_byte
+	jsr ps2_get_byte
+	beq @rts ; no data
+	bcc @n_error
+
+	; error, clear all flags
+	lda #3
+	sta tmp_counter
+@rts:	rts
+
+@n_error:
+	ldx tmp_counter
+	sta tmp_bytes-1,x
+
+	dec tmp_counter
+	bne _mouse_scan
+
+	lda #3
+	sta tmp_counter
+
+	lda tmp_byte1
 	clc
 	adc mousex
 	sta mousex
 
-	lda mousebt
+	lda tmp_byte0
 	and #$10
 	beq :+
 	lda #$ff
 :	adc mousex+1
 	sta mousex+1
 
-	ldx #0
-	jsr ps2_receive_byte
+	lda tmp_byte2
 	clc
 	adc mousey
 	sta mousey
 
-	lda mousebt
+	lda tmp_byte0
 	and #$20
 	beq :+
 	lda #$ff
 :	adc mousey+1
 	sta mousey+1
 
-	lda mousebt
+	lda tmp_byte0
 	and #7
 	sta mousebt
 
@@ -223,12 +242,36 @@ _mouse_scan:
 	stx mousey+1
 @5a:
 
+	; check for another packet
+	jmp _mouse_scan
+
+
+.if 0
+	; heuristic to test we're not out
+	; of sync (on byte 0):
+	; * overflow needs to be 0
+	; * bit #3 needs to be 1
+	; The following codes sent by
+	; the mouse will also be skipped
+	; by this logic:
+	; * $aa: self-test passed
+	; * $fa: command acknowledged
+	tax
+	and #$c8
+	cmp #$08
+	bne @a
+	txa
+.endif
+
+
+
 mouse_update_position:
+	KVARS_START
 	jsr screen_save_state
-	
+
 	PushW r0
 	PushW r1
-	
+
 	lda msepar
 	and #$7f
 	cmp #2 ; scale
@@ -263,7 +306,8 @@ mouse_update_position:
 	PopW r0
 
 	jsr screen_restore_state
-	rts ; NB: call above does not support tail call optimization
+	KVARS_END
+	rts
 
 mouse_get:
 	KVARS_START
