@@ -11,8 +11,8 @@
 .export ps2_init
 .export ps2ena, ps2dis
 
-port_ddr  =d2ddrb
-port_data =d2prb
+port_ddr  =d1ddrb ; offset 0!
+port_data =d1prb  ; offset 0!
 bit_data=1              ; 6522 IO port data bit mask  (PA0/PB0)
 bit_clk =2              ; 6522 IO port clock bit mask (PA1/PB1)
 
@@ -27,8 +27,8 @@ ps2q1    = $9900
 ps2err0  = $9a00
 ps2err1  = $9b00
 
-VIA_IFR_CA1 = %00000010
-VIA_IFR_CB1 = %00010000
+VIA_IFR_CA2 = %00000010 ; 0: keyboard
+VIA_IFR_CA1 = %00000001 ; 1: mouse
 
 .segment "KVARSB0"
 
@@ -59,10 +59,12 @@ ps2_init:
 
 	jsr ps2dis_all
 
-	; VIA#2 CA1/CB1 IRQ: trigger on negative edge
-	lda d2pcr
-	and #%11101110
-	sta d2pcr
+	; VIA#1 CA1 IRQ: interrupt input-negative edge
+	; VIA#1 CA2 IRQ: independent interrupt input-negative edge
+	lda d1pcr
+	and #%11110000
+	ora #%00000010
+	sta d1pcr
 
 	; enable keyboard
 	ldx #1 ; keyboard
@@ -78,10 +80,10 @@ ps2ena:
 	; enable NMI
 	txa
 	bne @1
-	lda #$80 + VIA_IFR_CB1
+	lda #$80 + VIA_IFR_CA2 ; 0: keyboard
 	bra @2
-@1:	lda #$80 + VIA_IFR_CA1
-@2:	sta d2ier
+@1:	lda #$80 + VIA_IFR_CA1 ; 1: mouse
+@2:	sta d1ier
 
 	lda port_ddr,x ; set CLK and DATA as input
 	and #$ff - bit_clk - bit_data
@@ -97,10 +99,10 @@ ps2dis:
 	; disable NMI
 	txa
 	bne @1
-	lda #VIA_IFR_CB1
+	lda #VIA_IFR_CA2 ; 0: keyboard
 	bra @2
-@1:	lda #VIA_IFR_CA1
-@2:	sta d2ier
+@1:	lda #VIA_IFR_CA1 ; 1: mouse
+@2:	sta d1ier
 
 	lda port_data,x
 	and #$ff - bit_clk ; CLK=0
@@ -131,12 +133,12 @@ ramcode:
 ; NMI
 	pha
 	phx
-	lda d2ifr
+	lda d1ifr
 @again:	ldx #1 ; 1 = offset of PA
 	bit #VIA_IFR_CA1
 	bne @cont
 	dex    ; 0 = offset of PB
-	bit #VIA_IFR_CB1
+	bit #VIA_IFR_CA2
 	bne @cont
 	; else: NMI button
 	plx
@@ -163,7 +165,7 @@ ramcode:
 	inc ps2bits,x
 @pull_rti:
 	ply
-	lda d2ifr
+	lda d1ifr
 	bne @again
 	plx
 	pla
