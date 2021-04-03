@@ -895,8 +895,10 @@ load_byte:
 @i2c:	phx
 	phy
 	jsr get_i2c_addr
-	jsr i2c_read_byte ; $fec6
-	ply
+	lda #$ee
+	bcs :+
+	jsr i2c_read_byte
+:	ply
 	plx
 	cli
 	rts
@@ -936,11 +938,13 @@ store_byte:
 	jsr get_i2c_addr
 	pla
 	bcs :+
-	jsr i2c_write_byte ; $fec9
+	jsr i2c_write_byte
 :	ply
 	plx
 	rts
 
+; convert zp1+y into device:register (page:offset)
+; C=1: illegal I2C device
 get_i2c_addr:
 	tya
 	clc
@@ -949,6 +953,11 @@ get_i2c_addr:
 	lda #0
 	adc zp1+1
 	tax
+	cpx #$08
+	bcc @bad
+	cpx #$78
+	rts
+@bad:	sec
 	rts
 
 ; ----------------------------------------------------------------
