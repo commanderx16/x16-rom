@@ -549,5 +549,7 @@ dos_macptr:
 
 ;---------------------------------------------------------------
 .segment "IRQB"
+	.word $9200 ; NMI
+	.word 0
 	.word banked_irq
 
