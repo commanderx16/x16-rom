@@ -27,8 +27,6 @@ SDA = (1 << 2)
 ;            y    offset (preserved)
 ;---------------------------------------------------------------
 i2c_read_byte:
-	jsr validate
-
 	php
 	sei
 	phx
@@ -64,6 +62,7 @@ i2c_read_byte:
 	rts
 
 @error:
+	jsr i2c_stop
 	pla                ; device * 2
 	ply
 	plx
@@ -85,8 +84,6 @@ i2c_read_byte:
 ;            y    offset (preserved)
 ;---------------------------------------------------------------
 i2c_write_byte:
-	jsr validate
-
 	php
 	sei
 	phx
@@ -116,20 +113,6 @@ i2c_write_byte:
 	ply
 	plx
 	plp
-	sec
-	rts
-
-
-;
-validate:
-	cpx #3
-	bcc @bad
-	cpx #120
-	bcs @bad
-	rts
-@bad:	pla
-	pla
-	lda #$ee
 	sec
 	rts
 
