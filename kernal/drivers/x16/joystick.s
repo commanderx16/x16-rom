@@ -40,6 +40,7 @@ joy4:	.res 3           ;    joystick 4 status
 ;
 ;---------------------------------------------------------------
 joystick_scan:
+	rts
 	KVARS_START_TRASH_A_NZ
 
 	lda #$ff-bit_data1-bit_data2

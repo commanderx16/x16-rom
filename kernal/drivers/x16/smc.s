@@ -23,12 +23,10 @@ uc_address = $42
 ; 0x05 0x00-0xFF - Activity LED Level (PWM)
 
 smc_set_activity_led:
-.if 0
 	cmp activity_led_state
 	beq @rts
 	sta activity_led_state
 	ldx #uc_address
 	ldy #5
 	jmp i2c_write_byte
-.endif
 @rts:	rts
