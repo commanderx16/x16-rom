@@ -85,6 +85,7 @@ q=128-1
 ;**************************************
 stmdsp2	; statements
 	.word monitor-1
+	.word codex-1
 	.word dos-1
 	.word old-1
 	.word geos-1
