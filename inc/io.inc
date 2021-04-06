@@ -92,19 +92,20 @@ d2ora	=via2+15
 ; VERA Video RAM Layout
 ;
 ; $0:0000 - $0:3BFF  Text Mode
-; $0:3C00 - $0:77FF  -- unused --
-; $0:7800 - $0:F7FF  Sprites
-;                    $0:7800  Sprite #0
-;                    $0:8800  Sprite #1
-;                    $0:9800  Sprite #2
-;                    $0:A800  Sprite #3
-;                    $0:B800  Sprite #4
-;                    $0:C800  Sprite #5
-;                    $0:D800  Sprite #6
-;                    $0:E800  Sprite #7
-; $0:F800 - $0:FFFF  Charset
-; $1:0000 - $1:F9FF  320x200@256c Bitmap
-; $1:FA00 - $1:FFFF  -- unused --
+; $0:3C00 - $0:3FFF  -- unused --
+; $0:4000 - $0:47F0  Charset
+; $0:4800 - $0:C7FF  Sprites
+;                    $0:4800  Sprite #0
+;                    $0:5800  Sprite #1
+;                    $0:6800  Sprite #2
+;                    $0:7800  Sprite #3
+;                    $0:8800  Sprite #4
+;                    $0:9800  Sprite #5
+;                    $0:A800  Sprite #6
+;                    $0:B800  Sprite #7
+; $0:C800 - $1:F3FF  320x240@256c Bitmap
+; $1:F400 - $1:F9BF  -- unused --
+; $1:F9C0 - $1:FFFF  VERA registers
 
-sprite_addr = $07800
-tilbas      = $0f800
+sprite_addr = $04800
+tilbas      = $04000

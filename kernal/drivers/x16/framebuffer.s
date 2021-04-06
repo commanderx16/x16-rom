@@ -55,7 +55,7 @@ FB_init:
 	sta VERA_DC_VSCALE
 	rts
 
-tile_base = $10000
+tile_base = $0C800
 
 ;---------------------------------------------------------------
 ; FB_get_info
@@ -66,7 +66,7 @@ tile_base = $10000
 ;---------------------------------------------------------------
 FB_get_info:
 	LoadW r0, 320
-	LoadW r1, 200
+	LoadW r1, 240
 	lda #8
 	rts
 
@@ -110,20 +110,25 @@ FB_cursor_position:
 	adc ptr_fg+1
 	sta ptr_fg+1
 
-	lda #$11
-	sta VERA_ADDR_H
-
 ; ptr_fg += x
 	lda r0L
 	clc
 	adc ptr_fg
 	sta ptr_fg
+	adc #<tile_base
 	sta VERA_ADDR_L
 	lda r0H
 	adc ptr_fg+1
+	adc #>tile_base
 	sta ptr_fg+1
 	sta VERA_ADDR_M
+	bcc :+
+	lda #$11
+	sta VERA_ADDR_H
+	rts
 
+:	lda #$10
+	sta VERA_ADDR_H
 	rts
 
 ;---------------------------------------------------------------
