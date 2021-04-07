@@ -102,10 +102,10 @@ get_point:
 	lda poker
 	sta y1L
 	sec
-	sbc #<200
+	sbc #<240
 	lda poker+1
 	sta y1H
-	sbc #>200
+	sbc #>240
 	bcs linfc
 	rts
 
@@ -142,10 +142,10 @@ get_points_col:
 	lda poker
 	sta y2L
 	sec
-	sbc #<200
+	sbc #<240
 	lda poker+1
 	sta y2H
-	sbc #>200
+	sbc #>240
 	bcs linfc
 
 	jsr get_col

@@ -75,7 +75,7 @@ test2_vline:
 	LoadW r0, 1
 	LoadW r1, 6
 	LoadW r2, 1
-	LoadW r3, 198
+	LoadW r3, 238
 	lda #0 ; set
 	jsr GRAPH_draw_line
 
@@ -83,7 +83,7 @@ test2_vline:
 	lda #4
 	jsr GRAPH_set_colors
 	LoadW r0, 3
-	LoadW r1, 198
+	LoadW r1, 238
 	LoadW r2, 3
 	LoadW r3, 6
 	lda #0 ; set
@@ -162,9 +162,9 @@ test4_set_get_pixels:
 	; print result of comparison
 	lda r1H
 	bne @2
-	LoadW 0, str_BAD
+	LoadW r15, str_BAD
 	bra @3
-@2:	LoadW 0, str_OK
+@2:	LoadW r15, str_OK
 @3:	lda #9
 	jsr GRAPH_set_colors
 	LoadW r0, 263
@@ -215,9 +215,9 @@ test5_filter_pixels:
 	; print result of comparison
 	lda r1H
 	bne @2a
-	LoadW 0, str_BAD
+	LoadW r15, str_BAD
 	bra @3a
-@2a:	LoadW 0, str_OK
+@2a:	LoadW r15, str_OK
 @3a:	lda #10
 	jsr GRAPH_set_colors
 	LoadW r0, 263
@@ -428,7 +428,7 @@ test12_char_styles:
 @1:	inx
 	cpx #5
 	bne @2
-	LoadW 0, test_string
+	LoadW r15, test_string
 	jsr print_string
 	ply
 	iny
@@ -514,7 +514,7 @@ checksum_framebuffer:
 	
 	plx
 	inx
-	cpx #200
+	cpx #240
 	bne @loop
 
 	lda #0
@@ -522,7 +522,7 @@ checksum_framebuffer:
 	jsr GRAPH_set_colors
 
 	LoadW r0, 295
-	LoadW r1, 190
+	LoadW r1, 230
 	LoadW r2, 24
 	LoadW r3, 9
 	jsr GRAPH_set_window
@@ -570,8 +570,8 @@ hextab:
 	.byte "0123456789ABCDEF"
 
 ; http://www.6502.org/source/integers/crc-more.html
-crclo	=0              ; current value of CRC
-crchi	=1              ; not necessarily contiguous
+crclo	=r7         ; current value of CRC
+crchi	=r7+1       ; not necessarily contiguous
 
 crc16_f:
 	eor crchi       ; A contained the data
@@ -606,7 +606,7 @@ crc16_f:
 
 print_string:
 	ldy #0
-:	lda (0),y
+:	lda (r15),y
 	beq :+
 	phy
 	jsr GRAPH_put_char
@@ -669,7 +669,7 @@ test2:
 	jsr GRAPH_draw_line
 	IncW r1
 	IncW r3
-	CmpWI r1, 200
+	CmpWI r1, 240
 	bne :-
 	
 	lda #0
@@ -681,7 +681,7 @@ test2:
 	LoadW r0, INSET
 	LoadW r1, INSET
 	LoadW r2, 320-2*INSET
-	LoadW r3, 200-2*INSET
+	LoadW r3, 240-2*INSET
 	jsr console_init
 
 	jsr set_pause_text
@@ -706,7 +706,7 @@ set_pause_text:
 pause_text:
 	.byte $92,$9B,$01,$90,$12,"Press any key to continue.",0
 
-tmp = 0
+tmp = r7
 print_lots_of_text:
 	LoadW tmp, text
 	jmp print_text

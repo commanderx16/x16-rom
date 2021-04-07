@@ -109,27 +109,33 @@ FB_cursor_position:
 	clc
 	adc ptr_fg+1
 	sta ptr_fg+1
+	bcc :+
+	lda #$11
+	bra :++
+:	lda #$10
 
 ; ptr_fg += x
+:	sta VERA_ADDR_H
 	lda r0L
 	clc
 	adc ptr_fg
 	sta ptr_fg
-	adc #<tile_base
-	sta VERA_ADDR_L
 	lda r0H
 	adc ptr_fg+1
-	adc #>tile_base
+	sta ptr_fg+1
+	clc
+	lda #<tile_base
+	adc ptr_fg
+	sta ptr_fg
+	sta VERA_ADDR_L
+	lda #>tile_base
+	adc ptr_fg+1
 	sta ptr_fg+1
 	sta VERA_ADDR_M
 	bcc :+
 	lda #$11
 	sta VERA_ADDR_H
-	rts
-
-:	lda #$10
-	sta VERA_ADDR_H
-	rts
+:	rts
 
 ;---------------------------------------------------------------
 ; FB_cursor_next_line
@@ -147,7 +153,11 @@ FB_cursor_next_line:
 	adc ptr_fg+1
 	sta ptr_fg+1
 	sta VERA_ADDR_M
-	rts
+	bcc :+
+	lda VERA_ADDR_H
+	ora #$01
+	sta VERA_ADDR_H
+:	rts
 
 ;---------------------------------------------------------------
 ; FB_set_pixel
@@ -366,13 +376,20 @@ fill_y:	sta VERA_DATA0
 
 ; XXX TODO support other step sizes
 fill_pixels_with_step:
-	ldx #$71    ; increment in steps of $40
-	stx VERA_ADDR_H
+	tay
+	lda VERA_ADDR_H
+	and #$7f
+	ora #$70    ; increment in steps of $40
+	sta VERA_ADDR_H
+	tya
 	ldx r0L
 :	sta VERA_DATA0
 	inc VERA_ADDR_M ; increment hi -> add $140 = 320
-	dex
-	bne :-
+	bne :+
+	ldy #$71
+	sty VERA_ADDR_H
+:	dex
+	bne :--
 	rts
 
 ;---------------------------------------------------------------
@@ -390,13 +407,12 @@ FB_filter_pixels:
 
 	lda VERA_ADDR_L
 	ldx VERA_ADDR_M
+	ldy VERA_ADDR_H
 	inc VERA_CTRL ; 1
 	sta VERA_ADDR_L
 	stx VERA_ADDR_M
-	lda #$11
-	sta VERA_ADDR_H
+	sty VERA_ADDR_H
 	stz VERA_CTRL ; 0
-	sta VERA_ADDR_H
 
 	ldx r0H
 	beq @2
