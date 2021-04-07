@@ -39,6 +39,50 @@ VIA_IFR_CA1 = %00000001 ; 1: mouse
 ps2_init:
 	jsr ps2reset_all
 
+	; *** host request-to-send
+	; bring the CLK line low for at least 100 microseconds
+	ldx #1
+	jsr ps2dis
+	jsr delay_100us
+	; bring the DATA line low
+	lda port_data + 1
+	and #$ff - bit_data
+	sta port_data + 1
+	; release the Clock line
+	lda port_ddr + 1
+	and #$ff - bit_clk
+	sta port_ddr + 1
+
+	ldy #$4d
+
+@loop:
+	; wait for the device to bring the Clock line low
+	lda #bit_clk
+:	bit port_data + 1
+	bne :-
+
+	; set/reset the Data line to send the first data bit
+	tya
+	lsr
+	tay
+	php
+	lda port_data + 1
+	lsr
+	plp
+	rol
+	sta port_data + 1
+
+	; wait for the device to bring Clock high
+	lda #bit_clk
+:	bit port_data + 1
+	beq :-
+
+	jmp @loop
+
+
+
+;------
+
 	ldx #0
 :	lda ramcode,x
 	sta $9200,x
@@ -259,9 +303,7 @@ ramcode:
 	php
 	cli
 
-	ldy #100/5*mhz
-:	dey
-	bne :- ; 5 clocks
+	jsr delay_100us
 
 	plp
 
@@ -269,6 +311,12 @@ ramcode:
 	jmp @pull_rti
 
 ramcode_end:
+
+delay_100us:
+	ldy #100/5*mhz - 2
+:	dey
+	bne :- ; 5 clocks
+	rts
 
 .export ps2_get_byte
 ;****************************************
