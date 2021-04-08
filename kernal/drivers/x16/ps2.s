@@ -61,7 +61,7 @@ ps2_init:
 
 	jsr ps2dis_all
 
-.if 0
+.if 1
 	; *** host request-to-send
 	; bring the CLK line low for at least 100 microseconds
 	ldx #1
@@ -74,6 +74,10 @@ ps2_init:
 
 	lda #$80
 	sta writing + 1
+	lda #0
+	sta ps2bits + 1
+	lda #$4d
+	sta ps2byte + 1
 
 	; enable CLK positive edge NMI
 	; VIA#1 CA2 IRQ: independent interrupt input-negative edge
@@ -192,8 +196,10 @@ ps2reset:
 	sta port_data,x
 	rts
 
-ramcode:
+;****************************************
 ; NMI
+;****************************************
+ramcode:
 	pha
 	phx
 	lda d1ifr
@@ -216,15 +222,42 @@ ramcode:
 	rti
 
 @cont:
+	bit writing,x
+	bpl @reading
+; writing
+	lda ps2bits,x
+	cmp #8
+	bcs @send_n_data_bit
+
+; *********************
+; SEND: 0-7: data bit
+; *********************
+	lsr ps2byte,x
+	bcc :+
+	inc ps2parity,x
+:	lda port_data,x
+	.assert bit_data = 1, error, ""
+	php
+	lsr
+	plp
+	rol
+	sta port_data,x
+	inc ps2bits,x
+	bra @rti
+
+@send_n_data_bit:
+	brk
+
+@reading:
 	lda port_data,x
 	and #bit_data
 	phy
 	ldy ps2bits,x
 	cpy #8
-	bcs @n_data_bit
+	bcs @receive_n_data_bit
 
 ; *********************
-; 0-7: data bit
+; RECEIVE: 0-7: data bit
 ; *********************
 	cmp #1
 	bcc :+
@@ -234,13 +267,14 @@ ramcode:
 	inc ps2bits,x
 @pull_rti:
 	ply
+@rti:
 	lda d1ifr
 	bne @again
 	plx
 	pla
 	rti
 
-@n_data_bit:
+@receive_n_data_bit:
 	bne @n_parity_bit
 
 ; *********************
