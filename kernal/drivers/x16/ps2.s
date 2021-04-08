@@ -22,13 +22,15 @@ ps2parity= $9004 ; 2 bytes
 ps2r     = $9006 ; 2 bytes
 ps2w     = $9008 ; 2 bytes
 
+writing  = $900a ; 2 bytes
+
 ps2q0    = $9800
 ps2q1    = $9900
 ps2err0  = $9a00
 ps2err1  = $9b00
 
-VIA_IFR_CA2 = %00000010 ; 0: keyboard
-VIA_IFR_CA1 = %00000001 ; 1: mouse
+VIA_IFR_CA1 = %00000010 ; 0: mouse
+VIA_IFR_CA2 = %00000001 ; 1: keyboard
 
 .segment "KVARSB0"
 
@@ -39,6 +41,27 @@ VIA_IFR_CA1 = %00000001 ; 1: mouse
 ps2_init:
 	jsr ps2reset_all
 
+	ldx #0
+:	lda ramcode,x
+	sta $9200,x
+	inx
+	cpx #ramcode_end - ramcode
+	bne :-
+
+	stz ps2r
+	stz ps2r+1
+	stz ps2w
+	stz ps2w+1
+
+	lda #$ff
+	sta ps2bits
+	sta ps2bits+1
+	stz ps2parity
+	stz ps2parity+1
+
+	jsr ps2dis_all
+
+.if 0
 	; *** host request-to-send
 	; bring the CLK line low for at least 100 microseconds
 	ldx #1
@@ -48,11 +71,25 @@ ps2_init:
 	lda port_data + 1
 	and #$ff - bit_data
 	sta port_data + 1
+
+	lda #$80
+	sta writing + 1
+
+	; enable CLK positive edge NMI
+	; VIA#1 CA2 IRQ: independent interrupt input-negative edge
+	lda d1pcr
+	and #%11110000
+	ora #%00000010
+	sta d1pcr
+	lda #$80 + VIA_IFR_CA2 ; 1: keyboard
+	sta d1ier
+
 	; release the Clock line
 	lda port_ddr + 1
 	and #$ff - bit_clk
 	sta port_ddr + 1
 
+.if 0
 	ldy #$4d
 
 @loop:
@@ -78,30 +115,12 @@ ps2_init:
 	beq :-
 
 	jmp @loop
+.endif
 
-
+	jmp *
 
 ;------
-
-	ldx #0
-:	lda ramcode,x
-	sta $9200,x
-	inx
-	cpx #ramcode_end - ramcode
-	bne :-
-
-	stz ps2r
-	stz ps2r+1
-	stz ps2w
-	stz ps2w+1
-
-	lda #$ff
-	sta ps2bits
-	sta ps2bits+1
-	stz ps2parity
-	stz ps2parity+1
-
-	jsr ps2dis_all
+.endif
 
 	; VIA#1 CA1 IRQ: interrupt input-negative edge
 	; VIA#1 CA2 IRQ: independent interrupt input-negative edge
@@ -124,9 +143,9 @@ ps2ena:
 	; enable NMI
 	txa
 	bne @1
-	lda #$80 + VIA_IFR_CA2 ; 0: keyboard
+	lda #$80 + VIA_IFR_CA1 ; 0: mouse
 	bra @2
-@1:	lda #$80 + VIA_IFR_CA1 ; 1: mouse
+@1:	lda #$80 + VIA_IFR_CA2 ; 1: keyboard
 @2:	sta d1ier
 
 	lda port_ddr,x ; set CLK and DATA as input
@@ -143,9 +162,9 @@ ps2dis:
 	; disable NMI
 	txa
 	bne @1
-	lda #VIA_IFR_CA2 ; 0: keyboard
+	lda #VIA_IFR_CA1 ; 0: mouse
 	bra @2
-@1:	lda #VIA_IFR_CA1 ; 1: mouse
+@1:	lda #VIA_IFR_CA2 ; 1: keyboard
 @2:	sta d1ier
 
 	lda port_data,x
@@ -179,15 +198,15 @@ ramcode:
 	phx
 	lda d1ifr
 @again:	ldx #1 ; 1 = offset of PA
-	bit #VIA_IFR_CA1
+	bit #VIA_IFR_CA2 ; 1: keyboard
 	beq @1
-	lda #VIA_IFR_CA1
+	lda #VIA_IFR_CA2 ; 1: keyboard
 	sta d1ifr
 	bra @cont
 @1:	dex    ; 0 = offset of PB
-	bit #VIA_IFR_CA2
+	bit #VIA_IFR_CA1 ; 0: mouse
 	beq @2
-	lda #VIA_IFR_CA2
+	lda #VIA_IFR_CA1 ; 0: mouse
 	sta d1ifr
 	bra @cont
 	; else: NMI button
