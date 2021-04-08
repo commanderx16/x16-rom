@@ -93,34 +93,6 @@ ps2_init:
 	and #$ff - bit_clk
 	sta port_ddr + 1
 
-.if 0
-	ldy #$4d
-
-@loop:
-	; wait for the device to bring the Clock line low
-	lda #bit_clk
-:	bit port_data + 1
-	bne :-
-
-	; set/reset the Data line to send the first data bit
-	tya
-	lsr
-	tay
-	php
-	lda port_data + 1
-	lsr
-	plp
-	rol
-	sta port_data + 1
-
-	; wait for the device to bring Clock high
-	lda #bit_clk
-:	bit port_data + 1
-	beq :-
-
-	jmp @loop
-.endif
-
 	jmp *
 
 ;------
@@ -224,7 +196,9 @@ ramcode:
 @cont:
 	bit writing,x
 	bpl @reading
-; writing
+;****************************************
+; SEND
+;****************************************
 	lda ps2bits,x
 	cmp #8
 	bcs @send_n_data_bit
@@ -233,10 +207,11 @@ ramcode:
 ; SEND: 0-7: data bit
 ; *********************
 	lsr ps2byte,x
-	bcc :+
+	bcc @send_bit
 	inc ps2parity,x
-:	lda port_data,x
+@send_bit:
 	.assert bit_data = 1, error, ""
+	lda port_data,x
 	php
 	lsr
 	plp
@@ -246,8 +221,24 @@ ramcode:
 	bra @rti
 
 @send_n_data_bit:
-	brk
+	bne @send_n_parity_bit
 
+; *********************
+; SEND: 8: parity bit
+; *********************
+	lsr ps2parity,x
+	bra @send_bit
+
+@send_n_parity_bit:
+; *********************
+; SEND: 9: stop bit
+; *********************
+	sec
+	bra @send_bit
+
+;****************************************
+; RECEIVE
+;****************************************
 @reading:
 	lda port_data,x
 	and #bit_data
@@ -275,10 +266,10 @@ ramcode:
 	rti
 
 @receive_n_data_bit:
-	bne @n_parity_bit
+	bne @receive_n_parity_bit
 
 ; *********************
-; 8: parity bit
+; RECEIVE: 8: parity bit
 ; *********************
 	ldy ps2parity,x
 	cmp #1
@@ -289,11 +280,11 @@ ramcode:
 	bcs @inc_rti
 	bra @error
 
-@n_parity_bit:
+@receive_n_parity_bit:
 	bpl @n_start ; not -1
 
 ; *********************
-; -1: start bit
+; RECEIVE: -1: start bit
 ; *********************
 	cmp #1
 	bcc @inc_rti ; clear = OK
@@ -301,7 +292,7 @@ ramcode:
 
 @n_start:
 ; *********************
-; 9: stop bit
+; RECEIVE: 9: stop bit
 ; *********************
 	cmp #1
 	bcc @error ; set = OK
