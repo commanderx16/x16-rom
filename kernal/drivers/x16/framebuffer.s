@@ -55,7 +55,7 @@ FB_init:
 	sta VERA_DC_VSCALE
 	rts
 
-tile_base = $0C800
+tile_base = $04000
 
 ;---------------------------------------------------------------
 ; FB_get_info
