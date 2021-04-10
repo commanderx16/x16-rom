@@ -93,6 +93,11 @@ ps2_init:
 	and #$ff - bit_clk
 	sta port_ddr + 1
 
+:	bit writing + 1
+	bmi :-
+	lda #bit_data
+:	bit port_data
+	beq :-
 	jmp *
 
 ;------
@@ -233,8 +238,15 @@ ramcode:
 ; *********************
 ; SEND: 9: stop bit
 ; *********************
-	sec
-	bra @send_bit
+	cmp #9
+	beq @send_bit ; C=1
+; *********************
+; SEND: 10: ACK in
+; *********************
+	; DATA should be 0
+	stz writing,x ; done writing
+	jsr ps2ena
+	bra @rti
 
 ;****************************************
 ; RECEIVE
