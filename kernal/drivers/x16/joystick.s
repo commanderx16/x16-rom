@@ -106,7 +106,7 @@ l1:	lda nes_data
 ;              on NES and SNES.
 ;---------------------------------------------------------------
 joystick_get:
-	KVARS_START_TRASH_NZ
+	KVARS_START_TRASH_X_NZ
 	tax
 	beq @1       ; -> joy1
 	dex
