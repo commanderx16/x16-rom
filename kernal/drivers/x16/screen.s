@@ -154,7 +154,6 @@ mapbas	=0
 ;             $01: 80x30 ; XXX currently unsupported
 ;             $02: 80x60
 ;             $80: 320x240@256c + 40x30 text
-;                 (320x200@256c + 40x25 text, currently)
 ;             $81: 640x400@16c ; XXX currently unsupported
 ;             $ff: toggle between $00 and $02
 ;---------------------------------------------------------------
@@ -196,7 +195,7 @@ mode_80x60:
 
 mode_320x240:
 	jsr grphon
-	ldy #25
+	ldy #30
 	sec
 	bra swpp3
 
