@@ -68,16 +68,16 @@ ps2_init:
 	jsr ps2dis
 	jsr delay_100us
 	; bring the DATA line low
-	lda port_data + 1
+	lda port_data,x
 	and #$ff - bit_data
-	sta port_data + 1
+	sta port_data,x
 
 	lda #$80
-	sta writing + 1
+	sta writing,x
 	lda #0
-	sta ps2bits + 1
-	lda #$4d
-	sta ps2byte + 1
+	sta ps2bits,x
+	lda #$ee
+	sta ps2byte,x
 
 	; enable CLK positive edge NMI
 	; VIA#1 CA2 IRQ: independent interrupt input-negative edge
@@ -89,14 +89,14 @@ ps2_init:
 	sta d1ier
 
 	; release the Clock line
-	lda port_ddr + 1
+	lda port_ddr,x
 	and #$ff - bit_clk
-	sta port_ddr + 1
+	sta port_ddr,x
 
-:	bit writing + 1
+:	bit writing,x
 	bmi :-
 	lda #bit_clk
-:	bit port_data + 1
+:	bit port_data,x
 	beq :-
 	jmp *
 
