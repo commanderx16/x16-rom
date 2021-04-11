@@ -95,8 +95,11 @@ ps2_init:
 
 :	bit writing + 1
 	bmi :-
-	lda #bit_data
-:	bit port_data
+;	lda #bit_clk
+;:	bit port_data
+;	beq :-
+:	lda port_data
+	and #bit_clk
 	beq :-
 	jmp *
 
