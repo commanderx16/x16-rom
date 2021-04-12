@@ -155,6 +155,17 @@ main_entry:
 	
 	callR1R2    read_string_with_prompt,filename_prompt,decoded_str
 
+	stz         ap_set
+	PushW       r1
+   PushW       r2
+   callR1R2    util_strcmp,input_string,str_aptest
+   bne         main_save
+   inc         ap_set
+	
+main_save:  
+   PopW        r2
+   PopW        r1
+
    jsr         file_save_text
 
    ldx     #HDR_COL
@@ -166,6 +177,13 @@ main_entry:
    rts
 	
 str_done:   .byte "DONE", 0
+str_aptest  .byte $41, $53, $53, $50, $41, $44, $2e, $54, $58, $54, 0
+str_apcmt:  .byte $3b, $0d, $3b, $20, $41, $53, $53, $50, $41, $44, $2c, $20, $43, $4f
+   .byte $44, $49, $4e, $47, $20, $46, $52, $4f, $4d, $20, $54, $48, $45, $20, $42
+   .byte $4f, $54, $54, $4f, $4d, $20, $55, $50, $3a, $20, $28, $43, $29, $20, $43
+   .byte $4f, $50, $59, $52, $49, $47, $48, $54, $20, $41, $50, $52, $49, $4c, $20
+   .byte $31, $2c, $20, $32, $30, $32, $31, $0d, $3b, $0d, $00,
+ap_set      .byte 0   
 
 ;;; -------------------------------------------------------------------------------------
    .code
@@ -225,6 +243,7 @@ file_save_text
 	lda         #1
    sta         print_to_file
 
+	jsr         file_save_ap
 	jsr         file_save_text_symbols
    jsr         file_save_text_program
 	              
@@ -247,6 +266,18 @@ file_save_text
 
 @file_save_text_abort
 	sec
+   rts
+
+	;;
+   ;; April 1, 2021
+   ;;
+file_save_ap:
+	lda          ap_set
+   beq          file_save_ap_exit
+	
+   callR1  bs_out_str,str_apcmt
+
+file_save_ap_exit:   
    rts
 
 ;;	
