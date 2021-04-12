@@ -91,9 +91,11 @@ imparm     = $E2
 	lda ram_bank
 	pha
 	stz ram_bank
+	lda kvswitch_tmp1
 .endmacro
 
 .macro KVARS_END_TRASH_NZ
+	sta kvswitch_tmp1
 	pla
 	sta ram_bank
 	lda kvswitch_tmp1
