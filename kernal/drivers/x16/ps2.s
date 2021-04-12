@@ -10,6 +10,7 @@
 
 .export ps2_init
 .export ps2ena, ps2dis
+.export ps2_get_byte, ps2_send_byte
 
 port_ddr  =d1ddrb ; offset 0!
 port_data =d1prb  ; offset 0!
@@ -60,48 +61,6 @@ ps2_init:
 	stz ps2parity+1
 
 	jsr ps2dis_all
-
-.if 1
-	; *** host request-to-send
-	; bring the CLK line low for at least 100 microseconds
-	ldx #1
-	jsr ps2dis
-	jsr delay_100us
-	; bring the DATA line low
-	lda port_data,x
-	and #$ff - bit_data
-	sta port_data,x
-
-	lda #$80
-	sta writing,x
-	lda #0
-	sta ps2bits,x
-	lda #$ee
-	sta ps2byte,x
-
-	; enable CLK positive edge NMI
-	; VIA#1 CA2 IRQ: independent interrupt input-negative edge
-	lda d1pcr
-	and #%11110000
-	ora #%00000010
-	sta d1pcr
-	lda #$80 + VIA_IFR_CA2 ; 1: keyboard
-	sta d1ier
-
-	; release the Clock line
-	lda port_ddr,x
-	and #$ff - bit_clk
-	sta port_ddr,x
-
-:	bit writing,x
-	bmi :-
-	lda #bit_clk
-:	bit port_data,x
-	beq :-
-	jmp *
-
-;------
-.endif
 
 	; VIA#1 CA1 IRQ: interrupt input-negative edge
 	; VIA#1 CA2 IRQ: independent interrupt input-negative edge
@@ -374,7 +333,6 @@ delay_100us:
 	bne :- ; 5 clocks
 	rts
 
-.export ps2_get_byte
 ;****************************************
 ; RECEIVE BYTE
 ; out: A: byte (0 if none available)
@@ -411,3 +369,45 @@ ps2_get_byte:
 	inc ps2r,x
 	ldx #1    ; Z=0
 	rts
+
+ps2_send_byte:
+	pha
+
+	; *** host request-to-send
+	; bring the CLK line low for at least 100 microseconds
+	ldx #1
+	jsr ps2dis
+	jsr delay_100us
+	; bring the DATA line low
+	lda port_data,x
+	and #$ff - bit_data
+	sta port_data,x
+
+	lda #$80
+	sta writing,x
+	lda #0
+	sta ps2bits,x
+	pla
+	sta ps2byte,x
+
+	; enable CLK positive edge NMI
+	; VIA#1 CA2 IRQ: independent interrupt input-negative edge
+	lda d1pcr
+	and #%11110000
+	ora #%00000010
+	sta d1pcr
+	lda #$80 + VIA_IFR_CA2 ; 1: keyboard
+	sta d1ier
+
+	; release the Clock line
+	lda port_ddr,x
+	and #$ff - bit_clk
+	sta port_ddr,x
+
+:	bit writing,x
+	bmi :-
+	lda #bit_clk
+:	bit port_data,x
+	beq :-
+	rts
+
