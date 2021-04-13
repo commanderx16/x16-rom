@@ -6,6 +6,7 @@ BANK_GEOS    = 3
 BANK_BASIC   = 4
 BANK_MONITOR = 5
 BANK_CHARSET = 6
+BANK_CODEX   = 7
 
 ; XXX these constant RAM addresses are KERNAL
 ; XXX implementation details and need to go away!

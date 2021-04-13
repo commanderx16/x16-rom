@@ -15,6 +15,10 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 	* works on SD cards with FAT32 filesystems.
 	* supports long filenames, timestamps.
 	* supports partitions and subdirectories (CMD-style).
+* CodeX Interactive Assembly Environment
+   * edit assembly code in ram
+   * save program, and debug information
+   * run and debug assembly programs
 
 
 Releases and Building
@@ -114,7 +118,8 @@ ROM Map
 |4   |BASIC  |BASIC interpreter                                      |
 |5   |MONITOR|Machine language monitor                               |
 |6   |CHARSET|PETSCII and ISO character sets (uploaded into VRAM)    |
-|7-31|–      |*[Currently unused]*                                   |
+|7   |CODEX  |CodeX16 Interactive Assembly Environment / Monitor     |
+|8-31|–      |*[Currently unused]*                                   |
 
 
 RAM Map
@@ -122,11 +127,13 @@ RAM Map
 
 * fixed RAM:
 	* $0000-$0400 KERNAL/BASIC/DOS system variables
+   * $0400-$XXXX CodeX variable
 	* $0400-$0800 currently unused
 	* $0800-$9F00 BASIC RAM
 * banked RAM:
 	* bank 0: KERNAL and DOS buffers and variables
 	* banks 1-255: free for applications
+   * top 5 banks used for Codex
 
 
 Credits
@@ -139,6 +146,7 @@ Credits
 * `kernal/cbm`: &copy;1983 Commodore Business Machines (CBM)
 * `basic`: &copy;1977 Microsoft Corp.
 * `geos`: &copy;1985 Berlekey Softworks
+* `CodeX`: &copy;2020 Michael J Allison, 2-clause BSD license
 
 
 

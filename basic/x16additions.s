@@ -57,6 +57,13 @@ monitor:
 	; does not return
 
 ;***************
+codex:
+   jsr bjsrfar
+   .word $c000
+   .byte BANK_CODEX
+	; does not return
+
+;***************
 geos:
 	jsr bjsrfar
 	.word $c000 ; entry
