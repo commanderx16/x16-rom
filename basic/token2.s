@@ -74,7 +74,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "TES", 'T' + $80
 	.byt "RESE", 'T' + $80
 	.byt "CL", 'S' + $80
-	.byt "C", 'X' + $80
+	.byt "CODE", 'X' + $80
 	.byt "VPEE", 'K' + $80
 	.byt "M", 'X' + $80
 	.byt "M", 'Y' + $80
