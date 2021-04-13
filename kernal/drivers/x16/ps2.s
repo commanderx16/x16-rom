@@ -164,7 +164,9 @@ ramcode:
 ; SEND
 ;****************************************
 	lda ps2bits,x
-	cmp #8
+;	bpl :+         ; starts with $FF
+;	inc ps2bits,x  ; -> skip to start at $00
+:	cmp #8
 	bcs @send_n_data_bit
 
 ; *********************
@@ -204,6 +206,7 @@ ramcode:
 ; *********************
 	; DATA should be 0
 	stz writing,x ; done writing
+	jsr new_byte_read
 	jsr ps2ena
 	bra @rti
 
@@ -289,10 +292,7 @@ ramcode:
 
 	inc ps2w,x
 
-	lda #0
-	sta ps2parity,x
-	dec
-	sta ps2bits,x
+	jsr new_byte_read
 	bra @pull_rti
 
 @error:
@@ -309,11 +309,7 @@ ramcode:
 @p1a:	sta ps2err1,y
 @cont3:	inc ps2w,x
 
-	; start with new byte
-	lda #0
-	sta ps2parity,x
-	dec
-	sta ps2bits,x
+	jsr new_byte_read
 
 	php
 	cli
@@ -331,6 +327,17 @@ delay_100us:
 	ldy #100/5*mhz - 2
 :	dey
 	bne :- ; 5 clocks
+	rts
+
+new_byte_read:
+	stz ps2parity,x
+	lda #$ff
+	sta ps2bits,x
+	rts
+
+new_byte_write:
+	stz ps2parity,x
+	stz ps2bits,x
 	rts
 
 ;****************************************
@@ -389,6 +396,7 @@ ps2_send_byte:
 	sta ps2bits,x
 	pla
 	sta ps2byte,x
+	jsr new_byte_write
 
 	; enable CLK positive edge NMI
 	; VIA#1 CA2 IRQ: independent interrupt input-negative edge
