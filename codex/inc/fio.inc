@@ -5,9 +5,9 @@
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
-      .ifndef __X16_FILE_IO__
-              __X16_FILE_IO__=1
+	.ifndef __X16_FILE_IO__
+	__X16_FILE_IO__=1
 
-      .import file_open,file_open_seq_read_str,file_open_seq_write_str,file_set_error,file_replace_ext,file_load_bank_a000
+	.import file_open,file_open_seq_read_str,file_open_seq_write_str,file_set_error,file_replace_ext,file_load_bank_a000
 
-      .endif
+	.endif

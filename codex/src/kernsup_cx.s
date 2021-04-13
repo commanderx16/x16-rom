@@ -1,8 +1,8 @@
-   .include "banks.inc"
+	.include "banks.inc"
 
-   .import bjsrfar
+	.import bjsrfar
 
-   .macro bridge symbol
+	.macro bridge symbol
 	   .local address
 	   .segment "KSUP_VEC2"
 address = *
@@ -14,19 +14,19 @@ symbol:
 	   rts
 	   .segment "KSUP_VEC2"
 	   jmp symbol
-   .endmacro
+	.endmacro
 
-   .setcpu "65c02"
-   
-   .segment "KSUP_CODE2"
+	.setcpu "65c02"
+	
+	.segment "KSUP_CODE2"
 
-   ;; BASIC's entry into jsrfar
-   .setcpu "65c02"
-   ram_bank	= 0
-   rom_bank	= 1
-   .export mjsrfar
+	;; BASIC's entry into jsrfar
+	.setcpu "65c02"
+	ram_bank	= 0
+	rom_bank	= 1
+	.export mjsrfar
 mjsrfar:
-   .include "jsrfar.inc"
+	.include "jsrfar.inc"
 
 
 	.segment "KSUP_VEC2"

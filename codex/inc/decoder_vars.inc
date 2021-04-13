@@ -5,9 +5,9 @@
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
-      .ifndef __X16_DECODER_VARS__
-              __X16_DECODER_VARS__=1
+	.ifndef __X16_DECODER_VARS__
+	__X16_DECODER_VARS__=1
 
-       .import decoded_str_next, decoded_str
-       
-      .endif
+	.import decoded_str_next, decoded_str
+	    
+	.endif

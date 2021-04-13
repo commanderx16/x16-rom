@@ -5,48 +5,48 @@
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
-   .psc02                    ; Enable 65c02 instructions
+	.psc02                    ; Enable 65c02 instructions
 	.feature labels_without_colons
 	
 	.exportzp BANK_CTRL_ROM, BANK_CTRL_RAM, KERNAL_ROM, CX_ROM
-   .export bank_initialize, bank_pop, bank_push
+	.export bank_initialize, bank_pop, bank_push
 
-   .include "bank_assy_vars.inc"
+	.include "bank_assy_vars.inc"
 	
 	__X16_BANK__=1
-   .include "x16_kernal.inc"
+	.include "x16_kernal.inc"
 
-   BANK_CTRL_RAM = $00
-   BANK_CTRL_ROM = $01
+	BANK_CTRL_RAM = $00
+	BANK_CTRL_ROM = $01
 
-   KERNAL_ROM = 0
-   CX_ROM     = 7
+	KERNAL_ROM = 0
+	CX_ROM     = 7
 
 bank_initialize
-   ;; Make sure kernel swapped in so BRK instruction doesn't
-   ;; run through an incompatible stack framing routine, making
-   ;; the brk handler confused. 2019-10-18
-   ;;
+	;; Make sure kernel swapped in so BRK instruction doesn't
+	;; run through an incompatible stack framing routine, making
+	;; the brk handler confused. 2019-10-18
+	;;
 
-   sec
-   kerjsr MEMTOP
-        
-   dec                       ; A = max bank number
-        
-   sta     bank_max
-   dec
-   sta     bank_assy
-   dec
-   sta     bank_scr1
-   dec
-   sta     bank_scr2
-   dec
-   sta     bank_meta_l
-   dec
-   sta     bank_meta_i
-   dec
-   sta     bank_plugin
-   rts
+	sec
+	kerjsr MEMTOP
+	
+	dec                       ; A = max bank number
+	
+	sta     bank_max
+	dec
+	sta     bank_assy
+	dec
+	sta     bank_scr1
+	dec
+	sta     bank_scr2
+	dec
+	sta     bank_meta_l
+	dec
+	sta     bank_meta_i
+	dec
+	sta     bank_plugin
+	rts
 
 ;;;
 ;;; Pop a bank (from stack) and restore bank value
@@ -60,31 +60,31 @@ bank_initialize
 bank_pop
 	pha                     ; Save A
 	phx
-   lda    #1               ; Setup TMP1 to point into stack
-   sta    TMP1H
-   tsx
-   stx    TMP1L
+	lda    #1               ; Setup TMP1 to point into stack
+	sta    TMP1H
+	tsx
+	stx    TMP1L
 
-   ldy    #5
-   lda   (TMP1),y
-   sta   BANK_CTRL_RAM
+	ldy    #5
+	lda   (TMP1),y
+	sta   BANK_CTRL_RAM
 
-   ;; Move the return address down by one byte 
-   dey
-   lda   (TMP1),y               ; (),4
-   iny
-   sta   (TMP1),y               ; (),5
+	;; Move the return address down by one byte 
+	dey
+	lda   (TMP1),y               ; (),4
+	iny
+	sta   (TMP1),y               ; (),5
 
-   ldy   #3
-   lda   (TMP1),y               ; (),3
-   iny
-   sta   (TMP1),y               ; (),4
+	ldy   #3
+	lda   (TMP1),y               ; (),3
+	iny
+	sta   (TMP1),y               ; (),4
 	
 	plx
 	pla                          ; Restore A
-   ply                          ; Discard old address value, get return address staged.
-   rts
-   
+	ply                          ; Discard old address value, get return address staged.
+	rts
+	
 ;;;
 ;;; Bank push
 ;;; Input - Bank value in A
@@ -94,20 +94,20 @@ bank_pop
 bank_push
 	stx   TMP2L
 
-   plx                     ; Return addr low byte
-   stx   TMP1L
-   plx                     ; Return address hi byte
-   stx   TMP1H
+	plx                     ; Return addr low byte
+	stx   TMP1L
+	plx                     ; Return address hi byte
+	stx   TMP1H
 
-   ldx   BANK_CTRL_RAM
-   phx
-   sta   BANK_CTRL_RAM
+	ldx   BANK_CTRL_RAM
+	phx
+	sta   BANK_CTRL_RAM
 
-   ldx   TMP1H             ; Set up return address, then do the return
-   phx
-   ldx   TMP1L
-   phx
+	ldx   TMP1H             ; Set up return address, then do the return
+	phx
+	ldx   TMP1L
+	phx
 
-   ldx   TMP2L
+	ldx   TMP2L
 
-   rts
+	rts

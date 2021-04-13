@@ -7,13 +7,13 @@
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
-      .ifndef __X16_DBGCTRL__
-              __X16_DBGCTRL__=1
+	.ifndef __X16_DBGCTRL__
+	__X16_DBGCTRL__=1
 
-	   .import step_apply, step_suspend, debug_get_brk_adjustment
-      .import registers_save, registers_restore
-      
-      .importzp JMP_INSTRUCTION, BRK_INSTRUCTION
+	.import step_apply, step_suspend, debug_get_brk_adjustment
+	.import registers_save, registers_restore
+	   
+	.importzp JMP_INSTRUCTION, BRK_INSTRUCTION
 
 
-      .endif
+	.endif

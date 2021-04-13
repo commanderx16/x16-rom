@@ -5,9 +5,9 @@
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
-      .ifndef __X16_EDIT__
-              __X16_EDIT__=1
+	.ifndef __X16_EDIT__
+	__X16_EDIT__=1
 
-      .import edit_insert, edit_delete
+	.import edit_insert, edit_delete
 
-      .endif
+	.endif

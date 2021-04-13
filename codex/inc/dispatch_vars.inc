@@ -5,10 +5,10 @@
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
-      .ifndef __X16_DISPATCH_VARS__
-              __X16_DISPATCH_VARS__=1
+	.ifndef __X16_DISPATCH_VARS__
+	__X16_DISPATCH_VARS__=1
 
-      .import dispatch_vector, dispatch_current_table
-      
-      .endif
+	.import dispatch_vector, dispatch_current_table
+	   
+	.endif
 

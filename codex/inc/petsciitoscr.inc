@@ -5,9 +5,9 @@
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
-      .ifndef __X16_PETSCII__
-              __X16_PETSCII__=1
+	.ifndef __X16_PETSCII__
+	__X16_PETSCII__=1
  
-         .import petscii_to_scr
+	.import petscii_to_scr
 
-      .endif
+	.endif

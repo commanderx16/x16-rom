@@ -5,14 +5,14 @@
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
-   .psc02                    ; Enable 65c02 instructions
+	.psc02                    ; Enable 65c02 instructions
 	.feature labels_without_colons
 	
-   .data
-   
-   .export orig_color, input_string_length, input_string, input_string_cursor
+	.data
+	
+	.export orig_color, input_string_length, input_string, input_string_cursor
 	.export screen_width, screen_height, screen_row_prompt, screen_row_data_count, screen_last_row 
-   .export print_to_file
+	.export print_to_file
 
 orig_color            .byte 0
 input_string_length   .byte 0

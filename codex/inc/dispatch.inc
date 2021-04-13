@@ -5,15 +5,15 @@
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
-      .ifndef __X16_DISPATCH__
-              __X16_DISPATCH__=1
+	.ifndef __X16_DISPATCH__
+	__X16_DISPATCH__=1
 
-        .import get_and_dispatch, fn_dispatch
+	.import get_and_dispatch, fn_dispatch
 
-        .macro setDispatchTable t
-               LoadW dispatch_current_table, t
-        .endmacro
+	.macro setDispatchTable t
+	LoadW dispatch_current_table, t
+	.endmacro
 
-      .include "dispatch_vars.inc"
+	.include "dispatch_vars.inc"
 
-      .endif
+	.endif

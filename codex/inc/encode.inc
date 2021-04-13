@@ -5,10 +5,10 @@
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
-      .ifndef __X16_ENCODE__
-              __X16_ENCODE__=1
+	.ifndef __X16_ENCODE__
+	__X16_ENCODE__=1
 
-	   .import encode_string
-      .import encode_parse_expression, encode_get_entry
+	.import encode_string
+	.import encode_parse_expression, encode_get_entry
 
-      .endif
+	.endif

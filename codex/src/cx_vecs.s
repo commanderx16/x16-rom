@@ -7,12 +7,12 @@
 
 	.include "decoder.inc"
 	.include "meta.inc"
-   .include "meta_i.inc"
-   
+	.include "meta_i.inc"
+	
 	.segment "AE_VECS"
 
-   .export  vec_meta_get_region, vec_meta_get_label, vec_meta_find_label, vec_meta_expr_iter, vec_meta_print_banked_label
-   .export  vec_decode_next_instruction, vec_decode_next_argument, vec_decode_get_byte_count
+	.export  vec_meta_get_region, vec_meta_get_label, vec_meta_find_label, vec_meta_expr_iter, vec_meta_print_banked_label
+	.export  vec_decode_next_instruction, vec_decode_next_argument, vec_decode_get_byte_count
 
 vec_meta_get_region:          jmp   meta_get_region
 vec_meta_get_label:           jmp   meta_get_label
