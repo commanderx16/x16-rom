@@ -52,6 +52,7 @@ ps2_init:
 	cpx #ramcode_end - ramcode
 	bne :-
 
+	; queue r/w pointers
 	stz ps2r
 	stz ps2r+1
 	stz ps2w
@@ -94,6 +95,8 @@ ps2ena:
 	lda port_ddr,x ; set CLK and DATA as input
 	and #$ff - bit_clk - bit_data
 	sta port_ddr,x ; -> bus is idle, device can start sending
+
+	stz sending,x
 	rts
 
 ;****************************************
@@ -206,7 +209,6 @@ ramcode:
 ; SEND: 10: ACK in
 ; *********************
 	; DATA should be 0
-	stz sending,x ; done sending
 	jsr new_byte_read
 	jsr ps2ena
 	bra @rti
@@ -401,10 +403,11 @@ ps2_send_byte:
 
 	; enable CLK positive edge NMI
 	; VIA#1 CA2 IRQ: independent interrupt input-negative edge
-	lda d1pcr
-	and #%11110000
-	ora #%00000010
-	sta d1pcr
+;	lda d1pcr
+;	and #%11110000
+;	ora #%00000010
+;	sta d1pcr
+
 	lda #$80 + VIA_IFR_KEYBD
 	sta d1ier
 
