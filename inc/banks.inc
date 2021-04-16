@@ -84,6 +84,7 @@ imparm     = $E2
 	stx ram_bank
 .endmacro
 
+; Warning: KVARS_START_TRASH_NZ and KVARS_END_TRASH_NZ are not interrupt-safe
 .macro KVARS_START_TRASH_NZ
 .import kvswitch_tmp1, kvswitch_tmp2
 	sta kvswitch_tmp1
