@@ -17,21 +17,24 @@ port_data =d1prb  ; offset 0!
 bit_data=1              ; 6522 IO port data bit mask  (PA0/PB0)
 bit_clk =2              ; 6522 IO port clock bit mask (PA1/PB1)
 
-ps2bits  = $9000 ; 2 bytes
-ps2byte  = $9002 ; 2 bytes
-ps2parity= $9004 ; 2 bytes
-ps2r     = $9006 ; 2 bytes
-ps2w     = $9008 ; 2 bytes
+ps2bits  = $9000 ; 2 bytes: bit counter
+ps2byte  = $9002 ; 2 bytes: sent/received byte
+ps2parity= $9004 ; 2 bytes: parity
+ps2r     = $9006 ; 2 bytes: buffer pointer for reading
+ps2w     = $9008 ; 2 bytes: buffer pointer for writing
 
-writing  = $900a ; 2 bytes
+sending  = $900a ; 2 bytes: whether we are sending or receiving (bit #7)
 
-ps2q0    = $9800
-ps2q1    = $9900
-ps2err0  = $9a00
-ps2err1  = $9b00
+ps2q0    = $9800 ; input queue #0
+ps2q1    = $9900 ; input queue #1
+ps2err0  = $9a00 ; error queue #0
+ps2err1  = $9b00 ; error queue #0
 
-VIA_IFR_CA1 = %00000010 ; 0: mouse
-VIA_IFR_CA2 = %00000001 ; 1: keyboard
+VIA_IFR_CA1 = %00000010
+VIA_IFR_CA2 = %00000001
+
+VIA_IFR_MOUSE = VIA_IFR_CA1
+VIA_IFR_KEYBD = VIA_IFR_CA2
 
 .segment "KVARSB0"
 
@@ -83,9 +86,9 @@ ps2ena:
 	; enable NMI
 	txa
 	bne @1
-	lda #$80 + VIA_IFR_CA1 ; 0: mouse
+	lda #$80 + VIA_IFR_MOUSE
 	bra @2
-@1:	lda #$80 + VIA_IFR_CA2 ; 1: keyboard
+@1:	lda #$80 + VIA_IFR_KEYBD
 @2:	sta d1ier
 
 	lda port_ddr,x ; set CLK and DATA as input
@@ -102,9 +105,9 @@ ps2dis:
 	; disable NMI
 	txa
 	bne @1
-	lda #VIA_IFR_CA1 ; 0: mouse
+	lda #VIA_IFR_MOUSE
 	bra @2
-@1:	lda #VIA_IFR_CA2 ; 1: keyboard
+@1:	lda #VIA_IFR_KEYBD
 @2:	sta d1ier
 
 	lda port_data,x
@@ -140,15 +143,15 @@ ramcode:
 	phx
 	lda d1ifr
 @again:	ldx #1 ; 1 = offset of PA
-	bit #VIA_IFR_CA2 ; 1: keyboard
+	bit #VIA_IFR_KEYBD
 	beq @1
-	lda #VIA_IFR_CA2 ; 1: keyboard
+	lda #VIA_IFR_KEYBD
 	sta d1ifr
 	bra @cont
 @1:	dex    ; 0 = offset of PB
-	bit #VIA_IFR_CA1 ; 0: mouse
+	bit #VIA_IFR_MOUSE
 	beq @2
-	lda #VIA_IFR_CA1 ; 0: mouse
+	lda #VIA_IFR_MOUSE
 	sta d1ifr
 	bra @cont
 	; else: NMI button
@@ -158,15 +161,13 @@ ramcode:
 	rti
 
 @cont:
-	bit writing,x
+	bit sending,x
 	bpl @reading
 ;****************************************
 ; SEND
 ;****************************************
 	lda ps2bits,x
-;	bpl :+         ; starts with $FF
-;	inc ps2bits,x  ; -> skip to start at $00
-:	cmp #8
+	cmp #8
 	bcs @send_n_data_bit
 
 ; *********************
@@ -205,7 +206,7 @@ ramcode:
 ; SEND: 10: ACK in
 ; *********************
 	; DATA should be 0
-	stz writing,x ; done writing
+	stz sending,x ; done sending
 	jsr new_byte_read
 	jsr ps2ena
 	bra @rti
@@ -391,7 +392,7 @@ ps2_send_byte:
 	sta port_data,x
 
 	lda #$80
-	sta writing,x
+	sta sending,x
 	lda #0
 	sta ps2bits,x
 	pla
@@ -404,7 +405,7 @@ ps2_send_byte:
 	and #%11110000
 	ora #%00000010
 	sta d1pcr
-	lda #$80 + VIA_IFR_CA2 ; 1: keyboard
+	lda #$80 + VIA_IFR_KEYBD
 	sta d1ier
 
 	; release the Clock line
@@ -412,7 +413,7 @@ ps2_send_byte:
 	and #$ff - bit_clk
 	sta port_ddr,x
 
-:	bit writing,x
+:	bit sending,x
 	bmi :-
 	lda #bit_clk
 :	bit port_data,x
