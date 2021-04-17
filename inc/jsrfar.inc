@@ -34,7 +34,6 @@
 	sta $0105,x     ;save original bank into reserved byte
 	iny
 	lda (imparm),y  ;target address bank
-	and #$07
 	ply             ;restore registers
 	plx
 	jmp jsrfar3
