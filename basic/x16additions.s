@@ -460,7 +460,7 @@ start:
 	lda index1+1
 	sta r1+1
 	jsr bjsrfar
-	.word $fec9		;rom_start
+	.word $fec3		;rom_start
 	.byte BANK_KERNAL
 	jmp sngflt
 

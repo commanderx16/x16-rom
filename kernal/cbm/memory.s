@@ -38,12 +38,6 @@ movos2	sta (tmp2),y    ;put in user
 	sta cinv,y      ;put in storage
 	dey
 	bpl movos1
-
-	lda #<receive_scancode_resume
-	sta keyhdl
-	lda #>receive_scancode_resume
-	sta keyhdl+1
-
 	rts
 ;
 vectss	.word key,timb,nnmi

@@ -91,8 +91,9 @@ found:
     sta jmpfr+2
 
     lda bnk         ;set ROM bank
-    rts jsrfar3
+    jsr jsrfar3
     clc
+    rts
 
 nxtbnk:
     inc bnk
