@@ -7,6 +7,7 @@
 
 .import jsrfar
 .import clock_get_date_time
+.import smc_set_activity_led
 
 .import cbdos_secnd
 .import cbdos_tksa
@@ -163,7 +164,6 @@ macptr:
 :	jsr jsrfar
 	.word $c000 + 3 * 17
 	.byte BANK_CBDOS
-	clc
 	rts
 
 
@@ -210,8 +210,7 @@ upload_time:
 	rts
 
 ; Convert the "active" and "error" flags into a solid or
-; blinking LED. Board revision 1 doesn't have an LED, so
-; we write into a private setting of the emulator for now.
+; blinking LED.
 led_update:
 	lda cbdos_flags
 	bit #$20  ; error?
@@ -226,11 +225,12 @@ led_update:
 	ora cbdos_flags
 	sta cbdos_flags
 	and #$08
-	sta $9fbf ; LED on/off for 8 frames each
-	rts
+@set_led:
+	beq :+
+	lda #$ff
+:	jmp smc_set_activity_led
 
 @no_error:
 	lda cbdos_flags
 	and #$10  ; active?
-	sta $9fbf ; then LED on
-	rts
+	bra @set_led

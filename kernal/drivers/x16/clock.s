@@ -8,8 +8,7 @@
 .include "io.inc"
 
 .import softclock_timer_update, softclock_timer_get, softclock_timer_set
-.import softclock_time_update, softclock_time_get, softclock_time_set
-.import softclock_date_update, softclock_date_get, softclock_date_set
+.import rtc_get_date_time, rtc_set_date_time
 
 ; KERNAL API
 .export clock_update
@@ -28,13 +27,7 @@
 ;
 ; Note:     The original symbol is UDTIM.
 ;---------------------------------------------------------------
-clock_update:
-	jsr softclock_timer_update
-	lda #60
-	jsr softclock_time_update
-	bne :+
-	jmp softclock_date_update
-:	rts
+clock_update = softclock_timer_update
 
 ;---------------------------------------------------------------
 ; clock_get_timer
@@ -75,13 +68,7 @@ clock_set_timer = softclock_timer_set
 ;            r2H  seconds
 ;            r3L  jiffies
 ;---------------------------------------------------------------
-clock_get_date_time:
-	php
-	sei             ;keep date from rolling
-	jsr softclock_date_get
-	jsr softclock_time_get
-	plp
-	rts
+clock_get_date_time = rtc_get_date_time
 
 ;---------------------------------------------------------------
 ; clock_set_date_time
@@ -96,11 +83,4 @@ clock_get_date_time:
 ;            r2H  seconds
 ;            r3L  jiffies
 ;---------------------------------------------------------------
-clock_set_date_time:
-	php
-	sei             ;keep date from rolling
-	jsr softclock_date_set
-	jsr softclock_time_set
-	plp
-	rts
-
+clock_set_date_time = rtc_set_date_time

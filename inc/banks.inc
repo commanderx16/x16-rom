@@ -60,6 +60,46 @@ imparm     = $E2
 	plp
 .endmacro
 
+.macro KVARS_START_TRASH_A_NZ
+.import kvswitch_tmp1, kvswitch_tmp2
+	lda ram_bank
+	pha
+	stz ram_bank
+.endmacro
+
+.macro KVARS_END_TRASH_A_NZ
+	pla
+	sta ram_bank
+.endmacro
+
+.macro KVARS_START_TRASH_X_NZ
+.import kvswitch_tmp1, kvswitch_tmp2
+	ldx ram_bank
+	phx
+	stz ram_bank
+.endmacro
+
+.macro KVARS_END_TRASH_X_NZ
+	plx
+	stx ram_bank
+.endmacro
+
+.macro KVARS_START_TRASH_NZ
+.import kvswitch_tmp1, kvswitch_tmp2
+	sta kvswitch_tmp1
+	lda ram_bank
+	pha
+	stz ram_bank
+	lda kvswitch_tmp1
+.endmacro
+
+.macro KVARS_END_TRASH_NZ
+	sta kvswitch_tmp1
+	pla
+	sta ram_bank
+	lda kvswitch_tmp1
+.endmacro
+
 .else ; C64
 
 .macro KVARS_START
