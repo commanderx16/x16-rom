@@ -84,9 +84,6 @@ nwrap=2 ;max number of physical lines per logical line
 ; keyboard driver
 .import kbd_config, kbd_scan, kbdbuf_clear, kbdbuf_put, kbdbuf_get, kbd_remove, kbdbuf_get_modifiers, kbdbuf_get_stop
 
-; beep driver
-.import beep
-
 .import emulator_get_data
 
 .include "banks.inc"
@@ -687,7 +684,7 @@ isoon
 
 isooff
 	cmp #$8f        ;switch to PETSCII mode?
-	bne bell        ;branch if not
+	bne outhre      ;branch if not
 	lda #2
 	jsr screen_set_charset
 	lda mode
@@ -696,12 +693,6 @@ isosto	sta mode
 	lda #$ff
 	jsr kbd_config  ;reload keymap
 	jsr clsr        ;clear screen
-	jmp loop2
-
-bell
-	cmp #$07        ;bell?
-	bne outhre      ;branch if not
-	jsr beep
 	jmp loop2
 
 ;shifted keys

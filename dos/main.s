@@ -29,9 +29,6 @@
 ; file.s
 .export channel, context_for_channel, ieee_status
 
-; match.s
-.import skip_mask
-
 ; jumptab.s
 .export dos_secnd, dos_tksa, dos_acptr, dos_ciout, dos_untlk, dos_unlsn, dos_listn, dos_talk, dos_macptr
 .export dos_set_time
@@ -166,11 +163,6 @@ reset_dos:
 	lda #CONTEXT_CMD
 	sta context_for_channel + 15
 
-	stz buffer_overflow
-	stz buffer_len
-	stz disk_changed
-	stz skip_mask
-
 	jsr fat32_init
 
 	lda #1
@@ -271,7 +263,6 @@ dos_secnd:
 @secnd_open:
 	inc is_receiving_filename
 	stz buffer_len
-	stz buffer_overflow
 
 @secnd_rts:
 	ply

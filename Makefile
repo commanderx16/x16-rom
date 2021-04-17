@@ -114,18 +114,10 @@ else ifeq ($(MACHINE),x16)
 		kernal/drivers/x16/framebuffer.s \
 		kernal/drivers/x16/sprites.s \
 		kernal/drivers/x16/entropy.s \
-<<<<<<< HEAD
 		kernal/drivers/generic/softclock_timer.s \
 		kernal/drivers/generic/softclock_time.s \
 		kernal/drivers/generic/softclock_date.s \
 		kernal/romstart.s
-=======
-		kernal/drivers/x16/beep.s \
-		kernal/drivers/x16/i2c.s \
-		kernal/drivers/x16/smc.s \
-		kernal/drivers/x16/rtc.s \
-		kernal/drivers/generic/softclock_timer.s
->>>>>>> 5496e0b60591e949523cc4d449ed8977712d740d
 else
 $(error Illegal value for MACHINE)
 endif

@@ -8,7 +8,7 @@
 
 .include "io.inc"
 
-.import nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv, receive_scancode_resume
+.import nsave, nload, nclall, ngetin, nstop, nbsout, nbasin, nclrch, nckout, nchkin, nclose, nopen, nnmi, timb, key, cinv, receive_scancode_resume, keyhdl
 .importzp tmp2
 .export iobase, membot, memtop, restor, vector
 
@@ -50,8 +50,7 @@ vectss	.word key,timb,nnmi
 	.word nopen,nclose,nchkin
 	.word nckout,nclrch,nbasin
 	.word nbsout,nstop,ngetin
-	.word nclall
-	.word receive_scancode_resume
+	.word nclall,timb ;goto break on a usrcmd jmp
 	.word nload,nsave
 vectse
 

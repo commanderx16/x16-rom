@@ -92,11 +92,21 @@
 	; [do not use, used by BASIC]
 	jmp fmultt  ; $BA2B
 
+	; [removed]
+   brk
+   brk
+   brk
+
 	; ARG = mem(.Y:.A) (5 bytes)
 	jmp conupk ; $BA8C [-mapping-]
 
 	; FAC *= 10
 	jmp mul10  ; $BAE2
+
+	; [removed]
+	brk
+	brk
+	brk
 
 	; FAC /= 10
 	; ["Note: This routine treats FAC1 as positive even if it is not."]
@@ -184,6 +194,11 @@
 	; [used by BASIC]
 	jmp foutc  ; $BDDF
 
+	; [removed]
+	brk
+	brk
+	brk
+
 	; FAC = sqr(FAC)
 	jmp sqr    ; $BF71
 
@@ -206,6 +221,11 @@
 
 	; Polynomial Evaluation 2 (EXP)
 	jmp poly   ; $E059 [-mapping-]
+
+	; [removed]
+	brk
+	brk
+	brk
 
 	; FAC = rnd(FAC)
 	; for FAC == 0, the entropy in .A/.X/.Y is used

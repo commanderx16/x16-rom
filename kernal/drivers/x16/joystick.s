@@ -40,7 +40,7 @@ joy4:	.res 3           ;    joystick 4 status
 ;
 ;---------------------------------------------------------------
 joystick_scan:
-	KVARS_START_TRASH_A_NZ
+	KVARS_START
 
 	lda #$ff-bit_data1-bit_data2
 	sta nes_ddr
@@ -76,7 +76,7 @@ l1:	lda nes_data
 	cpx #3
 	bne l2
 
-	KVARS_END_TRASH_A_NZ
+	KVARS_END
 	rts
 
 ;---------------------------------------------------------------
@@ -106,7 +106,7 @@ l1:	lda nes_data
 ;              on NES and SNES.
 ;---------------------------------------------------------------
 joystick_get:
-	KVARS_START_TRASH_X_NZ
+	KVARS_START
 	tax
 	beq @1       ; -> joy1
 	dex
@@ -149,7 +149,7 @@ joystick_get:
 	ldy joy4+2
 
 
-@5:	KVARS_END_TRASH_NZ
+@5:	KVARS_END
 	rts
 
 ;----------------------------------------------------------------------
