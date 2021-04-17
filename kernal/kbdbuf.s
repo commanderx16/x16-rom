@@ -26,14 +26,13 @@ shflag:	.res 1           ;    shift flag byte
 .segment "KBDBUF"
 
 kbdbuf_clear:
-	KVARS_START
-	lda #0
-	sta ndx
-	KVARS_END
+	KVARS_START_TRASH_A_NZ
+	stz ndx
+	KVARS_END_TRASH_A_NZ
 	rts
 
 kbdbuf_get:
-	KVARS_START
+	KVARS_START_TRASH_A_NZ
 	lda ndx         ;queue index
 	beq @1          ;nobody there...exit
 	php
@@ -48,8 +47,9 @@ kbdbuf_get:
 	dec ndx
 	plp
 	tya
-@1:	clc             ;good return
-	KVARS_END
+@1:	KVARS_END_TRASH_X_NZ
+	clc             ;good return
+	and #$ff
 	rts
 
 ; XXX make API
@@ -74,15 +74,17 @@ kbdbuf_put:
 	rts
 
 kbdbuf_get_stop:
-	KVARS_START
+	KVARS_START_TRASH_X_NZ
 	lda stkey
 	eor #$ff        ;set z if stkey is true
-	KVARS_END
+	KVARS_END_TRASH_X_NZ
+	and #$ff
 	rts
 
 ; XXX make API
 kbdbuf_get_modifiers:
-	KVARS_START
+	KVARS_START_TRASH_X_NZ
 	lda shflag
-	KVARS_END
+	KVARS_END_TRASH_X_NZ
+	and #$ff
 	rts
