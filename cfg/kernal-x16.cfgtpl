@@ -45,6 +45,7 @@ SEGMENTS {
 	CONSOLE:  load = KERNAL,   type = ro;
 	SPRITES:  load = KERNAL,   type = ro;
 	VERA_DRV: load = KERNAL,   type = ro;
+	ROMSTART: load = KERNAL,   type = ro;
 	KERNRAM:  load = KERNAL,   run = KERNRAM,  type = ro, define = yes;
 	KERNRAM2: load = KERNAL,   run = KERNRAM2, type = ro, define = yes;
 	JMPTBL:   load = JMPTBL,   type = ro;

@@ -24,6 +24,7 @@
 .import kbdbuf_put, entropy_get
 
 .import restor, memtop, membot, vector, puls, start, nmi, iobase, primm
+.import rom_start
 
 	.segment "JMPTBL"
 
@@ -35,7 +36,7 @@
 	.byte 0,0,0            ; $FEC0
 	.byte 0,0,0            ; $FEC3
 	.byte 0,0,0            ; $FEC6
-	.byte 0,0,0            ; $FEC9
+	jmp rom_start          ; $FEC9
 	jmp monitor            ; $FECC
 	jmp entropy_get        ; $FECF
 	jmp kbdbuf_put         ; $FED2

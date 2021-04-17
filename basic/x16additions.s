@@ -1,4 +1,3 @@
-
 VERA_BASE = $9F20
 
 VERA_ADDR_L   	  = (VERA_BASE + $00)
@@ -447,6 +446,24 @@ reset_copy:
 cls:
 	lda #$93
 	jmp outch
+
+;***************
+;START command
+start:
+	jsr frmstr		;Get param
+	bne :+			;Len=0
+	jmp sngflt
+
+:	sta r0
+	lda index1
+	sta r1
+	lda index1+1
+	sta r1+1
+	jsr bjsrfar
+	.word $fec9		;rom_start
+	.byte BANK_KERNAL
+	jmp sngflt
+
 
 ; BASIC's entry into jsrfar
 .setcpu "65c02"

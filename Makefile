@@ -49,7 +49,7 @@ KERNAL_CORE_CBM_SOURCES = \
 	kernal/cbm/memory.s \
 	kernal/cbm/nmi.s \
 	kernal/cbm/irq.s \
-	kernal/cbm/util.s
+	kernal/cbm/util.s 
 
 KERNAL_SERIAL_CBM_SOURCES = \
 	kernal/cbm/serial.s
@@ -116,7 +116,8 @@ else ifeq ($(MACHINE),x16)
 		kernal/drivers/x16/entropy.s \
 		kernal/drivers/generic/softclock_timer.s \
 		kernal/drivers/generic/softclock_time.s \
-		kernal/drivers/generic/softclock_date.s
+		kernal/drivers/generic/softclock_date.s \
+		kernal/romstart.s
 else
 $(error Illegal value for MACHINE)
 endif
