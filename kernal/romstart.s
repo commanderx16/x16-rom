@@ -33,8 +33,7 @@ vect    = r2        ;Vector to ROM
 ;Input:  R0 LSB = Program name length
 ;        R1     = Pointer to program name string
 ;
-;Output: C=1, program not found
-;        C=0, program found
+;Output: Nothing
 
 rom_start:
     ;Setup
@@ -101,9 +100,77 @@ nxtbnk:
     cmp #32
     bne loop
 
-notfound:
-    sec
+    ldy #0
+:   lda notfoundmsg,y
+    beq list
+    jsr $ffd2
+    iny
+    bra :-
+
+list:
+    ;Setup
+    stz bnk
+    lda #$c0
+    sta vect+1
+
+    ;Verify magic string "X16"
+listloop:
+    lda #3
+    sta vect
+    ldy #0
+    
+:   ldx bnk
+    lda #vect
+    jsr $ff74
+    cmp magic,y
+    bne nxtbnk2
+    iny
+    cpy #3
+    bne :-
+
+    ;Get length of program name
+    ldx bnk
+    lda #vect
+    ldy #6
+    jsr $ff74
+    sta len
+
+    ;Indent six spaces
+    ldy #6
+:   lda #32
+    phy
+    jsr $ffd2
+    ply
+    dey
+    bne :-
+
+    ;Print name
+    lda #$a
+    sta vect
+    ldy #0
+
+:   cpy len
+    beq :+
+    ldx bnk
+    lda #vect
+    jsr $ff74
+    phy
+    jsr $ffd2
+    ply
+    iny
+    bra :-
+
+:   lda #13
+    jsr $ffd2
+
+nxtbnk2:
+    inc bnk
+    lda bnk
+    cmp #8
+    bne listloop
     rts
 
 magic:
     .byt "X16"
+notfoundmsg:
+    .byt 13, "NOT FOUND. LIST OF ROM BASED PROGRAMS:",13, 0
