@@ -81,19 +81,19 @@ loop:
 
 found:
     pha             ;reserve 1 byte on the stack
-    
+    php
+    pha
+
     tsx             ;save current bank on stack
     lda $1
-    sta $0101,x
+    sta $0103,x
     
     stz jmpfr+1     ;set call address, always $c000
     lda #$c0
     sta jmpfr+2
 
     lda bnk         ;set ROM bank
-    jsr jsrfar3
-    clc
-    rts
+    jmp jsrfar3
 
 nxtbnk:
     inc bnk
