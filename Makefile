@@ -98,7 +98,7 @@ ifeq ($(MACHINE),c64)
 		kernal/drivers/c64/screen.s \
 		kernal/drivers/c64/sprites.s \
 		kernal/drivers/generic/softclock_timer.s \
-		kernal/drivets/generic/softclock_time.s \
+		kernal/drivers/generic/softclock_time.s \
 		kernal/drivers/generic/softclock_date.s
 else ifeq ($(MACHINE),x16)
 	KERNAL_DRIVER_SOURCES = \
