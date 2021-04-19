@@ -49,7 +49,7 @@ KERNAL_CORE_CBM_SOURCES = \
 	kernal/cbm/memory.s \
 	kernal/cbm/nmi.s \
 	kernal/cbm/irq.s \
-	kernal/cbm/util.s 
+	kernal/cbm/util.s
 
 KERNAL_SERIAL_CBM_SOURCES = \
 	kernal/cbm/serial.s
@@ -98,6 +98,7 @@ ifeq ($(MACHINE),c64)
 		kernal/drivers/c64/screen.s \
 		kernal/drivers/c64/sprites.s \
 		kernal/drivers/generic/softclock_timer.s \
+		kernal/drivets/generic/softclock_time.s \
 		kernal/drivers/generic/softclock_date.s
 else ifeq ($(MACHINE),x16)
 	KERNAL_DRIVER_SOURCES = \
