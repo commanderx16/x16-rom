@@ -472,7 +472,7 @@ ps2_send_byte:
 ;	ora #%00000010
 ;	sta d1pcr
 
-.if 1
+.if 0
 	lda #$80 + VIA_IFR_KEYBD
 	sta d1ier
 
@@ -488,29 +488,67 @@ ps2_send_byte:
 	beq :-
 	rts
 .else
-	lda #$00
-	sta 2
-	lda #$10
-	sta 3
-	ldy #0
 
 	; release the Clock line
 	lda port_ddr,x
 	and #$ff - bit_clk
 	sta port_ddr,x
 
+	lda #0
+	sta 2
+	lda #$ee
+	sta 3
+
+	ldy #0
 @loop:
-	lda #2
-:	dec
+	lda #bit_clk
+:	bit port_data,x
 	bne :-
+
+	cpy #8
+	bcs @1
+
+	lsr 3
+	bra @2
+
+@1:	bne @3
+	; 8: parity
+	sec
+	bra @2
+
+@3:	cpy #9
+	bne @4
+	; 9: stop
+	sec
+	bra @2
+
+@4:	; 10: ack
+	bra @end
+
+
+@2:
 	lda port_data,x
-	sta (2),y
+	php
+	lsr
+	plp
+	rol
+	sta port_data,x
+	sta $99c0,y
+
+	lda #bit_clk
+:	bit port_data,x
+	beq :-
+
 	iny
-	bne @loop
-	inc 3
-	lda 3
-	cmp #$80
-	bne @loop
+	bra @loop
+
+@end:
+	lda port_ddr,x
+	and #$ff - bit_clk - bit_data
+	sta port_ddr,x
+	lda port_data,x
+	sta $99e0
+
 
 	ldx #1
 	jsr ps2ena
