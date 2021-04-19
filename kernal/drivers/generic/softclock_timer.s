@@ -23,6 +23,25 @@ softclock_timer_update:
 	KVARS_START
 	inc timer+2     ;increment the timer register
 	bne :+
+
+.if 1
+.import ps2_send_byte
+	pha
+	phx
+	phy
+	lda $8fff
+	cmp #'M'
+	beq @1
+	lda #$ee
+	jsr ps2_send_byte
+	lda #'M'
+	jsr $ffd2
+	sta $8fff
+@1:	ply
+	plx
+	pla
+.endif
+
 	inc timer+1
 	bne :+
 	inc timer

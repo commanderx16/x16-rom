@@ -171,15 +171,7 @@ bit_found:
 	sta fetvec
 	jsr fetch
 	beq drv_end
-	cmp #'X'
-	bne :+
-
-.import ps2_send_byte
-	lda #$ee
-	jsr ps2_send_byte
-	jmp drv_end
-
-:	jmp kbdbuf_put
+	jmp kbdbuf_put
 
 down_ext:
 	cpx #$e1 ; prefix $E1 -> E1-14 = Pause/Break

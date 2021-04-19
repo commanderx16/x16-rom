@@ -187,6 +187,9 @@ ramcode:
 	plp
 	rol
 	sta port_data,x
+
+;	jsr debug2
+
 	inc ps2bits,x
 	bra @rti
 
@@ -196,7 +199,9 @@ ramcode:
 ; *********************
 ; SEND: 8: parity bit
 ; *********************
-	lsr ps2parity,x
+	lda ps2parity,x
+	inc
+	lsr
 	bra @send_bit
 
 @send_n_parity_bit:
@@ -208,6 +213,13 @@ ramcode:
 ; *********************
 ; SEND: 10: ACK in
 ; *********************
+	; set DATA input
+	lda port_ddr,x
+	and #$ff - bit_data
+	sta port_ddr,x
+
+	lda port_data,x
+	sta $99ff
 	; DATA should be 0
 	jsr new_byte_read
 	jsr ps2ena
@@ -237,7 +249,12 @@ ramcode:
 	ply
 @rti:
 	lda d1ifr
-	bne @again
+	and #VIA_IFR_MOUSE | VIA_IFR_KEYBD ; XXX
+	beq :+
+	jmp @again
+:
+	jsr debug
+
 	plx
 	pla
 	rti
@@ -255,6 +272,7 @@ ramcode:
 :	tya
 	ror
 	bcs @inc_rti
+	lda #1
 	bra @error
 
 @receive_n_parity_bit:
@@ -265,6 +283,7 @@ ramcode:
 ; *********************
 	cmp #1
 	bcc @inc_rti ; clear = OK
+	lda #2
 	bra @error
 
 @n_start:
@@ -272,7 +291,7 @@ ramcode:
 ; RECEIVE: 9: stop bit
 ; *********************
 	cmp #1
-	bcc @error ; set = OK
+	bcc @error3 ; set = OK
 	; If the stop bit is incorrect, inhibiting communication
 	; at this late point won't cause a re-send from the
 	; device, so effectively, we will only ignore the
@@ -298,19 +317,20 @@ ramcode:
 	jsr new_byte_read
 	bra @pull_rti
 
+@error3:
+	lda #3
 @error:
-	; inhibit for 100 µs
-	jsr ps2dis
-
 	; put error into queue
 	ldy ps2w,x
-	lda #1
 	cpx #0
 	bne @p1a
 	sta ps2err0,y
 	bra @cont3
 @p1a:	sta ps2err1,y
 @cont3:	inc ps2w,x
+
+	; inhibit for 100 µs
+	jsr ps2dis
 
 	jsr new_byte_read
 
@@ -326,6 +346,7 @@ ramcode:
 
 ramcode_end:
 
+; XXX this needs to be in RAM!!
 delay_100us:
 	ldy #100/5*mhz - 2
 :	dey
@@ -341,6 +362,49 @@ new_byte_read:
 new_byte_write:
 	stz ps2parity,x
 	stz ps2bits,x
+	rts
+
+debug2:
+	phy
+	lda port_ddr,x
+	pha
+	and #$ff - bit_data
+	sta port_ddr,x
+	lda ps2bits,x
+	tay
+	lda port_data,x
+	sta $9980,y
+	pla
+	sta port_ddr,x
+	ply
+	rts
+
+debug:
+;	lda #'.'
+;	jmp $ffd2
+
+	lda VERA_CTRL
+	pha
+	and #$FE
+	sta VERA_CTRL
+	lda VERA_ADDR_L
+	pha
+        lda VERA_ADDR_M
+        pha
+        lda VERA_ADDR_H
+        pha
+	stz VERA_ADDR_L
+        stz VERA_ADDR_M
+        stz VERA_ADDR_H
+        inc VERA_DATA0
+        pla
+        sta VERA_ADDR_H
+	pla
+        sta VERA_ADDR_M
+        pla
+	sta VERA_ADDR_L
+	pla
+	sta VERA_CTRL
 	rts
 
 ;****************************************
@@ -408,6 +472,7 @@ ps2_send_byte:
 ;	ora #%00000010
 ;	sta d1pcr
 
+.if 1
 	lda #$80 + VIA_IFR_KEYBD
 	sta d1ier
 
@@ -422,4 +487,35 @@ ps2_send_byte:
 :	bit port_data,x
 	beq :-
 	rts
+.else
+	lda #$00
+	sta 2
+	lda #$10
+	sta 3
+	ldy #0
 
+	; release the Clock line
+	lda port_ddr,x
+	and #$ff - bit_clk
+	sta port_ddr,x
+
+@loop:
+	lda #2
+:	dec
+	bne :-
+	lda port_data,x
+	sta (2),y
+	iny
+	bne @loop
+	inc 3
+	lda 3
+	cmp #$80
+	bne @loop
+
+	ldx #1
+	jsr ps2ena
+	rts
+
+
+
+.endif
