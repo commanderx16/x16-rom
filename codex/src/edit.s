@@ -187,34 +187,51 @@ edit_relocate
 	MoveW          r1,r3
 	PushW          r1
 
-@edit_relocate_loop
-	ifGE           r4,r5,@edit_relocate_exit
+edit_relocate_loop
+	ifGE           r4,r5,edit_relocate_exit
 	         
 	MoveW          r4,r1
+	
+	PushW          r1
+	switchBankVar  bank_meta_i
+	jsr            meta_find_expr
+	bne            @edit_relocate_no_meta
+	; Check this location for data pseudo instructions
+	ldy            #2
+	lda            (r1),y
+	and            #META_FN_MASK
+	cmp            #META_DATA_BYTE
+	bmi            @edit_relocate_no_meta
+	switchBankVar  bank_meta_l                            ; Effectively skip over the pseudo statement, just increment the instruction ptr
+	PopW           r1                                     ; This is where we'd relocate the pseudo .byte or .word statement TODO
+	bra            edit_relocate_check2
+@edit_relocate_no_meta
+	switchBankVar  bank_meta_l
+	PopW           r1
+
+@edit_relocate_check_inst
 	lda            (r4)
-	pha
 	jsr            decode_get_entry
 	ldy            #1
 	lda            (M1),y
 	and            #MODE_MASK
 	cmp            #MODE_BRANCH
 	bne            @edit_relocate_check
-
 	jsr            edit_relocate_branch
-	bra            @edit_relocate_check2
+	bra            edit_relocate_check2
 
 @edit_relocate_check
 	cmp            #MODE_ABS
-	bmi            @edit_relocate_check2
+	bmi            edit_relocate_check2
 	cmp            #(MODE_ABS_X_IND+1)
-	bpl            @edit_relocate_check2
+	bpl            edit_relocate_check2
 
-	jsr            @edit_relocate_addr_16
+	jsr            edit_relocate_addr_16
 
-@edit_relocate_check2
+edit_relocate_check2
 	;; Point to next instruction
-	pla
-	jsr            decode_get_byte_count
+	lda            (r4)
+	jsr            decode_get_byte_count   ; Will get the byte count for pseudo instructions as well
 	         
 	clc
 	adc            r4L
@@ -222,9 +239,9 @@ edit_relocate
 	bcc            :+
 	inc            r4H
 :  
-	bra            @edit_relocate_loop
+	bra            edit_relocate_loop
 
-@edit_relocate_exit
+edit_relocate_exit
 	PopW           r1
 	popBank
 	plx
@@ -238,7 +255,7 @@ edit_relocate
 ;;       r4 - Ptr to current instruction
 ;;       r5 - Region end
 ;; Clobbers r1
-@edit_relocate_addr_16
+edit_relocate_addr_16
 	ldy            #1
 	lda            (r4),y
 	sta            TMP1L

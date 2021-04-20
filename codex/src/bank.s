@@ -8,9 +8,10 @@
 	.psc02                    ; Enable 65c02 instructions
 	.feature labels_without_colons
 	
-	.exportzp BANK_CTRL_ROM, BANK_CTRL_RAM, KERNAL_ROM, CX_ROM
-	.export bank_initialize, bank_pop, bank_push
+	.exportzp BANK_CTRL_ROM, BANK_CTRL_RAM
+	.export bank_initialize, bank_pop, bank_push, set_dirty
 
+	.include "bank_assy.inc"
 	.include "bank_assy_vars.inc"
 	
 	__X16_BANK__=1
@@ -18,9 +19,6 @@
 
 	BANK_CTRL_RAM = $00
 	BANK_CTRL_ROM = $01
-
-	KERNAL_ROM = 0
-	CX_ROM     = 7
 
 bank_initialize
 	;; Make sure kernel swapped in so BRK instruction doesn't
@@ -37,15 +35,17 @@ bank_initialize
 	dec
 	sta     bank_assy
 	dec
-	sta     bank_scr1
-	dec
-	sta     bank_scr2
-	dec
 	sta     bank_meta_l
 	dec
 	sta     bank_meta_i
 	dec
 	sta     bank_plugin
+	dec
+	sta     bank_scrollback
+	dec
+	sta     bank_scr1
+	dec
+	sta     bank_scr2
 	rts
 
 ;;;
@@ -111,3 +111,15 @@ bank_push
 	ldx   TMP2L
 
 	rts
+	
+;;
+;; Set dirty bit to value in A
+;;
+set_dirty
+	tay
+	lda         bank_assy
+	jsr         bank_push
+	sty         assy_dirty
+	jsr         bank_pop
+	rts
+

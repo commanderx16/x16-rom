@@ -391,8 +391,7 @@ registers_restore
 	lda          (r1),y
 	sta          (r0),y
 	iny
-	tya
-	cmp          #(LAST_ZP_REGISTER - r0L + 1)
+	cpy          #(LAST_ZP_REGISTER - r0L + 1)
 	bne          :-
 	      
 	lda          reg_save

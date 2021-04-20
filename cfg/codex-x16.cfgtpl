@@ -1,10 +1,10 @@
 MEMORY {
 	#include "x16.cfginc"
 
-    MAIN:     file = %O, define = yes, start = $C000, size = $3AE8, fill=yes  fillval=$00;
+    MAIN:     file = %O, define = yes, start = $C000, size = $3AE2, fill=yes  fillval=$A3;
     RWRAM:    file = "",               start = $0400, size = $3FF;
     BANK:     file = "",               start = $A000, size = $2000;
-    AE_VECS:    start = $FAE8, size = $0018, fill=yes, fillval=$A0;
+    CODEX_VECS: start = $FAE2, size = $001E, fill=yes, fillval=$A0;
     KSUP_CODE2: start = $FB00, size = $03A8, fill=yes, fillval=$A1;
     KSUP_VEC2:  start = $FEA8, size = $0158, fill=yes, fillval=$A2;
 }
@@ -14,8 +14,8 @@ SEGMENTS {
     DATA:       load = RWRAM,      type = rw;
     META_L:     load = BANK,       type = rw; 
     META_I:     load = BANK,       type = rw; 
-    AE_STATE:   load = BANK,       type = rw; 
-    AE_VECS:    load = AE_VECS,    type = ro;
+    CODEX_STATE:load = BANK,       type = rw; 
+    CODEX_VECS: load = CODEX_VECS, type = ro;
     KSUP_CODE2: load = KSUP_CODE2, type = ro;
     KSUP_VEC2:  load = KSUP_VEC2,  type = ro;
 }
