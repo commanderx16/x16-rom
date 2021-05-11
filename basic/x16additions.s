@@ -462,7 +462,7 @@ fsys:
 	phx				;Store bank specified in the command on stack
 
 	tsx				;Get stack pointer
-	lda $1
+	lda rom_bank
 	sta $0104,x		;Save current bank in extra byte reserved on stack
 	lda poker		;Set address for KERNAL function jmpfr (RAM code)
 	sta jmpfr+1
