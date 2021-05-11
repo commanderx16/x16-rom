@@ -449,8 +449,8 @@ cls:
 	jmp outch
 
 ;***************
-;FARSYS command. 
-;Usage: FARSYS [address], [bank]
+;FAR SYS COMMAND
+;Usage: FSYS [address], [ROM bank]
 
 fsys:
 	jsr getnum		;Get address (returned in poker) and bank (returned in .X)
