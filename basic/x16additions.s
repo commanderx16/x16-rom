@@ -448,6 +448,29 @@ cls:
 	lda #$93
 	jmp outch
 
+;***************
+;FARSYS command. 
+;Usage: FARSYS [address], [bank]
+
+fsys:
+	jsr getnum		;Get address (returned in poker) and bank (returned in .X)
+	
+	pha				;Reserve extra byte for current bank on stack
+	php				;Save values on stack
+	pha
+
+	phx				;Store bank specified in the command on stack
+
+	tsx				;Get stack pointer
+	lda $1
+	sta $0104,x		;Save current bank in extra byte reserved on stack
+	lda poker		;Set address for KERNAL function jmpfr (RAM code)
+	sta jmpfr+1
+	lda poker+1
+	sta jmpfr+2
+	pla				;Pull back bank specified in the command
+	jmp jsrfar3		;KERNAL jsrfar function (RAM code)
+
 ; BASIC's entry into jsrfar
 .setcpu "65c02"
 ram_bank = 0
