@@ -79,9 +79,11 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "M", 'Y' + $80
 	.byt "M", 'B' + $80
 	.byt "JO", 'Y' + $80
+	.byt "HEX", $a4
+	.byt "BIN", $a4
 	.byt 0
 num_esc_statements = 17
-num_esc_functions = 5
+num_esc_functions = 7
 ;**************************************
 
 err01	.byt "TOO MANY FILE",$d3
@@ -197,7 +199,7 @@ cmpfor	cmp 259,x
 	lda forpnt
 	cmp 258,x
 	beq ffrts
-addfrs	txa 
+addfrs	txa
 	clc
 	adc #forsiz
 	tax
@@ -276,4 +278,3 @@ reasto	pla
 	cmp fretop
 	bcs omerr
 rearts	rts
-

@@ -170,7 +170,7 @@ ld60	inc eal         ;increment store addr
 	bpl ld64        ;loading into vram
 ld62	lda #$a0        ;wrap to bottom of high ram
 	sta eah
-	inc $9f61       ;move to next ram bank
+	inc ram_bank    ;move to next ram bank
 .endif
 ld64	bit status      ;eoi?
 	bvc ld40        ;no...continue load

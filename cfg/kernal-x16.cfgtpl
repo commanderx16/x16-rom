@@ -34,6 +34,10 @@ SEGMENTS {
 	RS232:    load = KERNAL,   type = ro;
 	CHANNEL:  load = KERNAL,   type = ro;
 	CLOCK:    load = KERNAL,   type = ro;
+	I2C:      load = KERNAL,   type = ro;
+	RTC:      load = KERNAL,   type = ro;
+	NVRAM:    load = KERNAL,   type = ro;
+	BEEP:     load = KERNAL,   type = ro;
 	ENTROPY:  load = KERNAL,   type = ro;
 	INIT:     load = KERNAL,   type = ro;
 	MACHINE:  load = KERNAL,   type = ro;

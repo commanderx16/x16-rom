@@ -13,9 +13,9 @@ BANK_CHARSET = 6
 cbdos_flags= $0267
 status     = $0286 ; channel: status byte
 jsrfar3    = $02c4 ; jsrfar: RAM part
-jmpfr      = $02e1 ; jsrfar: core jmp instruction
+jmpfr      = $02df ; jsrfar: core jmp instruction
 imparm     = $82   ; jsrfar: temporary byte
-stavec     = $03b7 ; stash: argument
+stavec     = $03b2 ; stash: argument
 banked_irq = $038b ; irq handler: RAM part
 .elseif .defined(MACHINE_C64)
 status     = $029F
@@ -37,9 +37,9 @@ imparm     = $E2
 	sta kvswitch_tmp1
 	pla
 	sta kvswitch_tmp2
-	lda d1pra
+	lda ram_bank
 	pha
-	stz d1pra
+	stz ram_bank
 	lda kvswitch_tmp2
 	pha
 	lda kvswitch_tmp1
@@ -53,11 +53,51 @@ imparm     = $E2
 	pla
 	sta kvswitch_tmp2
 	pla
-	sta d1pra
+	sta ram_bank
 	lda kvswitch_tmp2
 	pha
 	lda kvswitch_tmp1
 	plp
+.endmacro
+
+.macro KVARS_START_TRASH_A_NZ
+.import kvswitch_tmp1, kvswitch_tmp2
+	lda ram_bank
+	pha
+	stz ram_bank
+.endmacro
+
+.macro KVARS_END_TRASH_A_NZ
+	pla
+	sta ram_bank
+.endmacro
+
+.macro KVARS_START_TRASH_X_NZ
+.import kvswitch_tmp1, kvswitch_tmp2
+	ldx ram_bank
+	phx
+	stz ram_bank
+.endmacro
+
+.macro KVARS_END_TRASH_X_NZ
+	plx
+	stx ram_bank
+.endmacro
+
+.macro KVARS_START_TRASH_NZ
+.import kvswitch_tmp1, kvswitch_tmp2
+	sta kvswitch_tmp1
+	lda ram_bank
+	pha
+	stz ram_bank
+	lda kvswitch_tmp1
+.endmacro
+
+.macro KVARS_END_TRASH_NZ
+	sta kvswitch_tmp1
+	pla
+	sta ram_bank
+	lda kvswitch_tmp1
 .endmacro
 
 .else ; C64

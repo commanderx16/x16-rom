@@ -65,7 +65,7 @@ pause_text_ptr:
 ; Function:  Initializes the console.
 ;---------------------------------------------------------------
 console_init:
-	KVARS_START
+	KVARS_START_TRASH_A_NZ
 
 	jsr GRAPH_set_window
 
@@ -88,7 +88,7 @@ console_init:
 	clc
 	jsr console_put_char
 
-	KVARS_END
+	KVARS_END_TRASH_A_NZ
 	rts
 
 ;---------------------------------------------------------------
@@ -101,14 +101,14 @@ console_init:
 ; Note:      If r0 is NULL, paging will be disabled.
 ;---------------------------------------------------------------
 console_set_paging_message:
-	KVARS_START
+	KVARS_START_TRASH_A_NZ
 
 	MoveW r0, pause_text_ptr
 
 	stz height_counter
 	stz height_counter+1
 
-	KVARS_END
+	KVARS_END_TRASH_A_NZ
 	rts
 
 ; The paging message API isn't as flexible as I wanted it
@@ -160,7 +160,7 @@ console_set_paging_message:
 ; XXX * update override_height at least once every time the font
 ; XXX   is changed
 console_put_char:
-	KVARS_START
+	KVARS_START_TRASH_X_NZ
 
 	php
 	cmp #CR
@@ -187,7 +187,7 @@ console_put_char:
 
 	clc        ; did not reach page end
 
-	KVARS_END
+	KVARS_END_TRASH_X_NZ
 	rts
 
 @flush:
@@ -250,7 +250,7 @@ console_put_char:
 	PopW r1
 	PopW r0
 
-	KVARS_END
+	KVARS_END_TRASH_X_NZ
 	rts
 
 put_char:
@@ -482,7 +482,7 @@ paging_pause:
 ;            r2   height
 ;---------------------------------------------------------------
 console_put_image:
-	KVARS_START
+	KVARS_START_TRASH_A_NZ
 
 	AddW3 px, r1, r15
 	DecW_ r15
@@ -529,7 +529,7 @@ console_put_image:
 
 	AddW r3, px ; advance cursor by image width
 
-	KVARS_END
+	KVARS_END_TRASH_A_NZ
 	rts
 
 get_font_size:
@@ -552,7 +552,7 @@ get_font_size:
 ;       characters.
 ;---------------------------------------------------------------
 console_get_char:
-	KVARS_START
+	KVARS_START_TRASH_X_NZ
 
 	lda inbuf
 	beq @input_line
@@ -679,7 +679,8 @@ console_get_char:
 	bra @end
 :	inc inbufidx
 
-@end:	KVARS_END
+@end:	KVARS_END_TRASH_X_NZ
+	and #$ff
 	rts
 
 ; Tipp-Ex

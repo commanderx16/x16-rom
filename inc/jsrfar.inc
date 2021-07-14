@@ -30,7 +30,7 @@
 	cmp #$c0
 	bcc jsrfar1     ;target is in RAM
 ; target is in ROM
-	lda d1prb
+	lda rom_bank
 	sta $0105,x     ;save original bank into reserved byte
 	iny
 	lda (imparm),y  ;target address bank
@@ -41,11 +41,11 @@
 
 ; target is in RAM
 jsrfar1:
-	lda d1pra
+	lda ram_bank
 	sta $0105,x     ;save original bank into reserved byte
 	iny
 	lda (imparm),y  ;target address bank
-	sta d1pra       ;set RAM bank
+	sta ram_bank    ;set RAM bank
 	ply             ;restore registers
 	plx
 	pla
@@ -56,7 +56,7 @@ jsrfar1:
 	phx
 	tsx
 	lda $0104,x
-	sta d1pra       ;restore RAM bank
+	sta ram_bank    ;restore RAM bank
 jsrfar2:
 	plx
 	pla
