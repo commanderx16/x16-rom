@@ -128,9 +128,7 @@ bind:	jsr chrget ; get char
 	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
-        lda #<(lofbuf)
-	ldy #>(lofbuf)
-	jmp strlit  ; allocate and return string value
+	jmp strlitl; allocate and return string value from lofbuf
 
 ; convert byte to hex in zero terminated string and
 ; return it to BASIC
@@ -159,9 +157,7 @@ hexd:	jsr chrget ; get char
 	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
-        lda #<lofbuf
-	ldy #>lofbuf
-	jmp strlit  ; allocate and return string value
+	jmp strlitl; allocate and return string value from lofbuf
 
 ; convert byte into hex ASCII in A/Y
 ; copied from monitor.s
