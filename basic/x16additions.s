@@ -186,7 +186,8 @@ byte_to_hex_ascii:
 vpeek	jsr chrget
 	jsr chkopn ; open paren
 	jsr getbyt ; byte: bank
-	stx VERA_ADDR_H
+	txa
+	pha
 	jsr chkcom
 	lda poker
 	pha
@@ -199,15 +200,20 @@ vpeek	jsr chrget
 	sta poker + 1
 	pla
 	sta poker
+	pla
+	sta VERA_ADDR_H
 	jsr chkcls ; closing paren
 	ldy VERA_DATA0
 	jmp sngflt
 
 ;***************
 vpoke	jsr getbyt ; bank
-	stx VERA_ADDR_H
+	txa
+	pha
 	jsr chkcom
 	jsr getnum
+	pla
+	sta VERA_ADDR_H
 	lda poker
 	sta VERA_ADDR_L
 	lda poker+1
