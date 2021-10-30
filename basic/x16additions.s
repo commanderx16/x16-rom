@@ -186,8 +186,7 @@ byte_to_hex_ascii:
 vpeek	jsr chrget
 	jsr chkopn ; open paren
 	jsr getbyt ; byte: bank
-	txa
-	pha
+	phx
 	jsr chkcom
 	lda poker
 	pha
@@ -208,8 +207,7 @@ vpeek	jsr chrget
 
 ;***************
 vpoke	jsr getbyt ; bank
-	txa
-	pha
+	phx
 	jsr chkcom
 	jsr getnum
 	pla
