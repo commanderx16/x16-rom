@@ -127,7 +127,6 @@ tstr10	cpx #'D'
 	lda #>1900
 	jsr component2ascii2
 
-	; Year is at lofbuf+1.  
 	; Now year is at lofbuf+1.  But strings that start at lofbuf
 	; (which is in page 0) will get treated differently by strlit/strlitl
 	; than strings that start at lofbuf+1 or lofbuf+2 (in page 1) so
