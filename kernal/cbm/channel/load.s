@@ -94,9 +94,14 @@ ld30	jsr loding      ;tell user loading
 ;
 bld10	jsr stop        ;stop key?
 	beq break2
+	lda #0			;load as many bytes as device wants
+	sta $20			;clear kernal R15 as "do bank wrap" flag
 	ldx eal
 	ldy eah
-	lda #0          ;load as many bytes as device wants
+	cpy #$c0
+	bcc bld12
+	inc $20			;R15 = 1 : don't enforce bank wrap
+bld12
 	jsr macptr
 	bcs ld40        ;not supported, fall back to byte-wise
 	txa
@@ -105,7 +110,14 @@ bld10	jsr stop        ;stop key?
 	sta eal
 	tya
 	adc eah
-	sta eah
+	ldy $20
+	bne bld15
+bld14	cmp #$c0
+	bcc bld15
+	sec
+	sbc #$20
+	bcs bld14		;bra always
+bld15	sta eah
 	bit status      ;eoi?
 	bvc bld10       ;no...continue load
 	bra ld70
@@ -158,7 +170,7 @@ ld50	ldy #0
 ld60	inc eal         ;increment store addr
 	bne ld64
 	inc eah
-.if 0 ; DISABLED for now, since block-wise path doesn't support it (yet?)
+.if 1 ; DISABLED for now, since block-wise path doesn't support it (yet?)
 ;
 ;if necessary, wrap to next bank
 ;

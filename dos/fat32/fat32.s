@@ -14,6 +14,8 @@
 	.import filename_char_ucs2_to_internal, filename_char_internal_to_ucs2
 	.import filename_cp437_to_internal, filename_char_internal_to_cp437
 	.import match_name, match_type
+	
+	.importzp bank_save, krn_ptr1
 
 	; mkfs.s
 	.export load_mbr_sector, write_sector, clear_buffer, set_errno, unmount
@@ -22,6 +24,10 @@
 FLAG_IN_USE = 1<<0  ; Context in use
 FLAG_DIRTY  = 1<<1  ; Buffer is dirty
 FLAG_DIRENT = 1<<2  ; Directory entry needs to be updated on close
+
+ram_bank		= 0
+tmp_swapindex	= krn_ptr1	; use a meaningful alias for this tmp space
+							; to improve code readability when used.
 
 .struct context
 flags           .byte    ; Flag bits
@@ -3023,20 +3029,31 @@ fat32_read:
 	sbc #0
 	bpl @5
 	set16 bytecnt, tmp_buf
-@5:
-	; Copy bytecnt bytes from buffer
+@5:	
 	ldy bytecnt
+	; Check whether destination might access bankram
+	lda fat32_ptr + 1
+	cmp #$9f
+	bcc	@5b				; destination below bankram
+	cmp #$c0	
+	bcs @5b				; destination above bankram
+	jmp @bank_copy	
+	
+@5b:
+	;Copy bytecnt bytes from buffer
 	dey
 	beq @6b
 @6:	lda (fat32_bufptr), y
 	sta (fat32_ptr), y
 	dey
 	bne @6
-@6b:	lda (fat32_bufptr), y
+@6b:
+	lda (fat32_bufptr), y
 	sta (fat32_ptr), y
 
 	; fat32_ptr += bytecnt, fat32_bufptr += bytecnt, fat32_size -= bytecnt, file_offset += bytecnt
 	add16 fat32_ptr, fat32_ptr, bytecnt
+@6c:
 	add16 fat32_bufptr, fat32_bufptr, bytecnt
 	sub16 fat32_size, fat32_size, bytecnt
 	add32_16 cur_context + context::file_offset, cur_context + context::file_offset, bytecnt
@@ -3055,6 +3072,90 @@ fat32_read:
 	plp
 
 	rts
+	
+	;------------------------------------------------
+	
+@bank_copy:	; restores ram_bank prior to each write, and wraps the
+			; pointer if the write address crosses the $c000 threshold
+
+	; save states of X and tmp_swapindex
+	phx					; x was definitely not safe to clobber
+	ldx tmp_swapindex
+	phx					; don't know if krn_ptr1 is in use, so back it up
+	stz	tmp_swapindex
+	stz tmp_buf			; tmp_buf = yes/no bank swap done.
+	ldx bank_save
+	; check whether a bank wrap is possible
+	cmp #$bf			; .A still holds the destination page from @5 above....
+	bne	@go				; Not on the last page of the window, no wrap is possible
+	lda fat32_ptr
+	beq @go				; pointer is page-aligned. No wrap possible
+	cpy #0
+	beq @swap_yes		; non-page-aligned copy of $100 bytes = guaranteed wrap.
+	; wrap is now possible. Determine if enough bytes are being copied to trigger it.
+	clc
+	adc bytecnt			; If page offset + bytecnt <= $100, no bank wrap 
+	bcc @go
+	beq @go
+	; there is a bank wrap. Since the algorithm copies in reverse order, swap banks now.
+	; the loop will un-swap when swapindex is reached
+@swap_yes:
+	dec tmp_buf			; -1 indicates wrap took place (used by last byte copy
+	lda	#$9F			; .....in case of $100 bytes being copied)
+	sta fat32_ptr+1
+	;calculate what value of Y should wrap back into original bank
+	lda #$FF
+	sec
+	sbc fat32_ptr
+	sta tmp_swapindex
+	inx
+
+	;Copy bytecnt bytes from buffer
+@go:
+	dey
+	beq @bc_lastbyte
+@bcloop:
+	cpy tmp_swapindex
+	bne :+
+	; swap ram banks
+	dex
+	lda #$bf
+	sta fat32_ptr+1
+	; copy a byte
+:	lda (fat32_bufptr), y
+	stx ram_bank
+	sta (fat32_ptr), y
+	stz ram_bank
+	dey
+	bne @bcloop
+@bc_lastbyte:
+	cpy tmp_swapindex
+	bne :+
+	bit tmp_buf		; check whether a bank wrap was done on byte 0
+	bpl :+
+	dex
+	lda #$bf
+	sta fat32_ptr+1
+:	lda (fat32_bufptr), y
+	stx ram_bank
+	sta (fat32_ptr), y
+	stz ram_bank
+	
+	add16 fat32_ptr, fat32_ptr, bytecnt
+	; addc16 leaves fat32_ptr+1 in A, which is the value to check.
+	cmp #$c0
+	bcc	@bcdone
+	lda #$a0
+	sta fat32_ptr+1
+	inc bank_save
+@bcdone:
+	; restore X and tmp_swapindex
+	pla
+	sta	tmp_swapindex
+	plx
+	jmp @6c
+	
+	
 
 ;-----------------------------------------------------------------------------
 ; allocate_first_cluster
