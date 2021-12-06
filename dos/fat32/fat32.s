@@ -14,6 +14,8 @@
 	.import filename_char_ucs2_to_internal, filename_char_internal_to_ucs2
 	.import filename_cp437_to_internal, filename_char_internal_to_cp437
 	.import match_name, match_type
+	
+	.importzp bank_save, krn_ptr1
 
 	; mkfs.s
 	.export load_mbr_sector, write_sector, clear_buffer, set_errno, unmount
@@ -22,6 +24,8 @@
 FLAG_IN_USE = 1<<0  ; Context in use
 FLAG_DIRTY  = 1<<1  ; Buffer is dirty
 FLAG_DIRENT = 1<<2  ; Directory entry needs to be updated on close
+
+ram_bank = 0		; RAM banking control register address
 
 .struct context
 flags           .byte    ; Flag bits
@@ -2957,6 +2961,10 @@ fat32_read_byte:
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
 fat32_read:
+
+	tmp_swapindex	= krn_ptr1   ; use meaningful aliases for this tmp space
+	tmp_done		= krn_ptr1+1 ; during bank-aware copy routine
+
 	stz fat32_errno
 
 	set16 fat32_ptr2, fat32_size
@@ -3023,18 +3031,29 @@ fat32_read:
 	sbc #0
 	bpl @5
 	set16 bytecnt, tmp_buf
-@5:
-	; Copy bytecnt bytes from buffer
+@5:	
 	ldy bytecnt
+	; Check whether destination might access bankram
+	lda fat32_ptr + 1
+	cmp #$9f
+	bcc	@5b				; destination below bankram
+	cmp #$c0	
+	bcs @5b				; destination above bankram
+	jmp @bank_copy	
+	
+@5b:
+	;Copy bytecnt bytes from buffer
 	dey
 	beq @6b
 @6:	lda (fat32_bufptr), y
 	sta (fat32_ptr), y
 	dey
 	bne @6
-@6b:	lda (fat32_bufptr), y
+@6b:
+	lda (fat32_bufptr), y
 	sta (fat32_ptr), y
 
+@6c:
 	; fat32_ptr += bytecnt, fat32_bufptr += bytecnt, fat32_size -= bytecnt, file_offset += bytecnt
 	add16 fat32_ptr, fat32_ptr, bytecnt
 	add16 fat32_bufptr, fat32_bufptr, bytecnt
@@ -3055,6 +3074,67 @@ fat32_read:
 	plp
 
 	rts
+	
+	;------------------------------------------------
+	
+@bank_copy:	; restores ram_bank prior to each write, and wraps the
+			; pointer if the write address crosses the $c000 threshold
+
+	; save states of X and tmp_swapindex
+	phx
+	ldx krn_ptr1		; don't know if krn_ptr1 is in use, so back it up
+	phx					; since we're using it as tmp_swapindex and tmp_done
+	ldx krn_ptr1+1		;
+	phx					;
+	
+	ldx bank_save		; .X holds the destination bank #
+	sty tmp_done		; .Y holds bytecnt - save here for comparison during loop
+	ldy #0				; .Y is now the loop counter. Start at 0 and count up.
+
+	; set up the tmp_swapindex
+	lda #0
+	sec
+	sbc fat32_ptr
+	sta tmp_swapindex
+	
+@loop:
+	;Copy one byte from buffer to HiRam
+	lda (fat32_bufptr), y
+	stx ram_bank
+	sta (fat32_ptr), y
+	stz ram_bank
+	iny
+	cpy tmp_swapindex
+	bne @nowrap
+	lda fat32_ptr+1
+	cmp #$bf			; only wrap when leaving page $BF
+	bne @nowrap
+	inc bank_save
+	inx
+	lda #$9f
+	sta fat32_ptr+1
+@nowrap:
+	cpy	tmp_done
+	bne @loop
+
+;	add16 fat32_ptr, fat32_ptr, bytecnt
+;	; addc16 leaves fat32_ptr+1 in A, which is the value to check.
+;	cmp #$c0
+;	bcc	@bcdone
+;	lda #$a0
+;	sta fat32_ptr+1
+;	inc bank_save
+	
+;@bcdone:
+	; restore X and tmp_swapindex
+	pla
+	sta	tmp_swapindex+1
+	pla
+	sta tmp_swapindex
+	plx
+	jmp @6c
+	
+	
 
 ;-----------------------------------------------------------------------------
 ; allocate_first_cluster
