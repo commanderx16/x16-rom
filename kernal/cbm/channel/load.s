@@ -113,12 +113,15 @@ bld10	jsr stop        ;stop key?
 	tya
 	adc eah
 .ifdef MACHINE_X16
+	;fix-up end address when loading into banked RAM:
+	;this should reflect the banked RAM address following
+	;the last byte written (exception: $BFFF -> $A000)
 	ply             ;start address hi
-	cpy #$c0
+	cpy #$a0
 	bcc @skip       ;below banked RAM
-	cpy #$e0
+	cpy #$c0
 	bcs @skip       ;above banked RAM
-@loop	cmp #$c0
+@loop	cmp #$c1
 	bcc @skip
 	sec
 	sbc #$20
