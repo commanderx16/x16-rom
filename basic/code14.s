@@ -83,7 +83,7 @@ strd	jsr chknum
 	jsr foutc
 	pla
 	pla
-	lda #<lofbuf
+strlitl	lda #<lofbuf
 	ldy #>lofbuf
 	beq strlit
 strini	ldx facmo
