@@ -406,7 +406,7 @@ load_fat_sector_for_cluster:
 	rts
 
 ;-----------------------------------------------------------------------------
-; is_end_of_cluster_chain
+; is_end_of_cluster_chain 
 ;-----------------------------------------------------------------------------
 is_end_of_cluster_chain:
 	; Check if this is the end of cluster chain (entry >= 0x0FFFFFF8)
@@ -3018,7 +3018,7 @@ fat32_read:
 	sta bytecnt + 1
 @4:
 	; if (tmp_buf - bytecnt < 0) bytecnt = tmp_buf
-	sec
+	sec	
 	lda tmp_buf + 0
 	sbc bytecnt + 0
 	lda tmp_buf + 1
@@ -3029,7 +3029,7 @@ fat32_read:
 	sbc #0
 	bpl @5
 	set16 bytecnt, tmp_buf
-@5:	
+@5:
 	ldy bytecnt
 	; Check whether destination might access bankram
 	lda fat32_ptr + 1
