@@ -94,30 +94,38 @@ ld30	jsr loding      ;tell user loading
 ;
 bld10	jsr stop        ;stop key?
 	beq break2
-	lda #0			;load as many bytes as device wants
-	sta $20			;clear kernal R15 as "do bank wrap" flag
 	ldx eal
 	ldy eah
-	cpy #$c0
-	bcc bld12
-	inc $20			;R15 = 1 : don't enforce bank wrap
-bld12
+.ifdef MACHINE_X16
+        phy             ;save start address hi
+.endif
+	lda #0          ;load as many bytes as device wants
 	jsr macptr
-	bcs ld40        ;not supported, fall back to byte-wise
-	txa
+	bcs :+
+.ifdef MACHINE_X16
+	pla             ;clear hi address from stack
+.endif
+	jmp ld40        ;not supported, fall back to byte-wise
+:	txa
 	clc
 	adc eal
 	sta eal
 	tya
 	adc eah
-	ldy $20
-	bne bld15
-bld14	cmp #$c0
-	bcc bld15
+.ifdef MACHINE_X16
+	ply             ;start address hi
+	cpy #$c0
+	bcc @skip       ;below banked RAM
+	cpy #$e0
+	bcs @skip       ;above banked RAM
+@loop	cmp #$c0
+	bcc @skip
 	sec
 	sbc #$20
-	bcs bld14		;bra always
-bld15	sta eah
+	bcs @loop       ;bra always
+@skip
+.endif
+        sta eah
 	bit status      ;eoi?
 	bvc bld10       ;no...continue load
 	bra ld70
@@ -170,7 +178,7 @@ ld50	ldy #0
 ld60	inc eal         ;increment store addr
 	bne ld64
 	inc eah
-.if 1 ; DISABLED for now, since block-wise path doesn't support it (yet?)
+.ifdef MACHINE_X16
 ;
 ;if necessary, wrap to next bank
 ;

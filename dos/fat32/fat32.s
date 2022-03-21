@@ -2956,12 +2956,6 @@ fat32_read_byte:
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
-#ifdef MACHINE_X16
-.importzp bank_save, krn_ptr1
-ram_bank = 0             ; RAM banking control register address
-tmp_swapindex = krn_ptr1 ; use meaningful aliases for this tmp space
-tmp_done = krn_ptr1+1    ; during bank-aware copy routine
-#endif
 fat32_read:
 	stz fat32_errno
 
@@ -3030,17 +3024,18 @@ fat32_read:
 	bpl @5
 	set16 bytecnt, tmp_buf
 @5:
+	; Copy bytecnt bytes from buffer
 	ldy bytecnt
-	; Check whether destination might access bankram
+.ifdef MACHINE_X16
+	; Check whether destination might access banked RAM
 	lda fat32_ptr + 1
-	cmp #$9f
-	bcc	@5b				; destination below bankram
-	cmp #$c0	
-	bcs @5b				; destination above bankram
-	jmp @bank_copy	
-	
+	cmp #$a0
+	bcc @5b             ; destination below banked RAM
+	cmp #$c0    
+	bcs @5b             ; destination above banked RAM
+	jmp bank_copy  
 @5b:
-	;Copy bytecnt bytes from buffer
+.endif
 	dey
 	beq @6b
 @6:	lda (fat32_bufptr), y
@@ -3072,11 +3067,16 @@ fat32_read:
 	rts
 
 
-#ifdef MACHINE_X16
+.ifdef MACHINE_X16
 ;-----------------------------------------------------------------------------
 ; restores ram_bank prior to each write, and wraps the
 ; pointer if the write address crosses the $c000 threshold
-@bank_copy:
+cont_6c = @6c
+.importzp bank_save, krn_ptr1
+ram_bank = 0             ; RAM banking control register address
+tmp_swapindex = krn_ptr1 ; use meaningful aliases for this tmp space
+tmp_done = krn_ptr1+1    ; during bank-aware copy routine
+bank_copy:
 	; save states of X and tmp_swapindex
 	phx
 	ldx krn_ptr1        ; don't know if krn_ptr1 is in use, so back it up
@@ -3095,10 +3095,10 @@ fat32_read:
 	sta tmp_swapindex
 
 @loop:
-	;Copy one byte from buffer to HiRam
-	lda (fat32_bufptr), y
+	; Copy one byte from buffer to banked RAM
+	lda (fat32_bufptr),y
 	stx ram_bank
-	sta (fat32_ptr), y
+	sta (fat32_ptr),y
 	stz ram_bank
 	iny
 	cpy tmp_swapindex
@@ -3125,12 +3125,12 @@ fat32_read:
 
 	; restore X and tmp_swapindex
 	pla
-	sta tmp_swapindex+1
+	sta krn_ptr1+1
 	pla
-	sta tmp_swapindex
+	sta krn_ptr1
 	plx
-	jmp @6c
-#endif
+	jmp cont_6c
+.endif
 
 
 ;-----------------------------------------------------------------------------
