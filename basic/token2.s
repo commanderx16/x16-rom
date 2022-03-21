@@ -174,7 +174,7 @@ errtab	.word err01
 	.word err30
 
 okmsg	.byt $d,"OK",$d,$0
-err	.byt $20," ERROR",0 ;add a space for vic-40 screen
+err	.byt " ERROR",0
 intxt	.byt " IN ",0
 reddy	.byt $d,"READY.",$d,0
 erbrk	=30
