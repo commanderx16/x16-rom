@@ -139,15 +139,7 @@ RAM Map
 Credits
 -------
 
-* All new code, and additions to legacy code: &copy;2021 Michael Steil, [www.pagetable.com](https://www.pagetable.com/); 2-clause BSD license
-* FAT32 and SD card drivers: &copy;2018 Frank van den Hoef; 2-clause BSD license
-* 6502/6522 i2c driver: &copy;2015 Dieter Hauer; 2-clause BSD license
-* `kernal/open-roms`: &copy;2019 Paul Gardner-Stephen, 2019; GPLv3 license
-* `kernal/cbm`: &copy;1983 Commodore Business Machines (CBM)
-* `basic`: &copy;1977 Microsoft Corp.
-* `geos`: &copy;1985 Berlekey Softworks
-* `CodeX`: &copy;2020 Michael J Allison, 2-clause BSD license
-
+See [LICENSE.md](LICENSE.md)
 
 
 Release Notes
