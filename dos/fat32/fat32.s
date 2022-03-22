@@ -3045,7 +3045,8 @@ fat32_read:
 @6b:	lda (fat32_bufptr), y
 	sta (fat32_ptr), y
 
-@6c:	; fat32_ptr += bytecnt, fat32_bufptr += bytecnt, fat32_size -= bytecnt, file_offset += bytecnt
+@6c:
+	; fat32_ptr += bytecnt, fat32_bufptr += bytecnt, fat32_size -= bytecnt, file_offset += bytecnt
 	add16 fat32_ptr, fat32_ptr, bytecnt
 	add16 fat32_bufptr, fat32_bufptr, bytecnt
 	sub16 fat32_size, fat32_size, bytecnt
