@@ -85,7 +85,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "HEX", $a4
 	.byt "BIN", $a4
 	.byt 0
-num_esc_statements = 19
+num_esc_statements = 20
 num_esc_functions = 7
 ;**************************************
 
