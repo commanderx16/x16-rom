@@ -74,6 +74,8 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "TES", 'T' + $80
 	.byt "RESE", 'T' + $80
 	.byt "CL", 'S' + $80
+	.byt "CODE", 'X' + $80
+	.byt "ASSPA", 'D' + $80
 	.byt "FSY", 'S' + $80
 	.byt "VPEE", 'K' + $80
 	.byt "M", 'X' + $80
@@ -83,7 +85,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "HEX", $a4
 	.byt "BIN", $a4
 	.byt 0
-num_esc_statements = 18
+num_esc_statements = 19
 num_esc_functions = 7
 ;**************************************
 
@@ -173,7 +175,7 @@ errtab	.word err01
 	.word err30
 
 okmsg	.byt $d,"OK",$d,$0
-err	.byt $20," ERROR",0 ;add a space for vic-40 screen
+err	.byt " ERROR",0
 intxt	.byt " IN ",0
 reddy	.byt $d,"READY.",$d,0
 erbrk	=30

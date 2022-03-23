@@ -342,7 +342,8 @@ else
 		$(BUILD_DIR)/geos.bin \
 		$(BUILD_DIR)/basic.bin \
 		$(BUILD_DIR)/monitor.bin \
-		$(BUILD_DIR)/charset.bin
+		$(BUILD_DIR)/charset.bin \
+		$(BUILD_DIR)/codex.bin
 endif
 
 ifeq ($(MACHINE),x16)
@@ -358,7 +359,7 @@ $(BUILD_DIR)/rom.bin: $(BANK_BINS)
 
 clean:
 	rm -rf $(BUILD_DIR)
-
+	(cd codex; make clean)
 
 $(BUILD_DIR)/%.cfg: %.cfgtpl
 	@mkdir -p $$(dirname $@)
@@ -403,6 +404,10 @@ $(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) $(MONITOR_DEPS) $(CFG_DIR)/monitor-$(M
 $(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) $(CFG_DIR)/charset-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C $(CFG_DIR)/charset-$(MACHINE).cfg $(CHARSET_OBJS) -o $@ -m $(BUILD_DIR)/charset.map -Ln $(BUILD_DIR)/charset.sym
+
+# Bank 7 : CodeX
+$(BUILD_DIR)/codex.bin: $(CFG_DIR)/codex-$(MACHINE).cfg
+	(cd codex; make)
 
 $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
 	./scripts/symbolize.sh 0 build/x16/kernal.sym   > $@

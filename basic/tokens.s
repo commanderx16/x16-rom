@@ -101,6 +101,8 @@ stmdsp2	; statements
 	.word test-1
 	.word reset-1
 	.word cls-1
+	.word codex-1
+	.word codex-1
 	.word fsys-1
 	; functions
 	.word vpeek

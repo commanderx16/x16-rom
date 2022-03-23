@@ -110,6 +110,7 @@ finh	bcc fin	; skip test for 0-9
 	cmp #'$'
 	beq finh2
 	cmp #'%'
+	sec	; restore carry flag from before the comparisons; fin uses it
 	bne fin
 finh2	jmp frmevl
 ;**************************************

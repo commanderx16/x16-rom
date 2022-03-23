@@ -208,7 +208,10 @@ swpp3:	ldx #40
 
 swpp2:	pha
 	bcs swppp4
-	stz VERA_L0_CONFIG	; Disable layer 0
+	; Disable layer 0
+	lda VERA_DC_VIDEO
+	and #$ef
+	sta VERA_DC_VIDEO
 
 swppp4:	pla
 	sta VERA_DC_HSCALE
