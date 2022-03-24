@@ -3027,13 +3027,14 @@ fat32_read:
 	; Copy bytecnt bytes from buffer
 	ldy bytecnt
 .ifdef MACHINE_X16
-	; Check whether destination might access banked RAM
+	; If destination may fall into banked RAM area,
+	; we use a special case implementation
 	lda fat32_ptr + 1
-	cmp #$a0
+	cmp #$9f            ; $9Fxx can overflow into $Axxx
 	bcc @5b             ; destination below banked RAM
 	cmp #$c0    
 	bcs @5b             ; destination above banked RAM
-	jmp bank_copy  
+	jmp x16_banked_copy
 @5b:
 .endif
 	dey
@@ -3044,7 +3045,6 @@ fat32_read:
 	bne @6
 @6b:	lda (fat32_bufptr), y
 	sta (fat32_ptr), y
-
 @6c:
 	; fat32_ptr += bytecnt, fat32_bufptr += bytecnt, fat32_size -= bytecnt, file_offset += bytecnt
 	add16 fat32_ptr, fat32_ptr, bytecnt
@@ -3077,13 +3077,12 @@ cont_6c = @6c
 ram_bank = 0             ; RAM banking control register address
 tmp_swapindex = krn_ptr1 ; use meaningful aliases for this tmp space
 tmp_done = krn_ptr1+1    ; during bank-aware copy routine
-bank_copy:
-	; save states of X and tmp_swapindex
-	phx
-	ldx krn_ptr1        ; don't know if krn_ptr1 is in use, so back it up
-	phx                 ; since we're using it as tmp_swapindex and tmp_done
-	ldx krn_ptr1+1      ;
-	phx                 ;
+x16_banked_copy:
+	; save contents of temporary zero page
+	lda krn_ptr1
+	pha
+	lda krn_ptr1+1
+	pha
 
 	ldx bank_save       ; .X holds the destination bank #
 	sty tmp_done        ; .Y holds bytecnt - save here for comparison during loop
@@ -3115,21 +3114,11 @@ bank_copy:
 	cpy tmp_done
 	bne @loop
 
-;	add16 fat32_ptr, fat32_ptr, bytecnt
-;	; addc16 leaves fat32_ptr+1 in A, which is the value to check.
-;	cmp #$c0
-;	bcc @bcdone
-;	lda #$a0
-;	sta fat32_ptr+1
-;	inc bank_save
-;@bcdone:
-
-	; restore X and tmp_swapindex
+	; restore temporary zero page
 	pla
 	sta krn_ptr1+1
 	pla
 	sta krn_ptr1
-	plx
 	jmp cont_6c
 .endif
 

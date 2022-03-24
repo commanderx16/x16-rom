@@ -97,7 +97,7 @@ bld10	jsr stop        ;stop key?
 	ldx eal
 	ldy eah
 .ifdef MACHINE_X16
-        phy             ;save start address hi
+        phy             ;save address hi
 .endif
 	lda #0          ;load as many bytes as device wants
 	jsr macptr
@@ -113,15 +113,15 @@ bld10	jsr stop        ;stop key?
 	tya
 	adc eah
 .ifdef MACHINE_X16
-	;fix-up end address when loading into banked RAM:
+	;fix-up address when loading into banked RAM:
 	;this should reflect the banked RAM address following
 	;the last byte written (exception: $BFFF -> $A000)
 	ply             ;start address hi
 	cpy #$a0
 	bcc @skip       ;below banked RAM
-	cpy #$c0
-	bcs @skip       ;above banked RAM
-@loop	cmp #$c1
+;	cpy #$c1
+;	bcs @skip       ;above banked RAM
+@loop	cmp #$c0
 	bcc @skip
 	sec
 	sbc #$20
