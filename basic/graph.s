@@ -110,8 +110,7 @@ get_point:
 	rts
 
 get_col:
-	ldy #0
-	lda (txtptr),y
+	jsr chrgot
 	bne @1
 	lda #0
 	rts
