@@ -101,7 +101,7 @@ bld10	jsr stop        ;stop key?
 .endif
 	lda #0          ;load as many bytes as device wants
 	jsr macptr
-	bcs :+
+	bcc :+
 .ifdef MACHINE_X16
 	pla             ;clear hi address from stack
 .endif
