@@ -124,7 +124,7 @@ bld10	jsr stop        ;stop key?
 @loop	cmp #$c0
 	bcc @skip
 	sbc #$20
-	bcs @loop       ;bra always
+	bra @loop
 @skip
 .endif
         sta eah
