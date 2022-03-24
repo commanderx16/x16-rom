@@ -258,6 +258,18 @@ ld410	jsr spmsg
 	beq frmto1      ;skip if verify
 	ldy #ms7-ms1    ;"from $"
 msghex	jsr msg
+.ifdef MACHINE_X16
+	lda eah
+	cmp #$a0
+	bcc :+
+	cmp #$c0
+	bcs :+
+	lda ram_bank
+	jsr hex8
+	lda #':'
+	jsr bsout
+:
+.endif
 	lda eah
 	jsr hex8
 	lda eal
