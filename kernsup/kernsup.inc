@@ -1,3 +1,11 @@
+.byte 0,0,0            ; $FEA8
+.byte 0,0,0            ; $FEAB
+.byte 0,0,0            ; $FEAE
+.byte 0,0,0            ; $FEB1
+.byte 0,0,0            ; $FEB4
+.byte 0,0,0            ; $FEB7
+.byte 0,0,0            ; $FEBA
+.byte 0,0,0            ; $FEBD
 .byte 0,0,0            ; $FEC0
 .byte 0,0,0            ; $FEC3
 
