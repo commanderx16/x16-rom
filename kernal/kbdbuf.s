@@ -9,6 +9,7 @@
 
 .export kbdbuf_clear
 .export kbdbuf_put
+.export kbdbuf_peek
 .export kbdbuf_get
 .export kbdbuf_get_stop
 .export kbdbuf_get_modifiers
@@ -29,6 +30,13 @@ kbdbuf_clear:
 	KVARS_START_TRASH_A_NZ
 	stz ndx
 	KVARS_END_TRASH_A_NZ
+	rts
+
+kbdbuf_peek:
+	KVARS_START
+	lda keyd
+	ldx ndx
+	KVARS_END
 	rts
 
 kbdbuf_get:
@@ -52,7 +60,6 @@ kbdbuf_get:
 	and #$ff
 	rts
 
-; XXX make API
 kbdbuf_put:
 	KVARS_START
 	stx stkey
@@ -81,7 +88,6 @@ kbdbuf_get_stop:
 	and #$ff
 	rts
 
-; XXX make API
 kbdbuf_get_modifiers:
 	KVARS_START_TRASH_X_NZ
 	lda shflag
