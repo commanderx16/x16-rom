@@ -84,7 +84,7 @@ l1:	lda nes_data
 ;
 ; Function:  Return the state of a given joystick.
 ;
-; Pass:      a    number of joystick (0 or 1)
+; Pass:      a    number of joystick (0-3)
 ; Return:    a    byte 0:      | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 ;                         NES  | A | B |SEL|STA|UP |DN |LT |RT |
 ;                         SNES | B | Y |SEL|STA|UP |DN |LT |RT |
@@ -155,20 +155,26 @@ joystick_get:
 ;----------------------------------------------------------------------
 ; joystick_from_ps2:
 ;
-;  convert PS/2 scancode into NES joystick state (internal)
+;  convert PS/2 scancode into SNES joystick state (internal)
 ;
 ; Note: This is called from the ps2kbd driver while bank 0 is active,
 ;       no bank switching is performed.
 ;
 joystick_from_ps2:
-NES_A      = (1 << 7)
-NES_B      = (1 << 6)
-NES_SELECT = (1 << 5)
-NES_START  = (1 << 4)
-NES_UP     = (1 << 3)
-NES_DOWN   = (1 << 2)
-NES_LEFT   = (1 << 1)
-NES_RIGHT  = (1 << 0)
+; byte 0
+SNES_B      = (1 << 7)
+SNES_Y      = (1 << 6)
+SNES_SELECT = (1 << 5)
+SNES_START  = (1 << 4)
+SNES_UP     = (1 << 3)
+SNES_DOWN   = (1 << 2)
+SNES_LEFT   = (1 << 1)
+SNES_RIGHT  = (1 << 0)
+; byte 1
+SNES_A      = (1 << 7)
+SNES_X      = (1 << 6)
+SNES_L      = (1 << 5)
+SNES_R      = (1 << 4)
 	ldy joy0   ; init joy0 the first time a key was pressed
 	bne :+     ; this way, XXX can know
 	dec joy0   ; whether a keyboard is attached
@@ -179,37 +185,37 @@ NES_RIGHT  = (1 << 0)
 	bne @l1
 	cmp #$14; A [Ctrl]
 	bne :+
-	lda #NES_A
+	lda #SNES_A
 	bne @l3
 :	cmp #$11; B [Alt]
 	bne :+
-	lda #NES_B
+	lda #SNES_B
 	bne @l3
 :	cmp #$29; SELECT [Space]
 	bne :+
-	lda #NES_SELECT
+	lda #SNES_SELECT
 	bne @l3
 :	cmp #$5a; START [Enter]
 	bne :+
-	lda #NES_START
+	lda #SNES_START
 	bne @l3
 @l1:	cpx #$e0
 	bne @l2
 	cmp #$6b ; LEFT
 	bne :+
-	lda #NES_LEFT
+	lda #SNES_LEFT
 	bne @l3
 :	cmp #$74 ; RIGHT
 	bne :+
-	lda #NES_RIGHT
+	lda #SNES_RIGHT
 	bne @l3
 :	cmp #$75 ; UP
 	bne :+
-	lda #NES_UP
+	lda #SNES_UP
 	bne @l3
 :	cmp #$72 ; DOWN
 	bne @l2
-	lda #NES_DOWN
+	lda #SNES_DOWN
 @l3:
 	plp ; C: 0 = down, 1 = up
 	php

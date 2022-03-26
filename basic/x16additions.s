@@ -425,11 +425,10 @@ joy:
 	jsr chrget
 	jsr chkopn ; open paren
 	jsr getbyt ; byte: joystick number (1 or 2)
-	cpx #1
-	beq :+
-	cpx #2
-	beq :+
-	jmp fcerr
+	beq @error
+	cpx #5
+	bcc :+
+@error:	jmp fcerr
 :	phx
 	jsr chkcls ; closing paren
 	pla
