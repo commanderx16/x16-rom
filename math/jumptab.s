@@ -47,7 +47,7 @@
 	; [This is a variant of BASIC's "getadr" that
 	; does not store the result in BASIC's "poker"
 	; variable.]
-	jmp getadr2; $B7F7
+	jmp getadr; $B7F7
 
 	; FAC += .5
 	jmp faddh  ; $B849 [-mapping-]

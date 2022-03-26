@@ -133,7 +133,7 @@ givayf	sta facho
 	ldx #144
 	jmp floats
 
-getadr2	lda facsgn
+getadr	lda facsgn
 	bmi gofuc
 ;get signed 2 byte value in (y,a)
 	lda facexp      ;examine exponent.

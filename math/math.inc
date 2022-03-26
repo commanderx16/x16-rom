@@ -21,7 +21,7 @@
 ; see jumptab.s for the full documentation on these calls
 ayint	= $fe00	; facmo+1:facmo = (s16)FAC
 givayf	= $fe03	; FAC = (s16).A:.Y
-getadr2	= $fe06	; .A:.Y = (u16)FAC
+getadr	= $fe06	; .A:.Y = (u16)FAC
 faddh	= $fe09	; FAC += .5
 fsub	= $fe0c	; FAC -= mem(.Y:.A)
 fsubt	= $fe0f	; FAC -= ARG
