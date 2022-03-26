@@ -19,58 +19,61 @@
 ; XXX need to be exported
 
 ; see jumptab.s for the full documentation on these calls
-ayint	= $fe00	; facmo+1:facmo = (s16)FAC
-givayf	= $fe03	; FAC = (s16).A:.Y
-getadr	= $fe06	; .A:.Y = (u16)FAC
-faddh	= $fe09	; FAC += .5
-fsub	= $fe0c	; FAC -= mem(.Y:.A)
-fsubt	= $fe0f	; FAC -= ARG
-fadd	= $fe12	; FAC += mem(.Y/.A)
-faddt2	= $fe15	; FAC += ARG
-faddt	= $fe18 ; BASIC ONLY, DO NOT USE
-zerofc	= $fe1b	; FAC = 0
-normal	= $fe1e	; Normalize FAC
-negfac	= $fe21	; FAC = -FAC
-log	= $fe24	; FAC = log(FAC)
-fmult	= $fe27	; FAC *= mem(.Y:.A)
-fmultt2	= $fe2a	; FAC *= ARG
-fmultt	= $fe2d ; BASIC ONLY, DO NOT USE
-conupk	= $fe30	; ARG = mem(.Y:.A) (5 bytes)
-mul10	= $fe33	; FAC *= 10
-div10	= $fe36	; FAC /= 10
-fdiv	= $fe39	; FAC = mem(.Y:.A) / FAC
-fdivt2	= $fe3c	; FAC /= ARG
-fdivt	= $fe3f ; BASIC ONLY, DO NOT USE
-movfm	= $fe42	; FAC = mem(.Y:.A) (5 bytes)
-movmf	= $fe45	; mem(.Y:.X) = round(FAC) (5 bytes)
-movfa	= $fe48	; FAC = ARG
-movaf	= $fe4b	; ARG = round(FAC)
-movef	= $fe4e	; ARG = FAC
-round	= $fe51	; Round FAC using rounding byte
-sign	= $fe54	; .A = sgn(FAC)
-sgn	= $fe57	; FAC = sgn(FAC)
-float	= $fe5a	; FAC = (u8).A
-floats	= $fe5d	; FAC = (s16)facho+1:facho
-floatc	= $fe60 ; BASIC ONLY, DO NOT USE
-floatb	= $fe63 ; BASIC ONLY, DO NOT USE
-abs	= $fe66	; FAC = abs(FAC)
-fcomp	= $fe69	; .A = FAC == mem(.Y:.A)
-fcompn	= $fe6c ; BASIC ONLY, DO NOT USE
-qint	= $fe6f	; facho:facho+1:facho+2:facho+2 = u32(FAC)
-int	= $fe72	; FAC = int(FAC)
-;fin	= $fe75 ; XXX TODO
-finlog	= $fe78	; FAC += (s8).A
-fout	= $fe7b	; Convert FAC to ASCIIZ string at fbuffr
-foutc	= $fe7e	; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
-sqr	= $fe81	; FAC = sqr(FAC)
-fpwrt2	= $fe84	; FAC = ARG^FAC
-fpwrt	= $fe87 ; BASIC ONLY, DO NOT USE
-negop	= $fe8a	; FAC = -FAC - 1
-exp	= $fe8d	; FAC = e^FAC
-polyx	= $fe90	; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
-poly	= $fe93	; Polynomial Evaluation 2 (EXP)
-rnd_0	= $fe96	; FAC = rnd(FAC)
-cos	= $fe99	; FAC = cos(FAC)
-sin	= $fe9c	; FAC = sin(FAC)
-tan	= $fe9f	; FAC = tan(FAC)
-atn	= $fea2	; FAC = atn(FAC)
+ayint	= $fe00 ; facmo+1:facmo = (s16)FAC
+givayf	= $fe03 ; FAC = (s16).A:.Y
+fout	= $fe06 ; Convert FAC to ASCIIZ string at fbuffr
+val_1	= $fe09 ;
+getadr	= $fe0c ; .A:.Y = (u16)FAC
+floatc	= $fe0f ; BASIC ONLY, DO NOT USE
+fsub	= $fe12 ; FAC -= mem(.Y:.A)
+fsubt	= $fe15 ; FAC -= ARG
+fadd	= $fe18 ; FAC += mem(.Y/.A)
+faddt	= $fe1b ; BASIC ONLY, DO NOT USE
+fmult	= $fe1e ; FAC *= mem(.Y:.A)
+fmultt	= $fe21 ; BASIC ONLY, DO NOT USE
+fdiv	= $fe24 ; FAC = mem(.Y:.A) / FAC
+fdivt	= $fe27 ; BASIC ONLY, DO NOT USE
+log	= $fe2a ; FAC = log(FAC)
+int	= $fe2d ; FAC = int(FAC)
+sqr	= $fe30 ; FAC = sqr(FAC)
+negop	= $fe33 ; FAC = -FAC - 1
+fpwr	= $fe36 ;
+fpwrt	= $fe39 ; BASIC ONLY, DO NOT USE
+exp	= $fe3c ; FAC = e^FAC
+cos	= $fe3f ; FAC = cos(FAC)
+sin	= $fe42 ; FAC = sin(FAC)
+tan	= $fe45 ; FAC = tan(FAC)
+atn	= $fe48 ; FAC = atn(FAC)
+round	= $fe4b ; Round FAC using rounding byte
+abs	= $fe4e ; FAC = abs(FAC)
+sign	= $fe51 ; .A = sgn(FAC)
+fcomp	= $fe54 ; .A = FAC == mem(.Y:.A)
+rnd_0	= $fe57 ; FAC = rnd(FAC)
+conupk	= $fe5a ; ARG = mem(.Y:.A) (5 bytes)
+romupk	= $fe5d ;
+movfrm	= $fe60 ;
+movfm	= $fe63 ; FAC = mem(.Y:.A) (5 bytes)
+movmf	= $fe66 ; mem(.Y:.X) = round(FAC) (5 bytes)
+movfa	= $fe69 ; FAC = ARG
+movaf	= $fe6c ; ARG = round(FAC)
+faddh	= $fe6f ; FAC += .5
+faddt2	= $fe72 ; FAC += ARG
+zerofc	= $fe75 ; FAC = 0
+normal	= $fe78 ; Normalize FAC
+negfac	= $fe7b ; FAC = -FAC
+fmultt2 = $fe7e ; FAC *= ARG
+mul10	= $fe81 ; FAC *= 10
+div10	= $fe84 ; FAC /= 10
+fdivt2	= $fe87 ; FAC /= ARG
+movef	= $fe8a ; ARG = FAC
+sgn	= $fe8d ; FAC = sgn(FAC)
+float	= $fe90 ; FAC = (u8).A
+floats	= $fe93 ; FAC = (s16)facho+1:facho
+floatb	= $fe96 ; BASIC ONLY, DO NOT USE
+fcompn	= $fe99 ; BASIC ONLY, DO NOT USE
+qint	= $fe9c ; facho:facho+1:facho+2:facho+2 = u32(FAC)
+finlog	= $fe9f ; FAC += (s8).A
+foutc	= $fea2 ; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
+fpwrt2	= $fea5 ; FAC = ARG^FAC
+polyx	= $fea8 ; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
+poly	= $feab ; Polynomial Evaluation 2 (EXP)
