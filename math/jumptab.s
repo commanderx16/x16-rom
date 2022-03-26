@@ -209,7 +209,7 @@
 
 	; FAC = rnd(FAC)
 	; for FAC == 0, the entropy in .A/.X/.Y is used
-	jmp rnd    ; $E097
+	jmp rnd_0  ; $E097
 
 	; FAC = cos(FAC)
 	; [destroys ARG]

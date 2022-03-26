@@ -124,8 +124,11 @@ pos	sec
 sngflt	lda #0
 	beq givayf
 
-crnd	jsr entropy_get
-	jmp rnd
+rnd	jsr sign        ;get sign into accb.
+	php
+	jsr entropy_get
+	plp		;restore N and Z from sign
+	jmp rnd_0
 
 errdir	ldx curlin+1
 	inx

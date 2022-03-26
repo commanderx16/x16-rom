@@ -69,7 +69,7 @@ negop	= $fe8a	; FAC = -FAC - 1
 exp	= $fe8d	; FAC = e^FAC
 polyx	= $fe90	; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
 poly	= $fe93	; Polynomial Evaluation 2 (EXP)
-rnd	= $fe96	; FAC = rnd(FAC)
+rnd_0	= $fe96	; FAC = rnd(FAC)
 cos	= $fe99	; FAC = cos(FAC)
 sin	= $fe9c	; FAC = sin(FAC)
 tan	= $fe9f	; FAC = tan(FAC)
