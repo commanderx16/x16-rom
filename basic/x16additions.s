@@ -424,7 +424,7 @@ mb:
 joy:
 	jsr chrget
 	jsr chkopn ; open paren
-	jsr getbyt ; byte: joystick number (1 or 2)
+	jsr getbyt ; byte: joystick number (0-4)
 	cpx #5
 	bcc :+
 	jmp fcerr
@@ -434,8 +434,8 @@ joy:
 	jsr joystick_get
 	iny
 	bne :+
-	lda #<minus1
-	ldy #>minus1
+	lda #<minus1 ; not present?
+	ldy #>minus1 ; then return -1
 	jmp movfm
 :	eor #$ff
 	tay
@@ -447,7 +447,7 @@ joy:
 	lsr
 	jmp givayf0
 
-minus1:	.byte $81, $80, $00, $00, $00 ; -1
+minus1:	.byte $81, $80, $00, $00, $00
 
 reset:
 	ldx #5
