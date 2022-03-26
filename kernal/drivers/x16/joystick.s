@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; NES & SNES Controller Driver
+; SNES Controller Driver
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
@@ -25,7 +25,7 @@ bit_data1 = $80 ; PA7 DATA  (controller #1)
 .segment "KVARSB0"
 
 j0tmp:	.res 1           ;    keyboard joystick temp
-joy0:	.res 1           ;    keyboard joystick temp
+joy0:	.res 3           ;    keyboard joystick status
 joy1:	.res 3           ;    joystick 1 status
 joy2:	.res 3           ;    joystick 2 status
 joy3:	.res 3           ;    joystick 3 status
@@ -126,7 +126,8 @@ joystick_get:
 
 ; joy1 not present, return keyboard
 	lda joy0
-	ldx #1       ; type = keyboard
+	ldx joy0+1
+;	ldx #1       ; type = keyboard
 	ldy #0       ; present
 	bra @5
 
@@ -163,7 +164,7 @@ joystick_get:
 joystick_from_ps2:
 ; byte 0
 SNES0_B      = (1 << 7)
-SNES00_Y      = (1 << 6)
+SNES0_Y      = (1 << 6)
 SNES0_SELECT = (1 << 5)
 SNES0_START  = (1 << 4)
 SNES0_UP     = (1 << 3)
@@ -187,50 +188,77 @@ SNES1_R      = (1 << 4)
 	cmp #$14; A [Ctrl]
 	bne :+
 	lda #SNES1_A
-	bne @l3
+	bne @byte1
 :	cmp #$11; B [Alt]
 	bne :+
 	lda #SNES0_B
-	bne @l3
+	bne @byte0
 :	cmp #$29; SELECT [Space]
 	bne :+
 	lda #SNES0_SELECT
-	bne @l3
+	bne @byte0
 :	cmp #$5a; START [Enter]
 	bne :+
 	lda #SNES0_START
-	bne @l3
+	bne @byte0
 
 @l1:	cpx #$e0
-	bne @l2
+	bne @end
 	cmp #$6b ; LEFT
 	bne :+
 	lda #SNES0_LEFT
-	bne @l3
+	bne @byte0
 :	cmp #$74 ; RIGHT
 	bne :+
 	lda #SNES0_RIGHT
-	bne @l3
+	bne @byte0
 :	cmp #$75 ; UP
 	bne :+
 	lda #SNES0_UP
-	bne @l3
+	bne @byte0
 :	cmp #$72 ; DOWN
-	bne @l2
+	bne @end
 	lda #SNES0_DOWN
-@l3:
+@byte0:
 	plp ; C: 0 = down, 1 = up
 	php
-	bcc @l5    ; down
+	bcc @down0
+
+	; up
 	sta j0tmp
 	lda joy0   ; init joy0 the first time a key was pressed
 	ora j0tmp
-	bra @l4
-@l5:	eor #$ff
+	bra @end0
+
+	; down
+@down0:	eor #$ff
 	sta j0tmp
 	lda joy0
 	and j0tmp
-@l4:	sta joy0
-@l2:	plp
+
+@end0:	sta joy0
+@end:	plp
+	pla
+	rts
+
+@byte1:
+	plp ; C: 0 = down, 1 = up
+	php
+	bcc @down1
+
+	; up
+	sta j0tmp
+	lda joy0+1   ; init joy0 the first time a key was pressed
+	ora j0tmp
+	bra @end1
+
+	; down
+@down1:	eor #$ff
+	sta j0tmp
+	lda joy0+1
+	and j0tmp
+
+@end1:	sta joy0+1
+	plp
 	pla
 	rts
