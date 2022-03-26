@@ -10,7 +10,7 @@
 .export joystick_scan
 .export joystick_get
 ; called by ps2 keyboard driver
-.export joystick_from_ps2
+.export joystick_from_ps2_init, joystick_from_ps2
 
 nes_data = d1pra
 nes_ddr  = d1ddra
@@ -108,6 +108,8 @@ l1:	lda nes_data
 joystick_get:
 	KVARS_START_TRASH_X_NZ
 	tax
+	beq @0       ; -> joy0
+	dex
 	beq @1       ; -> joy1
 	dex
 	beq @2       ; -> joy2
@@ -115,23 +117,23 @@ joystick_get:
 	beq @3       ; -> joy3
 	dex
 	beq @4       ; -> joy4
+	lda #$ff
+	tax
+	tay
+	bra @5
 
+@0:
+	lda joy0
+	ldx joy0+1
+	ldy joy0+2
+	bra @5
 
 @1:
-; joy1
 	lda joy1
 	ldx joy1+1
 	ldy joy1+2
-	beq @5      ; present
-
-; joy1 not present, return keyboard
-	lda joy0
-	ldx joy0+1
-;	ldx #1       ; type = keyboard
-	ldy #0       ; present
 	bra @5
 
-; joy 2
 @2:
 	lda joy2
 	ldx joy2+1
@@ -149,8 +151,22 @@ joystick_get:
 	ldx joy4+1
 	ldy joy4+2
 
-
 @5:	KVARS_END
+	rts
+
+;----------------------------------------------------------------------
+; joystick_from_ps2:
+;
+;  init keyboard joystick state (internal)
+;
+; Note: This is called from the ps2kbd driver while bank 0 is active,
+;       no bank switching is performed.
+;
+joystick_from_ps2_init:
+	lda #$ff
+	sta joy0
+	sta joy0+1
+	sta joy0+2
 	rts
 
 ;----------------------------------------------------------------------
@@ -176,10 +192,6 @@ SNES1_A      = (1 << 7)
 SNES1_X      = (1 << 6)
 SNES1_L      = (1 << 5)
 SNES1_R      = (1 << 4)
-	ldy joy0   ; init joy0 the first time a key was pressed
-	bne :+     ; this way, XXX can know
-	dec joy0   ; whether a keyboard is attached
-:
 	pha
 	php
 	cpx #0
@@ -237,7 +249,8 @@ SNES1_R      = (1 << 4)
 	and j0tmp
 
 @end0:	sta joy0
-@end:	plp
+@end:	stz joy0+2
+	plp
 	pla
 	rts
 
@@ -259,6 +272,7 @@ SNES1_R      = (1 << 4)
 	and j0tmp
 
 @end1:	sta joy0+1
+	stz joy0+2
 	plp
 	pla
 	rts
