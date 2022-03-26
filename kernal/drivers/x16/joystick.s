@@ -162,19 +162,19 @@ joystick_get:
 ;
 joystick_from_ps2:
 ; byte 0
-SNES_B      = (1 << 7)
-SNES_Y      = (1 << 6)
-SNES_SELECT = (1 << 5)
-SNES_START  = (1 << 4)
-SNES_UP     = (1 << 3)
-SNES_DOWN   = (1 << 2)
-SNES_LEFT   = (1 << 1)
-SNES_RIGHT  = (1 << 0)
+SNES0_B      = (1 << 7)
+SNES00_Y      = (1 << 6)
+SNES0_SELECT = (1 << 5)
+SNES0_START  = (1 << 4)
+SNES0_UP     = (1 << 3)
+SNES0_DOWN   = (1 << 2)
+SNES0_LEFT   = (1 << 1)
+SNES0_RIGHT  = (1 << 0)
 ; byte 1
-SNES_A      = (1 << 7)
-SNES_X      = (1 << 6)
-SNES_L      = (1 << 5)
-SNES_R      = (1 << 4)
+SNES1_A      = (1 << 7)
+SNES1_X      = (1 << 6)
+SNES1_L      = (1 << 5)
+SNES1_R      = (1 << 4)
 	ldy joy0   ; init joy0 the first time a key was pressed
 	bne :+     ; this way, XXX can know
 	dec joy0   ; whether a keyboard is attached
@@ -183,39 +183,41 @@ SNES_R      = (1 << 4)
 	php
 	cpx #0
 	bne @l1
+
 	cmp #$14; A [Ctrl]
 	bne :+
-	lda #SNES_A
+	lda #SNES1_A
 	bne @l3
 :	cmp #$11; B [Alt]
 	bne :+
-	lda #SNES_B
+	lda #SNES0_B
 	bne @l3
 :	cmp #$29; SELECT [Space]
 	bne :+
-	lda #SNES_SELECT
+	lda #SNES0_SELECT
 	bne @l3
 :	cmp #$5a; START [Enter]
 	bne :+
-	lda #SNES_START
+	lda #SNES0_START
 	bne @l3
+
 @l1:	cpx #$e0
 	bne @l2
 	cmp #$6b ; LEFT
 	bne :+
-	lda #SNES_LEFT
+	lda #SNES0_LEFT
 	bne @l3
 :	cmp #$74 ; RIGHT
 	bne :+
-	lda #SNES_RIGHT
+	lda #SNES0_RIGHT
 	bne @l3
 :	cmp #$75 ; UP
 	bne :+
-	lda #SNES_UP
+	lda #SNES0_UP
 	bne @l3
 :	cmp #$72 ; DOWN
 	bne @l2
-	lda #SNES_DOWN
+	lda #SNES0_DOWN
 @l3:
 	plp ; C: 0 = down, 1 = up
 	php
