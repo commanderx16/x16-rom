@@ -34,7 +34,6 @@
 	sta $0105,x     ;save original bank into reserved byte
 	iny
 	lda (imparm),y  ;target address bank
-	and #$07
 	ply             ;restore registers
 	plx
 	jmp jsrfar3
@@ -58,6 +57,8 @@ jsrfar1:
 	lda $0104,x
 	sta ram_bank    ;restore RAM bank
 jsrfar2:
+	lda $0103,x     ;overwrite reserved byte...
+	sta $0104,x     ;...with copy of .p
 	plx
 	pla
 	plp

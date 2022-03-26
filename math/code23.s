@@ -48,6 +48,9 @@ foutbl				;powers of 10
 	.byt $ff,$ff,$ff,$ff	;          -1
 fdcend
 
+fpwr	jsr movfm	;put memory into fac.
+			;last thing fetched is facexp into accx.
+
 			;exponentiation --- x^y.
 			;n.b. 0^0=1
 			;first check if y=0. if so, the result is one.

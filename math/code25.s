@@ -66,22 +66,14 @@ poly4
 rmulc	.byt $98,$35,$44,$7a,$00
 raddc	.byt $68,$28,$b1,$46,$00
 
-;    random number function.  rnd(x) where:
-;      x=0 ==> generate a random number based on hardware clock
-;      x<0 ==> seed a reproducable, pseudo-random number generator
-;      x>0 ==> generate a reproducable pseudo-random # based on
+;    random number function.
+;      Z=1 ==> generate a random number based on hardware clock
+;      N=1 ==> seed a reproducable, pseudo-random number generator
+;      N=0 ==> generate a reproducable pseudo-random # based on
 ;		seed value above.
-
-rnd	pha
-	jsr sign        ;preserves .X and .Y
-rnd_0	bpl :+
-	pla
-	bra rnd1        ;<0: take argument as input for next random number
-:	beq :+
-	pla
-	bra qsetnr      ;>0: take last random number as input
-:                       ;=0: take entropy as input
-	pla
+rnd_0	bmi rnd1        ;<0: take argument as input for next random number
+	bne qsetnr      ;>0: take last random number as input
+                        ;=0: take entropy as input
 	sta facho
 	stx facmoh
 	sty facmo
@@ -136,12 +128,12 @@ qintgo	jmp qint	;go to wint and shove it.
 
 n32768	.byt 144,128,0,0,0
 
-givayf2	sta facho
+givayf	sta facho
 	sty facho+1
 	ldx #144
 	jmp floats
 
-getadr2	lda facsgn
+getadr	lda facsgn
 	bmi gofuc
 ;get signed 2 byte value in (y,a)
 	lda facexp      ;examine exponent.

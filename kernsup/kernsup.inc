@@ -1,5 +1,14 @@
-.byte 0,0,0            ; $FEC0
-.byte 0,0,0            ; $FEC3
+.byte 0,0,0                       ; $FEA8
+.byte 0,0,0                       ; $FEAB
+.byte 0,0,0                       ; $FEAE
+.byte 0,0,0                       ; $FEB1
+.byte 0,0,0                       ; $FEB4
+.byte 0,0,0                       ; $FEB7
+.byte 0,0,0                       ; $FEBA
+
+bridge kbdbuf_peek                ; $FEBD
+bridge kbdbuf_get_modifiers       ; $FEC0
+bridge kbdbuf_put                 ; $FEC3
 
 bridge i2c_read_byte              ; $FEC6
 bridge i2c_write_byte             ; $FEC9
@@ -8,7 +17,7 @@ bridge monitor                    ; $FECC
 
 bridge entropy_get                ; $FECF
 
-bridge kbdbuf_put                 ; $FED2
+.byte 0,0,0                       ; $FED2
 
 bridge console_set_paging_message ; $FED5
 bridge console_put_image          ; $FED8

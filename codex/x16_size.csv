@@ -1,0 +1,49 @@
+Date,Size,Comment
+2020-03-23T09:50:59-0700,15119,V0.71 base
+2020-03-23T10:10:30-0700,15038,scrollback opto
+2020-03-28T16:40:20-0700,15531,V0.72 save
+2020-03-30T12:17:29-0700,15446,V0.72 add MEMCOPY opto
+2020-04-01T14:48:30-0700,15395,V0.72 fix decoder string error, opto reg usage
+2020-04-02T12:06:53-0700,15383,V0.72 fix upscroll problem after insert
+2020-04-07T13:12:09-0700,15048,V0.72 scrollback 2
+2020-05-02T15:21:58-0700,15049,V0.80 post CC65 port
+2020-05-06T12:19:17-0700,14794 V0.80 refactoring + optimizations
+2020-05-30T17:52:50-0700,14491 V0.80 optimizations + add sane defaults to read filename & run @ address
+2020-06-03T11:41:33-0700,14353,V0.80 bank operation optimization
+2020-07-07T16:23:01-0700,14966,V0.80 CP new sidebards; registers & stack
+2020-07-07T17:43:31-0700,14469,V0.80 Remove legacy break functionality
+2020-07-12T08:55:11-0700,14839,V0.80 Save as text, symbols only
+2020-07-12T11:24:10-0700,14788,V0.80 Use common decode_terminate routine (save 51!)
+2020-08-05T13:22:52-0700,15267,V0.80 Edit instruction
+2020-08-30T10:19:27-0700,15736,V0.80 Pre sdcard support
+2020-09-01T10:30:30-0700,15840,V0.80 Add sdcard output support
+2020-09-01T13:51:38-0700,15744,V0.80 Optimizations
+2020-09-07T14:11:08-0700,15782,V0.80 Fix graphic glitches
+2020-09-26T13:25:35-0700,15892,V0.80 Fix watch code, delete watch, messages, debug control
+2020-09-29T14:02:12-0700,15985,V0.80 Fix abort rdstring in edit, preserve label on instruction edit
+2020-10-01T16:16:34-0700,15998,V0.80 Fix screen glitches
+2020-10-02T12:15:23-0700,15998,V0.80 Release
+2020-10-06T14:37:11-0700,15988,V0.81 Add dirty_query to File->Load, remove debug area overwrite
+2020-10-08T12:20:54-0700,15671,V0.81 Fix watch display refresh after delete
+2020-10-10T08:42:14-0700,15661,V0.81 Fix erase end of screen after code block
+2020-10-13T11:48:52-0700,15636,V0.81 Fix edit munges
+2020-10-15T12:44:47-0700,15614,V0.82 Optimize for size
+2020-10-15T16:43:20-0700,15636,V0.82 Add skel VERA sidebar
+2020-10-30T10:46:47-0700,15797,V0.82 Add KERJSR to kernal calls
+2020-12-21T14:31:16-0800,15811,V0.90 Refactor bootstrap & ROM prep
+2021-01-06T10:32:07-0800,15606,V0.90 Size reduction 1
+2021-01-06T10:52:14-0800,15538,V0.90 Remove extra bytes from encoder argument table
+2021-01-11T15:37:21-0800,14967,V0.90 Size optimization 2
+2021-01-23T12:58:34-0800,15038,V0.90 Call decompiler plugin
+2021-01-25T10:22:22-0800,14915,V0.90 Fix low RAM allocation in CFGs
+2021-01-27T14:24:01-0800,14974,V0.90 File save text shim
+2021-01-28T09:58:47-0800,14950,V0.90 Use get region shim
+2021-01-28T17:56:13-0800,14964,V0.90 File save text helper mostly working
+2021-01-30T10:20:35-0800,15051,V0.90 Bugs + temp expression $A000 page viewer
+2021-04-02T08:13:50-0700,15025,V0.90 Move to Kernal directory
+2021-04-05T08:00:44-0700,15016,V0.90 Use KERNAL text color variable
+2021-04-05T09:52:54-0700,14997,V0.90 Fix meta_add_label to be ROM friendly
+2021-04-05T17:22:05-0700,15034,V0.90 Fix labeling while ROM resident
+2021-04-07T11:53:45-0700,15032,V0.90 ENTER_BASIC when exiting
+2021-04-20T10:40:30-0700,15000,V0.91 Fix positioning of "SAVE PROGRAM" message
+2021-05-03T15:07:03-0700,15068,V0.91 Remove redunant print_string

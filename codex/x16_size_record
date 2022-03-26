@@ -1,0 +1,7 @@
+#!/bin/csh -f
+
+set S = `ls -l cx | awk '{ print $5}'`
+set D = `date +%Y-%m-%dT%H:%M:%S%z`
+echo $D,$S >> x16_size.csv
+echo "CodeX size: $S"
+

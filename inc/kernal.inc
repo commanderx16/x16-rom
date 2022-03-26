@@ -124,7 +124,7 @@ console_get_char             = $fee1
 console_put_image            = $fed8
 console_set_paging_message   = $fed5
 
-kbdbuf_put                   = $fed2
+;***empty***                 = $fed2
 
 entropy_get                  = $fecf
 
@@ -132,3 +132,7 @@ entropy_get                  = $fecf
 
 i2c_read_byte                = $fec6
 i2c_write_byte               = $fec9
+
+kbdbuf_peek                  = $febd
+kbdbuf_get_modifiers         = $fec0
+kbdbuf_put                   = $fec3

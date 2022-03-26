@@ -19,8 +19,6 @@
 
 ;screen editor constants
 ;
-white	=$01            ;white char color
-blue	=$06            ;blue screen color
 maxchr=80
 nwrap=2 ;max number of physical lines per logical line
 
@@ -184,8 +182,6 @@ cint	jsr iokeys
 	jsr emulator_get_data
 	jsr kbd_config  ;set keyboard layout
 
-	lda #blue << 4 | white
-	sta color       ;init text color
 	lda #$c
 	sta blnct
 	sta blnsw

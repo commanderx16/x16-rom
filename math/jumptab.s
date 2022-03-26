@@ -33,24 +33,36 @@
 ; * mldvex at $BAD4
 ; * mov2f  at $BBC7
 
+; Format Conversions
+
 	; facmo+1:facmo = (s16)FAC
 	; [this routine was moved from BASIC]
 	jmp ayint  ; $B1BF
 
 	; FAC = (s16).A:.Y
-	; [This is a variant of BASIC's "givayf2" that
-	; does not set BASIC's "valtyp" variable.]
+	; [*** C128 difference: does not set BASIC's
+	; "valtyp" variable.]
 	; [destroys ARG]
-	jmp givayf2; $B391
+	jmp givayf; $B391
+
+	; Convert FAC to ASCIIZ string at fbuffr
+	jmp fout   ; $BDDD
+
+	; XXX VAL_1, a frontend to fin ($BCF3) is missing
+	; XXX because of the dependency on CHRGET.
+	; XXX We should add it after removing the
+	; XXX depencency.
+	.byte 0,0,0
 
 	; .A:.Y = (u16)FAC
-	; [This is a variant of BASIC's "getadr" that
-	; does not store the result in BASIC's "poker"
-	; variable.]
-	jmp getadr2; $B7F7
+	; [*** C128 difference: does not store the
+	; result in BASIC's "poker" variable.]
+	jmp getadr; $B7F7
 
-	; FAC += .5
-	jmp faddh  ; $B849 [-mapping-]
+	; [used by BASIC]
+	jmp floatc ; $BC49
+
+; Math Functions
 
 	; FAC -= mem(.Y:.A)
 	jmp fsub   ; $B850 [-mapping-]
@@ -62,154 +74,44 @@
 	jmp fadd   ; $B867
 
 	; FAC += ARG
-	; [FIXED VERSION of "faddt"]
-	jmp faddt2
-
-	; FAC += ARG
 	; [do not use, used by BASIC]
 	jmp faddt   ; $B86A
-
-	; FAC = 0
-	jmp zerofc ; $B8F7
-
-	; Normalize FAC
-	jmp normal ; $B8D7 [-mapping-]
-
-	; FAC = -FAC
-	jmp negfac ; $B947 [-mapping-]
-
-	; FAC = log(FAC)
-	jmp log    ; $B9EA
 
 	; FAC *= mem(.Y:.A)
 	jmp fmult  ; $BA28 [-mapping-]
 
 	; FAC *= ARG
-	; [FIXED VERSION of "fmultt"]
-	jmp fmultt2
-
-	; FAC *= ARG
 	; [do not use, used by BASIC]
 	jmp fmultt  ; $BA2B
-
-	; ARG = mem(.Y:.A) (5 bytes)
-	jmp conupk ; $BA8C [-mapping-]
-
-	; FAC *= 10
-	jmp mul10  ; $BAE2
-
-	; FAC /= 10
-	; ["Note: This routine treats FAC1 as positive even if it is not."]
-	jmp div10  ; $BAFE
 
 	; FAC = mem(.Y:.A) / FAC
 	jmp fdiv   ; $BB0F [-mapping-]
 
 	; FAC /= ARG
-	; [FIXED VERSION of "fdivt"]
-	jmp fdivt2
-
-	; FAC /= ARG
 	; [do not use, used by BASIC]
 	jmp fdivt  ; $BB12
 
-	; FAC = mem(.Y:.A) (5 bytes)
-	jmp movfm  ; $BBA2
-
-	; mem(.Y:.X) = round(FAC) (5 bytes)
-	jmp movmf  ; $BBD4
-
-	; FAC = ARG
-	jmp movfa  ; $BBFC
-
-	; ARG = round(FAC)
-	jmp movaf  ; $BC0C
-
-	; ARG = FAC
-	jmp movef  ; $BC0F [-mapping-]
-
-	; Round FAC using rounding byte
-	jmp round  ; $BC1B
-
-	; .A = sgn(FAC)
-	jmp sign   ; $BC2B
-
-	; FAC = sgn(FAC)
-	jmp sgn    ; $BC39
-
-	; FAC = (u8).A
-	; [destroys ARG]
-	jmp float  ; $BC3C
-
-	; FAC = (s16)facho+1:facho
-	; [destroys ARG]
-	jmp floats ; $BC44
-
-	; [used by BASIC]
-	jmp floatc ; $BC49
-
-	; [used by BASIC]
-	jmp floatb ; $BC4F
-
-	; FAC = abs(FAC)
-	jmp abs    ; $BC58
-
-	; .A = FAC == mem(.Y:.A)
-	jmp fcomp  ; $BC5B
-
-	; [used by BASIC]
-	jmp fcompn ; $BC5D
-
-	; facho:facho+1:facho+2:facho+3 = u32(FAC)
-	jmp qint   ; $BC9B
+	; FAC = log(FAC)
+	jmp log    ; $B9EA
 
 	; FAC = int(FAC)
 	jmp int    ; $BCCC
 
-	; XXX fin ($BCF3) is missing because of
-	; XXX the dependency on CHRGET.
-	; XXX We should add it (or a variant of "val")
-	; XXX after removing the depencency.
-	brk
-	brk
-	brk
-
-	; FAC += (s8).A
-	jmp finlog ; $BD7E
-
-	; Convert FAC to ASCIIZ string at fbuffr
-	jmp fout   ; $BDDD
-
-	; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
-	; [used by BASIC]
-	jmp foutc  ; $BDDF
-
 	; FAC = sqr(FAC)
 	jmp sqr    ; $BF71
 
-	; FAC = ARG^FAC
-	; [FIXED VERSION of "fpwrt"]
-	jmp fpwrt2
+	; FAC = -FAC - 1
+	jmp negop  ; $BFB4
+
+	; C128 API addition
+	jmp fpwr
 
 	; FAC = ARG^FAC
 	; [do not use, used by BASIC]
 	jmp fpwrt  ; $BF7B
 
-	; FAC = -FAC - 1
-	jmp negop  ; $BFB4
-
 	; FAC = e^FAC
 	jmp exp    ; $BFED
-
-	; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
-	jmp polyx  ; $E043 [-mapping-]
-
-	; Polynomial Evaluation 2 (EXP)
-	jmp poly   ; $E059 [-mapping-]
-
-	; FAC = rnd(FAC)
-	; for FAC == 0, the entropy in .A/.X/.Y is used
-	jmp rnd    ; $E097
 
 	; FAC = cos(FAC)
 	; [destroys ARG]
@@ -226,3 +128,120 @@
 	; FAC = atn(FAC)
 	; [destroys ARG]
 	jmp atn    ; $E30E
+
+	; Round FAC using rounding byte
+	jmp round  ; $BC1B
+
+	; FAC = abs(FAC)
+	jmp abs    ; $BC58
+
+	; .A = sgn(FAC)
+	jmp sign   ; $BC2B
+
+	; .A = FAC == mem(.Y:.A)
+	jmp fcomp  ; $BC5B
+
+	; FAC = rnd(.P)
+	; for .Z=1, the entropy in .A/.X/.Y is used
+	; [*** C128 difference: for .Z=1, the C128 version
+	; reads entropy from the CIA timers instead of taking
+	; it from .A/.X/.Y.]
+	jmp rnd_0  ; $E097
+
+; Movement
+
+	; ARG = mem(.Y:.A) (5 bytes)
+	jmp conupk ; $BA8C [-mapping-]
+
+	; [*** C128/C65 has RAM and ROM version, which we don't need]
+	jmp conupk ; ROMUPK = CONUPK (=above)
+
+	; [*** C128/C65 has RAM and ROM version, which we don't need]
+	jmp movfm ; MOVFRM = MOVFM (=below)
+
+	; FAC = mem(.Y:.A) (5 bytes)
+	jmp movfm  ; $BBA2
+
+	; mem(.Y:.X) = round(FAC) (5 bytes)
+	jmp movmf  ; $BBD4
+
+	; FAC = ARG
+	jmp movfa  ; $BBFC
+
+	; ARG = round(FAC)
+	jmp movaf  ; $BC0C
+
+
+; X16 additions
+	; FAC += .5
+	jmp faddh  ; $B849 [-mapping-]
+
+	; FAC += ARG
+	; [FIXED VERSION of "faddt"]
+	jmp faddt2
+
+	; FAC = 0
+	jmp zerofc ; $B8F7
+
+	; Normalize FAC
+	jmp normal ; $B8D7 [-mapping-]
+
+	; FAC = -FAC
+	jmp negfac ; $B947 [-mapping-]
+
+	; FAC *= ARG
+	; [FIXED VERSION of "fmultt"]
+	jmp fmultt2
+
+	; FAC *= 10
+	jmp mul10  ; $BAE2
+
+	; FAC /= 10
+	; ["Note: This routine treats FAC1 as positive even if it is not."]
+	jmp div10  ; $BAFE
+
+	; FAC /= ARG
+	; [FIXED VERSION of "fdivt"]
+	jmp fdivt2
+
+	; ARG = FAC
+	jmp movef  ; $BC0F [-mapping-]
+
+	; FAC = sgn(FAC)
+	jmp sgn    ; $BC39
+
+	; FAC = (u8).A
+	; [destroys ARG]
+	jmp float  ; $BC3C
+
+	; FAC = (s16)facho+1:facho
+	; [destroys ARG]
+	jmp floats ; $BC44
+
+	; [used by BASIC]
+	jmp floatb ; $BC4F
+
+	; [used by BASIC]
+	jmp fcompn ; $BC5D
+
+	; facho:facho+1:facho+2:facho+3 = u32(FAC)
+	jmp qint   ; $BC9B
+
+	; FAC += (s8).A
+	jmp finlog ; $BD7E
+
+	; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
+	; [used by BASIC]
+	jmp foutc  ; $BDDF
+
+	; FAC = ARG^FAC
+	; [FIXED VERSION of "fpwrt"]
+	jmp fpwrt2
+
+.if 0 ; removed for now due to segment overflow
+	; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
+	jmp polyx  ; $E043 [-mapping-]
+
+	; Polynomial Evaluation 2 (EXP)
+	jmp poly   ; $E059 [-mapping-]
+.endif

@@ -1,8 +1,8 @@
 MEMORY {
 	#include "x16.cfginc"
 
-	KERNAL:   start = $C000, size = $3EC0, fill=yes, fillval=$AA;
-	JMPTBL:   start = $FEC0, size = $013A, fill=yes, fillval=$AA;
+	KERNAL:   start = $C000, size = $3EA8, fill=yes, fillval=$AA;
+	JMPTBL:   start = $FEA8, size = $0152, fill=yes, fillval=$AA;
 	VECTORS:  start = $FFFA, size = $0006, fill=yes, fillval=$AA;
 }
 

@@ -135,9 +135,7 @@ bind:	jsr chrget ; get char
 	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
-        lda #<(lofbuf)
-	ldy #>(lofbuf)
-	jmp strlit  ; allocate and return string value
+	jmp strlitl; allocate and return string value from lofbuf
 
 ; convert byte to hex in zero terminated string and
 ; return it to BASIC
@@ -166,9 +164,7 @@ hexd:	jsr chrget ; get char
 	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
-        lda #<lofbuf
-	ldy #>lofbuf
-	jmp strlit  ; allocate and return string value
+	jmp strlitl; allocate and return string value from lofbuf
 
 ; convert byte into hex ASCII in A/Y
 ; copied from monitor.s
@@ -193,7 +189,7 @@ byte_to_hex_ascii:
 vpeek	jsr chrget
 	jsr chkopn ; open paren
 	jsr getbyt ; byte: bank
-	stx VERA_ADDR_H
+	phx
 	jsr chkcom
 	lda poker
 	pha
@@ -206,15 +202,19 @@ vpeek	jsr chrget
 	sta poker + 1
 	pla
 	sta poker
+	pla
+	sta VERA_ADDR_H
 	jsr chkcls ; closing paren
 	ldy VERA_DATA0
 	jmp sngflt
 
 ;***************
 vpoke	jsr getbyt ; bank
-	stx VERA_ADDR_H
+	phx
 	jsr chkcom
 	jsr getnum
+	pla
+	sta VERA_ADDR_H
 	lda poker
 	sta VERA_ADDR_L
 	lda poker+1
@@ -404,7 +404,7 @@ mx:
 	jsr mouse_get
 	lda fac+1
 	ldy fac
-	jmp givayf
+	jmp givayf0
 
 my:
 	jsr chrget
@@ -412,7 +412,7 @@ my:
 	jsr mouse_get
 	lda fac+3
 	ldy fac+2
-	jmp givayf
+	jmp givayf0
 
 mb:
 	jsr chrget

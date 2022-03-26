@@ -22,7 +22,9 @@
 
 .import console_init, console_put_char, console_get_char, console_put_image, console_set_paging_message
 
-.import kbdbuf_put, entropy_get
+.import kbdbuf_peek, kbdbuf_get_modifiers, kbdbuf_put
+
+.import entropy_get
 
 .import restor, memtop, membot, vector, puls, start, nmi, iobase, primm
 
@@ -32,14 +34,26 @@
 ;
 ; !!! DO NOT RELY ON THEIR ADDRESSES JUST YET !!!
 ;
+	.byte 0,0,0                    ; $FEA8
+	.byte 0,0,0                    ; $FEAB
+	.byte 0,0,0                    ; $FEAE
+	.byte 0,0,0                    ; $FEB1
+	.byte 0,0,0                    ; $FEB4
+	.byte 0,0,0                    ; $FEB7
+	.byte 0,0,0                    ; $FEBA
 
-	.byte 0,0,0                    ; $FEC0
-	.byte 0,0,0                    ; $FEC3
+	jmp kbdbuf_peek                ; $FEBD
+	jmp kbdbuf_get_modifiers       ; $FEC0
+	jmp kbdbuf_put                 ; $FEC3
+
 	jmp i2c_read_byte              ; $FEC6
 	jmp i2c_write_byte             ; $FEC9
+
 	jmp monitor                    ; $FECC
+
 	jmp entropy_get                ; $FECF
-	jmp kbdbuf_put                 ; $FED2
+
+	.byte 0,0,0                    ; $FED2
 
 	jmp console_set_paging_message ; $FED5
 	jmp console_put_image          ; $FED8

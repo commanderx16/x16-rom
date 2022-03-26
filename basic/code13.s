@@ -116,16 +116,19 @@ nofref	jsr garba2
 	tay
 	lda fretop+1
 	sbc strend+1
-givayf	ldx #0
+givayf0	ldx #0
 	stx valtyp
-	jmp givayf2
+	jmp givayf
 pos	sec
 	jsr plot        ;get tab pos in .y
 sngflt	lda #0
-	beq givayf
+	beq givayf0
 
-crnd	jsr entropy_get
-	jmp rnd
+rnd	jsr sign        ;get sign into accb.
+	php
+	jsr entropy_get
+	plp		;restore N and Z from sign
+	jmp rnd_0
 
 errdir	ldx curlin+1
 	inx

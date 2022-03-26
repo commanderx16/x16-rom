@@ -211,7 +211,6 @@ fetch:	lda ram_bank    ;save current config (RAM)
 	txa
 	sta ram_bank    ;set RAM bank
 	plx             ;original ROM bank
-	and #$07
 	php
 	sei
 	jsr fetch2

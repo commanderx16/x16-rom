@@ -261,7 +261,7 @@ GEOS_SOURCES= \
 BASIC_SOURCES= \
 	kernsup/kernsup_basic.s \
 	basic/basic.s \
-	fplib/fplib.s
+	math/math.s
 
 MONITOR_SOURCES= \
 	kernsup/kernsup_monitor.s \
@@ -315,7 +315,7 @@ GEOS_DEPS= \
 
 BASIC_DEPS= \
 	$(GENERIC_DEPS) \
-	fplib/fplib.inc
+	math/math.inc
 
 MONITOR_DEPS= \
 	$(GENERIC_DEPS) \
