@@ -38,10 +38,10 @@
 	jmp ayint  ; $B1BF
 
 	; FAC = (s16).A:.Y
-	; [This is a variant of BASIC's "givayf2" that
+	; [This is a variant of BASIC's "givayf" that
 	; does not set BASIC's "valtyp" variable.]
 	; [destroys ARG]
-	jmp givayf2; $B391
+	jmp givayf; $B391
 
 	; .A:.Y = (u16)FAC
 	; [This is a variant of BASIC's "getadr" that

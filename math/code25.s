@@ -128,7 +128,7 @@ qintgo	jmp qint	;go to wint and shove it.
 
 n32768	.byt 144,128,0,0,0
 
-givayf2	sta facho
+givayf	sta facho
 	sty facho+1
 	ldx #144
 	jmp floats

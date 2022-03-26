@@ -116,13 +116,13 @@ nofref	jsr garba2
 	tay
 	lda fretop+1
 	sbc strend+1
-givayf	ldx #0
+givayf0	ldx #0
 	stx valtyp
-	jmp givayf2
+	jmp givayf
 pos	sec
 	jsr plot        ;get tab pos in .y
 sngflt	lda #0
-	beq givayf
+	beq givayf0
 
 rnd	jsr sign        ;get sign into accb.
 	php

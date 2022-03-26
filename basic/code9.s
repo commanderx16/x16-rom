@@ -222,7 +222,7 @@ notop	jsr ayint
 	tay
 	lda facmo
 	eor #255
-	jmp givayf
+	jmp givayf0
 eval4	cmp #fntk
 	bne *+5
 	jmp fndoer

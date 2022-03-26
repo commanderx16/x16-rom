@@ -48,8 +48,8 @@ foutbl				;powers of 10
 	.byt $ff,$ff,$ff,$ff	;          -1
 fdcend
 
-;XXXfpwr	jsr movfm	;put memory into fac.
-;XXX			;last thing fetched is facexp into accx.
+fpwr	jsr movfm	;put memory into fac.
+			;last thing fetched is facexp into accx.
 
 			;exponentiation --- x^y.
 			;n.b. 0^0=1
