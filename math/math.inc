@@ -19,26 +19,28 @@
 ; XXX need to be exported
 
 ; see jumptab.s for the full documentation on these calls
+; Format Conversions
 ayint	= $fe00 ; facmo+1:facmo = (s16)FAC
 givayf	= $fe03 ; FAC = (s16).A:.Y
 fout	= $fe06 ; Convert FAC to ASCIIZ string at fbuffr
 val_1	= $fe09 ;
 getadr	= $fe0c ; .A:.Y = (u16)FAC
-floatc	= $fe0f ; BASIC ONLY, DO NOT USE
+floatc	= $fe0f ; C128 API, use floats instead
+; Math Functions
 fsub	= $fe12 ; FAC -= mem(.Y:.A)
 fsubt	= $fe15 ; FAC -= ARG
 fadd	= $fe18 ; FAC += mem(.Y/.A)
-faddt	= $fe1b ; BASIC ONLY, DO NOT USE
+faddt	= $fe1b ; C128 API, use faddt2 instead
 fmult	= $fe1e ; FAC *= mem(.Y:.A)
-fmultt	= $fe21 ; BASIC ONLY, DO NOT USE
+fmultt	= $fe21 ; C128 API, use fmultt2 instead
 fdiv	= $fe24 ; FAC = mem(.Y:.A) / FAC
-fdivt	= $fe27 ; BASIC ONLY, DO NOT USE
+fdivt	= $fe27 ; C128 API, use fdivt2 instead
 log	= $fe2a ; FAC = log(FAC)
 int	= $fe2d ; FAC = int(FAC)
 sqr	= $fe30 ; FAC = sqr(FAC)
 negop	= $fe33 ; FAC = -FAC - 1
 fpwr	= $fe36 ;
-fpwrt	= $fe39 ; BASIC ONLY, DO NOT USE
+fpwrt	= $fe39 ; C128 API, use fpwrt2 instead
 exp	= $fe3c ; FAC = e^FAC
 cos	= $fe3f ; FAC = cos(FAC)
 sin	= $fe42 ; FAC = sin(FAC)
@@ -49,6 +51,7 @@ abs	= $fe4e ; FAC = abs(FAC)
 sign	= $fe51 ; .A = sgn(FAC)
 fcomp	= $fe54 ; .A = FAC == mem(.Y:.A)
 rnd_0	= $fe57 ; FAC = rnd(FAC)
+; Movement
 conupk	= $fe5a ; ARG = mem(.Y:.A) (5 bytes)
 romupk	= $fe5d ;
 movfrm	= $fe60 ;
@@ -56,6 +59,7 @@ movfm	= $fe63 ; FAC = mem(.Y:.A) (5 bytes)
 movmf	= $fe66 ; mem(.Y:.X) = round(FAC) (5 bytes)
 movfa	= $fe69 ; FAC = ARG
 movaf	= $fe6c ; ARG = round(FAC)
+; X16 additions
 faddh	= $fe6f ; FAC += .5
 faddt2	= $fe72 ; FAC += ARG
 zerofc	= $fe75 ; FAC = 0
