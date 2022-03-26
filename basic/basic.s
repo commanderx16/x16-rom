@@ -2,9 +2,9 @@
 
 .include "banks.inc"
 .include "kernal.inc"
-.include "../fplib/fplib.inc"
+.include "../math/math.inc"
 
-; XXX exports for FPLIB
+; XXX exports for Math library
 .global error, fcerr  ; code
 .global errdvo, errov ; constants
 
