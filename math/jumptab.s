@@ -48,7 +48,10 @@
 	; Convert FAC to ASCIIZ string at fbuffr
 	jmp fout   ; $BDDD
 
-	; VAL_1 is TODO
+	; XXX VAL_1, a frontend to fin ($BCF3) is missing
+	; XXX because of the dependency on CHRGET.
+	; XXX We should add it after removing the
+	; XXX depencency.
 	.byte 0,0,0
 
 	; .A:.Y = (u16)FAC
