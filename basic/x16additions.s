@@ -404,7 +404,7 @@ mx:
 	jsr mouse_get
 	lda fac+1
 	ldy fac
-	jmp givayf
+	jmp givayf0
 
 my:
 	jsr chrget
@@ -412,7 +412,7 @@ my:
 	jsr mouse_get
 	lda fac+3
 	ldy fac+2
-	jmp givayf
+	jmp givayf0
 
 mb:
 	jsr chrget
