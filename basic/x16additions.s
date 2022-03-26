@@ -425,18 +425,29 @@ joy:
 	jsr chrget
 	jsr chkopn ; open paren
 	jsr getbyt ; byte: joystick number (1 or 2)
-	beq @error
 	cpx #5
 	bcc :+
-@error:	jmp fcerr
+	jmp fcerr
 :	phx
 	jsr chkcls ; closing paren
 	pla
-	dec ; KERNAL uses #0 and #1
 	jsr joystick_get
-	eor #$ff
+	iny
+	bne :+
+	lda #<minus1
+	ldy #>minus1
+	jmp movfm
+:	eor #$ff
 	tay
-	jmp sngflt
+	txa
+	eor #$ff
+	lsr
+	lsr
+	lsr
+	lsr
+	jmp givayf0
+
+minus1:	.byte $81, $80, $00, $00, $00 ; -1
 
 reset:
 	ldx #5
