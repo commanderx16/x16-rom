@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; NES & SNES Controller Driver
+; SNES Controller Driver
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
@@ -10,7 +10,7 @@
 .export joystick_scan
 .export joystick_get
 ; called by ps2 keyboard driver
-.export joystick_from_ps2
+.export joystick_from_ps2_init, joystick_from_ps2
 
 nes_data = d1pra
 nes_ddr  = d1ddra
@@ -25,7 +25,7 @@ bit_data1 = $80 ; PA7 DATA  (controller #1)
 .segment "KVARSB0"
 
 j0tmp:	.res 1           ;    keyboard joystick temp
-joy0:	.res 1           ;    keyboard joystick temp
+joy0:	.res 3           ;    keyboard joystick status
 joy1:	.res 3           ;    joystick 1 status
 joy2:	.res 3           ;    joystick 2 status
 joy3:	.res 3           ;    joystick 3 status
@@ -84,30 +84,23 @@ l1:	lda nes_data
 ;
 ; Function:  Return the state of a given joystick.
 ;
-; Pass:      a    number of joystick (0 or 1)
+; Pass:      a    number of joystick (0-3)
 ; Return:    a    byte 0:      | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-;                         NES  | A | B |SEL|STA|UP |DN |LT |RT |
 ;                         SNES | B | Y |SEL|STA|UP |DN |LT |RT |
 ;
 ;            x    byte 1:      | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-;                         NES  | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 ;                         SNES | A | X | L | R | 1 | 1 | 1 | 1 |
 ;            y    byte 2:
 ;                         $00 = joystick present
 ;                         $FF = joystick not present
 ;
-; Notes:     * Presence can be detected by checking byte 2.
-;            * The type of controller is encoded in bits 0-3 in
-;              byte 1:
-;              0000: NES
-;              0001: keyboard (NES-like)
-;              1111: SNES
-;            * Bits 6 and 7 in byte 0 map to different buttons
-;              on NES and SNES.
+; Note:      * Presence can be detected by checking byte 2.
 ;---------------------------------------------------------------
 joystick_get:
 	KVARS_START_TRASH_X_NZ
 	tax
+	beq @0       ; -> joy0
+	dex
 	beq @1       ; -> joy1
 	dex
 	beq @2       ; -> joy2
@@ -115,22 +108,23 @@ joystick_get:
 	beq @3       ; -> joy3
 	dex
 	beq @4       ; -> joy4
+	lda #$ff
+	tax
+	tay
+	bra @5
 
+@0:
+	lda joy0
+	ldx joy0+1
+	ldy joy0+2
+	bra @5
 
 @1:
-; joy1
 	lda joy1
 	ldx joy1+1
 	ldy joy1+2
-	beq @5      ; present
-
-; joy1 not present, return keyboard
-	lda joy0
-	ldx #1       ; type = keyboard
-	ldy #0       ; present
 	bra @5
 
-; joy 2
 @2:
 	lda joy2
 	ldx joy2+1
@@ -148,81 +142,127 @@ joystick_get:
 	ldx joy4+1
 	ldy joy4+2
 
-
 @5:	KVARS_END
 	rts
 
 ;----------------------------------------------------------------------
 ; joystick_from_ps2:
 ;
-;  convert PS/2 scancode into NES joystick state (internal)
+;  init keyboard joystick state (internal)
+;
+; Note: This is called from the ps2kbd driver while bank 0 is active,
+;       no bank switching is performed.
+;
+joystick_from_ps2_init:
+	lda #$ff
+	sta joy0
+	sta joy0+1
+	sta joy0+2 ; joy0 bot present
+	rts
+
+;----------------------------------------------------------------------
+; joystick_from_ps2:
+;
+;  convert PS/2 scancode into SNES joystick state (internal)
 ;
 ; Note: This is called from the ps2kbd driver while bank 0 is active,
 ;       no bank switching is performed.
 ;
 joystick_from_ps2:
-NES_A      = (1 << 7)
-NES_B      = (1 << 6)
-NES_SELECT = (1 << 5)
-NES_START  = (1 << 4)
-NES_UP     = (1 << 3)
-NES_DOWN   = (1 << 2)
-NES_LEFT   = (1 << 1)
-NES_RIGHT  = (1 << 0)
-	ldy joy0   ; init joy0 the first time a key was pressed
-	bne :+     ; this way, XXX can know
-	dec joy0   ; whether a keyboard is attached
-:
 	pha
+	phx
+	phy
 	php
 	cpx #0
-	bne @l1
-	cmp #$14; A [Ctrl]
-	bne :+
-	lda #NES_A
-	bne @l3
-:	cmp #$11; B [Alt]
-	bne :+
-	lda #NES_B
-	bne @l3
-:	cmp #$29; SELECT [Space]
-	bne :+
-	lda #NES_SELECT
-	bne @l3
-:	cmp #$5a; START [Enter]
-	bne :+
-	lda #NES_START
-	bne @l3
-@l1:	cpx #$e0
-	bne @l2
-	cmp #$6b ; LEFT
-	bne :+
-	lda #NES_LEFT
-	bne @l3
-:	cmp #$74 ; RIGHT
-	bne :+
-	lda #NES_RIGHT
-	bne @l3
-:	cmp #$75 ; UP
-	bne :+
-	lda #NES_UP
-	bne @l3
-:	cmp #$72 ; DOWN
-	bne @l2
-	lda #NES_DOWN
-@l3:
+	bne @prefix
+
+; no prefix, use tables
+	ldx #intab-outtab
+:	cmp intab-1,x
+	beq :+
+	dex
+	bpl :-
+	bra @end
+:	ldy outtab-1,x
+	bmi @b1
+	lda #1
+:	cpy #0
+	beq @byte0 ; write into byte0
+	asl
+	dey
+	bra :-
+
+@b1:	ldx #1 ; write into byte1
+	tya
+	and #$7f
+	tay
+	lda #1
+:	cpy #0
+	beq @byte
+	asl
+	dey
+	bra :-
+
+@prefix:
+	cpx #$e0
+	bne @end
+	; E0-prefixed
+	tay
+	lda #1 << C_LT
+	cpy #$6b ; LEFT
+	beq @byte0
+:	lda #1 << C_RT
+	cpy #$74 ; RIGHT
+	beq @byte0
+:	lda #1 << C_UP
+	cpy #$75 ; UP
+	beq @byte0
+:	lda #1 << C_DN
+	cpy #$72 ; DOWN
+	bne @end
+@byte0:
+	ldx #0
+@byte:
 	plp ; C: 0 = down, 1 = up
 	php
-	bcc @l5    ; down
+	bcc @down
+
+	; up
+	ora joy0,x
+	bra @store
+
+	; down
+@down:	eor #$ff
 	sta j0tmp
-	lda joy0   ; init joy0 the first time a key was pressed
-	ora j0tmp
-	bra @l4
-@l5:	eor #$ff
-	sta j0tmp
-	lda joy0
+	lda joy0,x
 	and j0tmp
-@l4:	sta joy0
-@l2:	plp
+
+@store:	sta joy0,x
+@end:	stz joy0+2 ; joy0 present
+	plp
+	ply
+	plx
 	pla
 	rts
+
+C_RT = 0
+C_LT = 1
+C_DN = 2
+C_UP = 3
+C_ST = 4
+C_SL = 5
+C_Y  = 6
+C_B  = 7
+C_R  = 4 | $80
+C_L  = 5 | $80
+C_X  = 6 | $80
+C_A  = 7 | $80
+;     SNES |   A   |   B  | X | Y | L | R | START  | SELECT |
+; keyboard |   X   |   Z  | S | A | D | C | RETURN | LShift |
+;          | LCtrl | LAlt |
+outtab:
+	.byte C_A, C_B, C_X, C_Y, C_L, C_R, C_ST, C_SL
+	.byte C_A, C_B
+intab:
+	.byte $22, $1A, $1B, $1C, $23, $21,  $5a,  $12
+	.byte $14, $11
