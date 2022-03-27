@@ -234,33 +234,8 @@ mouse_update_position:
 	PushW r0
 	PushW r1
 
-	lda msepar
-	and #$7f
-	cmp #2 ; scale
-	beq :+
-
-	lda mousex
-	ldx mousex+1
-	sta r0L
-	stx r0H
-	lda mousey
-	ldx mousey+1
-	bra @s1
-:
-	lda mousex+1
-	lsr
-	tax
-	lda mousex
-	ror
-	sta r0L
-	stx r0H
-	lda mousey+1
-	lsr
-	tax
-	lda mousey
-	ror
-@s1:	sta r1L
-	stx r1H
+	ldx #r0
+	jsr mouse_get
 	lda #0
 	jsr sprite_set_position
 
@@ -272,6 +247,16 @@ mouse_update_position:
 
 mouse_get:
 	KVARS_START
+	jsr _mouse_get
+	KVARS_END
+	rts
+
+_mouse_get:
+	lda msepar
+	and #$7f
+	cmp #2 ; scale
+	beq :+
+
 	lda mousex
 	sta 0,x
 	lda mousex+1
@@ -280,10 +265,22 @@ mouse_get:
 	sta 2,x
 	lda mousey+1
 	sta 3,x
-	lda mousebt
-	KVARS_END
+	bra @s1
+:
+	lda mousex+1
+	lsr
+	sta 1,x
+	lda mousex
+	ror
+	sta 0,x
+	lda mousey+1
+	lsr
+	sta 3,x
+	lda mousey
+	ror
+	sta 2,x
+@s1:	lda mousebt
 	rts
-
 
 ; This is the Susan Kare mouse pointer
 mouse_sprite_col: ; 0: black, 1: white
