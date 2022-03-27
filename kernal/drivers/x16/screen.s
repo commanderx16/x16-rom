@@ -149,6 +149,8 @@ mapbas	=0
 ;---------------------------------------------------------------
 ; Get/Set screen mode
 ;
+;   In:   .c  =0: set, =1: get
+; Set:
 ;   In:   .a  mode
 ;             $00: 40x30
 ;             $01: 80x30 ; XXX currently unsupported
@@ -156,18 +158,31 @@ mapbas	=0
 ;             $80: 320x240@256c + 40x30 text
 ;                 (320x200@256c + 40x25 text, currently)
 ;             $81: 640x400@16c ; XXX currently unsupported
+;   Out:  .c  =0: success, =1: failure
+; Get:
+;   Out:  .a  mode (only for "get")
 ;---------------------------------------------------------------
 screen_mode:
-	cmp #$ff
-	bne scrmd1
+	bcc @set
 
-	; Toggle between 40x30 and 80x60
-	lda #2
-	cmp cscrmd
-	bne scrmd1
-	lda #0
+; get
+	lda cscrmd
+	bne :+
+	ldx #40
+	ldy #30
+	rts
+:	cmp #2
+	bne :+
+	ldx #80
+	ldy #60
+	rts
+:	; else $80
+	ldx #40
+	ldy #25
+	rts
 
-scrmd1:	sta cscrmd
+@set:
+	sta cscrmd
 
 	cmp #0 ; 40x30
 	beq mode_40x30

@@ -15,7 +15,16 @@ y2H	=r3H
 ;***************
 cscreen
 	jsr getbyt
-	txa
+	cpx #$ff
+	bne @set
+	; Toggle between 40x30 and 80x60
+	sec
+	jsr screen_mode
+	ldx #2
+	cmp #2
+	bne @set
+	ldx #0
+@set:	txa
 	clc
 	jsr screen_mode
 	bcc :+
