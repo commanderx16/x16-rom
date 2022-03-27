@@ -157,7 +157,7 @@ joystick_from_ps2_init:
 	lda #$ff
 	sta joy0
 	sta joy0+1
-	sta joy0+2
+	sta joy0+2 ; joy0 bot present
 	rts
 
 ;----------------------------------------------------------------------
@@ -170,57 +170,13 @@ joystick_from_ps2_init:
 ;
 joystick_from_ps2:
 	pha
+	phx
+	phy
 	php
 	cpx #0
-	beq @l1
-	cpx #$e0
-	bne @end
-	; E0-prefixed
-	cmp #$6b ; LEFT
-	bne :+
-	lda #1 << C_LT
-	bne @byte0
-:	cmp #$74 ; RIGHT
-	bne :+
-	lda #1 << C_RT
-	bne @byte0
-:	cmp #$75 ; UP
-	bne :+
-	lda #1 << C_UP
-	bne @byte0
-:	cmp #$72 ; DOWN
-	bne @end
-	lda #1 << C_DN
-@byte0:
-	ldx #0
-@byte:
-	plp ; C: 0 = down, 1 = up
-	php
-	bcc @down0
+	bne @prefix
 
-	; up
-	sta j0tmp
-	lda joy0,x
-	ora j0tmp
-	bra @end0
-
-	; down
-@down0:	eor #$ff
-	sta j0tmp
-	lda joy0,x
-	and j0tmp
-
-@end0:	sta joy0,x
-@end:	stz joy0+2
-	plp
-	pla
-	rts
-
-@byte1:
-	ldx #1
-	bra @byte
-
-@l1:
+; no prefix, use tables
 	ldx #intab-outtab
 :	cmp intab-1,x
 	beq :+
@@ -231,21 +187,63 @@ joystick_from_ps2:
 	bmi @b1
 	lda #1
 :	cpy #0
-	beq @byte0
+	beq @byte0 ; write into byte0
 	asl
 	dey
 	bra :-
 
-@b1:	tya
+@b1:	ldx #1 ; write into byte1
+	tya
 	and #$7f
 	tay
 	lda #1
 :	cpy #0
-	beq @byte1
+	beq @byte
 	asl
 	dey
 	bra :-
 
+@prefix:
+	cpx #$e0
+	bne @end
+	; E0-prefixed
+	tay
+	lda #1 << C_LT
+	cpy #$6b ; LEFT
+	beq @byte0
+:	lda #1 << C_RT
+	cpy #$74 ; RIGHT
+	beq @byte0
+:	lda #1 << C_UP
+	cpy #$75 ; UP
+	beq @byte0
+:	lda #1 << C_DN
+	cpy #$72 ; DOWN
+	bne @end
+@byte0:
+	ldx #0
+@byte:
+	plp ; C: 0 = down, 1 = up
+	php
+	bcc @down
+
+	; up
+	ora joy0,x
+	bra @store
+
+	; down
+@down:	eor #$ff
+	sta j0tmp
+	lda joy0,x
+	and j0tmp
+
+@store:	sta joy0,x
+@end:	stz joy0+2 ; joy0 present
+	plp
+	ply
+	plx
+	pla
+	rts
 
 C_RT = 0
 C_LT = 1
