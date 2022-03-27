@@ -11,7 +11,6 @@
 .export emulator_get_data
 .export vera_wait_ready
 
-.import mouse_init
 .import ps2_init
 .import entropy_init
 .import clklo
@@ -39,7 +38,7 @@ iokeys:
 	lda #1
 	sta VERA_IEN    ;VERA VBLANK IRQ for 60 Hz
 	rts
-	
+
 ;---------------------------------------------------------------
 ; ACK VBLANK IRQ
 ;

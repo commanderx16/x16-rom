@@ -394,8 +394,10 @@ disk_done
 
 mouse:
 	jsr getbyt
-	txa
-	ldx #0 ; keep scale
+	phx
+	sec
+	jsr screen_mode
+	pla
 	jmp mouse_config
 
 mx:
