@@ -76,11 +76,14 @@ _mouse_config:
 	; 320w and less: double the size
 	pla
 	dec
-	beq @skip
+	beq @skip2
 	asl mousew
 	rol mousew+1
 	asl mouseh
 	rol mouseh+1
+@skip2:
+	DecW mousew
+	DecW mouseh
 
 @skip:
 	pla

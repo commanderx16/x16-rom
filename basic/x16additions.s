@@ -397,7 +397,7 @@ mouse:
 	txa
 ;	ldx #0 ; keep scale
 	ldx #40
-	ldy #25
+	ldy #30
 	jmp mouse_config
 
 mx:
