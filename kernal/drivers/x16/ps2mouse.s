@@ -16,71 +16,75 @@
 
 .import sprite_set_image, sprite_set_position
 
-.export mouse_init, mouse_config, mouse_scan, mouse_get
+.export mouse_config, mouse_scan, mouse_get
 
 .segment "KVARSB0"
 
-msepar:	.res 1           ;    $80=on; 1/2: scale
-mousel:	.res 2           ;    min x coordinate
-mouser:	.res 2           ;    max x coordinate
-mouset:	.res 2           ;    min y coordinate
-mouseb:	.res 2           ;    max y coordinate
-mousex:	.res 2           ;    x coordinate
-mousey:	.res 2           ;    y coordinate
+msepar:	.res 1           ;    $80: mouse on; 1/2: scale
+mousew:	.res 2           ;    max x coordinate
+mouseh:	.res 2           ;    max y coordinate
+mousex:	.res 2           ;    cur x coordinate
+mousey:	.res 2           ;    cur y coordinate
 mousebt:
-	.res 1           ;    buttons (1: left, 2: right, 4: third)
+	.res 1           ;    cur buttons (1: left, 2: right, 4: third)
 
 .segment "PS2MOUSE"
-
-mouse_init:
-	KVARS_START
-	jsr _mouse_init
-	KVARS_END
-	rts
-_mouse_init:
-	lda #0
-	sta mousel
-	sta mousel+1
-	sta mouset
-	sta mouset+1
-	lda #<640
-	sta mouser
-	lda #>640
-	sta mouser+1
-	lda #<480
-	sta mouseb
-	lda #>480
-	sta mouseb+1
-	rts
 
 ; "MOUSE" KERNAL call
 ; A: $00 hide mouse
 ;    n   show mouse, set mouse cursor #n
 ;    $FF show mouse, don't configure mouse cursor
-; X: $00 no-op
-;    $01 set scale to 1
-;    $02 set scale to 2
+; X: width in 8px
+; Y: height in 8px
+;    X==0 && Y==0: leave as-is
 mouse_config:
 	KVARS_START
 	jsr _mouse_config
 	KVARS_END
 	rts
 _mouse_config:
-	; init mouse if necessary
 	pha
-	lda mouser
-	ora mouser+1
-	ora mouseb
-	ora mouseb+1
-	bne :+
-	jsr mouse_init
-:	pla
-
 	cpx #0
-	beq mous1
-;  set scale
-	stx msepar
-mous1:	cmp #0
+	beq @skip
+
+	; scale
+	lda #1
+	cpx #40
+	bne :+
+	lda #2
+:	sta msepar ;  set scale
+	dec
+	pha
+
+	; width * x
+	txa
+	stz mousew+1
+	asl
+	asl
+	rol mousew+1
+	asl
+	rol mousew+1
+	sta mousew
+	; height * x
+	tya
+	stz mouseh+1
+	asl
+	asl
+	asl
+	rol mouseh+1
+	sta mouseh
+
+	pla
+	beq @skip
+
+	asl mousew
+	rol mousew+1
+	asl mouseh
+	rol mouseh+1
+
+@skip:
+	pla
+	cmp #0
 	bne mous2
 ; hide mouse, disable sprite #0
 	lda msepar
@@ -94,7 +98,7 @@ mous1:	cmp #0
 	jsr sprite_set_position
 	PopW r0H
 	rts
-	
+
 ; show mouse
 mous2:	cmp #$ff
 	beq mous3
@@ -183,8 +187,8 @@ _mouse_scan:
 	sta mousebt
 
 ; check bounds
-	ldy mousel
-	ldx mousel+1
+	ldy #0
+	ldx #0
 	lda mousex+1
 	bmi @2
 	cpx mousex+1
@@ -194,16 +198,16 @@ _mouse_scan:
 	beq @3
 @2:	sty mousex
 	stx mousex+1
-@3:	ldy mouser
-	ldx mouser+1
+@3:	ldy mousew
+	ldx mousew+1
 	cpx mousex+1
 	bne @4
 	cpy mousex
 @4:	bcs @5
 	sty mousex
 	stx mousex+1
-@5:	ldy mouset
-	ldx mouset+1
+@5:	ldy #0
+	ldx #0
 	lda mousey+1
 	bmi @2a
 	cpx mousey+1
@@ -213,8 +217,8 @@ _mouse_scan:
 	beq @3a
 @2a:	sty mousey
 	stx mousey+1
-@3a:	ldy mouseb
-	ldx mouseb+1
+@3a:	ldy mouseh
+	ldx mouseh+1
 	cpx mousey+1
 	bne @4a
 	cpy mousey
@@ -223,12 +227,13 @@ _mouse_scan:
 	stx mousey+1
 @5a:
 
+; set the mouse sprite position
 mouse_update_position:
 	jsr screen_save_state
-	
+
 	PushW r0
 	PushW r1
-	
+
 	lda msepar
 	and #$7f
 	cmp #2 ; scale

@@ -395,7 +395,9 @@ disk_done
 mouse:
 	jsr getbyt
 	txa
-	ldx #0 ; keep scale
+;	ldx #0 ; keep scale
+	ldx #40
+	ldy #25
 	jmp mouse_config
 
 mx:
