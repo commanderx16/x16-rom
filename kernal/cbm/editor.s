@@ -62,7 +62,7 @@ nwrap=2 ;max number of physical lines per logical line
 .export bmt2
 
 ; screen driver
-.import screen_set_mode
+.import screen_mode
 .import screen_set_charset
 .import screen_get_color
 .import screen_set_color
@@ -173,7 +173,8 @@ cint	jsr iokeys
 
 	; XXX this is too specific
 	lda #2          ;80x60
-	jsr screen_set_mode ;set screen mode to default
+	clc
+	jsr screen_mode ;set screen mode to default
 ;
 	lda #0          ;make sure we're in pet mode
 	sta mode
@@ -447,7 +448,7 @@ wlogic
 
 wlog20
 	ldx tblx        ;see if we should scroll down
-	cpx nlines 
+	cpx nlines
 	bcc wlog30      ;branch if not
 	jsr scrol       ;else do the scrol up
 	dec tblx        ;and adjust curent line#

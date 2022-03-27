@@ -5,7 +5,7 @@
 
 .feature labels_without_colons
 
-.import plot, scrorg, iclall, igetin, istop, savesp, loadsp, ibsout, ibasin, iclrch, ickout, ichkin, iclose, iopen, setnam, setlfs, readst, talk, listn, unlsn, untlk, ciout, acptr, settmo, kbd_scan, tksa, secnd, setmsg, ramtas, ioinit, cint, cmpare, stash, indfet, jsrfar, screen_set_charset, screen_set_mode, lkupsa, lkupla, close_all, enter_basic, macptr
+.import plot, scrorg, iclall, igetin, istop, savesp, loadsp, ibsout, ibasin, iclrch, ickout, ichkin, iclose, iopen, setnam, setlfs, readst, talk, listn, unlsn, untlk, ciout, acptr, settmo, kbd_scan, tksa, secnd, setmsg, ramtas, ioinit, cint, cmpare, stash, indfet, jsrfar, screen_set_charset, screen_mode, lkupsa, lkupla, close_all, enter_basic, macptr
 .import I_FB_move_pixels, I_FB_filter_pixels, I_FB_fill_pixels, I_FB_set_8_pixels_opaque, I_FB_set_8_pixels, I_FB_set_pixels, I_FB_set_pixel, I_FB_get_pixels, I_FB_get_pixel, I_FB_cursor_next_line, I_FB_cursor_position, I_FB_set_palette, I_FB_get_info, I_FB_init
 .import memory_decompress, memory_crc, memory_copy, memory_fill
 .import monitor
@@ -119,7 +119,7 @@
 	jmp joystick_get       ; $FF56: joystick_get - get state of one joystick       [unsupported C128: PHOENIX – init function cartridges]
 	jmp lkupla             ; $FF59: [C128] LKUPLA - look up logical file address
 	jmp lkupsa             ; $FF5C: [C128] LKUPSA - look up secondary address
-	jmp screen_set_mode    ; $FF5F: screen_set_mode - set screen mode              [unsupported C128: SWAPPER]
+	jmp screen_mode        ; $FF5F: screen_mode - get/set screen mode              [unsupported C128: SWAPPER]
 	jmp screen_set_charset ; $FF62: activate 8x8 text mode charset                 [incompatible with C128: DLCHR – init 80-col character RAM]
 	.byte 0,0,0            ; $FF65: [C128] PFKEY – program a function key          [NYI]
 	jmp mouse_config       ; $FF68: mouse_config - configure mouse pointer         [unsupported C128: SETBNK – set bank for I/O operations]
