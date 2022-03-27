@@ -9,7 +9,7 @@
 .include "regs.inc"
 
 .export screen_init
-.export screen_set_mode
+.export screen_mode
 .export screen_set_charset
 .export screen_get_color
 .export screen_set_color
@@ -43,7 +43,7 @@
 
 .segment "KVAR"
 
-cscrmd:	.res 1           ;    X16: current screen mode (argument to screen_set_mode)
+cscrmd:	.res 1           ;    X16: current screen mode (argument to screen_mode)
 pnt:	.res 2           ;$D1 pointer to row
 
 .segment "SCREEN"
@@ -147,7 +147,7 @@ mapbas	=0
 ; .endif
 
 ;---------------------------------------------------------------
-; Set screen mode
+; Get/Set screen mode
 ;
 ;   In:   .a  mode
 ;             $00: 40x30
@@ -156,9 +156,8 @@ mapbas	=0
 ;             $80: 320x240@256c + 40x30 text
 ;                 (320x200@256c + 40x25 text, currently)
 ;             $81: 640x400@16c ; XXX currently unsupported
-;             $ff: toggle between $00 and $02
 ;---------------------------------------------------------------
-screen_set_mode:
+screen_mode:
 	cmp #$ff
 	bne scrmd1
 

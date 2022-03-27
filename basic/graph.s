@@ -16,8 +16,8 @@ y2H	=r3H
 cscreen
 	jsr getbyt
 	txa
-	sec
-	jsr screen_set_mode
+	clc
+	jsr screen_mode
 	bcc :+
 	jmp fcerr
 :	rts
