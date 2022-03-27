@@ -169,59 +169,28 @@ joystick_from_ps2_init:
 ;       no bank switching is performed.
 ;
 joystick_from_ps2:
-; byte 0
-SNES0_B      = (1 << 7)
-SNES0_Y      = (1 << 6)
-SNES0_SELECT = (1 << 5)
-SNES0_START  = (1 << 4)
-SNES0_UP     = (1 << 3)
-SNES0_DOWN   = (1 << 2)
-SNES0_LEFT   = (1 << 1)
-SNES0_RIGHT  = (1 << 0)
-; byte 1
-SNES1_A      = (1 << 7)
-SNES1_X      = (1 << 6)
-SNES1_L      = (1 << 5)
-SNES1_R      = (1 << 4)
 	pha
 	php
 	cpx #0
-	bne @l1
-
-	cmp #$14; A [Ctrl]
-	bne :+
-	lda #SNES1_A
-	bne @byte1
-:	cmp #$11; B [Alt]
-	bne :+
-	lda #SNES0_B
-	bne @byte0
-:	cmp #$29; SELECT [Space]
-	bne :+
-	lda #SNES0_SELECT
-	bne @byte0
-:	cmp #$5a; START [Enter]
-	bne :+
-	lda #SNES0_START
-	bne @byte0
-
-@l1:	cpx #$e0
+	beq @l1
+	cpx #$e0
 	bne @end
+	; E0-prefixed
 	cmp #$6b ; LEFT
 	bne :+
-	lda #SNES0_LEFT
+	lda #1 << C_LT
 	bne @byte0
 :	cmp #$74 ; RIGHT
 	bne :+
-	lda #SNES0_RIGHT
+	lda #1 << C_RT
 	bne @byte0
 :	cmp #$75 ; UP
 	bne :+
-	lda #SNES0_UP
+	lda #1 << C_UP
 	bne @byte0
 :	cmp #$72 ; DOWN
 	bne @end
-	lda #SNES0_DOWN
+	lda #1 << C_DN
 @byte0:
 	plp ; C: 0 = down, 1 = up
 	php
@@ -267,3 +236,52 @@ SNES1_R      = (1 << 4)
 	plp
 	pla
 	rts
+
+@l1:
+	ldx #intab-outtab
+:	cmp intab-1,x
+	beq :+
+	dex
+	bpl :-
+	bra @end
+:	ldy outtab-1,x
+	bmi @b1
+	lda #1
+:	cpy #0
+	beq @byte0
+	asl
+	dey
+	bra :-
+
+@b1:	tya
+	and #$7f
+	tay
+	lda #1
+:	cpy #0
+	beq @byte1
+	asl
+	dey
+	bra :-
+
+
+C_RT = 0
+C_LT = 1
+C_DN = 2
+C_UP = 3
+C_ST = 4
+C_SL = 5
+C_Y  = 6
+C_B  = 7
+C_R  = 4 | $80
+C_L  = 5 | $80
+C_X  = 6 | $80
+C_A  = 7 | $80
+;     SNES |   A   |   B  | X | Y | L | R | START  | SELECT |
+; keyboard |   X   |   Z  | S | A | D | C | RETURN | LShift |
+;          | LCtrl | LAlt |
+outtab:
+	.byte C_A, C_B, C_X, C_Y, C_L, C_R, C_ST, C_SL
+	.byte C_A, C_B
+intab:
+	.byte $22, $1A, $1B, $1C, $23, $21,  $5a,  $12
+	.byte $14, $11
