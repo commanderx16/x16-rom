@@ -21,8 +21,10 @@
 .segment "KVARSB0"
 
 msepar:	.res 1           ;    $80: mouse on; 1/2: scale
-mousew:	.res 2           ;    max x coordinate
-mouseh:	.res 2           ;    max y coordinate
+mousemx:
+	.res 2           ;    max x coordinate
+mousemy:
+	.res 2           ;    max y coordinate
 mousex:	.res 2           ;    cur x coordinate
 mousey:	.res 2           ;    cur y coordinate
 mousebt:
@@ -57,33 +59,33 @@ _mouse_config:
 
 	; width * x
 	txa
-	stz mousew+1
+	stz mousemx+1
 	asl
 	asl
-	rol mousew+1
+	rol mousemx+1
 	asl
-	rol mousew+1
-	sta mousew
+	rol mousemx+1
+	sta mousemx
 	; height * x
 	tya
-	stz mouseh+1
+	stz mousemy+1
 	asl
 	asl
 	asl
-	rol mouseh+1
-	sta mouseh
+	rol mousemy+1
+	sta mousemy
 
 	; 320w and less: double the size
 	pla
 	dec
 	beq @skip2
-	asl mousew
-	rol mousew+1
-	asl mouseh
-	rol mouseh+1
+	asl mousemx
+	rol mousemx+1
+	asl mousemy
+	rol mousemy+1
 @skip2:
-	DecW mousew
-	DecW mouseh
+	DecW mousemx
+	DecW mousemy
 
 @skip:
 	pla
@@ -201,8 +203,8 @@ _mouse_scan:
 	beq @3
 @2:	sty mousex
 	stx mousex+1
-@3:	ldy mousew
-	ldx mousew+1
+@3:	ldy mousemx
+	ldx mousemx+1
 	cpx mousex+1
 	bne @4
 	cpy mousex
@@ -220,8 +222,8 @@ _mouse_scan:
 	beq @3a
 @2a:	sty mousey
 	stx mousey+1
-@3a:	ldy mouseh
-	ldx mouseh+1
+@3a:	ldy mousemy
+	ldx mousemy+1
 	cpx mousey+1
 	bne @4a
 	cpy mousey
