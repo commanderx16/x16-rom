@@ -53,7 +53,6 @@ _mouse_config:
 	bne :+
 	lda #2
 :	sta msepar ;  set scale
-	dec
 	pha
 
 	; width * x
@@ -74,9 +73,10 @@ _mouse_config:
 	rol mouseh+1
 	sta mouseh
 
+	; 320w and less: double the size
 	pla
+	dec
 	beq @skip
-
 	asl mousew
 	rol mousew+1
 	asl mouseh
