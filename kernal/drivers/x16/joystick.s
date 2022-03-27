@@ -192,50 +192,33 @@ joystick_from_ps2:
 	bne @end
 	lda #1 << C_DN
 @byte0:
+	ldx #0
+@byte:
 	plp ; C: 0 = down, 1 = up
 	php
 	bcc @down0
 
 	; up
 	sta j0tmp
-	lda joy0   ; init joy0 the first time a key was pressed
+	lda joy0,x
 	ora j0tmp
 	bra @end0
 
 	; down
 @down0:	eor #$ff
 	sta j0tmp
-	lda joy0
+	lda joy0,x
 	and j0tmp
 
-@end0:	sta joy0
+@end0:	sta joy0,x
 @end:	stz joy0+2
 	plp
 	pla
 	rts
 
 @byte1:
-	plp ; C: 0 = down, 1 = up
-	php
-	bcc @down1
-
-	; up
-	sta j0tmp
-	lda joy0+1   ; init joy0 the first time a key was pressed
-	ora j0tmp
-	bra @end1
-
-	; down
-@down1:	eor #$ff
-	sta j0tmp
-	lda joy0+1
-	and j0tmp
-
-@end1:	sta joy0+1
-	stz joy0+2
-	plp
-	pla
-	rts
+	ldx #1
+	bra @byte
 
 @l1:
 	ldx #intab-outtab
