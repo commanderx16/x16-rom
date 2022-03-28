@@ -9,9 +9,8 @@
 
 .export FB_VERA
 
-.segment "ZPKERNAL" : zeropage
-	.res 2
-ptr_fg = $70; XXX
+.segment "KVAR"
+ptr_fg:	.res 3
 
 .segment "VERA_DRV"
 
