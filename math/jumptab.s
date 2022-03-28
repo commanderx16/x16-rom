@@ -18,17 +18,6 @@
 ; table as well.
 ; https://www.c64-wiki.de/wiki/FADDT
 
-; http://unusedino.de/ec64/technical/project64/mapping_c64.html "[-mapping-]"
-; ERRATA:
-;  * fmult at $BA28 adds mem to FAC, not ARG to FAC
-;  * fmultt at $BA2B (add ARG to FAC) is not documented
-;  * normal at $B8D7 is incorrectly documented as being at $B8FE
-; https://codebase64.org/doku.php?id=base:asm_include_file_for_basic_routines
-; https://codebase64.org/doku.php?id=base:kernal_floating_point_mathematics
-; https://www.pagetable.com/c64disasm/
-
-.segment "FPJMP"
-
 ; Routines marked with "[-mapping-]" have been added because they
 ; are documented in "Mapping the Commodore 64" and therefore likely
 ; useful or even used by existing C64 code.
@@ -39,6 +28,20 @@
 ; * muldiv at $BAB7
 ; * mldvex at $BAD4
 ; * mov2f  at $BBC7
+
+; Sources:
+; http://www.zimmers.net/anonftp/pub/cbm/schematics/computers/c128/servicemanuals/C128_Developers_Package_for_Commodore_6502_Development_(1987_Oct).pdf
+; http://www.zimmers.net/anonftp/pub/cbm/manuals/c65/c65manualupdated.txt
+; https://codebase64.org/doku.php?id=base:asm_include_file_for_basic_routines
+; https://codebase64.org/doku.php?id=base:kernal_floating_point_mathematics
+; https://www.pagetable.com/c64ref/c64disasm/
+; http://unusedino.de/ec64/technical/project64/mapping_c64.html "[-mapping-]"
+; ERRATA:
+;  * fmult at $BA28 adds mem to FAC, not ARG to FAC
+;  * fmultt at $BA2B (add ARG to FAC) is not documented
+;  * normal at $B8D7 is incorrectly documented as being at $B8FE
+
+.segment "FPJMP"
 
 ; Format Conversions
 
