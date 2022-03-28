@@ -16,7 +16,7 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 	* supports long filenames, timestamps.
 	* supports partitions and subdirectories (CMD-style).
 * CodeX Interactive Assembly Environment
-   * edit assembly code in ram
+   * edit assembly code in RAM
    * save program, and debug information
    * run and debug assembly programs
 
@@ -127,14 +127,11 @@ RAM Map
 
 * fixed RAM:
 	* $0000-$0400 KERNAL/BASIC/DOS system variables
-   * $0400-$XXXX CodeX variable
-	* $0400-$0800 currently unused
+	* $0400-$0800 available for machine code programs
 	* $0800-$9F00 BASIC RAM
 * banked RAM:
 	* bank 0: KERNAL and DOS buffers and variables
 	* banks 1-255: free for applications
-   * top 5 banks used for Codex
-
 
 Credits
 -------
