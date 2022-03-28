@@ -13,7 +13,7 @@ beep:
 	sta VERA_ADDR_L
 	lda #>psg_address
 	sta VERA_ADDR_M
-	lda #$10 | (psg_address >> 16)
+	lda #$10 | ^psg_address
 	sta VERA_ADDR_H
 
 	lda #<frequency

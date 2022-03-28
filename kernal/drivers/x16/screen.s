@@ -305,7 +305,7 @@ ldapnt3:
 	clc
 	adc #<(>screen_addr)
 	sta VERA_ADDR_M
-	lda #$10 | (screen_addr >> 16)
+	lda #$10 | ^screen_addr
 	sta VERA_ADDR_H
 	lda VERA_DATA0
 	rts
@@ -355,7 +355,7 @@ stapnt3:
 	clc
 	adc #<(>screen_addr)
 	sta VERA_ADDR_M
-	lda #$10 | (screen_addr >> 16)
+	lda #$10 | ^screen_addr
 	sta VERA_ADDR_H
 	pla
 	sta VERA_DATA0
@@ -412,7 +412,7 @@ screen_copy_line:
 	clc
 	adc #>screen_addr
 	sta VERA_ADDR_M
-	lda #$10 | (screen_addr >> 16)
+	lda #$10 | ^screen_addr
 	sta VERA_ADDR_H
 
 	lda #1
@@ -425,7 +425,7 @@ screen_copy_line:
 	clc
 	adc #>screen_addr
 	sta VERA_ADDR_M
-	lda #$10 | (screen_addr >> 16)
+	lda #$10 | ^screen_addr
 	sta VERA_ADDR_H
 
 	lda #0
@@ -460,7 +460,7 @@ screen_clear_line:
 	clc
 	adc #>screen_addr
 	sta VERA_ADDR_M
-	lda #$10 | (screen_addr >> 16);auto-increment = 1
+	lda #$10 | ^screen_addr;auto-increment = 1
 	sta VERA_ADDR_H
 :	lda #' '
 	sta VERA_DATA0     ;store space
@@ -594,7 +594,7 @@ inicpy:
 	stx VERA_ADDR_L
 	ldx #>charset_addr
 	stx VERA_ADDR_M
-	ldx #$10 | (charset_addr >> 16)
+	ldx #$10 | ^charset_addr
 	stx VERA_ADDR_H
 	plx
 	stz data

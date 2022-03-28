@@ -40,7 +40,7 @@ FB_init:
 	lda #$07
 	sta VERA_L0_CONFIG
 	stz VERA_L0_HSCROLL_H  ; Clear palette offset
-	lda #((tile_base >> 9) & $FC)
+	lda #((fb_addr >> 9) & $FC)
 	sta VERA_L0_TILEBASE
 
 	; Enable layer 0
@@ -55,7 +55,6 @@ FB_init:
 	sta VERA_DC_VSCALE
 	rts
 
-tile_base = $10000
 
 ;---------------------------------------------------------------
 ; FB_get_info
@@ -110,7 +109,7 @@ FB_cursor_position:
 	adc ptr_fg+1
 	sta ptr_fg+1
 
-	lda #$11
+	lda #$10
 	sta VERA_ADDR_H
 
 ; ptr_fg += x
@@ -361,7 +360,7 @@ fill_y:	sta VERA_DATA0
 
 ; XXX TODO support other step sizes
 fill_pixels_with_step:
-	ldx #$71    ; increment in steps of $40
+	ldx #$70    ; increment in steps of $40
 	stx VERA_ADDR_H
 	ldx r0L
 :	sta VERA_DATA0
@@ -388,7 +387,7 @@ FB_filter_pixels:
 	inc VERA_CTRL ; 1
 	sta VERA_ADDR_L
 	stx VERA_ADDR_M
-	lda #$11
+	lda #$10
 	sta VERA_ADDR_H
 	stz VERA_CTRL ; 0
 	sta VERA_ADDR_H
