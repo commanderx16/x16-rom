@@ -57,6 +57,13 @@ monitor:
 	; does not return
 
 ;***************
+codex:
+   jsr bjsrfar
+   .word $c000
+   .byte BANK_CODEX
+	; does not return
+
+;***************
 geos:
 	jsr bjsrfar
 	.word $c000 ; entry
@@ -128,9 +135,7 @@ bind:	jsr chrget ; get char
 	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
-        lda #<(lofbuf)
-	ldy #>(lofbuf)
-	jmp strlit  ; allocate and return string value
+	jmp strlitl; allocate and return string value from lofbuf
 
 ; convert byte to hex in zero terminated string and
 ; return it to BASIC
@@ -159,9 +164,7 @@ hexd:	jsr chrget ; get char
 	jsr chkcls ; end of conversion, check closing paren
 	pla        ; remove return address from stack
 	pla
-        lda #<lofbuf
-	ldy #>lofbuf
-	jmp strlit  ; allocate and return string value
+	jmp strlitl; allocate and return string value from lofbuf
 
 ; convert byte into hex ASCII in A/Y
 ; copied from monitor.s
@@ -186,7 +189,7 @@ byte_to_hex_ascii:
 vpeek	jsr chrget
 	jsr chkopn ; open paren
 	jsr getbyt ; byte: bank
-	stx VERA_ADDR_H
+	phx
 	jsr chkcom
 	lda poker
 	pha
@@ -199,15 +202,19 @@ vpeek	jsr chrget
 	sta poker + 1
 	pla
 	sta poker
+	pla
+	sta VERA_ADDR_H
 	jsr chkcls ; closing paren
 	ldy VERA_DATA0
 	jmp sngflt
 
 ;***************
 vpoke	jsr getbyt ; bank
-	stx VERA_ADDR_H
+	phx
 	jsr chkcom
 	jsr getnum
+	pla
+	sta VERA_ADDR_H
 	lda poker
 	sta VERA_ADDR_L
 	lda poker+1
@@ -387,8 +394,10 @@ disk_done
 
 mouse:
 	jsr getbyt
-	txa
-	ldx #0 ; keep scale
+	phx
+	sec
+	jsr screen_mode
+	pla
 	jmp mouse_config
 
 mx:
@@ -397,7 +406,7 @@ mx:
 	jsr mouse_get
 	lda fac+1
 	ldy fac
-	jmp givayf
+	jmp givayf0
 
 my:
 	jsr chrget
@@ -405,7 +414,7 @@ my:
 	jsr mouse_get
 	lda fac+3
 	ldy fac+2
-	jmp givayf
+	jmp givayf0
 
 mb:
 	jsr chrget
@@ -417,20 +426,30 @@ mb:
 joy:
 	jsr chrget
 	jsr chkopn ; open paren
-	jsr getbyt ; byte: joystick number (1 or 2)
-	cpx #1
-	beq :+
-	cpx #2
-	beq :+
+	jsr getbyt ; byte: joystick number (0-4)
+	cpx #5
+	bcc :+
 	jmp fcerr
 :	phx
 	jsr chkcls ; closing paren
 	pla
-	dec ; KERNAL uses #0 and #1
 	jsr joystick_get
-	eor #$ff
+	iny
+	bne :+
+	lda #<minus1 ; not present?
+	ldy #>minus1 ; then return -1
+	jmp movfm
+:	eor #$ff
 	tay
-	jmp sngflt
+	txa
+	eor #$ff
+	lsr
+	lsr
+	lsr
+	lsr
+	jmp givayf0
+
+minus1:	.byte $81, $80, $00, $00, $00
 
 reset:
 	ldx #5

@@ -19,7 +19,8 @@ cint_legacy: ; $E518
  	jsr screen_init
 	lda #2          ;80x60
 ;	lda #0          ;40x30
-	jsr screen_set_mode ;set screen mode to default
+	clc
+	jsr screen_mode ;set screen mode to default
 	jsr clrchn_reset
 
 	; Code below must be placed under $E51B, or some code will break - see here:

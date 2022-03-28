@@ -44,7 +44,7 @@ usrloc	.word usrpok
 	.word fre
 	.word pos
 	.word sqr
-	.word crnd
+	.word rnd
 	.word log
 	.word exp
 	.word cos
@@ -101,6 +101,8 @@ stmdsp2	; statements
 	.word test-1
 	.word reset-1
 	.word cls-1
+	.word codex-1
+	.word codex-1
 	; functions
 	.word vpeek
 	.word mx

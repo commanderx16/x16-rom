@@ -24,7 +24,7 @@ inpcom
 	jsr mul10
 	ldy #1
 	jsr timnum
-	jsr getadr2
+	jsr getadr
 	cpy #24
 	bcs fcerr2
 	sty r1H
@@ -36,7 +36,7 @@ inpcom
 	jsr mul10
 	ldy #3
 	jsr timnum
-	jsr getadr2
+	jsr getadr
 	cpy #60
 	bcs fcerr2
 	sty r2L
@@ -48,7 +48,7 @@ inpcom
 	jsr mul10
 	ldy #5
 	jsr timnum
-	jsr getadr2
+	jsr getadr
 	cpy #60
 	bcs fcerr2
 	sty r2H
@@ -85,7 +85,7 @@ asgndt
 	jsr mul10
 	ldy #3
 	jsr timnum
-	jsr getadr2
+	jsr getadr
 	tax
 	tya
 	sec
@@ -103,7 +103,7 @@ asgndt
 	jsr mul10
 	ldy #5
 	jsr timnum
-	jsr getadr2
+	jsr getadr
 	tya
 	beq fcerr2 ; MM == 0
 	cmp #13
@@ -117,7 +117,7 @@ asgndt
 	jsr mul10
 	ldy #7
 	jsr timnum
-	jsr getadr2
+	jsr getadr
 	tya
 	beq fcerr2 ; DD == 0
 	cmp #32

@@ -6,6 +6,7 @@ BANK_GEOS    = 3
 BANK_BASIC   = 4
 BANK_MONITOR = 5
 BANK_CHARSET = 6
+BANK_CODEX   = 7
 
 ; XXX these constant RAM addresses are KERNAL
 ; XXX implementation details and need to go away!
@@ -84,6 +85,8 @@ imparm     = $E2
 	stx ram_bank
 .endmacro
 
+; Warning: KVARS_START_TRASH_NZ and KVARS_END_TRASH_NZ can cause a race
+; condition if interrupts are enabled.
 .macro KVARS_START_TRASH_NZ
 .import kvswitch_tmp1, kvswitch_tmp2
 	sta kvswitch_tmp1

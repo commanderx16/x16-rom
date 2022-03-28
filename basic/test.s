@@ -28,8 +28,8 @@ test:
 
 test0:
 	lda #$80
-	sec
-	jsr screen_set_mode
+	clc
+	jsr screen_mode
 	jsr test1_hline
 	jsr test2_vline
 	jsr test3_bresenham
@@ -46,7 +46,7 @@ test0:
 	jsr test14_image
 	jsr checksum_framebuffer
 	rts
-	
+
 test1_hline:
 	; horizontal line
 	lda #0
@@ -296,7 +296,7 @@ test9_varlen_vline:
 	cmp #<198
 	bcc :-
 	rts
-	
+
 test10_put_char:
 	lda #2
 	jsr GRAPH_set_colors
@@ -310,7 +310,7 @@ test10_put_char:
 	jsr GRAPH_draw_rect
 
 	AddVW 5, r1 ; add baseline -2
-	
+
 	lda #$20
 :	jsr GRAPH_set_colors
 	pha
@@ -409,7 +409,7 @@ test12_char_styles:
 	AddVW 7, r1 ; add baseline
 
 	ldy #0
-	
+
 @loop:	phy
 	lda #$92 ; attributes off
 	jsr GRAPH_put_char
@@ -437,10 +437,10 @@ test12_char_styles:
 
 	lda #$92 ; attributes off
 	jmp GRAPH_put_char
-	
+
 test_string:
 	.byte "abcABC123", 0
-	
+
 style_codes:
 	.byte $04 ; underline
 	.byte $06 ; bold
@@ -477,7 +477,7 @@ test14_image:
 	LoadW r2, $0400
 	LoadW r3, 16
 	LoadW r4, 16
-	
+
 	ldx #10
 :	phx
 	jsr GRAPH_draw_image
@@ -491,7 +491,7 @@ checksum_framebuffer:
 	lda #$ff
 	sta crclo
 	sta crchi
-	
+
 	ldx #0
 @loop:	LoadW r0, 0
 	stx r1L
@@ -511,7 +511,7 @@ checksum_framebuffer:
 	bne @loop2
 	dex
 	bpl @loop2
-	
+
 	plx
 	inx
 	cpx #200
@@ -632,7 +632,8 @@ str_BAD:
 ; full screen
 test1:
 	lda #$80
-	jsr screen_set_mode
+	clc
+	jsr screen_mode
 
 	LoadW r0, 0
 	jsr GRAPH_init
@@ -655,11 +656,12 @@ test1:
 ; window
 test2:
 	lda #$80
-	jsr screen_set_mode
+	clc
+	jsr screen_mode
 
 	LoadW r0, 0
 	jsr GRAPH_init
-	
+
 	LoadW r0, 0
 	LoadW r1, 0
 	LoadW r2, 319
@@ -671,7 +673,7 @@ test2:
 	IncW r3
 	CmpWI r1, 200
 	bne :-
-	
+
 	lda #0
 	ldx #15
 	ldy #1
@@ -803,7 +805,8 @@ draw_logo:
 ; input line, echo it, loop
 test3:
 	lda #$80
-	jsr screen_set_mode
+	clc
+	jsr screen_mode
 
 	LoadW r0, 0
 	LoadW r1, 0

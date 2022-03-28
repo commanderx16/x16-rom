@@ -14,8 +14,13 @@
 ;* determined by contents of      *
 ;* variable fa.                   *
 ;*                                *
-;* alt load if sa=0, normal sa=1  *
-;* .x , .y load address if sa=0   *
+;* sa byte:                       *
+;*  76543210                      *
+;*        ||                      *
+;*        |+-address source       *
+;*        +--write header         *
+;* .x , .y load address if        *
+;*   address source = 0           *
 ;* .a=0 performs load to ram      *
 ;* .a=1 performs verify           *
 ;* .a>1 performs load to vram;    *
@@ -26,8 +31,8 @@
 ;*                                *
 ;**********************************
 
-loadsp	stx memuss      ;.x has low alt start
-	sty memuss+1
+loadsp	stx eal         ;.x has low alt start
+	sty eah
 load	jmp (iload)     ;monitor load entry
 ;
 nload	and #$1f
@@ -68,22 +73,24 @@ ld25	ldx sa          ;save sa in .x
 	jsr tksa        ;tell it to load
 ;
 	jsr acptr       ;get first byte
-	sta eal
+	sta memuss
 ;
 	lda status      ;test status for error
 	lsr a
 	lsr a
 	bcs ld15        ;file not found...
 	jsr acptr
-	sta eah
+	sta memuss+1
 ;
 	txa             ;find out old sa
-	bne ld30        ;sa<>0 use disk address
-	lda memuss      ;else load where user wants
+        bit #$01
+	beq ld30        ;(sa & 1) == 0 load where user wants
+	lda memuss      ;else use disk address
 	sta eal
 	lda memuss+1
 	sta eah
-ld30	jsr loding      ;tell user loading
+ld30	stx sa		;save sa again
+	jsr loding      ;tell user loading
 ;
 	ldy verck       ;load/verify/vram?
 	beq ld40        ;verify
@@ -92,20 +99,55 @@ ld30	jsr loding      ;tell user loading
 ;
 ;block-wise load into RAM
 ;
+	lda #$02
+	bit sa
+	beq bld10	;(sa & 2) == 0 ignore first two bytes
+	lda memuss	;else write first two bytes
+	sta (eal)
+	inc eal
+	bne :+
+	inc eah
+:	lda memuss+1
+	sta (eal)
+	inc eal
+	bne bld10
+	inc eah
 bld10	jsr stop        ;stop key?
 	beq break2
 	ldx eal
 	ldy eah
+.ifdef MACHINE_X16
+        phy             ;save address hi
+.endif
 	lda #0          ;load as many bytes as device wants
 	jsr macptr
-	bcs ld40        ;not supported, fall back to byte-wise
-	txa
+	bcc :+
+.ifdef MACHINE_X16
+	pla             ;clear hi address from stack
+.endif
+	jmp ld40        ;not supported, fall back to byte-wise
+:	txa
 	clc
 	adc eal
 	sta eal
 	tya
 	adc eah
-	sta eah
+.ifdef MACHINE_X16
+	; fix-up address when loading into banked RAM:
+	; this should reflect the banked RAM address following
+	; the last byte written (exception: $BFFF -> $A000)
+	ply             ;start address hi
+	cpy #$a0
+	bcc @skip       ;below banked RAM
+	cpy #$c0
+	bcs @skip       ;above banked RAM
+@loop	cmp #$c0
+	bcc @skip
+	sbc #$20
+	bra @loop
+@skip
+.endif
+        sta eah
 	bit status      ;eoi?
 	bvc bld10       ;no...continue load
 	bra ld70
@@ -123,6 +165,14 @@ ld35
 	sta VERA_ADDR_L ;set address bits 7:0
 	lda eah
 	sta VERA_ADDR_M ;set address bits 15:8
+;
+	lda #$02
+	bit sa
+	beq ld40	;(sa & 2) == 0 ignore first two bytes
+	lda memuss	;else write first two bytes to VRAM
+        sta VERA_DATA0
+	lda memuss+1
+        sta VERA_DATA0
 ;
 ld40	lda #$fd        ;mask off timeout
 	and status
@@ -158,7 +208,7 @@ ld50	ldy #0
 ld60	inc eal         ;increment store addr
 	bne ld64
 	inc eah
-.if 0 ; DISABLED for now, since block-wise path doesn't support it (yet?)
+.ifdef MACHINE_X16
 ;
 ;if necessary, wrap to next bank
 ;
@@ -236,6 +286,18 @@ ld410	jsr spmsg
 	beq frmto1      ;skip if verify
 	ldy #ms7-ms1    ;"from $"
 msghex	jsr msg
+.ifdef MACHINE_X16
+	lda eah
+	cmp #$a0
+	bcc :+
+	cmp #$c0
+	bcs :+
+	lda ram_bank
+	jsr hex8
+	lda #':'
+	jsr bsout
+:
+.endif
 	lda eah
 	jsr hex8
 	lda eal

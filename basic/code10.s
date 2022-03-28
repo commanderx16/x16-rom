@@ -61,21 +61,33 @@ isvret	sta facmo
 	lda r1H
 	jsr component2ascii
 
+	; Hours is at lofbuf+2.  But strings that start at lofbuf
+	; (which is in page 0) will get treated differently by strlit/strlitl
+	; than strings that start at lofbuf+1 or lofbuf+2 (in page 1) so
+	; shift it down.
+
+	lda lofbuf+2
+	sta lofbuf
+	lda lofbuf+3
+	sta lofbuf+1
+
+	; Copy the minutes and seconds into place
 	pla
-	sta lofbuf+4 ; MM
+	sta lofbuf+2 ; MM
 	pla
-	sta lofbuf+5 ; MM
+	sta lofbuf+3 ; MM
 	pla
-	sta lofbuf+6 ; SS
+	sta lofbuf+4 ; SS
 	pla
-	sta lofbuf+7 ; SS
+	sta lofbuf+5 ; SS
 	lda #0
-	sta lofbuf+8 ; Z
+	sta lofbuf+6 ; Z
 
-	lda #<(lofbuf+2) ; skip first two characters
-	ldy #>(lofbuf+2) ; (SPACE, '1')
-	jmp strlit
+	jmp strlitl
 
+	; Read DA$: Like $TI we convert components to
+	; ASCIIZ strings, cutting a character or two off
+	; each (SPACE, and sometimes a leading 1).
 tstr10	cpx #'D'
 	bne tstr11
 	cpy #'A'+$80
@@ -87,7 +99,7 @@ tstr10	cpx #'D'
 	ora r0L
 	bne :+
 	sta lofbuf+1
-	bra strlit1
+	jmp strlitl
 :
 	; day
 	lda r1L
@@ -115,20 +127,31 @@ tstr10	cpx #'D'
 	lda #>1900
 	jsr component2ascii2
 
+	; Now year is at lofbuf+1.  But strings that start at lofbuf
+	; (which is in page 0) will get treated differently by strlit/strlitl
+	; than strings that start at lofbuf+1 or lofbuf+2 (in page 1) so
+	; shift it down.
+
+	ldy #0
+:	lda lofbuf+1,y       ; in
+	sta lofbuf,y         ; out
+	iny                  ; count
+	cpy #4               ; 4 bytes copied yet?
+	bne :-
+
+	; Copy the months and days into place
+	pla
+	sta lofbuf+4 ; MM
 	pla
 	sta lofbuf+5 ; MM
 	pla
-	sta lofbuf+6 ; MM
+	sta lofbuf+6 ; DD
 	pla
 	sta lofbuf+7 ; DD
-	pla
-	sta lofbuf+8 ; DD
 	lda #0
-	sta lofbuf+9 ; Z
+	sta lofbuf+8 ; Z
 
-strlit1	lda #<(lofbuf+1) ; skip first character (SPACE)
-	ldy #>(lofbuf+1)
-	jmp strlit
+	jmp strlitl
 
 component2ascii:
 	clc
@@ -136,7 +159,7 @@ component2ascii:
 	tay
 	lda #0
 component2ascii2:
-	jsr givayf2
+	jsr givayf
 	ldy #0
 	jmp foutc
 
@@ -153,7 +176,7 @@ gooo	bit intflg
 	lda (facmo),y
 	tay
 	txa
-	jmp givayf
+	jmp givayf0
 gooooo	jsr tstrom      ;see if array
 	bcc gomovf      ;don't test st(i),ti(i)
 	cpx #'T'
@@ -261,7 +284,7 @@ andop	ldy #0
 	eor count
 	and integr
 	eor count
-	jmp givayf
+	jmp givayf0
 dorel	jsr chkval
 	bcs strcmp
 	lda argsgn

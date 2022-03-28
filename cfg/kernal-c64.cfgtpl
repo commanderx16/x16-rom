@@ -22,8 +22,8 @@ MEMORY {
 
 	// Bank 0 (KERNAL)
 	BASIC2:   start = $E000, size = $0500, fill=yes, fillval=$AA;
-	KERNAL:   start = $E500, size = $19C0, fill=yes, fillval=$AA;
-	JMPTBL:   start = $FEC0, size = $013A, fill=yes, fillval=$AA;
+	KERNAL:   start = $E500, size = $19A8, fill=yes, fillval=$AA;
+	JMPTBL:   start = $FEA8, size = $0152, fill=yes, fillval=$AA;
 	VECTORS:  start = $FFFA, size = $0006, fill=yes, fillval=$AA;
 }
 

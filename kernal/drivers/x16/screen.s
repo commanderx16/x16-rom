@@ -9,7 +9,7 @@
 .include "regs.inc"
 
 .export screen_init
-.export screen_set_mode
+.export screen_mode
 .export screen_set_charset
 .export screen_get_color
 .export screen_set_color
@@ -43,7 +43,7 @@
 
 .segment "KVAR"
 
-cscrmd:	.res 1           ;    X16: current screen mode (argument to screen_set_mode)
+cscrmd:	.res 1           ;    X16: current screen mode (argument to screen_mode)
 pnt:	.res 2           ;$D1 pointer to row
 
 .segment "SCREEN"
@@ -147,8 +147,10 @@ mapbas	=0
 ; .endif
 
 ;---------------------------------------------------------------
-; Set screen mode
+; Get/Set screen mode
 ;
+;   In:   .c  =0: set, =1: get
+; Set:
 ;   In:   .a  mode
 ;             $00: 40x30
 ;             $01: 80x30 ; XXX currently unsupported
@@ -156,19 +158,31 @@ mapbas	=0
 ;             $80: 320x240@256c + 40x30 text
 ;                 (320x200@256c + 40x25 text, currently)
 ;             $81: 640x400@16c ; XXX currently unsupported
-;             $ff: toggle between $00 and $02
+;   Out:  .c  =0: success, =1: failure
+; Get:
+;   Out:  .a  mode (only for "get")
 ;---------------------------------------------------------------
-screen_set_mode:
-	cmp #$ff
-	bne scrmd1
+screen_mode:
+	bcc @set
 
-	; Toggle between 40x30 and 80x60
-	lda #2
-	cmp cscrmd
-	bne scrmd1
-	lda #0
+; get
+	lda cscrmd
+	bne :+
+	ldx #40
+	ldy #30
+	rts
+:	cmp #2
+	bne :+
+	ldx #80
+	ldy #60
+	rts
+:	; else $80
+	ldx #40
+	ldy #25
+	rts
 
-scrmd1:	sta cscrmd
+@set:
+	sta cscrmd
 
 	cmp #0 ; 40x30
 	beq mode_40x30
@@ -208,7 +222,12 @@ swpp3:	ldx #40
 
 swpp2:	pha
 	bcs swppp4
-	stz VERA_L0_CONFIG	; Disable layer 0
+	; Disable layer 0
+	lda VERA_DC_VIDEO
+	and #$ef
+	sta VERA_DC_VIDEO
+	lda #6 << 4 | 1 ; blue on white
+	sta color
 
 swppp4:	pla
 	sta VERA_DC_HSCALE
@@ -231,7 +250,7 @@ swpp1:	lda #(480/2)
 	rts
 
 grphon:
-	lda #$0e ; light blue
+	lda #$0e ; light blue on translucent
 	sta color
 
 	LoadW r0, 0

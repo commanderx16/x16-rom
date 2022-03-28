@@ -1,5 +1,14 @@
-.byte 0,0,0            ; $FEC0
-.byte 0,0,0            ; $FEC3
+.byte 0,0,0                       ; $FEA8
+.byte 0,0,0                       ; $FEAB
+.byte 0,0,0                       ; $FEAE
+.byte 0,0,0                       ; $FEB1
+.byte 0,0,0                       ; $FEB4
+.byte 0,0,0                       ; $FEB7
+.byte 0,0,0                       ; $FEBA
+
+bridge kbdbuf_peek                ; $FEBD
+bridge kbdbuf_get_modifiers       ; $FEC0
+bridge kbdbuf_put                 ; $FEC3
 
 bridge i2c_read_byte              ; $FEC6
 bridge i2c_write_byte             ; $FEC9
@@ -8,7 +17,7 @@ bridge monitor                    ; $FECC
 
 bridge entropy_get                ; $FECF
 
-bridge kbdbuf_put                 ; $FED2
+.byte 0,0,0                       ; $FED2
 
 bridge console_set_paging_message ; $FED5
 bridge console_put_image          ; $FED8
@@ -59,7 +68,7 @@ bridge joystick_scan       ; $FF53: joystick_scan
 bridge joystick_get        ; $FF56: joystick_get
 bridge lkupla              ; $FF59: LKUPLA
 bridge lkupsa              ; $FF5C: LKUPSA
-bridge screen_set_mode     ; $FF5F: set screen mode
+bridge screen_mode         ; $FF5F: get/set screen mode
 bridge screen_set_charset  ; $FF62: activate 8x8 text mode charset
 .byte 0,0,0                ; $FF65: PFKEY – program a function key [NYI]
 bridge mouse_config        ; $FF68: mouse_config
