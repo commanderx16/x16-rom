@@ -370,10 +370,12 @@ fill_pixels_with_step:
 	sta VERA_ADDR_H
 	pla
 	ldx r0L
-:	sta VERA_DATA0
+@loop:	sta VERA_DATA0
 	inc VERA_ADDR_M ; increment hi -> add $140 = 320
-	dex
-	bne :-
+	bne :+
+	inc VERA_ADDR_H
+:	dex
+	bne @loop
 	rts
 
 ;---------------------------------------------------------------
