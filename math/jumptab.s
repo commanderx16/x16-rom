@@ -6,7 +6,6 @@
 
 ; http://unusedino.de/ec64/technical/project64/mapping_c64.html "[-mapping-]"
 ; ERRATA:
-;  * faddt, tmultt and fdivt require further setup that is not documented
 ;  * fmult at $BA28 adds mem to FAC, not ARG to FAC
 ;  * fmultt at $BA2B (add ARG to FAC) is not documented
 ;  * normal at $B8D7 is incorrectly documented as being at $B8FE
@@ -32,6 +31,15 @@
 ; * muldiv at $BAB7
 ; * mldvex at $BAD4
 ; * mov2f  at $BBC7
+
+; faddt, fmultt, fdivt, fpwrt:
+; The original functions require further setup that is not documented
+; in [-mapping-] or the C128/C65 Math library reference. The extra
+; work can only be done with access to internals of the library,
+; and without it, these functions are useless. That's why three
+; replacement functions have been added: faddt2, fmultt2, fdivt2, fpwrt2
+; which do the extra setup. BASIC still calls into the original
+; versions, so these are exposed in this jump table as well.
 
 ; Format Conversions
 
