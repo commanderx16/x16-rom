@@ -30,17 +30,17 @@ floatc	= $fe0f ; C128 API, use floats instead
 fsub	= $fe12 ; FAC -= mem(.Y:.A)
 fsubt	= $fe15 ; FAC -= ARG
 fadd	= $fe18 ; FAC += mem(.Y/.A)
-faddt	= $fe1b ; C128 API, use faddt2 instead
+faddt2	= $fe72 ; FAC += ARG
 fmult	= $fe1e ; FAC *= mem(.Y:.A)
-fmultt	= $fe21 ; C128 API, use fmultt2 instead
+fmultt2 = $fe7e ; FAC *= ARG
 fdiv	= $fe24 ; FAC = mem(.Y:.A) / FAC
-fdivt	= $fe27 ; C128 API, use fdivt2 instead
+fdivt2	= $fe87 ; FAC /= ARG
 log	= $fe2a ; FAC = log(FAC)
 int	= $fe2d ; FAC = int(FAC)
 sqr	= $fe30 ; FAC = sqr(FAC)
 negop	= $fe33 ; FAC = -FAC - 1
 fpwr	= $fe36 ;
-fpwrt	= $fe39 ; C128 API, use fpwrt2 instead
+fpwrt2	= $fea5 ; FAC = ARG^FAC
 exp	= $fe3c ; FAC = e^FAC
 cos	= $fe3f ; FAC = cos(FAC)
 sin	= $fe42 ; FAC = sin(FAC)
@@ -61,14 +61,14 @@ movfa	= $fe69 ; FAC = ARG
 movaf	= $fe6c ; ARG = round(FAC)
 ; X16 additions
 faddh	= $fe6f ; FAC += .5
-faddt2	= $fe72 ; FAC += ARG
+faddt	= $fe1b ; BASIC ONLY, DO NOT USE
 zerofc	= $fe75 ; FAC = 0
 normal	= $fe78 ; Normalize FAC
 negfac	= $fe7b ; FAC = -FAC
-fmultt2 = $fe7e ; FAC *= ARG
+fmultt	= $fe21 ; BASIC ONLY, DO NOT USE
 mul10	= $fe81 ; FAC *= 10
 div10	= $fe84 ; FAC /= 10
-fdivt2	= $fe87 ; FAC /= ARG
+fdivt	= $fe27 ; BASIC ONLY, DO NOT USE
 movef	= $fe8a ; ARG = FAC
 sgn	= $fe8d ; FAC = sgn(FAC)
 float	= $fe90 ; FAC = (u8).A
@@ -78,7 +78,7 @@ fcompn	= $fe99 ; BASIC ONLY, DO NOT USE
 qint	= $fe9c ; facho:facho+1:facho+2:facho+2 = u32(FAC)
 finlog	= $fe9f ; FAC += (s8).A
 foutc	= $fea2 ; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
-fpwrt2	= $fea5 ; FAC = ARG^FAC
+fpwrt	= $fe39 ; BASIC ONLY, DO NOT USE
 .if 0 ; removed for now due to segment overflow
 polyx	= $fea8 ; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
 poly	= $feab ; Polynomial Evaluation 2 (EXP)

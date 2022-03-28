@@ -74,22 +74,22 @@
 	jmp fadd   ; $B867
 
 	; FAC += ARG
-	; [do not use, used by BASIC]
-	jmp faddt   ; $B86A
+	; [FIXED VERSION of "faddt"]
+	jmp faddt2
 
 	; FAC *= mem(.Y:.A)
 	jmp fmult  ; $BA28 [-mapping-]
 
 	; FAC *= ARG
-	; [do not use, used by BASIC]
-	jmp fmultt  ; $BA2B
+	; [FIXED VERSION of "fmultt"]
+	jmp fmultt2
 
 	; FAC = mem(.Y:.A) / FAC
 	jmp fdiv   ; $BB0F [-mapping-]
 
 	; FAC /= ARG
-	; [do not use, used by BASIC]
-	jmp fdivt  ; $BB12
+	; [FIXED VERSION of "fdivt"]
+	jmp fdivt2
 
 	; FAC = log(FAC)
 	jmp log    ; $B9EA
@@ -107,8 +107,8 @@
 	jmp fpwr
 
 	; FAC = ARG^FAC
-	; [do not use, used by BASIC]
-	jmp fpwrt  ; $BF7B
+	; [FIXED VERSION of "fpwrt"]
+	jmp fpwrt2
 
 	; FAC = e^FAC
 	jmp exp    ; $BFED
@@ -177,8 +177,8 @@
 	jmp faddh  ; $B849 [-mapping-]
 
 	; FAC += ARG
-	; [FIXED VERSION of "faddt"]
-	jmp faddt2
+	; [do not use, used by BASIC]
+	jmp faddt   ; $B86A
 
 	; FAC = 0
 	jmp zerofc ; $B8F7
@@ -190,8 +190,8 @@
 	jmp negfac ; $B947 [-mapping-]
 
 	; FAC *= ARG
-	; [FIXED VERSION of "fmultt"]
-	jmp fmultt2
+	; [do not use, used by BASIC]
+	jmp fmultt  ; $BA2B
 
 	; FAC *= 10
 	jmp mul10  ; $BAE2
@@ -201,8 +201,8 @@
 	jmp div10  ; $BAFE
 
 	; FAC /= ARG
-	; [FIXED VERSION of "fdivt"]
-	jmp fdivt2
+	; [do not use, used by BASIC]
+	jmp fdivt  ; $BB12
 
 	; ARG = FAC
 	jmp movef  ; $BC0F [-mapping-]
@@ -235,8 +235,8 @@
 	jmp foutc  ; $BDDF
 
 	; FAC = ARG^FAC
-	; [FIXED VERSION of "fpwrt"]
-	jmp fpwrt2
+	; [do not use, used by BASIC]
+	jmp fpwrt  ; $BF7B
 
 .if 0 ; removed for now due to segment overflow
 	; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
