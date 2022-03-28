@@ -214,13 +214,13 @@ screen_mode:
 
 mode_lookup:
 	ldx #scale-modes
-:	cmp modes,x
+:	cmp modes-1,x
 	beq @found
 	dex
 	bpl :-
 	sec ; otherwise: illegal mode
 	rts
-@found:	lda scale,x
+@found:	lda scale-1,x
 	clc
 	rts
 
@@ -276,8 +276,11 @@ set_scale:
 @ydone:	sta VERA_DC_VSCALE
 	rts
 
-modes:	.byte   0,   1,   2,   3,   4,   5, $80
-scale:	.byte $11, $01, $00, $12, $21, $22, $11 ; hi-nyb: x >> n, lo-nyb: y >> n
+;modes:	.byte   0,   1,   2,   3,   4,   5, $80
+;scale:	.byte $11, $01, $00, $12, $21, $22, $11 ; hi-nyb: x >> n, lo-nyb: y >> n
+
+modes:	.byte   0,   1,   2,   3,   4,   5,   6, $80
+scale:	.byte $00, $01, $10, $11, $12, $21, $22, $11 ; hi-nyb: x >> n, lo-nyb: y >> n
 
 ;---------------------------------------------------------------
 ; Calculate start of line
