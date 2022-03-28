@@ -172,7 +172,7 @@ cint	jsr iokeys
 	jsr panic       ;set up vic
 
 	; XXX this is too specific
-	lda #2          ;80x60
+	lda #0          ;80x60
 	clc
 	jsr screen_mode ;set screen mode to default
 ;

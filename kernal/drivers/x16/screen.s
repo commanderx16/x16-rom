@@ -150,9 +150,13 @@ screen_init:
 ;   In:   .c  =0: set, =1: get
 ; Set:
 ;   In:   .a  mode
-;             $00: 40x30
-;             $01: 80x30 ; XXX currently unsupported
-;             $02: 80x60
+;             $00: 80x60
+;             $01: 80x30
+;             $02: 40x60
+;             $03: 40x30
+;             $04: 40x15
+;             $05: 20x30
+;             $06: 20x15
 ;             $80: 320x240@256c + 40x30 text
 ;             $81: 640x400@16c ; XXX currently unsupported
 ;   Out:  .c  =0: success, =1: failure
@@ -164,71 +168,23 @@ screen_mode:
 
 ; get
 	lda cscrmd
-	bne :+
-	ldx #40
-	ldy #30
-	rts
-:	cmp #2
-	bne :+
-	ldx #80
-	ldy #60
-	rts
-:	; else $80
-	ldx #40
-	ldy #30
+	pha
+	jsr mode_lookup
+	jsr calc_scaled_res
+	pla
 	rts
 
 @set:
-	sta cscrmd
+	pha
+	jsr mode_lookup
+	plx
+	bcs @rts
 
-	cmp #0 ; 40x30
-	beq mode_40x30
+	stx cscrmd
+	pha
 
-	cmp #1 ; 80x30 currently unsupported
-	bne scrmd2
-mode_unsupported:
-	sec
-	rts
-
-scrmd2:	cmp #2 ; 80x60
-	beq mode_80x60
-	cmp #$80 ; 320x240@256c + 40x30 text
-	beq mode_320x240
-	cmp #$81 ; 640x400@16c
-	beq mode_unsupported ; currently unsupported
-	bra mode_unsupported ; otherwise: illegal mode
-
-mode_80x60:
-	ldx #80
-	ldy #60
-	lda #128 ; scale = 1.0
-	clc
-	bra swpp2
-
-mode_320x240:
-	jsr grphon
-	ldy #30
-	sec
-	bra swpp3
-
-mode_40x30:
-	clc
-	ldy #30
-swpp3:	ldx #40
-	lda #64 ; scale = 2.0
-
-swpp2:	pha
-	bcs swppp4
-	; Disable layer 0
-	lda VERA_DC_VIDEO
-	and #$ef
-	sta VERA_DC_VIDEO
-	lda #6 << 4 | 1 ; blue on white
-	sta color
-
-swppp4:	pla
-	sta VERA_DC_HSCALE
-	sta VERA_DC_VSCALE
+	; set VERA scaling
+	jsr set_scale
 
 	; Set vertical display stop
 	lda #2
@@ -236,16 +192,96 @@ swppp4:	pla
 	lda #(480/2)
 	sta VERA_DC_VSTOP
 	stz VERA_CTRL
+
+	lda cscrmd
+	bmi @graph
+
+	; text mode: disable layer 0
+	lda VERA_DC_VIDEO
+	and #$ef
+	sta VERA_DC_VIDEO
+	lda #6 << 4 | 1 ; blue on white
+	bra @cont
+
+@graph:	; graphics mode
+	LoadW r0, 0
+	jsr GRAPH_init
+	lda #$0e ; light blue on translucent
+@cont:	sta color
+
+	; set editor size
+	pla
+	jsr calc_scaled_res
 	jsr scnsiz
+	clc
+@rts:	rts
+
+mode_lookup:
+	ldx #scale-modes
+:	cmp modes-1,x
+	beq @found
+	dex
+	bpl :-
+	sec ; otherwise: illegal mode
+	rts
+@found:	lda scale-1,x
 	clc
 	rts
 
-grphon:
-	lda #$0e ; light blue on translucent
-	sta color
+calc_scaled_res:
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	lda #80
+:	cpy #0
+	beq @xdone
+	lsr
+	dey
+	bra :-
+@xdone:	tax      ; scaled x res
+	pla
+	and #$0f
+	tay
+	lda #60
+:	cpy #0
+	beq @ydone
+	lsr
+	dey
+	bra :-
+@ydone:	tay      ; scaled yres
+	rts
 
-	LoadW r0, 0
-	jmp GRAPH_init
+set_scale:
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	lda #$80
+:	cpy #0
+	beq @xdone
+	lsr
+	dey
+	bra :-
+@xdone:	sta VERA_DC_HSCALE
+	pla
+	and #$0f
+	tay
+	lda #$80
+:	cpy #0
+	beq @ydone
+	lsr
+	dey
+	bra :-
+@ydone:	sta VERA_DC_VSCALE
+	rts
+
+modes:	.byte   0,   1,   2,   3,   4,   5,   6, $80
+scale:	.byte $00, $01, $10, $11, $12, $21, $22, $11 ; hi-nyb: x >> n, lo-nyb: y >> n
 
 ;---------------------------------------------------------------
 ; Calculate start of line

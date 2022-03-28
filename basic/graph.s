@@ -20,8 +20,8 @@ cscreen
 	; Toggle between 40x30 and 80x60
 	sec
 	jsr screen_mode
-	ldx #2
-	cmp #2
+	ldx #3
+	cmp #3
 	bne @set
 	ldx #0
 @set:	txa
