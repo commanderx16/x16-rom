@@ -11,7 +11,7 @@
 ; in [-mapping-] or the C128/C65 Math library reference (sign
 ; comparison, setting the flags according to the FAC exponent).
 ; The extra work can only be done with access to internals of the
-; library, and without it, these functions are useless. That's why three
+; library, and without it, these functions are useless. That's why
 ; replacement functions have been added, with the same names (and
 ; marked as "FIXED VERSION") which do the extra setup. BASIC still
 ; calls into the original versions, so these are exposed in this jump table as well, with "b" prepended to their names.
@@ -201,10 +201,10 @@
 	; [do not use, used by BASIC]
 	jmp bfpwrt ; $BF7B
 
-	; [used by BASIC]
+	; [do not use, used by BASIC]
 	jmp floatb ; $BC4F
 
-	; [used by BASIC]
+	; [do not use, used by BASIC]
 	jmp fcompn ; $BC5D
 
 ; X16 additions
