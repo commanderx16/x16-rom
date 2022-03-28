@@ -118,6 +118,6 @@ d2ora	=via2+15
 ; $1:F800 - $1:F9BF  -- unused --
 ; $1:F9C0 - $1:FFFF  Vera internal (PSG, pal, spr)
 
-
-sprite_addr = $07800
-tilbas      = $0f800
+sprite_addr = $13000
+screen_addr = $1b000
+charset_addr = $1f000
