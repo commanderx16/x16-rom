@@ -132,7 +132,7 @@ fdivf
 
 fdiv
 	jsr conupk	;unpack constant.
-fdivt
+bfdivt
 	beq doverr	;can't divide by zero.
 			;not enough room to store result.
 	jsr round	;take facov into account in fac.

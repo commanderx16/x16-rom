@@ -61,7 +61,7 @@ fpwr	jsr movfm	;put memory into fac.
 			;returned by exp.
 			;to compute the result use x^y=exp((y*log(x)).
 
-fpwrt
+bfpwrt
 	beq exp		;if fac=0, just exponentiate taht.
 	lda argexp	;is x=0?
 	bne fpwrt1
