@@ -109,7 +109,7 @@ FB_cursor_position:
 	adc ptr_fg+1
 	sta ptr_fg+1
 
-	lda #$10
+	lda #$10 | ^fb_addr
 	sta VERA_ADDR_H
 
 ; ptr_fg += x
@@ -360,7 +360,7 @@ fill_y:	sta VERA_DATA0
 
 ; XXX TODO support other step sizes
 fill_pixels_with_step:
-	ldx #$70    ; increment in steps of $40
+	ldx #$70 | ^fb_addr ; increment in steps of $40
 	stx VERA_ADDR_H
 	ldx r0L
 :	sta VERA_DATA0
@@ -387,7 +387,7 @@ FB_filter_pixels:
 	inc VERA_CTRL ; 1
 	sta VERA_ADDR_L
 	stx VERA_ADDR_M
-	lda #$10
+	lda #$10 | ^fb_addr
 	sta VERA_ADDR_H
 	stz VERA_CTRL ; 0
 	sta VERA_ADDR_H
