@@ -59,27 +59,50 @@ movfm	= $fe63 ; FAC = mem(.Y:.A) (5 bytes)
 movmf	= $fe66 ; mem(.Y:.X) = round(FAC) (5 bytes)
 movfa	= $fe69 ; FAC = ARG
 movaf	= $fe6c ; ARG = round(FAC)
+; X16 additions - BASIC only
+faddt	= $fe6f ; BASIC ONLY, DO NOT USE
+fmultt	= $fe72 ; BASIC ONLY, DO NOT USE
+fdivt	= $fe75 ; BASIC ONLY, DO NOT USE
+fpwrt	= $fe78 ; BASIC ONLY, DO NOT USE
+floatb	= $fe7b ; BASIC ONLY, DO NOT USE
+fcompn	= $fe7e ; BASIC ONLY, DO NOT USE
 ; X16 additions
-faddh	= $fe6f ; FAC += .5
-faddt	= $fe72 ; BASIC ONLY, DO NOT USE
-zerofc	= $fe75 ; FAC = 0
-normal	= $fe78 ; Normalize FAC
-negfac	= $fe7b ; FAC = -FAC
-fmultt	= $fe7e ; BASIC ONLY, DO NOT USE
-mul10	= $fe81 ; FAC *= 10
-div10	= $fe84 ; FAC /= 10
-fdivt	= $fe87 ; BASIC ONLY, DO NOT USE
-movef	= $fe8a ; ARG = FAC
-sgn	= $fe8d ; FAC = sgn(FAC)
-float	= $fe90 ; FAC = (u8).A
-floats	= $fe93 ; FAC = (s16)facho+1:facho
-floatb	= $fe96 ; BASIC ONLY, DO NOT USE
-fcompn	= $fe99 ; BASIC ONLY, DO NOT USE
-qint	= $fe9c ; facho:facho+1:facho+2:facho+2 = u32(FAC)
-finlog	= $fe9f ; FAC += (s8).A
-foutc	= $fea2 ; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
-fpwrt	= $fea5 ; BASIC ONLY, DO NOT USE
+faddh	= $fe81 ; FAC += .5
+zerofc	= $fe84 ; FAC = 0
+normal	= $fe87 ; Normalize FAC
+negfac	= $fe8a ; FAC = -FAC
+mul10	= $fe8d ; FAC *= 10
+div10	= $fe90 ; FAC /= 10
+movef	= $fe93 ; ARG = FAC
+sgn	= $fe96 ; FAC = sgn(FAC)
+float	= $fe99 ; FAC = (u8).A
+floats	= $fe9c ; FAC = (s16)facho+1:facho
+qint	= $fe9f ; facho:facho+1:facho+2:facho+2 = u32(FAC)
+finlog	= $fea2 ; FAC += (s8).A
+foutc	= $fea5 ; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
 .if 0 ; removed for now due to segment overflow
 polyx	= $fea8 ; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
 poly	= $feab ; Polynomial Evaluation 2 (EXP)
 .endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

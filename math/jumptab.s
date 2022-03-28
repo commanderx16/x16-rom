@@ -182,13 +182,34 @@
 	jmp movaf  ; $BC0C
 
 
-; X16 additions
-	; FAC += .5
-	jmp faddh  ; $B849 [-mapping-]
+; X16 additions - BASIC only
 
 	; FAC += ARG
 	; [do not use, used by BASIC]
 	jmp faddt   ; $B86A
+
+	; FAC *= ARG
+	; [do not use, used by BASIC]
+	jmp fmultt  ; $BA2B
+
+	; FAC /= ARG
+	; [do not use, used by BASIC]
+	jmp fdivt  ; $BB12
+
+	; FAC = ARG^FAC
+	; [do not use, used by BASIC]
+	jmp fpwrt  ; $BF7B
+
+	; [used by BASIC]
+	jmp floatb ; $BC4F
+
+	; [used by BASIC]
+	jmp fcompn ; $BC5D
+
+; X16 additions
+
+	; FAC += .5
+	jmp faddh  ; $B849 [-mapping-]
 
 	; FAC = 0
 	jmp zerofc ; $B8F7
@@ -199,20 +220,12 @@
 	; FAC = -FAC
 	jmp negfac ; $B947 [-mapping-]
 
-	; FAC *= ARG
-	; [do not use, used by BASIC]
-	jmp fmultt  ; $BA2B
-
 	; FAC *= 10
 	jmp mul10  ; $BAE2
 
 	; FAC /= 10
 	; ["Note: This routine treats FAC1 as positive even if it is not."]
 	jmp div10  ; $BAFE
-
-	; FAC /= ARG
-	; [do not use, used by BASIC]
-	jmp fdivt  ; $BB12
 
 	; ARG = FAC
 	jmp movef  ; $BC0F [-mapping-]
@@ -228,12 +241,6 @@
 	; [destroys ARG]
 	jmp floats ; $BC44
 
-	; [used by BASIC]
-	jmp floatb ; $BC4F
-
-	; [used by BASIC]
-	jmp fcompn ; $BC5D
-
 	; facho:facho+1:facho+2:facho+3 = u32(FAC)
 	jmp qint   ; $BC9B
 
@@ -243,10 +250,6 @@
 	; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
 	; [used by BASIC]
 	jmp foutc  ; $BDDF
-
-	; FAC = ARG^FAC
-	; [do not use, used by BASIC]
-	jmp fpwrt  ; $BF7B
 
 .if 0 ; removed for now due to segment overflow
 	; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
