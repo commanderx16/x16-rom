@@ -89,7 +89,7 @@ d2ier	=via2+14
 d2ora	=via2+15
 
 ;
-; VERA Video RAM Layout
+; *OLD* VERA Video RAM Layout
 ;
 ; $0:0000 - $0:3BFF  Text Mode
 ; $0:3C00 - $0:77FF  -- unused --
@@ -105,6 +105,19 @@ d2ora	=via2+15
 ; $0:F800 - $0:FFFF  Charset
 ; $1:0000 - $1:F9FF  320x200@256c Bitmap
 ; $1:FA00 - $1:FFFF  -- unused --
+
+;
+; *NEW* VERA Video RAM Layout
+;
+; $0:0000 - $1:2BFF  320x240@256c Bitmap [320x200: - $0:F9FF]
+; $1:2C00 - $1:2FFF  -- unused --
+; $1:3000 - $1:AFFF  Sprites ($1000 per sprite)
+; $1:B000 - $1:EBFF  Text Mode
+; $1:EC00 - $1:EFFF  -- unused --
+; $1:F000 - $1:F7FF  Charset
+; $1:F800 - $1:F9BF  -- unused --
+; $1:F9C0 - $1:FFFF  Vera internal (PSG, pal, spr)
+
 
 sprite_addr = $07800
 tilbas      = $0f800
