@@ -91,20 +91,16 @@ d2ora	=via2+15
 ;
 ; VERA Video RAM Layout
 ;
-; $0:0000 - $0:3BFF  Text Mode
-; $0:3C00 - $0:77FF  -- unused --
-; $0:7800 - $0:F7FF  Sprites
-;                    $0:7800  Sprite #0
-;                    $0:8800  Sprite #1
-;                    $0:9800  Sprite #2
-;                    $0:A800  Sprite #3
-;                    $0:B800  Sprite #4
-;                    $0:C800  Sprite #5
-;                    $0:D800  Sprite #6
-;                    $0:E800  Sprite #7
-; $0:F800 - $0:FFFF  Charset
-; $1:0000 - $1:F9FF  320x200@256c Bitmap
-; $1:FA00 - $1:FFFF  -- unused --
+; $0:0000 - $1:2BFF  320x240@256c Bitmap [320x200: - $0:F9FF]
+; $1:2C00 - $1:2FFF  -- unused --
+; $1:3000 - $1:AFFF  Sprites ($1000 per sprite)
+; $1:B000 - $1:EBFF  Text Mode
+; $1:EC00 - $1:EFFF  -- unused --
+; $1:F000 - $1:F7FF  Charset
+; $1:F800 - $1:F9BF  -- unused --
+; $1:F9C0 - $1:FFFF  Vera internal (PSG, pal, spr)
 
-sprite_addr = $07800
-tilbas      = $0f800
+fb_addr      = $00000; code assumes 64K aligned
+sprite_addr  = $13000
+screen_addr  = $1b000
+charset_addr = $1f000

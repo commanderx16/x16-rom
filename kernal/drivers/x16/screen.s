@@ -61,9 +61,9 @@ screen_init:
 	; Layer 1 configuration
 	lda #((1<<6)|(2<<4)|(0<<0))
 	sta VERA_L1_CONFIG
-	lda #(mapbas>>9)
+	lda #(screen_addr>>9)
 	sta VERA_L1_MAPBASE
-	lda #((tilbas>>11)<<2)
+	lda #((charset_addr>>11)<<2)
 	sta VERA_L1_TILEBASE
 	stz VERA_L1_HSCROLL_L
 	stz VERA_L1_HSCROLL_H
@@ -107,8 +107,6 @@ screen_init:
 
 ;NTSC=1
 
-
-mapbas	=0
 
 ; .ifdef NTSC
 ; ***** NTSC (with overscan)
@@ -304,8 +302,10 @@ ldapnt2:
 	sta VERA_ADDR_L
 	lda pnt+1
 ldapnt3:
+	clc
+	adc #<(>screen_addr)
 	sta VERA_ADDR_M
-	lda #$10
+	lda #$10 | ^screen_addr
 	sta VERA_ADDR_H
 	lda VERA_DATA0
 	rts
@@ -352,8 +352,10 @@ stapnt2:
 	sta VERA_ADDR_L
 	lda pnt+1
 stapnt3:
+	clc
+	adc #<(>screen_addr)
 	sta VERA_ADDR_M
-	lda #$10
+	lda #$10 | ^screen_addr
 	sta VERA_ADDR_H
 	pla
 	sta VERA_DATA0
@@ -404,23 +406,27 @@ screen_copy_line:
 	stx sal+1
 
 	;destination into addr1
-	lda #$10
-	sta VERA_ADDR_H
 	lda pnt
 	sta VERA_ADDR_L
 	lda pnt+1
+	clc
+	adc #>screen_addr
 	sta VERA_ADDR_M
+	lda #$10 | ^screen_addr
+	sta VERA_ADDR_H
 
 	lda #1
 	sta VERA_CTRL
 
 	;source into addr2
-	lda #$10
-	sta VERA_ADDR_H
 	lda sal
 	sta VERA_ADDR_L
 	lda sal+1
+	clc
+	adc #>screen_addr
 	sta VERA_ADDR_M
+	lda #$10 | ^screen_addr
+	sta VERA_ADDR_H
 
 	lda #0
 	sta VERA_CTRL
@@ -451,8 +457,10 @@ screen_clear_line:
 	lda pnt
 	sta VERA_ADDR_L      ;set base address
 	lda pnt+1
+	clc
+	adc #>screen_addr
 	sta VERA_ADDR_M
-	lda #$10        ;auto-increment = 1
+	lda #$10 | ^screen_addr;auto-increment = 1
 	sta VERA_ADDR_H
 :	lda #' '
 	sta VERA_DATA0     ;store space
@@ -582,11 +590,11 @@ cpypet2:
 
 inicpy:
 	phx
-	ldx #<tilbas
+	ldx #<charset_addr
 	stx VERA_ADDR_L
-	ldx #>tilbas
+	ldx #>charset_addr
 	stx VERA_ADDR_M
-	ldx #$10 | (tilbas >> 16)
+	ldx #$10 | ^charset_addr
 	stx VERA_ADDR_H
 	plx
 	stz data
