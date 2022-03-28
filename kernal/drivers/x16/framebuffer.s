@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; VERA 320x200@256c Graphics Driver
+; VERA 320x240@256c Graphics Driver
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
@@ -10,7 +10,8 @@
 .export FB_VERA
 
 .segment "ZPKERNAL" : zeropage
-ptr_fg:	.res 2
+	.res 2
+ptr_fg = $70; XXX
 
 .segment "VERA_DRV"
 
@@ -65,7 +66,7 @@ FB_init:
 ;---------------------------------------------------------------
 FB_get_info:
 	LoadW r0, 320
-	LoadW r1, 200
+	LoadW r1, 240
 	lda #8
 	rts
 
@@ -90,29 +91,25 @@ FB_set_palette:
 FB_cursor_position:
 ; ptr_fg = y * 320
 	stz ptr_fg+1
+
+	; y * 64
 	lda r1L
+.repeat 6
 	asl
 	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
+.endrepeat
 	sta ptr_fg
+
+	; + y * 256
 	lda r1L
 	clc
 	adc ptr_fg+1
 	sta ptr_fg+1
+	lda #0
+	rol
+	sta ptr_fg+2
 
-	lda #$10 | ^fb_addr
-	sta VERA_ADDR_H
-
-; ptr_fg += x
+	; += x
 	lda r0L
 	clc
 	adc ptr_fg
@@ -122,6 +119,10 @@ FB_cursor_position:
 	adc ptr_fg+1
 	sta ptr_fg+1
 	sta VERA_ADDR_M
+	lda #$10 | ^fb_addr
+	adc ptr_fg+2
+	sta ptr_fg+2
+	sta VERA_ADDR_H
 
 	rts
 
@@ -141,6 +142,10 @@ FB_cursor_next_line:
 	adc ptr_fg+1
 	sta ptr_fg+1
 	sta VERA_ADDR_M
+	lda #0
+	adc ptr_fg+2
+	sta ptr_fg+2
+	sta VERA_ADDR_H
 	rts
 
 ;---------------------------------------------------------------
@@ -360,8 +365,11 @@ fill_y:	sta VERA_DATA0
 
 ; XXX TODO support other step sizes
 fill_pixels_with_step:
-	ldx #$70 | ^fb_addr ; increment in steps of $40
-	stx VERA_ADDR_H
+	pha
+	lda VERA_ADDR_H
+	ora #$70        ; increment in steps of $40
+	sta VERA_ADDR_H
+	pla
 	ldx r0L
 :	sta VERA_DATA0
 	inc VERA_ADDR_M ; increment hi -> add $140 = 320

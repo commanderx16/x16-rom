@@ -154,7 +154,6 @@ screen_init:
 ;             $01: 80x30 ; XXX currently unsupported
 ;             $02: 80x60
 ;             $80: 320x240@256c + 40x30 text
-;                 (320x200@256c + 40x25 text, currently)
 ;             $81: 640x400@16c ; XXX currently unsupported
 ;   Out:  .c  =0: success, =1: failure
 ; Get:
@@ -176,7 +175,7 @@ screen_mode:
 	rts
 :	; else $80
 	ldx #40
-	ldy #25
+	ldy #30
 	rts
 
 @set:
@@ -208,7 +207,7 @@ mode_80x60:
 
 mode_320x240:
 	jsr grphon
-	ldy #25
+	ldy #30
 	sec
 	bra swpp3
 
@@ -232,15 +231,9 @@ swppp4:	pla
 	sta VERA_DC_VSCALE
 
 	; Set vertical display stop
-	cpy #25
-	bne swpp1
-	lda #(400/2)
-	bra :+
-swpp1:	lda #(480/2)
-:	pha
 	lda #2
 	sta VERA_CTRL
-	pla
+	lda #(480/2)
 	sta VERA_DC_VSTOP
 	stz VERA_CTRL
 	jsr scnsiz
