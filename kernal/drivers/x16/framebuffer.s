@@ -119,7 +119,7 @@ FB_cursor_position:
 	adc ptr_fg+1
 	sta ptr_fg+1
 	sta VERA_ADDR_M
-	lda #$10 | ^fb_addr
+	lda #$10 | ^fb_addr ; add base address top bit, plus increment setting
 	adc ptr_fg+2
 	sta ptr_fg+2
 	sta VERA_ADDR_H
