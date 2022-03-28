@@ -43,7 +43,7 @@ chrgot	.res 1           ;$79
 txtptr	.res 6           ;$7A
 qnum	.res 11          ;$80
 
-; reused zero page from FPLIB
+; reused zero page from MATH
 addend	=resmo           ;$28 temporary used by "umult" (2 bytes)
 varpnt	=fdecpt          ;$47 pointer to variable in memory
 defpnt	=tempf3          ;$4E pointer used in function definition (2 bytes)
@@ -141,7 +141,7 @@ jmper	.res 3           ;$54
 size	=jmper+1         ;$55
 basic_fa .res 1          ;    default device address
 
-; reused vars from FPLIB
+; reused vars from MATH
 charac	=integr          ;$07 a delimiting character
 domask	=tansgn          ;$12 mask in use by relation operations
 

@@ -155,7 +155,7 @@ Release Notes
 	* fixed `screen_set_charset` custom charset [Rebecca G. Bettencourt]
 	* fixed `stash` to preserve A
 	* `entropy_get`: better entropy
-* FPLIB
+* MATH
 	* optimized addition, multiplication and SQR [Michael Jørgensen]
 	* ported over `INT(.9+.1)` = 0 fix from C128
 * BASIC
@@ -194,7 +194,7 @@ Release Notes
 		* new: console_set_paging_message (to pause after a full screen)
 		* now respects window insets
 		* try "TEST1" and "TEST2" in BASIC!
-	* new entropy_get API to get randomness, used by FPLIB/BASIC RND function
+	* new entropy_get API to get randomness, used by MATH/BASIC RND function
 * KERNAL
 	* support for VERA 0.9 register layout (Frank van den Hoef)
 * BASIC

@@ -2,13 +2,13 @@
 ; Floating Point Library for 6502: Include
 ;----------------------------------------------------------------------
 
-; FPLIB: zero page
+; MATH: zero page
 .importzp tenexp, facov, deccnt, argsgn, arglo, argmo, argmoh, argho, argexp, facmoh, fbufpt, faclo, facexp, facho, facsgn, index2, index1, lindex, olpolypt, olarisgn, oldegree, olfacmo, olfac, oltempf2, oltempf1, oltempf3, olfdecpt, lresmo, index, polypt, arisgn, degree, facmo, fac, tempf2, tempf1, tempf3, fdecpt, resmo
 
-; FPLIB: constants
+; MATH: constants
 .importzp addprc
 
-; FPLIB: vars
+; MATH: vars
 .import bits, rndx, tansgn, integr
 
 ; data
