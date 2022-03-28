@@ -3,6 +3,20 @@
 ;----------------------------------------------------------------------
 
 ; FBLIB Jump Table
+;
+; This jump table aims for compatibility with the C128/C65 one.
+;
+; faddt, fmultt, fdivt, fpwrt:
+; The original functions require further setup that is not documented
+; in [-mapping-] or the C128/C65 Math library reference (sign
+; comparison, setting the flags according to the FAC exponent).
+; The extra work can only be done with access to internals of the
+; library, and without it, these functions are useless. That's why three
+; replacement functions have been added: faddt2, fmultt2, fdivt2, fpwrt2
+; (marked as "FIXED VERSION") which do the extra setup. BASIC still
+; calls into the original versions, so these are exposed in this jump
+; table as well.
+; https://www.c64-wiki.de/wiki/FADDT
 
 ; http://unusedino.de/ec64/technical/project64/mapping_c64.html "[-mapping-]"
 ; ERRATA:
@@ -15,12 +29,6 @@
 
 .segment "FPJMP"
 
-; The order of these jmps is by address in the PET/VIC-20/C64 ROM.
-
-; Routines marked as "FIXED VERSION" already do the necessary setup
-; (sign comparison, setting the flags according to the FAC exponent)
-; before executing the original (PET/VIC-20/C64) code.
-
 ; Routines marked with "[-mapping-]" have been added because they
 ; are documented in "Mapping the Commodore 64" and therefore likely
 ; useful or even used by existing C64 code.
@@ -31,15 +39,6 @@
 ; * muldiv at $BAB7
 ; * mldvex at $BAD4
 ; * mov2f  at $BBC7
-
-; faddt, fmultt, fdivt, fpwrt:
-; The original functions require further setup that is not documented
-; in [-mapping-] or the C128/C65 Math library reference. The extra
-; work can only be done with access to internals of the library,
-; and without it, these functions are useless. That's why three
-; replacement functions have been added: faddt2, fmultt2, fdivt2, fpwrt2
-; which do the extra setup. BASIC still calls into the original
-; versions, so these are exposed in this jump table as well.
 
 ; Format Conversions
 
@@ -73,7 +72,7 @@
 ; Math Functions
 
 	; FAC -= mem(.Y:.A)
-	jmp fsub   ; $B850 [-mapping-]
+	jmp fsub   ; $B850
 
 	; FAC -= ARG
 	jmp fsubt  ; $B853
@@ -86,14 +85,14 @@
 	jmp faddt2
 
 	; FAC *= mem(.Y:.A)
-	jmp fmult  ; $BA28 [-mapping-]
+	jmp fmult  ; $BA28
 
 	; FAC *= ARG
 	; [FIXED VERSION of "fmultt"]
 	jmp fmultt2
 
 	; FAC = mem(.Y:.A) / FAC
-	jmp fdiv   ; $BB0F [-mapping-]
+	jmp fdiv   ; $BB0F
 
 	; FAC /= ARG
 	; [FIXED VERSION of "fdivt"]
@@ -159,7 +158,7 @@
 ; Movement
 
 	; ARG = mem(.Y:.A) (5 bytes)
-	jmp conupk ; $BA8C [-mapping-]
+	jmp conupk ; $BA8C
 
 	; [*** C128/C65 has RAM and ROM version, which we don't need]
 	jmp conupk ; ROMUPK = CONUPK (=above)
