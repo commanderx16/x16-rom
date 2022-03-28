@@ -78,11 +78,11 @@ finlog
 	jsr movaf	;save it for later.
 	pla
 	jsr float	;float the value in acca.
-faddt2	lda argsgn
+faddt	lda argsgn
 	eor facsgn
 	sta arisgn	;resultant sign.
 	ldx facexp	;set signs on thing to add.
-	jmp faddt	;add together and return.
+	jmp bfaddt	;add together and return.
 
 			;
 			;here pack in the next digit of the exponent.

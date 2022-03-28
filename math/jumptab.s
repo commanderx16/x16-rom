@@ -6,17 +6,18 @@
 ;
 ; This jump table aims for compatibility with the C128/C65 one.
 ;
-; faddt, fmultt, fdivt, fpwrt:
+; *** C128 difference: faddt, fmultt, fdivt, fpwrt:
 ; The original functions require further setup that is not documented
 ; in [-mapping-] or the C128/C65 Math library reference (sign
 ; comparison, setting the flags according to the FAC exponent).
 ; The extra work can only be done with access to internals of the
 ; library, and without it, these functions are useless. That's why three
-; replacement functions have been added: faddt2, fmultt2, fdivt2, fpwrt2
-; (marked as "FIXED VERSION") which do the extra setup. BASIC still
-; calls into the original versions, so these are exposed in this jump
-; table as well.
-; https://www.c64-wiki.de/wiki/FADDT
+; replacement functions have been added, with the same names (and
+; marked as "FIXED VERSION") which do the extra setup. BASIC still
+; calls into the original versions, so these are exposed in this jump table as well, with "b" prepended to their names.
+; ("fsubt" doesn't need the fix: It is the only one that does the
+; extra setup!)
+; More info: https://www.c64-wiki.de/wiki/FADDT
 
 ; Routines marked with "[-mapping-]" have been added because they
 ; are documented in "Mapping the Commodore 64" and therefore likely
@@ -84,22 +85,22 @@
 	jmp fadd   ; $B867
 
 	; FAC += ARG
-	; [FIXED VERSION of "faddt"]
-	jmp faddt2
+	; [FIXED VERSION of "faddt2"]
+	jmp faddt
 
 	; FAC *= mem(.Y:.A)
 	jmp fmult  ; $BA28
 
 	; FAC *= ARG
-	; [FIXED VERSION of "fmultt"]
-	jmp fmultt2
+	; [FIXED VERSION of "fmultt2"]
+	jmp fmultt
 
 	; FAC = mem(.Y:.A) / FAC
 	jmp fdiv   ; $BB0F
 
 	; FAC /= ARG
-	; [FIXED VERSION of "fdivt"]
-	jmp fdivt2
+	; [FIXED VERSION of "fdivt2"]
+	jmp fdivt
 
 	; FAC = log(FAC)
 	jmp log    ; $B9EA
@@ -117,8 +118,8 @@
 	jmp fpwr
 
 	; FAC = ARG^FAC
-	; [FIXED VERSION of "fpwrt"]
-	jmp fpwrt2
+	; [FIXED VERSION of "fpwrt2"]
+	jmp fpwrt
 
 	; FAC = e^FAC
 	jmp exp    ; $BFED
@@ -186,19 +187,19 @@
 
 	; FAC += ARG
 	; [do not use, used by BASIC]
-	jmp faddt   ; $B86A
+	jmp bfaddt; $B86A
 
 	; FAC *= ARG
 	; [do not use, used by BASIC]
-	jmp fmultt  ; $BA2B
+	jmp bfmultt; $BA2B
 
 	; FAC /= ARG
 	; [do not use, used by BASIC]
-	jmp fdivt  ; $BB12
+	jmp bfdivt ; $BB12
 
 	; FAC = ARG^FAC
 	; [do not use, used by BASIC]
-	jmp fpwrt  ; $BF7B
+	jmp bfpwrt ; $BF7B
 
 	; [used by BASIC]
 	jmp floatb ; $BC4F

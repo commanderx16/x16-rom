@@ -51,7 +51,7 @@ fmult    jsr conupk
 ; Additionally, the Z-flag is the value of the FAC exponent.
 ; On exit the sum is stored in FAC.
 
-fmultt
+bfmultt
 
 ; 1. If either operand is zero, then finish immediately.
 

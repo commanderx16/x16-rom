@@ -61,15 +61,15 @@ usrloc	.word usrpok
 	.word rightd
 	.word midd
 optab	.byt 121
-	.word faddt-1
+	.word bfaddt-1
 	.byt 121
 	.word fsubt-1
 	.byt 123
-	.word fmultt-1
+	.word bfmultt-1
 	.byt 123
-	.word fdivt-1
+	.word bfdivt-1
 	.byt 127
-	.word fpwrt-1
+	.word bfpwrt-1
 	.byt 80
 	.word andop-1
 	.byt 70

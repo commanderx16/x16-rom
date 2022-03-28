@@ -30,17 +30,17 @@ floatc	= $fe0f ; C128 API, use floats instead
 fsub	= $fe12 ; FAC -= mem(.Y:.A)
 fsubt	= $fe15 ; FAC -= ARG
 fadd	= $fe18 ; FAC += mem(.Y/.A)
-faddt2	= $fe1b ; FAC += ARG
+faddt	= $fe1b ; FAC += ARG
 fmult	= $fe1e ; FAC *= mem(.Y:.A)
-fmultt2 = $fe21 ; FAC *= ARG
+fmultt	= $fe21 ; FAC *= ARG
 fdiv	= $fe24 ; FAC = mem(.Y:.A) / FAC
-fdivt2	= $fe27 ; FAC /= ARG
+fdivt	= $fe27 ; FAC /= ARG
 log	= $fe2a ; FAC = log(FAC)
 int	= $fe2d ; FAC = int(FAC)
 sqr	= $fe30 ; FAC = sqr(FAC)
 negop	= $fe33 ; FAC = -FAC - 1
 fpwr	= $fe36 ;
-fpwrt2	= $fe39 ; FAC = ARG^FAC
+fpwrt	= $fe39 ; FAC = ARG^FAC
 exp	= $fe3c ; FAC = e^FAC
 cos	= $fe3f ; FAC = cos(FAC)
 sin	= $fe42 ; FAC = sin(FAC)
@@ -60,10 +60,10 @@ movmf	= $fe66 ; mem(.Y:.X) = round(FAC) (5 bytes)
 movfa	= $fe69 ; FAC = ARG
 movaf	= $fe6c ; ARG = round(FAC)
 ; X16 additions - BASIC only
-faddt	= $fe6f ; BASIC ONLY, DO NOT USE
-fmultt	= $fe72 ; BASIC ONLY, DO NOT USE
-fdivt	= $fe75 ; BASIC ONLY, DO NOT USE
-fpwrt	= $fe78 ; BASIC ONLY, DO NOT USE
+bfaddt	= $fe6f ; BASIC ONLY, DO NOT USE
+bfmultt	= $fe72 ; BASIC ONLY, DO NOT USE
+bfdivt	= $fe75 ; BASIC ONLY, DO NOT USE
+bfpwrt	= $fe78 ; BASIC ONLY, DO NOT USE
 floatb	= $fe7b ; BASIC ONLY, DO NOT USE
 fcompn	= $fe7e ; BASIC ONLY, DO NOT USE
 ; X16 additions
