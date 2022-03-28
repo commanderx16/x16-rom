@@ -150,9 +150,13 @@ screen_init:
 ;   In:   .c  =0: set, =1: get
 ; Set:
 ;   In:   .a  mode
-;             $00: 40x30
+;             $00: 80x60
 ;             $01: 80x30
-;             $02: 80x60
+;             $02: 40x60
+;             $03: 40x30
+;             $04: 40x15
+;             $05: 20x30
+;             $06: 20x15
 ;             $80: 320x240@256c + 40x30 text
 ;             $81: 640x400@16c ; XXX currently unsupported
 ;   Out:  .c  =0: success, =1: failure
@@ -275,9 +279,6 @@ set_scale:
 	bra :-
 @ydone:	sta VERA_DC_VSCALE
 	rts
-
-;modes:	.byte   0,   1,   2,   3,   4,   5, $80
-;scale:	.byte $11, $01, $00, $12, $21, $22, $11 ; hi-nyb: x >> n, lo-nyb: y >> n
 
 modes:	.byte   0,   1,   2,   3,   4,   5,   6, $80
 scale:	.byte $00, $01, $10, $11, $12, $21, $22, $11 ; hi-nyb: x >> n, lo-nyb: y >> n
