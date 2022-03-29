@@ -103,14 +103,19 @@ stmdsp2	; statements
 	.word cls-1
 	.word codex-1
 	.word codex-1
+	.word locate-1
+
 	; functions
-	.word vpeek
+ptrfunc	.word vpeek
 	.word mx
 	.word my
 	.word mb
 	.word joy
 	.word hexd
 	.word bind
+ptrend
+num_esc_statements = (ptrfunc - stmdsp2) / 2
+num_esc_functions = (ptrend - ptrfunc) / 2
 ;**************************************
 
 reslst	.byt "EN",$c4
