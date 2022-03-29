@@ -476,7 +476,7 @@ test14_image:
 	LoadW r1, 6
 	LoadW r2, $0400
 	LoadW r3, 16
-	LoadW r4, 16
+	LoadW r4, 15
 
 	ldx #10
 :	phx
@@ -845,4 +845,3 @@ logo_image:
 	.byte $c9,$c9,$08,$50,$08,$15,$c9,$c9,$c9,$c9,$14,$47,$50,$50,$14,$c9
 	.byte $c9,$e5,$08,$2c,$e5,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2b,$2d,$22,$c9
 	.byte $c9,$e5,$2b,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2a,$2a,$c9
-	.byte $c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9
