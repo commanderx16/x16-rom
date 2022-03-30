@@ -48,7 +48,7 @@ fadd     jsr conupk
 ; Additionally, the Z-flag is the value of the FAC exponent.
 ; On exit the sum is stored in FAC.
 
-faddt
+bfaddt
 
 ; 1. If either operand is zero, then finish immediately.
 

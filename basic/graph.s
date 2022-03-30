@@ -20,8 +20,8 @@ cscreen
 	; Toggle between 40x30 and 80x60
 	sec
 	jsr screen_mode
-	ldx #2
-	cmp #2
+	ldx #3
+	cmp #3
 	bne @set
 	ldx #0
 @set:	txa
@@ -111,10 +111,10 @@ get_point:
 	lda poker
 	sta y1L
 	sec
-	sbc #<200
+	sbc #<240
 	lda poker+1
 	sta y1H
-	sbc #>200
+	sbc #>240
 	bcs linfc
 	rts
 
@@ -150,10 +150,10 @@ get_points_col:
 	lda poker
 	sta y2L
 	sec
-	sbc #<200
+	sbc #<240
 	lda poker+1
 	sta y2H
-	sbc #>200
+	sbc #>240
 	bcs linfc
 
 	jsr get_col

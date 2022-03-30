@@ -1,5 +1,5 @@
 ;----------------------------------------------------------------------
-; VERA 320x200@256c Graphics Driver
+; VERA 320x240@256c Graphics Driver
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
@@ -9,8 +9,8 @@
 
 .export FB_VERA
 
-.segment "ZPKERNAL" : zeropage
-ptr_fg:	.res 2
+.segment "KVAR"
+ptr_fg:	.res 3
 
 .segment "VERA_DRV"
 
@@ -40,7 +40,7 @@ FB_init:
 	lda #$07
 	sta VERA_L0_CONFIG
 	stz VERA_L0_HSCROLL_H  ; Clear palette offset
-	lda #((tile_base >> 9) & $FC)
+	lda #((fb_addr >> 9) & $FC)
 	sta VERA_L0_TILEBASE
 
 	; Enable layer 0
@@ -55,7 +55,6 @@ FB_init:
 	sta VERA_DC_VSCALE
 	rts
 
-tile_base = $10000
 
 ;---------------------------------------------------------------
 ; FB_get_info
@@ -66,7 +65,7 @@ tile_base = $10000
 ;---------------------------------------------------------------
 FB_get_info:
 	LoadW r0, 320
-	LoadW r1, 200
+	LoadW r1, 240
 	lda #8
 	rts
 
@@ -91,29 +90,25 @@ FB_set_palette:
 FB_cursor_position:
 ; ptr_fg = y * 320
 	stz ptr_fg+1
+
+	; y * 64
 	lda r1L
+.repeat 6
 	asl
 	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
-	asl
-	rol ptr_fg+1
+.endrepeat
 	sta ptr_fg
+
+	; + y * 256
 	lda r1L
 	clc
 	adc ptr_fg+1
 	sta ptr_fg+1
+	lda #0
+	rol
+	sta ptr_fg+2
 
-	lda #$11
-	sta VERA_ADDR_H
-
-; ptr_fg += x
+	; += x
 	lda r0L
 	clc
 	adc ptr_fg
@@ -123,6 +118,10 @@ FB_cursor_position:
 	adc ptr_fg+1
 	sta ptr_fg+1
 	sta VERA_ADDR_M
+	lda #$10 | ^fb_addr ; add base address top bit, plus increment setting
+	adc ptr_fg+2
+	sta ptr_fg+2
+	sta VERA_ADDR_H
 
 	rts
 
@@ -142,6 +141,10 @@ FB_cursor_next_line:
 	adc ptr_fg+1
 	sta ptr_fg+1
 	sta VERA_ADDR_M
+	lda #0
+	adc ptr_fg+2
+	sta ptr_fg+2
+	sta VERA_ADDR_H
 	rts
 
 ;---------------------------------------------------------------
@@ -361,13 +364,18 @@ fill_y:	sta VERA_DATA0
 
 ; XXX TODO support other step sizes
 fill_pixels_with_step:
-	ldx #$71    ; increment in steps of $40
-	stx VERA_ADDR_H
+	pha
+	lda VERA_ADDR_H
+	ora #$70        ; increment in steps of $40
+	sta VERA_ADDR_H
+	pla
 	ldx r0L
-:	sta VERA_DATA0
+@loop:	sta VERA_DATA0
 	inc VERA_ADDR_M ; increment hi -> add $140 = 320
-	dex
-	bne :-
+	bne :+
+	inc VERA_ADDR_H
+:	dex
+	bne @loop
 	rts
 
 ;---------------------------------------------------------------
@@ -388,7 +396,7 @@ FB_filter_pixels:
 	inc VERA_CTRL ; 1
 	sta VERA_ADDR_L
 	stx VERA_ADDR_M
-	lda #$11
+	lda #$10 | ^fb_addr
 	sta VERA_ADDR_H
 	stz VERA_CTRL ; 0
 	sta VERA_ADDR_H

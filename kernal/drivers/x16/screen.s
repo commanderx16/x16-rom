@@ -61,9 +61,9 @@ screen_init:
 	; Layer 1 configuration
 	lda #((1<<6)|(2<<4)|(0<<0))
 	sta VERA_L1_CONFIG
-	lda #(mapbas>>9)
+	lda #(screen_addr>>9)
 	sta VERA_L1_MAPBASE
-	lda #((tilbas>>11)<<2)
+	lda #((charset_addr>>11)<<2)
 	sta VERA_L1_TILEBASE
 	stz VERA_L1_HSCROLL_L
 	stz VERA_L1_HSCROLL_H
@@ -108,8 +108,6 @@ screen_init:
 ;NTSC=1
 
 
-mapbas	=0
-
 ; .ifdef NTSC
 ; ***** NTSC (with overscan)
 ; hstart  =46
@@ -152,11 +150,14 @@ mapbas	=0
 ;   In:   .c  =0: set, =1: get
 ; Set:
 ;   In:   .a  mode
-;             $00: 40x30
-;             $01: 80x30 ; XXX currently unsupported
-;             $02: 80x60
+;             $00: 80x60
+;             $01: 80x30
+;             $02: 40x60
+;             $03: 40x30
+;             $04: 40x15
+;             $05: 20x30
+;             $06: 20x15
 ;             $80: 320x240@256c + 40x30 text
-;                 (320x200@256c + 40x25 text, currently)
 ;             $81: 640x400@16c ; XXX currently unsupported
 ;   Out:  .c  =0: success, =1: failure
 ; Get:
@@ -167,94 +168,120 @@ screen_mode:
 
 ; get
 	lda cscrmd
-	bne :+
-	ldx #40
-	ldy #30
-	rts
-:	cmp #2
-	bne :+
-	ldx #80
-	ldy #60
-	rts
-:	; else $80
-	ldx #40
-	ldy #25
+	pha
+	jsr mode_lookup
+	jsr calc_scaled_res
+	pla
 	rts
 
 @set:
-	sta cscrmd
+	pha
+	jsr mode_lookup
+	plx
+	bcs @rts
 
-	cmp #0 ; 40x30
-	beq mode_40x30
+	stx cscrmd
+	pha
 
-	cmp #1 ; 80x30 currently unsupported
-	bne scrmd2
-mode_unsupported:
-	sec
-	rts
+	; set VERA scaling
+	jsr set_scale
 
-scrmd2:	cmp #2 ; 80x60
-	beq mode_80x60
-	cmp #$80 ; 320x240@256c + 40x30 text
-	beq mode_320x240
-	cmp #$81 ; 640x400@16c
-	beq mode_unsupported ; currently unsupported
-	bra mode_unsupported ; otherwise: illegal mode
+	; Set vertical display stop
+	lda #2
+	sta VERA_CTRL
+	lda #(480/2)
+	sta VERA_DC_VSTOP
+	stz VERA_CTRL
 
-mode_80x60:
-	ldx #80
-	ldy #60
-	lda #128 ; scale = 1.0
-	clc
-	bra swpp2
+	lda cscrmd
+	bmi @graph
 
-mode_320x240:
-	jsr grphon
-	ldy #25
-	sec
-	bra swpp3
-
-mode_40x30:
-	clc
-	ldy #30
-swpp3:	ldx #40
-	lda #64 ; scale = 2.0
-
-swpp2:	pha
-	bcs swppp4
-	; Disable layer 0
+	; text mode: disable layer 0
 	lda VERA_DC_VIDEO
 	and #$ef
 	sta VERA_DC_VIDEO
 	lda #6 << 4 | 1 ; blue on white
-	sta color
+	bra @cont
 
-swppp4:	pla
-	sta VERA_DC_HSCALE
-	sta VERA_DC_VSCALE
+@graph:	; graphics mode
+	LoadW r0, 0
+	jsr GRAPH_init
+	lda #$0e ; light blue on translucent
+@cont:	sta color
 
-	; Set vertical display stop
-	cpy #25
-	bne swpp1
-	lda #(400/2)
-	bra :+
-swpp1:	lda #(480/2)
-:	pha
-	lda #2
-	sta VERA_CTRL
+	; set editor size
 	pla
-	sta VERA_DC_VSTOP
-	stz VERA_CTRL
+	jsr calc_scaled_res
 	jsr scnsiz
+	clc
+@rts:	rts
+
+mode_lookup:
+	ldx #scale-modes
+:	cmp modes-1,x
+	beq @found
+	dex
+	bpl :-
+	sec ; otherwise: illegal mode
+	rts
+@found:	lda scale-1,x
 	clc
 	rts
 
-grphon:
-	lda #$0e ; light blue on translucent
-	sta color
+calc_scaled_res:
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	lda #80
+:	cpy #0
+	beq @xdone
+	lsr
+	dey
+	bra :-
+@xdone:	tax      ; scaled x res
+	pla
+	and #$0f
+	tay
+	lda #60
+:	cpy #0
+	beq @ydone
+	lsr
+	dey
+	bra :-
+@ydone:	tay      ; scaled yres
+	rts
 
-	LoadW r0, 0
-	jmp GRAPH_init
+set_scale:
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	tay
+	lda #$80
+:	cpy #0
+	beq @xdone
+	lsr
+	dey
+	bra :-
+@xdone:	sta VERA_DC_HSCALE
+	pla
+	and #$0f
+	tay
+	lda #$80
+:	cpy #0
+	beq @ydone
+	lsr
+	dey
+	bra :-
+@ydone:	sta VERA_DC_VSCALE
+	rts
+
+modes:	.byte   0,   1,   2,   3,   4,   5,   6, $80
+scale:	.byte $00, $01, $10, $11, $12, $21, $22, $11 ; hi-nyb: x >> n, lo-nyb: y >> n
 
 ;---------------------------------------------------------------
 ; Calculate start of line
@@ -304,8 +331,10 @@ ldapnt2:
 	sta VERA_ADDR_L
 	lda pnt+1
 ldapnt3:
+	clc
+	adc #<(>screen_addr)
 	sta VERA_ADDR_M
-	lda #$10
+	lda #$10 | ^screen_addr
 	sta VERA_ADDR_H
 	lda VERA_DATA0
 	rts
@@ -352,8 +381,10 @@ stapnt2:
 	sta VERA_ADDR_L
 	lda pnt+1
 stapnt3:
+	clc
+	adc #<(>screen_addr)
 	sta VERA_ADDR_M
-	lda #$10
+	lda #$10 | ^screen_addr
 	sta VERA_ADDR_H
 	pla
 	sta VERA_DATA0
@@ -404,23 +435,27 @@ screen_copy_line:
 	stx sal+1
 
 	;destination into addr1
-	lda #$10
-	sta VERA_ADDR_H
 	lda pnt
 	sta VERA_ADDR_L
 	lda pnt+1
+	clc
+	adc #>screen_addr
 	sta VERA_ADDR_M
+	lda #$10 | ^screen_addr
+	sta VERA_ADDR_H
 
 	lda #1
 	sta VERA_CTRL
 
 	;source into addr2
-	lda #$10
-	sta VERA_ADDR_H
 	lda sal
 	sta VERA_ADDR_L
 	lda sal+1
+	clc
+	adc #>screen_addr
 	sta VERA_ADDR_M
+	lda #$10 | ^screen_addr
+	sta VERA_ADDR_H
 
 	lda #0
 	sta VERA_CTRL
@@ -451,8 +486,10 @@ screen_clear_line:
 	lda pnt
 	sta VERA_ADDR_L      ;set base address
 	lda pnt+1
+	clc
+	adc #>screen_addr
 	sta VERA_ADDR_M
-	lda #$10        ;auto-increment = 1
+	lda #$10 | ^screen_addr;auto-increment = 1
 	sta VERA_ADDR_H
 :	lda #' '
 	sta VERA_DATA0     ;store space
@@ -582,11 +619,11 @@ cpypet2:
 
 inicpy:
 	phx
-	ldx #<tilbas
+	ldx #<charset_addr
 	stx VERA_ADDR_L
-	ldx #>tilbas
+	ldx #>charset_addr
 	stx VERA_ADDR_M
-	ldx #$10 | (tilbas >> 16)
+	ldx #$10 | ^charset_addr
 	stx VERA_ADDR_H
 	plx
 	stz data

@@ -2,13 +2,13 @@
 ; Floating Point Library for 6502: Include
 ;----------------------------------------------------------------------
 
-; FPLIB: zero page
+; MATH: zero page
 .importzp tenexp, facov, deccnt, argsgn, arglo, argmo, argmoh, argho, argexp, facmoh, fbufpt, faclo, facexp, facho, facsgn, index2, index1, lindex, olpolypt, olarisgn, oldegree, olfacmo, olfac, oltempf2, oltempf1, oltempf3, olfdecpt, lresmo, index, polypt, arisgn, degree, facmo, fac, tempf2, tempf1, tempf3, fdecpt, resmo
 
-; FPLIB: constants
+; MATH: constants
 .importzp addprc
 
-; FPLIB: vars
+; MATH: vars
 .import bits, rndx, tansgn, integr
 
 ; data
@@ -30,17 +30,17 @@ floatc	= $fe0f ; C128 API, use floats instead
 fsub	= $fe12 ; FAC -= mem(.Y:.A)
 fsubt	= $fe15 ; FAC -= ARG
 fadd	= $fe18 ; FAC += mem(.Y/.A)
-faddt	= $fe1b ; C128 API, use faddt2 instead
+faddt	= $fe1b ; FAC += ARG
 fmult	= $fe1e ; FAC *= mem(.Y:.A)
-fmultt	= $fe21 ; C128 API, use fmultt2 instead
+fmultt	= $fe21 ; FAC *= ARG
 fdiv	= $fe24 ; FAC = mem(.Y:.A) / FAC
-fdivt	= $fe27 ; C128 API, use fdivt2 instead
+fdivt	= $fe27 ; FAC /= ARG
 log	= $fe2a ; FAC = log(FAC)
 int	= $fe2d ; FAC = int(FAC)
 sqr	= $fe30 ; FAC = sqr(FAC)
 negop	= $fe33 ; FAC = -FAC - 1
 fpwr	= $fe36 ;
-fpwrt	= $fe39 ; C128 API, use fpwrt2 instead
+fpwrt	= $fe39 ; FAC = ARG^FAC
 exp	= $fe3c ; FAC = e^FAC
 cos	= $fe3f ; FAC = cos(FAC)
 sin	= $fe42 ; FAC = sin(FAC)
@@ -59,27 +59,50 @@ movfm	= $fe63 ; FAC = mem(.Y:.A) (5 bytes)
 movmf	= $fe66 ; mem(.Y:.X) = round(FAC) (5 bytes)
 movfa	= $fe69 ; FAC = ARG
 movaf	= $fe6c ; ARG = round(FAC)
+; X16 additions - BASIC only
+bfaddt	= $fe6f ; BASIC ONLY, DO NOT USE
+bfmultt	= $fe72 ; BASIC ONLY, DO NOT USE
+bfdivt	= $fe75 ; BASIC ONLY, DO NOT USE
+bfpwrt	= $fe78 ; BASIC ONLY, DO NOT USE
+floatb	= $fe7b ; BASIC ONLY, DO NOT USE
+fcompn	= $fe7e ; BASIC ONLY, DO NOT USE
 ; X16 additions
-faddh	= $fe6f ; FAC += .5
-faddt2	= $fe72 ; FAC += ARG
-zerofc	= $fe75 ; FAC = 0
-normal	= $fe78 ; Normalize FAC
-negfac	= $fe7b ; FAC = -FAC
-fmultt2 = $fe7e ; FAC *= ARG
-mul10	= $fe81 ; FAC *= 10
-div10	= $fe84 ; FAC /= 10
-fdivt2	= $fe87 ; FAC /= ARG
-movef	= $fe8a ; ARG = FAC
-sgn	= $fe8d ; FAC = sgn(FAC)
-float	= $fe90 ; FAC = (u8).A
-floats	= $fe93 ; FAC = (s16)facho+1:facho
-floatb	= $fe96 ; BASIC ONLY, DO NOT USE
-fcompn	= $fe99 ; BASIC ONLY, DO NOT USE
-qint	= $fe9c ; facho:facho+1:facho+2:facho+2 = u32(FAC)
-finlog	= $fe9f ; FAC += (s8).A
-foutc	= $fea2 ; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
-fpwrt2	= $fea5 ; FAC = ARG^FAC
+faddh	= $fe81 ; FAC += .5
+zerofc	= $fe84 ; FAC = 0
+normal	= $fe87 ; Normalize FAC
+negfac	= $fe8a ; FAC = -FAC
+mul10	= $fe8d ; FAC *= 10
+div10	= $fe90 ; FAC /= 10
+movef	= $fe93 ; ARG = FAC
+sgn	= $fe96 ; FAC = sgn(FAC)
+float	= $fe99 ; FAC = (u8).A
+floats	= $fe9c ; FAC = (s16)facho+1:facho
+qint	= $fe9f ; facho:facho+1:facho+2:facho+2 = u32(FAC)
+finlog	= $fea2 ; FAC += (s8).A
+foutc	= $fea5 ; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
 .if 0 ; removed for now due to segment overflow
 polyx	= $fea8 ; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
 poly	= $feab ; Polynomial Evaluation 2 (EXP)
 .endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

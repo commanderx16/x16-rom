@@ -61,15 +61,15 @@ usrloc	.word usrpok
 	.word rightd
 	.word midd
 optab	.byt 121
-	.word faddt-1
+	.word bfaddt-1
 	.byt 121
 	.word fsubt-1
 	.byt 123
-	.word fmultt-1
+	.word bfmultt-1
 	.byt 123
-	.word fdivt-1
+	.word bfdivt-1
 	.byt 127
-	.word fpwrt-1
+	.word bfpwrt-1
 	.byt 80
 	.word andop-1
 	.byt 70
@@ -103,14 +103,19 @@ stmdsp2	; statements
 	.word cls-1
 	.word codex-1
 	.word codex-1
+	.word locate-1
+
 	; functions
-	.word vpeek
+ptrfunc	.word vpeek
 	.word mx
 	.word my
 	.word mb
 	.word joy
 	.word hexd
 	.word bind
+ptrend
+num_esc_statements = (ptrfunc - stmdsp2) / 2
+num_esc_functions = (ptrend - ptrfunc) / 2
 ;**************************************
 
 reslst	.byt "EN",$c4

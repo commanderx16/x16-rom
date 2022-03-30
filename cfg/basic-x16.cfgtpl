@@ -12,11 +12,11 @@ SEGMENTS {
 	BVECTORS: load = BVECTORS, type = bss;
 	BVARS:    load = BVARS,    type = bss;
 
-	ZPFPLIB:  load = ZPFPLIB,  type = zp;
+	ZPMATH:   load = ZPMATH,   type = zp;
 	FPVARS:   load = FPVARS,   type = bss;
 
 	BASIC:     load = BASIC,     type = ro;
-	FPLIB:     load = BASIC,     type = ro;
+	MATH:      load = BASIC,     type = ro;
 	FPJMP:     load = FPJMP,     type = ro;
 	KSUP_CODE: load = KSUP_CODE, type = ro;
 	KSUP_VEC:  load = KSUP_VEC,  type = ro;

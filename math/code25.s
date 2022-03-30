@@ -149,14 +149,14 @@ getadr	lda facsgn
 ; what BASIC calls
 ;**************************
 
-fmultt2 jsr prepare
-	jmp fmultt      ;go multiply
+fmultt	jsr prepare
+	jmp bfmultt     ;go multiply
 
-fdivt2	jsr prepare
-	jmp fdivt       ;go divide
+fdivt	jsr prepare
+	jmp bfdivt      ;go divide
 
-fpwrt2	jsr prepare
-	jmp fpwrt       ;go power
+fpwrt	jsr prepare
+	jmp bfpwrt      ;go power
 
 prepare	lda argsgn
 	eor facsgn

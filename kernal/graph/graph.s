@@ -76,7 +76,7 @@ col_bg:	.res 1
 ;
 ; Pass:      r0     pointer to FB_* driver vectors
 ;                   If 0, this enables the default driver
-;                   (320x200@256c).
+;                   (320x240@256c).
 ;---------------------------------------------------------------
 GRAPH_init:
 	lda r0L
@@ -90,7 +90,7 @@ GRAPH_init:
 	sta I_FB_BASE,y
 	dey
 	bpl :-
-	
+
 	jsr FB_init
 
 	jsr set_window_fullscreen
@@ -469,7 +469,7 @@ GRAPH_draw_rect:
 	plp
 
 	bcc @3
-	
+
 ; fill
 	PushW r1
 	PushW r3
@@ -493,7 +493,7 @@ GRAPH_draw_rect:
 	lda r3L
 	ora r3H
 	bne @1
-	
+
 	PopW r3
 	PopW r1
 
@@ -553,16 +553,16 @@ GRAPH_draw_image:
 
 	AddW r3, r0 ; update pointer
 	jsr FB_cursor_next_line
-	
+
 	lda r4L
 	ora r4H
 	bne @1
-	
+
 	PopW r4
 	PopW r1
 	PopW r0
 	rts
-	
+
 ;---------------------------------------------------------------
 ; GRAPH_move_rect
 ;
