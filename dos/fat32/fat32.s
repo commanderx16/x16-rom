@@ -109,6 +109,7 @@ tmp_sfn_case:        .byte 0       ; flags when decoding SFN characters
 free_entry_count:    .byte 0       ; counter when looking for contig. free dir entries
 marked_entry_lba:    .res 4        ; mark/rewind data for directory entries
 marked_entry_cluster:.res 4
+marked_entry_cluster_sector: .res 1
 marked_entry_offset: .res 2
 tmp_entry:           .res 21       ; SFN entry fields except name, saved during rename
 lfn_buf:             .res 20*32    ; create/collect LFN; 20 dirents (13c * 20 > 255c)
@@ -406,7 +407,7 @@ load_fat_sector_for_cluster:
 	rts
 
 ;-----------------------------------------------------------------------------
-; is_end_of_cluster_chain 
+; is_end_of_cluster_chain
 ;-----------------------------------------------------------------------------
 is_end_of_cluster_chain:
 	; Check if this is the end of cluster chain (entry >= 0x0FFFFFF8)
@@ -945,7 +946,7 @@ next_sector:
 	rts
 @1:
 	set16 fat32_bufptr, tmp_bufptr
-	
+
 	; Write allocated cluster number in FAT
 	ldy #0
 @2:	lda cur_volume + fs::free_cluster, y
@@ -2465,6 +2466,9 @@ mark_dir_entry:
 	sta marked_entry_cluster + 2
 	lda cur_context + context::cluster + 3
 	sta marked_entry_cluster + 3
+	; save sector within cluster
+	lda cur_context + context::cluster_sector
+	sta marked_entry_cluster_sector
 	; save LBA
 	lda cur_context + context::lba + 0
 	sta marked_entry_lba + 0
@@ -2496,6 +2500,9 @@ rewind_dir_entry:
 	sta cur_context + context::cluster + 2
 	lda marked_entry_cluster + 3
 	sta cur_context + context::cluster + 3
+	; restore sector within cluster
+	lda marked_entry_cluster_sector
+	sta cur_context + context::cluster_sector
 	; restore LBA
 	lda marked_entry_lba + 0
 	sta cur_context + context::lba + 0
@@ -2743,7 +2750,7 @@ fat32_mkdir:
 	lda cur_context + context::flags
 	ora #FLAG_DIRTY
 	sta cur_context + context::flags
-	
+
 	jmp fat32_close
 
 ;-----------------------------------------------------------------------------
@@ -3012,7 +3019,7 @@ fat32_read:
 	sta bytecnt + 1
 @4:
 	; if (tmp_buf - bytecnt < 0) bytecnt = tmp_buf
-	sec	
+	sec
 	lda tmp_buf + 0
 	sbc bytecnt + 0
 	lda tmp_buf + 1
@@ -3026,6 +3033,17 @@ fat32_read:
 @5:
 	; Copy bytecnt bytes from buffer
 	ldy bytecnt
+.ifdef MACHINE_X16
+	; If destination may fall into banked RAM area,
+	; we use a special case implementation
+	lda fat32_ptr + 1
+	cmp #$9f            ; $9Fxx can overflow into $Axxx
+	bcc @5b             ; destination below banked RAM
+	cmp #$c0
+	bcs @5b             ; destination above banked RAM
+	jmp x16_banked_copy
+@5b:
+.endif
 	dey
 	beq @6b
 @6:	lda (fat32_bufptr), y
@@ -3034,7 +3052,7 @@ fat32_read:
 	bne @6
 @6b:	lda (fat32_bufptr), y
 	sta (fat32_ptr), y
-
+@6c:
 	; fat32_ptr += bytecnt, fat32_bufptr += bytecnt, fat32_size -= bytecnt, file_offset += bytecnt
 	add16 fat32_ptr, fat32_ptr, bytecnt
 	add16 fat32_bufptr, fat32_bufptr, bytecnt
@@ -3055,6 +3073,62 @@ fat32_read:
 	plp
 
 	rts
+
+
+.ifdef MACHINE_X16
+;-----------------------------------------------------------------------------
+; restores ram_bank prior to each write, and wraps the
+; pointer if the write address crosses the $c000 threshold
+cont_6c = @6c
+.importzp bank_save, krn_ptr1
+ram_bank = 0             ; RAM banking control register address
+tmp_swapindex = krn_ptr1 ; use meaningful aliases for this tmp space
+tmp_done = krn_ptr1+1    ; during bank-aware copy routine
+x16_banked_copy:
+	; save contents of temporary zero page
+	lda krn_ptr1
+	pha
+	lda krn_ptr1+1
+	pha
+
+	ldx bank_save       ; .X holds the destination bank #
+	sty tmp_done        ; .Y holds bytecnt - save here for comparison during loop
+	ldy #0              ; .Y is now the loop counter. Start at 0 and count up.
+
+	; set up the tmp_swapindex
+	lda #0
+	sec
+	sbc fat32_ptr
+	sta tmp_swapindex
+
+@loop:
+	; Copy one byte from buffer to banked RAM
+	lda (fat32_bufptr),y
+	stx ram_bank
+	sta (fat32_ptr),y
+	stz ram_bank
+	iny
+	cpy tmp_swapindex
+	bne @nowrap
+	lda fat32_ptr+1
+	cmp #$bf            ; only wrap when leaving page $BF
+	bne @nowrap
+	inc bank_save
+	inx
+	lda #$9f
+	sta fat32_ptr+1
+@nowrap:
+	cpy tmp_done
+	bne @loop
+
+	; restore temporary zero page
+	pla
+	sta krn_ptr1+1
+	pla
+	sta krn_ptr1
+	jmp cont_6c
+.endif
+
 
 ;-----------------------------------------------------------------------------
 ; allocate_first_cluster

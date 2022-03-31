@@ -8,7 +8,6 @@
 .include "io.inc"
 .include "banks.inc"
 
-.import screen_set_mode
 .import GRAPH_set_window
 .import GRAPH_put_char
 .import GRAPH_move_rect
@@ -335,7 +334,7 @@ scroll_if_necessary: ; required height in r14
 	rts
 
 :	PushW r2
-	
+
 	MoveW r14, r6
 	AddVW 2, r6 ; scrollAmount = font height + 2
 
@@ -385,7 +384,7 @@ scroll_if_necessary: ; required height in r14
 	PopB col1
 
 	SubW r6, py
-	
+
 	PopW r2
 	rts
 
@@ -692,7 +691,7 @@ console_get_char:
 	; kill character
 	dex
 	stx inbufidx
-	
+
 	; character to delete
 	lda inbuf,x
 	pha
@@ -710,7 +709,7 @@ console_get_char:
 	lda r0H
 	sbc #0
 	sta r0H
-	
+
 	plx ; character
 	PushW r0
 	PushB col1

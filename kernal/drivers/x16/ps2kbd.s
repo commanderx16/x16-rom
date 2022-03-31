@@ -8,7 +8,7 @@
 
 ; code
 .import ps2_receive_byte; [ps2]
-.import joystick_from_ps2; [joystick]
+.import joystick_from_ps2_init, joystick_from_ps2; [joystick]
 ; data
 .import mode; [declare]
 .import fetch, fetvec; [memory]
@@ -102,7 +102,7 @@ setkb1:	phx
 	iny
 	cpx #16
 	bne setkb1
-	rts
+	jmp joystick_from_ps2_init
 
 ; cycle keyboard layouts
 cycle_layout:

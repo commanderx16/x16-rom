@@ -116,16 +116,38 @@ bld10	jsr stop        ;stop key?
 	beq break2
 	ldx eal
 	ldy eah
+.ifdef MACHINE_X16
+        phy             ;save address hi
+.endif
 	lda #0          ;load as many bytes as device wants
 	jsr macptr
-	bcs ld40        ;not supported, fall back to byte-wise
-	txa
+	bcc :+
+.ifdef MACHINE_X16
+	pla             ;clear hi address from stack
+.endif
+	jmp ld40        ;not supported, fall back to byte-wise
+:	txa
 	clc
 	adc eal
 	sta eal
 	tya
 	adc eah
-	sta eah
+.ifdef MACHINE_X16
+	; fix-up address when loading into banked RAM:
+	; this should reflect the banked RAM address following
+	; the last byte written (exception: $BFFF -> $A000)
+	ply             ;start address hi
+	cpy #$a0
+	bcc @skip       ;below banked RAM
+	cpy #$c0
+	bcs @skip       ;above banked RAM
+@loop	cmp #$c0
+	bcc @skip
+	sbc #$20
+	bra @loop
+@skip
+.endif
+        sta eah
 	bit status      ;eoi?
 	bvc bld10       ;no...continue load
 	bra ld70
@@ -186,7 +208,7 @@ ld50	ldy #0
 ld60	inc eal         ;increment store addr
 	bne ld64
 	inc eah
-.if 0 ; DISABLED for now, since block-wise path doesn't support it (yet?)
+.ifdef MACHINE_X16
 ;
 ;if necessary, wrap to next bank
 ;
@@ -264,6 +286,18 @@ ld410	jsr spmsg
 	beq frmto1      ;skip if verify
 	ldy #ms7-ms1    ;"from $"
 msghex	jsr msg
+.ifdef MACHINE_X16
+	lda eah
+	cmp #$a0
+	bcc :+
+	cmp #$c0
+	bcs :+
+	lda ram_bank
+	jsr hex8
+	lda #':'
+	jsr bsout
+:
+.endif
 	lda eah
 	jsr hex8
 	lda eal

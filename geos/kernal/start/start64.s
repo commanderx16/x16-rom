@@ -82,8 +82,9 @@ _ResetHandle:
 	.byte BANK_KERNAL
 
 	lda #$80
+	clc
 	jsr gjsrfar
-	.word screen_set_mode
+	.word screen_mode
 	.byte BANK_KERNAL
 
 	jsr gjsrfar

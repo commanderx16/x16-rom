@@ -5,8 +5,8 @@ MEMORY {
     RWRAM:    file = "",               start = $0400, size = $3FF;
     BANK:     file = "",               start = $A000, size = $2000;
     AE_VECS:    start = $FAE8, size = $0018, fill=yes, fillval=$A0;
-    KSUP_CODE2: start = $FB00, size = $03C0, fill=yes, fillval=$A1;
-    KSUP_VEC2:  start = $FEC0, size = $0140, fill=yes, fillval=$A2;
+    KSUP_CODE2: start = $FB00, size = $03A8, fill=yes, fillval=$A1;
+    KSUP_VEC2:  start = $FEA8, size = $0158, fill=yes, fillval=$A2;
 }
 
 SEGMENTS {

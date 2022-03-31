@@ -159,7 +159,7 @@ component2ascii:
 	tay
 	lda #0
 component2ascii2:
-	jsr givayf2
+	jsr givayf
 	ldy #0
 	jmp foutc
 
@@ -176,7 +176,7 @@ gooo	bit intflg
 	lda (facmo),y
 	tay
 	txa
-	jmp givayf
+	jmp givayf0
 gooooo	jsr tstrom      ;see if array
 	bcc gomovf      ;don't test st(i),ti(i)
 	cpx #'T'
@@ -284,7 +284,7 @@ andop	ldy #0
 	eor count
 	and integr
 	eor count
-	jmp givayf
+	jmp givayf0
 dorel	jsr chkval
 	bcs strcmp
 	lda argsgn

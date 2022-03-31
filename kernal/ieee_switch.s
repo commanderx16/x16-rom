@@ -47,7 +47,7 @@ _cbdos_flags:  ; bit   7:   =1: CBDOS is listener
 	       ; bit   5:   =1: error
 	       ; bit   4:   =1: active
 	       ; bit 3-0:   blink counter
-.assert _cbdos_flags = cbdos_flags, error
+.assert _cbdos_flags = cbdos_flags, error, "update banks.inc!"
 
 .segment "IEEESWTCH"
 

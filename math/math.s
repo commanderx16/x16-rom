@@ -9,7 +9,7 @@
 
 .include "jumptab.s"
 
-.segment "FPLIB"
+.segment "MATH"
 
 .include "code18.s"
 .include "code19.s"

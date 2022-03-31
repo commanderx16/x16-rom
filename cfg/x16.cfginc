@@ -1,6 +1,6 @@
 /*
  * KERNAL, BASIC and DOS are built independently, yet the zero page
- * and the $0200-$03FF variables/vetors area are split between them.
+ * and the $0200-$03FF variables/vectors area are split between them.
  * Therefore, we have this global ld65 "MEMORY" defintion that gets
  * included by all individual .cfg files.
  *
@@ -13,15 +13,15 @@
 
 /* zero page */
 /*        start = $0000, size = $0080; # available to the user (or GEOS) */
-ZPKERNAL: start = $0080, size = $0012; # KERNAL
-ZPDOS:    start = $0092, size = $000B; # DOS
-/*        start = $009D, size = $000C; # reserved for DOS or BASIC growth */
-ZPFPLIB:  start = $00A9, size = $002B; # FPLIB
+ZPKERNAL: start = $0080, size = $0010; # KERNAL
+ZPDOS:    start = $0090, size = $000B; # DOS
+/*        start = $009B, size = $000E; # reserved for DOS or BASIC growth */
+ZPMATH:   start = $00A9, size = $002B; # MATH
 ZPBASIC:  start = $00D4, size = $002B; # BASIC (last byte used: $FE)
 
 /* $0200-$02FF: always-available variables and RAM code */
-KVAR:     start = $0200, size = $00BB; # KERNAL
-/*        start = $02BB, size = $0009; # reserved for KERNAL growth */
+KVAR:     start = $0200, size = $00BD; # KERNAL
+/*        start = $02BD, size = $0007; # reserved for KERNAL growth */
 KERNRAM:  start = $02C4, size = $0020; # KERNAL RAM code
 GDRVVEC:  start = $02E4, size = $001C; # framebuffer driver vectors
 
@@ -33,7 +33,7 @@ KVECTORS: start = $0314, size = $0020; # KERNAL vectors
 KVAR2:    start = $0334, size = $0057; # KERNAL: screen editor table
 KERNRAM2: start = $038B, size = $003F; # KERNAL: banked IRQ, fetch, stash
 /*        start = $03CA, size = $0002; # reserved for KERNAL growth */
-FPVARS:   start = $03CB, size = $0009; # FPLIB
+FPVARS:   start = $03CB, size = $0009; # MATH
 BVARS:    start = $03D4, size = $002C; # BASIC
 
 /* KERNAL/DOS bank #0 vars */

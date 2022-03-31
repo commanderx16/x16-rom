@@ -40,7 +40,7 @@ getnum	jsr frmadr
 combyt	jsr chkcom
 	jmp getbyt
 frmadr	jsr frmnum
-getadr	jsr getadr2
+getadr0	jsr getadr
 	sty poker
 	sta poker+1
 	rts
@@ -48,7 +48,7 @@ peek	lda poker+1
 	pha
 	lda poker
 	pha
-	jsr getadr
+	jsr getadr0
 	ldy #0
 	lda poker+1
 	cmp #$c0

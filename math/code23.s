@@ -48,6 +48,9 @@ foutbl				;powers of 10
 	.byt $ff,$ff,$ff,$ff	;          -1
 fdcend
 
+fpwr	jsr movfm	;put memory into fac.
+			;last thing fetched is facexp into accx.
+
 			;exponentiation --- x^y.
 			;n.b. 0^0=1
 			;first check if y=0. if so, the result is one.
@@ -58,7 +61,7 @@ fdcend
 			;returned by exp.
 			;to compute the result use x^y=exp((y*log(x)).
 
-fpwrt
+bfpwrt
 	beq exp		;if fac=0, just exponentiate taht.
 	lda argexp	;is x=0?
 	bne fpwrt1

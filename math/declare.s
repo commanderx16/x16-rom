@@ -7,13 +7,13 @@ fbuffr	=$100    ; buffer for "fout".
                  ; on page 1 so that string is not copied
 
 ; XXX Dependencies on BASIC:
-; XXX FPLIB should not jump to the BASIC error handler.
+; XXX MATH should not jump to the BASIC error handler.
 ; XXX Instead, FP functions should return an error code,
 ; XXX and BASIC jumps to the error handler.
 .import error, fcerr    ; code
 .importzp errdvo, errov ; constants
 
-.segment "ZPFPLIB" : zeropage
+.segment "ZPMATH" : zeropage
 
 ;                      C64 location
 ;                         VVV
