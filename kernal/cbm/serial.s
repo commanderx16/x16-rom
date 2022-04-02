@@ -12,6 +12,7 @@
 .import status
 .import udst
 
+.export serial_init
 .export serial_secnd
 .export serial_tksa
 .export serial_acptr
@@ -25,10 +26,7 @@
 .export scatn; [channel]
 .export clklo; [machine init]
 
-sdata	=HACK  ; XXX fill for X16 - now points to #$80, so serial doesn't hang
-d1crb	=$ffff ; XXX fill for X16
-d1icr	=$ffff ; XXX fill for X16
-timrb	=$19            ;6526 crb enable one-shot tb
+;timrb	=$19            ;6526 crb enable one-shot tb
 
 .segment "KVAR"
 
@@ -40,13 +38,16 @@ count	.res 1           ;$A5 temp used by serial routine
 
 	.segment "SERIAL"
 
-HACK	.byte $80
+serial_init:
+	lda #%01000000  ;free running t1 d2
+	sta d1acr
+	rts
 
 ;command serial bus device to talk
 ;
 serial_talk
 	ora #$40        ;make a talk adr
-	bra list1       
+	bra list1
 
 ;command serial bus device to listen
 ;
@@ -77,9 +78,9 @@ list2	pla             ;talk/listen address
 	bne list5
 	jsr clkhi
 ;
-list5	lda sdata       ;assert attention
+list5	lda d1ora       ;assert attention
 	ora #$08
-	sta sdata
+	sta d1ora
 ;
 
 isoura	sei
@@ -111,8 +112,8 @@ noeoi	jsr debpia      ;wait for data high
 	sta count
 ;
 isr01
-	lda sdata       ;debounce the bus
-	cmp sdata
+	lda d1ora       ;debounce the bus
+	cmp d1ora
 	bne isr01
 	asl a           ;set the flags
 	bcc frmerr      ;data must be hi
@@ -127,19 +128,19 @@ isrclk	jsr clkhi       ;clock hi
 	nop
 	nop
 	nop
-	lda sdata
+	lda d1ora
 	and #$ff-$20    ;data high
 	ora #$10        ;clock low
-	sta sdata
+	sta d1ora
 	dec count
 	bne isr01
 	lda #$04        ;set timer for 1ms
-	sta d1t2h
-	lda #timrb      ;trigger timer
-	sta d1crb
-	lda d1icr       ;clear the timer flags<<<<<<<<<<<<<
-isr04	lda d1icr
-	and #$02
+	sta d1t2h       ;XXX 8 MHz
+;	lda #timrb      ;trigger timer
+;	sta d1crb
+;	lda d1icr       ;clear the timer flags<<<<<<<<<<<<<
+isr04	lda d1ifr
+	and #$20
 	bne frmerr
 	jsr debpia
 	bcs isr04
@@ -165,9 +166,9 @@ serial_secnd
 
 ;release attention after listen
 ;
-scatn	lda sdata
+scatn	lda d1ora
 	and #$ff-$08
-	sta sdata       ;release attention
+	sta d1ora       ;release attention
 	rts
 
 ;talk second address
@@ -208,9 +209,9 @@ ci4	sta bsour       ;buffer current char
 serial_untlk
 	sei
 	jsr clklo
-	lda sdata       ;pull atn
+	lda d1ora       ;pull atn
 	ora #$08
-	sta sdata
+	sta d1ora
 	lda #$5f        ;untalk command
 	bra :+
 
@@ -225,7 +226,7 @@ dlabye	jsr scatn       ;always release atn
 ; delay then release clock and data
 ;
 dladlh	txa             ;delay approx 60 us
-	ldx #10
+	ldx #10         ;XXX 8 MHz
 dlad00	dex
 	bne dlad00
 	tax
@@ -244,13 +245,13 @@ acp00a	jsr debpia      ;wait for clock high
 ;
 eoiacp
 	lda #$01        ;set timer 2 for 256us
-	sta d1t2h
-	lda #timrb
-	sta d1crb
-	jsr datahi      ;data line high (makes timming more like vic-20
-	lda d1icr       ;clear the timer flags<<<<<<<<<<<<
-acp00	lda d1icr
-	and #$02        ;check the timer
+	sta d1t2h       ;XXX 8 MHz
+;	lda #timrb
+;	sta d1crb
+;	jsr datahi      ;data line high (makes timming more like vic-20
+;	lda d1icr       ;clear the timer flags<<<<<<<<<<<<
+acp00	lda d1ifr
+	and #$20        ;check the timer
 	bne acp00b      ;ran out.....
 	jsr debpia      ;check the clock line
 	bmi acp00       ;no not yet
@@ -264,7 +265,7 @@ acp00b	lda count       ;check for error (twice thru timeouts)
 ; timer ran out do an eoi thing
 ;
 acp00c	jsr datalo      ;data line low
-	jsr clkhi       ; delay and then set datahi (fix for 40us c64)
+	jsr dladlh      ;delay and then set datahi (also clkhi)
 	lda #$40
 	jsr udst        ;or an eoi bit into status
 	inc count       ;go around again for error check on eoi
@@ -275,15 +276,15 @@ acp00c	jsr datalo      ;data line low
 acp01	lda #08         ;set up counter
 	sta count
 ;
-acp03	lda sdata       ;wait for clock high
-	cmp sdata       ;debounce
+acp03	lda d1ora       ;wait for clock high
+	cmp d1ora       ;debounce
 	bne acp03
 	asl a           ;shift data into carry
 	bpl acp03       ;clock still low...
 	ror bsour1      ;rotate data in
 ;
-acp03a	lda sdata       ;wait for clock low
-	cmp sdata       ;debounce
+acp03a	lda d1ora       ;wait for clock low
+	cmp d1ora       ;debounce
 	bne acp03a
 	asl a
 	bmi acp03a
@@ -302,42 +303,43 @@ acp04	lda bsour1
 	rts
 ;
 clkhi	;set clock line high (inverted)
-	lda sdata
+	lda d1ora
 	and #$ff-$10
-	sta sdata
+	sta d1ora
 	rts
 ;
 clklo	;set clock line low  (inverted)
-	lda sdata
+	lda d1ora
 	ora #$10
-	sta sdata
+	sta d1ora
 	rts
 ;
 ;
 datahi	;set data line high (inverted)
-	lda sdata
+	lda d1ora
 	and #$ff-$20
-	sta sdata
+	sta d1ora
 	rts
 ;
 datalo	;set data line low  (inverted)
-	lda sdata
+	lda d1ora
 	ora #$20
-	sta sdata
+	sta d1ora
 	rts
 ;
-debpia	lda sdata       ;debounce the pia
-	cmp sdata
+debpia	lda d1ora       ;debounce the pia
+	cmp d1ora
 	bne debpia
 	asl a           ;shift the data bit into the carry...
 	rts             ;...and the clock into neg flag
 ;
-w1ms	;delay 1ms using loop
-	txa             ;save .x
-	ldx #200-16     ;1000us-(1000/500*8=#40us holds)
-w1ms1	dex             ;5us loop
-	bne w1ms1
-	tax             ;restore .x
+w1ms	                ;delay 1ms using timer 2
+	lda #$04
+	sta d1t2h
+w1ms1	                ;timer wait loop
+	lda d1ifr
+	and #$20
+	beq w1ms1
 	rts
 
 ;*******************************
