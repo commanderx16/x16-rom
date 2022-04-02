@@ -39,6 +39,13 @@ count	.res 1           ;$A5 temp used by serial routine
 	.segment "SERIAL"
 
 serial_init:
+	lda d1prb
+	and #%11000111  ;DATA, CLK, ATN = 0
+	sta d1prb
+	lda d1ddrb
+	and #%00111111  ;DATA, CLK in
+	ora #%00111000  ;DATA, CLK, ATN out
+	sta d1ddrb
 	lda #%01000000  ;free running t1 d2
 	sta d1acr
 	rts
@@ -78,9 +85,9 @@ list2	pla             ;talk/listen address
 	bne list5
 	jsr clkhi
 ;
-list5	lda d1ora       ;assert attention
+list5	lda d1prb       ;assert attention
 	ora #$08
-	sta d1ora
+	sta d1prb
 ;
 
 isoura	sei
@@ -112,8 +119,8 @@ noeoi	jsr debpia      ;wait for data high
 	sta count
 ;
 isr01
-	lda d1ora       ;debounce the bus
-	cmp d1ora
+	lda d1prb       ;debounce the bus
+	cmp d1prb
 	bne isr01
 	asl a           ;set the flags
 	bcc frmerr      ;data must be hi
@@ -128,10 +135,10 @@ isrclk	jsr clkhi       ;clock hi
 	nop
 	nop
 	nop
-	lda d1ora
+	lda d1prb
 	and #$ff-$20    ;data high
 	ora #$10        ;clock low
-	sta d1ora
+	sta d1prb
 	dec count
 	bne isr01
 	lda #$04        ;set timer for 1ms
@@ -166,9 +173,9 @@ serial_secnd
 
 ;release attention after listen
 ;
-scatn	lda d1ora
+scatn	lda d1prb
 	and #$ff-$08
-	sta d1ora       ;release attention
+	sta d1prb       ;release attention
 	rts
 
 ;talk second address
@@ -209,9 +216,9 @@ ci4	sta bsour       ;buffer current char
 serial_untlk
 	sei
 	jsr clklo
-	lda d1ora       ;pull atn
+	lda d1prb       ;pull atn
 	ora #$08
-	sta d1ora
+	sta d1prb
 	lda #$5f        ;untalk command
 	bra :+
 
@@ -276,15 +283,15 @@ acp00c	jsr datalo      ;data line low
 acp01	lda #08         ;set up counter
 	sta count
 ;
-acp03	lda d1ora       ;wait for clock high
-	cmp d1ora       ;debounce
+acp03	lda d1prb       ;wait for clock high
+	cmp d1prb       ;debounce
 	bne acp03
 	asl a           ;shift data into carry
 	bpl acp03       ;clock still low...
 	ror bsour1      ;rotate data in
 ;
-acp03a	lda d1ora       ;wait for clock low
-	cmp d1ora       ;debounce
+acp03a	lda d1prb       ;wait for clock low
+	cmp d1prb       ;debounce
 	bne acp03a
 	asl a
 	bmi acp03a
@@ -303,32 +310,32 @@ acp04	lda bsour1
 	rts
 ;
 clkhi	;set clock line high (inverted)
-	lda d1ora
+	lda d1prb
 	and #$ff-$10
-	sta d1ora
+	sta d1prb
 	rts
 ;
 clklo	;set clock line low  (inverted)
-	lda d1ora
+	lda d1prb
 	ora #$10
-	sta d1ora
+	sta d1prb
 	rts
 ;
 ;
 datahi	;set data line high (inverted)
-	lda d1ora
+	lda d1prb
 	and #$ff-$20
-	sta d1ora
+	sta d1prb
 	rts
 ;
 datalo	;set data line low  (inverted)
-	lda d1ora
+	lda d1prb
 	ora #$20
-	sta d1ora
+	sta d1prb
 	rts
 ;
-debpia	lda d1ora       ;debounce the pia
-	cmp d1ora
+debpia	lda d1prb       ;debounce the pia
+	cmp d1prb
 	bne debpia
 	asl a           ;shift the data bit into the carry...
 	rts             ;...and the clock into neg flag
