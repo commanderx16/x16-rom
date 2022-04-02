@@ -29,16 +29,16 @@ stop  = $ffe1
 .export t1
 
 ; serial
-.import acptr
-.import ciout
-.import listn
+acptr = $ffa5
+ciout = $ffa8
+listn = $ffb1
+secnd = $ff93
+talk  = $ffb4
+tksa  = $ff96
+unlsn = $ffae
+untlk = $ffab
 .import scatn
-.import secnd
-.import talk
 .import tkatn
-.import tksa
-.import unlsn
-.import untlk
 
 ; vectors
 .import iload
