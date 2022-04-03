@@ -40,7 +40,7 @@ count	.res 1           ;$A5 temp used by serial routine
 
 serial_init:
 	lda d1prb
-	and #%11000111  ;DATA, CLK, ATN = 0
+	and #%11000111  ;ATN = 0, DATA, CLK = 1
 	sta d1prb
 	lda d1ddrb
 	and #%00111111  ;DATA, CLK in
