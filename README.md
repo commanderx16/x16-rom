@@ -16,7 +16,7 @@ This is the Commander X16 ROM containing BASIC, KERNAL, DOS and GEOS. BASIC and 
 	* supports long filenames, timestamps.
 	* supports partitions and subdirectories (CMD-style).
 * CodeX Interactive Assembly Environment
-   * edit assembly code in ram
+   * edit assembly code in RAM
    * save program, and debug information
    * run and debug assembly programs
 
@@ -127,14 +127,11 @@ RAM Map
 
 * fixed RAM:
 	* $0000-$0400 KERNAL/BASIC/DOS system variables
-   * $0400-$XXXX CodeX variable
-	* $0400-$0800 currently unused
+	* $0400-$0800 available for machine code programs
 	* $0800-$9F00 BASIC RAM
 * banked RAM:
 	* bank 0: KERNAL and DOS buffers and variables
 	* banks 1-255: free for applications
-   * top 5 banks used for Codex
-
 
 Credits
 -------
@@ -144,6 +141,65 @@ See [LICENSE.md](LICENSE.md)
 
 Release Notes
 -------------
+
+### Release 39 ("Buenos Aires")
+
+* KERNAL
+	* Adaptation to match Proto 2 Hardware
+		* support for 4 SNES controllers
+		* 512 KB ROM instead of 128 KB
+		* new I/O layout
+		* PS/2 and SNES controller GPIOs layout
+		* banking through $00 and $01
+	* Proto 2 Hardware Features
+		* I2C bus (driver by Dieter Hauer, 2-clause BSD)
+		* SMC: reset and shutdown support
+		* RTC: DA$/TI$ and KERNAL APIs bridge to real-time-clock
+	* Screen Features
+		* New screen_mode API allows setting and getting current mode and resolution
+		* support for 320x240 framebuffer (mode $80/128) [with gaekwad]
+		* added 80x30,40x60,40x30,40x15,20x30,20x15 text modes (note new numbers!)
+	* Keyboard Features
+		* added KERNAL vector to allow intercepting PS/2 codes [Stefan B Jakobsson]
+		* added kbdbuf_peek, kbdbuf_get_modifiers, kbdbuf_put API
+	* Other Features
+		* support for LOADing files without 2-byte PRG header [Elektron72]
+		* support for LOAD into banked RAM (acptr and macptr)
+		* support BEL code (PRINT CHR$(7))
+		* keyboard joystick (joystick 0) supports all SNES buttons
+		* support for 4 SNES controllers (joystick 1-4) [John J Bliss]
+	* Bugs
+		* fixed crash in FB_set_pixels for count>255 [Irmen de Jong]
+		* fixed bank switching macros [Stephen Horn]
+		* fixed preserving P in JSRFAR [CasaDeRobison]
+		* fixed race condition in joystick_get [Elektron72]
+		* removed ROM banking limitations from JSRFAR and FETVEC [Elektron72, Stefan B Jakobsson]
+		* fixed disabling graphics layer when returning to text mode [Jaxartes]
+		* fixed default cursor color when switching to text mode
+		* reliable mouse_config support for screen sizes
+* Math
+	* renamed "fplib" to "math"
+	* made Math package compatible with C128/C65, but fixing FADDT, FMULTT, FDIVT, FPWRT
+* BASIC
+	* Features
+		* added BIN$ & HEX$ functions [Jimmy Dansbo]
+		* added LOCATE statement
+	* Bugs/Optimizations
+		* removed extra space from BASIC error messages [Elektron72]
+		* fixed DA$ and TI$ when accessed together or with BIN$()/HEX$() [Jaxartes]
+		* fixed null handling in GET/READ/INPUT [Jaxartes]
+		* fixed bank setting in VPOKE and VPEEK [Jaxartes]
+		* fixed optional 'color' argument parsing for LINE, FRAME, RECT
+* DOS
+	* reliable memory initialization
+	* fixed writing LFN directory entries across sector boundary
+	* fixed missing partitions ($=P) if type is $0B
+	* fixed loading to the passed-in address when SA is 0 [gaekwad]
+	* fixed problem where macptr would always return C=0, masking errors
+* GEOS
+	* text input support
+* CodeX
+	* integrated CodeX Interactive Assembly Environment into ROM [mjallison42]
 
 ### Release 38 ("Kyoto")
 
@@ -155,7 +211,7 @@ Release Notes
 	* fixed `screen_set_charset` custom charset [Rebecca G. Bettencourt]
 	* fixed `stash` to preserve A
 	* `entropy_get`: better entropy
-* FPLIB
+* MATH
 	* optimized addition, multiplication and SQR [Michael Jørgensen]
 	* ported over `INT(.9+.1)` = 0 fix from C128
 * BASIC
@@ -194,7 +250,7 @@ Release Notes
 		* new: console_set_paging_message (to pause after a full screen)
 		* now respects window insets
 		* try "TEST1" and "TEST2" in BASIC!
-	* new entropy_get API to get randomness, used by FPLIB/BASIC RND function
+	* new entropy_get API to get randomness, used by MATH/BASIC RND function
 * KERNAL
 	* support for VERA 0.9 register layout (Frank van den Hoef)
 * BASIC

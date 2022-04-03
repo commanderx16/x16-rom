@@ -44,7 +44,7 @@ sprite_set_image:
 	sta VERA_ADDR_M
 	lda #<sprite_addr
 	sta VERA_ADDR_L
-	lda #$10 | (sprite_addr >> 16)
+	lda #$10 | ^sprite_addr
 	sta VERA_ADDR_H
 
 	plp
@@ -59,7 +59,7 @@ sprite_set_image:
 
 	jsr convert_16x16x1_mask
 	bra @z
-	
+
 @a:
 	; XXX support more formats
 
@@ -157,7 +157,7 @@ sprite_set_position:
 	stx VERA_ADDR_M
 	ldx #((^VERA_SPRITES_BASE) | $10)
 	stx VERA_ADDR_H
-	
+
 	and #7 ; mask sprites 0-7
 	asl
 	asl
@@ -172,7 +172,7 @@ sprite_set_position:
 	sta VERA_ADDR_L
 	stz VERA_DATA0 ; set zdepth to 0
 	rts
-	
+
 @1:	adc #$02
 	sta VERA_ADDR_L
 	lda r0L

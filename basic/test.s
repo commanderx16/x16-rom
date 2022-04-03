@@ -28,8 +28,8 @@ test:
 
 test0:
 	lda #$80
-	sec
-	jsr screen_set_mode
+	clc
+	jsr screen_mode
 	jsr test1_hline
 	jsr test2_vline
 	jsr test3_bresenham
@@ -46,7 +46,7 @@ test0:
 	jsr test14_image
 	jsr checksum_framebuffer
 	rts
-	
+
 test1_hline:
 	; horizontal line
 	lda #0
@@ -75,7 +75,7 @@ test2_vline:
 	LoadW r0, 1
 	LoadW r1, 6
 	LoadW r2, 1
-	LoadW r3, 198
+	LoadW r3, 238
 	lda #0 ; set
 	jsr GRAPH_draw_line
 
@@ -83,7 +83,7 @@ test2_vline:
 	lda #4
 	jsr GRAPH_set_colors
 	LoadW r0, 3
-	LoadW r1, 198
+	LoadW r1, 238
 	LoadW r2, 3
 	LoadW r3, 6
 	lda #0 ; set
@@ -162,9 +162,9 @@ test4_set_get_pixels:
 	; print result of comparison
 	lda r1H
 	bne @2
-	LoadW 0, str_BAD
+	LoadW r15, str_BAD
 	bra @3
-@2:	LoadW 0, str_OK
+@2:	LoadW r15, str_OK
 @3:	lda #9
 	jsr GRAPH_set_colors
 	LoadW r0, 263
@@ -215,9 +215,9 @@ test5_filter_pixels:
 	; print result of comparison
 	lda r1H
 	bne @2a
-	LoadW 0, str_BAD
+	LoadW r15, str_BAD
 	bra @3a
-@2a:	LoadW 0, str_OK
+@2a:	LoadW r15, str_OK
 @3a:	lda #10
 	jsr GRAPH_set_colors
 	LoadW r0, 263
@@ -296,7 +296,7 @@ test9_varlen_vline:
 	cmp #<198
 	bcc :-
 	rts
-	
+
 test10_put_char:
 	lda #2
 	jsr GRAPH_set_colors
@@ -310,7 +310,7 @@ test10_put_char:
 	jsr GRAPH_draw_rect
 
 	AddVW 5, r1 ; add baseline -2
-	
+
 	lda #$20
 :	jsr GRAPH_set_colors
 	pha
@@ -409,7 +409,7 @@ test12_char_styles:
 	AddVW 7, r1 ; add baseline
 
 	ldy #0
-	
+
 @loop:	phy
 	lda #$92 ; attributes off
 	jsr GRAPH_put_char
@@ -428,7 +428,7 @@ test12_char_styles:
 @1:	inx
 	cpx #5
 	bne @2
-	LoadW 0, test_string
+	LoadW r15, test_string
 	jsr print_string
 	ply
 	iny
@@ -437,10 +437,10 @@ test12_char_styles:
 
 	lda #$92 ; attributes off
 	jmp GRAPH_put_char
-	
+
 test_string:
 	.byte "abcABC123", 0
-	
+
 style_codes:
 	.byte $04 ; underline
 	.byte $06 ; bold
@@ -476,8 +476,8 @@ test14_image:
 	LoadW r1, 6
 	LoadW r2, $0400
 	LoadW r3, 16
-	LoadW r4, 16
-	
+	LoadW r4, 15
+
 	ldx #10
 :	phx
 	jsr GRAPH_draw_image
@@ -491,7 +491,7 @@ checksum_framebuffer:
 	lda #$ff
 	sta crclo
 	sta crchi
-	
+
 	ldx #0
 @loop:	LoadW r0, 0
 	stx r1L
@@ -511,10 +511,10 @@ checksum_framebuffer:
 	bne @loop2
 	dex
 	bpl @loop2
-	
+
 	plx
 	inx
-	cpx #200
+	cpx #240
 	bne @loop
 
 	lda #0
@@ -522,7 +522,7 @@ checksum_framebuffer:
 	jsr GRAPH_set_colors
 
 	LoadW r0, 295
-	LoadW r1, 190
+	LoadW r1, 230
 	LoadW r2, 24
 	LoadW r3, 9
 	jsr GRAPH_set_window
@@ -570,8 +570,8 @@ hextab:
 	.byte "0123456789ABCDEF"
 
 ; http://www.6502.org/source/integers/crc-more.html
-crclo	=0              ; current value of CRC
-crchi	=1              ; not necessarily contiguous
+crclo	=r7         ; current value of CRC
+crchi	=r7+1       ; not necessarily contiguous
 
 crc16_f:
 	eor crchi       ; A contained the data
@@ -606,7 +606,7 @@ crc16_f:
 
 print_string:
 	ldy #0
-:	lda (0),y
+:	lda (r15),y
 	beq :+
 	phy
 	jsr GRAPH_put_char
@@ -632,7 +632,8 @@ str_BAD:
 ; full screen
 test1:
 	lda #$80
-	jsr screen_set_mode
+	clc
+	jsr screen_mode
 
 	LoadW r0, 0
 	jsr GRAPH_init
@@ -655,11 +656,12 @@ test1:
 ; window
 test2:
 	lda #$80
-	jsr screen_set_mode
+	clc
+	jsr screen_mode
 
 	LoadW r0, 0
 	jsr GRAPH_init
-	
+
 	LoadW r0, 0
 	LoadW r1, 0
 	LoadW r2, 319
@@ -669,9 +671,9 @@ test2:
 	jsr GRAPH_draw_line
 	IncW r1
 	IncW r3
-	CmpWI r1, 200
+	CmpWI r1, 240
 	bne :-
-	
+
 	lda #0
 	ldx #15
 	ldy #1
@@ -681,7 +683,7 @@ test2:
 	LoadW r0, INSET
 	LoadW r1, INSET
 	LoadW r2, 320-2*INSET
-	LoadW r3, 200-2*INSET
+	LoadW r3, 240-2*INSET
 	jsr console_init
 
 	jsr set_pause_text
@@ -706,7 +708,7 @@ set_pause_text:
 pause_text:
 	.byte $92,$9B,$01,$90,$12,"Press any key to continue.",0
 
-tmp = 0
+tmp = r7
 print_lots_of_text:
 	LoadW tmp, text
 	jmp print_text
@@ -803,7 +805,8 @@ draw_logo:
 ; input line, echo it, loop
 test3:
 	lda #$80
-	jsr screen_set_mode
+	clc
+	jsr screen_mode
 
 	LoadW r0, 0
 	LoadW r1, 0
@@ -842,4 +845,3 @@ logo_image:
 	.byte $c9,$c9,$08,$50,$08,$15,$c9,$c9,$c9,$c9,$14,$47,$50,$50,$14,$c9
 	.byte $c9,$e5,$08,$2c,$e5,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2b,$2d,$22,$c9
 	.byte $c9,$e5,$2b,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$2a,$2a,$c9
-	.byte $c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9,$c9

@@ -394,8 +394,10 @@ disk_done
 
 mouse:
 	jsr getbyt
-	txa
-	ldx #0 ; keep scale
+	phx
+	sec
+	jsr screen_mode
+	pla
 	jmp mouse_config
 
 mx:
@@ -424,20 +426,30 @@ mb:
 joy:
 	jsr chrget
 	jsr chkopn ; open paren
-	jsr getbyt ; byte: joystick number (1 or 2)
-	cpx #1
-	beq :+
-	cpx #2
-	beq :+
+	jsr getbyt ; byte: joystick number (0-4)
+	cpx #5
+	bcc :+
 	jmp fcerr
 :	phx
 	jsr chkcls ; closing paren
 	pla
-	dec ; KERNAL uses #0 and #1
 	jsr joystick_get
-	eor #$ff
+	iny
+	bne :+
+	lda #<minus1 ; not present?
+	ldy #>minus1 ; then return -1
+	jmp movfm
+:	eor #$ff
 	tay
-	jmp sngflt
+	txa
+	eor #$ff
+	lsr
+	lsr
+	lsr
+	lsr
+	jmp givayf0
+
+minus1:	.byte $81, $80, $00, $00, $00
 
 reset:
 	ldx #5
@@ -454,6 +466,42 @@ reset_copy:
 cls:
 	lda #$93
 	jmp outch
+
+locate:
+	jsr screen
+	stx poker
+	sty poker+1
+
+	jsr getbyt ; byte: line
+	php
+	dex
+	bmi @error
+	cpx poker+1
+	bcs @error
+	plp
+	phx
+	bne @1
+
+; just set the line, leave the column the same
+	sec
+	jsr plot
+	bra @2
+
+@1:	jsr chkcom
+	jsr getbyt
+	txa
+	tay
+	dey
+	bmi @error
+	cpy poker
+	bcs @error
+
+@2:	plx
+	clc
+	jmp plot
+
+@error:
+	jmp fcerr
 
 ; BASIC's entry into jsrfar
 .setcpu "65c02"
