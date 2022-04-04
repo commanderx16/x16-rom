@@ -9,6 +9,8 @@
 .include "io.inc"
 .include "mac.inc"
 
+.importzp mhz
+
 .import status
 .import udst
 
@@ -141,8 +143,8 @@ isrclk	jsr clkhi       ;clock hi
 	sta d1prb
 	dec count
 	bne isr01
-	lda #$04        ;set timer for 1ms
-	sta d1t2h       ;XXX 8 MHz
+	lda #$04*mhz    ;set timer for 1ms
+	sta d1t2h
 ;	lda #timrb      ;trigger timer
 ;	sta d1crb
 ;	lda d1icr       ;clear the timer flags<<<<<<<<<<<<<
@@ -233,7 +235,7 @@ dlabye	jsr scatn       ;always release atn
 ; delay then release clock and data
 ;
 dladlh	txa             ;delay approx 60 us
-	ldx #10         ;XXX 8 MHz
+	ldx #10*mhz
 dlad00	dex
 	bne dlad00
 	tax
@@ -252,8 +254,8 @@ acp00a	jsr debpia      ;wait for clock high
 	bpl acp00a
 ;
 eoiacp
-	lda #$01        ;set timer 2 for 256us
-	sta d1t2h       ;XXX 8 MHz
+	lda #$01*mhz    ;set timer 2 for 256us
+	sta d1t2h
 ;	lda #timrb
 ;	sta d1crb
 	jsr datahi      ;data line high (makes timming more like vic-20
@@ -342,7 +344,7 @@ debpia	lda d1prb       ;debounce the pia
 	rts             ;...and the clock into neg flag
 ;
 w1ms	                ;delay 1ms using timer 2
-	lda #$04
+	lda #$04*mhz
 	sta d1t2h
 w1ms1	                ;timer wait loop
 	lda d1ifr
