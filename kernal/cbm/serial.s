@@ -255,7 +255,7 @@ eoiacp
 	sta d1t2h       ;XXX 8 MHz
 ;	lda #timrb
 ;	sta d1crb
-;	jsr datahi      ;data line high (makes timming more like vic-20
+	jsr datahi      ;data line high (makes timming more like vic-20
 ;	lda d1icr       ;clear the timer flags<<<<<<<<<<<<
 acp00	lda d1ifr
 	and #$20        ;check the timer
