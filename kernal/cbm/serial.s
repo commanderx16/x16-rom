@@ -246,6 +246,7 @@ serial_acptr
 	sei             ;no irq allowed
 	lda #$00        ;set eoi/error flag
 	sta count
+	sta status
 	jsr clkhi       ;make sure clock line is released
 acp00a	jsr debpia      ;wait for clock high
 	bpl acp00a
