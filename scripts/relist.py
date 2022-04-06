@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/env python3
 from dataclasses import dataclass
 import os
 import sys
@@ -16,16 +16,16 @@ class Module:
     def __init__(self, module_name):
         self.name = module_name
         self.segments = {}
-    
+
     def add_segment(self, name: str, offset: int, size: int):
         self.segments[name] = Segment(name, offset, size)
-    
+
     def get_unique_name(self) -> str:
         segs = list(self.segments.values())
         segs.sort(key= lambda v: v.name)
         segment_name_size = ([f"{s.name}_{s.size}" for s in segs])
         return f"{self.name}_{'_'.join(segment_name_size)}"
-    
+
     def get_segment_offset(self, segment_name):
         return self.segments[segment_name].offset
 
@@ -48,7 +48,7 @@ def scan_map(map_filename: str, lst_filename:str) -> Tuple[Dict[str,Segment],Dic
         cur_module: Module = None
         for line in f:
             line_num += 1
-            
+
             if line.rstrip() == obj_filename:
                 module_name = os.path.splitext(obj_filename)[0]
                 if not module_name in module_map:
@@ -86,7 +86,7 @@ def scan_map(map_filename: str, lst_filename:str) -> Tuple[Dict[str,Segment],Dic
         # print(f"Done reading {line_num} lines")
         return segment_map, module_map
 
-# Because the map file stores modules by object file name with no path, we need to determine which lst files go with which 
+# Because the map file stores modules by object file name with no path, we need to determine which lst files go with which
 # module file. We do this by creating a "hopefully unique" fingerprint of the module consisting of the module name, and
 # each segment and the size of the segment for that module. E.g.: the module
 # memory.o:
@@ -95,7 +95,7 @@ def scan_map(map_filename: str, lst_filename:str) -> Tuple[Dict[str,Segment],Dic
 #    KERNRAM2          Offs=000000  Size=000037  Align=00001  Fill=0000
 # should get the "hopefully unique" name 'memory_KERNRAM_30_KERNRAM2_52_MEMDRV_286'. The order of the segments is sorted
 # so that they should always match.
-# 
+#
 # This shortcoming of ld65 is the entire reason we need to perform this scan.
 def scan_lst(lst_filename) -> Module:
     # I really hope these regex's continue working in the future.

@@ -376,7 +376,7 @@ $(BUILD_DIR)/%.o: %.s
 $(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) $(KERNAL_DEPS) $(CFG_DIR)/kernal-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C $(CFG_DIR)/kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.sym
-	python ./scripts/relist.py $(BUILD_DIR)/kernal.map $(BUILD_DIR)/kernal
+	./scripts/relist.py $(BUILD_DIR)/kernal.map $(BUILD_DIR)/kernal
 
 # Bank 1 : KEYMAP
 $(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) $(KEYMAP_DEPS) $(CFG_DIR)/keymap-$(MACHINE).cfg
@@ -387,7 +387,7 @@ $(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) $(KEYMAP_DEPS) $(CFG_DIR)/keymap-$(MACHI
 $(BUILD_DIR)/dos.bin: $(DOS_OBJS) $(DOS_DEPS) $(CFG_DIR)/dos-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C $(CFG_DIR)/dos-$(MACHINE).cfg $(DOS_OBJS) -o $@ -m $(BUILD_DIR)/dos.map -Ln $(BUILD_DIR)/dos.sym
-	python ./scripts/relist.py $(BUILD_DIR)/dos.map $(BUILD_DIR)/dos
+	./scripts/relist.py $(BUILD_DIR)/dos.map $(BUILD_DIR)/dos
 
 # Bank 3 : GEOS
 $(BUILD_DIR)/geos.bin: $(GEOS_OBJS) $(GEOS_DEPS) $(CFG_DIR)/geos-$(MACHINE).cfg
@@ -398,7 +398,7 @@ $(BUILD_DIR)/geos.bin: $(GEOS_OBJS) $(GEOS_DEPS) $(CFG_DIR)/geos-$(MACHINE).cfg
 $(BUILD_DIR)/basic.bin: $(BASIC_OBJS) $(BASIC_DEPS) $(CFG_DIR)/basic-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C $(CFG_DIR)/basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.sym
-	python ./scripts/relist.py $(BUILD_DIR)/basic.map $(BUILD_DIR)/basic
+	./scripts/relist.py $(BUILD_DIR)/basic.map $(BUILD_DIR)/basic
 
 # Bank 5 : MONITOR
 $(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) $(MONITOR_DEPS) $(CFG_DIR)/monitor-$(MACHINE).cfg
