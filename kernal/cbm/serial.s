@@ -64,6 +64,8 @@ serial_talk
 serial_listn
 	ora #$20        ;make a listen adr
 list1	pha
+	lda #2
+	jsr serial_delay
 ;
 ;
 	bit c3p0        ;character left in buf?
@@ -78,6 +80,8 @@ list1	pha
 ;
 	lsr c3p0        ;buffer clear flag
 	lsr r2d2        ;clear eoi flag
+	lda #2
+	jsr serial_delay
 ;
 ;
 list2	pla             ;talk/listen address
@@ -122,6 +126,9 @@ noeoi	jsr debpia      ;wait for data high
 ;
 	lda #$08        ;count 8 bits
 	sta count
+
+	lda #1          ;hold data setup (Ts: 20us min)
+	jsr serial_delay
 ;
 ;	lda #'8'
 ;	jsr $ffd2
@@ -140,12 +147,8 @@ isr01
 	bne isrclk
 isrhi	jsr datahi
 isrclk	jsr clkhi       ;clock hi
-.repeat 8
-	nop
-	nop
-	nop
-	nop
-.endrepeat
+	lda #1          ;hold data valid (Tv: 20us min)
+	jsr serial_delay
 	lda d1prb
 	and #$ff-$20    ;data high
 	ora #$10        ;clock low
@@ -249,6 +252,10 @@ serial_unlsn
 ;
 ; release all lines
 dlabye	jsr scatn       ;always release atn
+	jsr dladlh
+	lda #16
+	bra serial_delay
+
 ; delay then release clock and data
 ;
 dladlh	txa             ;delay approx 60 us
@@ -258,6 +265,16 @@ dlad00	dex
 	tax
 	jsr clkhi
 	jmp datahi
+
+serial_delay:
+	phx
+delay0	ldx #12*mhz
+delay1	dex
+	bne delay1
+	dec
+	bne delay0
+	plx
+	rts
 
 ;input a byte from serial bus
 ;
@@ -293,6 +310,9 @@ acp00b	lda count       ;check for error (twice thru timeouts)
 ;
 acp00c	jsr datalo      ;data line low
 	jsr dladlh      ;delay and then set datahi (also clkhi)
+	                ;XXX C128/C65: clkhi
+	lda #1          ;(Tei: min 80us)
+	jsr serial_delay
 	lda #$40
 	jsr udst        ;or an eoi bit into status
 	inc count       ;go around again for error check on eoi
