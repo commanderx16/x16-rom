@@ -5,6 +5,7 @@
 ; additions: (C)2020 Michael Steil, License: 2-clause BSD
 
 .feature labels_without_colons
+.macpack longbranch
 
 .include "io.inc"
 .include "mac.inc"
@@ -100,7 +101,9 @@ isoura	sei
 isour	sei             ;no irq's allowed
 	jsr datahi      ;make sure data is released
 	jsr debpia      ;data should be low
-	bcs nodev
+	jcs nodev
+;	lda #'D'
+;	jsr $ffd2
 	jsr clkhi       ;clock line high
 	bit r2d2        ;eoi flag test
 	bpl noeoi
@@ -120,6 +123,8 @@ noeoi	jsr debpia      ;wait for data high
 	lda #$08        ;count 8 bits
 	sta count
 ;
+;	lda #'8'
+;	jsr $ffd2
 isr01
 	lda d1prb       ;debounce the bus
 	cmp d1prb
@@ -127,22 +132,28 @@ isr01
 	asl a           ;set the flags
 	bcc frmerr      ;data must be hi
 ;
+	jsr delay
+
 	ror bsour       ;next bit into carry
 	bcs isrhi
 	jsr datalo
 	bne isrclk
 isrhi	jsr datahi
 isrclk	jsr clkhi       ;clock hi
+.repeat 8
 	nop
 	nop
 	nop
 	nop
+.endrepeat
 	lda d1prb
 	and #$ff-$20    ;data high
 	ora #$10        ;clock low
 	sta d1prb
 	dec count
 	bne isr01
+;	lda #'?'
+;	jsr $ffd2
 	lda #$04*mhz    ;set timer for 1ms
 	sta d1t2h
 ;	lda #timrb      ;trigger timer
@@ -153,13 +164,19 @@ isr04	lda d1ifr
 	bne frmerr
 	jsr debpia
 	bcs isr04
+;	lda #'!'
+;	jsr $ffd2
 	cli             ;let irq's continue
 	rts
 ;
 nodev	;device not present error
+;	lda #'N'
+;	jsr $ffd2
 	lda #$80
 	bra csberr
 frmerr	;framing error
+;	lda #'F'
+;	jsr $ffd2
 	lda #$03
 csberr	jsr udst        ;commodore serial buss error entry
 	cli             ;irq's were off...turn on
@@ -369,3 +386,11 @@ w1ms1	                ;timer wait loop
 ;change wait 1 ms routine for less code 4/8/82 rsr
 ;******************************
 
+delay:
+.repeat 8
+	nop
+	nop
+	nop
+	nop
+.endrepeat
+	rts
