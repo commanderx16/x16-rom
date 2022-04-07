@@ -256,10 +256,7 @@ acp00a	jsr debpia      ;wait for clock high
 eoiacp
 	lda #$01*mhz    ;set timer 2 for 256us
 	sta d1t2h
-;	lda #timrb
-;	sta d1crb
 	jsr datahi      ;data line high (makes timming more like vic-20
-;	lda d1icr       ;clear the timer flags<<<<<<<<<<<<
 acp00	lda d1ifr
 	and #$20        ;check the timer
 	bne acp00b      ;ran out.....
@@ -380,4 +377,6 @@ delay1	dex
 ;modify for commodore 64 i/o  3/11/82 rsr
 ;change acptr eoi for better response 3/28/82 rsr
 ;change wait 1 ms routine for less code 4/8/82 rsr
+;modify for X16 i/o system 4/7/21 ms
 ;******************************
+
