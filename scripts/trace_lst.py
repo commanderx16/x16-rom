@@ -17,8 +17,11 @@ for filename in filenames:
 					map[addr] = asm
 				#print(str(addr) + '|' + asm)
 
+print("char *lst_bank' + bank + '[] = {")
 for addr in range(0xc000, 0x10000):
+	prefix = "/* ${:X} */ ".format(addr)
 	if addr in map:
-		print('\"' + map[addr] + '\",')
+		print(prefix + '\"' + map[addr] + '\",')
 	else:
-		print('\"\",')
+		print(prefix + '\"\",')
+print("};")
