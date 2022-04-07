@@ -9,9 +9,12 @@
 .include "io.inc"
 .include "mac.inc"
 
+.importzp mhz
+
 .import status
 .import udst
 
+.export serial_init
 .export serial_secnd
 .export serial_tksa
 .export serial_acptr
@@ -25,11 +28,6 @@
 .export scatn; [channel]
 .export clklo; [machine init]
 
-sdata	=HACK  ; XXX fill for X16 - now points to #$80, so serial doesn't hang
-d1crb	=$ffff ; XXX fill for X16
-d1icr	=$ffff ; XXX fill for X16
-timrb	=$19            ;6526 crb enable one-shot tb
-
 .segment "KVAR"
 
 c3p0	.res 1           ;$94 ieee buffered char flag
@@ -40,19 +38,31 @@ count	.res 1           ;$A5 temp used by serial routine
 
 	.segment "SERIAL"
 
-HACK	.byte $80
+serial_init:
+	lda d1prb
+	and #%11000111  ;ATN = 0, DATA, CLK = 1
+	sta d1prb
+	lda d1ddrb
+	and #%00111111  ;DATA, CLK in
+	ora #%00111000  ;DATA, CLK, ATN out
+	sta d1ddrb
+	lda #%01000000  ;free running t1 d2
+	sta d1acr
+	rts
 
 ;command serial bus device to talk
 ;
 serial_talk
 	ora #$40        ;make a talk adr
-	bra list1       
+	bra list1
 
 ;command serial bus device to listen
 ;
 serial_listn
 	ora #$20        ;make a listen adr
 list1	pha
+	lda #2
+	jsr serial_delay
 ;
 ;
 	bit c3p0        ;character left in buf?
@@ -67,6 +77,8 @@ list1	pha
 ;
 	lsr c3p0        ;buffer clear flag
 	lsr r2d2        ;clear eoi flag
+	lda #2
+	jsr serial_delay
 ;
 ;
 list2	pla             ;talk/listen address
@@ -77,9 +89,9 @@ list2	pla             ;talk/listen address
 	bne list5
 	jsr clkhi
 ;
-list5	lda sdata       ;assert attention
+list5	lda d1prb       ;assert attention
 	ora #$08
-	sta sdata
+	sta d1prb
 ;
 
 isoura	sei
@@ -111,8 +123,10 @@ noeoi	jsr debpia      ;wait for data high
 	sta count
 ;
 isr01
-	lda sdata       ;debounce the bus
-	cmp sdata
+	lda #1          ;hold data setup (Ts: 20us min)
+	jsr serial_delay
+	lda d1prb       ;debounce the bus
+	cmp d1prb
 	bne isr01
 	asl a           ;set the flags
 	bcc frmerr      ;data must be hi
@@ -123,23 +137,18 @@ isr01
 	bne isrclk
 isrhi	jsr datahi
 isrclk	jsr clkhi       ;clock hi
-	nop
-	nop
-	nop
-	nop
-	lda sdata
+	lda #1          ;hold data valid (Tv: 20us min)
+	jsr serial_delay
+	lda d1prb
 	and #$ff-$20    ;data high
 	ora #$10        ;clock low
-	sta sdata
+	sta d1prb
 	dec count
 	bne isr01
-	lda #$04        ;set timer for 1ms
+	lda #$04*mhz    ;set timer for 1ms
 	sta d1t2h
-	lda #timrb      ;trigger timer
-	sta d1crb
-	lda d1icr       ;clear the timer flags<<<<<<<<<<<<<
-isr04	lda d1icr
-	and #$02
+isr04	lda d1ifr
+	and #$20
 	bne frmerr
 	jsr debpia
 	bcs isr04
@@ -165,9 +174,9 @@ serial_secnd
 
 ;release attention after listen
 ;
-scatn	lda sdata
+scatn	lda d1prb
 	and #$ff-$08
-	sta sdata       ;release attention
+	sta d1prb       ;release attention
 	rts
 
 ;talk second address
@@ -208,9 +217,9 @@ ci4	sta bsour       ;buffer current char
 serial_untlk
 	sei
 	jsr clklo
-	lda sdata       ;pull atn
+	lda d1prb       ;pull atn
 	ora #$08
-	sta sdata
+	sta d1prb
 	lda #$5f        ;untalk command
 	bra :+
 
@@ -222,13 +231,14 @@ serial_unlsn
 ;
 ; release all lines
 dlabye	jsr scatn       ;always release atn
+	jsr dladlh
+	lda #16
+	jmp serial_delay
+
 ; delay then release clock and data
 ;
-dladlh	txa             ;delay approx 60 us
-	ldx #10
-dlad00	dex
-	bne dlad00
-	tax
+dladlh	lda #1
+	jsr serial_delay
 	jsr clkhi
 	jmp datahi
 
@@ -238,19 +248,17 @@ serial_acptr
 	sei             ;no irq allowed
 	lda #$00        ;set eoi/error flag
 	sta count
+	sta status
 	jsr clkhi       ;make sure clock line is released
 acp00a	jsr debpia      ;wait for clock high
 	bpl acp00a
 ;
 eoiacp
-	lda #$01        ;set timer 2 for 256us
+	lda #$01*mhz    ;set timer 2 for 256us
 	sta d1t2h
-	lda #timrb
-	sta d1crb
 	jsr datahi      ;data line high (makes timming more like vic-20
-	lda d1icr       ;clear the timer flags<<<<<<<<<<<<
-acp00	lda d1icr
-	and #$02        ;check the timer
+acp00	lda d1ifr
+	and #$20        ;check the timer
 	bne acp00b      ;ran out.....
 	jsr debpia      ;check the clock line
 	bmi acp00       ;no not yet
@@ -264,7 +272,9 @@ acp00b	lda count       ;check for error (twice thru timeouts)
 ; timer ran out do an eoi thing
 ;
 acp00c	jsr datalo      ;data line low
-	jsr clkhi       ; delay and then set datahi (fix for 40us c64)
+	jsr clkhi
+	lda #1          ;(Tei: min 80us)
+	jsr serial_delay
 	lda #$40
 	jsr udst        ;or an eoi bit into status
 	inc count       ;go around again for error check on eoi
@@ -275,15 +285,15 @@ acp00c	jsr datalo      ;data line low
 acp01	lda #08         ;set up counter
 	sta count
 ;
-acp03	lda sdata       ;wait for clock high
-	cmp sdata       ;debounce
+acp03	lda d1prb       ;wait for clock high
+	cmp d1prb       ;debounce
 	bne acp03
 	asl a           ;shift data into carry
 	bpl acp03       ;clock still low...
 	ror bsour1      ;rotate data in
 ;
-acp03a	lda sdata       ;wait for clock low
-	cmp sdata       ;debounce
+acp03a	lda d1prb       ;wait for clock low
+	cmp d1prb       ;debounce
 	bne acp03a
 	asl a
 	bmi acp03a
@@ -302,42 +312,54 @@ acp04	lda bsour1
 	rts
 ;
 clkhi	;set clock line high (inverted)
-	lda sdata
+	lda d1prb
 	and #$ff-$10
-	sta sdata
+	sta d1prb
 	rts
 ;
 clklo	;set clock line low  (inverted)
-	lda sdata
+	lda d1prb
 	ora #$10
-	sta sdata
+	sta d1prb
 	rts
 ;
 ;
 datahi	;set data line high (inverted)
-	lda sdata
+	lda d1prb
 	and #$ff-$20
-	sta sdata
+	sta d1prb
 	rts
 ;
 datalo	;set data line low  (inverted)
-	lda sdata
+	lda d1prb
 	ora #$20
-	sta sdata
+	sta d1prb
 	rts
 ;
-debpia	lda sdata       ;debounce the pia
-	cmp sdata
+debpia	lda d1prb       ;debounce the pia
+	cmp d1prb
 	bne debpia
 	asl a           ;shift the data bit into the carry...
 	rts             ;...and the clock into neg flag
 ;
-w1ms	;delay 1ms using loop
-	txa             ;save .x
-	ldx #200-16     ;1000us-(1000/500*8=#40us holds)
-w1ms1	dex             ;5us loop
-	bne w1ms1
-	tax             ;restore .x
+w1ms	                ;delay 1ms using timer 2
+	lda #$04*mhz
+	sta d1t2h
+w1ms1	                ;timer wait loop
+	lda d1ifr
+	and #$20
+	beq w1ms1
+	rts
+
+;.a=microseconds/60
+serial_delay
+	phx
+delay0	ldx #12*mhz
+delay1	dex
+	bne delay1
+	dec
+	bne delay0
+	plx
 	rts
 
 ;*******************************
@@ -355,5 +377,6 @@ w1ms1	dex             ;5us loop
 ;modify for commodore 64 i/o  3/11/82 rsr
 ;change acptr eoi for better response 3/28/82 rsr
 ;change wait 1 ms routine for less code 4/8/82 rsr
+;modify for X16 i/o system 4/7/22 ms
 ;******************************
 
