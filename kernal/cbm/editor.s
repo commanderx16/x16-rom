@@ -1069,12 +1069,12 @@ cursor_blink:
 @5	rts
 
 
-runtb	.byt "LOAD",$d,"RUN",$d
+runtb	.byt "LOAD",$d,"RUN:",$d
 runtb_end:
 
-fkeytb	.byt "LIST", 13, 0
-	.byt "MONITOR", 13, 0
-	.byt "RUN", 13, 0
+fkeytb	.byt "LIST:", 13, 0
+	.byt "MONITOR:", 13, 0
+	.byt "RUN:", 13, 0
 	.byt $93, "S", 'C' + $80, "255", 13, 0
 	.byt "LOAD", 13, 0
 	.byt "SAVE", '"', 0
