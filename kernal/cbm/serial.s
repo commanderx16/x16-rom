@@ -5,7 +5,6 @@
 ; additions: (C)2020 Michael Steil, License: 2-clause BSD
 
 .feature labels_without_colons
-.macpack longbranch
 
 .include "io.inc"
 .include "mac.inc"
@@ -28,8 +27,6 @@
 .export tkatn; [channel]
 .export scatn; [channel]
 .export clklo; [machine init]
-
-;timrb	=$19            ;6526 crb enable one-shot tb
 
 .segment "KVAR"
 
@@ -105,7 +102,7 @@ isoura	sei
 isour	sei             ;no irq's allowed
 	jsr datahi      ;make sure data is released
 	jsr debpia      ;data should be low
-	jcs nodev
+	bcs nodev
 	jsr clkhi       ;clock line high
 	bit r2d2        ;eoi flag test
 	bpl noeoi
@@ -128,15 +125,12 @@ noeoi	jsr debpia      ;wait for data high
 isr01
 	lda #1          ;hold data setup (Ts: 20us min)
 	jsr serial_delay
-
 	lda d1prb       ;debounce the bus
 	cmp d1prb
 	bne isr01
 	asl a           ;set the flags
 	bcc frmerr      ;data must be hi
 ;
-	jsr delay
-
 	ror bsour       ;next bit into carry
 	bcs isrhi
 	jsr datalo
@@ -153,9 +147,6 @@ isrclk	jsr clkhi       ;clock hi
 	bne isr01
 	lda #$04*mhz    ;set timer for 1ms
 	sta d1t2h
-;	lda #timrb      ;trigger timer
-;	sta d1crb
-;	lda d1icr       ;clear the timer flags<<<<<<<<<<<<<
 isr04	lda d1ifr
 	and #$20
 	bne frmerr
@@ -253,16 +244,6 @@ dlad00	dex
 	tax
 	jsr clkhi
 	jmp datahi
-
-serial_delay:
-	phx
-delay0	ldx #12*mhz
-delay1	dex
-	bne delay1
-	dec
-	bne delay0
-	plx
-	rts
 
 ;input a byte from serial bus
 ;
@@ -377,6 +358,17 @@ w1ms1	                ;timer wait loop
 	beq w1ms1
 	rts
 
+;.a=microseconds/60
+serial_delay
+	phx
+delay0	ldx #12*mhz
+delay1	dex
+	bne delay1
+	dec
+	bne delay0
+	plx
+	rts
+
 ;*******************************
 ;written 8/11/80 bob fairbairn
 ;test serial0.6 8/12/80  rjf
@@ -393,12 +385,3 @@ w1ms1	                ;timer wait loop
 ;change acptr eoi for better response 3/28/82 rsr
 ;change wait 1 ms routine for less code 4/8/82 rsr
 ;******************************
-
-delay:
-.repeat 8
-	nop
-	nop
-	nop
-	nop
-.endrepeat
-	rts
