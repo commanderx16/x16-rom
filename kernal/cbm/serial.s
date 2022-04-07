@@ -126,13 +126,13 @@ noeoi	jsr debpia      ;wait for data high
 ;
 	lda #$08        ;count 8 bits
 	sta count
-
-	lda #1          ;hold data setup (Ts: 20us min)
-	jsr serial_delay
 ;
 ;	lda #'8'
 ;	jsr $ffd2
 isr01
+	lda #1          ;hold data setup (Ts: 20us min)
+	jsr serial_delay
+
 	lda d1prb       ;debounce the bus
 	cmp d1prb
 	bne isr01
