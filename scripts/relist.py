@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 from dataclasses import dataclass
+from io import FileIO
 import os
 import sys
 import re
 from typing import *
 import glob
+
+# TODO: need ability to override this from environment or cmd line
+FAIL_ON_WARNING = True
+warning_flag = False
 
 @dataclass
 class Segment:
@@ -16,27 +21,25 @@ class Module:
     def __init__(self, module_name):
         self.name = module_name
         self.segments = {}
-
+    
     def add_segment(self, name: str, offset: int, size: int):
         self.segments[name] = Segment(name, offset, size)
-
+    
     def get_unique_name(self) -> str:
         segs = list(self.segments.values())
         segs.sort(key= lambda v: v.name)
-        segment_name_size = ([f"{s.name}_{s.size}" for s in segs])
+        segment_name_size = ([f"{s.name}_{s.size:04X}" for s in segs if s.size > 0])
         return f"{self.name}_{'_'.join(segment_name_size)}"
-
+    
     def get_segment_offset(self, segment_name):
         return self.segments[segment_name].offset
 
 # Scan the map file for modules and segments. Note that module names do not uniquely identify a module. See scan_lst below.
 # TODO: It's probably more efficient for scan map to return a map of all modules, not just the one we're interested during
 #       this iteration.
-def scan_map(map_filename: str, lst_filename:str) -> Tuple[Dict[str,Segment],Dict[str,Module]]:
-    segment_matcher = re.compile("^([A-Z][A-Z0-9_]*) *([0-9A-F]{6})  ([0-9A-F]{6})  ([0-9A-F]{6})  ([0-9A-F]{5})$")
-    segment_map: Dict[str,Segment] = {}
-    module_map: Dict[str,Module] = {}
-    lst_matcher = re.compile("^    ([A-Z][A-Z0-9_]*) *Offs=([0-9A-F]{6})  Size=([0-9A-F]{6})  Align=([0-9A-F]{5})  Fill=([0-9A-F]{4})$")
+def scan_map(map_filename: str, lst_filename:str, segment_map:Dict[str,Segment], module_map:Dict[str,Module]):
+    segment_matcher = re.compile("^([A-Z][A-Z0-9_]*) *([0-9A-F]{6})  ([0-9A-F]{6})  ([0-9A-F]{6})  ([0-9A-F]{5})$", re.IGNORECASE)
+    lst_matcher = re.compile("^    ([A-Z][A-Z0-9_]*) *Offs=([0-9A-F]{6})  Size=([0-9A-F]{6})  Align=([0-9A-F]{5})  Fill=([0-9A-F]{4})$", re.IGNORECASE)
     obj_filename = f"{os.path.basename(os.path.splitext(lst_filename)[0])}.o:"
 
     # print(f"Looking for {os.path.basename(os.path.splitext(lst_filename)[0])}.o")
@@ -48,25 +51,22 @@ def scan_map(map_filename: str, lst_filename:str) -> Tuple[Dict[str,Segment],Dic
         cur_module: Module = None
         for line in f:
             line_num += 1
-
+            
             if line.rstrip() == obj_filename:
                 module_name = os.path.splitext(obj_filename)[0]
-                if not module_name in module_map:
-                    module_map[module_name] = []
                 cur_module = Module(module_name)
-                module_map[module_name].append(cur_module)
                 # print(f"Found module {obj_filename} on line {line_num}")
                 reading_module_segments = True
             elif reading_module_segments:
                 match = lst_matcher.match(line)
                 if match:
                     name, _offs, _size, _, _ = match.groups()
+                    name = name.upper()
                     offs = int(_offs, 16)
                     size = int(_size, 16)
-                    s = Segment(name, offs, size)
                     cur_module.add_segment(name, offs, size)
-                    # print(f"Found module segment {name}")
                 else:
+                    module_map[cur_module.get_unique_name()] = cur_module
                     reading_module_segments = False
                     cur_module = None
             elif line.rstrip() == "Segment list:":
@@ -79,14 +79,18 @@ def scan_map(map_filename: str, lst_filename:str) -> Tuple[Dict[str,Segment],Dic
                 match = segment_matcher.match(line)
                 if match:
                     name, _start, _, _size, _ = match.groups()
+                    name = name.upper()
                     start = int(_start, 16)
                     size = int(_size, 16)
                     segment_map[name] = Segment(name, start, size)
-                    # print(f"Found segment {name}")
         # print(f"Done reading {line_num} lines")
         return segment_map, module_map
 
-# Because the map file stores modules by object file name with no path, we need to determine which lst files go with which
+lst_matcher = re.compile("^([0-9A-F]{6})r \\d  (\w\w |   )(\w\w |   )(\w\w |   )(\w\w |   )\s*$")
+seg_matcher = re.compile(r'^\s*\.segment "([A-Z_][A-Z0-9_]*)"', re.IGNORECASE)
+spc_matcher = re.compile(r'^\s*\.(bss|code|data|rodata|zeropage)(\s|$)', re.IGNORECASE)
+
+# Because the map file stores modules by object file name with no path, we need to determine which lst files go with which 
 # module file. We do this by creating a "hopefully unique" fingerprint of the module consisting of the module name, and
 # each segment and the size of the segment for that module. E.g.: the module
 # memory.o:
@@ -95,12 +99,10 @@ def scan_map(map_filename: str, lst_filename:str) -> Tuple[Dict[str,Segment],Dic
 #    KERNRAM2          Offs=000000  Size=000037  Align=00001  Fill=0000
 # should get the "hopefully unique" name 'memory_KERNRAM_30_KERNRAM2_52_MEMDRV_286'. The order of the segments is sorted
 # so that they should always match.
-#
+# 
 # This shortcoming of ld65 is the entire reason we need to perform this scan.
-def scan_lst(lst_filename) -> Module:
+def scan_lst(lst_filename) -> str:
     # I really hope these regex's continue working in the future.
-    lst_matcher = re.compile("^([0-9A-F]{6})r \\d  ([0-9A-F][0-9A-F] |   |xx )([0-9A-F][0-9A-F] |   |xx )([0-9A-F][0-9A-F] |   |xx )([0-9A-F][0-9A-F] |   |xx ) $")
-    seg_matcher = re.compile(r'^\s*\.segment "([A-Z_][A-Z0-9_]*)"')
     base_lst_filename = os.path.basename(os.path.splitext(lst_filename)[0])
     module = Module(base_lst_filename)
     with open(lst_filename) as f:
@@ -112,33 +114,35 @@ def scan_lst(lst_filename) -> Module:
             lst_part = line[0:24]
             code_part = line[24:]
             segment_match = seg_matcher.match(code_part)
+            if not segment_match: # Wasn't .segment, check one of the special segment names
+                segment_match = spc_matcher.match(code_part)
             if segment_match:
                 if cur_segment != None:
-                    # print(f"Creating new segment {cur_segment} of size {cur_size}")
-                    s = Segment(cur_segment, 0, cur_size)
+                    # print(f"{line_num}: Creating new segment {cur_segment} with size ${cur_size:04X}")
                     module.add_segment(cur_segment, 0, cur_size)
-                cur_segment = segment_match.groups()[0]
+                cur_segment = segment_match.group(1).upper()
                 cur_size = 0
                 # print(f"Scanning new segment {cur_segment}")
             else:
                 lst_match = lst_matcher.match(lst_part)
                 if lst_match:
                     ops = [x for x in lst_match.groups()[1:] if x.strip() != '']
-                    if len(ops) > 0:
-                        cur_size = int(lst_match.groups()[0], 16) + len(ops)
-        if cur_segment != None:
-            # print(f"Creating new segment {cur_segment} of size {cur_size}")
-            s = Segment(cur_segment, 0, cur_size)
+                    offset = int(lst_match.group(1), 16)
+                    new_size = offset + len(ops)
+                    # print(f"{line_num}: new_size = {new_size} + {len(ops)} ?> {cur_size}")
+                    if new_size > cur_size:
+                        # print(f"{line_num}: new_offset {new_size:X}, old_offset {cur_size:X}")
+                        cur_size = new_size
+        if cur_segment != None and cur_size != 0:
+            # print(f"{line_num}: Creating new segment {cur_segment} with size ${cur_size:04X}")
             module.add_segment(cur_segment, 0, cur_size)
     # print(f"Done scanning {lst_filename}")
-    return module
+    return module.get_unique_name()
 
 # re-lst the lst file with offsets.
-def relst(lst_filename,module,rlst_file) -> None:
+def relst(lst_filename: str, module: Module, rlst_file: FileIO) -> None:
     # for k,v in module.segments.items():
     #     print(f"key = {k}, value = {v}")
-    lst_matcher = re.compile("^([0-9A-F]{6})r \\d  ([0-9A-F][0-9A-F] |   )([0-9A-F][0-9A-F] |   )([0-9A-F][0-9A-F] |   )([0-9A-F][0-9A-F] |   ) $")
-    seg_matcher = re.compile(r'^\s*\.segment "([A-Z_][A-Z0-9_]*)"')
     with open(lst_filename) as f:
         line_num = 0
         cur_segment:Segment = None
@@ -146,41 +150,71 @@ def relst(lst_filename,module,rlst_file) -> None:
             line_num += 1
             lst_part = line[0:24]
             code_part = line[24:]
+
+            # Check for a segment change
             segment_match = seg_matcher.match(code_part)
+            if not segment_match: # Wasn't .segment, check one of the special segment names
+                segment_match = spc_matcher.match(code_part)
             if segment_match:
-                match_name = segment_match.group(1)
-                if match_name in module.segments:
-                    # print(f"Found segment match for {match_name}")
-                    cur_segment = module.segments[segment_match.group(1)]
+                matched_segment_name = segment_match.group(1).upper()
+                if matched_segment_name in module.segments:
+                    cur_segment = module.segments[matched_segment_name]
                 else:
-                    # print(f"WARNING: Could not find segment matching '{match_name}' in {module.segments.items()}")
-                    cur_segment = None
-            elif cur_segment:
+                    print(f"INFO: Could not find segment matching '{matched_segment_name}' in module {module.name}, assuming zero offset", file=sys.stderr)
+                    cur_segment = Segment(matched_segment_name, 0, 0)
+            if cur_segment:
+                # Only update lst-file-like lines
                 lst_match = lst_matcher.match(lst_part)
                 if lst_match:
                     # Found a normal lst file line, replace its relative offset with the absolute offset.
+                    # TODO: This labels comment blocks of functions with the address of the first instruction of the
+                    #       function. It looks kind of ugly. Perhaps if the offset of the current line hasn't changed
+                    #       from the previous line, we should just scrub the offset altogether to improve readability.
                     location = int(lst_match.group(1),16) + cur_segment.offset
                     rlst_file.write(f"{location:06X} a {line[9:].rstrip()}\n")
-                    # print(f"{location:06X} a {line[9:].rstrip()}")
+                else:
+                    rlst_file.write(line)
+            else:
+                # Writing these lines will often put a large chunk of include file spew at the top
+                # of the file. Not sure if this is something we'd want in the rlst file or not.
+                # It's already in the regular .lst file so for now we'll scrub these lines.
+                #rlst_file.write(line)
+                pass
 
 # Process a map and lst file.
 def process(map_filename, lst_filename):
     # print(f"Processing {lst_filename}")
-    module_base_name = os.path.basename(os.path.splitext(lst_filename)[0])
-    # Scan map file
-    sm, mm = scan_map(map_filename, lst_filename)
-    module_map: Dict[str,Module] = mm
-    segment_map: Dict[str,Segment] = sm
-    # Scan lst file
-    module:Module = scan_lst(lst_filename)
-    # print(f"Found module {module.get_unique_name()}")
-    for m in module_map[module_base_name]:
-        if m.get_unique_name() == module.get_unique_name():
-            # print("Found matching map entry")
-            for segment in module.segments.values():
-                offset = segment_map[segment.name].offset + segment.offset
-                # print(f"Segment {segment.name} offset ${offset:04x} ({segment_map[segment.name].offset}+{segment.offset})")
-                module.segments[segment.name].offset = offset
+
+    map_modules: Dict[str,Module] = {}       # A dict of all modules in the map file
+    map_segments: Dict[str,Segment] = {}     # A dict of all segments in the map file
+
+    # Scan map file, populate map dictionaries
+    scan_map(map_filename, lst_filename, map_segments, map_modules)
+    
+    # Scan lst file, construct the unique module name we'll be looking for in the map file
+    module_name = scan_lst(lst_filename)
+
+    if module_name not in map_modules:
+        print(f"INFO: unique module name {module_name} did not appear map file modules. We're going to wing it...", file=sys.stderr)
+        bare_module_name = os.path.basename(os.path.splitext(lst_filename)[0])
+        # Find the first module with the same name as the lst file and roll with it...
+        module_name = None
+        for key,mod in map_modules.items():
+            if mod.name == bare_module_name:
+                module_name = key
+                break
+        if module_name == None: # we still didn't find anything...
+            print(f"WARNING: we couldn't even find a map file module named {bare_module_name}", file=sys.stderr)
+            global warning_flag
+            warning_flag = True
+        else:
+            print(f"INFO: we're going to go with {module_name}.", file=sys.stderr)
+    # Add the segment base address to the offset of each segment within the module
+    # TODO: Would be better to deepcopy the module and update that instead of changing the one in the map.
+    module = map_modules[module_name]
+    for name,segment in module.segments.items():
+        # print(f"segment name = {segment.name}, size = {segment.size}, offset = {segment.offset:X} + {map_segments[name].offset:X}")
+        segment.offset += map_segments[name].offset
 
     rlst_filename = os.path.splitext(lst_filename)[0]+".rlst"
     with open(rlst_filename, "w") as rlst_file:
@@ -191,8 +225,18 @@ if __name__ == "__main__":
     # Note: no command line safety here - don't make a mistake!
     map_filename = sys.argv[1]
     lst_path = sys.argv[2]
-    glob_pattern = os.sep.join([lst_path,"**", "*.lst"])
-    # print(f"glob pattern = {glob_pattern}")
-    all_lst = glob.glob(glob_pattern, recursive=True)
+    if lst_path.endswith(".lst"):
+        all_lst = [lst_path]
+    else:
+        glob_pattern = os.sep.join([lst_path,"**", "*.lst"])
+        # print(f"glob pattern = {glob_pattern}")
+        all_lst = glob.glob(glob_pattern, recursive=True)
+    if len(all_lst) == 0:
+        warning_flag = True
+        print(f"WARNING: No lst file(s) to process.", file=sys.stderr)
     for lst in all_lst:
         process(map_filename, lst)
+    if warning_flag and FAIL_ON_WARNING:
+        exit(1)
+    else:
+        exit(0)
