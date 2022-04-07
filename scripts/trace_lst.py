@@ -3,7 +3,8 @@ import sys
 
 map = {}
 
-filenames = sys.argv[1:]
+bank = sys.argv[1]
+filenames = sys.argv[2:]
 for filename in filenames:
 	for line in open(filename).readlines():
 		if line[2] >= 'C':
@@ -12,16 +13,16 @@ for filename in filenames:
 			asm = asm.replace('"', '\\"')
 			if asm != '' and asm != ';':
 				if addr in map:
-					map[addr] += '\n'+asm
+					map[addr] += '\\n'+asm
 				else:
 					map[addr] = asm
 				#print(str(addr) + '|' + asm)
 
-print("char *lst_bank' + bank + '[] = {")
+print('char *lst_bank' + bank + '[] = {')
 for addr in range(0xc000, 0x10000):
 	prefix = "/* ${:X} */ ".format(addr)
 	if addr in map:
 		print(prefix + '\"' + map[addr] + '\",')
 	else:
-		print(prefix + '\"\",')
-print("};")
+		print(prefix + 'NULL,')
+print('};')

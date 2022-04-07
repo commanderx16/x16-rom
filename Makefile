@@ -348,11 +348,13 @@ endif
 
 ifeq ($(MACHINE),x16)
 	ROM_LABELS=$(BUILD_DIR)/rom_labels.h
+	ROM_LST=$(BUILD_DIR)/rom_lst.h
 else
 	ROM_LABELS=
+	ROM_LST=
 endif
 
-all: $(BUILD_DIR)/rom.bin $(ROM_LABELS)
+all: $(BUILD_DIR)/rom.bin $(ROM_LABELS) $(ROM_LST)
 
 $(BUILD_DIR)/rom.bin: $(BANK_BINS)
 	cat $(BANK_BINS) > $@
@@ -422,3 +424,9 @@ $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
 	./scripts/symbolize.sh 4 build/x16/basic.sym   >> $@
 	./scripts/symbolize.sh 5 build/x16/monitor.sym >> $@
 	./scripts/symbolize.sh 6 build/x16/charset.sym >> $@
+
+$(BUILD_DIR)/rom_lst.h: $(BANK_BINS)
+	./scripts/trace_lst.py 0 `find build/x16/kernal/ -name \*.rlst` > $@
+	./scripts/trace_lst.py 2 `find build/x16/dos/ -name \*.rlst`   >> $@
+	./scripts/trace_lst.py 4 `find build/x16/basic/ -name \*.rlst` >> $@
+
