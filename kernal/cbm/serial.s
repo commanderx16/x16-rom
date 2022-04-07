@@ -233,15 +233,12 @@ serial_unlsn
 dlabye	jsr scatn       ;always release atn
 	jsr dladlh
 	lda #16
-	bra serial_delay
+	jmp serial_delay
 
 ; delay then release clock and data
 ;
-dladlh	txa             ;delay approx 60 us
-	ldx #10*mhz
-dlad00	dex
-	bne dlad00
-	tax
+dladlh	lda #1
+	jsr serial_delay
 	jsr clkhi
 	jmp datahi
 
@@ -278,8 +275,7 @@ acp00b	lda count       ;check for error (twice thru timeouts)
 ; timer ran out do an eoi thing
 ;
 acp00c	jsr datalo      ;data line low
-	jsr dladlh      ;delay and then set datahi (also clkhi)
-	                ;XXX C128/C65: clkhi
+	jsr clkhi
 	lda #1          ;(Tei: min 80us)
 	jsr serial_delay
 	lda #$40
