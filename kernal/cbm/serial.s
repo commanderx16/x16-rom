@@ -106,8 +106,6 @@ isour	sei             ;no irq's allowed
 	jsr datahi      ;make sure data is released
 	jsr debpia      ;data should be low
 	jcs nodev
-;	lda #'D'
-;	jsr $ffd2
 	jsr clkhi       ;clock line high
 	bit r2d2        ;eoi flag test
 	bpl noeoi
@@ -127,8 +125,6 @@ noeoi	jsr debpia      ;wait for data high
 	lda #$08        ;count 8 bits
 	sta count
 ;
-;	lda #'8'
-;	jsr $ffd2
 isr01
 	lda #1          ;hold data setup (Ts: 20us min)
 	jsr serial_delay
@@ -155,8 +151,6 @@ isrclk	jsr clkhi       ;clock hi
 	sta d1prb
 	dec count
 	bne isr01
-;	lda #'?'
-;	jsr $ffd2
 	lda #$04*mhz    ;set timer for 1ms
 	sta d1t2h
 ;	lda #timrb      ;trigger timer
@@ -167,19 +161,13 @@ isr04	lda d1ifr
 	bne frmerr
 	jsr debpia
 	bcs isr04
-;	lda #'!'
-;	jsr $ffd2
 	cli             ;let irq's continue
 	rts
 ;
 nodev	;device not present error
-;	lda #'N'
-;	jsr $ffd2
 	lda #$80
 	bra csberr
 frmerr	;framing error
-;	lda #'F'
-;	jsr $ffd2
 	lda #$03
 csberr	jsr udst        ;commodore serial buss error entry
 	cli             ;irq's were off...turn on
