@@ -83,14 +83,13 @@ ld25	ldx sa          ;save sa in .x
 	sta memuss+1
 ;
 	txa             ;find out old sa
-        bit #$01
+        and #$01
 	beq ld30        ;(sa & 1) == 0 load where user wants
 	lda memuss      ;else use disk address
 	sta eal
 	lda memuss+1
 	sta eah
-ld30	stx sa		;save sa again
-	jsr loding      ;tell user loading
+ld30	jsr loding      ;tell user loading
 ;
 	ldy verck       ;load/verify/vram?
 	beq ld40        ;verify
@@ -99,8 +98,8 @@ ld30	stx sa		;save sa again
 ;
 ;block-wise load into RAM
 ;
-	lda #$02
-	bit sa
+	txa
+	and #$02
 	beq bld10	;(sa & 2) == 0 ignore first two bytes
 	lda memuss	;else write first two bytes
 	sta (eal)
@@ -166,8 +165,8 @@ ld35
 	lda eah
 	sta VERA_ADDR_M ;set address bits 15:8
 ;
-	lda #$02
-	bit sa
+	txa
+	and #$02
 	beq ld40	;(sa & 2) == 0 ignore first two bytes
 	lda memuss	;else write first two bytes to VRAM
         sta VERA_DATA0
@@ -301,13 +300,13 @@ msghex	jsr msg
 	lda eah
 	jsr hex8
 	lda eal
-hex8	tax
+hex8	tay
 	lsr
 	lsr
 	lsr
 	lsr
 	jsr hex4
-	txa
+	tya
 	and #$0f
 hex4	cmp #$0a
 	bcc hex010
