@@ -19,7 +19,7 @@
 	.import watch_guard
 	.import old_brk_vector, brk_data_valid, brk_bank, brk_data_psr
 	.import brk_data_pc, brk_data_a, brk_data_x, brk_data_y, brk_data_sp
-	.import brk_data_la, brk_data_fa, brk_data_sa, original_a
+	.import brk_data_la, brk_data_fa, brk_data_sa
 	.import step_1_bank, step_1_addr, step_1_byte
 	step_var_start = step_1_bank
 	step_var_end   = step_2_byte

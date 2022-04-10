@@ -1,7 +1,8 @@
 #!/bin/csh -f
 
-set S = `ls -l cx | awk '{ print $5}'`
+set SH=`grep '^CODE ' ../build/x16/codex.map | awk '{print $4}'`
+set SD=`echo "obase=10; ibase=16; $SH" | bc`
 set D = `date +%Y-%m-%dT%H:%M:%S%z`
-echo $D,$S >> x16_size.csv
-echo "CodeX size: $S"
+echo $D,$SD >> x16_size.csv
+echo "CodeX size: $SD"
 

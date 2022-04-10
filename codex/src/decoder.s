@@ -42,7 +42,7 @@
 ;; Decoder tries to keep r10 pointing to the decoded_str
 
 ;;
-;; Raw instruction menmonics
+;; Raw instruction menmonics, created by an offline "compressor". Each entry point goes to a 3 character mnemonic.
 ;;
 mnemonics
 	
@@ -493,9 +493,9 @@ decode_next_instruction
 	phy
 
 	;; don't use +ld16 here, it clobber A!
-	ldx     #<decoded_str
+	ldx     #<code_buffer
 	stx     r10L
-	ldx     #>decoded_str
+	ldx     #>code_buffer
 	stx     r10H
 	     
 	;; Check for data statements first
@@ -562,7 +562,7 @@ decode_next_instruction
 	rts
 
 ;;
-;; Decode a peudo operation
+;; Decode a pseudo operation
 ;; Input r1 - Pointer to expression
 ;;
 @decode_pseudo_op
@@ -654,9 +654,9 @@ decode_get_byte_count
 ;;
 decode_next_argument
 	stz     decoded_str_next
-	stz     decoded_str
+	stz     code_buffer
 
-;; An entry point that does not zero out decoded_str
+;; An entry point that does not zero out code_buffer
 decode_append_next_argument
 ;        PushW   r2
 ;        MoveW   r2,r1
@@ -669,10 +669,10 @@ decode_append_next_argument
 	pha     
 ;
 
-	ldx     #<decoded_str
+	ldx     #<code_buffer
 	stx     r10L
 	stx     r0L
-	ldx     #>decoded_str
+	ldx     #>code_buffer
 	stx     r10H
 	stx     r0H
 
@@ -687,7 +687,7 @@ decode_append_next_argument
 	beq     @decode_next_arg_instruction
 	jsr     decode_next_pseudo_arg
 	PopW    r2
-	LoadW   r1,decoded_str
+	LoadW   r1,code_buffer
 	rts
 
 @decode_next_arg_instruction
@@ -970,26 +970,8 @@ decode_arg_zp_bit
 ;;
 ;; Mode for bbs abd bbr instructions
 ;;
-decode_arg_zp_rel 
-	ldy     #0
-	lda     (r2),y
-	lsr                 ; get bit number
-	lsr     
-	lsr     
-	lsr
-	and     #7
-	clc
-	adc     #$30
-	tax
-	lda     #','
-	tay
-	jsr     decode_push_dual_char
-	
-	ldy     #1
-	lda     (r2),y
-	
-	jsr     decode_push_label_or_hex_zp
-
+decode_arg_zp_rel
+	jsr	decode_arg_zp_bit
 	lda     #','
 	jsr     decode_push_char
 
@@ -1009,89 +991,120 @@ decode_arg_zp_rel
 ;; Called when an address is a pseudo op
 ;; Input r1 - ptr to pseudo expression
 decode_next_pseudo_arg
-	MoveW    r1,M1
 	pushBankVar   bank_meta_i
 	ldy      #2
 	lda      (r1),y
-	tax
-	popBank
-	txa
 	and      #META_FN_MASK
 	asl
 	tax
+	iny
+	lda      (r1),y
+	sta      r0L
+	iny
+	lda      (r1),y
+	sta      r0H
+	popBank
 	jmp      (decode_pseudo_arg_dispatch,x)
 	;;  Never return from JMP, will do RTS there
 
 decode_pseudo_arg_dispatch
-	.word decode_pseudo_none      ; 0
-	.word decode_pseudo_hi_byte   ; 1
-	.word decode_pseudo_lo_byte   ; 2
-	.word decode_pseudo_byte      ; 3
-	.word decode_pseudo_word      ; 4
-	.word decode_pseudo_pstr      ; 5
-	.word decode_pseudo_cstr      ; 6
+	.word decode_pseudo_none          ; 0
+	.word decode_pseudo_hi_byte       ; 1
+	.word decode_pseudo_lo_byte       ; 2
+	.word decode_pseudo_byte          ; 3
+	.word decode_pseudo_word          ; 4
+	.word decode_pseudo_pstr          ; 5
+	.word decode_pseudo_cstr	       ; 6
 
 ;;
 ;; Pseudo decoders
 ;; Input
 ;;       r2  - instruction ptr
-;;       r10 - decoded_str
+;;       r10 - code_buffer
 ;;       M1  - Expression ptr
 ;;
 decode_pseudo_none
 	rts
 
+	;;
+	;; High byte pseudo arg decode.
+	;; Shares termination code with Low byte decoder
+	;;
 decode_pseudo_hi_byte
 	lda     #'>'
-	jsr     decode_push_char
-	jsr     decode_push_pseudo_hex_or_label
-	rts
+	bra     decode_pseudo_terminate_value
 	      
+	;;
+	;; Low byte pseudo arg decode
+	;; Shares termination code with High byte decoder
+	;;
 decode_pseudo_lo_byte
 	lda     #'<'
+	
+decode_pseudo_terminate_value
 	jsr     decode_push_char
 	jsr     decode_push_pseudo_hex_or_label
 	rts
 	      
-decode_pseudo_byte
-	lda     #'$'
-	jsr     decode_push_char
-	lda     (r2)
-	jsr     decode_push_hex
-	jsr     decode_terminate
-	rts
-
+	;;
+	;;	Decode Pseudo Word works by signaling to decode_pseduo byte to consume two bytes at a time.
+	;; R0L is the byte count
+	;; R0H is use as the signal flag. 1 == Word sized arguments, 0 == Byte sized arguments
+	;;
 decode_pseudo_word
-	lda     #'$'
-	jsr     decode_push_char
-	ldy     #1
-	lda     (r2),y
-	jsr     decode_push_hex
-	lda     (r2)
-	jsr     decode_push_hex
-	jsr     decode_terminate
+	inc 		r0H        ; Indicate that word sized arguments are to be decoded
+	
+decode_pseudo_byte
+	ldy     #$0
+@decode_pseudo_byte_loop
+	tya
+	beq		@decode_pseudo_byte_skip
+	lda		#','
+	jsr		decode_push_char
+@decode_pseudo_byte_skip
+	lda 		#'$'
+	jsr		decode_push_char
+	lda		(r2),y
+	sta		TMP1
+	lda      r0H	; Check to see if MSB is to be consumed first (e.g. '.word' meta)
+	beq      @decode_single_byte
+	iny
+	lda		(r2),y
+	jsr		decode_push_hex
+@decode_single_byte
+	lda		TMP1
+	jsr		decode_push_hex
+	iny
+	cpy		r0
+	bmi		@decode_pseudo_byte_loop
+	jsr		decode_terminate
 	rts
 
-;;
-;; Turne a CSTR pseudo into the string representation
-;;
+	;;
+	;; Turn a CSTR pseudo into the string representation
+	;; Shares exist with the PSTR pseudo decoder
+	;;
 decode_pseudo_cstr
 	lda   #DBL_QUOTE
 	jsr   decode_push_char
 	ldy   #0
 @decode_pseudo_cstr_loop
 	lda   (r2),y
-	beq   :+
+	beq   decode_pseudo_string_exit
 	jsr   decode_push_char
 	iny
 	bra   @decode_pseudo_cstr_loop
 
-:  
+decode_pseudo_string_exit
 	ldx   #DBL_QUOTE
 	ldy   #0
 	jsr   decode_push_dual_char
 	rts
 
+	;;
+	;; Turn a PSTR pseudo into the string representation
+	;; Shares exist with the CSTR pseudo decoder
+	;;
 decode_pseudo_pstr
 	lda   #DBL_QUOTE
 	jsr   decode_push_char
@@ -1106,10 +1119,7 @@ decode_pseudo_pstr
 	cpy   TMP1L
 	bmi   @decode_pseudo_pstr_loop
 
-	ldx   #DBL_QUOTE
-	ldy   #0
-	jsr   decode_push_dual_char
-	rts
+	bra   decode_pseudo_string_exit
 
 ;;
 ;; If the expression has a label, push that, otherwise push the raw value
@@ -1253,7 +1263,7 @@ decode_push_char
 	rts
 
 ;;
-;; Push terminate decoded_str
+;; Push terminate code_buffer
 ;; Clobbers Y, A
 ;;
 decode_terminate

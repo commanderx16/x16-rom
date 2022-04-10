@@ -65,8 +65,14 @@
 	T2H=$27
 	T2=$26
 
+	.macro pushBank b
+	lda    BANK_CTRL_RAM
+	pha
+	lda    #b
+	sta    BANK_CTRL_RAM
+	.endmacro
+
 	
-	.byte $42, $42, $42, $42
 main_entry
 	lda       K_TEXT_COLOR
 	sta       orig_color
@@ -683,7 +689,7 @@ testTableDecoder
 	
 	jsr    decode_push_label_or_hex_core
 	;; Terminate the decoded_string
-	LoadW  r1,decoded_str
+	LoadW  r1,code_buffer
 	lda    #0
 	ldy    decoded_str_next
 	sta    (r1),y
@@ -709,7 +715,7 @@ testTableDecoder
 	jsr         decode_push_hex
 	lda         #<decoder_test_code
 	jsr         decode_push_hex
-	LoadW        TMP1,decoded_str
+	LoadW        TMP1,code_buffer
 	LoadW        TMP2,str_test_arg16+7
 	ldy         #3
 @decode_arg_16_loop
@@ -1455,7 +1461,19 @@ testEncoder
 	callR1            encode_string,str_tmp
 	assertCarryClear  str_no_fail_arg
 	assertBuffer3     str_bit_rel, $bf, $02, $0d
-	      
+
+	LoadW             encode_pc,$a000
+	callR1            copyString,str_jsr
+	callR1            encode_string,str_tmp
+	assertCarryClear  str_no_fail_arg
+	assertBuffer3     str_jsr, $20, $00, $10
+
+	LoadW             encode_pc,$a000
+	callR1            copyString,str_jmp_ind
+   callR1            encode_string,str_tmp
+   assertCarryClear  str_no_fail_jmp_ind
+   assertBuffer3     str_jmp_ind, $6c, $2, $0
+
 @testEncoderMnemonicExit
 	rts
 
@@ -1502,6 +1520,7 @@ str_wai1          .byte     "WAI", 0
 str_brk_bad_arg   .byte     "BRK #42", 0      ; Yep, this is bad syntax!
 str_bad_arg_msg   .byte     "DETECT INVALID ARGUMENT", CR, 0
 str_no_fail_arg   .byte     "ARGUMENT PARSED", CR, 0
+str_no_fail_jmp_ind .byte     "JMP ($2) PARSE", CR, 0	
 str_immed_arg     .byte     "ORA #$43", 0
 str_zp_arg        .byte     "ORA $45", 0
 str_abs_arg       .byte     "ORA $4647", 0
@@ -1517,7 +1536,8 @@ str_abs_x_ind     .byte     "JMP ($5354,X)", 0
 str_branch        .byte     "BRA $A010", 0
 str_bit_zp        .byte     "SMB 3,$02", 0
 str_bit_rel       .byte     "BBS 3,$02,$A010", 0
-
+str_jsr           .byte     "JSR $1000", 0
+str_jmp_ind       .byte     "JMP ($2)", 0
 ;;
 ;; Special assert for this test
 ;; Input X   - byte Count
@@ -1546,7 +1566,7 @@ testEncoderBufferAssert
 	;; Buffer test [0]
 	;;
 	lda      r2L
-	cmp      encode_buffer
+	cmp      code_buffer
 	bne      :+
 	dex
 	bne      @testEncoderBufferTest2
@@ -1560,7 +1580,7 @@ testEncoderBufferAssert
 	;; Buffer test [1]
 	;;
 	lda      r2H
-	cmp      encode_buffer+1
+	cmp      code_buffer+1
 	bne      :+
 	dex
 	bne      @testEncoderBufferTest3
@@ -1574,7 +1594,7 @@ testEncoderBufferAssert
 	;; Buffer test [3]
 	;;
 	lda      r3L
-	cmp      encode_buffer+2
+	cmp      code_buffer+2
 	beq      @testEncoderBufferPass
 	fail     str_buffer_2
 	bra      @testEncoderBufferName
@@ -1663,7 +1683,7 @@ testEncoder2
 	
 	lda            encode_buffer_size
 	assertEqA      6,str_encode2_byte_count
-	LoadW          T1,encode_buffer
+	LoadW          T1,code_buffer
 	lda            (T1)
 	assertEqA      $34,str_encode2_buffer_wal
 	
@@ -1694,7 +1714,7 @@ testEncoder2
 	assertCarryClear str_encode2_encoded
 	lda             encode_buffer_size
 	assertEqA       4,str_encode2_byte_count
-	LoadW           T1,encode_buffer
+	LoadW           T1,code_buffer
 	
 	lda               (T1)
 	assertEqA         'F',str_encode2_buffer_cstr
@@ -1718,7 +1738,7 @@ testEncoder2
 	assertCarryClear  str_encode2_encoded
 	lda             encode_buffer_size
 	assertEqA       4,str_encode2_byte_count
-	LoadW           T1,encode_buffer
+	LoadW           T1,code_buffer
 	
 	lda               (T1)
 	assertEqA         3,str_encode2_buflen_pstr
@@ -1759,7 +1779,7 @@ str_encode2_delete_expr .byte "DELETE PSEUDO EXPR", CR, 0
 ;; Clear encode buffer
 ;;
 clear_encode_buffer
-	LoadW          r1,encode_buffer
+	LoadW          r1,code_buffer
 	ldy            #(ENCODE_BUFFER_MAX-1)
 	lda            #0
 @clear_encode_buffer_loop
@@ -2068,7 +2088,6 @@ str_edit_header    .byte "CODE EDIT", CR, 0
 str_rgn_end_adjust .byte "REGION END ADJUSTMENT", CR, 0
 str_push_value     .byte "INSERT COPY VALUES", CR, 0
 str_pull_value     .byte "DELETE COPY VALUES", CR, 0
-str_edit_reloc_jsr .byte "JSR DEST ADDR RELOC", CR, 0
 
 ;; editor buffer space
 edit_region_start .res EDIT_RGN_SIZE,0
