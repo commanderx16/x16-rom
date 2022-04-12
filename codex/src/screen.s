@@ -729,13 +729,13 @@ save_vera_state
 	stx          screen_save_plot_x
 	sty          screen_save_plot_y
 
-	clc                           ; interrogate mode
+	sec                           ; interrogate mode
 	kerjsr       SCRMOD
 	sta          screen_save_mode
 
 	;; set to 80 col mode for debugger
 	lda          #MODE_80_60
-	sec
+	clc
 	kerjsr       SCRMOD
 	      
 	popBank
@@ -749,6 +749,7 @@ restore_vera_state
 	lda          screen_save_mode
 
 	;; restore to 40 col mode
+	clc
 	kerjsr       SCRMOD
 	      
 	ldx          screen_save_plot_x
@@ -770,7 +771,8 @@ restore_vera_state
 save_user_screen
 	pushBankVar bank_assy
 
-	lda       cscrmd ; kvar
+	sec       ; get mode
+	kerjsr    SCRMOD
 	sta       screen_save_mode
 
 	clc

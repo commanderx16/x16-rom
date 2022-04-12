@@ -219,10 +219,7 @@ abort
 	bne     main_in
 
 abort_rts
-	jsr     clear
-	clc
-	jmp     ENTER_BASIC ; Will NOT return
-	
+	kerjsr  ENTER_BASIC ; Will NOT return
 
 ;;; -------------------------------------------------------------------------------------
 str_is_dirty    .byte "DISCARD CHANGES: Y/N", 0
@@ -2400,14 +2397,8 @@ handle_break
 	adc       #$D ; Skip over the BRK stack stuff, user doesn't need to see that.
 	sta       brk_data_sp
 
-	lda       FILE_LA
-	sta       brk_data_la
-
-	lda       FILE_FA
-	sta       brk_data_fa
-
-	lda       FILE_SA
-	sta       brk_data_sa
+	; TODO: find replacement for interrogate of LA/FA/SA.
+	;       determine if saving LA/FA/SA during break handling is required
 
 	ExchW     r0
 	jsr       registers_save

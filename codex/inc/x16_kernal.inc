@@ -112,10 +112,7 @@
 	BRK_VECTOR    = $0316
 	FETCH_VECTOR  = $03AF
 	STASH_VECTOR  = $03B7
-	FILE_LA       = $028f
-	FILE_SA       = $0290
-	FILE_FA       = $0291
-   cscrmd        = $0261
+
 	;;
 	
 	JSRFAR_VECTOR = $FF6E
