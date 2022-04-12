@@ -30,6 +30,7 @@ stop  = $ffe1
 
 ; serial
 acptr = $ffa5
+macptr= $ff44
 ciout = $ffa8
 listn = $ffb1
 secnd = $ff93

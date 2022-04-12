@@ -44,13 +44,6 @@ mmtop   =$9f00
 ;---------------------------------------------------------------
 ramtas:
 ;
-; set up banking
-;
-	lda #$ff
-	sta d1ddra
-	sta d1ddrb
-
-;
 ; clear kernal variables
 ;
 	ldx #0          ;zero low memory
@@ -105,7 +98,7 @@ ramtas:
 	stz ram_bank
 	dex
 	stx $a000
-	
+
 	tya ; number of RAM banks
 ;
 ; set bottom and top of memory
