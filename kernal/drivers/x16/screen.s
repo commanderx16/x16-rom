@@ -26,9 +26,6 @@
 ; for monitor
 .export pnt
 
-; for codex
-.export cscrmd
-
 ; kernal var
 .importzp sal, sah ; reused temps from load/save
 .importzp tmp2
