@@ -1,7 +1,7 @@
 	;;
 	;; Commander 16 CodeX Interactive Assembly Environment
 	;; 
-	;;    Copyright 2020-2021 Michael J. Allison
+	;;    Copyright 2020-2022 Michael J. Allison
 	;; 
 	;;    Redistribution and use in source and binary forms, with or without
 	;;    modification, are permitted provided that the following conditions are met:
@@ -2029,7 +2029,7 @@ str_main_label       .byte "MAIN", 0
 str_add_label_prompt .byte "NEW LABEL: ", 0
 str_define_prompt    .byte "DEFINE: ", 0	
 
-version_string       .byte "CODEX V0.91", 0
+version_string       .byte "CODEX V0.93", 0
 
 str_loading_pgm      .byte "LOADING PROGRAM: ", 0
 str_loading_dbg      .byte "LOADING .DBG", 0
