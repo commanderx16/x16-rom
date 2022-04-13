@@ -1555,6 +1555,7 @@ read_dirent:
 	ldy #11
 	lda (fat32_bufptr), y
 	sta fat32_dirent + dirent::attributes
+	and #$ff-$20 ; remove "archive" bit
 	cmp #8
 	bne @2
 	bit tmp_dirent_flag
