@@ -609,14 +609,11 @@ assy_get_line_count
 
 ;;
 ;; Move r1 down by the bytecount of instruction @r1
-;; TODO: Fix get_byte_count to preserve r1, then remove push/pop from here.
 ;;
 assy_down_first_bytecount
-	PushW      r1
 	jsr        decode_get_byte_count
 	tax
 
-	PopW       r1
 	txa
 
 	clc
@@ -761,9 +758,6 @@ asm_del_inst
 	jsr        decode_get_byte_count
 	tax
 
-;                jsr        screen_scrollback_truncate
-;                TODO something for delete here
-	             
 	PopW       r1
 	jsr        edit_delete
 
@@ -1116,7 +1110,6 @@ mm_prt_block
 	inc     SCR_ROW
 	vgoto
 	dec     r3L
-	lda     r3L
 	bne     @mm_prt_bl_loop
 @mm_prt_bl_done rts
 
@@ -1279,6 +1272,18 @@ assy_prt_block
 
 	MoveW   mem_last_addr,r2
 
+	;; Cache rgn_end+1 for end of loop comparison
+	;; r9 chosen because nothing else modifies is (as of now...)
+	pushBankVar bank_meta_l
+	lda	meta_rgn_end
+	clc
+	adc	#1
+	sta	r9L
+	lda	meta_rgn_end+1
+	adc	#0
+	sta	r9H
+	popBank
+	
 @assy_prt_bl_loop
 	ifEq16  r2,assy_selected_instruction,@assy_prt_selected
 	
@@ -1308,23 +1313,14 @@ assy_prt_block
 	cmp     SCR_ROW
 	bmi     @assy_prt_bl_done
 
-	;; TODO: Hoist this out of the prt_block loop?
-	pushBankVar bank_meta_l
-	MoveW   meta_rgn_end,M1
-	IncW    M1
-	popBank
-	
-	ifGE    r2,M1,@assy_prt_bl_done
+	ifGE    r2,r9,@assy_prt_bl_done
 	
 @assy_prt_bl_incr
 	dec     r3L
-	lda     r3L
-	cmp     #0
 	bne     @assy_prt_bl_loop
 
 @assy_prt_bl_done
-	;;  todo COLOR_CDR_BACK
-@assy_prt_bl_clear_rest
+	;;  clear the rest of the block
 	lda      orig_color
 	sta      K_TEXT_COLOR
 	
