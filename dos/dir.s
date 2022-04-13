@@ -101,7 +101,7 @@ dir_open:
 	bcc @1
 	lda #$30 ; syntax error
 	jmp @dir_open_err
-@1:	
+@1:
 
 	bit part_index
 	bmi @not_part0
@@ -277,7 +277,7 @@ read_dir_entry:
 @found:
 ; in partition mode, don't evaluate "attributes" (it's the part type!)
 	bit part_index
-	bmi @show3
+	bpl @show3
 
 ; Skip hidden entries unless option 'A' ("ALL") is given
 	lda fat32_dirent + dirent::attributes
