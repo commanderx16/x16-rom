@@ -188,16 +188,15 @@ rec_bit:
 
 sda_low:
 	lda #SDA
-ddr_or:	ora ddr
-ddr_st:	sta ddr
+	tsb ddr
 	rts
 
 i2c_stop:
 	jsr scl_high
 sda_high:
-	lda #$FF-SDA
-ddr_an:	and ddr
-	bra ddr_st
+	lda #SDA
+	trb ddr
+	rts
 
 i2c_start:
 	jsr sda_low
@@ -211,15 +210,13 @@ scl_low:
 	rts
 
 i2c_init:
-	lda pr
-	and #$FF-SDA
-	sta pr
+	lda #SDA
+	trb pr
 	bra scl_high
 ; fallthrough
 
 scl_high:
-	lda pcr
-	ora #%11100000
-	sta pcr
+	lda #%11100000
+	tsb pcr
 	rts
 

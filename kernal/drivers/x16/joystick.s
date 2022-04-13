@@ -42,16 +42,17 @@ joy4:	.res 3           ;    joystick 4 status
 joystick_scan:
 	KVARS_START_TRASH_A_NZ
 
-	lda #$ff-bit_data1-bit_data2
+	lda nes_ddr
+	and #$ff-bit_data1-bit_data2-bit_data3-bit_data4
+	ora #bit_latch+bit_jclk
 	sta nes_ddr
-	lda #$00
-	sta nes_data
+	lda #bit_latch+bit_jclk
+	trb nes_data
 
 	; pulse latch
 	lda #bit_latch
-	sta nes_data
-	lda #0
-	sta nes_data
+	tsb nes_data
+	trb nes_data
 
 	; read 3x 8 bits
 	ldx #0
@@ -67,9 +68,8 @@ l1:	lda nes_data
 	rol joy4,x
 
 	lda #bit_jclk
-	sta nes_data
-	lda #0
-	sta nes_data
+	tsb nes_data
+	trb nes_data
 	dey
 	bne l1
 	inx
