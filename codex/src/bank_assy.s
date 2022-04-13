@@ -49,7 +49,6 @@
 	.export watch_guard
 	.export old_brk_vector, brk_data_valid, brk_bank, brk_data_psr
 	.export brk_data_pc, brk_data_a, brk_data_x, brk_data_y, brk_data_sp
-	.export brk_data_la, brk_data_fa, brk_data_sa, original_a
 	.export step_1_bank, step_1_addr, step_1_byte
 	.export step_2_bank, step_2_addr, step_2_addr, step_2_byte
 	.export vera_save_addr_hi, vera_save_addr_mid, vera_save_addr_lo
@@ -67,7 +66,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-	.segment "AE_STATE"
+	.segment "CODEX_STATE"
 	
 	.org $A000
 	
@@ -90,10 +89,6 @@ brk_data_a        .res 1
 brk_data_x        .res 1
 brk_data_y        .res 1
 brk_data_sp       .res 1
-brk_data_la       .res 1
-brk_data_fa       .res 1
-brk_data_sa       .res 1
-original_a        .res 1
 	
 step_1_bank       .res 1	
 step_1_addr       .res 2	

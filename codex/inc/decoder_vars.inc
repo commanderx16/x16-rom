@@ -8,6 +8,6 @@
 	.ifndef __X16_DECODER_VARS__
 	__X16_DECODER_VARS__=1
 
-	.import decoded_str_next, decoded_str
+	.import decoded_str_next, code_buffer
 	    
 	.endif

@@ -10,8 +10,11 @@
 	
 	.data
 	
-	.export decoded_str_next, decoded_str
+	.export decoded_str_next, code_buffer
 	
 decoded_str_next .byte   0
-decoded_str      .res   32,0        
+	
+	;; code_buffer is shared between the encoder and decoder
+	;; Since both operate at different times, there should be no conflict
+code_buffer      .res   32,0        
 
