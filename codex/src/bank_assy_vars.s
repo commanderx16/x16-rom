@@ -13,16 +13,17 @@
 
 	.data
 	
-	.export bank_max, bank_assy, bank_scr1, bank_scr2, bank_meta_l, bank_meta_i, bank_rom_orig, bank_plugin
+	.export bank_max, bank_assy, bank_scr1, bank_scr2, bank_meta_l, bank_meta_i, bank_rom_orig, bank_plugin, bank_scrollback
 
-bank_max      .byte 0
-bank_assy     .byte 0
-bank_scr1     .byte 0
-bank_scr2     .byte 0
-bank_meta_l   .byte 0
-bank_meta_i   .byte 0
-bank_plugin   .byte 0
-bank_rom_orig .byte 0
+bank_max        .byte 0
+bank_assy       .byte 0
+bank_meta_l     .byte 0
+bank_meta_i     .byte 0
+bank_plugin     .byte 0
+bank_scrollback .byte 0
+bank_scr1       .byte 0
+bank_scr2       .byte 0
+bank_rom_orig   .byte 0
 
 	.endif
    

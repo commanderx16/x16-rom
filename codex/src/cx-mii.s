@@ -98,6 +98,7 @@
 	.code
 	             
 	.include "bank.inc"
+	.include "cx_vecs.inc"
 	.include "screen.inc"
 	.include "bank_assy.inc"
 	.include "petsciitoscr.inc"
@@ -119,17 +120,6 @@
 	.include "meta.inc"
 	.include "meta_i.inc"
 	.include "fio.inc"
-
-	;; CodeX vectors
-
-vec_meta_get_region         = $FAE8
-vec_meta_get_label          = $FAEB
-vec_meta_find_label         = $FAEE
-vec_meta_expr_iter_next     = $FAF1
-vec_meta_print_banked_label = $FAF4
-vec_decode_next_instruction = $FAF7
-vec_decode_next_argument    = $FAFA
-vec_decode_get_byte_count   = $FAFD   
 
 ;;
 ;; Main mode display dispatchers

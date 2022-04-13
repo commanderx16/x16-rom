@@ -81,7 +81,7 @@
 ;;      R7
 ;;      R8
 ;;      R9
-;;      R10 - decoded_str
+;;      R10 - code_buffer
 	
 ;;      R11 - scratch, not saved
 ;;      R12 - scratch, not saved
@@ -98,6 +98,7 @@
 	.code
 	             
 	.include "bank.inc"
+	.include "cx_vecs.inc"
 	.include "screen.inc"
 	.include "bank_assy.inc"
 	.include "petsciitoscr.inc"
@@ -120,17 +121,6 @@
 	.include "meta_i.inc"
 	.include "fio.inc"
 
-	;; CodeX vectors
-
-vec_meta_get_region         = $FAE8
-vec_meta_get_label          = $FAEB
-vec_meta_find_label         = $FAEE
-vec_meta_expr_iter_next     = $FAF1
-vec_meta_print_banked_label = $FAF4
-vec_decode_next_instruction = $FAF7
-vec_decode_next_argument    = $FAFA
-vec_decode_get_byte_count   = $FAFD   
-
 ;;
 ;; Main mode display dispatchers
 ;;
@@ -151,9 +141,9 @@ main_entry:
 	lda     orig_color
 	sta     K_TEXT_COLOR
 
-	callR1R2R3  file_replace_ext,decoded_str,str_ext_txt,str_empty
+	callR1R2R3  file_replace_ext,code_buffer,str_ext_txt,str_empty
 	
-	callR1R2    read_string_with_prompt,filename_prompt,decoded_str
+	callR1R2    read_string_with_prompt,filename_prompt,code_buffer
 
 	stz         ap_set
 	PushW       r1
@@ -308,7 +298,7 @@ file_save_text_loop
 	stz         decoded_str_next
 	jsr         decode_push_hex_word
 	jsr         decode_terminate
-	LoadW       r1,decoded_str
+	LoadW       r1,code_buffer
 	jsr         bs_out_str
 	jsr         file_save_emit_cr
 
@@ -341,7 +331,7 @@ file_save_text_program
 	MoveW   r2,r1
 	jsr     decode_push_hex_word
 	jsr     decode_terminate
-	callR1  bs_out_str,decoded_str
+	callR1  bs_out_str,code_buffer
 	jsr     file_save_emit_cr
 
 @file_save_text_next
@@ -358,10 +348,10 @@ file_save_text_program
 	MoveW   r2,r1
 	aejsr   vec_decode_next_instruction
 	jsr     decode_terminate
-	callR1  bs_out_str,decoded_str
+	callR1  bs_out_str,code_buffer
 	callR1  bs_out_str,str_file_save_spaces_3
 	aejsr   vec_decode_next_argument 
-	LoadW   r1,decoded_str
+	LoadW   r1,code_buffer
 	lda     (r1)
 	beq     @file_save_text_program_no_args
 	jsr     bs_out_str

@@ -1,7 +1,7 @@
 ;;;
 ;;; Interface for metadata bank for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020 Michael J. Allison
+;;; Copyright 2020-2021 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
@@ -131,13 +131,9 @@ meta_find_label
 	lda     (M1),y
 	sta     r1H
 
-	popBank
-	lda     #SUCCESS
-	rts
+	jmp     meta_success
 :  
-	popBank
-	lda     #FAIL
-	rts
+	jmp     meta_error
 
 ;;
 ;; Find a label record
@@ -213,13 +209,12 @@ meta_get_label
 	ora         r1L
 	beq         @meta_get_label_exit
 
-;	             callR1R2    util_strcpy,label,decoded_str	
 	PushW       r2
-	LoadW       r2,decoded_str
+	LoadW       r2,code_buffer
 	jsr         util_strcpy
 	PopW        r2
 	
-	LoadW       r1,decoded_str
+	LoadW       r1,code_buffer
 	
 @meta_get_label_exit
 	popBank
@@ -333,13 +328,13 @@ meta_add_label
 	;; Add 4 so guard bytes are copied
 	clc
 	lda    #4
-	adc    r3L
-	sta    r3L
+	adc    r2L
+	sta    r2L
 	bcc    :+
-	inc    r3H
+	inc    r2H
 :  
 	kerjsr MEMCOPY
-	             
+
 @meta_add_do_insert
 	;; M1 pointing to insert pt, push list down to make room
 	PopW  r1
@@ -358,10 +353,9 @@ meta_add_label
 
 	MoveW  r2,meta_str_addr
 	             
-	popBank
-
-	lda   #SUCCESS
-	rts
+	lda    #1
+	jsr    set_dirty
+	jmp    meta_success
 
 @meta_add_label_exists_error
 	pla              ; Discard saved r1, r1, & r2
@@ -419,10 +413,7 @@ meta_delete_label
 	jsr     meta_find_label_entry
 	beq     @meta_delete_found
 
-	;; Not found
-	popBank
-	lda     #FAIL
-	rts
+	jmp     meta_error
 
 @meta_delete_found
 	;; Step 0 - stash old string pointer
@@ -551,9 +542,9 @@ meta_delete_label
 	bra       @meta_delete_label_patch_loop
 
 @meta_delete_label_patch_exit
-	popBank
-	lda     #SUCCESS
-	rts
+	lda    #1
+	jsr    set_dirty
+	jmp     meta_success
 	             
 ;;
 ;; Put a string in the heap
@@ -655,9 +646,16 @@ meta_relocate_labels
 
 	;; Increment to next entry
 @meta_relocate_incr
-	lda      TMP2L
-	ora      TMP2H
+	ldy      #0
+	lda      (TMP1),y
+	iny
+	ora      (TMP1),y
+	iny
+	ora      (TMP1),y
+	iny
+	ora      (TMP1),y
 	beq      @meta_relocate_loop_exit
+	
 	lda      TMP1L
 	clc
 	adc      #4
@@ -689,9 +687,14 @@ meta_lookup_label
 	lda      (TMP1),y
 	iny
 	ora      (TMP1),y
-	beq      @lookup_error
 	iny
+	ora      (TMP1),y
+	iny
+	ora      (TMP1),y
+	beq      meta_error
+	dey
 	            
+	PushW    r2
 	lda      (TMP1),y
 	sta      r2L
 	iny
@@ -699,6 +702,7 @@ meta_lookup_label
 	sta      r2H
 	jsr      util_strcmp
 	beq      @lookup_found
+	PopW     r2
 
 	;; Point to next entry
 	lda      #4
@@ -711,6 +715,7 @@ meta_lookup_label
 	bra      @lookup_loop
 	            
 @lookup_found
+	PopW     r2
 	ldy      #0
 	lda      (TMP1),y
 	sta      r1L
@@ -718,12 +723,15 @@ meta_lookup_label
 	lda      (TMP1),y
 	sta      r1H
 	            
+meta_success
 	popBank
-	lda   #0
+	lda   #SUCCESS
+	clc
 	rts
 	            
-@lookup_error
+meta_error
 	popBank
-	lda   #1
+	lda   #FAIL
+	sec
 	rts
 

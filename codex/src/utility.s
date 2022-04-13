@@ -110,11 +110,11 @@ util_strcmp
 	bne   @util_strcmp_check
 
 @util_strcmp_exit
-	lda   #0                      ; Z = 1, found means matched
+	lda   #SUCCESS                      ; Z = 1, found means matched
 	rts
 
 @util_strcmp_exit_less
-	lda   #1
+	lda   #FAIL
 	rts
 	      
 @util_strcmp_exit_greater
@@ -157,7 +157,10 @@ util_parse_hex
 	stz      TMP1H
 
 	ldy      #0
-	      
+
+	lda     (r1)
+	beq     @util_parse_hex_error_exit
+	
 @util_parse_loop
 	lda     (r1),y
 	beq     @util_parse_hex_exit

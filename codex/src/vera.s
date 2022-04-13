@@ -40,11 +40,8 @@ vera_out_a
 ;;
 vera_goto_xy
 	stx    SCR_COL
-	txa
-	asl
-	sta    VERA_ADDR_LO
 	sty    SCR_ROW
-	sty    VERA_ADDR_MID
+	jsr    vera_goto
 	rts
 
 ;;
@@ -55,5 +52,9 @@ vera_goto
 	asl
 	sta    VERA_ADDR_LO
 	lda    SCR_ROW
+	clc
+	adc    #$B0
 	sta    VERA_ADDR_MID
+	lda    #$11
+	sta    VERA_ADDR_HI
 	rts
