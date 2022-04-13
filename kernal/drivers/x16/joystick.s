@@ -43,7 +43,7 @@ joystick_scan:
 	KVARS_START_TRASH_A_NZ
 
 	lda nes_ddr
-	and #bit_data1+bit_data2+bit_data3+bit_data4
+	and #$ff-bit_data1-bit_data2-bit_data3-bit_data4
 	ora #bit_latch+bit_jclk
 	sta nes_ddr
 	lda #bit_latch+bit_jclk
