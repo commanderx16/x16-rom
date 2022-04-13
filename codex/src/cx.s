@@ -597,17 +597,13 @@ assy_down
 ;; Get line count for instruction @r1
 ;; Input r1 - Ptr to instruction for query
 ;; Output A - number of lines
-;; TODO: Fix find_label to protect r1
 assy_get_line_count
-	PushW       r1
 	jsr         meta_find_label
 	beq         @assy_get_line_count_label
-	PopW        r1
 	lda         #1
 	rts
 
 @assy_get_line_count_label
-	PopW        r1
 	lda         #3
 	rts
 
@@ -1884,6 +1880,7 @@ assy_prt_inst_label
 	rts
 
 assy_actually_print_label
+	MoveW	r0,r1
 	inc     SCR_ROW
 	stz     SCR_COL
 	vgoto
@@ -2222,6 +2219,7 @@ exe_load_next_step
 	callR1     prtstr_at_xy,str_loading_dbg
 
 	pushBankVar bank_meta_l
+	clc
 	callR1     file_load_bank_a000,str_ext_dbg
 	bcs        exe_load_error
 	jsr        exe_load_setup_dbg
@@ -2229,6 +2227,7 @@ exe_load_next_step
 
 	callR1      prtstr,str_loading_dbi
 	pushBankVar bank_meta_i
+	clc
 	callR1      file_load_bank_a000,str_ext_dbi
 	bcs         exe_load_error
 	popBank
@@ -2328,6 +2327,7 @@ load_and_run_plugin
 	LoadW         r2,input_string
 	jsr           util_strcpy
 
+	sec
 	callR1        file_load_bank_a000,0
 	bcs           load_and_run_exit
 	switchBankVar bank_assy

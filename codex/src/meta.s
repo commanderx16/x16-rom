@@ -1,7 +1,7 @@
 ;;;
 ;;; Interface for metadata bank for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020-2021 Michael J. Allison
+;;; Copyright 2020-2022 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
@@ -116,23 +116,25 @@ meta_get_region
 ;; Input  - r1 == value being searched for
 ;; Output - Z  == 0 Not found
 ;;        - Z  == 1 Found, r1 is valid
-;;        - r1 ptr to label string
+;;        - r0 ptr to label string
 ;; Clobbers - M1, y
 ;;
 meta_find_label
 	pushBankVar bank_meta_l
-
+	PushW	r1
 	jsr     meta_find_label_entry
 	bne     :+
 	ldy     #2
 	lda     (M1),y
-	sta     r1L
+	sta     r0L
 	iny
 	lda     (M1),y
-	sta     r1H
+	sta     r0H
 
+	PopW	r1
 	jmp     meta_success
 :  
+	PopW	r1
 	jmp     meta_error
 
 ;;

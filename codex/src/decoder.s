@@ -1,7 +1,7 @@
 ;;;
 ;;; Assembly decoder for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020 Michael J. Allison
+;;; Copyright 2020-2022 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
@@ -1230,7 +1230,7 @@ decoder_find_and_push_label
 	pushBankVar bank_meta_l
 	ldy     #0
 @decode_label_or_hex_copy_loop
-	lda     (r1),y
+	lda     (r0),y
 	beq     @decode_push_label_exit
 	phy
 	ldy     decoded_str_next
