@@ -136,14 +136,14 @@ KSUP_DEFS = -D CPU_65C02=1  -g -D MACHINE_X16=1 --cpu 65SC02
 
 UT_INCS=$(TESTDIR)/assert.s
 
-all: cx cx-dc cx-mii cx-sym utest $(BUILD_DIR)/codex.bin
+all: cx-dc cx-mii cx-sym utest $(BUILD_DIR)/codex.bin
 
 clean:
 	rm -f *.o *.l *.sym *.map *.bin
 	rm -f $(CX_OBJS)
 	rm -f test/*.o test/*.l
 
-$(BUILD_DIR)/codex.bin: $(CX_SRCS) $(CX_INCS) $(CX_OBJS) $(KSUP_VECS) $(CFG_DIR)/codex-x16.cfg cx
+$(BUILD_DIR)/codex.bin: $(CX_SRCS) $(CX_INCS) $(CX_OBJS) $(KSUP_VECS) $(CFG_DIR)/codex-x16.cfg
 	ld65 --config $(CFG_DIR)/codex-x16.cfg --mapfile $(BUILD_DIR)/codex.map -Ln $(BUILD_DIR)/codex.sym -o $(BUILD_DIR)/codex.bin $(CX_OBJS) $(KSUP_VECS)
 
 cx-dc: $(CX_DC_SRCS) $(CX_INCS) $(CX_DC_OBJS) $(PLUGIN_OBJS) $(CFG_SUBDIR)/cx-plugin.cfg
