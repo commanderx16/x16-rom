@@ -39,9 +39,8 @@ count	.res 1           ;$A5 temp used by serial routine
 	.segment "SERIAL"
 
 serial_init:
-	lda d1prb
-	and #%11000111  ;ATN = 0, DATA, CLK = 1
-	sta d1prb
+	lda #%00111000  ;ATN = 0, DATA, CLK = 1
+	trb d1prb
 	lda d1ddrb
 	and #%00111111  ;DATA, CLK in
 	ora #%00111000  ;DATA, CLK, ATN out
@@ -89,9 +88,8 @@ list2	pla             ;talk/listen address
 	bne list5
 	jsr clkhi
 ;
-list5	lda d1prb       ;assert attention
-	ora #$08
-	sta d1prb
+list5	lda #$08       ;assert attention
+	tsb d1prb
 ;
 
 isoura	sei
@@ -174,9 +172,8 @@ serial_secnd
 
 ;release attention after listen
 ;
-scatn	lda d1prb
-	and #$ff-$08
-	sta d1prb       ;release attention
+scatn	lda #$08
+	trb d1prb       ;release attention
 	rts
 
 ;talk second address
@@ -217,9 +214,8 @@ ci4	sta bsour       ;buffer current char
 serial_untlk
 	sei
 	jsr clklo
-	lda d1prb       ;pull atn
-	ora #$08
-	sta d1prb
+	lda #$08        ;pull atn
+	tsb d1prb
 	lda #$5f        ;untalk command
 	bra :+
 
@@ -312,28 +308,24 @@ acp04	lda bsour1
 	rts
 ;
 clkhi	;set clock line high (inverted)
-	lda d1prb
-	and #$ff-$10
-	sta d1prb
+	lda #$10
+	trb d1prb
 	rts
 ;
 clklo	;set clock line low  (inverted)
-	lda d1prb
-	ora #$10
-	sta d1prb
+	lda #$10
+	tsb d1prb
 	rts
 ;
 ;
 datahi	;set data line high (inverted)
-	lda d1prb
-	and #$ff-$20
-	sta d1prb
+	lda #$20
+	trb d1prb
 	rts
 ;
 datalo	;set data line low  (inverted)
-	lda d1prb
-	ora #$20
-	sta d1prb
+	lda #$20
+	tsb d1prb
 	rts
 ;
 debpia	lda d1prb       ;debounce the pia

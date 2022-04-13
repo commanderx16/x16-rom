@@ -29,8 +29,9 @@ ps2_init:
 	jsr ps2dis
 	dex    ; PB: mouse
 ps2dis:	lda port_ddr,x
-	ora #bit_clk+bit_data
-	sta port_ddr,x ; set CLK and DATA as output
+	ora #bit_clk ; set CLK as output
+	and #$ff - bit_data ; DATA as input
+	sta port_ddr,x
 	lda port_data,x
 	and #$ff - bit_clk ; CLK=0
 	ora #bit_data ; DATA=1
