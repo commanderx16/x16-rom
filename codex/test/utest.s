@@ -1,7 +1,7 @@
 	;;
 	;; X16 CodeX Monitor Unit Tests
 	;; 
-	;;    Copyright 2020-2021 Michael J. Allison
+	;;    Copyright 2020-2022 Michael J. Allison
 	;; 
 	;;    Redistribution and use in source and binary forms, with or without
 	;;    modification, are permitted provided that the following conditions are met:
@@ -1082,7 +1082,7 @@ testMetaAddDelete
 	fail       str_meta_found1
 :  
 	pushBankVar  bank_meta_l
-	assertEqR1  str_meta1
+	assertEqR0  str_meta1
 	popBank
 	       
 	LoadW      r1,str_meta2
@@ -1096,7 +1096,7 @@ testMetaAddDelete
 	fail       str_meta_found2
 :  
 	pushBankVar  bank_meta_l
-	assertEqR1  str_meta2
+	assertEqR0  str_meta2
 	popBank
 
 	;; Double check for a stomp
@@ -1153,15 +1153,15 @@ testMetaAddDelete
 	pushBankVar    bank_meta_l
 	LoadW          r1,$1000
 	jsr            meta_find_label
-	assertEqR1     str_meta0
+	assertEqR0     str_meta0
 	      
 	LoadW          r1,$123A
 	jsr            meta_find_label
-	assertEqR1     str_meta15
+	assertEqR0     str_meta15
 	      
 	LoadW          r1,$1240
 	jsr            meta_find_label
-	assertEqR1     str_meta2
+	assertEqR0     str_meta2
 	      
 	popBank
 	       
