@@ -1,7 +1,7 @@
 ;;;
 ;;; Screen control for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020 Michael J. Allison
+;;; Copyright 2020-2022 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
  
@@ -976,15 +976,6 @@ screen_add_scrollback_address
 	
    ifVGE          scrollback_top_ptr,TMP2,@screen_add_roll
 	
-;	lda 				#>scrollback_top_ptr    ; compare high bytes
-;	cmp 				TMP2H
-;	bcc 				:+                      ; if NUM1H < NUM2H then NUM1 < NUM2
-;	bne 			 	@screen_add_roll        ; if NUM1H <> NUM2H then NUM1 > NUM2 (so NUM1 >= NUM2)
-;	lda 				#<scrollback_top_ptr    ; compare low bytes
-;	cmp 				TMP2L
-;	bcs 				@screen_add_roll        ; if NUM1L < NUM2L then NUM1 < NUM2
-
-;:
 	sec
 	lda            TMP2L
 	sbc            #2
@@ -1439,7 +1430,9 @@ rdhex_asl_value
 ;; Print the F1 F3, etc header, with labels
 ;;
 print_header
-	PushW   r1
+	ldx     #HDR_COL
+	ldy     #(HDR_ROW+1)
+	jsr     prtstr_at_xy            ; r1 has sub header from caller
 
 	ldx     #HDR_COL
 	ldy     #HDR_ROW
@@ -1451,9 +1444,6 @@ print_header
 	ldx     #0
 	ldy     SCR_ROW
 	iny                             ; Save a byte, vera_goto will store in SCR_COL, SCR_ROW
-
-	PopW    r1
-	jsr     prtstr_at_xy            ; r1 has sub header from caller
 
 	lda     #50
 	sta     SCR_COL
@@ -1482,4 +1472,4 @@ print_header
 	
 fn_header            .byte " F1   F2   F3   F4   F5    F6    F7   F8         RAM BANK = ", 0
 str_region_start     .byte "PRGM REGION[$", 0
-str_region_end       .byte "]", CR, 0
+str_region_end       .byte "]", CR, CR, 0

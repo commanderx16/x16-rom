@@ -1,7 +1,7 @@
 ;;;
 ;;; Code block manipulation routines for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020 Michael J. Allison
+;;; Copyright 2020-2022 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
@@ -128,16 +128,15 @@ edit_delete
 	bcc      :+
 	inc      r0H                           ; r0 = src = dst + size
 :  
-	;; TODO: Can the IncW be combined with the SBC math?
 	lda      meta_rgn_end
-	sec                                    
+	clc												; size needs +1, e.g. size = end - start + 1
 	sbc      r1L
 	sta      r2L
 	lda      meta_rgn_end+1
 	sbc      r1H
 	sta      r2H                           ; r2 = size
 
-	IncW     r2                            ; size needs +1, e.g. size = end - start + 1
+;	IncW     r2 - accomplished by the clc before the first sbc in the most recent block of code
 	         
 	popBank
 	kerjsr   MEMCOPY
@@ -203,7 +202,7 @@ edit_relocate_loop
 	cmp            #META_DATA_BYTE
 	bmi            @edit_relocate_no_meta
 	switchBankVar  bank_meta_l                            ; Effectively skip over the pseudo statement, just increment the instruction ptr
-	PopW           r1                                     ; This is where we'd relocate the pseudo .byte or .word statement TODO
+	PopW           r1
 	bra            edit_relocate_check2
 @edit_relocate_no_meta
 	switchBankVar  bank_meta_l

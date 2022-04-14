@@ -2,7 +2,7 @@
 	;; Commander 16 CodeX Interactive Assembly Environment
 	;; Text decompiler. Designed to be called from ROM'ed CodeX
 	;; 
-	;;    Copyright 2020 Michael J. Allison
+	;;    Copyright 2020-2022 Michael J. Allison
 	;; 
 	;;    Redistribution and use in source and binary forms, with or without
 	;;    modification, are permitted provided that the following conditions are met:
@@ -340,6 +340,7 @@ file_save_text_program
 	
 	bne     @file_save_text_program_no_label
 
+	MoveW	r0,r1
 	aejsr   vec_meta_print_banked_label
 	jsr     file_save_emit_cr
 
