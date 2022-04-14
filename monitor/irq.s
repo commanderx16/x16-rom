@@ -16,14 +16,10 @@ screen_set_char = $1114 ; XXX
 GDBLN = $1115 ; XXX
 BLNON = $1116 ; XXX
 BLNSW = $1117 ; XXX
-veradat = $1118 ; XXX
-verahi = $1119 ; XXX
-veramid = $111A ; XXX
-veralo = $111B ; XXX
 sadd_a_to_zp1 = $111C ; XXX
 decode_mnemo = $111D ; XXX
 TBLX = $111E ; XXX
-kbdbuf_clear = $111F ; XXX
+;kbdbuf_clear = $111F ; XXX
 
 
 cinv   := $0314 ; IRQ vector
@@ -90,7 +86,7 @@ keyhandler2:
 @ret2:	clc
 	rts
 :	cmp #$83
-	bne @ret2
+	bne @not_f7
 
 ;	jsr kbdbuf_clear
 	lda #'@'
@@ -103,11 +99,17 @@ keyhandler2:
 	clc
 	rts
 
+@not_f7:
+	cmp #3 ; F5
+	bne @ret2
+; F5
+	clc
+	rts
+
 LB6FA:	rts
 
-LB71C:	cmp #KEY_F5
-	bne LB733
-	jsr kbdbuf_clear
+;;; F5
+;	jsr kbdbuf_clear
 	ldx nlinesm1
 	cpx TBLX
 	beq LB72E ; already on last line
@@ -118,7 +120,7 @@ LB72E:	lda #CSR_DOWN
 	jsr kbdbuf_put
 LB733:	cmp #KEY_F3
 	bne LB74A
-	jsr kbdbuf_clear
+;	jsr kbdbuf_clear
 	ldx #0
 	cpx TBLX
 	beq LB745
@@ -132,12 +134,18 @@ LB74A:	cmp #CSR_DOWN
 	beq LB758
 	cmp #CSR_UP
 	bne LB6FA
+
+; UP
 	lda TBLX
 	beq LB75E ; top of screen
 	bne LB6FA
+
+; DOWN
 LB758:	lda TBLX
 	cmp nlinesm1
 	bne LB6FA
+
+; SCROLL DOWN
 LB75E:	jsr LB838
 	bcc LB6FA
 	jsr read_hex_word_from_screen
@@ -191,7 +199,7 @@ LB7C7:	lda #CSR_UP
 LB7CD:	lda #CR
 	ldx #CSR_HOME
 LB7D1:	ldy #0
-	jsr kbdbuf_clear
+;	jsr kbdbuf_clear
 	sty disable_f_keys
 	jsr print_a_x
 	jsr print_7_csr_right
@@ -275,13 +283,13 @@ get_screen_char:
 	asl
 	clc
 	adc zp2
-	sta veralo
+	sta VERA_ADDR_L
 	lda zp2+1
-	adc #0
-	sta veramid
-	lda #$10
-	sta verahi
-	lda veradat
+	adc #>screen_addr
+	sta VERA_ADDR_M
+	lda #$10 | ^screen_addr
+	sta VERA_ADDR_H
+	lda VERA_DATA0
 	iny
 	and #$7F
 	cmp #$20
