@@ -1,14 +1,30 @@
 
-bmt2 = $1111 ; XXX
-xmon1 = $1111 ; XXX
-ldtb1 = $1111 ; XXX
-nlines = $1111 ; XXX
-nlinesm1 = $1111 ; XXX
-blnsw = $1111 ; XXX
-gdbln = $1111 ; XXX
-blnon = $1111 ; XXX
-tblx = $1111 ; XXX
-pnt = $1111 ; XXX
+bmt2 = $1120 ; XXX
+xmon1 = $1121 ; XXX
+ldtb1 = $1122 ; XXX
+nlines = $1123 ; XXX
+nlinesm1 = $1124 ; XXX
+blnsw = $1125 ; XXX
+gdbln = $1126 ; XXX
+blnon = $1127 ; XXX
+tblx = $1128 ; XXX
+pnt = $1129 ; XXX
+
+mjsrfar = $1112 ; XXX
+LDTB1 = $1113 ; XXX
+screen_set_char = $1114 ; XXX
+GDBLN = $1115 ; XXX
+BLNON = $1116 ; XXX
+BLNSW = $1117 ; XXX
+veradat = $1118 ; XXX
+verahi = $1119 ; XXX
+veramid = $111A ; XXX
+veralo = $111B ; XXX
+sadd_a_to_zp1 = $111C ; XXX
+decode_mnemo = $111D ; XXX
+TBLX = $111E ; XXX
+kbdbuf_clear = $111F ; XXX
+
 
 cinv   := $0314 ; IRQ vector
 
@@ -16,6 +32,14 @@ cinv   := $0314 ; IRQ vector
 ; IRQ logic to handle F keys and scrolling
 ; ----------------------------------------------------------------
 set_irq_vector:
+	sei
+	lda #<keyhandler
+	sta $032e
+	lda #>keyhandler
+	sta $032f
+	cli
+	rts
+
 	lda cinv
 	cmp #<irq_handler
 	bne LB6C1
@@ -39,36 +63,47 @@ LB6D9:	sei
 
 .segment "monitor_ram_code"
 
-irq_handler:
-	lda rom_bank
-	pha
-	lda #BANK_MONITOR
-	sta rom_bank
-	jsr irqhandler2
-	pla
-	sta rom_bank
+irq_handler:;XXX
+keyhandler:
+	ldy rom_bank
+	phy
+	ldy #BANK_MONITOR
+	sty rom_bank
+	jsr keyhandler2
+	ply
+	sty rom_bank
 	rts
 
-.segment "monitor_b"
+.segment "monitor"
 
-irqhandler2:
-	lda	disable_f_keys
-	bne	LB6FA
-	jsr kbdbuf_peek
-	bne	LB700
-LB6FA:	rts
+keyhandler2:
+	; F3: $04
+	; F5: $03
+	; DN: $E0/$72
+	; UP: $E0/$75
+	bcc :+ ; down
+@ret:	rts
+:	bit disable_f_keys
+	bmi @ret
+	cpx #0
+	beq :+
+@ret2:	clc
+	rts
+:	cmp #$83
+	bne @ret2
 
-LB700:
-fk_2:	cmp #KEY_F7
-	bne LB71C
-	jsr kbdbuf_clear
+;	jsr kbdbuf_clear
 	lda #'@'
 	jsr kbdbuf_put
 	lda #'$'
 	jsr kbdbuf_put
 	lda #CR
 	jsr kbdbuf_put
-	bra LB6FA
+	lda #0
+	clc
+	rts
+
+LB6FA:	rts
 
 LB71C:	cmp #KEY_F5
 	bne LB733
@@ -92,6 +127,7 @@ LB733:	cmp #KEY_F3
 	jsr LE50C ; KERNAL set cursor position
 LB745:	lda #CSR_UP
 	jsr kbdbuf_put
+
 LB74A:	cmp #CSR_DOWN
 	beq LB758
 	cmp #CSR_UP
@@ -345,11 +381,3 @@ LE50C:
 	.word xmon1 ; set cursor position
 	.byte BANK_KERNAL
 	rts
-
-kbdbuf_peek:
-	jsr getin
-	beq :+
-	pha
-	jsr kbdbuf_put
-	pla
-:	rts
