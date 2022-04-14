@@ -217,9 +217,6 @@ kbdbuf_put2:
 ;      A: scancode low (0 = none)
 ;      C:   0: key down
 ;           1: key up
-;      Z: scancode available
-;           0: yes
-;           1: no
 ;****************************************
 receive_scancode:
 	ldx #1
@@ -262,6 +259,7 @@ receive_scancode_resume:
 ;****************************************
 receive_down_scancode_no_modifiers:
 	jsr receive_scancode
+	ora #0
 	beq no_key
 	jsr joystick_from_ps2
 	php
