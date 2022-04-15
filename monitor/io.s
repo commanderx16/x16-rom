@@ -27,7 +27,8 @@ insrt = $1111 ; XXX
 .import load_byte
 .import print_cr
 .import print_cr_then_input_loop
-.import set_irq_vector
+.import enable_f_keys
+.import disable_f_keys
 .import store_byte
 .import swap_zp1_and_zp2
 .import syntax_error
@@ -72,12 +73,12 @@ LB388:	lda command_index
 	cmp #<command_index_l
 	bne syn_err4
 LB38F:
-	jsr set_irq_vector
+	jsr disable_f_keys
 	ldx zp1
 	ldy zp1 + 1
 	jsr LB42D
 	php
-	jsr set_irq_vector
+	jsr enable_f_keys
 	plp
 LB3A4:	bcc LB3B3
 LB3A6:	ldx #0

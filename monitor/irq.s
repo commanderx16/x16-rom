@@ -1,16 +1,19 @@
 plot = $fff0
 
+.export enable_f_keys
+.export disable_f_keys
 
 .import decode_mnemo
-
-
-cinv   := $0314 ; IRQ vector
 
 ; ----------------------------------------------------------------
 ; IRQ logic to handle F keys and scrolling
 ; ----------------------------------------------------------------
-set_irq_vector:
+enable_f_keys:
 	sei
+	lda $032e
+	sta irq_lo
+	lda $032f
+	sta irq_hi
 	lda #<keyhandler
 	sta $032e
 	lda #>keyhandler
@@ -18,30 +21,17 @@ set_irq_vector:
 	cli
 	rts
 
-	lda cinv
-	cmp #<irq_handler
-	bne LB6C1
-	lda cinv + 1
-	cmp #>irq_handler
-	beq LB6D3
-LB6C1:	lda cinv
-	ldx cinv + 1
-	sta irq_lo
-	stx irq_hi
-	lda #<irq_handler
-	ldx #>irq_handler
-	bne LB6D9 ; always
-LB6D3:	lda irq_lo
-	ldx irq_hi
-LB6D9:	sei
-	sta cinv
-	stx cinv + 1
+disable_f_keys:
+	sei
+	lda irq_lo
+	sta $032e
+	lda irq_hi
+	sta $032f
 	cli
 	rts
 
 .segment "monitor_ram_code"
 
-irq_handler:;XXX
 keyhandler:
 	ldy rom_bank
 	phy
@@ -55,13 +45,9 @@ keyhandler:
 .segment "monitor"
 
 keyhandler2:
-	; F3: $04
-	; F5: $03
-	; DN: $E0/$72
-	; UP: $E0/$75
 	bcc :+ ; down
 @ret:	rts
-:	bit disable_f_keys
+:	bit f_keys_disabled
 	bmi @ret
 	cpx #0
 	bne @not_prefix_00
@@ -224,7 +210,7 @@ LB7C7:	lda #CSR_UP
 LB7CD:	lda #CR
 	ldx #CSR_HOME
 LB7D1:	ldy #0
-	sty disable_f_keys
+	sty f_keys_disabled
 	jsr print_a_x
 	jmp print_7_csr_right
 
@@ -358,7 +344,7 @@ read_hex_byte_from_screen:
 	rts
 
 LB8D4:	lda #$FF
-	sta disable_f_keys
+	sta f_keys_disabled
 	rts
 
 LB8EC:	lda #8
