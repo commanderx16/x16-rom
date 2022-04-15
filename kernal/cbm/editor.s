@@ -624,7 +624,6 @@ jpl4	sty pntr
 ncz2	jmp loop2
 ncx2	cmp #$11
 	bne colr1
-; down
 	clc
 	tya
 	adc llen
@@ -633,16 +632,13 @@ ncx2	cmp #$11
 	cmp lnmx
 	bcc jpl4
 	beq jpl4
-
-; down ->scroll
-	dec tblx ; fix line
+	dec tblx
 curs10	sbc llen
 	bcc gotdwn
 	sta pntr
 	bne curs10
 gotdwn	jsr nxln
 jpl3	jmp loop2
-
 colr1	jsr chkcol      ;check for a color
 
 	cmp #$0e        ;does he want lower case?
@@ -768,13 +764,10 @@ up6
 	bvs up1         ;ISO
 	ora #$40
 up1	jmp nc3
-
 up2	cmp #$11
 	bne nxt2
-; up
 	ldx tblx
 	bne up3
-
 	ldx #0
 	jsr bmt2        ;insert line at top of screen
 	lda ldtb1
@@ -782,7 +775,6 @@ up2	cmp #$11
 	sta ldtb1
 	jsr stupt
 	bra jpl2
-
 up3	dec tblx
 	lda pntr
 	sec
@@ -792,7 +784,6 @@ up3	dec tblx
 	bpl jpl2
 upalin	jsr stupt
 	bne jpl2
-
 nxt2	cmp #$12
 	bne nxt6
 	lda #0
