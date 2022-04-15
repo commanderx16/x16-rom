@@ -103,6 +103,7 @@ keyhandler2:
 	bne @not_f3
 ; F3
 	jsr cursor_top
+	jsr LB75E
 	lda #0
 	clc
 	rts
@@ -112,6 +113,7 @@ keyhandler2:
 	bne @ret2
 ; F5
 	jsr cursor_bottom
+	jsr LB75E
 	lda #0
 	clc
 	rts
@@ -160,36 +162,22 @@ cursor_bottom:
 	clc
 	jmp plot
 
-
-
-LB74A:	cmp #CSR_DOWN
-	beq LB758
-	cmp #CSR_UP
-	bne LB6FA
-
-; UP
-	lda TBLX
-	beq LB75E ; top of screen
-	bne LB6FA
-
-LB6FA:	rts
-
-; DOWN
-LB758:	lda TBLX
-	cmp nlinesm1
-	bne LB6FA
-
-; SCROLL DOWN
-LB75E:	jsr LB838
-	bcc LB6FA
+ret:	rts
+; SCROLL
+LB75E:	jsr find_cont
+	bcc ret ; not found
 	jsr read_hex_word_from_screen
 	php
 	jsr LB8D4
 	plp
-	bcc :+
-	jmp LB6FA
-:	lda TBLX
+	bcs ret
+
+	sec
+	jsr plot
+	cpx #0
 	beq LB7E1
+
+; bottom
 	lda tmp12
 	cmp #','
 	beq LB790
@@ -199,6 +187,7 @@ LB75E:	jsr LB838
 	beq LB7AE
 	cmp #$27 ; "'"
 	beq LB7BC
+; ':'
 	lda #8
 	jsr add_a_to_zp1
 	jsr print_cr
@@ -237,8 +226,9 @@ LB7D1:	ldy #0
 	sty disable_f_keys
 	jsr print_a_x
 	jsr print_7_csr_right
-	jmp LB6FA
+	jmp ret
 
+; top
 LB7E1:	jsr scroll_down
 	lda tmp12
 	cmp #','
@@ -277,48 +267,51 @@ LB82D:	lda #$20
 	jsr dump_ascii_line
 	jmp LB7CD
 
-LB838:	lda pnt
-	ldx pnt + 1
-	sta zp2
-	stx zp2 + 1
-	lda nlines
-	sta tmp13
-LB845:	ldy #1 ; column 1
+find_cont:
+	sec
+	jsr plot
+	stx zp2 + 1 ; current Y
+
+	jsr screen
+	sty tmp13 ; count: number of lines
+
+@loop:	ldy #1 ; column 1
 	jsr get_screen_char
 	cmp #':'
-	beq LB884
+	beq @found
 	cmp #','
-	beq LB884
+	beq @found
 	cmp #'['
-	beq LB884
+	beq @found
 	cmp #']'
-	beq LB884
+	beq @found
 	cmp #$27 ; "'"
-	beq LB884
+	beq @found
 	dec tmp13
-	beq LB889
-	jsr kbdbuf_peek
-	cmp #CSR_DOWN
-	bne LB877
+	beq @notfound
+
+	sec
+	jsr plot
+	cpx #0 ; line 0: search down
+	beq :+
 	dec zp2 + 1
-	bne LB845
-LB877:
-	inc zp2 + 1
-	bne LB845
-LB884:	sec
+	bra @loop
+:	inc zp2 + 1
+	bra @loop
+
+@found:	sec
 	sta tmp12
 	rts
 
-LB889:	clc
+@notfound:
+	clc
 	rts
 
 get_screen_char:
 	tya
 	asl
-	clc
-	adc zp2
 	sta VERA_ADDR_L
-	lda zp2+1
+	lda zp2+1 ; Y
 	adc #>screen_addr
 	sta VERA_ADDR_M
 	lda #$10 | ^screen_addr
@@ -327,10 +320,11 @@ get_screen_char:
 	iny
 	and #$7F
 	cmp #$20
-	bcs LB896
+	bcs :+
 	ora #$40
-LB896:	rts
+:	rts
 
+; enter with .Y = 1
 read_hex_word_from_screen:
 	cpy #$16
 	bne :+
