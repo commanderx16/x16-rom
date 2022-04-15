@@ -128,33 +128,33 @@ keyhandler2:
 	cmp #$72 ; DOWN
 	bne @not_down
 
-@xxx:	pha
+	pha
 	jsr screen
 	dey
 	sty zp2+1
 	sec
 	jsr plot
 	cpx zp2+1
-	bne :+
+	bne @restore
+@scroll:
 	jsr LB75E
 	pla
 	lda #0
 	clc
 	rts
 
-:	pla
-	ldx #$e0
-	clc
-	rts
-
 @not_down:
 	cmp #$75 ; UP
 	bne @ret2
-	; TODO
+
 	pha
-	jsr LB75E
+	sec
+	jsr plot
+	cpx #0
+	beq @scroll
+@restore:
 	pla
-	ldx #0
+	ldx #$e0
 	clc
 	rts
 
