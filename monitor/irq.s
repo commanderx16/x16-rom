@@ -229,7 +229,10 @@ LB7D1:	ldy #0
 	jmp ret
 
 ; top
-LB7E1:	jsr scroll_down
+LB7E1:	lda #CSR_HOME
+	jsr bsout
+	lda #CSR_UP
+	jsr bsout
 	lda tmp12
 	cmp #','
 	beq LB800
@@ -377,15 +380,6 @@ LB8EE:	sta tmp14
 	bcs LB8FD
 	dec zp1 + 1
 LB8FD:	rts
-
-scroll_down:
-	ldx #0
-	jsr LE96C ; insert line at top of screen
-	lda LDTB1
-	ora #$80 ; first line is not an extension
-	sta LDTB1
-	lda #CSR_HOME
-	jmp bsout
 
 LB90E:	lda #16 ; number of bytes to scan backwards
 	sta tmp13
