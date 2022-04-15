@@ -91,9 +91,6 @@ untlk = $ffab
 .export status
 .export sal, sah
 
-; for monitor
-.export xmon2, fnadr
-
 .segment "ZPCHANNEL" : zeropage
 ;                      C64 location
 ;                         VVV
