@@ -139,7 +139,6 @@ keyhandler2:
 	clc
 	rts
 
-
 cursor_top:
 	sec
 	jsr plot ; cursor position
@@ -185,7 +184,6 @@ LB75E:	jsr find_cont
 	beq LB7AE
 	cmp #$27 ; "'"
 	beq LB7BC
-; ':'
 	lda #8
 	jsr add_a_to_zp1
 	jsr print_cr
