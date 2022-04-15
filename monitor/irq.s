@@ -122,9 +122,9 @@ keyhandler2:
 	cpx zp2+1
 	bne @restore
 	jsr cursor_bottom
+	pla
 @scroll:
 	jsr LB75E
-	pla
 	lda #0
 	clc
 	rts
@@ -139,6 +139,7 @@ keyhandler2:
 	cpx #0
 	bne @restore
 	jsr cursor_top
+	pla
 	bra @scroll
 @restore:
 	pla
