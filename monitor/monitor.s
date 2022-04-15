@@ -97,6 +97,7 @@
 .export zp1
 .export zp2
 .export zp3
+.export byte_to_hex_ascii
 .import cmd_at
 .import cmd_ls
 

@@ -2,11 +2,11 @@ readst = $ffb7
 
 fnlen	:= $1111  ; length of current file name
 ;sa	:= $1111  ; secondary address
-fa	:= $1111  ; device number
+;fa	:= $1111  ; device number
 
-xmon2 = $1111 ; XXX
-loop4 = $1111 ; XXX
-insrt = $1111 ; XXX
+
+basic_fa = $1200
+verck = $1202
 
 .feature labels_without_colons
 
@@ -32,6 +32,7 @@ insrt = $1111 ; XXX
 .import store_byte
 .import swap_zp1_and_zp2
 .import syntax_error
+.import byte_to_hex_ascii
 .import tmp16
 .importzp zp1
 .importzp zp2
@@ -332,8 +333,71 @@ disk_done
 crdo:	lda #13
 	jmp bsout
 
+bin = zp2
+bcd = tmp16
+asc = tmp16+3
 linprt:
+	stx bin
+	sta bin+1
+;
+; This function converts a 16 bit binary value into a 24 bit BCD. It
+; works by transferring one bit a time from the source and adding it
+; into a BCD value that is being doubled on each iteration. As all the
+; arithmetic is being done in BCD the result is a binary to decimal
+; conversion. All conversions take 915 clock cycles.
+;
+; See BINBCD8 for more details of its operation.
+;
+; Andrew Jacobs, 28-Feb-2004
+
+binbcd16:
+	sed		; Switch to decimal mode
+	lda #0		; Ensure the result is clear
+	sta bcd+0
+	sta bcd+1
+	sta bcd+2
+	ldx #16		; The number of source bits
+:	asl bin+0	; Shift out one bit
+	rol bin+1
+	lda bcd+0	; And add into result
+	adc bcd+0
+	sta bcd+0
+	lda bcd+1	; propagating any carry
+	adc bcd+1
+	sta bcd+1
+	lda bcd+2	; ... thru whole result
+	adc bcd+2
+	sta bcd+2
+	dex		; And repeat for next bit
+	bne :-
+	cld		; Back to binary
+
+	lda bcd+2
+	jsr byte_to_hex_ascii
+	sta asc+0
+	sty asc+1
+	lda bcd+1
+	jsr byte_to_hex_ascii
+	sta asc+2
+	sty asc+3
+	lda bcd+0
+	jsr byte_to_hex_ascii
+	sta asc+4
+	sty asc+5
+
+	ldx #0
+:	lda asc,x
+	cmp #'0'
+	bne :+
+	inx
+	cpx #5
+	bne :-
+
+:	lda asc,x
+	jsr bsout
+	inx
+	cpx #6
+	bne :-
+
 	rts
 
-basic_fa = $1200
-verck = $1202
