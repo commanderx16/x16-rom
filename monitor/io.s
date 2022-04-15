@@ -24,7 +24,6 @@ insrt = $1111 ; XXX
 .import get_hex_byte2
 .import get_hex_word3
 .import input_loop
-.import input_loop2
 .import load_byte
 .import print_cr
 .import print_cr_then_input_loop
