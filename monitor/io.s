@@ -38,7 +38,6 @@ insrt = $1111 ; XXX
 
 .import mjsrfar
 
-.export cmd_asterisk
 .export cmd_at
 .export cmd_ls
 
@@ -212,173 +211,6 @@ LB475:	jsr unlstn
 syn_err7:
 	jmp  syntax_error
 
-; ----------------------------------------------------------------
-; "*R"/"*W" - read/write sector
-; ----------------------------------------------------------------
-cmd_asterisk:
-	jsr listen_command_channel
-	jsr unlstn
-	jsr basin
-	cmp #'W'
-	beq LBAA0
-	cmp #'R'
-	bne syn_err7
-LBAA0:	sta zp2 ; save 'R'/'W' mode
-	jsr basin_skip_spaces_if_more
-	jsr get_hex_byte2
-	bcc syn_err7
-	sta zp1
-	jsr basin_if_more
-	jsr get_hex_byte
-	bcc syn_err7
-	sta zp1 + 1
-	jsr basin_cmp_cr
-	bne LBAC1
-	lda #>$CF00 ; default address
-	sta zp2 + 1
-	bne LBACD
-LBAC1:	jsr get_hex_byte
-	bcc syn_err7
-	sta zp2 + 1
-	jsr basin_cmp_cr
-	bne syn_err7
-LBACD:	jsr LBB48
-	jsr swap_zp1_and_zp2
-	lda zp1
-	cmp #'W'
-	beq LBB25
-	lda #'1' ; U1: read
-	jsr read_write_block
-	jsr talk_cmd_channel
-	jsr iecin
-	cmp #'0'
-	beq LBB00 ; no error
-	pha
-	jsr print_cr
-	pla
-LBAED:	jsr LE716 ; KERNAL: output character to screen
-	jsr iecin
-	cmp #CR ; print drive status until CR (XXX redundant?)
-	bne LBAED
-	jsr untalk
-	jsr close_2
-	jmp input_loop
-
-LBB00:	jsr iecin
-	cmp #CR ; receive all bytes (XXX not necessary?)
-	bne LBB00
-	jsr untalk
-	jsr send_bp
-	ldx #2
-	jsr chkin
-	ldy #0
-	sty zp1
-LBB16:	jsr iecin
-	jsr store_byte ; receive block
-	iny
-	bne LBB16
-	jsr clrch
-	jmp LBB42 ; close 2 and print drive status
-
-LBB25:	jsr send_bp
-	ldx #2
-	jsr ckout
-	ldy #0
-	sty zp1
-LBB31:	jsr load_byte
-	jsr iecout ; send block
-	iny
-	bne LBB31
-	jsr clrch
-	lda #'2' ; U2: write
-	jsr read_write_block
-LBB42:	jsr close_2
-	jmp print_drive_status
-
-LBB48:	lda #2
-	tay
-	ldx fa
-	jsr setlfs
-	lda #1
-	ldx #<s_hash
-	ldy #>s_hash
-	jsr setnam
-	jmp open
-
-close_2:
-	lda #2
-	jmp close
-
-to_dec:
-	ldx #'0'
-	sec
-LBB64:	sbc #10
-	bcc LBB6B
-	inx
-	bcs LBB64
-LBB6B:	adc #'9' + 1
-	rts
-
-read_write_block:
-	pha
-	ldx #0
-LBB71:	lda s_u1,x
-	sta BUF,x
-	inx
-	cpx #s_u1_end - s_u1
-	bne LBB71
-	pla
-	sta BUF + 1
-	lda zp2 ; track
-	jsr to_dec
-	stx BUF + s_u1_end - s_u1 + 0
-	sta BUF + s_u1_end - s_u1 + 1
-	lda #' '
-	sta BUF + s_u1_end - s_u1 + 2
-	lda zp2 + 1 ; sector
-	jsr to_dec
-	stx BUF + s_u1_end - s_u1 + 3
-	sta BUF + s_u1_end - s_u1 + 4
-	jsr listen_command_channel
-	ldx #0
-LBBA0:	lda BUF,x
-	jsr iecout
-	inx
-	cpx #s_u1_end - s_u1 + 5
-	bne LBBA0
-	jmp unlstn
-
-send_bp:
-	jsr listen_command_channel
-	ldx #0
-LBBB3:	lda s_bp,x
-	jsr iecout
-	inx
-	cpx #s_bp_end - s_bp
-	bne LBBB3
-	jmp unlstn
-
-s_u1:
-	.byte "U1:2 0 "
-s_u1_end:
-s_bp:
-	.byte "B-P 2 0"
-s_bp_end:
-
-s_hash:
-	.byte "#"
-
-send_m_dash2:
-	pha
-	lda #$6F
-	jsr init_and_listen
-	lda #'M'
-	jsr iecout
-	lda #'-'
-	jsr iecout
-	pla
-	jmp iecout
-
 iec_send_zp1_plus_y:
 	tya
 	clc
@@ -514,15 +346,6 @@ LBD8D:	lda #9
 	lda #8
 	bne LBD8A ; always
 
-; XXX unused
-LAF2B:	lda #'E' ; send M-E to drive
-	jsr send_m_dash2
-	lda zp2
-	jsr iecout
-	lda zp2 + 1
-	jsr iecout
-	jsr unlstn
-	jmp print_cr_then_input_loop
 
 LF646:
 	jsr mjsrfar
