@@ -1,3 +1,4 @@
+plot = $fff0
 
 bmt2 = $1120 ; XXX
 xmon1 = $1121 ; XXX
@@ -103,20 +104,28 @@ keyhandler2:
 	cmp #3 ; F5
 	bne @ret2
 ; F5
+;	jsr kbdbuf_clear
+
+	jsr clear_cursor
+	sec
+	jsr plot ; cursor position
+	phy ; col
+	jsr screen ; screen size
+	tya
+	tax
+	dex
+	ply
+	clc
+@xxx:	jsr plot
+
+LB72E:
+
+	lda #0
 	clc
 	rts
 
-LB6FA:	rts
 
-;;; F5
-;	jsr kbdbuf_clear
-	ldx nlinesm1
-	cpx TBLX
-	beq LB72E ; already on last line
-	jsr clear_cursor
-	ldy pntr
-	jsr LE50C ; KERNAL set cursor position
-LB72E:	lda #CSR_DOWN
+	lda #CSR_DOWN
 	jsr kbdbuf_put
 LB733:	cmp #KEY_F3
 	bne LB74A
@@ -139,6 +148,8 @@ LB74A:	cmp #CSR_DOWN
 	lda TBLX
 	beq LB75E ; top of screen
 	bne LB6FA
+
+LB6FA:	rts
 
 ; DOWN
 LB758:	lda TBLX
@@ -329,15 +340,15 @@ read_hex_byte_from_screen:
 LB8D4:	lda #$FF
 	sta disable_f_keys
 clear_cursor:
-	lda #$FF
-	sta BLNSW
-	lda BLNON
-	beq LB8EB ; rts
-	lda GDBLN
-	ldy pntr
-	jsr screen_set_char
-	lda #0
-	sta BLNON
+;	lda #$FF
+;	sta BLNSW
+;	lda BLNON
+;	beq LB8EB ; rts
+;	lda GDBLN
+;	ldy pntr
+;	jsr screen_set_char
+;	lda #0
+;	sta BLNON
 LB8EB:	rts
 
 LB8EC:	lda #8
