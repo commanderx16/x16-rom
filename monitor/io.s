@@ -57,21 +57,29 @@ listen_command_channel:
 ; "L"/"S" - load/save file
 ; ----------------------------------------------------------------
 cmd_ls:
+	stz fnlen
+
+	; default
+	lda #':'
+	sta tmp16
+	lda #'*'
+	sta tmp16+1
+	ldx #<tmp16
 	ldy #>tmp16
-	sty fnadr + 1
-	dey
-	sty sa  ; = 1
-	dey
-	sty fnlen  ; = 1
-	lda #8
-	sta fa
-	lda #<tmp16
-	sta fnadr
+	lda #2
+	jsr setnam
+	lda #1
+	ldx #8
+	ldy #1
+	jsr setlfs
+
 	jsr basin_skip_spaces_cmp_cr
 	bne LB3B6
+; empty
 LB388:	lda command_index
 	cmp #<command_index_l
 	bne syn_err4
+; do the load
 LB38F:
 	jsr disable_f_keys
 	ldx zp1
@@ -95,7 +103,7 @@ LB3BA:	jsr basin_cmp_cr
 	beq LB388
 	cmp #'"'
 	beq LB3CF
-	sta (fnadr),y
+	sta tmp16,y
 	inc fnlen
 	iny
 	cpy #$10
@@ -103,18 +111,30 @@ LB3BA:	jsr basin_cmp_cr
 syn_err4:
 	jmp syntax_error
 
-LB3CF:	jsr basin_cmp_cr
+LB3CF:
+	ldx #<tmp16
+	ldy #>tmp16
+	lda fnlen
+	jsr setnam
+
+	jsr basin_cmp_cr
 	beq LB388
 	cmp #','
 LB3D6:	bne syn_err4
 	jsr get_hex_byte
 	and #$0F
 	beq syn_err4
-	cmp #1 ; tape
-	beq LB3E7
 	cmp #4
 	bcc syn_err4 ; illegal device number
-LB3E7:	sta fa
+	tax
+	ldy #0 ; sa
+	lda command_index
+	cmp #<command_index_s
+	bne :+
+	ldy #1 ; sa
+:	lda #1 ; la
+	jsr setlfs
+
 	jsr basin_cmp_cr
 	beq LB388
 	cmp #','
@@ -126,8 +146,7 @@ LB3F0:	bne LB3D6
 	lda command_index
 	cmp #<command_index_l
 	bne LB3F0
-	dec sa
-	beq LB38F
+	jmp LB38F
 LB408:	cmp #','
 LB40A:	bne LB3F0
 	jsr get_hex_word3
@@ -138,7 +157,6 @@ LB40A:	bne LB3F0
 	lda command_index
 	cmp #<command_index_s
 	bne LB40A
-	dec sa
 	jsr LB438
 	jmp LB3A4
 
