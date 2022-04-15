@@ -400,14 +400,3 @@ LB913:	sec
 	bne LB913
 :	rts
 
-LE96C:
-	jsr mjsrfar
-	.word bmt2  ; insert line at top of screen
-	.byte BANK_KERNAL
-	rts
-
-LE50C:
-	jsr mjsrfar
-	.word xmon1 ; set cursor position
-	.byte BANK_KERNAL
-	rts
