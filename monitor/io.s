@@ -230,14 +230,11 @@ ptstat	jsr crdo
 	jsr talk
 	lda #$6f
 	jsr tksa
-@xxx:	jsr readst
-	and #2
-	bne dosbad
 dos11	jsr iecin
 	jsr bsout
 	cmp #13
 	bne dos11
-dosbad:	jsr untalk
+	jsr untalk
 	jmp input_loop
 
 ;***************
