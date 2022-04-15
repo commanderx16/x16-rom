@@ -69,6 +69,8 @@ keyhandler2:
 	cmp #$83
 	bne @not_f7
 
+;	lda #$93 ; CLR
+;	jsr kbdbuf_put
 	lda #'@'
 	jsr kbdbuf_put
 	lda #'$'
@@ -83,6 +85,7 @@ keyhandler2:
 	cmp #4 ; F3
 	bne @not_f3
 ; F3
+@scroll_up:
 	jsr cursor_top
 	jsr LB75E
 	lda #0
@@ -93,6 +96,7 @@ keyhandler2:
 	cmp #3 ; F5
 	bne @ret2
 ; F5
+@scroll_down:
 	jsr cursor_bottom
 	jsr LB75E
 	lda #0
@@ -117,6 +121,7 @@ keyhandler2:
 	jsr plot
 	cpx zp2+1
 	bne @restore
+	jsr cursor_bottom
 @scroll:
 	jsr LB75E
 	pla
@@ -132,7 +137,9 @@ keyhandler2:
 	sec
 	jsr plot
 	cpx #0
-	beq @scroll
+	bne @restore
+	jsr cursor_top
+	bra @scroll
 @restore:
 	pla
 	ldx #$e0
