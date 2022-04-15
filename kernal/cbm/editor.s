@@ -42,24 +42,8 @@ nwrap=2 ;max number of physical lines per logical line
 .export lstp
 .export lsxp
 .export cursor_blink
-
-; monitor and kernal
 .export tblx
 .export pntr
-
-; monitor
-.export blnon
-.export blnsw
-.export gdbln
-.export insrt
-.export ldtb1
-.export nlines
-.export nlinesm1
-.export qtsw
-.export rvs
-.export xmon1
-.export loop4
-.export bmt2
 
 ; screen driver
 .import screen_mode
@@ -143,9 +127,23 @@ scrorg	ldx llen
 ;read/plot cursor position
 ;
 plot	bcs plot10
-xmon1	stx tblx
+	php
+	sei
+	phx
+	phy
+	lda blnon
+	beq :+
+	lda gdbln
+	ldx gdcol       ;restore original color
+	ldy #0
+	sty blnon
+	jsr dspp
+:	ply
+	plx
+	stx tblx
 	sty pntr
 	jsr stupt
+	plp
 plot10	ldx tblx
 	ldy pntr
 	rts
