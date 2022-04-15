@@ -127,8 +127,23 @@ keyhandler2:
 
 	cmp #$72 ; DOWN
 	bne @not_down
-	; TODO
+
+@xxx:	pha
+	jsr screen
+	dey
+	sty zp2+1
+	sec
+	jsr plot
+	cpx zp2+1
+	bne :+
+	jsr LB75E
+	pla
 	lda #0
+	clc
+	rts
+
+:	pla
+	ldx #$e0
 	clc
 	rts
 
@@ -136,7 +151,10 @@ keyhandler2:
 	cmp #$75 ; UP
 	bne @ret2
 	; TODO
-	lda #0
+	pha
+	jsr LB75E
+	pla
+	ldx #0
 	clc
 	rts
 
