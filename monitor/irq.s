@@ -102,10 +102,8 @@ keyhandler2:
 
 @not_f7:
 	cmp #3 ; F5
-	bne @ret2
+	bne @not_f5
 ; F5
-;	jsr kbdbuf_clear
-
 	jsr clear_cursor
 	sec
 	jsr plot ; cursor position
@@ -116,10 +114,21 @@ keyhandler2:
 	dex
 	ply
 	clc
-@xxx:	jsr plot
+	jsr plot
+	lda #0
+	clc
+	rts
 
-LB72E:
-
+@not_f5:
+	cmp #4 ; F3
+	bne @ret2
+; F3
+	jsr clear_cursor
+	sec
+	jsr plot ; cursor position
+	ldx #0
+	clc
+	jsr plot
 	lda #0
 	clc
 	rts
