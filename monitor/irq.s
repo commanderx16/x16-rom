@@ -141,7 +141,6 @@ keyhandler2:
 
 
 cursor_top:
-	jsr clear_cursor
 	sec
 	jsr plot ; cursor position
 	ldx #0
@@ -149,7 +148,6 @@ cursor_top:
 	jmp plot
 
 cursor_bottom:
-	jsr clear_cursor
 	sec
 	jsr plot ; cursor position
 	phy ; col
@@ -358,17 +356,7 @@ read_hex_byte_from_screen:
 
 LB8D4:	lda #$FF
 	sta disable_f_keys
-clear_cursor:
-;	lda #$FF
-;	sta BLNSW
-;	lda BLNON
-;	beq LB8EB ; rts
-;	lda GDBLN
-;	ldy pntr
-;	jsr screen_set_char
-;	lda #0
-;	sta BLNON
-LB8EB:	rts
+	rts
 
 LB8EC:	lda #8
 LB8EE:	sta tmp14
