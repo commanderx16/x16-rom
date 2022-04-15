@@ -209,6 +209,7 @@ cmd_at:
 	cpy verck       ;length?
 	bne :-
 	jsr unlstn
+	jsr crdo
 	jmp input_loop
 
 listen_cmd:
@@ -225,7 +226,8 @@ device_not_present:
 
 ;***************
 ; print status
-ptstat	jsr listen_cmd
+ptstat	jsr crdo
+	jsr listen_cmd
 	jsr unlstn
 	jsr getfa
 	jsr talk
