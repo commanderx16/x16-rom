@@ -1,117 +1,180 @@
+plot = $fff0
 
-bmt2 = $1111 ; XXX
-xmon1 = $1111 ; XXX
-ldtb1 = $1111 ; XXX
-nlines = $1111 ; XXX
-nlinesm1 = $1111 ; XXX
-blnsw = $1111 ; XXX
-gdbln = $1111 ; XXX
-blnon = $1111 ; XXX
-tblx = $1111 ; XXX
-pnt = $1111 ; XXX
+.export enable_f_keys
+.export disable_f_keys
 
-cinv   := $0314 ; IRQ vector
+.import decode_mnemo
 
 ; ----------------------------------------------------------------
-; IRQ logic to handle F keys and scrolling
+; Handle F keys and scrolling
 ; ----------------------------------------------------------------
-set_irq_vector:
-	lda cinv
-	cmp #<irq_handler
-	bne LB6C1
-	lda cinv + 1
-	cmp #>irq_handler
-	beq LB6D3
-LB6C1:	lda cinv
-	ldx cinv + 1
+enable_f_keys:
+	sei
+	lda $032e
 	sta irq_lo
-	stx irq_hi
-	lda #<irq_handler
-	ldx #>irq_handler
-	bne LB6D9 ; always
-LB6D3:	lda irq_lo
-	ldx irq_hi
-LB6D9:	sei
-	sta cinv
-	stx cinv + 1
+	lda $032f
+	sta irq_hi
+	lda #<keyhandler
+	sta $032e
+	lda #>keyhandler
+	sta $032f
+	cli
+	rts
+
+disable_f_keys:
+	sei
+	lda irq_lo
+	sta $032e
+	lda irq_hi
+	sta $032f
 	cli
 	rts
 
 .segment "monitor_ram_code"
 
-irq_handler:
-	lda rom_bank
-	pha
-	lda #BANK_MONITOR
-	sta rom_bank
-	jsr irqhandler2
-	pla
-	sta rom_bank
+keyhandler:
+	ldy rom_bank
+	phy
+	ldy #BANK_MONITOR
+	sty rom_bank
+	jsr keyhandler2
+	ply
+	sty rom_bank
 	rts
 
-.segment "monitor_b"
+.segment "monitor"
 
-irqhandler2:
-	lda	disable_f_keys
-	bne	LB6FA
-	jsr kbdbuf_peek
-	bne	LB700
-LB6FA:	rts
+keyhandler2:
+	bcc :+ ; down
+@ret:	rts
+:	bit f_keys_disabled
+	bmi @ret
 
-LB700:
-fk_2:	cmp #KEY_F7
-	bne LB71C
-	jsr kbdbuf_clear
+	cpx #0
+	bne @not_prefix_00
+
+	cmp #$05 ; F1
+	beq @eat
+	cmp #$06 ; F2
+	beq @eat
+	cmp #$0C ; F4
+	beq @eat
+	cmp #$0B ; F6
+	beq @eat
+	cmp #$0A ; F8
+	beq @eat
+
+	cmp #$83
+	bne @not_f7
+
 	lda #'@'
 	jsr kbdbuf_put
 	lda #'$'
 	jsr kbdbuf_put
 	lda #CR
 	jsr kbdbuf_put
-	bra LB6FA
 
-LB71C:	cmp #KEY_F5
-	bne LB733
-	jsr kbdbuf_clear
-	ldx nlinesm1
-	cpx TBLX
-	beq LB72E ; already on last line
-	jsr clear_cursor
-	ldy pntr
-	jsr LE50C ; KERNAL set cursor position
-LB72E:	lda #CSR_DOWN
-	jsr kbdbuf_put
-LB733:	cmp #KEY_F3
-	bne LB74A
-	jsr kbdbuf_clear
+@eat:	lda #0
+	clc
+	rts
+
+@not_f7:
+	cmp #4 ; F3
+	bne @not_f3
+; F3
+@scroll_up:
+	jsr cursor_top
+	jsr LB75E
+	lda #0
+	clc
+	rts
+
+@not_f3:
+	cmp #3 ; F5
+	bne @ret2
+; F5
+@scroll_down:
+	jsr cursor_bottom
+	jsr LB75E
+	lda #0
+	clc
+	rts
+
+@ret2:	clc
+	rts
+
+@not_prefix_00:
+	cpx #$e0
+	bne @ret2
+
+	cmp #$72 ; DOWN
+	bne @not_down
+
+	pha
+	jsr screen
+	dey
+	sty zp2+1
+	sec
+	jsr plot
+	cpx zp2+1
+	bne @restore
+	pla
+	bra @scroll_down
+
+@not_down:
+	cmp #$75 ; UP
+	bne @ret2
+
+	pha
+	sec
+	jsr plot
+	cpx #0
+	bne @restore
+	pla
+	bra @scroll_up
+
+@restore:
+	pla
+	ldx #$e0
+	clc
+	rts
+
+cursor_top:
+	sec
+	jsr plot ; cursor position
 	ldx #0
-	cpx TBLX
-	beq LB745
-	jsr clear_cursor
-	ldy pntr
-	jsr LE50C ; KERNAL set cursor position
-LB745:	lda #CSR_UP
-	jsr kbdbuf_put
-LB74A:	cmp #CSR_DOWN
-	beq LB758
-	cmp #CSR_UP
-	bne LB6FA
-	lda TBLX
-	beq LB75E ; top of screen
-	bne LB6FA
-LB758:	lda TBLX
-	cmp nlinesm1
-	bne LB6FA
-LB75E:	jsr LB838
-	bcc LB6FA
+	clc
+	jmp plot
+
+cursor_bottom:
+	sec
+	jsr plot ; cursor position
+	phy ; col
+	jsr screen ; screen size
+	tya
+	tax
+	dex
+	ply
+	clc
+	jmp plot
+
+ret:	rts
+
+; SCROLL
+LB75E:	jsr find_cont
+	bcc ret ; not found
 	jsr read_hex_word_from_screen
 	php
 	jsr LB8D4
 	plp
-	bcc :+
-	jmp LB6FA
-:	lda TBLX
+	bcs ret
+
+	sec
+	jsr plot
+	cpx #0
 	beq LB7E1
+
+; bottom
 	lda tmp12
 	cmp #','
 	beq LB790
@@ -155,13 +218,15 @@ LB7C7:	lda #CSR_UP
 LB7CD:	lda #CR
 	ldx #CSR_HOME
 LB7D1:	ldy #0
-	jsr kbdbuf_clear
-	sty disable_f_keys
+	sty f_keys_disabled
 	jsr print_a_x
-	jsr print_7_csr_right
-	jmp LB6FA
+	jmp print_7_csr_right
 
-LB7E1:	jsr scroll_down
+; top
+LB7E1:	lda #CSR_HOME
+	jsr bsout
+	lda #CSR_UP
+	jsr bsout
 	lda tmp12
 	cmp #','
 	beq LB800
@@ -199,60 +264,64 @@ LB82D:	lda #$20
 	jsr dump_ascii_line
 	jmp LB7CD
 
-LB838:	lda pnt
-	ldx pnt + 1
-	sta zp2
-	stx zp2 + 1
-	lda nlines
-	sta tmp13
-LB845:	ldy #1 ; column 1
+find_cont:
+	sec
+	jsr plot
+	stx zp2 + 1 ; current Y
+
+	jsr screen
+	sty tmp13 ; count: number of lines
+
+@loop:	ldy #1 ; column 1
 	jsr get_screen_char
 	cmp #':'
-	beq LB884
+	beq @found
 	cmp #','
-	beq LB884
+	beq @found
 	cmp #'['
-	beq LB884
+	beq @found
 	cmp #']'
-	beq LB884
+	beq @found
 	cmp #$27 ; "'"
-	beq LB884
+	beq @found
 	dec tmp13
-	beq LB889
-	jsr kbdbuf_peek
-	cmp #CSR_DOWN
-	bne LB877
+	beq @notfound
+
+	sec
+	jsr plot
+	cpx #0 ; line 0: search down
+	beq :+
 	dec zp2 + 1
-	bne LB845
-LB877:
-	inc zp2 + 1
-	bne LB845
-LB884:	sec
+	bra @loop
+:	inc zp2 + 1
+	bra @loop
+
+@found:	sec
 	sta tmp12
 	rts
 
-LB889:	clc
+@notfound:
+	clc
 	rts
 
 get_screen_char:
 	tya
 	asl
-	clc
-	adc zp2
-	sta veralo
-	lda zp2+1
-	adc #0
-	sta veramid
-	lda #$10
-	sta verahi
-	lda veradat
+	sta VERA_ADDR_L
+	lda zp2+1 ; Y
+	adc #>screen_addr
+	sta VERA_ADDR_M
+	lda #$10 | ^screen_addr
+	sta VERA_ADDR_H
+	lda VERA_DATA0
 	iny
 	and #$7F
 	cmp #$20
-	bcs LB896
+	bcs :+
 	ora #$40
-LB896:	rts
+:	rts
 
+; enter with .Y = 1
 read_hex_word_from_screen:
 	cpy #$16
 	bne :+
@@ -283,18 +352,8 @@ read_hex_byte_from_screen:
 	rts
 
 LB8D4:	lda #$FF
-	sta disable_f_keys
-clear_cursor:
-	lda #$FF
-	sta BLNSW
-	lda BLNON
-	beq LB8EB ; rts
-	lda GDBLN
-	ldy pntr
-	jsr screen_set_char
-	lda #0
-	sta BLNON
-LB8EB:	rts
+	sta f_keys_disabled
+	rts
 
 LB8EC:	lda #8
 LB8EE:	sta tmp14
@@ -305,15 +364,6 @@ LB8EE:	sta tmp14
 	bcs LB8FD
 	dec zp1 + 1
 LB8FD:	rts
-
-scroll_down:
-	ldx #0
-	jsr LE96C ; insert line at top of screen
-	lda LDTB1
-	ora #$80 ; first line is not an extension
-	sta LDTB1
-	lda #CSR_HOME
-	jmp bsout
 
 LB90E:	lda #16 ; number of bytes to scan backwards
 	sta tmp13
@@ -334,22 +384,3 @@ LB913:	sec
 	bne LB913
 :	rts
 
-LE96C:
-	jsr mjsrfar
-	.word bmt2  ; insert line at top of screen
-	.byte BANK_KERNAL
-	rts
-
-LE50C:
-	jsr mjsrfar
-	.word xmon1 ; set cursor position
-	.byte BANK_KERNAL
-	rts
-
-kbdbuf_peek:
-	jsr getin
-	beq :+
-	pha
-	jsr kbdbuf_put
-	pla
-:	rts

@@ -94,7 +94,6 @@
 .export input_loop2
 .export print_cr
 .export print_cr_then_input_loop
-.export set_irq_vector
 .export store_byte
 .export swap_zp1_and_zp2
 .export syntax_error
@@ -146,7 +145,7 @@ irq_hi		:= ram_code_end + 13
 entry_type	:= ram_code_end + 14
 command_index	:= ram_code_end + 15 ; index from "command_names", or 'C'/'S' in EC/ES case
 bank		:= ram_code_end + 16
-disable_f_keys	:= ram_code_end + 17
+f_keys_disabled	:= ram_code_end + 17
 tmp1		:= ram_code_end + 18
 tmp2		:= ram_code_end + 19
 bank_flags	:= ram_code_end + 20 ; $80: video, $40: I2C
@@ -212,7 +211,7 @@ brk_entry2:
 	sta reg_pc_hi
 	tsx
 	stx reg_s
-	jsr set_irq_vector
+	jsr enable_f_keys
 	jsr print_cr
 	lda entry_type
 	cmp #'C'
@@ -760,7 +759,7 @@ cmd_g:
 
 LAF03:	jsr copy_pc_to_zp2_and_zp1
 LAF06:
-	jsr set_irq_vector
+	jsr disable_f_keys
 	ldx reg_s
 	txs
 	lda zp2 + 1
@@ -839,7 +838,7 @@ LB19B:	jsr print_up_dot
 ; "X" - exit monitor
 ; ----------------------------------------------------------------
 cmd_x:
-	jsr set_irq_vector
+	jsr disable_f_keys
 	ldx reg_s
 	txs
 	clc ; warm start
@@ -1505,6 +1504,12 @@ zp1_plus_a_2:
 	iny
 :	rts
 
+sadd_a_to_zp1:
+	jsr zp1_plus_a
+	sta zp1
+	sty zp1 + 1
+	rts
+
 add_a_to_zp1:
 	clc
 	adc zp1
@@ -1518,9 +1523,4 @@ pow10lo2:
 pow10hi2:
 	.byte >1, >10, >100, >1000, >10000
 
-.if 1
-set_irq_vector:
-	rts
-.else
 .include "irq.s"
-.endif

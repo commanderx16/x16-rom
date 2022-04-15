@@ -42,6 +42,7 @@
 .export cmd_a
 .export LAE7C
 .export disassemble_line
+.export decode_mnemo
 
 .segment "monitor"
 
