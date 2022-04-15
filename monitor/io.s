@@ -72,7 +72,7 @@ cmd_ls:
 	ldx #8
 	ldy #1
 	jsr setlfs
-
+	dey
 	jsr basin_skip_spaces_cmp_cr
 	bne LB3B6
 ; empty
@@ -100,8 +100,10 @@ LB3B3:	jmp input_loop
 LB3B6:	cmp #'"'
 	bne syn_err4
 LB3BA:	jsr basin_cmp_cr
-	beq LB388
-	cmp #'"'
+	bne :+
+	jsr setnam2
+	bra LB388
+:	cmp #'"'
 	beq LB3CF
 	sta tmp16,y
 	inc fnlen
@@ -112,10 +114,7 @@ syn_err4:
 	jmp syntax_error
 
 LB3CF:
-	ldx #<tmp16
-	ldy #>tmp16
-	lda fnlen
-	jsr setnam
+	jsr setnam2
 
 	jsr basin_cmp_cr
 	beq LB388
@@ -126,17 +125,22 @@ LB3D6:	bne syn_err4
 	beq syn_err4
 	cmp #4
 	bcc syn_err4 ; illegal device number
-	tax
-	ldy #0 ; sa
-	lda command_index
-	cmp #<command_index_s
-	bne :+
-	ldy #1 ; sa
-:	lda #1 ; la
-	jsr setlfs
-
+	pha
 	jsr basin_cmp_cr
-	beq LB388
+	bne @1
+
+	ldy #1 ; sa
+	plx
+	lda #1 ; la
+	jsr setlfs
+	bra LB388
+
+@1:	ldy #0 ; sa
+	plx
+	pha
+	lda #1 ; la
+	jsr setlfs
+	pla
 	cmp #','
 LB3F0:	bne LB3D6
 	jsr get_hex_word3
@@ -167,6 +171,12 @@ LB42D:
 LB438:
 	lda #zp1 ; pointer to ZP location with address
 	jmp save
+
+setnam2:
+	ldx #<tmp16
+	ldy #>tmp16
+	lda fnlen
+	jmp setnam
 
 ; ----------------------------------------------------------------
 ; "@" - send drive command
