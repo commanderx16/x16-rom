@@ -100,7 +100,6 @@
 .export zp1
 .export zp2
 .export zp3
-.import cmd_p
 .import cmd_asterisk
 .import cmd_at
 .import cmd_ls
@@ -1396,7 +1395,6 @@ command_index_s = * - command_names
 	.byte "$"
 	.byte "#"
 	.byte "*"
-	.byte "P"
 	.byte "E"
 	.byte "["
 	.byte "]"
@@ -1426,7 +1424,6 @@ function_table:
 	.word cmd_dollar-1
 	.word cmd_hash-1
 	.word cmd_asterisk-1
-	.word cmd_p-1
 	.word cmd_e-1
 	.word cmd_leftbracket-1
 	.word cmd_rightbracket-1

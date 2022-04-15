@@ -3,7 +3,6 @@ fnlen	:= $1111  ; length of current file name
 la	:= $1111  ; logical file number
 sa	:= $1111  ; secondary address
 fa	:= $1111  ; device number
-fnadr	:= ($11)  ; file name
 
 xmon2 = $1111 ; XXX
 loop4 = $1111 ; XXX
@@ -39,7 +38,6 @@ insrt = $1111 ; XXX
 
 .import mjsrfar
 
-.export cmd_p
 .export cmd_asterisk
 .export cmd_at
 .export cmd_ls
@@ -395,51 +393,6 @@ iec_send_zp1_plus_y:
 
 syn_err8:
 	jmp syntax_error
-
-; ----------------------------------------------------------------
-; "P" - set output to printer
-; ----------------------------------------------------------------
-cmd_p:
-	ldx #$FF
-	lda fa
-	cmp #4
-	beq LBC11 ; printer
-	jsr basin_cmp_cr
-	beq LBC16 ; no argument
-	cmp #','
-	bne syn_err8
-	jsr get_hex_byte
-	tax
-LBC11:	jsr basin_cmp_cr
-	bne syn_err8
-LBC16:
-	jsr kbdbuf_put
-	lda #4
-	cmp fa
-	beq LBC39 ; printer
-	stx sa
-	sta fa ; set device 4
-	sta la
-	ldx #0
-	stx fnlen
-	jsr close
-	jsr open
-	ldx la
-	jsr ckout
-	jmp input_loop2
-
-LBC39:	lda la
-	jsr close
-	jsr clrch
-	lda #8
-	sta fa
-	jsr kbdbuf_clear
-	jmp input_loop
-
-kbdbuf_clear:
-	jsr getin
-	bne kbdbuf_clear
-	rts
 
 init_and_listen:
 	pha
