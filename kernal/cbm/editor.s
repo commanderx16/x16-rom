@@ -131,6 +131,8 @@ plot	bcs plot10
 	pha
 	phx
 	phy
+
+.if 0
 	lda blnsw
 	bne :+          ;blinking off
 	lda blnon
@@ -138,7 +140,19 @@ plot	bcs plot10
 	lda gdbln
 	ldy pntr
 	jsr screen_set_char
-:	ply
+:
+.else
+	lda blnon
+	beq :+
+	lda gdbln
+	ldx gdcol       ;restore original color
+	ldy #0
+	sty blnon
+	jsr dspp
+:
+.endif
+
+	ply
 	plx
 	pla
 
