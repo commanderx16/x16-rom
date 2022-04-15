@@ -101,9 +101,33 @@ keyhandler2:
 	rts
 
 @not_f7:
+	cmp #4 ; F3
+	bne @not_f3
+; F3
+	jsr cursor_top
+	lda #0
+	clc
+	rts
+
+@not_f3:
 	cmp #3 ; F5
-	bne @not_f5
+	bne @ret2
 ; F5
+	jsr cursor_bottom
+	lda #0
+	clc
+	rts
+
+
+cursor_top:
+	jsr clear_cursor
+	sec
+	jsr plot ; cursor position
+	ldx #0
+	clc
+	jmp plot
+
+cursor_bottom:
 	jsr clear_cursor
 	sec
 	jsr plot ; cursor position
@@ -114,24 +138,7 @@ keyhandler2:
 	dex
 	ply
 	clc
-	jsr plot
-	lda #0
-	clc
-	rts
-
-@not_f5:
-	cmp #4 ; F3
-	bne @ret2
-; F3
-	jsr clear_cursor
-	sec
-	jsr plot ; cursor position
-	ldx #0
-	clc
-	jsr plot
-	lda #0
-	clc
-	rts
+	jmp plot
 
 
 	lda #CSR_DOWN
