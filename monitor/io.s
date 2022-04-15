@@ -177,7 +177,6 @@ setnam2:
 ; "@" - send drive command
 ;	without arguments, this reads the drive status
 ;	$ shows the directory
-;	F does a fast format
 ; ----------------------------------------------------------------
 cmd_at:
 	jsr listen_command_channel
