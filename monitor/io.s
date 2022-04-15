@@ -175,30 +175,16 @@ LF0BD:	.byte "I/O ERROR"
 ;	$ shows the directory
 ; ----------------------------------------------------------------
 cmd_at:
-	jsr basin_cmp_cr
-	beq print_drive_status
-	cmp #'$'
-print_drive_status:
-	jmp print_cr_then_input_loop
-
-
-; ----------------------------------------------------------------
-; ----------------------------------------------------------------
-; ----------------------------------------------------------------
-
-;***************
-dos	jsr basin_skip_spaces_cmp_cr
+	jsr basin_skip_spaces_cmp_cr
 	beq ptstat      ;no argument: print status
 	ldy #0
-	cmp #'"'
-	bne @err
-:	jsr basin_cmp_cr
-	beq @done
-	sta tmp16,y
+:	sta tmp16,y
 	iny
 	cpy #40
-	bne :-
+	bne @ok
 @err:	jmp syntax_error
+@ok:	jsr basin_cmp_cr
+	bne :-
 @done:	tya
 	sta verck       ;save length
 	ldx #<tmp16
