@@ -49,14 +49,13 @@ keyhandler2:
 @ret:	rts
 :	bit f_keys_disabled
 	bmi @ret
+
 	cpx #0
 	bne @not_prefix_00
 
 	cmp #$83
 	bne @not_f7
 
-;	lda #$93 ; CLR
-;	jsr kbdbuf_put
 	lda #'@'
 	jsr kbdbuf_put
 	lda #'$'
@@ -119,7 +118,6 @@ keyhandler2:
 	jsr plot
 	cpx #0
 	bne @restore
-	jsr cursor_top
 	pla
 	bra @scroll_up
 
