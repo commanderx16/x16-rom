@@ -219,7 +219,6 @@ LB7C7:	lda #CSR_UP
 LB7CD:	lda #CR
 	ldx #CSR_HOME
 LB7D1:	ldy #0
-;	jsr kbdbuf_clear
 	sty disable_f_keys
 	jsr print_a_x
 	jsr print_7_csr_right
