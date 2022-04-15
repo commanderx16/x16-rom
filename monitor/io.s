@@ -115,7 +115,6 @@ syn_err4:
 
 LB3CF:
 	jsr setnam2
-
 	jsr basin_cmp_cr
 	beq LB388
 	cmp #','
@@ -128,13 +127,11 @@ LB3D6:	bne syn_err4
 	pha
 	jsr basin_cmp_cr
 	bne @1
-
 	ldy #1 ; sa
 	plx
 	lda #1 ; la
 	jsr setlfs
 	bra LB388
-
 @1:	ldy #0 ; sa
 	plx
 	pha
