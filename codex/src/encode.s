@@ -1,7 +1,7 @@
 ;;;
 ;;; Single line assemblers for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020 Michael J. Allison
+;;; Copyright 2020-2022 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
@@ -573,7 +573,6 @@ encode_byte_string
 
 	jsr      meta_save_expr
 
-	;; todo: missing reference to unamed label? Issue?
 	IncW     encode_pc
 	      
 	bra      @encode_string_byte_loop
@@ -608,7 +607,7 @@ encode_word_string
 	PopW     r1
 	lda      #','
 	jsr      util_split_string
-	PushW    r2
+	PushW    r2			; will become r1 on the next loop
 	lda      (r1)
 	beq      encode_byte_word_exit
 	jsr      encode_parse_expression
@@ -1237,16 +1236,13 @@ encode_str_abs_y     .byte ",Y", 0
 
 ;;
 ;; Parse an expression, return the current value, save expression in meta_i
-;; Todo support parsing decimal
+;; TODO: support parsing decimal
 ;; Input  r1, pointing to expression string
-;;        r2, address for expression  TODO: is it really this, or is it encode_pc... see @ .parse_expr_save_meta
+;;
 ;; Output r1, current value
 ;; Carry == 0, no error
 ;; Carry == 1, parse_error
 ;; Clobbers TMP2
-;;
-;; TODO: Replace evaluation with call to meta_i.meta_evaluate_expression
-;;
 ;;
 encode_parse_expression
 	lda   #META_FN_NONE

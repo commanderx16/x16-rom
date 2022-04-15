@@ -1,7 +1,7 @@
 	;;
 	;; Commander 16 CodeX Interactive Assembly Environment
 	;; 
-	;;    Copyright 2020-2021 Michael J. Allison
+	;;    Copyright 2020-2022 Michael J. Allison
 	;; 
 	;;    Redistribution and use in source and binary forms, with or without
 	;;    modification, are permitted provided that the following conditions are met:
@@ -597,30 +597,23 @@ assy_down
 ;; Get line count for instruction @r1
 ;; Input r1 - Ptr to instruction for query
 ;; Output A - number of lines
-;; TODO: Fix find_label to protect r1
 assy_get_line_count
-	PushW       r1
 	jsr         meta_find_label
 	beq         @assy_get_line_count_label
-	PopW        r1
 	lda         #1
 	rts
 
 @assy_get_line_count_label
-	PopW        r1
 	lda         #3
 	rts
 
 ;;
 ;; Move r1 down by the bytecount of instruction @r1
-;; TODO: Fix get_byte_count to preserve r1, then remove push/pop from here.
 ;;
 assy_down_first_bytecount
-	PushW      r1
 	jsr        decode_get_byte_count
 	tax
 
-	PopW       r1
 	txa
 
 	clc
@@ -765,9 +758,6 @@ asm_del_inst
 	jsr        decode_get_byte_count
 	tax
 
-;                jsr        screen_scrollback_truncate
-;                TODO something for delete here
-	             
 	PopW       r1
 	jsr        edit_delete
 
@@ -1120,7 +1110,6 @@ mm_prt_block
 	inc     SCR_ROW
 	vgoto
 	dec     r3L
-	lda     r3L
 	bne     @mm_prt_bl_loop
 @mm_prt_bl_done rts
 
@@ -1283,6 +1272,18 @@ assy_prt_block
 
 	MoveW   mem_last_addr,r2
 
+	;; Cache rgn_end+1 for end of loop comparison
+	;; r9 chosen because nothing else modifies is (as of now...)
+	pushBankVar bank_meta_l
+	lda	meta_rgn_end
+	clc
+	adc	#1
+	sta	r9L
+	lda	meta_rgn_end+1
+	adc	#0
+	sta	r9H
+	popBank
+	
 @assy_prt_bl_loop
 	ifEq16  r2,assy_selected_instruction,@assy_prt_selected
 	
@@ -1312,23 +1313,14 @@ assy_prt_block
 	cmp     SCR_ROW
 	bmi     @assy_prt_bl_done
 
-	;; TODO: Hoist this out of the prt_block loop?
-	pushBankVar bank_meta_l
-	MoveW   meta_rgn_end,M1
-	IncW    M1
-	popBank
-	
-	ifGE    r2,M1,@assy_prt_bl_done
+	ifGE    r2,r9,@assy_prt_bl_done
 	
 @assy_prt_bl_incr
 	dec     r3L
-	lda     r3L
-	cmp     #0
 	bne     @assy_prt_bl_loop
 
 @assy_prt_bl_done
-	;;  todo COLOR_CDR_BACK
-@assy_prt_bl_clear_rest
+	;;  clear the rest of the block
 	lda      orig_color
 	sta      K_TEXT_COLOR
 	
@@ -1884,6 +1876,7 @@ assy_prt_inst_label
 	rts
 
 assy_actually_print_label
+	MoveW	r0,r1
 	inc     SCR_ROW
 	stz     SCR_COL
 	vgoto
@@ -2029,7 +2022,7 @@ str_main_label       .byte "MAIN", 0
 str_add_label_prompt .byte "NEW LABEL: ", 0
 str_define_prompt    .byte "DEFINE: ", 0	
 
-version_string       .byte "CODEX V0.91", 0
+version_string       .byte "CODEX V0.93", 0
 
 str_loading_pgm      .byte "LOADING PROGRAM: ", 0
 str_loading_dbg      .byte "LOADING .DBG", 0
@@ -2222,6 +2215,7 @@ exe_load_next_step
 	callR1     prtstr_at_xy,str_loading_dbg
 
 	pushBankVar bank_meta_l
+	clc
 	callR1     file_load_bank_a000,str_ext_dbg
 	bcs        exe_load_error
 	jsr        exe_load_setup_dbg
@@ -2229,6 +2223,7 @@ exe_load_next_step
 
 	callR1      prtstr,str_loading_dbi
 	pushBankVar bank_meta_i
+	clc
 	callR1      file_load_bank_a000,str_ext_dbi
 	bcs         exe_load_error
 	popBank
@@ -2328,6 +2323,7 @@ load_and_run_plugin
 	LoadW         r2,input_string
 	jsr           util_strcpy
 
+	sec
 	callR1        file_load_bank_a000,0
 	bcs           load_and_run_exit
 	switchBankVar bank_assy

@@ -767,8 +767,15 @@ up1	jmp nc3
 up2	cmp #$11
 	bne nxt2
 	ldx tblx
-	beq jpl2
-	dec tblx
+	bne up3
+	ldx #0          ;scroll screen DOWN!
+	jsr bmt2        ;insert line at top of screen
+	lda ldtb1
+	ora #$80        ;first line is not an extension
+	sta ldtb1
+	jsr stupt
+	bra jpl2
+up3	dec tblx
 	lda pntr
 	sec
 	sbc llen

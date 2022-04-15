@@ -1,7 +1,7 @@
 ;;;
 ;;; Code block manipulation routines for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020 Michael J. Allison
+;;; Copyright 2020-2022 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
@@ -174,8 +174,10 @@ file_replace_ext
 ;; Load data into an extended RAM bank $A000
 ;; Input_string - filename	
 ;; Input r1 - ptr to new extension
+;;       C  - clear, do tag comparison, set, do NOT do tag comparison	
 ;;       
 file_load_bank_a000
+	php
 	MoveW      r1,r2      ; r2 = extension ptr
 	LoadW      r1,input_string
 	LoadW      r3,0
@@ -199,6 +201,9 @@ file_load_bank_a000
 	
 	dec        BANK_CTRL_RAM ; Load incremented the RAM bank
 	
+	plp
+	bcs	@file_load_bank_a000_final_exit
+
 	; Check the meta tags for compatibility with current implementation
 	LoadW      r0,meta_tag_version
 	LoadW      r1,$A000

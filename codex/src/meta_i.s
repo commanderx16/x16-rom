@@ -1,7 +1,7 @@
 ;;;
 ;;; Instruction meta data for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020 Michael J. Allison
+;;; Copyright 2020-2022 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
@@ -42,13 +42,11 @@
 ;; Input  X - Meta FN value
 ;;       r1 - Value
 ;;       r2 - Address
-;; TODO: Optimize this. Probably can optimize by moving registers around instead
-;; of the bank push-pop dance.
 ;;
 meta_save_expr
 	txa
 	and      #META_FN_MASK
-	cmp      #META_FN_NONE
+;	cmp      #META_FN_NONE						; because NONE==0, no need for compare.
 	bne      @meta_save_check2
 	rts
 
@@ -57,10 +55,10 @@ meta_save_expr
 	and      r2H
 	cmp      #$ff
 	bne      @meta_save_work
-
 	rts
 
 @meta_save_work
+	pushBankVar   bank_meta_i
 	phx
 	PushW    r1
 	PushW    r2
@@ -75,8 +73,6 @@ meta_save_expr
 meta_save_insert
 	;; r1 points to insert point
 
-	pushBankVar   bank_meta_i
-	      
 	;; Calc size of post insert region -> r3
 	lda    meta_i_last
 	sec
@@ -111,15 +107,11 @@ meta_save_insert
 	inc     meta_i_last+1
 :  
 
-	popBank
-	      
 meta_save_write
-	;; Replace an existing expression
+	;; Write the expression over an old one, or in the new spot just created
 	PopW    r2
 	PopW    r1
 	plx
-	      
-	pushBankVar   bank_meta_i
 	      
 	ldy   #0
 	lda   r2L
@@ -143,12 +135,6 @@ meta_save_write
 	      
 @meta_save_exit
 	rts
-
-
-	PopW  r2
-	PopW  r1
-	rts
-
 
 ;;
 ;; meta_expr_iter
@@ -365,8 +351,9 @@ meta_relocate_expr
 	rts
 	      
 ;;
-;; For a given expression, evaluate it and return the value in r1
+;; For a pre-parsed expression, evaluate it and return the value in r1
 ;; Input r4 - points to expression
+;; Output r1 - value of expression
 ;;
 @meta_eval_expression
 	ldy            #2

@@ -1,7 +1,7 @@
 ;;;
 ;;; Assembly decoder for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020 Michael J. Allison
+;;; Copyright 2020-2022 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
@@ -607,10 +607,9 @@ decode_next_instruction
 ;; Input r1 - Address of opcode
 ;; Output A - The byte count
 ;;
-;; TODO: Preserve r1 in call, fix cx.s assy_down_first_byte_count
-;;
 decode_get_byte_count
 	phy
+	PushW	r1
 	lda     (r1)
 	pha
 	     
@@ -627,6 +626,7 @@ decode_get_byte_count
 	tax                                           ; stash momentarily
 	popBank
 	ply                                           ; discard old A
+	PopW	r1
 	ply
 	txa
 	rts
@@ -637,6 +637,7 @@ decode_get_byte_count
 @decode_get_instruction_byte_count
 	pla
 	jsr     decode_get_entry
+	PopW	r1
 	ldy     #1
 	lda     (M1),y                  ; Get byte count and mode
 	lsr
@@ -1230,7 +1231,7 @@ decoder_find_and_push_label
 	pushBankVar bank_meta_l
 	ldy     #0
 @decode_label_or_hex_copy_loop
-	lda     (r1),y
+	lda     (r0),y
 	beq     @decode_push_label_exit
 	phy
 	ldy     decoded_str_next
@@ -1323,11 +1324,6 @@ decode_push_hex
 	jsr     decode_push_char
 	rts
 	
-	;; todo: missing error coverage for this routine?
-	lda     #'?'
-	jsr     decode_push_char
-	rts
-
 ;; 
 ;; Push the entire value of r1 into the decode_buffer
 ;; 
