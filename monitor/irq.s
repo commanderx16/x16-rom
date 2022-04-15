@@ -53,6 +53,17 @@ keyhandler2:
 	cpx #0
 	bne @not_prefix_00
 
+	cmp #$05 ; F1
+	beq @eat
+	cmp #$06 ; F2
+	beq @eat
+	cmp #$0C ; F4
+	beq @eat
+	cmp #$0B ; F6
+	beq @eat
+	cmp #$0A ; F8
+	beq @eat
+
 	cmp #$83
 	bne @not_f7
 
@@ -62,7 +73,8 @@ keyhandler2:
 	jsr kbdbuf_put
 	lda #CR
 	jsr kbdbuf_put
-	lda #0
+
+@eat:	lda #0
 	clc
 	rts
 
