@@ -333,9 +333,9 @@ disk_done
 crdo:	lda #13
 	jmp bsout
 
-bin = zp2
-bcd = tmp16
-asc = tmp16+3
+bin = tmp16
+bcd = tmp16+2
+asc = tmp16+5
 linprt:
 	stx bin
 	sta bin+1
@@ -371,7 +371,7 @@ binbcd16:
 	dex		; And repeat for next bit
 	bne :-
 	cld		; Back to binary
-
+;----
 	lda bcd+2
 	jsr byte_to_hex_ascii
 	sta asc+0
@@ -398,6 +398,5 @@ binbcd16:
 	inx
 	cpx #6
 	bne :-
-
 	rts
 
