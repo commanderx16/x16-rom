@@ -160,6 +160,7 @@ cursor_bottom:
 	jmp plot
 
 ret:	rts
+
 ; SCROLL
 LB75E:	jsr find_cont
 	bcc ret ; not found
@@ -221,8 +222,7 @@ LB7CD:	lda #CR
 LB7D1:	ldy #0
 	sty disable_f_keys
 	jsr print_a_x
-	jsr print_7_csr_right
-	jmp ret
+	jmp print_7_csr_right
 
 ; top
 LB7E1:	lda #CSR_HOME
