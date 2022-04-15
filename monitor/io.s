@@ -1,6 +1,4 @@
-;status	:= $1111  ; kernal I/O status
 fnlen	:= $1111  ; length of current file name
-la	:= $1111  ; logical file number
 sa	:= $1111  ; secondary address
 fa	:= $1111  ; device number
 
