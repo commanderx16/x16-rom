@@ -208,23 +208,6 @@ LB475:	jsr unlstn
 	jsr directory
 	jmp input_loop
 
-syn_err7:
-	jmp  syntax_error
-
-iec_send_zp1_plus_y:
-	tya
-	clc
-	adc zp1
-	php
-	jsr iecout
-	plp
-	lda zp1 + 1
-	adc #0
-	jmp iecout
-
-syn_err8:
-	jmp syntax_error
-
 init_and_listen:
 	pha
 	jsr init_drive
