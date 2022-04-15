@@ -1,12 +1,7 @@
 readst = $ffb7
 
-fnlen	:= $1111  ; length of current file name
-;sa	:= $1111  ; secondary address
-;fa	:= $1111  ; device number
-
-
-basic_fa = $1200
-verck = $1202
+fnlen  = zp3
+verck  = zp3
 
 .feature labels_without_colons
 
@@ -34,6 +29,7 @@ verck = $1202
 .import syntax_error
 .import byte_to_hex_ascii
 .import tmp16
+.import mon_fa
 .importzp zp1
 .importzp zp2
 .importzp zp3
@@ -234,24 +230,28 @@ ptstat	jsr crdo
 	jsr talk
 	lda #$6f
 	jsr tksa
+@xxx:	jsr readst
+	and #2
+	bne dosbad
 dos11	jsr iecin
 	jsr bsout
 	cmp #13
 	bne dos11
-	jsr untalk
+dosbad:	jsr untalk
 	jmp input_loop
 
 ;***************
 ; switch default drive
 dossw	and #$0f
-	sta basic_fa
-	rts
+	sta mon_fa
+	jsr crdo
+	jmp input_loop
 
 getfa:
 	lda #8
-	cmp basic_fa
+	cmp mon_fa
 	bcs :+
-	lda basic_fa
+	lda mon_fa
 :	rts
 
 

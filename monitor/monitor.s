@@ -97,13 +97,15 @@
 .export zp1
 .export zp2
 .export zp3
+.export mon_fa
 .export byte_to_hex_ascii
 .import cmd_at
 .import cmd_ls
 
-zp1		:= $C1 ; XXX
-zp2		:= $C3 ; XXX
-zp3		:= $FF ; XXX
+zp1		:= $22
+zp2		:= $24
+zp3		:= $26
+mon_fa		:= $28
 DEFAULT_BANK	:= 0
 
 tmp3		:= BUF + 3
@@ -207,6 +209,8 @@ brk_entry2:
 	sta reg_pc_hi
 	tsx
 	stx reg_s
+	lda #8
+	sta mon_fa
 	jsr enable_f_keys
 	jsr print_cr
 	lda entry_type
