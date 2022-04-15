@@ -83,13 +83,11 @@ keyhandler2:
 :	bit disable_f_keys
 	bmi @ret
 	cpx #0
-	beq :+
-@ret2:	clc
-	rts
-:	cmp #$83
+	bne @not_prefix_00
+
+	cmp #$83
 	bne @not_f7
 
-;	jsr kbdbuf_clear
 	lda #'@'
 	jsr kbdbuf_put
 	lda #'$'
@@ -118,6 +116,28 @@ keyhandler2:
 	clc
 	rts
 
+@ret2:	clc
+	rts
+
+@not_prefix_00:
+	cpx #$e0
+	bne @ret2
+
+	cmp #$72 ; DOWN
+	bne @not_down
+	; TODO
+	lda #0
+	clc
+	rts
+
+@not_down:
+	cmp #$75 ; UP
+	bne @ret2
+	; TODO
+	lda #0
+	clc
+	rts
+
 
 cursor_top:
 	jsr clear_cursor
@@ -141,19 +161,6 @@ cursor_bottom:
 	jmp plot
 
 
-	lda #CSR_DOWN
-	jsr kbdbuf_put
-LB733:	cmp #KEY_F3
-	bne LB74A
-;	jsr kbdbuf_clear
-	ldx #0
-	cpx TBLX
-	beq LB745
-	jsr clear_cursor
-	ldy pntr
-	jsr LE50C ; KERNAL set cursor position
-LB745:	lda #CSR_UP
-	jsr kbdbuf_put
 
 LB74A:	cmp #CSR_DOWN
 	beq LB758
