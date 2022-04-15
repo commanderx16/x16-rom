@@ -208,7 +208,8 @@ cmd_at:
 	iny
 	cpy verck       ;length?
 	bne :-
-	jmp unlstn
+	jsr unlstn
+	jmp input_loop
 
 listen_cmd:
 	jsr getfa
@@ -234,7 +235,8 @@ dos11	jsr iecin
 	jsr bsout
 	cmp #13
 	bne dos11
-	jmp untalk
+	jsr untalk
+	jmp input_loop
 
 ;***************
 ; switch default drive
@@ -322,7 +324,8 @@ disk_done
 	jsr clrch
 	lda #LOGADD
 	sec
-	jmp close
+	jsr close
+	jmp input_loop
 
 crdo:	lda #13
 	jmp bsout
