@@ -121,13 +121,8 @@ keyhandler2:
 	jsr plot
 	cpx zp2+1
 	bne @restore
-	jsr cursor_bottom
 	pla
-@scroll:
-	jsr LB75E
-	lda #0
-	clc
-	rts
+	bra @scroll_down
 
 @not_down:
 	cmp #$75 ; UP
@@ -140,7 +135,8 @@ keyhandler2:
 	bne @restore
 	jsr cursor_top
 	pla
-	bra @scroll
+	bra @scroll_up
+
 @restore:
 	pla
 	ldx #$e0
