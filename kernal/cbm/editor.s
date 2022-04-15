@@ -764,8 +764,10 @@ up6
 	bvs up1         ;ISO
 	ora #$40
 up1	jmp nc3
+
 up2	cmp #$11
 	bne nxt2
+; up
 	ldx tblx
 	beq jpl2
 	dec tblx
@@ -777,6 +779,7 @@ up2	cmp #$11
 	bpl jpl2
 upalin	jsr stupt
 	bne jpl2
+
 nxt2	cmp #$12
 	bne nxt6
 	lda #0
