@@ -1,26 +1,7 @@
 plot = $fff0
 
-bmt2 = $1120 ; XXX
-xmon1 = $1121 ; XXX
-ldtb1 = $1122 ; XXX
-nlines = $1123 ; XXX
-nlinesm1 = $1124 ; XXX
-blnsw = $1125 ; XXX
-gdbln = $1126 ; XXX
-blnon = $1127 ; XXX
-tblx = $1128 ; XXX
-pnt = $1129 ; XXX
 
-mjsrfar = $1112 ; XXX
-LDTB1 = $1113 ; XXX
-screen_set_char = $1114 ; XXX
-GDBLN = $1115 ; XXX
-BLNON = $1116 ; XXX
-BLNSW = $1117 ; XXX
-sadd_a_to_zp1 = $111C ; XXX
-decode_mnemo = $111D ; XXX
-TBLX = $111E ; XXX
-;kbdbuf_clear = $111F ; XXX
+.import decode_mnemo
 
 
 cinv   := $0314 ; IRQ vector

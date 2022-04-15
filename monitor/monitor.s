@@ -1505,6 +1505,12 @@ zp1_plus_a_2:
 	iny
 :	rts
 
+sadd_a_to_zp1:
+	jsr zp1_plus_a
+	sta zp1
+	sty zp1 + 1
+	rts
+
 add_a_to_zp1:
 	clc
 	adc zp1
