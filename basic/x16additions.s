@@ -294,18 +294,27 @@ device_not_present:
 	jmp error
 
 
+clear_disk_status:
+	clc
+	bra ptstat2
 ;***************
 ; print status
-ptstat	jsr listen_cmd
+ptstat	sec
+ptstat2	php
+	jsr listen_cmd
 	jsr unlstn
 	jsr getfa
 	jsr talk
 	lda #$6f
 	jsr tksa
 dos11	jsr iecin
+	plp
+	php
+	bcc :+
 	jsr bsout
-	cmp #13
+:	cmp #13
 	bne dos11
+	plp
 	jmp untalk
 
 ;***************
