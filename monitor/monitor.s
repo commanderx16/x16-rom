@@ -102,10 +102,17 @@
 .import cmd_at
 .import cmd_ls
 
-zp1		:= $22
-zp2		:= $24
-zp3		:= $26
-mon_fa		:= $28
+zp              = $22
+zp1		= zp+0
+zp2		= zp+2
+zp3		= zp+4
+mon_fa		= zp+6
+bank		= zp+7
+f_keys_disabled	= zp+8
+tmp1		= zp+9
+tmp2		= zp+10
+bank_flags	= zp+11 ; $80: video, $40: I2C
+
 DEFAULT_BANK	:= 0
 
 tmp3		:= BUF + 3
@@ -142,11 +149,7 @@ irq_hi		:= ram_code_end + 13
 
 entry_type	:= ram_code_end + 14
 command_index	:= ram_code_end + 15 ; index from "command_names", or 'C'/'S' in EC/ES case
-bank		:= ram_code_end + 16
-f_keys_disabled	:= ram_code_end + 17
-tmp1		:= ram_code_end + 18
-tmp2		:= ram_code_end + 19
-bank_flags	:= ram_code_end + 20 ; $80: video, $40: I2C
+.assert command_index < $0200 + 2*40+1, error, "must not overflow KERNAL editor's buffer"
 
 .segment "monitor"
 
