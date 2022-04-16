@@ -273,6 +273,9 @@ CHARSET_SOURCES= \
 	charset/petscii.s \
 	charset/iso-8859-15.s
 
+DEMO_SOURCES= \
+	demo/test.s
+
 GENERIC_DEPS = \
 	inc/kernal.inc \
 	inc/mac.inc \
@@ -331,6 +334,7 @@ GEOS_OBJS    = $(addprefix $(BUILD_DIR)/, $(GEOS_SOURCES:.s=.o))
 BASIC_OBJS   = $(addprefix $(BUILD_DIR)/, $(BASIC_SOURCES:.s=.o))
 MONITOR_OBJS = $(addprefix $(BUILD_DIR)/, $(MONITOR_SOURCES:.s=.o))
 CHARSET_OBJS = $(addprefix $(BUILD_DIR)/, $(CHARSET_SOURCES:.s=.o))
+DEMO_OBJS    = $(addprefix $(BUILD_DIR)/, $(DEMO_SOURCES:.s=.o))
 
 ifeq ($(MACHINE),c64)
 	BANK_BINS = $(BUILD_DIR)/kernal.bin
@@ -343,7 +347,8 @@ else
 		$(BUILD_DIR)/basic.bin \
 		$(BUILD_DIR)/monitor.bin \
 		$(BUILD_DIR)/charset.bin \
-		$(BUILD_DIR)/codex.bin
+		$(BUILD_DIR)/codex.bin \
+		$(BUILD_DIR)/demo.bin
 endif
 
 ifeq ($(MACHINE),x16)
@@ -417,6 +422,13 @@ $(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) $(CFG_DIR)/charset-$(M
 # Bank 7 : CodeX
 $(BUILD_DIR)/codex.bin: $(CFG_DIR)/codex-$(MACHINE).cfg
 	(cd codex; make)
+
+# Bank 8 : DEMO
+$(BUILD_DIR)/demo.bin: $(DEMO_OBJS) $(DEMO_DEPS) $(CFG_DIR)/demo-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C $(CFG_DIR)/demo-$(MACHINE).cfg $(DEMO_OBJS) -o $@ -m $(BUILD_DIR)/demo.map -Ln $(BUILD_DIR)/demo.sym
+	./scripts/relist.py $(BUILD_DIR)/demo.map $(BUILD_DIR)/demo
+
 
 $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
 	./scripts/symbolize.sh 0 build/x16/kernal.sym   > $@
