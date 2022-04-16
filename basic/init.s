@@ -18,14 +18,14 @@ init2	ldx #stkend-256 ;set up end of stack
 	txs
 boot	lda #0
 	jsr setmsg
-	ldx #boot_filename_end-boot_filename-1
-:	lda boot_filename,x
-	sta $0200,x
+	ldx #bootfnlen-1
+:	lda bootfn,x
+	sta buf,x
 	dex
 	bpl :-
-	ldx #<$0200
-	ldy #>$0200
-	lda #boot_filename_end-boot_filename
+	ldx #<buf
+	ldy #>buf
+	lda #bootfnlen
 	jsr setnam
 	jsr getfa
 	tax
@@ -35,7 +35,7 @@ boot	lda #0
 	lda #0
 	jsr load
 	jsr readst
-@xxx:	and #$ff-$40 ; any error but EOI?
+	and #$ff-$40 ; any error but EOI?
 	beq :+       ; no
 	jsr clear_disk_status
 	jmp ready
@@ -45,9 +45,9 @@ boot	lda #0
 	jsr crdo
 	jsr runc
 	jmp newstt
-boot_filename:
+bootfn:
 	.byte "AUTOBOOT.X16*"
-boot_filename_end:
+bootfnlen=*-bootfn
 
 initat	inc chrget+7
 	bne chdgot

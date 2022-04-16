@@ -246,18 +246,6 @@ old1	lda txttab+1
 	sta vartab+1
 	jmp init2
 
-clear_disk_status:
-	jsr listen_cmd
-	jsr unlstn
-	jsr getfa
-	jsr talk
-	lda #$6f
-	jsr tksa
-:	jsr iecin
-	cmp #13
-	bne :-
-	jmp untalk
-
 ; ----------------------------------------------------------------
 ; XXX This is very similar to the code in MONITOR. When making
 ; XXX changes, have a look at both versions!
@@ -306,18 +294,27 @@ device_not_present:
 	jmp error
 
 
+clear_disk_status:
+	clc
+	bra ptstat2
 ;***************
 ; print status
-ptstat	jsr listen_cmd
+ptstat	sec
+ptstat2	php
+	jsr listen_cmd
 	jsr unlstn
 	jsr getfa
 	jsr talk
 	lda #$6f
 	jsr tksa
 dos11	jsr iecin
+	plp
+	php
+	bcc :+
 	jsr bsout
-	cmp #13
+:	cmp #13
 	bne dos11
+	plp
 	jmp untalk
 
 ;***************
@@ -440,7 +437,6 @@ mb:
 	jmp sngflt
 
 joy:
-.if 0
 	jsr chrget
 	jsr chkopn ; open paren
 	jsr getbyt ; byte: joystick number (0-4)
@@ -464,7 +460,6 @@ joy:
 	lsr
 	lsr
 	lsr
-.endif
 	jmp givayf0
 
 minus1:	.byte $81, $80, $00, $00, $00
@@ -486,7 +481,6 @@ cls:
 	jmp outch
 
 locate:
-.if 0
 	jsr screen
 	stx poker
 	sty poker+1
@@ -521,7 +515,6 @@ locate:
 
 @error:
 	jmp fcerr
-.endif
 
 test:
 	beq @test0
