@@ -142,6 +142,29 @@ See [LICENSE.md](LICENSE.md)
 Release Notes
 -------------
 
+### Release 40 ("Bonn")
+
+* KERNAL
+	* Features
+		* NMI & BRK will enter monitor
+		* added ':' to some F-key replacements
+		* allow scrolling screen DOWN: `PRINTCHR$($13)CHR$($91)`
+		* Serial Bus works on hardware
+	* Bugs
+		* fixed SA during LOAD
+		* fixed joystick routine messing with PS/2 keyboard [Natt Akuma]
+	* API
+		* keyhandler vector ($032E/$032F) doesn't need to return Z
+		* PLOT API will clear cursor
+* DOS
+	* better detection of volume label
+	* fixed `$=P` (list partitions), `$*=P`/`D` (dir filtering), hidden files
+* MONITOR
+	* fixed F3/F5 and CSR UP/DOWN auto-scrolling
+	* fixed LOAD, SAVE, @
+* CodeX
+	* works this time! [mjallison42]
+
 ### Release 39 ("Buenos Aires")
 
 * KERNAL
