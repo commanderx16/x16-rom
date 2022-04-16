@@ -428,6 +428,7 @@ mb:
 	jmp sngflt
 
 joy:
+.if 0
 	jsr chrget
 	jsr chkopn ; open paren
 	jsr getbyt ; byte: joystick number (0-4)
@@ -451,6 +452,7 @@ joy:
 	lsr
 	lsr
 	lsr
+.endif
 	jmp givayf0
 
 minus1:	.byte $81, $80, $00, $00, $00
@@ -506,6 +508,37 @@ locate:
 
 @error:
 	jmp fcerr
+
+boot:
+	lda #0
+	sta setmsg
+
+	ldx #boot_filename_end-boot_filename-1
+:	lda boot_filename,x
+	sta $0200,x
+	dex
+	bpl :-
+
+	ldx #<$0200
+	ldy #>$0200
+	lda #boot_filename_end-boot_filename
+	jsr setnam
+	jsr getfa
+	tax
+	lda #1
+	ldy #1
+	jsr setlfs
+	lda #0
+	jsr load
+	jsr readst
+@xxx:	and #$ff-$40 ; any error but EOI?
+	beq :+       ; no
+	jmp panic
+:	jmp run
+
+boot_filename:
+	.byte "AUTOBOOT.X16*"
+boot_filename_end:
 
 ; BASIC's entry into jsrfar
 .setcpu "65c02"
