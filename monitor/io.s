@@ -163,7 +163,7 @@ setnam2:
 	lda fnlen
 	jmp setnam
 
-LF0BD:	.byte "I/O ERROR"
+LF0BD:	.byte 13,"I/O ERROR"
 
 ; ----------------------------------------------------------------
 ; "@" - send drive command
@@ -227,13 +227,13 @@ device_not_present:
 
 ;***************
 ; print status
-ptstat	jsr crdo
-	jsr listen_cmd
+ptstat	jsr listen_cmd
 	jsr unlstn
 	jsr getfa
 	jsr talk
 	lda #$6f
 	jsr tksa
+	jsr crdo
 dos11	jsr iecin
 	jsr bsout
 	cmp #13
@@ -262,7 +262,6 @@ getfa:
 LOGADD = 15
 
 disk_dir
-	jsr crdo
 	jsr getfa
 	tax
 	lda #LOGADD     ;la
