@@ -171,6 +171,10 @@ LF0BD:	.byte "I/O ERROR"
 ;	$ shows the directory
 ; ----------------------------------------------------------------
 cmd_at:
+; ----------------------------------------------------------------
+; XXX This is very similar to the code in BASIC. When making
+; XXX changes, have a look at both versions!
+; ----------------------------------------------------------------
 	jsr basin_skip_spaces_cmp_cr
 	beq ptstat      ;no argument: print status
 	ldy #0
@@ -258,6 +262,7 @@ getfa:
 LOGADD = 15
 
 disk_dir
+	jsr crdo
 	jsr getfa
 	tax
 	lda #LOGADD     ;la
@@ -336,6 +341,38 @@ asc = tmp16+5
 linprt:
 	stx bin
 	sta bin+1
+
+	jsr binbcd16
+
+	lda bcd+2
+	jsr byte_to_hex_ascii
+	sta asc+0
+	sty asc+1
+	lda bcd+1
+	jsr byte_to_hex_ascii
+	sta asc+2
+	sty asc+3
+	lda bcd+0
+	jsr byte_to_hex_ascii
+	sta asc+4
+	sty asc+5
+
+	ldx #0
+:	lda asc,x
+	cmp #'0'
+	bne :+
+	inx
+	cpx #5
+	bne :-
+
+:	lda asc,x
+	jsr bsout
+	inx
+	cpx #6
+	bne :-
+	rts
+
+; ----------------------------------------------------------------
 ;
 ; This function converts a 16 bit binary value into a 24 bit BCD. It
 ; works by transferring one bit a time from the source and adding it
@@ -368,32 +405,5 @@ binbcd16:
 	dex		; And repeat for next bit
 	bne :-
 	cld		; Back to binary
-;----
-	lda bcd+2
-	jsr byte_to_hex_ascii
-	sta asc+0
-	sty asc+1
-	lda bcd+1
-	jsr byte_to_hex_ascii
-	sta asc+2
-	sty asc+3
-	lda bcd+0
-	jsr byte_to_hex_ascii
-	sta asc+4
-	sty asc+5
-
-	ldx #0
-:	lda asc,x
-	cmp #'0'
-	bne :+
-	inx
-	cpx #5
-	bne :-
-
-:	lda asc,x
-	jsr bsout
-	inx
-	cpx #6
-	bne :-
 	rts
 
