@@ -56,8 +56,9 @@ cmd_ls:
 	ldy #>tmp16
 	lda #2
 	jsr setnam
+	jsr getfa
+	tax
 	lda #1
-	ldx #8
 	ldy #1
 	jsr setlfs
 	dey
