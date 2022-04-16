@@ -21,12 +21,9 @@
 ; "$" - convert hex to decimal
 ; "#" - convert decimal to hex
 ; "X" - exit monitor
-; "B" - set cartridge bank (0-3) to be visible at $8000-$BFFF
 ; "O" - set bank
 ; "L"/"S" - load/save file
 ; "@" - send drive command
-; "*R"/"*W" - read/write sector
-; "P" - set output to printer
 ;
 ; Unique features of this monitor include:
 ; * "I" command to dump 32 PETSCII characters, which even renders
@@ -94,21 +91,28 @@
 .export input_loop2
 .export print_cr
 .export print_cr_then_input_loop
-.export set_irq_vector
 .export store_byte
 .export swap_zp1_and_zp2
 .export syntax_error
 .export zp1
 .export zp2
 .export zp3
-.import cmd_p
-.import cmd_asterisk
+.export mon_fa
+.export byte_to_hex_ascii
 .import cmd_at
 .import cmd_ls
 
-zp1		:= $C1 ; XXX
-zp2		:= $C3 ; XXX
-zp3		:= $FF ; XXX
+zp              = $22
+zp1		= zp+0
+zp2		= zp+2
+zp3		= zp+4
+mon_fa		= zp+6
+bank		= zp+7
+f_keys_disabled	= zp+8
+tmp1		= zp+9
+tmp2		= zp+10
+bank_flags	= zp+11 ; $80: video, $40: I2C
+
 DEFAULT_BANK	:= 0
 
 tmp3		:= BUF + 3
@@ -145,11 +149,7 @@ irq_hi		:= ram_code_end + 13
 
 entry_type	:= ram_code_end + 14
 command_index	:= ram_code_end + 15 ; index from "command_names", or 'C'/'S' in EC/ES case
-bank		:= ram_code_end + 16
-disable_f_keys	:= ram_code_end + 17
-tmp1		:= ram_code_end + 18
-tmp2		:= ram_code_end + 19
-bank_flags	:= ram_code_end + 20 ; $80: video, $40: I2C
+.assert command_index < $0200 + 2*40+1, error, "must not overflow KERNAL editor's buffer"
 
 .segment "monitor"
 
@@ -212,7 +212,9 @@ brk_entry2:
 	sta reg_pc_hi
 	tsx
 	stx reg_s
-	jsr set_irq_vector
+	lda #8
+	sta mon_fa
+	jsr enable_f_keys
 	jsr print_cr
 	lda entry_type
 	cmp #'C'
@@ -760,7 +762,7 @@ cmd_g:
 
 LAF03:	jsr copy_pc_to_zp2_and_zp1
 LAF06:
-	jsr set_irq_vector
+	jsr disable_f_keys
 	ldx reg_s
 	txs
 	lda zp2 + 1
@@ -839,7 +841,7 @@ LB19B:	jsr print_up_dot
 ; "X" - exit monitor
 ; ----------------------------------------------------------------
 cmd_x:
-	jsr set_irq_vector
+	jsr disable_f_keys
 	ldx reg_s
 	txs
 	clc ; warm start
@@ -1396,8 +1398,6 @@ command_index_s = * - command_names
 	.byte "@"
 	.byte "$"
 	.byte "#"
-	.byte "*"
-	.byte "P"
 	.byte "E"
 	.byte "["
 	.byte "]"
@@ -1426,8 +1426,6 @@ function_table:
 	.word cmd_at-1
 	.word cmd_dollar-1
 	.word cmd_hash-1
-	.word cmd_asterisk-1
-	.word cmd_p-1
 	.word cmd_e-1
 	.word cmd_leftbracket-1
 	.word cmd_rightbracket-1
@@ -1505,6 +1503,12 @@ zp1_plus_a_2:
 	iny
 :	rts
 
+sadd_a_to_zp1:
+	jsr zp1_plus_a
+	sta zp1
+	sty zp1 + 1
+	rts
+
 add_a_to_zp1:
 	clc
 	adc zp1
@@ -1518,9 +1522,4 @@ pow10lo2:
 pow10hi2:
 	.byte >1, >10, >100, >1000, >10000
 
-.if 1
-set_irq_vector:
-	rts
-.else
 .include "irq.s"
-.endif

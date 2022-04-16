@@ -246,6 +246,10 @@ old1	lda txttab+1
 	sta vartab+1
 	jmp init2
 
+; ----------------------------------------------------------------
+; XXX This is very similar to the code in MONITOR. When making
+; XXX changes, have a look at both versions!
+; ----------------------------------------------------------------
 ;***************
 dos	beq ptstat      ;no argument: print status
 	jsr frmstr      ;length in .a
