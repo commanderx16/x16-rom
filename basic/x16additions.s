@@ -508,22 +508,56 @@ locate:
 	jmp fcerr
 
 test:
-	bne :+
-@test0:
-	brk ;jmp test0
+	beq @test0
 	jsr getbyt
 	txa
-	beq @test0
-	cmp #1
-	bne :+
-	brk ;jmp test1
-:	cmp #2
-	bne :+
-	brk ;jmp test2
-:	cmp #3
-	bne :+
-	brk ;jmp test3
-:	jmp fcerr
+	cmp #4
+	bcc @run
+	jmp fcerr
+
+@test0:	lda #0
+@run:
+	pha	; index
+	ldx #@copy_end-@copy-1
+:	lda @copy,x
+	sta $0400,x
+	dex
+	bpl :-
+	jmp $0400
+
+@copy:
+	sei
+	lda #8
+	sta rom_bank
+	lda #<$c000
+	sta 2
+	lda #>$c000
+	sta 3
+	lda #<$1000
+	sta 4
+	lda #>$1000
+	sta 5
+	ldx #$40
+	ldy #0
+:	lda (2),y
+	sta (4),y
+	iny
+	bne :-
+	inc 3
+	inc 5
+	dex
+	bne :-
+	lda #$6c
+	sta $0400
+	pla
+	asl
+	sta $0401
+	lda #$10
+	sta $0402
+	stz rom_bank
+	cli
+	jmp $0400
+@copy_end:
 
 ; BASIC's entry into jsrfar
 .setcpu "65c02"

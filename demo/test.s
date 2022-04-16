@@ -17,7 +17,10 @@ COLOR_BLUE     = $1F
 
 .segment "DEMO"
 
-test:
+	.word test0
+	.word test1
+	.word test2
+	.word test3
 
 test0:
 	lda #$80
@@ -38,7 +41,7 @@ test0:
 	jsr test13_move_rect
 	jsr test14_image
 	jsr checksum_framebuffer
-	rts
+	jmp *
 
 test1_hline:
 	; horizontal line
