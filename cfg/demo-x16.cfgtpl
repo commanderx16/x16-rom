@@ -1,0 +1,9 @@
+MEMORY {
+	#include "x16.cfginc"
+
+	DEMO:  start = $1000, size = $4000, fill=yes, fillval=$AA;
+}
+
+SEGMENTS {
+	DEMO:       load = DEMO,  type = ro;
+}

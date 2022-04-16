@@ -507,6 +507,24 @@ locate:
 @error:
 	jmp fcerr
 
+test:
+	bne :+
+@test0:
+	brk ;jmp test0
+	jsr getbyt
+	txa
+	beq @test0
+	cmp #1
+	bne :+
+	brk ;jmp test1
+:	cmp #2
+	bne :+
+	brk ;jmp test2
+:	cmp #3
+	bne :+
+	brk ;jmp test3
+:	jmp fcerr
+
 ; BASIC's entry into jsrfar
 .setcpu "65c02"
 ram_bank = 0

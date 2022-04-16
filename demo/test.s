@@ -1,3 +1,8 @@
+.feature labels_without_colons
+
+.include "kernal.inc"
+.include "regs.inc"
+.include "mac.inc"
 
 ATTR_UNDERLINE = $04
 ATTR_BOLD      = $06
@@ -10,21 +15,9 @@ COLOR_RED      = $1C
 COLOR_GREEN    = $1E
 COLOR_BLUE     = $1F
 
+.segment "DEMO"
+
 test:
-	beq test0
-	jsr getbyt
-	txa
-	beq test0
-	cmp #1
-	bne :+
-	jmp test1
-:	cmp #2
-	bne :+
-	jmp test2
-:	cmp #3
-	bne :+
-	jmp test3
-:	jmp fcerr
 
 test0:
 	lda #$80
