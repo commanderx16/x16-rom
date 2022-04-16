@@ -162,3 +162,12 @@ utest: $(UT_SRCS) $(CX_INCS) $(UT_INCS) $(CFG_SUBDIR)/utest.cfg $(BOOTSTRAP_OBJS
 	$(AS) -I $(INCDIR) -I $(KINCDIR) test/utest.s -l utest.l
 	ld65 --config $(CFG_SUBDIR)/utest.cfg --mapfile utest.map -o utest $(TESTDIR)/utest.o $(BOOTSTRAP_OBJS) $(COMMON_OBJS)
 
+codex.img: cx-dc cx-mii cx-sym
+	dd if=/dev/zero of=codex.img bs=1M count=100
+	mformat -F -v CODEX -i codex.img ::
+	mcopy -i codex.img cx-dc ::
+	mcopy -i codex.img cx-sym ::
+	mcopy -i codex.img cx-mii ::
+	mcopy -i codex.img examples/HW.* ::
+	mcopy -i codex.img examples/x16skel.* ::
+	mdir -i codex.img ::
