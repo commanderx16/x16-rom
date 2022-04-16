@@ -37,6 +37,7 @@ boot	lda #0
 	jsr readst
 @xxx:	and #$ff-$40 ; any error but EOI?
 	beq :+       ; no
+	jsr clear_disk_status
 	jmp ready
 :	stx vartab
 	sty vartab+1    ;end load address

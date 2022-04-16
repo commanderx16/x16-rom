@@ -246,6 +246,18 @@ old1	lda txttab+1
 	sta vartab+1
 	jmp init2
 
+clear_disk_status:
+	jsr listen_cmd
+	jsr unlstn
+	jsr getfa
+	jsr talk
+	lda #$6f
+	jsr tksa
+:	jsr iecin
+	cmp #13
+	bne :-
+	jmp untalk
+
 ; ----------------------------------------------------------------
 ; XXX This is very similar to the code in MONITOR. When making
 ; XXX changes, have a look at both versions!
