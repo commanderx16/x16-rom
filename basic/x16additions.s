@@ -511,7 +511,7 @@ locate:
 
 boot:
 	lda #0
-	sta setmsg
+	jsr setmsg
 
 	ldx #boot_filename_end-boot_filename-1
 :	lda boot_filename,x
