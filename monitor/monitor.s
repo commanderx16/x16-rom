@@ -21,12 +21,9 @@
 ; "$" - convert hex to decimal
 ; "#" - convert decimal to hex
 ; "X" - exit monitor
-; "B" - set cartridge bank (0-3) to be visible at $8000-$BFFF
 ; "O" - set bank
 ; "L"/"S" - load/save file
 ; "@" - send drive command
-; "*R"/"*W" - read/write sector
-; "P" - set output to printer
 ;
 ; Unique features of this monitor include:
 ; * "I" command to dump 32 PETSCII characters, which even renders
@@ -100,14 +97,15 @@
 .export zp1
 .export zp2
 .export zp3
-.import cmd_p
-.import cmd_asterisk
+.export mon_fa
+.export byte_to_hex_ascii
 .import cmd_at
 .import cmd_ls
 
-zp1		:= $C1 ; XXX
-zp2		:= $C3 ; XXX
-zp3		:= $FF ; XXX
+zp1		:= $22
+zp2		:= $24
+zp3		:= $26
+mon_fa		:= $28
 DEFAULT_BANK	:= 0
 
 tmp3		:= BUF + 3
@@ -211,6 +209,8 @@ brk_entry2:
 	sta reg_pc_hi
 	tsx
 	stx reg_s
+	lda #8
+	sta mon_fa
 	jsr enable_f_keys
 	jsr print_cr
 	lda entry_type
@@ -1395,8 +1395,6 @@ command_index_s = * - command_names
 	.byte "@"
 	.byte "$"
 	.byte "#"
-	.byte "*"
-	.byte "P"
 	.byte "E"
 	.byte "["
 	.byte "]"
@@ -1425,8 +1423,6 @@ function_table:
 	.word cmd_at-1
 	.word cmd_dollar-1
 	.word cmd_hash-1
-	.word cmd_asterisk-1
-	.word cmd_p-1
 	.word cmd_e-1
 	.word cmd_leftbracket-1
 	.word cmd_rightbracket-1
