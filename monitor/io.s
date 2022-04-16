@@ -7,24 +7,18 @@ verck  = zp3
 
 .include "kernal.i"
 
-.import LBC4C
 .import basin_cmp_cr
-.import basin_if_more
 .import basin_skip_spaces_cmp_cr
-.import basin_skip_spaces_if_more
 .import command_index
 .importzp command_index_l
 .importzp command_index_s
 .import get_hex_byte
-.import get_hex_byte2
 .import get_hex_word3
 .import input_loop
-.import load_byte
 .import print_cr
 .import print_cr_then_input_loop
 .import enable_f_keys
 .import disable_f_keys
-.import store_byte
 .import swap_zp1_and_zp2
 .import syntax_error
 .import byte_to_hex_ascii
@@ -33,8 +27,6 @@ verck  = zp3
 .importzp zp1
 .importzp zp2
 .importzp zp3
-
-.import mjsrfar
 
 .export cmd_at
 .export cmd_ls
@@ -211,8 +203,7 @@ cmd_at:
 	cpy verck       ;length?
 	bne :-
 	jsr unlstn
-	jsr crdo
-	jmp input_loop
+	jmp print_cr_then_input_loop
 
 listen_cmd:
 	jsr getfa
@@ -234,7 +225,7 @@ ptstat	jsr listen_cmd
 	jsr talk
 	lda #$6f
 	jsr tksa
-	jsr crdo
+	jsr print_cr
 dos11	jsr iecin
 	jsr bsout
 	cmp #13
@@ -246,8 +237,7 @@ dos11	jsr iecin
 ; switch default drive
 dossw	and #$0f
 	sta mon_fa
-	jsr crdo
-	jmp input_loop
+	jmp print_cr_then_input_loop
 
 getfa:
 	lda #8
@@ -277,7 +267,7 @@ disk_dir
 :	ldx #LOGADD
 	jsr chkin       ;make it an input channel
 
-	jsr crdo
+	jsr print_cr
 
 	ldy #4          ;first pass only- trash first four bytes read
 
@@ -319,7 +309,7 @@ disk_dir
 	jsr bsout
 	bcc @d30        ;...loop always
 
-@d40	jsr crdo        ;start a new line
+@d40	jsr print_cr    ;start a new line
 	jsr stop
 	beq disk_done   ;...branch if user hit STOP
 	ldy #2
@@ -331,9 +321,6 @@ disk_done
 	sec
 	jsr close
 	jmp input_loop
-
-crdo:	lda #13
-	jmp bsout
 
 bin = tmp16
 bcd = tmp16+2
