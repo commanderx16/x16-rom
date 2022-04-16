@@ -129,7 +129,7 @@ cld60	lda eormsk
 	cmp #bufpag     ;direct?
 	bne cld70       ;no...
 ;
-	stx vartab
+cld65	stx vartab
 	sty vartab+1    ;end load address
 	lda #<reddy
 	ldy #>reddy
