@@ -2256,7 +2256,7 @@ exe_load_error
 exe_load_the_program
 	lda   #0              ; logical file number
 	ldx   #8              ; device number
-	ldy   #1              ; 0 == load to address in file
+	ldy   #1              ; 1 == load to address in file
 	kerjsr SETLFS
 
 	ldx   #<input_string

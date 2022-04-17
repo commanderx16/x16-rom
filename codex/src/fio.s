@@ -185,15 +185,17 @@ file_load_bank_a000
 	             
 	lda   #0              ; logical file number
 	ldx   #8              ; device number
-	ldy   #1              ; 0 == load to address in file
+	ldy   #0					; load to specified address
 	kerjsr SETLFS
-
+	
 	ldx   #<input_string
 	ldy   #>input_string
 	lda   input_string_length
 	kerjsr SETNAME
-
-	lda   #0
+	
+	ldx	#<$a000
+	ldy	#>$a000
+	lda	#0
 	kerjsr LOAD
 	
 	bcs   file_load_debug_the_error
