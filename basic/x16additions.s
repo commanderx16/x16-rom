@@ -272,6 +272,7 @@ dos	beq ptstat      ;no argument: print status
 
 ;***************
 ; DOS command
+	sec
 	jsr listen_cmd
 	ldy #0
 :	lda (index1),y
@@ -281,13 +282,24 @@ dos	beq ptstat      ;no argument: print status
 	bne :-
 	jmp unlstn
 
+; in:  C=1 show "DEVICE NOT PRESENT" on error
+;      C=0 return error in C
+; out: C=0 no error
+;      C=1 error
 listen_cmd:
+	php
 	jsr getfa
 	jsr listen
 	lda #$6f
 	jsr second
 	jsr readst
-	bmi device_not_present
+	bmi @error
+	plp
+	clc
+	rts
+@error:	plp
+	bcs device_not_present
+	sec
 	rts
 device_not_present:
 	ldx #5 ; "DEVICE NOT PRESENT"
@@ -301,8 +313,14 @@ clear_disk_status:
 ; print status
 ptstat	sec
 ptstat2	php
+	; keep C:
+	; for printing status, print error
+	; for clearing status, return error
 	jsr listen_cmd
-	jsr unlstn
+	bcc :+
+	plp
+	rts
+:	jsr unlstn
 	jsr getfa
 	jsr talk
 	lda #$6f
