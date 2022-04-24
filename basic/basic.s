@@ -1,4 +1,4 @@
-.feature labels_without_colons, pc_assignment
+.feature labels_without_colons
 
 .include "banks.inc"
 .include "kernal.inc"
@@ -35,5 +35,4 @@
 .include "init.s"
 .include "x16additions.s"
 .include "graph.s"
-.include "test.s"
 

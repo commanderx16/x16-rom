@@ -246,6 +246,10 @@ old1	lda txttab+1
 	sta vartab+1
 	jmp init2
 
+; ----------------------------------------------------------------
+; XXX This is very similar to the code in MONITOR. When making
+; XXX changes, have a look at both versions!
+; ----------------------------------------------------------------
 ;***************
 dos	beq ptstat      ;no argument: print status
 	jsr frmstr      ;length in .a
@@ -268,6 +272,7 @@ dos	beq ptstat      ;no argument: print status
 
 ;***************
 ; DOS command
+	sec
 	jsr listen_cmd
 	ldy #0
 :	lda (index1),y
@@ -277,31 +282,57 @@ dos	beq ptstat      ;no argument: print status
 	bne :-
 	jmp unlstn
 
+; in:  C=1 show "DEVICE NOT PRESENT" on error
+;      C=0 return error in C
+; out: C=0 no error
+;      C=1 error
 listen_cmd:
+	php
 	jsr getfa
 	jsr listen
 	lda #$6f
 	jsr second
 	jsr readst
-	bmi device_not_present
+	bmi @error
+	plp
+	clc
+	rts
+@error:	plp
+	bcs device_not_present
+	sec
 	rts
 device_not_present:
 	ldx #5 ; "DEVICE NOT PRESENT"
 	jmp error
 
 
+clear_disk_status:
+	clc
+	bra ptstat2
 ;***************
 ; print status
-ptstat	jsr listen_cmd
-	jsr unlstn
+ptstat	sec
+ptstat2	php
+	; keep C:
+	; for printing status, print error
+	; for clearing status, return error
+	jsr listen_cmd
+	bcc :+
+	plp
+	rts
+:	jsr unlstn
 	jsr getfa
 	jsr talk
 	lda #$6f
 	jsr tksa
 dos11	jsr iecin
+	plp
+	php
+	bcc :+
 	jsr bsout
-	cmp #13
+:	cmp #13
 	bne dos11
+	plp
 	jmp untalk
 
 ;***************
@@ -502,6 +533,58 @@ locate:
 
 @error:
 	jmp fcerr
+
+test:
+	beq @test0
+	jsr getbyt
+	txa
+	cmp #4
+	bcc @run
+	jmp fcerr
+
+@test0:	lda #0
+@run:
+	pha	; index
+	ldx #@copy_end-@copy-1
+:	lda @copy,x
+	sta $0400,x
+	dex
+	bpl :-
+	jmp $0400
+
+@copy:
+	sei
+	lda #8
+	sta rom_bank
+	lda #<$c000
+	sta 2
+	lda #>$c000
+	sta 3
+	lda #<$1000
+	sta 4
+	lda #>$1000
+	sta 5
+	ldx #$40
+	ldy #0
+:	lda (2),y
+	sta (4),y
+	iny
+	bne :-
+	inc 3
+	inc 5
+	dex
+	bne :-
+	lda #$6c
+	sta $0400
+	pla
+	asl
+	sta $0401
+	lda #$10
+	sta $0402
+	stz rom_bank
+	cli
+	jmp $0400
+@copy_end:
 
 ; BASIC's entry into jsrfar
 .setcpu "65c02"

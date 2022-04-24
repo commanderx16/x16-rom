@@ -8,6 +8,10 @@
 	.ifndef __X16_KERNEL__
 	__X16_KERNEL__=1
 
+   .ifndef BANK_KERNAL
+      .include "banks.inc"   ; X16 defs
+   .endif
+
 	.include "bank.inc"
 	.include "regs.inc"
 	.include "mac.inc"
@@ -76,7 +80,10 @@
 	CUR_LEFT=$9D
 	CUR_RIGHT=$1D
 	
-	ENTER_BASIC = $FF47
+   FB_GET_PIXELS      = $F002
+   FB_CURSOR_POSITION = $FEFF
+   FB_NEXT_LINE       = $FF02
+	ENTER_BASIC        = $FF47
 	OPEN    = $FFC0
 	SCRMOD  = $FF5f
 	FETCH   = $FF74
@@ -105,20 +112,33 @@
 	BRK_VECTOR    = $0316
 	FETCH_VECTOR  = $03AF
 	STASH_VECTOR  = $03B7
-	FILE_LA       = $028f
-	FILE_SA       = $0290
-	FILE_FA       = $0291
+
 	;;
 	
 	JSRFAR_VECTOR = $FF6E
 	
-	MODE_40_30   = $00
-	MODE_80_30   = $02
-	MODE_80_60   = $02
+	MODE_80_60   = $00
+	MODE_80_30   = $01
+	MODE_40_60   = $02
+	MODE_40_30   = $03
+	MODE_40_15   = $04
+	MODE_20_30   = $05
+	MODE_20_15   = $06
 	MODE_320_240 = $80
 	MODE_640_400 = $81
 	MODE_SWAP    = $ff
 	
+   .macro ExchW dst
+   plx
+   ply
+   lda dst
+   pha
+   lda dst+1
+   pha
+   stx dst+1
+   sty dst
+   .endmacro
+   
 	.macro ifEq16 r1,r2,dst
 	lda    r1
 	cmp    r2
@@ -158,6 +178,18 @@
 	bcc :+     ; if NUM1H < NUM2H then NUM1 < NUM2
 	bne then   ; if NUM1H <> NUM2H then NUM1 > NUM2 (so NUM1 >= NUM2)
 	lda v1     ; compare low bytes
+	CMP v2
+	bcs then   ; if NUM1L >= NUM2L then NUM1 >= NUM2
+	:  
+	.endmacro
+	
+										  ; 16 bit unsigned compare
+	.macro ifVGE   v1,v2,then
+	lda #>v1   ; compare high bytes
+	cmp v2+1
+	bcc :+     ; if NUM1H < NUM2H then NUM1 < NUM2
+	bne then   ; if NUM1H <> NUM2H then NUM1 > NUM2 (so NUM1 >= NUM2)
+	lda #<v1   ; compare low bytes
 	CMP v2
 	bcs then   ; if NUM1L >= NUM2L then NUM1 >= NUM2
 	:  
@@ -203,13 +235,13 @@
 	.macro kerjsr addr
 	jsr    JSRFAR_VECTOR
 	.word  addr
-	.byte  KERNAL_ROM
+	.byte  BANK_KERNAL
 	.endmacro
 	
 	.macro aejsr addr
 	jsr    JSRFAR_VECTOR
 	.word  addr
-	.byte  CX_ROM
+	.byte  BANK_CODEX
 	.endmacro
 	
 	.endif

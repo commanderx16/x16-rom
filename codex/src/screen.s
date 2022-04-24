@@ -1,7 +1,7 @@
 ;;;
 ;;; Screen control for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020 Michael J. Allison
+;;; Copyright 2020-2022 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
  
@@ -11,6 +11,7 @@
 	.include "bank.inc"
 	.include "bank_assy.inc"
 	.include "bank_assy_vars.inc"
+	.include "cx_vecs.inc"
 	.include "decoder.inc"
 	.include "decoder_vars.inc"
 	.include "kvars.inc"
@@ -21,12 +22,12 @@
 	.include "x16_kernal.inc"
 	.include "cx_vars.inc"
 
-	.export clear, init_screen_variables, screen_set_fg_color, print_string, read_key_with_prompt, read_string_with_prompt
+	.export clear, init_screen_variables, screen_set_fg_color, read_key_with_prompt, read_string_with_prompt
 	.export read_string, read_string_preloaded, draw_box, draw_box_center_lines, erase_box
 	.export draw_horizontal_line, draw_vertical_line, save_vera_state, restore_vera_state, save_user_screen, restore_user_screen
 	.export screen_clear_scrollback, screen_get_prev_scrollback_address, screen_add_scrollback_address
 	.export prtstr, print_horizontal_line, gotoPrompt, prtxlatedcodes, prthexbytes, prthex, prtspaceto
-	.export rdhex2, bs_out_str, prtstr_shim, prtstr_at_xy
+	.export rdhex2, bs_out_str, prtstr_shim, prtstr_at_xy, print_header
 
 	.export SCROLLBACK_COUNT
 	.exportzp SCR_QUOTE, DATA_ROW, DBL_QUOTE
@@ -148,13 +149,20 @@
 	SCR_QUOTE=39
 
 ;;
-;; Clear the screen, reset SCR_PTR
+;; Clear the screen
 ;;
 clear 
-	lda    #CLS
-	kerjsr CHROUT
 	stz    SCR_ROW
+cl_loop
 	stz    SCR_COL
+	vgoto
+	ldx    #80
+	jsr    prtspaceto
+	inc    SCR_ROW
+	lda    SCR_ROW
+	cmp    #60
+	bne    cl_loop
+	
 	rts
 
 ;;
@@ -199,22 +207,6 @@ screen_set_fg_color
 	rts
 	
 ;;
-;; Print string pointed by r1
-;;
-print_string
-	ldy #0
-print_loop
-	lda     (r1),y
-	beq     print_exit
-	jsr     petscii_to_scr
-	charOutA
-	iny
-	bra     print_loop
-
-print_exit
-	rts
-
-;;
 ;; Read key with prompt
 ;;
 read_key_with_prompt
@@ -231,7 +223,7 @@ read_key_with_prompt
 	stx     SCR_COL
 	vgoto
 
-	jsr     print_string
+	jsr     prtstr
 	             
 @read_key_with_prompt_loop
 	kerjsr  GETIN
@@ -275,7 +267,7 @@ read_string_with_prompt
 	stx     SCR_COL
 	vgoto
 
-	jsr     print_string               ; Print prompt string
+	jsr     prtstr               ; Print prompt string
 	
 	;; read_string_core needs this later
 	lda     SCR_COL
@@ -318,7 +310,7 @@ read_string_preloaded
 	PushW   r2
 	LoadW   r2,input_string
 	jsr     util_strcpy
-	jsr     print_string
+	jsr     prtstr
 	PopW    r2
 	bra     read_string_core
 	
@@ -346,10 +338,7 @@ read_string
 	sta     r11H
 	
 read_string_core	
-	lda     #<input_string
-	sta     r1L
-	lda     #>input_string
-	sta     r1H
+	LoadW   r1,input_string
 
 	;; r12 original color
 	;; r13 flash colors
@@ -646,11 +635,7 @@ erase_box_row_loop
 	stx     SCR_COL
 	ldx     M1H
 
-	phx
-	phy
 	vgoto
-	ply
-	plx
 
 erase_box_col_loop
 	lda     #CHR_SPACE
@@ -735,40 +720,24 @@ draw_vertical_line
 
 ;;
 ;; Save VERA state (to bank_assy)
-;; Does not save the data registers
+;; Does not save the data registers, MUST be called with bank_assy seleced
 ;;
 save_vera_state
-	pushBankVar bank_assy
-;         lda          VERA_ADDR_LO
-;         sta          vera_save_addr_lo
-;         lda          VERA_ADDR_MID
-;         sta          vera_save_addr_mid
-;         lda          VERA_ADDR_HI
-;         sta          vera_save_addr_hi
-;         lda          VERA_CTRL
-;         sta          vera_save_ctrl
-;         lda          VERA_IEN
-;         sta          vera_save_ien
-;         lda          VERA_ISR
-;         sta          vera_save_isr
+	pushBankVar  bank_assy
 	sec                           ; Interrogate XY
 	kerjsr       PLOT
 	stx          screen_save_plot_x
 	sty          screen_save_plot_y
 
-	;; Fix for later rom versions (post 33)
-	clc                           ; interrogate mode
+	sec                           ; interrogate mode
 	kerjsr       SCRMOD
 	sta          screen_save_mode
-	cmp          #MODE_80_60
-	beq          :+
 
 	;; set to 80 col mode for debugger
 	lda          #MODE_80_60
-	sec
+	clc
 	kerjsr       SCRMOD
 	      
-:  
 	popBank
 	rts
 
@@ -777,53 +746,32 @@ save_vera_state
 ;; Does not restore the data registers
 ;;
 restore_vera_state
-	pushBankVar bank_assy
-;         clc                           ; Set screen mode
-;         lda          screen_save_mode
-;         kerjsr       SCRMOD
-	      
-	;; Fix for later ROM versions (post 33)
 	lda          screen_save_mode
-	cmp          #80
-	beq          :+
 
 	;; restore to 40 col mode
+	clc
 	kerjsr       SCRMOD
 	      
-:  
 	ldx          screen_save_plot_x
 	ldy          screen_save_plot_y
 	clc                           ; Set XY
 	kerjsr       PLOT
-;         lda          vera_save_addr_lo
-;         sta          VERA_ADDR_LO
-;         lda          vera_save_addr_mid
-;         sta          VERA_ADDR_MID
-;         lda          vera_save_addr_hi
-;         sta          VERA_ADDR_HI
-;         lda          vera_save_ctrl
-;         sta          VERA_CTRL
-;         lda          vera_save_ien
-;         sta          VERA_IEN
-;         lda          vera_save_isr
-;         sta          VERA_ISR
-	       
-	popBank
+	
 	rts
-
+ 
 ;;
 ;; Save the user screen
-;; Todo, save VERA mode
 ;;
 
 	LAST_COL=80*2
 	LAST_ROW=60
 	ROW_BANK_SWITCH=LAST_ROW/2
+	save_screen=$a000
 
 save_user_screen
 	pushBankVar bank_assy
 
-	clc
+	sec       ; get mode
 	kerjsr    SCRMOD
 	sta       screen_save_mode
 
@@ -831,144 +779,136 @@ save_user_screen
 	kerjsr    PLOT
 	stx       screen_save_plot_x
 	sty       screen_save_plot_y
-
-	lda       bank_scr1
-	sta       BANK_CTRL_RAM
-
-	lda       #<save_screen
-	sta       r1L
-	lda       #>save_screen
-	sta       r1H
-
-	vgotoXY 0,0
-
-@save_row_loop
-	ldy      #0
-
-@save_line_loop
-	lda     VERA_DATA0
-	sta     (r1),y
-	iny
-	tya
-	cmp     #LAST_COL
-	bne     @save_line_loop
-
-	lda     r1L
-	clc
-	adc     #LAST_COL
-	sta     r1L
-	bcc     :+
-	inc     r1H
-
-:  
-	stz     SCR_COL
-	inc     SCR_ROW
-	vgoto
-
-	lda     SCR_ROW
-
-	;; If halfway down the screen, switch banks
-	cmp     #ROW_BANK_SWITCH
-	bne     :+
-	lda     bank_scr2
-	sta     BANK_CTRL_RAM
 	
-	lda       #<save_screen
-	sta       r1L
-	lda       #>save_screen
-	sta       r1H
-	bra       @save_row_loop
+;	LoadW     r0,0
+;	LoadW     r1,0
+;	kerjsr    FB_CURSOR_POSITION
 
-:
-	cmp     #LAST_ROW
-	bne     @save_row_loop
+	LoadW     r1,320
+	LoadW     r2,200
+	LoadW     r3,save_mover
 
+	jsr       save_restore_user_screen_iter
+	
 	popBank
 	rts
+	
+	;;
+	;; Iterate over all rows, calling the row mover
+	;;
+save_restore_user_screen_iter
+	switchBankVar bank_scr1
 
-	save_screen=$a000
+	LoadW     r0,save_screen
+	LoadW     r4,0 ; Row counter
+	
+@save_restore_iter_loop	
+	jsr       save_restore_user_screen_row
+	LoadW     TMP1,$c000
+	SubW      r0,TMP1
+	ifGE      TMP1,r1,@save_restore_iter_incr
+	LoadW     r0,save_screen
+	dec       BANK_CTRL_RAM
+@save_restore_iter_incr
+	IncW      r4
+	ifNe16    r4,r2,@save_restore_iter_loop
+	rts
 
-;;
-;; Resore user screen.
-;; Usually called prior to continuation
-;;
+	;;
+	;; Save one row of screen data
+	;;
+save_restore_user_screen_row
+	PushW     r1
+@sr_user_line_loop
+	lda       r1H
+	beq       @sr_user_tail
+	dec       r1H
+	ldy       #0
+@sr_user_256_loop
+	jsr       mover_shim
+	iny
+	bne       @sr_user_256_loop
+   inc       r0H
+	bra       @sr_user_line_loop
+@sr_user_tail
+   lda       r1L
+	beq       @sr_user_exit
+	ldy       #0
+@sr_user_tail_loop	
+	jsr       mover_shim
+	iny
+	cpy       r1L
+	bne       @sr_user_tail_loop
+@sr_user_exit
+	PopW      r1
+	tya
+	clc
+	adc       r0L
+	sta       r0L
+	bcc       :+
+	inc       r0H
+:	
+	rts
+
+	;;
+	;; Restore the user screen
+	;;
 restore_user_screen
 	pushBankVar bank_assy
 	lda       screen_save_mode
-	sec
+	clc
 	kerjsr    SCRMOD
 
-	lda       bank_scr1
-	sta       BANK_CTRL_RAM
-	             
-	lda       #<save_screen
-	sta       r1L
-	lda       #>save_screen
-	sta       r1H
+	LoadW     r0,0
+	LoadW     r1,0
+	kerjsr    FB_CURSOR_POSITION
 
-	vgotoXY 0,0
+	LoadW     r1,320
+	LoadW     r2,200
+	LoadW     r3,restore_mover
 
-@restore_row_loop
-	ldy     #0
+	switchBankVar bank_scr1
 
-@restore_line_loop
-	lda     (r1),y
-	sta     VERA_DATA0
-	iny
-	tya
-	cmp     #LAST_COL
-	bne     @restore_line_loop
-
-	lda     r1L
-	clc
-	adc     #LAST_COL
-	sta     r1L
-	bcc     :+
-	inc     r1H
-
-:  
-	stz     SCR_COL
-	inc     SCR_ROW
-	vgoto
-
-	lda     SCR_ROW
-
-	;; If halfway down the screen, switch banks
-	cmp     #ROW_BANK_SWITCH
-	bne     :+
-	lda     bank_scr2
-	sta     BANK_CTRL_RAM
-
-	lda       #<save_screen
-	sta       r1L
-	lda       #>save_screen
-	sta       r1H
-	bra       @restore_row_loop
-
-:  
-	cmp     #LAST_ROW
-	bne     @restore_row_loop
-
+	jsr       save_restore_user_screen_iter
+	
 	popBank
 	rts
 
+	;;
+	;; Movers called from the iter loop
+	;;
+mover_shim
+	jmp       (r3)
+	
+save_mover
+   lda       VERA_DATA0
+   sta       (r0),y
+   rts
+
+restore_mover
+	lda       (r0),y
+	sta       VERA_DATA0
+   rts
 
 ;;
 ;; ------------------------------------------------------------
 ;; Scrollback module, so an scroll backwards
-;; Implemented as a stack of 16 bit values, r9 always pointing to top of stack
+;; Implemented as a stack of 16 bit values, scrollback_ptr always pointing to top of stack
 ;; ------------------------------------------------------------
 
-scrollback_top_ptr      = $A000 +ROW_BANK_SWITCH * LAST_COL
-scrollback_start_ptr    = $c000 ; also means an empty stack, will not write here
-scrollback_low_water    = $c000
+scrollback_top_ptr      = $A000
+scrollback_ptr          = $c000 - 2
+scrollback_start_ptr    = scrollback_ptr ; also means an empty stack, will not write here
+scrollback_low_water    = scrollback_ptr 
 SCROLLBACK_COUNT        = (scrollback_low_water - scrollback_top_ptr) / 2
 
 ;;
 ;; Initialize the scrollback structure
 ;;
 screen_clear_scrollback
-	LoadW           r9,scrollback_start_ptr
+	pushBankVar     bank_scrollback
+	LoadW           scrollback_ptr,scrollback_start_ptr
+	popBank
 	rts
 
 ;;
@@ -977,25 +917,46 @@ screen_clear_scrollback
 ;;        C - C == 0 valid A, C == 1 no prior info available
 ;;
 screen_get_prev_scrollback_address
-	pushBankVar    bank_scr1
+	pushBankVar    bank_scrollback
 
-	LoadW          TMP1,scrollback_low_water
-	ifGE           r9,TMP1,screen_get_addr_fail
+	MoveW          scrollback_ptr,TMP2
 	
+; Manually expanded ifGE macro, to handle immediate argument	
+;	ifGE           TMP2,#scrollback_low_water,screen_fail
+	
+	lda				TMP2H
+	cmp				#>scrollback_low_water
+	bcc				:+
+	bne				screen_fail
+	lda				TMP2L
+	cmp				#<scrollback_low_water
+	bcs				screen_fail
+
+:	
 	ldy            #0
-	lda            (r9),y
+	lda            (TMP2),y
 	sta            r0L
 	iny
-	lda            (r9),y
+	lda            (TMP2),y
 	sta            r0H
-	AddVW          2,r9
 	
-@screen_get_addr_exit
+
+;	AddVW          2,TMP2
+;  MoveW          TMP2,scrollback_ptr
+	
+	lda				TMP2
+	clc
+	adc				#2
+	sta				scrollback_ptr
+	bcc				screen_exit
+	inc				scrollback_ptr+1
+	
+screen_exit       ; Common exit for routines
 	popBank
 	clc
 	rts
 	
-screen_get_addr_fail
+screen_fail       ; Common exit routines
 	popBank
 	sec
 	rts
@@ -1006,31 +967,33 @@ screen_get_addr_fail
 ;; Input r1 - Address to push
 ;;
 screen_add_scrollback_address
-	pushBankVar   bank_scr1
+	pushBankVar   bank_scrollback
 	            
-	LoadW          TMP1,scrollback_top_ptr
-	ifGE           TMP1,r9,@screen_add_roll
-
+	MoveW          scrollback_ptr,TMP2
+	
+	; Manually expanded ifGE, with #immediate argument
+   ; ifGE           #scrollback_top_ptr,TMP2,@screen_add_roll
+	
+   ifVGE          scrollback_top_ptr,TMP2,@screen_add_roll
+	
 	sec
-	lda            r9L
+	lda            TMP2L
 	sbc            #2
-	sta            r9L
+	sta            TMP2L
+   sta				scrollback_ptr
 	bcs            @screen_store_address
-	dec            r9H
+	dec            TMP2H
+   dec				scrollback_ptr+1
 
 @screen_store_address
 	ldy            #0
 	lda            r1L
-	sta            (r9),y
+	sta            (TMP2),y
 	iny
 	lda            r1H
-	sta            (r9),y
+	sta            (TMP2),y
+   bra            screen_exit
 	            
-@screen_add_exit
-	popBank
-	clc
-	rts
-
 @screen_add_roll
 	;; push entire stack down by one entry, cutting off the oldest
 	PushW          r0
@@ -1313,7 +1276,7 @@ rdhex2
 rdhex2_read_the_string_for_preload
 	;; Format the preload value for input
 	stz     decoded_str_next
-	LoadW   r10,decoded_str
+	LoadW   r10,code_buffer
 	lda     r2H
 	jsr     decode_push_hex
 	lda     r2L
@@ -1326,7 +1289,7 @@ rdhex2_read_the_string_for_preload
 rdhex2_read_the_string
 	jsr     read_string_with_prompt
 	bcc     @rdhex2_continue
-	jmp     rdhex_noerror_exit
+	jmp     rdhex_error_exit
 
 @rdhex2_continue
 	stz     input_hex_value
@@ -1338,6 +1301,7 @@ rdhex2_read_the_string
 	             
 	ldy     #0
 	lda     (r1),y
+	beq     rdhex_error_exit
 	             
 rdhex_convert
 	cmp     #':'
@@ -1461,3 +1425,51 @@ rdhex_asl_value
 	pla
 	rts
 
+;;
+;; print_header
+;; Print the F1 F3, etc header, with labels
+;;
+print_header
+	ldx     #HDR_COL
+	ldy     #(HDR_ROW+1)
+	jsr     prtstr_at_xy            ; r1 has sub header from caller
+
+	ldx     #HDR_COL
+	ldy     #HDR_ROW
+	callR1  prtstr_at_xy,fn_header
+
+	ldx     BANK_CTRL_RAM
+	jsr     prthex
+
+	ldx     #0
+	ldy     SCR_ROW
+	iny                             ; Save a byte, vera_goto will store in SCR_COL, SCR_ROW
+
+	lda     #50
+	sta     SCR_COL
+	jsr     vera_goto
+	callR1  prtstr,str_region_start
+	jsr     vec_meta_get_region
+	ldx     r0H
+	jsr     prthex
+	ldx     r0L
+	jsr     prthex
+	
+	charOut ','
+	charOut '$'
+
+	ldx     r1H
+	jsr     prthex
+	ldx     r1L
+	jsr     prthex
+	
+	callR1       prtstr,str_region_end
+
+	lda     orig_color
+	sta     K_TEXT_COLOR
+	jsr     print_horizontal_line
+	rts
+	
+fn_header            .byte " F1   F2   F3   F4   F5    F6    F7   F8         RAM BANK = ", 0
+str_region_start     .byte "PRGM REGION[$", 0
+str_region_end       .byte "]", CR, CR, 0

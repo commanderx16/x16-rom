@@ -23,9 +23,6 @@
 .export screen_save_state
 .export screen_restore_state
 
-; for monitor
-.export pnt
-
 ; kernal var
 .importzp sal, sah ; reused temps from load/save
 .importzp tmp2

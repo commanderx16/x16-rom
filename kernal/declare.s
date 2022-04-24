@@ -7,7 +7,6 @@
 
 .include "banks.inc"
 
-.export buf; [monitor]
 .export tmp2; [cpychr]
 .export kvswitch_tmp1, kvswitch_tmp2
 .export mhz

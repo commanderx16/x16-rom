@@ -273,6 +273,9 @@ CHARSET_SOURCES= \
 	charset/petscii.s \
 	charset/iso-8859-15.s
 
+DEMO_SOURCES= \
+	demo/test.s
+
 GENERIC_DEPS = \
 	inc/kernal.inc \
 	inc/mac.inc \
@@ -331,6 +334,7 @@ GEOS_OBJS    = $(addprefix $(BUILD_DIR)/, $(GEOS_SOURCES:.s=.o))
 BASIC_OBJS   = $(addprefix $(BUILD_DIR)/, $(BASIC_SOURCES:.s=.o))
 MONITOR_OBJS = $(addprefix $(BUILD_DIR)/, $(MONITOR_SOURCES:.s=.o))
 CHARSET_OBJS = $(addprefix $(BUILD_DIR)/, $(CHARSET_SOURCES:.s=.o))
+DEMO_OBJS    = $(addprefix $(BUILD_DIR)/, $(DEMO_SOURCES:.s=.o))
 
 ifeq ($(MACHINE),c64)
 	BANK_BINS = $(BUILD_DIR)/kernal.bin
@@ -343,16 +347,19 @@ else
 		$(BUILD_DIR)/basic.bin \
 		$(BUILD_DIR)/monitor.bin \
 		$(BUILD_DIR)/charset.bin \
-		$(BUILD_DIR)/codex.bin
+		$(BUILD_DIR)/codex.bin \
+		$(BUILD_DIR)/demo.bin
 endif
 
 ifeq ($(MACHINE),x16)
 	ROM_LABELS=$(BUILD_DIR)/rom_labels.h
+	ROM_LST=$(BUILD_DIR)/rom_lst.h
 else
 	ROM_LABELS=
+	ROM_LST=
 endif
 
-all: $(BUILD_DIR)/rom.bin $(ROM_LABELS)
+all: $(BUILD_DIR)/rom.bin $(ROM_LABELS) $(ROM_LST)
 
 $(BUILD_DIR)/rom.bin: $(BANK_BINS)
 	cat $(BANK_BINS) > $@
@@ -365,15 +372,18 @@ $(BUILD_DIR)/%.cfg: %.cfgtpl
 	@mkdir -p $$(dirname $@)
 	$(CC) -E $< -o $@
 
+# TODO: Need a way to control lst file generation through a configuration variable.
 $(BUILD_DIR)/%.o: %.s
 	@mkdir -p $$(dirname $@)
-	$(AS) $(ASFLAGS) $< -o $@
+	$(AS) $(ASFLAGS) -l $(BUILD_DIR)/$*.lst $< -o $@
 
 
+# TODO: Need a way to control relist generation; don't try to do it if lst files haven't been generated!
 # Bank 0 : KERNAL
 $(BUILD_DIR)/kernal.bin: $(KERNAL_OBJS) $(KERNAL_DEPS) $(CFG_DIR)/kernal-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C $(CFG_DIR)/kernal-$(MACHINE).cfg $(KERNAL_OBJS) -o $@ -m $(BUILD_DIR)/kernal.map -Ln $(BUILD_DIR)/kernal.sym
+	./scripts/relist.py $(BUILD_DIR)/kernal.map $(BUILD_DIR)/kernal
 
 # Bank 1 : KEYMAP
 $(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) $(KEYMAP_DEPS) $(CFG_DIR)/keymap-$(MACHINE).cfg
@@ -384,21 +394,25 @@ $(BUILD_DIR)/keymap.bin: $(KEYMAP_OBJS) $(KEYMAP_DEPS) $(CFG_DIR)/keymap-$(MACHI
 $(BUILD_DIR)/dos.bin: $(DOS_OBJS) $(DOS_DEPS) $(CFG_DIR)/dos-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C $(CFG_DIR)/dos-$(MACHINE).cfg $(DOS_OBJS) -o $@ -m $(BUILD_DIR)/dos.map -Ln $(BUILD_DIR)/dos.sym
+	./scripts/relist.py $(BUILD_DIR)/dos.map $(BUILD_DIR)/dos
 
 # Bank 3 : GEOS
 $(BUILD_DIR)/geos.bin: $(GEOS_OBJS) $(GEOS_DEPS) $(CFG_DIR)/geos-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C $(CFG_DIR)/geos-$(MACHINE).cfg $(GEOS_OBJS) -o $@ -m $(BUILD_DIR)/geos.map -Ln $(BUILD_DIR)/geos.sym
+	./scripts/relist.py $(BUILD_DIR)/geos.map $(BUILD_DIR)/geos
 
 # Bank 4 : BASIC
 $(BUILD_DIR)/basic.bin: $(BASIC_OBJS) $(BASIC_DEPS) $(CFG_DIR)/basic-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C $(CFG_DIR)/basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.sym
+	./scripts/relist.py $(BUILD_DIR)/basic.map $(BUILD_DIR)/basic
 
 # Bank 5 : MONITOR
 $(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) $(MONITOR_DEPS) $(CFG_DIR)/monitor-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C $(CFG_DIR)/monitor-$(MACHINE).cfg $(MONITOR_OBJS) -o $@ -m $(BUILD_DIR)/monitor.map -Ln $(BUILD_DIR)/monitor.sym
+	./scripts/relist.py $(BUILD_DIR)/monitor.map $(BUILD_DIR)/monitor
 
 # Bank 6 : CHARSET
 $(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) $(CFG_DIR)/charset-$(MACHINE).cfg
@@ -409,6 +423,13 @@ $(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) $(CFG_DIR)/charset-$(M
 $(BUILD_DIR)/codex.bin: $(CFG_DIR)/codex-$(MACHINE).cfg
 	(cd codex; make)
 
+# Bank 8 : DEMO
+$(BUILD_DIR)/demo.bin: $(DEMO_OBJS) $(DEMO_DEPS) $(CFG_DIR)/demo-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C $(CFG_DIR)/demo-$(MACHINE).cfg $(DEMO_OBJS) -o $@ -m $(BUILD_DIR)/demo.map -Ln $(BUILD_DIR)/demo.sym
+	./scripts/relist.py $(BUILD_DIR)/demo.map $(BUILD_DIR)/demo
+
+
 $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
 	./scripts/symbolize.sh 0 build/x16/kernal.sym   > $@
 	./scripts/symbolize.sh 1 build/x16/keymap.sym  >> $@
@@ -417,3 +438,11 @@ $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
 	./scripts/symbolize.sh 4 build/x16/basic.sym   >> $@
 	./scripts/symbolize.sh 5 build/x16/monitor.sym >> $@
 	./scripts/symbolize.sh 6 build/x16/charset.sym >> $@
+
+$(BUILD_DIR)/rom_lst.h: $(BANK_BINS)
+	./scripts/trace_lst.py 0 `find build/x16/kernal/ -name \*.rlst` > $@
+	./scripts/trace_lst.py 2 `find build/x16/dos/ -name \*.rlst`   >> $@
+	./scripts/trace_lst.py 3 `find build/x16/geos/ -name \*.rlst`   >> $@
+	./scripts/trace_lst.py 4 `find build/x16/basic/ -name \*.rlst` >> $@
+	./scripts/trace_lst.py 5 `find build/x16/monitor/ -name \*.rlst`   >> $@
+

@@ -12,6 +12,7 @@
 .export vera_wait_ready
 
 .import ps2_init
+.import serial_init
 .import entropy_init
 .import clklo
 
@@ -26,6 +27,7 @@
 ioinit:
 	jsr vera_wait_ready
 	jsr ps2_init    ;inhibit ps/2 communcation
+	jsr serial_init
 	jsr entropy_init
 	jsr clklo       ;release the clock line
 	; fallthrough

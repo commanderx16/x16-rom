@@ -1,3 +1,8 @@
+.feature labels_without_colons
+
+.include "kernal.inc"
+.include "regs.inc"
+.include "mac.inc"
 
 ATTR_UNDERLINE = $04
 ATTR_BOLD      = $06
@@ -10,21 +15,12 @@ COLOR_RED      = $1C
 COLOR_GREEN    = $1E
 COLOR_BLUE     = $1F
 
-test:
-	beq test0
-	jsr getbyt
-	txa
-	beq test0
-	cmp #1
-	bne :+
-	jmp test1
-:	cmp #2
-	bne :+
-	jmp test2
-:	cmp #3
-	bne :+
-	jmp test3
-:	jmp fcerr
+.segment "DEMO"
+
+	.word test0
+	.word test1
+	.word test2
+	.word test3
 
 test0:
 	lda #$80
@@ -45,7 +41,7 @@ test0:
 	jsr test13_move_rect
 	jsr test14_image
 	jsr checksum_framebuffer
-	rts
+	jmp *
 
 test1_hline:
 	; horizontal line

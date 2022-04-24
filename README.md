@@ -69,70 +69,6 @@ This will leave the binaries in the `bin/` subdirectory; you may use thes direct
 Consult the Nesdev Wiki [Installing CC65][nd-cc65] page for some hints, including Windows installs. However, the Debian packages they suggest from [trikaliotis.net] appear to have signature errors.
 
 
-New Features
-------------
-
-* F-keys:
-	F1: `LIST`
-	F2: `MONITOR`
-	F3: `RUN`
-	F4: &lt;switch 40/80&gt;
-	F5: `LOAD`
-	F6: `SAVE"`
-	F7: `DOS"$`
-	F8: `DOS`
-* New BASIC instructions
-	* `MONITOR`: see below.
-	* `DOS`:
-	no argument: read disk status.
-	"8" or "9" as an argument: switch default drive.
-	"$" as an argument: show directory.
-	all other arguments: send DOS command
-	* `VPEEK`(bank, offset), `VPOKE` bank, offset, value to access video memory. "offset" is 16 bits, "bank" is bits 16-19 of the linear address.
-	Note that the tokens for the new BASIC commands have not been finalized yet, so loading a BASIC program that uses the new keywords in a future version of the ROM will break!
-* Support for `$` and `%` in BASIC expressions for hex and binary
-* `LOAD` prints the start and end(+1) addresses
-* Integrated Monitor derived from the [Final Cartridge III](https://github.com/mist64/final_cartridge).
-	* `O00`..`OFF` to switch ROM and RAM banks
-	* `OV0`..`OV4` to switch to video address space
-* FAT32-formatted SD card as drive 8 as a full IEEE-like (TALK/LISTEN & CBM DOS) compatible device
-* Some new KERNAL APIs (to be documented)
-
-
-Big TODOs
----------
-
-* BASIC needs more features.
-* Commodore Serial Bus is not working.
-
-
-ROM Map
--------
-
-|Bank|Name   |Description                                            |
-|----|-------|-------------------------------------------------------|
-|0   |KERNAL |KERNAL                                                 |
-|1   |KEYBD  |Keyboard layout tables                                 |
-|2   |CBDOS  |The computer-based CBM-DOS for FAT32 SD cards          |
-|3   |GEOS   |GEOS KERNAL                                            |
-|4   |BASIC  |BASIC interpreter                                      |
-|5   |MONITOR|Machine language monitor                               |
-|6   |CHARSET|PETSCII and ISO character sets (uploaded into VRAM)    |
-|7   |CODEX  |CodeX16 Interactive Assembly Environment / Monitor     |
-|8-31|–      |*[Currently unused]*                                   |
-
-
-RAM Map
--------
-
-* fixed RAM:
-	* $0000-$0400 KERNAL/BASIC/DOS system variables
-	* $0400-$0800 available for machine code programs
-	* $0800-$9F00 BASIC RAM
-* banked RAM:
-	* bank 0: KERNAL and DOS buffers and variables
-	* banks 1-255: free for applications
-
 Credits
 -------
 
@@ -141,6 +77,29 @@ See [LICENSE.md](LICENSE.md)
 
 Release Notes
 -------------
+
+### Release 40 ("Bonn")
+
+* KERNAL
+	* Features
+		* NMI & BRK will enter monitor
+		* added ':' to some F-key replacements
+		* allow scrolling screen DOWN: `PRINTCHR$($13)CHR$($91)`
+		* Serial Bus works on hardware
+	* Bugs
+		* fixed SA during LOAD
+		* fixed joystick routine messing with PS/2 keyboard [Natt Akuma]
+	* API
+		* keyhandler vector ($032E/$032F) doesn't need to return Z
+		* PLOT API will clear cursor
+* DOS
+	* better detection of volume label
+	* fixed `$=P` (list partitions), `$*=P`/`D` (dir filtering), hidden files
+* MONITOR
+	* fixed F3/F5 and CSR UP/DOWN auto-scrolling
+	* fixed LOAD, SAVE, @
+* CodeX
+	* works this time! [mjallison42]
 
 ### Release 39 ("Buenos Aires")
 

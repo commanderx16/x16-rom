@@ -1,7 +1,7 @@
 ;;;
 ;;; Single line assemblers for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020 Michael J. Allison
+;;; Copyright 2020-2022 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
@@ -11,6 +11,7 @@
 	.export encode_parse_expression, encode_get_entry, encode_string
 
 	.include "decoder.inc"
+	.include "decoder_vars.inc"
 	.include "encode_vars.inc"
 	.include "meta.inc"
 	.include "meta_i.inc"
@@ -528,15 +529,17 @@ encode_string
 	sec
 	rts
 
-;;
-;; Encode a series of bytes, eg: .byte $01,$02,$42
-;; Input r1 - pointer to string of word values
-;; Output bytes in buffer (encode buffer)
-;;
+	;;
+	;; Encode a series of bytes, eg: .byte $01,$02,$42
+	;; Input r1 - pointer to string of word values
+	;; Output bytes in buffer (encode buffer)
+	;;
+	;; Shares exist points with encode_word_string
+	;;
 encode_byte_string
 	;; extract a series of bytes and push into the byte buffer
 	stz      encode_buffer_size
-	LoadW    M1,encode_buffer
+	LoadW    M1,code_buffer
 	PushW    r1
 
 @encode_string_byte_loop
@@ -545,12 +548,12 @@ encode_byte_string
 	jsr      util_split_string
 	PushW    r2
 	lda      (r1)
-	beq      @encode_byte_exit
+	beq      encode_byte_word_exit
 	jsr      encode_parse_expression
-	bcs      @encode_byte_error
+	bcs      encode_byte_word_error
 	      
 	lda      r1H
-	bne      @encode_byte_error
+	bne      encode_byte_word_error
 	lda      r1L
 	ldy      encode_buffer_size
 	sta      (M1),y
@@ -560,7 +563,7 @@ encode_byte_string
 	bne      @encode_string_byte_loop
 	      
 	stz      r1H
-	lda      #1
+	lda      #1	; Byte count
 	sta      r1L
 	lda      encode_pc
 	sta      r2L
@@ -570,44 +573,45 @@ encode_byte_string
 
 	jsr      meta_save_expr
 
-	;; todo: missing reference to unamed label? Issue?
 	IncW     encode_pc
 	      
 	bra      @encode_string_byte_loop
 
-@encode_byte_exit
+encode_byte_word_exit
 	pla                                    ; Discard pushed ptr
 	pla
 	clc
 	rts
 	      
-@encode_byte_error
+encode_byte_word_error
 	pla                                    ; Discard pushed ptr
 	pla   
 	sec
 	rts
 
 
-;;
-;; Encode a series of words, eg: .word $1234,$abcd,$4242
-;; Input r1 - pointer to string of word values
-;; Output bytes in buffer (encode buffer)
-;;
+	;;
+	;; Encode a series of words, eg: .word $1234,$abcd,$4242
+	;; Input r1 - pointer to string of word values
+	;; Output bytes in buffer (encode buffer)
+	;;
+	;; Shares exist points with encode_byte_string
+	;;
 encode_word_string
 	;; extract a series of words and push into the byte buffer
 	stz      encode_buffer_size
-	LoadW    M1,encode_buffer
+	LoadW    M1,code_buffer
 	PushW    r1
 
 @encode_string_word_loop
 	PopW     r1
 	lda      #','
 	jsr      util_split_string
-	PushW    r2
+	PushW    r2			; will become r1 on the next loop
 	lda      (r1)
-	beq      @encode_word_exit
+	beq      encode_byte_word_exit
 	jsr      encode_parse_expression
-	bcs      @encode_word_error
+	bcs      encode_byte_word_error
 	      
 	ldy      encode_buffer_size
 	lda      r1L
@@ -643,19 +647,6 @@ encode_word_string
 :  
 	      
 	bra      @encode_string_word_loop
-
-@encode_word_exit
-	pla                                    ; Discard pushed ptr
-	pla
-	clc
-	rts
-	      
-@encode_word_error
-	pla                                    ; Discard pushed ptr
-	pla   
-	sec
-	rts
-
 
 ;;
 ;; Pseudo op CSTR
@@ -706,7 +697,7 @@ encode_pstr_string
 
 @encode_pstr_exit
 	tya                                     ; Terminate the C string
-	sta         encode_buffer
+	sta         code_buffer
 	iny
 	sty         encode_buffer_size
 	
@@ -743,7 +734,7 @@ encode_string_parse
 	cmp         #DBL_QUOTE
 	bne         @encode_string_error
 
-	LoadW       r2,encode_buffer
+	LoadW       r2,code_buffer
 	
 	lda         encode_buffer_size
 	sta         TMP1L
@@ -826,6 +817,13 @@ encode_get_argument_template
 	rts
 
 @encode_get_argument_template_error
+	;; special case, if arg parsed is MODE_ZP_IN, temp use MODE_IND as a backup
+	lda      M2L
+	cmp      #MODE_ZP_IND
+	bne      :+
+	lda      #MODE_IND
+	bra      encode_get_argument_template 
+:	
 	sec
 	rts
 
@@ -860,12 +858,7 @@ encode_parse_emitter_table
 ;;       r1  - value (not needed)
 @encode_one_byte
 	lda      #1
-	sta      encode_buffer_size
-	lda      r2H
-	sta      encode_buffer
-	      
-	clc
-	rts
+	bra      @encode_stuff_bytes  ; Common code, saves space
 	      
 ;;
 ;; Two bytes of code
@@ -873,14 +866,7 @@ encode_parse_emitter_table
 ;;       r1  - value
 @encode_two_bytes
 	lda      #2
-	sta      encode_buffer_size
-	lda      r2H
-	sta      encode_buffer
-	lda      r1L
-	sta      encode_buffer+1
-	      
-	clc
-	rts
+	bra      @encode_stuff_bytes  ; Common code, saves space
 	      
 ;;
 ;; Three bytes of code
@@ -888,16 +874,18 @@ encode_parse_emitter_table
 ;;       r1  - value
 @encode_three_bytes
 	lda      #3
+	
+@encode_stuff_bytes
 	sta      encode_buffer_size
 
 	lda      r2H
-	sta      encode_buffer
+	sta      code_buffer
 	      
 	lda      r1L
-	sta      encode_buffer+1
+	sta      code_buffer+1
 	      
 	lda      r1H
-	sta      encode_buffer+2
+	sta      code_buffer+2
 	      
 	clc
 	rts
@@ -911,7 +899,7 @@ encode_parse_emitter_table
 	sta      encode_buffer_size
 
 	lda      r2H
-	sta      encode_buffer
+	sta      code_buffer
 	      
 	inc      encode_pc
 	inc      encode_pc
@@ -923,7 +911,7 @@ encode_parse_emitter_table
 
 	lda      r1L
 	sbc      encode_pc
-	sta      encode_buffer+1
+	sta      code_buffer+1
 	      
 	clc
 	rts
@@ -954,7 +942,6 @@ encode_parse_arguments
 	bne         @encode_parse_scan_loop
 
 	tya
-	cmp         #0
 	bne         @encode_parse_check2
 	      
 	;; Empty string means implied address
@@ -977,7 +964,6 @@ encode_parse_arguments
 
 @encode_parse_check3
 	;; Look for parens, indicating indirect ($,x) or ($zp)
-	lda          (r1)
 	cmp          #'('
 	bne          @encode_parse_check4
 
@@ -1198,10 +1184,10 @@ encode_zp_bit_bytes
 	asl
 	asl
 	ora   r2H
-	sta   encode_buffer
+	sta   code_buffer
 	
 	lda   r1L
-	sta   encode_buffer+1
+	sta   code_buffer+1
 
 	lda   r2L
 	cmp   #MODE_ZP_BIT
@@ -1234,7 +1220,7 @@ encode_zp_bit_bytes
 
 	lda      TMP2L
 	sbc      TMP1L
-	sta      encode_buffer+2
+	sta      code_buffer+2
 
 	clc
 	rts
@@ -1250,16 +1236,13 @@ encode_str_abs_y     .byte ",Y", 0
 
 ;;
 ;; Parse an expression, return the current value, save expression in meta_i
-;; Todo support parsing decimal
+;; TODO: support parsing decimal
 ;; Input  r1, pointing to expression string
-;;        r2, address for expression  TODO: is it really this, or is it encode_pc... see @ .parse_expr_save_meta
+;;
 ;; Output r1, current value
 ;; Carry == 0, no error
 ;; Carry == 1, parse_error
 ;; Clobbers TMP2
-;;
-;; TODO: Replace evaluation with call to meta_i.meta_evaluate_expression
-;;
 ;;
 encode_parse_expression
 	lda   #META_FN_NONE
@@ -1298,6 +1281,7 @@ encode_parse_expression
 @parse_expr_hex
 	IncW   r1
 	jsr   util_parse_hex
+	bcs   @parse_expr_error
 
 @parse_expr_save_meta
 	ldx   r13L

@@ -16,7 +16,38 @@ init	jsr initv       ;go init vectors
 	jsr initms      ;go print initilization messages
 init2	ldx #stkend-256 ;set up end of stack
 	txs
-	bne ready       ;jmp...ready
+boot	lda #0
+	jsr setmsg
+	ldx #bootfnlen-1
+:	lda bootfn,x
+	sta buf,x
+	dex
+	bpl :-
+	ldx #<buf
+	ldy #>buf
+	lda #bootfnlen
+	jsr setnam
+	jsr getfa
+	tax
+	lda #1
+	ldy #1
+	jsr setlfs
+	lda #0
+	jsr load
+	jsr readst
+	and #$ff-$40 ; any error but EOI?
+	beq :+       ; no
+	jsr clear_disk_status
+	jmp ready
+:	stx vartab
+	sty vartab+1    ;end load address
+	jsr lnkprg
+	jsr crdo
+	jsr runc
+	jmp newstt
+bootfn:
+	.byte "AUTOBOOT.X16*"
+bootfnlen=*-bootfn
 
 initat	inc chrget+7
 	bne chdgot

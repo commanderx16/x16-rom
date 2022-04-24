@@ -1,7 +1,7 @@
 	;;
 	;; Commander 16 CodeX Interactive Assembly Environment
 	;; 
-	;;    Copyright 2020 Michael J. Allison
+	;;    Copyright 2020-2022 Michael J. Allison
 	;; 
 	;;    Redistribution and use in source and binary forms, with or without
 	;;    modification, are permitted provided that the following conditions are met:
@@ -80,7 +80,7 @@
 ;;      R7
 ;;      R8
 ;;      R9
-;;      R10 - decoded_str
+;;      R10 - code_buffer
 	
 ;;      R11 - scratch, not saved
 ;;      R12 - scratch, not saved
@@ -94,9 +94,21 @@
 ;;      x19
 ;;      x20
 	
+	;; Banked RAM use
+	;;
+	;; Name		2-MB		512-KB	Comment
+	;; MAX		$ff		$3f		Page not used
+	;; Assy		$fe		$3e		Generalized Codex data store, program region, etal.
+	;; Scr1		$fd		$3d		First part of saved screen
+	;; Scr2		$fc		$3c		Second part of saved screen
+	;; Meta_L	$fb		$3b		Label meta data
+	;; Meta_I	$fa		$3a		Instruction meta data
+	;; Plugin   $f9		$39		Plugin executable space (e.g. cx-dc)
+	
 	.code
 	
 	.include "bank.inc"
+	.include "cx_vecs.inc"
 	.include "screen.inc"
 	.include "bank_assy.inc"
 	.include "petsciitoscr.inc"
@@ -157,7 +169,6 @@ main_entry:
 
 main_65c02_ok
 	jsr     bank_initialize
-	jsr     init_break_vector
 
 	jsr     clear_program_settings
 	
@@ -166,19 +177,17 @@ main_65c02_ok
 	stz        orig_file_name
 	popBank
 
-	;; Save the original stack so a return to the main_loop can be done
 	tsx
-	lda     bank_assy
-	sta     BANK_CTRL_RAM
 	stx     original_sp
-	stz     BANK_CTRL_RAM
 
+main_loop_reset
 	jsr     clear
-
+	
 main_loop      
 	lda     orig_color
 	sta     K_TEXT_COLOR
 
+	jsr     clear
 	callR1  print_header,main_header
 
 	jsr     main_display_core
@@ -210,10 +219,7 @@ abort
 	bne     main_in
 
 abort_rts
-	jsr     clear
-	clc
-	jmp     ENTER_BASIC ; Will NOT return
-	
+	kerjsr  ENTER_BASIC ; Will NOT return
 
 ;;; -------------------------------------------------------------------------------------
 str_is_dirty    .byte "DISCARD CHANGES: Y/N", 0
@@ -221,7 +227,7 @@ str_is_dirty    .byte "DISCARD CHANGES: Y/N", 0
 main_dispatch_table
 	.word   file_loop       ; F1
 	.word   asm_loop        ; F3
-	.word   meta_i_insp     ; F5
+	.word   0               ; F5
 	.word   watch_loop      ; F7
 	.word   view_loop       ; F2
 	.word   main_run_prgrm  ; F4
@@ -240,15 +246,16 @@ main_run_prgrm
 	bcs     :+
 	jsr     save_user_screen
 	kerjsr  CLALL
-	callR1  wait_for_keypress,str_press_2_continue
+	callR1  wait_for_keypress,0
 
-	clc
+	sec
 	kerjsr  SCRMOD
 	cmp     #MODE_80_60
 	beq     :+
 	lda     #MODE_80_60
-	sec
+	clc
 	kerjsr  SCRMOD   ; back to 80 col
+	jsr        clear
 
 :  
 	clc
@@ -265,11 +272,6 @@ main_display_core
 	ldy    #12
 	callR1 prtstr_at_xy,version_string
 
-	.ifdef DEV
-	vgotoXY  4,12
-	jsr     print_logo
-	.endif
-	
 	bra     @main_display_exit
 
 :  
@@ -350,7 +352,7 @@ view_dispatch_table
 	.word   0                   ; F5
 	.word   0                   ; F7
 	.word   view_user_screen    ; F2
-	.word   0                   ; F4
+	.word   view_meta_i         ; F4
 	.word   0                   ; F6
 
 view_mem
@@ -368,14 +370,15 @@ view_mem
 	rts
 
 view_user_screen
+	rts ; disabled for V0,92
 	jsr     restore_user_screen
 	callR1  wait_for_keypress,0
-	clc
+	sec
 	kerjsr  SCRMOD
 	cmp     #MODE_80_60
 	beq     :+
 	lda     #MODE_80_60
-	sec
+	clc
 	kerjsr  SCRMOD
 :
 	jsr     clear
@@ -385,106 +388,17 @@ view_user_screen
 ;; View symbols in memory
 ;;
 view_symbols
-	jsr      clear_content
-
-	lda      #DATA_ROW
-	asl
-	sta      r13L
-	LoadW    r2,label_data_start
-
-	pushBankVar   bank_meta_l
-	
-:
-	lda     r13L
-	
-	cmp     #(LAST_ROW*2)
-	beq     view_symbols_exit
-	
-	lsr
-	sta     SCR_ROW
-	
-	bcc     @view_col_0
- 
-@view_col_1
-	lda     #(HDR_COL + 25)
-	bra     @view_symbol_continue
-
-@view_col_0
-	lda     #HDR_COL
-
-@view_symbol_continue
-	sta     SCR_COL
-	jsr     vera_goto
-	
-	jsr     view_symbol_prt_line
-	bcs     view_symbols_exit
-	
-	inc     r13L
-
-	bra     :-
-
-view_symbols_exit
-	callR1 wait_for_keypress,0
-	popBank
-
-	rts
+	LoadW         r1,str_sym_viewer
+view_common_plugin_run
+	jmp           load_and_run_plugin
 
 ;;
-;; Print the next symbol to the screen
-;;
-view_symbol_prt_line
-	;; Grab string pointer
-	ldy     #3
-	lda     (r2),y
-	sta     M1H
-	dey
-	lda     (r2),y
-	dey
-	sta     M1L
-	ora     M1H
-	beq     view_symbol_prt_line_done
-
-	lda     #'$'
-	jsr     vera_out_a
-
-	;; grab value
-	lda     (r2),y
-	dey
-	tax
-	jsr     prthex
-
-	lda     (r2),y
-	tax
-	jsr     prthex
+;;	Load the instruction meta viewer
+;;	
+view_meta_i
+	LoadW         r1,str_meta_i_viewer
+	jmp           load_and_run_plugin
 	
-	;; spacer
-	lda     #' '
-	jsr     vera_out_a
-	lda     #' '
-	jsr     vera_out_a
-
-	;; print string symbol
-	lda     M1H
-	sta     r1H
-	lda     M1L
-	sta     r1L
-	jsr     prtstr
-
-	;; point to next
-	lda     #4
-	clc
-	adc     r2L
-	sta     r2L
-	bcc     :+
-	inc     r2H
-:  
-	clc
-	rts
-
-view_symbol_prt_line_done
-	sec
-	rts
-
 ;;
 ;; Asm sub menu
 ;;
@@ -525,7 +439,7 @@ asm_dispatch_table
 	.word   asm_addr      ; F1
 	.word   asm_del_inst  ; F3
 	.word   asm_add_label ; F5
-	.word   0             ; F7
+	.word   asm_define    ; F7
 	.word   asm_add_inst  ; F2
 	.word   asm_edit_inst ; F4
 	.word   asm_del_label ; F6
@@ -581,11 +495,42 @@ asm_add_label
 	
 	MoveW      assy_selected_instruction,r2
 	jsr        meta_add_label
+	
+asm_add_normal_exit
 	lda        #1
 	jsr        set_dirty
-
 :  
 	clc
+	rts
+
+	;;
+	;; Define a symbol value
+	;;
+asm_define
+	stz        input_string
+	callR1R2   read_string_with_prompt,str_define_prompt,0
+	lda        #' '
+	jsr        util_split_string     ; R1 still set to point to input_string
+	PushW      r1
+	MoveW      r2,r1
+	jsr        util_trim_string
+	lda		(r1)
+	cmp		#'$'
+	bne		@asm_define_parse_error
+	IncW		r1
+	jsr        util_parse_hex
+   bcs        @asm_define_parse_error
+	MoveW      r1,r2
+	PopW       r1
+	jsr        meta_add_label
+	bcc        asm_add_normal_exit
+@asm_define_can_not_add
+	LoadW      ERR_MSG,str_can_not_add
+	rts
+
+@asm_define_parse_error
+	PopW       r1
+	LoadW      ERR_MSG,str_bad_address
 	rts
 
 ;;;
@@ -652,30 +597,23 @@ assy_down
 ;; Get line count for instruction @r1
 ;; Input r1 - Ptr to instruction for query
 ;; Output A - number of lines
-;; TODO: Fix find_label to protect r1
 assy_get_line_count
-	PushW       r1
 	jsr         meta_find_label
 	beq         @assy_get_line_count_label
-	PopW        r1
 	lda         #1
 	rts
 
 @assy_get_line_count_label
-	PopW        r1
 	lda         #3
 	rts
 
 ;;
 ;; Move r1 down by the bytecount of instruction @r1
-;; TODO: Fix get_byte_count to preserve r1, then remove push/pop from here.
 ;;
 assy_down_first_bytecount
-	PushW      r1
 	jsr        decode_get_byte_count
 	tax
 
-	PopW       r1
 	txa
 
 	clc
@@ -820,9 +758,6 @@ asm_del_inst
 	jsr        decode_get_byte_count
 	tax
 
-;                jsr        screen_scrollback_truncate
-;                TODO something for delete here
-	             
 	PopW       r1
 	jsr        edit_delete
 
@@ -861,10 +796,10 @@ asm_edit_inst
 	
 	jsr        decode_append_next_argument
 	jsr        decode_terminate
-	LoadW      r1,decoded_str
+	LoadW      r1,code_buffer
 	jsr        util_trim_string
 
-	callR1R2   read_string_with_prompt,str_empty,decoded_str
+	callR1R2   read_string_with_prompt,str_empty,code_buffer
 	bcc        @asm_edit_inst_accept
 	pla
 	jmp        @asm_edit_inst_exit
@@ -877,11 +812,13 @@ asm_edit_inst
 	LoadW      r1,input_string
 	jsr        util_trim_string
 
-	LoadW      r2,decoded_str
+	LoadW      r2,tmp_string_stash
+	pushBankVar bank_assy
 	jsr        util_strcpy ; stash the newly editing string for the second pass
+	popBank
 	jsr        encode_string
 	bcc        @asm_edit_no_error1
-	jmp        @asm_edit_inst_error
+	jmp        asm_edit_inst_error
 	
 @asm_edit_no_error1
 	;; Setup r1 for shorten/lengthen code
@@ -919,7 +856,13 @@ asm_edit_inst
 	;; There are exactly the needed bytes at the edit point, just replace the bytes from the encode pass
 	;; Do same as insert_inst now
 	stz        encode_dry_run ; Turns encode into full encode pass
-	LoadW      r1,decoded_str
+	
+	LoadW      r1,tmp_string_stash
+	LoadW      r2,input_string
+	pushBankVar  bank_assy
+	jsr        util_strcpy
+	popBank
+	MoveW      r2,r1
 	jsr        encode_string
 
 	jsr        asm_apply_encoding
@@ -931,7 +874,7 @@ asm_edit_inst
 	clc
 	rts
 
-@asm_edit_inst_error
+asm_edit_inst_error
 	LoadW      ERR_MSG,str_syntax_fail
 	pla
 	clc                
@@ -942,8 +885,9 @@ asm_edit_inst
 ;;
 asm_apply_encoding
 	;; Copy contents of encode buffer into destination location
-	LoadW      r1,encode_buffer
+	LoadW      r1,code_buffer
 	MoveW      assy_selected_instruction,r2
+
 	ldy        encode_buffer_size
 	dey
 @asm_apply_encoding_loop
@@ -1166,7 +1110,6 @@ mm_prt_block
 	inc     SCR_ROW
 	vgoto
 	dec     r3L
-	lda     r3L
 	bne     @mm_prt_bl_loop
 @mm_prt_bl_done rts
 
@@ -1207,8 +1150,10 @@ assy_run
 	beq        @assy_run_exit
 	
 @assy_run_ok
-	jmp        (r2)
-	rts                    ; not likely to return from here. Target returns to dispatch
+ 	; Build a shim, use the encode buffer
+	jsr        init_user_shim
+	jmp        run_break_shim
+;	rts        ; Never reach this point, the user_shim does the RTS
 
 @assy_run_abort
 	LoadW      ERR_MSG,str_bad_address
@@ -1274,6 +1219,11 @@ assy_watch_addr_ok
 	ply
 	PopW    r2
 
+	lda     input_hex_bank     ; Check for bad watch
+	ora     r0L
+	ora     r0H
+	beq     assy_watch_exit
+	
 	;; R1+y pointing at address of watch entry
 	lda     r5L                ; Save type
 	sta     (r2),y
@@ -1322,6 +1272,18 @@ assy_prt_block
 
 	MoveW   mem_last_addr,r2
 
+	;; Cache rgn_end+1 for end of loop comparison
+	;; r9 chosen because nothing else modifies is (as of now...)
+	pushBankVar bank_meta_l
+	lda	meta_rgn_end
+	clc
+	adc	#1
+	sta	r9L
+	lda	meta_rgn_end+1
+	adc	#0
+	sta	r9H
+	popBank
+	
 @assy_prt_bl_loop
 	ifEq16  r2,assy_selected_instruction,@assy_prt_selected
 	
@@ -1351,30 +1313,26 @@ assy_prt_block
 	cmp     SCR_ROW
 	bmi     @assy_prt_bl_done
 
-	;; TODO: Hoist this out of the prt_block loop?
-	pushBankVar bank_meta_l
-	MoveW   meta_rgn_end,M1
-	IncW    M1
-	popBank
-	
-	ifGE    r2,M1,@assy_prt_bl_done
+	ifGE    r2,r9,@assy_prt_bl_done
 	
 @assy_prt_bl_incr
 	dec     r3L
-	lda     r3L
-	cmp     #0
 	bne     @assy_prt_bl_loop
 
 @assy_prt_bl_done
-	;;  todo COLOR_CDR_BACK
-@assy_prt_bl_clear_rest
+	;;  clear the rest of the block
 	lda      orig_color
 	sta      K_TEXT_COLOR
 	
 	stz      SCR_COL
 	jsr      vera_goto
 	ldx      #ASSY_LAST_COL
-	ldy      #(ROW_MAX + 1)
+	; determine height of box, AKA rest of screen
+	sec
+	lda      #(ROW_MAX + 1)
+	sbc	   SCR_ROW
+	tay
+	
 	sec
 	jsr      erase_box
 
@@ -1580,7 +1538,6 @@ assy_display_watch_loop
 	sta      K_TEXT_COLOR
 
 assy_display_watches_valid
-
 	tya
 	dec
 	dec
@@ -1769,7 +1726,7 @@ assy_display_zp_registers
 	stz      decoded_str_next
 	jsr      decode_push_hex_word
 	jsr      decode_terminate
-	callR1   prtstr,decoded_str
+	callR1   prtstr,code_buffer
 	
 :  
 	popBank
@@ -1839,7 +1796,7 @@ assy_display_stack
 	jsr      decode_push_hex
 
 @assy_display_stack_skip
-	LoadW    r1,decoded_str
+	LoadW    r1,code_buffer
 	jsr      decode_terminate
 	jsr      prtstr
 
@@ -1919,6 +1876,7 @@ assy_prt_inst_label
 	rts
 
 assy_actually_print_label
+	MoveW	r0,r1
 	inc     SCR_ROW
 	stz     SCR_COL
 	vgoto
@@ -1978,7 +1936,7 @@ assy_prt_inst_check
 	jsr     decode_terminate
 	lda     #COLOR_CDR_INST
 	jsr     screen_set_fg_color
-	callR1  prtstr,decoded_str
+	callR1  prtstr,code_buffer
 
 	ldx     #COL_ARGUMENTS
 	jsr     prtspaceto
@@ -1987,7 +1945,7 @@ assy_prt_inst_check
 	jsr     screen_set_fg_color
 	stz     decoded_str_next
 	jsr     decode_next_argument
-	callR1  prtstr_shim,decoded_str
+	callR1  prtstr_shim,code_buffer
 
 	MoveW   r2,r1
 	jsr     decode_get_byte_count
@@ -2034,7 +1992,7 @@ assy_prt_check_continue
 ;;
 read_address_with_prompt
 	callR1     rdhex2,str_addr_prompt
-	bne        @read_addr_ok
+	bcc        @read_addr_ok
 
 	LoadW      ERR_MSG,str_bad_address
 	sec
@@ -2049,148 +2007,32 @@ read_address_with_prompt
 	clc
 	rts
 
-;;
-;; print_header
-;; Print the F1 F3, etc header, with labels
-;;
-print_header
-	PushW   r1
-
-	ldx     #HDR_COL
-	ldy     #HDR_ROW
-	callR1  prtstr_at_xy,fn_header
-
-	ldx     BANK_CTRL_RAM
-	jsr     prthex
-
-	ldx     #0
-	ldy     SCR_ROW
-	iny                             ; Save a byte, vera_goto will store in SCR_COL, SCR_ROW
-
-	PopW    r1
-	jsr     prtstr_at_xy            ; r1 has sub header from caller
-
-	lda     #50
-	sta     SCR_COL
-	jsr     vera_goto
-	callR1  prtstr,str_region_start
-	jsr     meta_get_region
-	ldx     r0H
-	jsr     prthex
-	ldx     r0L
-	jsr     prthex
-	
-	charOut ','
-	charOut '$'
-
-	ldx     r1H
-	jsr     prthex
-	ldx     r1L
-	jsr     prthex
-	
-	callR1       prtstr,str_region_end
-
-	lda     orig_color
-	sta     K_TEXT_COLOR
-	jsr     print_horizontal_line
-	rts
-
-	.ifdef DEV
-;;
-;; Print logo at current X-Y
-;; Current logo is 7w x 7h
-;;
-print_logo
-	lda     SCR_COL
-	pha
-
-	LoadW   r1,logo2_buffer
-
-	ldy     #7
-print_logo_row_loop
-	pla
-	pha
-	sta     SCR_COL
-
-	phx
-	phy
-	vgoto
-	ply
-	plx
-
-	ldx     #7
-	lda     (r1)            ; get color
-	jsr     screen_set_fg_color
-	IncW    R1
-
-print_logo_col_loop
-	lda     (r1) 
-	charOutA
-	IncW    r1
-
-	dex
-	bne     print_logo_col_loop
-
-	inc     SCR_ROW
-	dey
-	bne     print_logo_row_loop
-
-	pla
-	rts
-
-;;; -------------------------------------------------------------------------------------
-;; Strings and display things
-
-	;; Logo buffer, first byte of each line is color
-	;; each succeeding byte is the shape character. 
-	;; draw routine needs to maintain the color for the entire line.
-
-logo2_buffer
-	.byte $64, $df,$20,$20,$20,$20,$20,$e9
-	.byte $6e, $f4,$df,$20,$20,$20,$e9,$e7
-	.byte $63, $f5,$a0,$df,$20,$e9,$a0,$f6
-	.byte $65, $20,$77,$fb,$20,$ec,$77,$20
-	.byte $67, $20,$6f,$fe,$20,$fc,$6f,$20
-	.byte $68, $67,$a0,$69,$20,$5f,$a0,$74
-	.byte $62, $76,$69,$20,$20,$20,$5f,$75
-
-	.endif
-	
-fn_header            .byte " F1   F2   F3   F4   F5    F6    F7   F8         HI MEMORY = ", 0
 main_header          .byte " FILE VIEW ASM  RUN              WATC EXIT", 0
 break_header         .byte "      VIEW      CONT STEP  STIN  WATC STOP", 0
 file_header          .byte " NEW  LOAD SAVE TEXT                  BACK", 0
 view_header          .byte " MEM  SCRN  SYMB                      BACK", 0
-asm_header           .byte " ADDR +INS -INS EDIT +LAB -LAB        BACK", 0
+asm_header           .byte " ADDR +INS -INS EDIT +LAB -LAB   DEFN BACK", 0
 watch_header         .byte " BYTE WORD CSTR PSTR        DEL       BACK", 0
 
 
 str_addr_prompt      .byte "ADDRESS: ", 0
-str_bad_address      .byte "BAD ADDRESS VALUE", 0
+str_bad_address      .byte "BAD VALUE", 0
 filename_prompt      .byte "FNAME: ", 0
 str_main_label       .byte "MAIN", 0
 str_add_label_prompt .byte "NEW LABEL: ", 0
+str_define_prompt    .byte "DEFINE: ", 0	
 
-version_string       .byte "CODEX ASSEMBLY ENVIRONMENT V0.90", CR
-	.ifdef DEV
-rls_090_0            .byte "                 ", SCR_BULLET, " ROM'ED", CR
-rls_090_1            .byte "                 ", SCR_BULLET, " SIZE TRIM", CR
-rls_090_2            .byte "                 ", SCR_BULLET, " EXTERN DECOMPILE", 0
-	.else
-	                  .byte 0
-	.endif
+version_string       .byte "CODEX V0.93", 0
 
-str_press_2_continue .byte "PRESS A KEY TO CONTINUE...", 0
 str_loading_pgm      .byte "LOADING PROGRAM: ", 0
 str_loading_dbg      .byte "LOADING .DBG", 0
 str_loading_dbi      .byte ", .DBI", 0
-str_loading_done     .byte "SUCCESSFUL LOAD", 0
-str_saving_pgm       .byte "SAVING PROGRAM: ",0
-str_saving_dbg       .byte "SAVING DEBUG  : ", 0
+str_loading_done     .byte "SUCCESS", 0
+str_saving_dbg       .byte "SAVING  : ", 0
 str_ext_dbg          .byte ".DBG", 0
 str_ext_dbi          .byte ".DBI", 0
 str_ext_txt          .byte ".TXT", 0
-str_watch_locations  .byte "WATCH LOCATIONS", 0
+str_watch_locations  .byte "WATCHES", 0
 str_zp_registers     .byte "REGISTERS", 0
 str_stack            .byte "STACK", 0
 str_vera             .byte "DISPLAY", 0
@@ -2201,33 +2043,16 @@ str_register_x       .byte " X   ", 0
 str_register_y       .byte " Y   ", 0 
 str_register_sp      .byte " SP  ", 0
 str_syntax_fail      .byte "INVALID SYNTAX", 0
-str_region_start     .byte "PRGM REGION[$", 0
-str_region_end       .byte "]", CR, 0
+str_can_not_add      .byte "CAN'T ADD", 0
 str_empty            .byte 0
 
 	.ifdef DEV
-str_65c02_required   .byte "ERROR: 65C02 CPU REQUIRED!", CR, 0
+str_65c02_required   .byte "ERROR: 65C02 REQUIRED!", CR, 0
 	.endif
 
 ;;; -------------------------------------------------------------------------------------
 	.code
 	
-
-;;
-;; Reset the VERA so the blinking cursor doesn't leave a trail on the screen!
-;;
-reset_vera_for_exit
-	lda     #$00                    ; turn off increment
-	sta     VERA_ADDR_HI
-
-	lda     VERA_ADDR_MID
-	clc
-	adc     #1                      ; Go to next row
-	sta     VERA_ADDR_MID
-	
-	stz     VERA_ADDR_LO            ; Start on column 0
-
-	rts
 
 ;;
 ;; New program
@@ -2241,7 +2066,6 @@ file_new
 	jsr     clear_program_settings
 	LoadW   r2,$ffff
 	jsr     read_address_with_prompt
-
 	bcs     @file_new_exit
 	
 	lda     r0L
@@ -2292,12 +2116,12 @@ file_save
 	dex
 	jsr        prtspaceto
 
-	ldx        #HDR_COL
-	ldy        5
-	callR1     prtstr_at_xy,str_saving_pgm
-
-	callR1     prtstr,input_string
-
+	; Position cursor so the save message is printed in the correct spot
+	ldy        #HDR_COL
+	ldx        5
+	clc
+	kerjsr     PLOT
+	
 	;;
 	;; Save program code
 	;;
@@ -2337,64 +2161,6 @@ file_save
 	jsr     set_dirty
 	
 @file_save_exit
-	sec
-	rts
-
-;
-; Save bank A000-BFFF, to same filename as entered for the main program, but extension is passed in via r1
-; Output C == 0: Save successful, C == 1: Save failed, error code in A
-;
-file_save_bank_a000
-	;; Assume the SETLFS was called in saving the core program.                
-
-	MoveW  r1,r2    ; r2 = extension string
-	LoadW  r1,input_string
-	LoadW  r3,file_open_seq_write_str
-	jsr   file_replace_ext
-	
-	;; Rely on r1 being preserved
-	lda    input_string_length
-	sta    r2L
-	lda    #4
-	sta    r2H
-	jsr    file_open
-	bcs    @file_save_bank_a000_error
-	
-	ldx    #4
-	kerjsr  CHKOUT
-
-	LoadW  r0,$A000
-	ldy    #0
-	
-	;;  Fake the load address, as if SAVE was called
-	lda    r0L
-	kerjsr CHROUT
-	lda    r0H
-	kerjsr CHROUT
-
-@file_save_bank_a000_loop
-	lda    (r0),y
-	kerjsr CHROUT
-	iny
-	cpy    #0
-	bne    @file_save_bank_a000_loop
-	inc    r0H
-	lda    r0H
-	cmp    #$C0
-	bne    @file_save_bank_a000_loop
-
-@file_save_bank_a000_exit
-	lda    #4
-	kerjsr CLOSE
-
-	ldx    #3
-	kerjsr CHKOUT
-
-	clc
-	rts
-
-@file_save_bank_a000_error
-	jsr    file_set_error
 	sec
 	rts
 
@@ -2449,7 +2215,7 @@ exe_load_next_step
 	callR1     prtstr_at_xy,str_loading_dbg
 
 	pushBankVar bank_meta_l
-	sec
+	clc
 	callR1     file_load_bank_a000,str_ext_dbg
 	bcs        exe_load_error
 	jsr        exe_load_setup_dbg
@@ -2457,7 +2223,7 @@ exe_load_next_step
 
 	callR1      prtstr,str_loading_dbi
 	pushBankVar bank_meta_i
-	sec
+	clc
 	callR1      file_load_bank_a000,str_ext_dbi
 	bcs         exe_load_error
 	popBank
@@ -2535,29 +2301,17 @@ exe_load_setup_dbg
 	rts
 	
 	
+;;
 ;;	Load the text decompiler into an $A000 bank, execute it.
 ;;	
 file_save_text
 	LoadW         r1,str_decompiler
-	jsr           load_and_run_plugin
-	clc
-	rts
+	jmp           load_and_run_plugin
 	
 str_decompiler    .byte "CX-DC", 0
-
-;; -------------------------------------------------------------------------------------------------
-;;	
-;;	Load the meta_i viewer into an $A000 bank, execute it.
-;;	
-meta_i_insp
-	LoadW         r1,str_meta_i_insp
-	jsr           load_and_run_plugin
-	clc
-	rts
+str_meta_i_viewer .byte "CX-MII", 0
+str_sym_viewer    .byte "CX-SYM", 0
 	
-str_meta_i_insp  .byte "CX-MII", 0
-
-
 ;;	
 ;;	Load the plugin (string in r1) and run it (in bank_plugin)
 ;;	Input r1 - String pointer to plugin executable name
@@ -2569,14 +2323,22 @@ load_and_run_plugin
 	LoadW         r2,input_string
 	jsr           util_strcpy
 
+	sec
 	callR1        file_load_bank_a000,0
+	bcs           load_and_run_exit
 	switchBankVar bank_assy
-	callR1R2      util_strcpy,orig_file_name,decoded_str
+	callR1R2      util_strcpy,orig_file_name,code_buffer
 	switchBankVar bank_plugin
 	jsr           $a000
+	bcs           load_and_run_exit
 	popBank
+	clc
 	rts
 
+load_and_run_exit
+	popBank
+	sec
+	rts
 
 ;; -------------------------------------------------------------------------------------------------
 
@@ -2594,38 +2356,51 @@ handle_break
 	pla
 	sta       brk_bank
 
-	pla       
+	PushW     r0
+	tsx
+	stx       r0L
+	lda       #1
+	sta       r0H
+	
+	ldy       #8
+	lda       (r0),y
 	sta       brk_data_y
+	iny
 
-	pla
+	lda       (r0),y
 	sta       brk_data_x
+	iny
 
-	pla       
+	lda       (r0),y
 	sta       brk_data_a
+	iny
 
-	pla       
+	lda       (r0),y
 	sta       brk_data_psr
-
-	pla
+	iny
+	
+	lda       (r0),y
 	sta       brk_data_pc
+	iny
 
-	pla       
+	lda       (r0),y
 	sta       brk_data_pc+1
+	iny
 
 	tsx
-	stx       brk_data_sp
+	txa
+	clc
+	adc       #$D ; Skip over the BRK stack stuff, user doesn't need to see that.
+	sta       brk_data_sp
 
-	lda       FILE_LA
-	sta       brk_data_la
+	; TODO: find replacement for interrogate of LA/FA/SA.
+	;       determine if saving LA/FA/SA during break handling is required
 
-	lda       FILE_FA
-	sta       brk_data_fa
-
-	lda       FILE_SA
-	sta       brk_data_sa
-
+	ExchW     r0
 	jsr       registers_save
 	
+	PopW      r0
+
 	;; Adjust PC to handle the goofy +2 increment of the brk instruction
 	jsr      debug_get_brk_adjustment
 	sta      M2L
@@ -2634,20 +2409,32 @@ handle_break
 	sbc      M2L
 	sta      brk_data_pc
 	sta      mem_last_addr          ; Set up so dis-assy will display correct spot
+	ldy      #12
+	sta      (r0),y
 	bcs      :+
 	dec      brk_data_pc+1
 :  
 	lda      brk_data_pc+1
 	sta      mem_last_addr+1        ; Set up so dis-assy will display correct spot
+	iny
+	sta      (r0),y
+
+	; replace AXY on stack with pseudo break return values
+	ldy      #8
+	lda      #0
+	sta      (r0),y
+	iny
+	lda      #<break_loop
+	sta      (r0),y
+	iny
+	lda      #>break_loop
+	sta      (r0),y
 
 	lda      #01
 	sta      brk_data_valid
 
 	jsr      step_suspend
 	
-	lda       #3
-	kerjsr    CHKIN
-
 	;; DO BREAK STUFF HERE
 	lda       brk_bank
 	sta       BANK_CTRL_RAM
@@ -2655,47 +2442,15 @@ handle_break
 	jsr       save_vera_state
 	jsr       save_user_screen
 
-	jsr       break_loop
-
-	jsr       restore_user_screen
-	jsr       restore_vera_state
-
-	;; Restore stack for an eventual RTI
-	lda       bank_assy
-	sta       BANK_CTRL_RAM 
-
-	lda       brk_data_fa
-	kerjsr    CHKIN
-
-	lda       brk_data_pc+1
-	pha
-
-	lda       brk_data_pc
-	pha
-
-	lda       brk_data_psr
-	pha
-
 	jsr       registers_restore
 	
-	;; Restore A, X, Y, push PSR, PC
-	ldx       brk_data_x
-
-	ldy       brk_data_y
-
-	lda       brk_data_a
-	pha
-	
-	stz       brk_data_valid
-
 	lda       brk_bank
 	sta       BANK_CTRL_RAM
 
-	pla
-	rti
+	rts       ; RTI is executed by the break_shim
 
 ;;
-;; Watch sub menu
+;; Break sub menu
 ;;
 break_loop
 	jsr     clear
@@ -2711,29 +2466,42 @@ break_in                                                        ; Oh no, a "brea
 	setDispatchTable break_dispatch_table
 
 	jsr        get_and_dispatch
-	bcs        break_abort
+	bcs        break_exit
 
 	cmp        #F4
-	beq        break_exit
+	beq		  break_continue
 
 	bra        break_in
 
 break_exit
-	pushBankVar bank_assy
-	lda        #WATCH_NON_HIGHLIGHT
-	sta        watch_highlight
-	popBank
-	clc
-	rts
-
-break_abort
 	lda        bank_assy
+	
 	sta        BANK_CTRL_RAM
+	lda        #WATCH_NON_HIGHLIGHT
+	
+	sta        watch_highlight
 	stz        brk_data_valid
 	ldx        original_sp
 	txs
 	stz        BANK_CTRL_RAM
-	jmp        main_loop
+	jmp        main_loop_reset
+
+break_continue
+	jsr        registers_restore
+	
+	switchBankVar bank_assy
+   lda        brk_data_a
+	pha
+	
+	ldx        brk_data_x
+	ldy        brk_data_y
+
+	lda        brk_bank
+	sta        BANK_CTRL_RAM
+
+	pla
+	plp
+	rts
 
 ;;
 ;; Add step-breaks for next instruction
@@ -2766,33 +2534,74 @@ break_dispatch_table
 	
 ;;
 ;; Initialize break vector to the env
+;; Don't use r2, since it has the exec address in it.
 ;;
-init_break_vector
+init_user_shim
 	pushBankVar bank_assy
 	lda     BRK_VECTOR
 	sta     old_brk_vector
 	lda     BRK_VECTOR+1
 	sta     old_brk_vector+1
-
-	lda     #<handle_break
-	sta     BRK_VECTOR
-	lda     #>handle_break
-	sta     BRK_VECTOR+1
 	popBank
+
+	LoadW   r1,user_shim
+	LoadW   r3,run_break_shim
+	ldy     #shim_size
+@init_user_shim_loop
+	lda     (r1),y
+	sta     (r3),y
+	dey
+	bpl     @init_user_shim_loop
+
+	ldy     #3
+	lda     r2L
+	sta     (r3),y
+	iny
+	lda     r2H
+	sta     (r3),y
+
+	lda     #<(run_break_shim + break_offset)
+	sta     BRK_VECTOR
+	lda     #>(run_break_shim + break_offset)
+	sta     BRK_VECTOR+1
 	rts
 
-restore_break_vector
-	pushBankVar bank_assy
-	lda     old_brk_vector
-	sta     BRK_VECTOR
-	lda     old_brk_vector+1
-	sta     BRK_VECTOR+1
-
-	lda     bank_rom_orig
+;;
+;; The user_shim is a two part piece of code. The first part allows Codex to RUN the user program.
+;; The user_run_shim needs to switch ROM back to the KERNAL and restore to Codex upon return.
+;; The JSR target address is rewritten at init_time	
+;;	
+;; The second part is a shim to handle break interrupts. It ensures that the ROM bank is switched to Codex.
+;;
+user_shim:
+	stz     BANK_CTRL_ROM
+	jsr     $ffff
+   lda     #BANK_CODEX
 	sta     BANK_CTRL_ROM
+	clc
+   rts
 	
-	popBank
-	rts
+break_offset = * - user_shim
+break_shim:	
+	jsr     JSRFAR_VECTOR
+	.word   handle_break
+	.byte   BANK_CODEX
+	; handle_break munged the return address to be break_loop
+	; force the ROM selection. Other stack frame manipulations will
+	; take place inside of break_loop.
+	lda     #BANK_CODEX
+	sta     BANK_CTRL_ROM
+	rti
+	
+shim_size = * - user_shim - 1
+	
+	.if shim_size > 22
+	.error .sprintf("SHIM buffer too small. cx_vars.s needs to reserve %d bytes.", shim_size)
+	.endif
+
+	.if shim_size < 22
+	.warning .sprintf("SHIM buffer too large. cx_vars.s only needs %d bytes.", shim_size)
+	.endif
 
 ;;
 ;; Clear program settings, set up for a new program
@@ -2823,16 +2632,6 @@ init_state_variables
 	sta     screen_save_mode
 	popBank
 	
-	rts
-
-;;
-;; Set dirty bit to value in A
-;;
-set_dirty
-	tay
-	pushBankVar bank_assy
-	sty         assy_dirty
-	popBank
 	rts
 
 ;;	

@@ -1,14 +1,15 @@
 ;;;
 ;;; Code block manipulation routines for the Commander 16 Assembly Language Environment
 ;;;
-;;; Copyright 2020 Michael J. Allison
+;;; Copyright 2020-2022 Michael J. Allison
 ;;; License, 2-clause BSD, see license.txt in source package.
 ;;; 
 
 	.psc02                    ; Enable 65c02 instructions
 	.feature labels_without_colons
 
-	.export file_open,file_open_seq_read_str,file_open_seq_write_str,file_set_error,file_replace_ext,file_load_bank_a000
+	.export file_open,file_open_seq_read_str,file_open_seq_write_str,file_set_error,file_replace_ext
+	.export file_load_bank_a000, file_save_bank_a000
 
 	.include "bank.inc"
 	.include "bank_assy.inc"
@@ -40,11 +41,18 @@ file_open
 	kerjsr  SETLFS
 
 	kerjsr  OPEN
+	bne     file_open_error
+	clc
+	rts
+
+file_open_error
+	lda     #4                 ; File not found
+	sec
 	rts
 	
 ;;
 ;; Print error - Set error message ptr into ERR_MSG
-;;
+;; Input - Error code
 file_set_error
 	asl
 	tax
@@ -71,16 +79,16 @@ error_table
 	.word ERR_MISSING_FN          ; 8
 	.word ERR_BAD_DEV_NUM         ; 9
 
-ERR_NONE         .byte "NO ERROR", 0
+ERR_NONE         .byte 0                         ; NO ERROR
 ERR_TOO_MANY     .byte "TOO MANY FILES", 0
 ERR_OPEN         .byte "FILE ALREADY OPEN", 0
 ERR_NOT_OPEN     .byte "FILE NOT OPEN", 0
 ERR_NOT_FND      .byte "FILE NOT FOUND", 0
-ERR_NOT_PRESENT  .byte "DEVICE NOT PRESENT", 0
-ERR_NOT_INPUT    .byte "NOT AN INPUT FILE", 0
-ERR_NOT_OUTPUT   .byte "NOT AN OUTPUT FILE", 0
-ERR_MISSING_FN   .byte "MISSING FILE NAME", 0
-ERR_BAD_DEV_NUM  .byte "BAD DEVICE NUMBER", 0
+ERR_NOT_PRESENT  .byte "DEV NOT PRESENT", 0      ; DEV NOT PRESENT
+ERR_NOT_INPUT    .byte "NOT INPUT FILE", 0       ; NOT AN INPUT FILE
+ERR_NOT_OUTPUT   .byte "NOT OUTPUT FILE", 0      ; NOT AN OUTPUT FILE
+ERR_MISSING_FN   .byte "MISSING FNAME", 0        ; MISSING FILE NAME
+ERR_BAD_DEV_NUM  .byte "BAD DEV NUMBER", 0       ; BAD DEVICE NUMBER
 	
 file_open_seq_read_str  .byte ",S,R", 0
 file_open_seq_write_str .byte ",S,W", 0
@@ -92,12 +100,14 @@ file_open_seq_write_str .byte ",S,W", 0
 ;;       r2 - ptr to extension string
 ;;       r3 - ptr to open arguments, e.g. ",s,w" or ",s,r"
 ;;
+;; Output A - length of value in destination string
+;;
 ;; Clobbers r4L
 ;;
 file_replace_ext
 	;; modify the string to be XXX.DBG
 	;; Find the last instance of "." and 
-	;; append .DBG
+	;; append the extension, e.g. ".DBG"
 	stz        r4L
 
 	ldy        #0
@@ -164,53 +174,37 @@ file_replace_ext
 ;; Load data into an extended RAM bank $A000
 ;; Input_string - filename	
 ;; Input r1 - ptr to new extension
+;;       C  - clear, do tag comparison, set, do NOT do tag comparison	
 ;;       
 file_load_bank_a000
 	php
-
 	MoveW      r1,r2      ; r2 = extension ptr
 	LoadW      r1,input_string
-	LoadW      r3,file_open_seq_read_str
+	LoadW      r3,0
 	jsr        file_replace_ext
 	             
-	;; Rely on the preservation of r1
-	lda        input_string_length
-	sta        r2L
-	lda        #4
-	sta        r2H
-	jsr        file_open
-	bcs        file_load_debug_the_error
+	lda   #0              ; logical file number
+	ldx   #8              ; device number
+	ldy   #1              ; 0 == load to address in file
+	kerjsr SETLFS
 
-	ldx        #4
-	kerjsr     CHKIN
- 
-	LoadW      r0,$a000
-	kerjsr     BASIN ; Skip "load address" in file
-	kerjsr     BASIN
-	ldy        #0
+	ldx   #<input_string
+	ldy   #>input_string
+	lda   input_string_length
+	kerjsr SETNAME
 
-@file_load_bank_a000_loop
-	kerjsr     READST
-	bne        @file_load_bank_a000_exit
+	lda   #0
+	kerjsr LOAD
 	
-	kerjsr     BASIN ; Get one byte
-	sta        (r0),y
-		
-	iny
-	cpy        #0
-	bne        @file_load_bank_a000_loop
-	inc        r0H
-	bra        @file_load_bank_a000_loop
+	bcs   file_load_debug_the_error
+	jsr   file_set_error
 	
-@file_load_bank_a000_exit
-	lda        #4
-	kerjsr     CLOSE
-	ldx        #0
-	kerjsr     CHKIN
-
+	dec        BANK_CTRL_RAM ; Load incremented the RAM bank
+	
 	plp
-	bcc        @file_load_bank_a000_final_exit
+	bcs	@file_load_bank_a000_final_exit
 
+	; Check the meta tags for compatibility with current implementation
 	LoadW      r0,meta_tag_version
 	LoadW      r1,$A000
 	ldy        #0
@@ -224,7 +218,7 @@ file_load_bank_a000
 	iny
 	cpy        #6
 	bne        @file_load_bank_a000_chk_loop
-	
+
 @file_load_bank_a000_final_exit
 	clc
 	rts
@@ -242,4 +236,34 @@ file_load_debug_bad_dbg
 	sec
 	rts
 
-str_debug_incompat .byte "INCOMPATIBLE DBG INFO", 0
+str_debug_incompat .byte "INVALID DBG INFO", 0
+
+;
+; Save bank A000-BFFF, to same filename as entered for the main program, but extension is passed in via r1
+; Output C == 0: Save successful, C == 1: Save failed, error code in A
+;
+file_save_bank_a000
+	MoveW  r1,r2    ; r2 = extension string
+	LoadW  r1,input_string
+	LoadW  r3,0
+	jsr   file_replace_ext
+	
+	lda   #0              ; logical file number
+	ldx   #8              ; device number
+	ldy   #1              ; 0 == load to address in file
+	kerjsr SETLFS
+
+	ldx   #<input_string
+	ldy   #>input_string
+	lda   input_string_length
+	kerjsr SETNAME
+	
+	jsr   meta_get_region
+	IncW   r1
+
+	LoadW r0,$A000
+	ldx   #$00
+	ldy   #$C0
+	lda   #r0
+	kerjsr SAVE
+	rts

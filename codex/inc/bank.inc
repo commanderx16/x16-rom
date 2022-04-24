@@ -8,13 +8,8 @@
 	.ifndef __X16_BANK__
 	        __X16_BANK__=1
 
-	.importzp BANK_CTRL_ROM, BANK_CTRL_RAM, KERNAL_ROM, CX_ROM
-	.import bank_initialize, bank_pop, bank_push
-
-	.macro pushBank b
-	lda      #b
-	jsr      bank_push
-	.endmacro
+	.importzp BANK_CTRL_ROM, BANK_CTRL_RAM
+	.import bank_initialize, bank_pop, bank_push, set_dirty
 
 	.macro pushBankVar b
 	lda      b
