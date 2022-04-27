@@ -80,7 +80,7 @@ And this table shows which of the standard commands are supported:
 | FILE RESTORE     | `F-R`[_path_]`:`_name_[`,`...]                        | Restore a deleted file          | not yet   |
 | FILE UNLOCK      | `F-U`[_path_]`:`_name_[`,`...]                        | Disable file write-protect      | yes       |
 | GET DISKCHANGE   | `G-D`                                                 | Query disk change               | yes       |
-| GET PARTITION    | `GP` _num_                                            | Get information about partition | yes       |
+| GET PARTITION    | `G-P` _num_                                           | Get information about partition | yes       |
 | INITIALIZE       | `I`[_medium_]                                         | Re-mount filesystem             | yes       |
 | LOCK             | `L`[_path_]`:`_name_                                  | Toggle file write protect       | yes       |
 | MAKE DIRECTORY   | `MD`[_path_]`:`_name_                                 | Create a sub-directory          | yes       |
