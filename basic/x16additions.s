@@ -252,7 +252,22 @@ old1	lda txttab+1
 ; ----------------------------------------------------------------
 ;***************
 dos	beq ptstat      ;no argument: print status
-	jsr frmstr      ;length in .a
+	jsr frmevl
+	bit valtyp
+	bmi @str
+; numeric
+	jsr getadr
+	cmp #0          ;lo
+	beq :+
+@fcerr	jmp fcerr
+:	cpy #8           ;hi
+	bcc @fcerr
+	cpy #32
+	bcs @fcerr
+	tya
+	jmp dossw
+
+@str	jsr frefac      ;get ptr to string, length in .a
 	cmp #0
 	beq ptstat      ;no argument: print status
 	sta verck       ;save length
@@ -337,8 +352,7 @@ dos11	jsr iecin
 
 ;***************
 ; switch default drive
-dossw	and #$0f
-	sta basic_fa
+dossw	sta basic_fa
 	rts
 
 getfa:
