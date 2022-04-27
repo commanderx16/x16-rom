@@ -17,6 +17,7 @@
 .import kbdbuf_put
 .import shflag
 .import keyhdl
+.import check_charset_switch
 
 .export kbd_config, kbd_scan, receive_scancode_resume
 
@@ -273,6 +274,7 @@ receive_down_scancode_no_modifiers:
 key_down:
 	ora shflag
 :	sta shflag
+	jsr check_charset_switch
 key_up:	lda #0 ; no key to return
 	rts
 no_mod:	plp
