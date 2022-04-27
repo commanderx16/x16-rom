@@ -437,8 +437,17 @@ disk_done
 	sec
 	jmp close
 
+; like getbyt, but negative numbers will become $FF
+getbytneg:
+	jsr frmnum      ;get numeric value into FAC
+	lda facsgn
+	bpl @pos
+	ldx #$ff
+	rts
+@pos:	jmp conint      ;convert to byte
+
 mouse:
-	jsr getbyt
+	jsr getbytneg
 	phx
 	sec
 	jsr screen_mode
