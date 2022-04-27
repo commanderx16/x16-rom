@@ -226,10 +226,12 @@ memory_crc:
 	sta r2L
 	sta r2H
 
-	PushB r0H
+	lda r0H
+	cmp #IO_PAGE
+	beq io_crc
+	pha
 	lda r1H
 	beq @2
-	pha
 	ldy #0
 @1:	lda (r0),y
 	jsr crc16_f
@@ -238,7 +240,6 @@ memory_crc:
 	inc r0H
 	dec r1H
 	bne @1
-	PopB r1H
 @2:	ldy r1L
 	beq @4
 @3:	dey
@@ -248,6 +249,25 @@ memory_crc:
 	bne @3
 @4:	PopB r0H
 	rts
+
+io_crc:
+	lda r1H
+	beq @2
+	ldy #0
+@1:	lda (r0)
+	jsr crc16_f
+	iny
+	bne @1
+	dec r1H
+	bne @1
+@2:	ldy r1L
+	beq @4
+@3:	dey
+	lda (r0)
+	jsr crc16_f
+	cpy #0
+	bne @3
+@4:	rts
 
 ; This is taken from
 ; http://www.6502.org/source/integers/crc-more.html
