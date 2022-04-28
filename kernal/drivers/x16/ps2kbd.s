@@ -19,7 +19,7 @@
 .import keyhdl
 .import check_charset_switch
 
-.export kbd_config, kbd_scan, receive_scancode_resume
+.export kbd_config, kbd_scan, receive_scancode_resume, keymap
 
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
@@ -43,6 +43,12 @@ kbdtab:	.res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
 kbd_config:
 	KVARS_START
 	jsr _kbd_config
+	KVARS_END
+	rts
+
+keymap:
+	KVARS_START
+	jsr _keymap
 	KVARS_END
 	rts
 
@@ -84,7 +90,7 @@ setkb3:	lda #<$c000
 	sta tmp2
 
 	pla
-setkb2:	sta curkbd
+	sta curkbd
 	asl
 	asl
 	asl
@@ -92,8 +98,10 @@ setkb2:	sta curkbd
 	tay
 	ldx #BANK_KEYBD
 	jsr fetch
-	beq setkb2      ;end of list? set #0
-	ldx #0
+	bne :+
+	sec             ;end of list
+	rts
+:	ldx #0
 setkb1:	phx
 	ldx #BANK_KEYBD
 	jsr fetch
@@ -103,14 +111,18 @@ setkb1:	phx
 	iny
 	cpx #16
 	bne setkb1
-	jmp joystick_from_ps2_init
+	jsr joystick_from_ps2_init
+	clc             ;ok
+	rts
 
 ; cycle keyboard layouts
 cycle_layout:
 	ldx curkbd
 	inx
 	txa
-	jsr _kbd_config
+:	jsr _kbd_config
+	lda #0
+	bcs :-          ;end of list? use 0
 ; put name into keyboard buffer
 	lda #$8d ; shift + cr
 	jsr kbdbuf_put
@@ -123,6 +135,54 @@ cycle_layout:
 	bne :-
 :	lda #$8d ; shift + cr
 	jmp kbdbuf_put
+
+;---------------------------------------------------------------
+; Get/Set keyboard layout
+;
+;   In:   .c  =0: set, =1: get
+; Set:
+;   In:   .x/.y  pointer to layout string (e.g. "DE_CH")
+;   Out:  .c  =0: success, =1: failure
+; Get:
+;   Out:  .x/.y  pointer to layout string
+;---------------------------------------------------------------
+_keymap:
+	bcc @set
+	ldx #<kbdnam
+	ldy #>kbdnam
+	rts
+
+@set:	php
+	sei             ;protect ckbtab
+	stx ckbtab
+	sty ckbtab+1
+	lda curkbd
+	pha
+	lda #0
+@l1:	pha
+	jsr _kbd_config
+	bne @nend
+	pla             ;not found
+	pla
+	jsr _kbd_config ;restore original keymap
+	plp
+	sec
+	rts
+@nend:	ldy #0
+@l2:	lda (ckbtab),y
+	cmp kbdnam,y
+	beq @ok
+	pla             ;next
+	inc
+	bra @l1
+@ok:	iny
+	cmp #0
+	bne @l2
+	pla             ;found
+	pla
+	plp
+	clc
+	rts
 
 _kbd_scan:
 	jsr receive_down_scancode_no_modifiers

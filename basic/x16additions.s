@@ -97,6 +97,7 @@ coltab	;this is an unavoidable duplicate from KERNAL
 	.byt $90,$05,$1c,$9f,$9c,$1e,$1f,$9e
 	.byt $81,$95,$96,$97,$98,$99,$9a,$9b
 
+;***************
 ; convert byte to binary in zero terminated string and
 ; return it to BASIC
 bind:	jsr chrget ; get char
@@ -137,6 +138,7 @@ bind:	jsr chrget ; get char
 	pla
 	jmp strlitl; allocate and return string value from lofbuf
 
+;***************
 ; convert byte to hex in zero terminated string and
 ; return it to BASIC
 hexd:	jsr chrget ; get char
@@ -446,6 +448,7 @@ getbytneg:
 	rts
 @pos:	jmp conint      ;convert to byte
 
+;***************
 mouse:
 	jsr getbytneg
 	phx
@@ -454,6 +457,7 @@ mouse:
 	pla
 	jmp mouse_config
 
+;***************
 mx:
 	jsr chrget
 	ldx #fac
@@ -462,6 +466,7 @@ mx:
 	ldy fac
 	jmp givayf0
 
+;***************
 my:
 	jsr chrget
 	ldx #fac
@@ -470,6 +475,7 @@ my:
 	ldy fac+2
 	jmp givayf0
 
+;***************
 mb:
 	jsr chrget
 	ldx #fac
@@ -477,6 +483,7 @@ mb:
 	tay
 	jmp sngflt
 
+;***************
 joy:
 	jsr chrget
 	jsr chkopn ; open paren
@@ -505,6 +512,7 @@ joy:
 
 minus1:	.byte $81, $80, $00, $00, $00
 
+;***************
 reset:
 	ldx #5
 :	lda reset_copy,x
@@ -517,10 +525,12 @@ reset_copy:
 	stz rom_bank
 	jmp ($fffc)
 
+;***************
 cls:
 	lda #$93
 	jmp outch
 
+;***************
 locate:
 	jsr screen
 	stx poker
@@ -557,6 +567,28 @@ locate:
 @error:
 	jmp fcerr
 
+;***************
+ckeymap:
+	jsr frmstr
+	cmp #6
+	bcs @fcerr
+	tay
+	lda #0
+	sta a:lofbuf,y  ;make a copy, so we can
+	dey             ;zero-terminate it
+:	lda (index1),y
+	sta a:lofbuf,y
+	dey
+	bpl :-
+	ldx #<lofbuf
+	ldy #>lofbuf
+	clc
+	jsr keymap
+	bcs @fcerr
+	rts
+@fcerr:	jmp fcerr
+
+;***************
 test:
 	beq @test0
 	jsr getbyt
