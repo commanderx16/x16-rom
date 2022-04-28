@@ -136,6 +136,16 @@ cycle_layout:
 :	lda #$8d ; shift + cr
 	jmp kbdbuf_put
 
+;---------------------------------------------------------------
+; Get/Set keyboard layout
+;
+;   In:   .c  =0: set, =1: get
+; Set:
+;   In:   .x/.y  pointer to layout string (e.g. "DE_CH")
+;   Out:  .c  =0: success, =1: failure
+; Get:
+;   Out:  .x/.y  pointer to layout string
+;---------------------------------------------------------------
 _keymap:
 	bcc @set
 	ldx #<kbdnam
@@ -153,6 +163,7 @@ _keymap:
 	jsr _kbd_config
 	bne @nend
 	pla             ;not found
+	pla
 	jsr _kbd_config ;restore original keymap
 	plp
 	sec
@@ -168,6 +179,7 @@ _keymap:
 	cmp #0
 	bne @l2
 	pla             ;found
+	pla
 	plp
 	clc
 	rts
