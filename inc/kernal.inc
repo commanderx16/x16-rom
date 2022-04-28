@@ -124,7 +124,7 @@ console_get_char             = $fee1
 console_put_image            = $fed8
 console_set_paging_message   = $fed5
 
-;***empty***                 = $fed2
+keymap                       = $fed2
 
 entropy_get                  = $fecf
 

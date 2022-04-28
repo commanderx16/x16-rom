@@ -23,6 +23,7 @@
 .import console_init, console_put_char, console_get_char, console_put_image, console_set_paging_message
 
 .import kbdbuf_peek, kbdbuf_get_modifiers, kbdbuf_put
+.import keymap
 
 .import entropy_get
 
@@ -53,7 +54,7 @@
 
 	jmp entropy_get                ; $FECF
 
-	.byte 0,0,0                    ; $FED2
+	jmp keymap                     ; $FED2
 
 	jmp console_set_paging_message ; $FED5
 	jmp console_put_image          ; $FED8
