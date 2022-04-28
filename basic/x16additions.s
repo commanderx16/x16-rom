@@ -569,19 +569,19 @@ locate:
 
 ;***************
 ckeymap:
-	jsr frmstr      ;length in .a
+	jsr frmstr
 	cmp #6
 	bcs @fcerr
 	tay
 	lda #0
-	sta $0100,y
-	dey
+	sta a:lofbuf,y  ;make a copy, so we can
+	dey             ;zero-terminate it
 :	lda (index1),y
-	sta $0100,y
+	sta a:lofbuf,y
 	dey
 	bpl :-
-	ldx #<$0100
-	ldy #>$0100
+	ldx #<lofbuf
+	ldy #>lofbuf
 	clc
 	jsr keymap
 	bcs @fcerr
