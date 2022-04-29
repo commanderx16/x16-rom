@@ -240,10 +240,8 @@ down_ext:
 	cpx #$e1 ; prefix $E1 -> E1-14 = Pause/Break
 	beq is_stop
 	cmp #$4a ; Numpad /
-	bne not_4a
-	lda #'/'
-	bne kbdbuf_put2
-not_4a:	cmp #$5a ; Numpad Enter
+	beq is_numpad_divide
+	cmp #$5a ; Numpad Enter
 	beq is_enter
 	cpy #$69 ; special case shift+end = help
 	beq is_end
@@ -260,9 +258,12 @@ not_4a:	cmp #$5a ; Numpad Enter
 drv_end:
 	rts
 
+is_numpad_divide:
+	lda #'/'
+	bra kbdbuf_put2
 is_menu:
 	lda #$06
-	jmp kbdbuf_put
+	bra kbdbuf_put2
 
 ; or $80 if shift is down
 is_end:
