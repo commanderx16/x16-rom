@@ -543,6 +543,7 @@ for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
 		print()
 	else:
 		print("-13")
+#print("\t.word {}kbtab_{}_caps".format(prefix, kbd_id))
 print()
 
 
@@ -551,7 +552,7 @@ if iso_mode:
 else:
 	print('.segment "KBDTABLES"\n')
 
-for shiftstate in [REG, SHFT, CTRL, ALT, ALTGR]:
+for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
 	if shiftstate == ALTGR and not ALTGR in keytab.keys():
 		continue
 	print("{}kbtab_{}_{}: ; ".format(prefix, kbd_id, shiftstate), end = '')
@@ -585,7 +586,8 @@ for shiftstate in [REG, SHFT, CTRL, ALT, ALTGR]:
 			print(',', end = '')
 	print()
 
-print("{}kbtab_{}_caps: ; for which codes CAPS means SHIFT".format(prefix, kbd_id))
+#print("{}kbtab_{}_caps: ; for which codes CAPS means SHIFT".format(prefix, kbd_id))
+print("; bit field: for which codes CAPS means SHIFT; big endian")
 for ibyte in range(0, 16):
 	byte = 0
 	for ibit in range(0, 8):
@@ -594,6 +596,6 @@ for ibyte in range(0, 16):
 			caps = capstab[scancode] > 0
 		else:
 			caps = False
-		byte = byte or (caps << ibit)
+		byte = byte | (caps << (7-ibit))
 	print("\t.byte %" + format(byte, '08b'))
 

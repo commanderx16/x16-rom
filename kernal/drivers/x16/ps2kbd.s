@@ -221,7 +221,7 @@ not_numpad:
 	bne bit_found ; use AltGr table
 naltgr:
 	cmp #MODIFIER_CAPS
-	beq bit_found ; use Shift table [XXX should be dedicated table!]
+	beq handle_caps
 
 find_bit:
 	lsr
@@ -232,6 +232,11 @@ find_bit:
 	bne find_bit
 
 bit_found:
+	jsr fetch_kbd
+	beq drv_end
+	jmp kbdbuf_put
+
+fetch_kbd:
 	lda kbdtab,x
 	sta ckbtab
 	lda kbdtab + 1,x
@@ -239,9 +244,7 @@ bit_found:
 	ldx #BANK_KEYBD
 	lda #ckbtab
 	sta fetvec
-	jsr fetch
-	beq drv_end
-	jmp kbdbuf_put
+	jmp fetch
 
 down_ext:
 	cpx #$e1 ; prefix $E1 -> E1-14 = Pause/Break
@@ -290,6 +293,36 @@ is_stop:
 	ror
 kbdbuf_put2:
 	jmp kbdbuf_put
+
+handle_caps:
+	phy
+	tya
+	pha
+	lsr
+	lsr
+	lsr
+	ora #$80
+	tay
+	ldx #4 * 2
+	jsr fetch_kbd
+	tax
+	pla
+	and #7
+	tay
+	lda #$80
+:	cpy #0
+	beq :+
+	lsr
+	dey
+	bra :-
+:	sta $0400
+	txa
+	ldx #0
+	ply
+	and $0400
+	bne :+
+	ldx #4 * 2
+:	jmp bit_found
 
 ;****************************************
 ; RECEIVE SCANCODE:
