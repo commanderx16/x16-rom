@@ -245,18 +245,29 @@ down_ext:
 	bne kbdbuf_put2
 not_4a:	cmp #$5a ; Numpad Enter
 	beq is_enter
+	cpy #$69 ; special case shift+end = help
+	beq is_end
 	cpy #$6c ; special case shift+home = clr
 	beq is_home
+	cpy #$2f
+	beq is_menu
 	cmp #$68
 	bcc drv_end
 	cmp #$80
 	bcs drv_end
-nhome:	lda tab_extended-$68,y
+	lda tab_extended-$68,y
 	bne kbdbuf_put2
 drv_end:
 	rts
 
+is_menu:
+	lda #$06
+	jmp kbdbuf_put
+
 ; or $80 if shift is down
+is_end:
+	ldx #$04 * 2; end (-> help)
+	bra :+
 is_home:
 	ldx #$13 * 2; home (-> clr)
 	bra :+
@@ -381,10 +392,10 @@ md_sh:	lda #MODIFIER_SHIFT
 	rts
 
 tab_extended:
-	;         end      lf hom
-	.byte $00,$00,$00,$9d,$00,$00,$00,$00 ; @$68 (HOME is special cased)
+	;         end      lf hom              (END & HOME special cased)
+	.byte $00,$00,$00,$9d,$00,$00,$00,$00 ; @$68
 	;     ins del  dn      rt  up
 	.byte $94,$14,$11,$00,$1d,$91,$00,$00 ; @$70
 	;             pgd         pgu brk
-	.byte $00,$00,$00,$00,$00,$00,$03,$00 ; @$78
+	.byte $00,$00,$02,$00,$00,$82,$03,$00 ; @$78
 
