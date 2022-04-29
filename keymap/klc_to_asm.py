@@ -543,7 +543,6 @@ for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
 		print()
 	else:
 		print("-13")
-#print("\t.word {}kbtab_{}_caps".format(prefix, kbd_id))
 print()
 
 
@@ -586,7 +585,6 @@ for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
 			print(',', end = '')
 	print()
 
-#print("{}kbtab_{}_caps: ; for which codes CAPS means SHIFT".format(prefix, kbd_id))
 print("; bit field: for which codes CAPS means SHIFT; big endian")
 for ibyte in range(0, 16):
 	byte = 0
