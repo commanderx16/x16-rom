@@ -193,6 +193,8 @@ _kbd_scan:
 	cpx #0
 	bne down_ext
 ; *** regular scancodes
+	cmp #$0d ; Tab
+	beq is_tab
 	cpy #$01 ; f9
 	beq cycle_layout
 	cmp #$83 ; convert weird f7 scancode
@@ -247,7 +249,7 @@ not_4a:	cmp #$5a ; Numpad Enter
 	beq is_enter
 	cpy #$6c ; special case shift+home = clr
 	beq is_home
-not_5a: cmp #$68
+	cmp #$68
 	bcc drv_end
 	cmp #$80
 	bcs drv_end
@@ -255,6 +257,15 @@ nhome:	lda tab_extended-$68,y
 	bne kbdbuf_put2
 drv_end:
 	rts
+
+is_tab:
+	ldx #$09
+	lda shflag
+	lsr ; shift -> C
+	bcc :+
+	ldx #$18
+:	txa
+	jmp kbdbuf_put
 
 ; or $80 if shift is down
 is_home:
