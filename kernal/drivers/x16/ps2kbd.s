@@ -193,8 +193,6 @@ _kbd_scan:
 	cpx #0
 	bne down_ext
 ; *** regular scancodes
-	cmp #$0d ; Tab
-	beq is_tab
 	cpy #$01 ; f9
 	beq cycle_layout
 	cmp #$83 ; convert weird f7 scancode
@@ -202,7 +200,7 @@ _kbd_scan:
 	lda #$02 ; this one is unused
 	tay
 not_f7:
-	cmp #$0e ; scancodes < $0E and > $68 are independent of modifiers
+	cmp #$0d ; scancodes < $0D and > $68 are independent of modifiers
 	bcc is_unshifted
 	cmp #$68
 	bcc not_numpad
@@ -257,15 +255,6 @@ nhome:	lda tab_extended-$68,y
 	bne kbdbuf_put2
 drv_end:
 	rts
-
-is_tab:
-	ldx #$09
-	lda shflag
-	lsr ; shift -> C
-	bcc :+
-	ldx #$18
-:	txa
-	jmp kbdbuf_put
 
 ; or $80 if shift is down
 is_home:
