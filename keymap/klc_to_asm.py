@@ -113,9 +113,13 @@ def get_kbd_layout(base_filename, load_patch = False):
 							all_originally_reachable_characters += c
 					i += 1
 				# TODO: c[4] == '@' -> dead key
+				if fields[2] == 'SGCap':
+					cap = -1
+				else:
+					cap = int(fields[2])
 				layout[int(fields[0], 16)] = {
 					#'vk_name': 'VK_' + fields[1],
-					#'cap': int(fields[2]),
+					'cap': cap,
 					'chars': chars
 				}
 				line_number += 1
@@ -291,16 +295,18 @@ layout = kbd_layout['layout']
 shiftstates = kbd_layout['shiftstates']
 
 keytab = {}
+capstab = {}
 for shiftstate in shiftstates:
 	keytab[shiftstate] = [ '\0' ] * 128
 # some layouts don't define Alt at all
 if not ALT in keytab:
 	keytab[ALT] = [ '\0' ] * 128
 
-# create PS/2 Code 2 -> PETSCII tables
+# create PS/2 Code 2 -> PETSCII tables, capstab
 for hid_scancode in layout.keys():
 	ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
 	l = layout[hid_scancode]['chars']
+	capstab[ps2_scancode] = layout[hid_scancode]['cap'];
 	for shiftstate in keytab.keys():
 		if shiftstate in l:
 			c_unicode = l[shiftstate]
@@ -578,4 +584,16 @@ for shiftstate in [REG, SHFT, CTRL, ALT, ALTGR]:
 		if i & 7 != 7:
 			print(',', end = '')
 	print()
+
+print("{}kbtab_{}_caps: ; for which codes CAPS means SHIFT".format(prefix, kbd_id))
+for ibyte in range(0, 16):
+	byte = 0
+	for ibit in range(0, 8):
+		scancode = ibyte << 3 | ibit
+		if scancode in capstab:
+			caps = capstab[scancode] > 0
+		else:
+			caps = False
+		byte = byte or (caps << ibit)
+	print("\t.byte %" + format(byte, '08b'))
 

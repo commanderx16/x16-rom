@@ -85,3 +85,20 @@ kbtab_809_6: ; AltGr
 	.byte $00,$00,$00,$00,$a4,$a6,$00,$00
 	.byte $00,$00,$8d,$df,$00,$a8,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$94,$00
+kbtab_809_caps: ; for which codes CAPS means SHIFT
+	.byte %00000000
+	.byte %00000000
+	.byte %00100000
+	.byte %00000100
+	.byte %00000010
+	.byte %00000100
+	.byte %00000010
+	.byte %00000100
+	.byte %00000100
+	.byte %00001000
+	.byte %00000000
+	.byte %00000000
+	.byte %00000000
+	.byte %00000000
+	.byte %00000000
+	.byte %00000000
