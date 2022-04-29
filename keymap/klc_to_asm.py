@@ -309,7 +309,7 @@ for hid_scancode in layout.keys():
 			else:
 				keytab[shiftstate][ps2_scancode] = petscii_from_unicode(c_unicode)
 
-# stamp in f-keys independent of shiftstate
+# stamp in f-keys and numpad keys independent of shiftstate
 for shiftstate in keytab.keys():
 	keytab[shiftstate][5]    = chr(0x85) # f1
 	keytab[shiftstate][6]    = chr(0x89) # f2
@@ -320,16 +320,30 @@ for shiftstate in keytab.keys():
 	keytab[shiftstate][2]    = chr(0x88) # f7
 	keytab[shiftstate][10]   = chr(0x8c) # f8
 
+	# C128 addition
+	keytab[shiftstate][0x76] = chr(0x1b) # Esc
+
 	# C65 additions
 	keytab[shiftstate][1]    = chr(0x10) # f9
 	keytab[shiftstate][9]    = chr(0x15) # f10
 	keytab[shiftstate][0x78] = chr(0x16) # f11
 	keytab[shiftstate][7]    = chr(0x17) # f12
 
-	# * PS/2 keyboards don't have the C65 f13 (chr(0x19)) and f14 (chr(0x1a))
-	#   -> we don't map them
-	# * PS/2 keyboards don't have the C128/C65 "HELP" (chr(0x83))
-	#   -> TODO
+	# numpad
+	keytab[shiftstate][0x70] = '0'
+	keytab[shiftstate][0x69] = '1'
+	keytab[shiftstate][0x72] = '2'
+	keytab[shiftstate][0x7a] = '3'
+	keytab[shiftstate][0x6b] = '4'
+	keytab[shiftstate][0x73] = '5'
+	keytab[shiftstate][0x74] = '6'
+	keytab[shiftstate][0x6c] = '7'
+	keytab[shiftstate][0x75] = '8'
+	keytab[shiftstate][0x7d] = '9'
+	keytab[shiftstate][0x7c] = '*'
+	keytab[shiftstate][0x7b] = '-'
+	keytab[shiftstate][0x79] = '+'
+	keytab[shiftstate][0x71] = '.'
 
 # stamp in Ctrl/Alt color codes
 petscii_from_ctrl_scancode = [ # Ctrl

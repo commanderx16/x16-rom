@@ -200,7 +200,7 @@ _kbd_scan:
 	lda #$02 ; this one is unused
 	tay
 not_f7:
-	cmp #$0e ; scancodes < $0E and > $68 are independent of modifiers
+	cmp #$0d ; scancodes < $0D and > $68 are independent of modifiers
 	bcc is_unshifted
 	cmp #$68
 	bcc not_numpad
@@ -240,23 +240,35 @@ down_ext:
 	cpx #$e1 ; prefix $E1 -> E1-14 = Pause/Break
 	beq is_stop
 	cmp #$4a ; Numpad /
-	bne not_4a
-	lda #'/'
-	bne kbdbuf_put2
-not_4a:	cmp #$5a ; Numpad Enter
+	beq is_numpad_divide
+	cmp #$5a ; Numpad Enter
 	beq is_enter
+	cpy #$69 ; special case shift+end = help
+	beq is_end
 	cpy #$6c ; special case shift+home = clr
 	beq is_home
-not_5a: cmp #$68
+	cpy #$2f
+	beq is_menu
+	cmp #$68
 	bcc drv_end
 	cmp #$80
 	bcs drv_end
-nhome:	lda tab_extended-$68,y
+	lda tab_extended-$68,y
 	bne kbdbuf_put2
 drv_end:
 	rts
 
+is_numpad_divide:
+	lda #'/'
+	bra kbdbuf_put2
+is_menu:
+	lda #$06
+	bra kbdbuf_put2
+
 ; or $80 if shift is down
+is_end:
+	ldx #$04 * 2; end (-> help)
+	bra :+
 is_home:
 	ldx #$13 * 2; home (-> clr)
 	bra :+
@@ -381,10 +393,10 @@ md_sh:	lda #MODIFIER_SHIFT
 	rts
 
 tab_extended:
-	;         end      lf hom
-	.byte $00,$00,$00,$9d,$00,$00,$00,$00 ; @$68 (HOME is special cased)
+	;         end      lf hom              (END & HOME special cased)
+	.byte $00,$00,$00,$9d,$00,$00,$00,$00 ; @$68
 	;     ins del  dn      rt  up
-	.byte $94,$14,$11,$00,$1d,$91,$00,$00 ; @$70
+	.byte $94,$19,$11,$00,$1d,$91,$00,$00 ; @$70
 	;             pgd         pgu brk
-	.byte $00,$00,$00,$00,$00,$00,$03,$00 ; @$78
+	.byte $00,$00,$02,$00,$00,$82,$03,$00 ; @$78
 
