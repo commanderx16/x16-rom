@@ -221,7 +221,7 @@ not_numpad:
 	bne bit_found ; use AltGr table
 naltgr:
 	cmp #MODIFIER_CAPS
-	beq bit_found ; use Shift table [XXX should be dedicated table!]
+	beq handle_caps
 
 find_bit:
 	lsr
@@ -232,14 +232,7 @@ find_bit:
 	bne find_bit
 
 bit_found:
-	lda kbdtab,x
-	sta ckbtab
-	lda kbdtab + 1,x
-	sta ckbtab + 1
-	ldx #BANK_KEYBD
-	lda #ckbtab
-	sta fetvec
-	jsr fetch
+	jsr fetch_kbd
 	beq drv_end
 	jmp kbdbuf_put
 
@@ -290,6 +283,53 @@ is_stop:
 	ror
 kbdbuf_put2:
 	jmp kbdbuf_put
+
+; The caps table has one bit per scancode, indicating whether
+; caps + the key should use the shifted or the unshifted table.
+; It's located at the unshifted table + $80.
+handle_caps:
+	lda prefix ; reuse it as temp
+	pha
+	phy ; scancode
+	tya
+	pha
+	lsr
+	lsr
+	lsr
+	ora #$80
+	tay
+	ldx #4 * 2
+	jsr fetch_kbd
+	tax
+	pla ; scancode
+	and #7
+	tay
+	lda #$80
+:	cpy #0
+	beq :+
+	lsr
+	dey
+	bra :-
+:	sta prefix
+	txa
+	ldx #0
+	ply
+	and prefix
+	bne :+
+	ldx #4 * 2
+:	pla
+	sta prefix
+	jmp bit_found
+
+fetch_kbd:
+	lda kbdtab,x
+	sta ckbtab
+	lda kbdtab + 1,x
+	sta ckbtab + 1
+	ldx #BANK_KEYBD
+	lda #ckbtab
+	sta fetvec
+	jmp fetch
 
 ;****************************************
 ; RECEIVE SCANCODE:
