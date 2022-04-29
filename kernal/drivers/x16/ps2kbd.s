@@ -26,6 +26,9 @@ MODIFIER_ALT   = 2 ; C64:  Commodore
 MODIFIER_CTRL  = 4 ; C64:  Ctrl
 MODIFIER_WIN   = 8 ; C128: Alt
 MODIFIER_CAPS  = 16; C128: Caps
+MODIFIER_4080  = 32; 40/80 DISPLAY
+; set of modifiers that are toggled on each key press
+MODIFIER_TOGGLE_MASK = MODIFIER_CAPS | MODIFIER_4080
 
 .segment "ZPKERNAL" : zeropage
 ckbtab:	.res 2           ;    used for keyboard lookup
@@ -338,22 +341,27 @@ receive_down_scancode_no_modifiers:
 	php
 	jsr check_mod
 	bcc no_mod
+	bit #MODIFIER_TOGGLE_MASK
+	beq ntoggle
+	plp
+	bcs key_up
+	eor shflag
+	bra mstore
+ntoggle:
 	plp
 	bcc key_down
 	eor #$ff
 	and shflag
-	bra :+
+	bra mstore
 key_down:
 	ora shflag
-:	sta shflag
+mstore:	sta shflag
 	jsr check_charset_switch
 key_up:	lda #0 ; no key to return
 	rts
 no_mod:	plp
 	bcs key_up
 no_key:	rts ; original Z is retained
-
-; XXX handle caps lock
 
 check_mod:
 	cpx #$e1
@@ -376,6 +384,10 @@ nmd_alt:
 	beq md_sh
 	cmp #$59 ; right shift (0059)
 	beq md_sh
+	cmp #$58 ; caps lock (0058)
+	beq md_caps
+	cmp #$7e ; scroll lock (007e)
+	beq md_4080disp
 ckmod1:	clc
 	rts
 ckmod2:	cmp #$1F ; left win (001F)
@@ -389,7 +401,13 @@ md_alt:	lda #MODIFIER_ALT
 md_ctl:	lda #MODIFIER_CTRL
 	bra :+
 md_sh:	lda #MODIFIER_SHIFT
-: sec
+	bra :+
+md_caps:
+	lda #MODIFIER_CAPS
+	bra :+
+md_4080disp:
+	lda #MODIFIER_4080
+:	sec
 	rts
 
 tab_extended:
