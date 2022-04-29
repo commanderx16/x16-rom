@@ -236,16 +236,6 @@ bit_found:
 	beq drv_end
 	jmp kbdbuf_put
 
-fetch_kbd:
-	lda kbdtab,x
-	sta ckbtab
-	lda kbdtab + 1,x
-	sta ckbtab + 1
-	ldx #BANK_KEYBD
-	lda #ckbtab
-	sta fetvec
-	jmp fetch
-
 down_ext:
 	cpx #$e1 ; prefix $E1 -> E1-14 = Pause/Break
 	beq is_stop
@@ -294,8 +284,13 @@ is_stop:
 kbdbuf_put2:
 	jmp kbdbuf_put
 
+; The caps table has one bit per scancode, indicating whether
+; caps + the key should use the shifted or the unshifted table.
+; It's located at the unshifted table + $80.
 handle_caps:
-	phy
+	lda prefix ; reuse it as temp
+	pha
+	phy ; scancode
 	tya
 	pha
 	lsr
@@ -306,7 +301,7 @@ handle_caps:
 	ldx #4 * 2
 	jsr fetch_kbd
 	tax
-	pla
+	pla ; scancode
 	and #7
 	tay
 	lda #$80
@@ -315,14 +310,26 @@ handle_caps:
 	lsr
 	dey
 	bra :-
-:	sta $0400
+:	sta prefix
 	txa
 	ldx #0
 	ply
-	and $0400
+	and prefix
 	bne :+
 	ldx #4 * 2
-:	jmp bit_found
+:	pla
+	sta prefix
+	jmp bit_found
+
+fetch_kbd:
+	lda kbdtab,x
+	sta ckbtab
+	lda kbdtab + 1,x
+	sta ckbtab + 1
+	ldx #BANK_KEYBD
+	lda #ckbtab
+	sta fetvec
+	jmp fetch
 
 ;****************************************
 ; RECEIVE SCANCODE:
