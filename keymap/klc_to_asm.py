@@ -320,6 +320,9 @@ for shiftstate in keytab.keys():
 	keytab[shiftstate][2]    = chr(0x88) # f7
 	keytab[shiftstate][10]   = chr(0x8c) # f8
 
+	# C128 addition
+	keytab[shiftstate][0x76] = chr(0x1b) # Esc
+
 	# C65 additions
 	keytab[shiftstate][1]    = chr(0x10) # f9
 	keytab[shiftstate][9]    = chr(0x15) # f10
