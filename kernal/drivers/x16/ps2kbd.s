@@ -216,9 +216,14 @@ not_numpad:
 	ldx #0
 	lda shflag
 	cmp #MODIFIER_ALTGR
-	bne find_bit
+	bne naltgr
 	ldx #3 * 2
 	bne bit_found ; use AltGr table
+naltgr:
+	cmp #MODIFIER_CAPS
+	bne find_bit
+	ldx #0 * 2
+	bra bit_found ; use Shift table [XXX should be dedicated table!]
 
 find_bit:
 	lsr
