@@ -27,6 +27,7 @@ MODIFIER_CTRL  = 4 ; C64:  Ctrl
 MODIFIER_WIN   = 8 ; C128: Alt
 MODIFIER_CAPS  = 16; C128: Caps
 MODIFIER_4080  = 32; 40/80 DISPLAY
+MODIFIER_ALTGR = MODIFIER_ALT | MODIFIER_CTRL
 ; set of modifiers that are toggled on each key press
 MODIFIER_TOGGLE_MASK = MODIFIER_CAPS | MODIFIER_4080
 
@@ -214,7 +215,7 @@ is_unshifted:
 not_numpad:
 	ldx #0
 	lda shflag
-	cmp #MODIFIER_ALT | MODIFIER_CTRL
+	cmp #MODIFIER_ALTGR
 	bne find_bit
 	ldx #3 * 2
 	bne bit_found ; use AltGr table
@@ -370,7 +371,7 @@ check_mod:
 	bne nmd_alt
 	cpx #$e0 ; right alt
 	bne :+
-	lda #MODIFIER_ALT | MODIFIER_CTRL
+	lda #MODIFIER_ALTGR
 	bra :++
 :	lda #MODIFIER_ALT
 :	sec
