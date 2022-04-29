@@ -395,7 +395,7 @@ tab_extended:
 	;         end      lf hom              (END & HOME special cased)
 	.byte $00,$00,$00,$9d,$00,$00,$00,$00 ; @$68
 	;     ins del  dn      rt  up
-	.byte $94,$14,$11,$00,$1d,$91,$00,$00 ; @$70
+	.byte $94,$19,$11,$00,$1d,$91,$00,$00 ; @$70
 	;             pgd         pgu brk
 	.byte $00,$00,$02,$00,$00,$82,$03,$00 ; @$78
 
