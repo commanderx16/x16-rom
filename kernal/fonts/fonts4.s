@@ -12,20 +12,17 @@ FntShJump:
 .else
 	bbrf BOLD_BIT, currentMode, noop
 .endif
-	lda #0
-	pha
+	clc
+	php
 	ldy #$ff
 @5:
 	iny
-	ldx fontTemp1,y
-	pla
-	ora FontTab,x
-	sta fontTemp1,y
-	txa
-	lsr
-	lda #0
+	lda fontTemp1,y
+	plp
 	ror
-	pha
+	ora fontTemp1,y
+	sta fontTemp1,y
+	php
 	cpy r8L
 	bne @5
 	pla
