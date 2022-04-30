@@ -610,7 +610,14 @@ nc3w	cmp #$12
 nc1	cmp #$13
 	bne nc2
 	jsr nxtd
-nc2	cmp #$1d
+nc2	cmp #$04        ;END
+	bne nc25
+	stz pntr        ;column
+	lda nlinesm1
+	sta tblx        ;line
+	jsr stupt       ;move cursor to tblx,pntr
+	jmp loop2
+nc25	cmp #$1d        ;CSR RIGHT
 	bne ncx2
 	iny
 	jsr chkdwn
