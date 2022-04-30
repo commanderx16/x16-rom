@@ -39,8 +39,25 @@ ckbtab:	.res 2           ;    used for keyboard lookup
 prefix:	.res 1           ;    PS/2: prefix code (e0/e1)
 brkflg:	.res 1           ;    PS/2: was key-up event
 curkbd:	.res 1           ;    current keyboard layout index
-kbdnam:	.res 6           ;    keyboard layout name
-kbdtab:	.res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
+xkbdnam:;XXX remove
+	.res 6           ;    keyboard layout name
+kbdtab:;XXX remove
+	.res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
+
+.segment "KEYMAP"
+kbdnam:	.res 6
+punsh:	.res 128
+pshift:	.res 128
+pctrl:	.res 128
+palt:	.res 128
+paltgr:	.res 128
+pcaps:	.res 16
+iunsh:	.res 128
+ishift:	.res 128
+ictrl:	.res 128
+ialt:	.res 128
+ialtgr:	.res 128
+icaps:	.res 16
 
 .segment "PS2KBD"
 
@@ -97,8 +114,7 @@ setkb3:	lda #<$c000
 	sta curkbd
 	asl
 	asl
-	asl
-	asl             ;*16
+	asl             ;*8
 	tay
 	ldx #BANK_KEYBD
 	jsr fetch

@@ -7,8 +7,6 @@ CTRL  = 2
 ALT   = 4
 ALTGR = 6
 
-COMPRESSED_OUTPUT=1
-
 def get_kbd_layout(base_filename, load_patch = False):
 	filename_klc = base_filename
 	filename_changes = base_filename + 'patch'
@@ -533,16 +531,7 @@ print('\t.byte "' + locale1 + '"', end = '')
 for i in range(0, 6 - len(locale1)):
 	print(", 0", end = '')
 print()
-for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
-	if shiftstate == ALTGR and not ALTGR in keytab.keys():
-		print_shiftstate = ALT
-	else:
-		print_shiftstate = shiftstate
-	print("\t.word {}kbtab_{}_{}".format(prefix, kbd_id, print_shiftstate), end = '')
-	if shiftstate == REG:
-		print()
-	else:
-		print("-13")
+print("\t.word {}kbtab_{}".format(prefix, kbd_id))
 print()
 
 
@@ -551,27 +540,24 @@ if iso_mode:
 else:
 	print('.segment "KBDTABLES"\n')
 
-for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
+print("{}kbtab_{}:".format(prefix, kbd_id))
+
+for shiftstate in [REG, SHFT, CTRL, ALT, ALTGR]:
 	if shiftstate == ALTGR and not ALTGR in keytab.keys():
 		continue
-	print("{}kbtab_{}_{}: ; ".format(prefix, kbd_id, shiftstate), end = '')
 	if shiftstate == 0:
-		print('Unshifted', end='')
+		print('; Unshifted', end='')
 	if shiftstate & 1:
-		print('Shft ', end='')
+		print('; Shft ', end='')
 	if shiftstate & 6 == 6:
-		print('AltGr ', end='')
+		print('; AltGr ', end='')
 	else:
 		if shiftstate & 2:
-			print('Ctrl ', end='')
+			print('; Ctrl ', end='')
 		if shiftstate & 4:
-			print('Alt ', end='')
-	if COMPRESSED_OUTPUT == 1 and shiftstate != REG:
-		start = 13
-		end = 104
-	else:
-		start = 0
-		end = 128
+			print('; Alt ', end='')
+	start = 0
+	end = 128
 	for i in range(start, end):
 		if i == start or i & 7 == 0:
 			print()
