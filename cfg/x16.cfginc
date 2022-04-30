@@ -37,5 +37,6 @@ FPVARS:   start = $03CB, size = $0009; # MATH
 BVARS:    start = $03D4, size = $002C; # BASIC
 
 /* KERNAL/DOS bank #0 vars */
-KVARSB0:  start = $A000, size = $0C00;
-DOSDAT: start = $AC00, size = $1400;
+KEYMAP:   start = $A000, size = $0262;
+KVARSB0:  start = $A262, size = $099E;
+DOSDAT:   start = $AC00, size = $1400;
