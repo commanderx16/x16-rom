@@ -1,12 +1,9 @@
-;****************************************
-;* PETSCII                              *
-;****************************************
+; Commander X16 PETSCII/ISO Keyboard Table
+; ***this file is auto-generated!***
+;
 ; Name:   United Kingdom
 ; Locale: en-GB
 ; KLID:   809
-;
-; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\x1b\x1c\x1d\_`{|}~¦¬ÁÉÍÓÚáéíóú€'
 
 .segment "KBDMETA"
 
@@ -16,6 +13,13 @@
 .segment "KBDTABLES"
 
 kbtab_809:
+
+;****************************************
+;* PETSCII                              *
+;****************************************
+; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
+; '\x1b\x1c\x1d\_`{|}~¦¬ÁÉÍÓÚáéíóú€'
+
 ; Unshifted
 	.byte $00,$10,$88,$87,$86,$85,$89,$17
 	.byte $00,$15,$8c,$8b,$8a,$09,'_',$00
@@ -109,10 +113,6 @@ kbtab_809:
 ;****************************************
 ;* ISO                                  *
 ;****************************************
-; Name:   United Kingdom
-; Locale: en-GB
-; KLID:   809
-;
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
 ; chars: 'π'
 ; graph: '\xa1\xa2\xa5\xa6\xa7\xa8\xa9\xaa\xab\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf'

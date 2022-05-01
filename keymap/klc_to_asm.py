@@ -475,6 +475,34 @@ for iso_mode in [False, True]:
 	name = kbd_layout['name'].replace(' - Custom', '')
 	kbd_id = kbd_layout['short_id'].lower()
 
+	if not iso_mode:
+		print("; Commander X16 PETSCII/ISO Keyboard Table")
+		print("; ***this file is auto-generated!***")
+		print(";")
+		print("; Name:   " + name)
+		print("; Locale: " + kbd_layout['localename'])
+		print("; KLID:   " + kbd_id)
+		print()
+
+		print('.segment "KBDMETA"\n')
+		prefix = ''
+		locale1 = kbd_layout['localename'][0:2].upper()
+		locale2 = kbd_layout['localename'][3:5].upper()
+		if locale1 != locale2:
+			locale1 = kbd_layout['localename'].upper()
+		if len(kbd_layout['localename']) != 5:
+			sys.exit("unknown locale format: " + kbd_layout['localename'])
+		print('\t.byte "' + locale1 + '"', end = '')
+		for i in range(0, 6 - len(locale1)):
+			print(", 0", end = '')
+		print()
+		print("\t.word {}kbtab_{}".format(prefix, kbd_id))
+		print()
+
+		print('.segment "KBDTABLES"\n')
+		print("kbtab_{}:".format(kbd_id))
+		print()
+
 	if iso_mode:
 		print(";****************************************")
 		print(";* ISO                                  *")
@@ -483,10 +511,6 @@ for iso_mode in [False, True]:
 		print(";****************************************")
 		print(";* PETSCII                              *")
 		print(";****************************************")
-	print("; Name:   " + name)
-	print("; Locale: " + kbd_layout['localename'])
-	print("; KLID:   " + kbd_id)
-	print(";")
 	if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
 		print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
 		if len(petscii_chars_not_reachable) > 0:
@@ -518,28 +542,6 @@ for iso_mode in [False, True]:
 		print("'")
 
 	print()
-
-	if not iso_mode:
-		print('.segment "KBDMETA"\n')
-		prefix = ''
-		locale1 = kbd_layout['localename'][0:2].upper()
-		locale2 = kbd_layout['localename'][3:5].upper()
-		if locale1 != locale2:
-			locale1 = kbd_layout['localename'].upper()
-		if len(kbd_layout['localename']) != 5:
-			sys.exit("unknown locale format: " + kbd_layout['localename'])
-		print('\t.byte "' + locale1 + '"', end = '')
-		for i in range(0, 6 - len(locale1)):
-			print(", 0", end = '')
-		print()
-		print("\t.word {}kbtab_{}".format(prefix, kbd_id))
-		print()
-
-
-
-	if not iso_mode:
-		print('.segment "KBDTABLES"\n')
-		print("kbtab_{}:".format(kbd_id))
 
 	for shiftstate in [REG, SHFT, ALT, CTRL, ALTGR]:
 		if shiftstate == 0:

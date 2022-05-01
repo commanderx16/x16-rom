@@ -1,14 +1,9 @@
-;****************************************
-;* PETSCII                              *
-;****************************************
+; Commander X16 PETSCII/ISO Keyboard Table
+; ***this file is auto-generated!***
+;
 ; Name:   German
 ; Locale: de-DE
 ; KLID:   407
-;
-; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
-; graph: '\xa4\xa6\xa8\xa9\xba'
-; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\x1b\x1c\x1d\_`{|}~§°²³´µÄÖÜßäöüẞ€'
 
 .segment "KBDMETA"
 
@@ -18,6 +13,15 @@
 .segment "KBDTABLES"
 
 kbtab_407:
+
+;****************************************
+;* PETSCII                              *
+;****************************************
+; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
+; graph: '\xa4\xa6\xa8\xa9\xba'
+; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
+; '\x1b\x1c\x1d\_`{|}~§°²³´µÄÖÜßäöüẞ€'
+
 ; Unshifted
 	.byte $00,$10,$88,$87,$86,$85,$89,$17
 	.byte $00,$15,$8c,$8b,$8a,$09,'_',$00
@@ -111,10 +115,6 @@ kbtab_407:
 ;****************************************
 ;* ISO                                  *
 ;****************************************
-; Name:   German
-; Locale: de-DE
-; KLID:   407
-;
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
 ; chars: 'π'
 ; graph: '\xa1\xa2\xa3\xa5\xa6\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb1\xb4\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf'
