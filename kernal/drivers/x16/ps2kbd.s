@@ -259,7 +259,17 @@ naltgr:
 	bne :-
 	ldx #0
 bit_found:
-	jsr fetch_kbd
+.assert keymap_data = $a000, error; so we can ORA instead of ADC and carry
+	txa
+	lsr
+	php
+	ora #>keymap_data
+	sta ckbtab+1
+	plp
+	lda #0
+	ror
+	sta ckbtab
+	lda (ckbtab),y
 	beq drv_end
 	jmp kbdbuf_put
 
@@ -340,20 +350,6 @@ handle_caps:
 	inx
 :	ply ; scancode
 	jmp bit_found
-
-.assert keymap_data = $a000, error
-fetch_kbd:
-	txa
-	lsr
-	php
-	ora #>keymap_data
-	sta ckbtab+1
-	plp
-	lda #0
-	ror
-	sta ckbtab
-	lda (ckbtab),y
-	rts
 
 ;****************************************
 ; RECEIVE SCANCODE:
