@@ -39,25 +39,19 @@ ckbtab:	.res 2           ;    used for keyboard lookup
 prefix:	.res 1           ;    PS/2: prefix code (e0/e1)
 brkflg:	.res 1           ;    PS/2: was key-up event
 curkbd:	.res 1           ;    current keyboard layout index
-xkbdnam:;XXX remove
+kbdnam:
 	.res 6           ;    keyboard layout name
 kbdtab:;XXX remove
 	.res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
 
 .segment "KEYMAP"
-kbdnam:	.res 6
-punsh:	.res 128
-pshift:	.res 128
-pctrl:	.res 128
-palt:	.res 128
-paltgr:	.res 128
-pcaps:	.res 16
-iunsh:	.res 128
-ishift:	.res 128
-ictrl:	.res 128
-ialt:	.res 128
-ialtgr:	.res 128
-icaps:	.res 16
+keymap_data:
+unshft:	.res 128
+shift:	.res 128
+ctrl:	.res 128
+alt:	.res 128
+altgr:	.res 128
+caps:	.res 16
 
 .segment "PS2KBD"
 
@@ -89,26 +83,13 @@ _kbd_config:
 	lda curkbd
 :	pha
 
-	bit mode
-	bvs setkb0      ;ISO
-	ldy #0
-	bra setkb3
-setkb0:	ldy #2
-setkb3:	lda #<$c000
+; XXX ISO
+	lda #<$c000
 	sta tmp2
 	lda #>$c000
 	sta tmp2+1
 	lda #tmp2
 	sta fetvec
-	ldx #BANK_KEYBD
-	jsr fetch
-	pha
-	iny
-	ldx #BANK_KEYBD
-	jsr fetch
-	sta tmp2+1
-	pla
-	sta tmp2
 
 	pla
 	sta curkbd
@@ -121,16 +102,47 @@ setkb3:	lda #<$c000
 	bne :+
 	sec             ;end of list
 	rts
-:	ldx #0
-setkb1:	phx
+:
+; get name
+	ldx #0
+:	phx
 	ldx #BANK_KEYBD
 	jsr fetch
 	plx
-	sta kbdnam,x    ;8 bytes kbnam, 8  bytes kbtab
+	sta kbdnam,x
 	inx
 	iny
-	cpx #16
-	bne setkb1
+	cpx #6
+	bne :-
+; get address
+	ldx #BANK_KEYBD
+	jsr fetch
+	pha
+	iny
+	ldx #BANK_KEYBD
+	jsr fetch
+	sta tmp2+1
+	pla
+	sta tmp2
+
+; copy into banked RAM
+	lda #<keymap_data
+	sta ckbtab
+	lda #>keymap_data
+	sta ckbtab+1
+	ldx #6
+	ldy #0
+@l1:	phx
+@l2:	ldx #BANK_KEYBD
+	jsr fetch
+	sta (ckbtab),y
+	iny
+	bne @l2
+	inc tmp2+1
+	plx
+	dex
+	bne @l1
+
 	jsr joystick_from_ps2_init
 	clc             ;ok
 	rts
