@@ -542,7 +542,7 @@ else:
 
 print("{}kbtab_{}:".format(prefix, kbd_id))
 
-for shiftstate in [REG, SHFT, CTRL, ALT, ALTGR]:
+for shiftstate in [REG, SHFT, ALT, CTRL, ALTGR]:
 	if shiftstate == ALTGR and not ALTGR in keytab.keys():
 		continue
 	if shiftstate == 0:

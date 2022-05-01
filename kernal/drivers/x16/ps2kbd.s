@@ -130,7 +130,7 @@ _kbd_config:
 	sta ckbtab
 	lda #>keymap_data
 	sta ckbtab+1
-	ldx #6
+	ldx #3
 	ldy #0
 @l1:	phx
 @l2:	ldx #BANK_KEYBD
@@ -139,6 +139,7 @@ _kbd_config:
 	iny
 	bne @l2
 	inc tmp2+1
+	inc ckbtab+1
 	plx
 	dex
 	bne @l1
@@ -237,28 +238,26 @@ not_f7:
 	cmp #$68
 	bcc not_numpad
 is_unshifted:
-	ldx #4 * 2
-	bne bit_found ; use unshifted table
+	ldx #0
+	bra bit_found ; use unshifted table
 
 not_numpad:
-	ldx #0
 	lda shflag
 	cmp #MODIFIER_ALTGR
 	bne naltgr
-	ldx #3 * 2
-	bne bit_found ; use AltGr table
+	ldx #4
+	bra bit_found ; use AltGr table
 naltgr:
 	cmp #MODIFIER_CAPS
 	beq handle_caps
 
-find_bit:
-	lsr
+	ldx #1
+:	lsr
 	bcs bit_found
 	inx
-	inx
-	cpx #4 * 2
-	bne find_bit
-
+	cpx #4
+	bne :-
+	ldx #0
 bit_found:
 	jsr fetch_kbd
 	beq drv_end
@@ -326,7 +325,7 @@ handle_caps:
 	lsr
 	ora #$80
 	tay
-	ldx #4 * 2
+	ldx #4
 	jsr fetch_kbd
 	tax
 	pla ; scancode
@@ -349,15 +348,19 @@ handle_caps:
 	sta prefix
 	jmp bit_found
 
+.assert keymap_data = $a000, error
 fetch_kbd:
-	lda kbdtab,x
+	txa
+	lsr
+	php
+	ora #>keymap_data
+	sta ckbtab+1
+	plp
+	lda #0
+	ror
 	sta ckbtab
-	lda kbdtab + 1,x
-	sta ckbtab + 1
-	ldx #BANK_KEYBD
-	lda #ckbtab
-	sta fetvec
-	jmp fetch
+	lda (ckbtab),y
+	rts
 
 ;****************************************
 ; RECEIVE SCANCODE:
