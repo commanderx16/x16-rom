@@ -313,22 +313,10 @@ kbdbuf_put2:
 
 ; The caps table has one bit per scancode, indicating whether
 ; caps + the key should use the shifted or the unshifted table.
-; It's located at the unshifted table + $80.
 handle_caps:
-	lda prefix ; reuse it as temp
-	pha
 	phy ; scancode
+
 	tya
-	pha
-	lsr
-	lsr
-	lsr
-	ora #$80
-	tay
-	ldx #4
-	jsr fetch_kbd
-	tax
-	pla ; scancode
 	and #7
 	tay
 	lda #$80
@@ -337,15 +325,20 @@ handle_caps:
 	lsr
 	dey
 	bra :-
-:	sta prefix
+:	tax
+
+	pla ; scancode
+	pha
+	lsr
+	lsr
+	lsr
+	tay
 	txa
 	ldx #0
-	ply
-	and prefix
-	bne :+
-	ldx #4 * 2
-:	pla
-	sta prefix
+	and caps,y
+	beq :+
+	inx
+:	ply ; scancode
 	jmp bit_found
 
 .assert keymap_data = $a000, error

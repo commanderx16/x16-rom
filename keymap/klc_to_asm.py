@@ -543,8 +543,6 @@ else:
 print("{}kbtab_{}:".format(prefix, kbd_id))
 
 for shiftstate in [REG, SHFT, ALT, CTRL, ALTGR]:
-	if shiftstate == ALTGR and not ALTGR in keytab.keys():
-		continue
 	if shiftstate == 0:
 		print('; Unshifted', end='')
 	if shiftstate & 1:
@@ -556,13 +554,19 @@ for shiftstate in [REG, SHFT, ALT, CTRL, ALTGR]:
 			print('; Ctrl ', end='')
 		if shiftstate & 4:
 			print('; Alt ', end='')
+
+	if shiftstate == ALTGR and not ALTGR in keytab.keys():
+		shiftstate2 = ALT
+	else:
+		shiftstate2 = shiftstate
+
 	start = 0
 	end = 128
 	for i in range(start, end):
 		if i == start or i & 7 == 0:
 			print()
 			print('\t.byte ', end='')
-		c = keytab[shiftstate][i]
+		c = keytab[shiftstate2][i]
 		if ord(c) >= 0x20 and ord(c) <= 0x7e:
 			print("'{}'".format(c), end = '')
 		else:
