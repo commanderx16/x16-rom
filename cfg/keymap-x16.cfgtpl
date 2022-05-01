@@ -7,6 +7,4 @@ MEMORY {
 SEGMENTS {
 	KBDMETA:    load = KEYMAPS,  type = ro;
 	KBDTABLES:  load = KEYMAPS,  type = ro;
-	IKBDMETA:   load = KEYMAPS,  type = ro;
-	IKBDTABLES: load = KEYMAPS,  type = ro;
 }
