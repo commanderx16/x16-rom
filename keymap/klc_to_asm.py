@@ -418,7 +418,7 @@ for iso_mode in [False, True]:
 			c = chr(ord(c) - ord('A') + 1)
 		else:
 			c = None
-			
+
 		if c and keytab[CTRL][i] == chr(0): # only if unassigned
 			keytab[CTRL][i] = c
 
@@ -475,6 +475,14 @@ for iso_mode in [False, True]:
 	name = kbd_layout['name'].replace(' - Custom', '')
 	kbd_id = kbd_layout['short_id'].lower()
 
+	if iso_mode:
+		print(";****************************************")
+		print(";* ISO                                  *")
+		print(";****************************************")
+	else:
+		print(";****************************************")
+		print(";* PETSCII                              *")
+		print(";****************************************")
 	print("; Name:   " + name)
 	print("; Locale: " + kbd_layout['localename'])
 	print("; KLID:   " + kbd_id)
@@ -508,7 +516,7 @@ for iso_mode in [False, True]:
 			else:
 				print(c, end = '')
 		print("'")
-		
+
 	print()
 
 	if not iso_mode:
@@ -528,9 +536,9 @@ for iso_mode in [False, True]:
 		print()
 
 
-	print('.segment "KBDTABLES"\n')
 
 	if not iso_mode:
+		print('.segment "KBDTABLES"\n')
 		print("kbtab_{}:".format(kbd_id))
 
 	for shiftstate in [REG, SHFT, ALT, CTRL, ALTGR]:
@@ -565,17 +573,18 @@ for iso_mode in [False, True]:
 			if i & 7 != 7:
 				print(',', end = '')
 		print()
+		print()
 
-	if iso_mode:
-		print("; bit field: for which codes CAPS means SHIFT; big endian")
-		for ibyte in range(0, 16):
-			byte = 0
-			for ibit in range(0, 8):
-				scancode = ibyte << 3 | ibit
-				if scancode in capstab:
-					caps = capstab[scancode] > 0
-				else:
-					caps = False
-				byte = byte | (caps << (7-ibit))
-			print("\t.byte %" + format(byte, '08b'))
+print(";****************************************")
+print("; bit field: for which codes CAPS means SHIFT; big endian")
+for ibyte in range(0, 16):
+	byte = 0
+	for ibit in range(0, 8):
+		scancode = ibyte << 3 | ibit
+		if scancode in capstab:
+			caps = capstab[scancode] > 0
+		else:
+			caps = False
+		byte = byte | (caps << (7-ibit))
+	print("\t.byte %" + format(byte, '08b'))
 

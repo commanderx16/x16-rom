@@ -293,7 +293,7 @@ bit_found:
 	sta ckbtab
 	bit mode
 	bvc :+
-@xxx:	lda ckbtab
+	lda ckbtab
 	clc
 	adc #<pettab_len
 	sta ckbtab
