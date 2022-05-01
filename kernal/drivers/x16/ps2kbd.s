@@ -83,14 +83,29 @@ _kbd_config:
 	lda curkbd
 :	pha
 
-; XXX ISO
-	lda #<$c000
+; get PET vs. ISO pointer
+	bit mode
+	bvs setkb0      ;ISO
+	ldy #0
+	bra setkb3
+setkb0:	ldy #2
+setkb3:	lda #<$c000
 	sta tmp2
 	lda #>$c000
 	sta tmp2+1
 	lda #tmp2
 	sta fetvec
+	ldx #BANK_KEYBD
+	jsr fetch
+	pha
+	iny
+	ldx #BANK_KEYBD
+	jsr fetch
+	sta tmp2+1
+	pla
+	sta tmp2
 
+; get keymap
 	pla
 	sta curkbd
 	asl
