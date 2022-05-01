@@ -52,6 +52,7 @@ ctrl:	.res 128
 alt:	.res 128
 altgr:	.res 128
 caps:	.res 16
+keymap_len = * - keymap_data ; 5 * $80 + $10 = $290
 
 .segment "PS2KBD"
 
@@ -84,12 +85,11 @@ _kbd_config:
 :	pha
 
 ; get PET vs. ISO pointer
-	bit mode
-	bvs setkb0      ;ISO
 	ldy #0
-	bra setkb3
-setkb0:	ldy #2
-setkb3:	lda #<$c000
+	bit mode
+	bvc :+
+	ldy #2
+:	lda #<$c000
 	sta tmp2
 	lda #>$c000
 	sta tmp2+1
@@ -145,19 +145,28 @@ setkb3:	lda #<$c000
 	sta ckbtab
 	lda #>keymap_data
 	sta ckbtab+1
-	ldx #3
+	ldx #>(keymap_len+$ff)
 	ldy #0
 @l1:	phx
 @l2:	ldx #BANK_KEYBD
 	jsr fetch
 	sta (ckbtab),y
-	iny
+	plx
+	cpx #1 ; last bank?
+	phx
+	bne :+
+	cpy #(<keymap_len)-1
+	bne :+
+	plx
+	bra @end
+:	iny
 	bne @l2
 	inc tmp2+1
 	inc ckbtab+1
 	plx
 	dex
 	bne @l1
+@end:
 
 	jsr joystick_from_ps2_init
 	clc             ;ok
