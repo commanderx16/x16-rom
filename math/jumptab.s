@@ -182,31 +182,6 @@
 	; ARG = round(FAC)
 	jmp movaf  ; $BC0C
 
-
-; X16 additions - BASIC only
-
-	; FAC += ARG
-	; [do not use, used by BASIC]
-	jmp bfaddt; $B86A
-
-	; FAC *= ARG
-	; [do not use, used by BASIC]
-	jmp bfmultt; $BA2B
-
-	; FAC /= ARG
-	; [do not use, used by BASIC]
-	jmp bfdivt ; $BB12
-
-	; FAC = ARG^FAC
-	; [do not use, used by BASIC]
-	jmp bfpwrt ; $BF7B
-
-	; [do not use, used by BASIC]
-	jmp floatb ; $BC4F
-
-	; [do not use, used by BASIC]
-	jmp fcompn ; $BC5D
-
 ; X16 additions
 
 	; FAC += .5
@@ -252,10 +227,39 @@
 	; [used by BASIC]
 	jmp foutc  ; $BDDF
 
-.if 0 ; removed for now due to segment overflow
 	; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
 	jmp polyx  ; $E043 [-mapping-]
 
 	; Polynomial Evaluation 2 (EXP)
 	jmp poly   ; $E059 [-mapping-]
+
+.if 0
+; X16 additions - BASIC only
+; XXX BASIC links these functions directly instead of
+; XXX going through a jump table. This is because the
+; XXX space here is tight: The KERNAL jump table grows
+; XXX down into this space.
+	; FAC += ARG
+	; [do not use, used by BASIC]
+	jmp bfaddt; $B86A
+	; FAC *= ARG
+	; [do not use, used by BASIC]
+	jmp bfmultt; $BA2B
+	; FAC /= ARG
+	; [do not use, used by BASIC]
+	jmp bfdivt ; $BB12
+	; FAC = ARG^FAC
+	; [do not use, used by BASIC]
+	jmp bfpwrt ; $BF7B
+	; [do not use, used by BASIC]
+	jmp floatb ; $BC4F
+	; [do not use, used by BASIC]
+	jmp fcompn ; $BC5D
+.else
+.export bfaddt
+.export bfmultt
+.export bfdivt
+.export bfpwrt
+.export floatb
+.export fcompn
 .endif
