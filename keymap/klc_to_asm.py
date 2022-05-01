@@ -24,7 +24,7 @@ def get_kbd_layout(base_filename, load_patch = False):
 	else:
 		lines_changes = []
 	
-	keywords = [ 'KBD', 'COPYRIGHT', 'COMPANY', 'LOCALENAME', 'LOCALEID', 'VERSION', 'SHIFTSTATE', 'LAYOUT', 'DEADKEY', 'KEYNAME', 'KEYNAME_EXT', 'KEYNAME_DEAD', 'DESCRIPTIONS', 'LANGUAGENAMES', 'ENDKBD' ]
+	keywords = [ 'KBD', 'COPYRIGHT', 'COMPANY', 'LOCALENAME', 'LOCALEID', 'VERSION', 'SHIFTSTATE', 'LAYOUT', 'DEADKEY', 'LIGATURE', 'KEYNAME', 'KEYNAME_EXT', 'KEYNAME_DEAD', 'DESCRIPTIONS', 'LANGUAGENAMES', 'ENDKBD' ]
 	
 	sections = []
 	section = []
@@ -103,14 +103,16 @@ def get_kbd_layout(base_filename, load_patch = False):
 					if i > len(fields) - 1:
 						break
 					c = fields[i]
-					if c != '-1':
+					# TODO: '@' suffix -> dead key
+					if c[-1] == '@':
+						c = c[:-1]
+					if c != '-1' and c != '%%':
 						if len(c) > 1:
 							c = chr(int(c[0:4], 16))
 						chars[shiftstate] = c
 						if (line_number < len(lines[1:])):
 							all_originally_reachable_characters += c
 					i += 1
-				# TODO: c[4] == '@' -> dead key
 				if fields[2] == 'SGCap':
 					cap = -1
 				else:
@@ -124,6 +126,9 @@ def get_kbd_layout(base_filename, load_patch = False):
 			kbd_layout['layout'] = layout
 			kbd_layout['all_originally_reachable_characters'] = ''.join(sorted(all_originally_reachable_characters))
 		elif fields[0] == 'DEADKEY':
+			# TODO
+			pass
+		elif fields[0] == 'LIGATURE':
 			# TODO
 			pass	
 		elif fields[0] == 'KEYNAME':
