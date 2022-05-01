@@ -46,13 +46,24 @@ kbdtab:;XXX remove
 
 .segment "KEYMAP"
 keymap_data:
-unshft:	.res 128
-shift:	.res 128
-ctrl:	.res 128
-alt:	.res 128
-altgr:	.res 128
+; PETSCII
+	.res 128 ; unshifted
+	.res 128 ; shift
+	.res 128 ; ctrl
+	.res 128 ; alt
+	.res 128 ; altgr
+pettab_len = * - keymap_data
+; ISO
+	.res 128 ; unshifted
+	.res 128 ; shift
+	.res 128 ; ctrl
+	.res 128 ; alt
+	.res 128 ; altgr
+
 caps:	.res 16
-keymap_len = * - keymap_data ; 5 * $80 + $10 = $290
+kbdnam2:
+	.res 6
+keymap_len = * - keymap_data ; 10 * $80 + $10 + 6 = $516
 
 .segment "PS2KBD"
 
@@ -84,26 +95,12 @@ _kbd_config:
 	lda curkbd
 :	pha
 
-; get PET vs. ISO pointer
-	ldy #0
-	bit mode
-	bvc :+
-	ldy #2
-:	lda #<$c000
+	lda #<$c000
 	sta tmp2
 	lda #>$c000
 	sta tmp2+1
 	lda #tmp2
 	sta fetvec
-	ldx #BANK_KEYBD
-	jsr fetch
-	pha
-	iny
-	ldx #BANK_KEYBD
-	jsr fetch
-	sta tmp2+1
-	pla
-	sta tmp2
 
 ; get keymap
 	pla
@@ -243,8 +240,9 @@ _keymap:
 
 _kbd_scan:
 	jsr receive_down_scancode_no_modifiers
-	beq drv_end
-
+	bne :+
+	rts
+:
 	tay
 
 	cpx #0
@@ -293,7 +291,16 @@ bit_found:
 	lda #0
 	ror
 	sta ckbtab
-	lda (ckbtab),y
+	bit mode
+	bvc :+
+@xxx:	lda ckbtab
+	clc
+	adc #<pettab_len
+	sta ckbtab
+	lda ckbtab+1
+	adc #>pettab_len
+	sta ckbtab+1
+:	lda (ckbtab),y
 	beq drv_end
 	jmp kbdbuf_put
 

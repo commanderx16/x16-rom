@@ -8,14 +8,8 @@
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
 ; '¤¨'
 
-.segment "IKBDMETA"
+.segment "KBDTABLES"
 
-	.byte "FR", 0, 0, 0, 0
-	.word ikbtab_40c
-
-.segment "IKBDTABLES"
-
-ikbtab_40c:
 ; Unshifted
 	.byte $00,$10,$88,$87,$86,$85,$89,$17
 	.byte $00,$15,$8c,$8b,$8a,$09,$b2,$00

@@ -515,32 +515,27 @@ if len(unicode_not_reachable) > 0:
 	
 print()
 
-if iso_mode:
-	print('.segment "IKBDMETA"\n')
-	prefix = 'i'
-else:
+if not iso_mode:
 	print('.segment "KBDMETA"\n')
 	prefix = ''
-locale1 = kbd_layout['localename'][0:2].upper()
-locale2 = kbd_layout['localename'][3:5].upper()
-if locale1 != locale2:
-	locale1 = kbd_layout['localename'].upper()
-if len(kbd_layout['localename']) != 5:
-	sys.exit("unknown locale format: " + kbd_layout['localename'])
-print('\t.byte "' + locale1 + '"', end = '')
-for i in range(0, 6 - len(locale1)):
-	print(", 0", end = '')
-print()
-print("\t.word {}kbtab_{}".format(prefix, kbd_id))
-print()
+	locale1 = kbd_layout['localename'][0:2].upper()
+	locale2 = kbd_layout['localename'][3:5].upper()
+	if locale1 != locale2:
+		locale1 = kbd_layout['localename'].upper()
+	if len(kbd_layout['localename']) != 5:
+		sys.exit("unknown locale format: " + kbd_layout['localename'])
+	print('\t.byte "' + locale1 + '"', end = '')
+	for i in range(0, 6 - len(locale1)):
+		print(", 0", end = '')
+	print()
+	print("\t.word {}kbtab_{}".format(prefix, kbd_id))
+	print()
 
 
-if iso_mode:
-	print('.segment "IKBDTABLES"\n')
-else:
-	print('.segment "KBDTABLES"\n')
+print('.segment "KBDTABLES"\n')
 
-print("{}kbtab_{}:".format(prefix, kbd_id))
+if not iso_mode:
+	print("kbtab_{}:".format(kbd_id))
 
 for shiftstate in [REG, SHFT, ALT, CTRL, ALTGR]:
 	if shiftstate == 0:
@@ -575,15 +570,16 @@ for shiftstate in [REG, SHFT, ALT, CTRL, ALTGR]:
 			print(',', end = '')
 	print()
 
-print("; bit field: for which codes CAPS means SHIFT; big endian")
-for ibyte in range(0, 16):
-	byte = 0
-	for ibit in range(0, 8):
-		scancode = ibyte << 3 | ibit
-		if scancode in capstab:
-			caps = capstab[scancode] > 0
-		else:
-			caps = False
-		byte = byte | (caps << (7-ibit))
-	print("\t.byte %" + format(byte, '08b'))
+if iso_mode:
+	print("; bit field: for which codes CAPS means SHIFT; big endian")
+	for ibyte in range(0, 16):
+		byte = 0
+		for ibit in range(0, 8):
+			scancode = ibyte << 3 | ibit
+			if scancode in capstab:
+				caps = capstab[scancode] > 0
+			else:
+				caps = False
+			byte = byte | (caps << (7-ibit))
+		print("\t.byte %" + format(byte, '08b'))
 

@@ -6,14 +6,8 @@
 ; chars: 'π'
 ; graph: '\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf'
 
-.segment "IKBDMETA"
+.segment "KBDTABLES"
 
-	.byte "EN-US", 0
-	.word ikbtab_409
-
-.segment "IKBDTABLES"
-
-ikbtab_409:
 ; Unshifted
 	.byte $00,$10,$88,$87,$86,$85,$89,$17
 	.byte $00,$15,$8c,$8b,$8a,$09,'`',$00
