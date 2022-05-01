@@ -39,7 +39,6 @@ ckbtab:	.res 2           ;    used for keyboard lookup
 prefix:	.res 1           ;    PS/2: prefix code (e0/e1)
 brkflg:	.res 1           ;    PS/2: was key-up event
 curkbd:	.res 1           ;    current keyboard layout index
-	.res 16 ; XXX unused
 
 .segment "KEYMAP"
 keymap_data:
@@ -211,15 +210,26 @@ _keymap:
 	pha
 	lda #0
 @l1:	pha
+	ldx ckbtab
+	ldy ckbtab+1
+	phx
+	phy
 	jsr _kbd_config
 	bne @nend
 	pla             ;not found
+	pla
+	pla
 	pla
 	jsr _kbd_config ;restore original keymap
 	plp
 	sec
 	rts
-@nend:	ldy #0
+@nend:
+	ply
+	plx
+	sty ckbtab+1
+	stx ckbtab
+	ldy #0
 @l2:	lda (ckbtab),y
 	cmp kbdnam,y
 	beq @ok
