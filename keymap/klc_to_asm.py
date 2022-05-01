@@ -587,4 +587,11 @@ for ibyte in range(0, 16):
 			caps = False
 		byte = byte | (caps << (7-ibit))
 	print("\t.byte %" + format(byte, '08b'))
+print()
 
+print(";****************************************")
+print("; locale")
+print('\t.byte "' + locale1 + '"', end = '')
+for i in range(0, 6 - len(locale1)):
+	print(", 0", end = '')
+print()
