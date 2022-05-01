@@ -1,3 +1,4 @@
+IO_PAGE = $9f
 
 VERA_BASE = $9F20
 

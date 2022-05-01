@@ -4,6 +4,7 @@
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
 .include "regs.inc"
+.include "io.inc"
 .include "mac.inc"
 
 .export memory_fill
@@ -11,8 +12,6 @@
 .export memory_crc
 
 .segment "MEMORY"
-
-IO_PAGE = $9f
 
 ;---------------------------------------------------------------
 ; memory_fill
