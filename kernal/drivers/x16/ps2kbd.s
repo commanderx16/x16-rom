@@ -39,8 +39,27 @@ ckbtab:	.res 2           ;    used for keyboard lookup
 prefix:	.res 1           ;    PS/2: prefix code (e0/e1)
 brkflg:	.res 1           ;    PS/2: was key-up event
 curkbd:	.res 1           ;    current keyboard layout index
-kbdnam:	.res 6           ;    keyboard layout name
-kbdtab:	.res 10          ;    pointers to shift/alt/ctrl/altgr/unshifted tables
+
+.segment "KEYMAP"
+keymap_data:
+; PETSCII
+	.res 128 ; unshifted
+	.res 128 ; shift
+	.res 128 ; ctrl
+	.res 128 ; alt
+	.res 128 ; altgr
+pettab_len = * - keymap_data
+; ISO
+	.res 128 ; unshifted
+	.res 128 ; shift
+	.res 128 ; ctrl
+	.res 128 ; alt
+	.res 128 ; altgr
+
+caps:	.res 16 ; for which keys caps means shift
+kbdnam:
+	.res 6
+keymap_len = * - keymap_data ; 10 * $80 + $10 + 6 = $516
 
 .segment "PS2KBD"
 
@@ -72,17 +91,38 @@ _kbd_config:
 	lda curkbd
 :	pha
 
-	bit mode
-	bvs setkb0      ;ISO
-	ldy #0
-	bra setkb3
-setkb0:	ldy #2
-setkb3:	lda #<$c000
+	lda #<$c000
 	sta tmp2
 	lda #>$c000
 	sta tmp2+1
 	lda #tmp2
 	sta fetvec
+
+; get keymap
+	pla
+	sta curkbd
+	asl
+	asl
+	asl             ;*8
+	tay
+	ldx #BANK_KEYBD
+	jsr fetch
+	bne :+
+	sec             ;end of list
+	rts
+:
+; get name
+	ldx #0
+:	phx
+	ldx #BANK_KEYBD
+	jsr fetch
+	plx
+	sta kbdnam,x
+	inx
+	iny
+	cpx #6
+	bne :-
+; get address
 	ldx #BANK_KEYBD
 	jsr fetch
 	pha
@@ -93,28 +133,34 @@ setkb3:	lda #<$c000
 	pla
 	sta tmp2
 
-	pla
-	sta curkbd
-	asl
-	asl
-	asl
-	asl             ;*16
-	tay
-	ldx #BANK_KEYBD
+; copy into banked RAM
+	lda #<keymap_data
+	sta ckbtab
+	lda #>keymap_data
+	sta ckbtab+1
+	ldx #>(keymap_len+$ff)
+	ldy #0
+@l1:	phx
+@l2:	ldx #BANK_KEYBD
 	jsr fetch
-	bne :+
-	sec             ;end of list
-	rts
-:	ldx #0
-setkb1:	phx
-	ldx #BANK_KEYBD
-	jsr fetch
+	sta (ckbtab),y
 	plx
-	sta kbdnam,x    ;8 bytes kbnam, 8  bytes kbtab
-	inx
-	iny
-	cpx #16
-	bne setkb1
+	cpx #1 ; last bank?
+	phx
+	bne :+
+	cpy #(<keymap_len)-1
+	bne :+
+	plx
+	bra @end
+:	iny
+	bne @l2
+	inc tmp2+1
+	inc ckbtab+1
+	plx
+	dex
+	bne @l1
+@end:
+
 	jsr joystick_from_ps2_init
 	clc             ;ok
 	rts
@@ -164,15 +210,26 @@ _keymap:
 	pha
 	lda #0
 @l1:	pha
+	ldx ckbtab
+	ldy ckbtab+1
+	phx
+	phy
 	jsr _kbd_config
 	bne @nend
 	pla             ;not found
+	pla
+	pla
 	pla
 	jsr _kbd_config ;restore original keymap
 	plp
 	sec
 	rts
-@nend:	ldy #0
+@nend:
+	ply
+	plx
+	sty ckbtab+1
+	stx ckbtab
+	ldy #0
 @l2:	lda (ckbtab),y
 	cmp kbdnam,y
 	beq @ok
@@ -190,8 +247,9 @@ _keymap:
 
 _kbd_scan:
 	jsr receive_down_scancode_no_modifiers
-	beq drv_end
-
+	bne :+
+	rts
+:
 	tay
 
 	cpx #0
@@ -209,30 +267,47 @@ not_f7:
 	cmp #$68
 	bcc not_numpad
 is_unshifted:
-	ldx #4 * 2
-	bne bit_found ; use unshifted table
+	ldx #0
+	bra bit_found ; use unshifted table
 
 not_numpad:
-	ldx #0
 	lda shflag
 	cmp #MODIFIER_ALTGR
 	bne naltgr
-	ldx #3 * 2
-	bne bit_found ; use AltGr table
+	ldx #4
+	bra bit_found ; use AltGr table
 naltgr:
 	cmp #MODIFIER_CAPS
 	beq handle_caps
 
-find_bit:
-	lsr
+	ldx #1
+:	lsr
 	bcs bit_found
 	inx
-	inx
-	cpx #4 * 2
-	bne find_bit
-
+	cpx #4
+	bne :-
+	ldx #0
 bit_found:
-	jsr fetch_kbd
+.assert keymap_data = $a000, error; so we can ORA instead of ADC and carry
+	txa
+	lsr
+	php
+	ora #>keymap_data
+	sta ckbtab+1
+	plp
+	lda #0
+	ror
+	sta ckbtab
+	bit mode
+	bvc :+
+	lda ckbtab
+	clc
+	adc #<pettab_len
+	sta ckbtab
+	lda ckbtab+1
+	adc #>pettab_len
+	sta ckbtab+1
+:	lda (ckbtab),y
 	beq drv_end
 	jmp kbdbuf_put
 
@@ -286,22 +361,10 @@ kbdbuf_put2:
 
 ; The caps table has one bit per scancode, indicating whether
 ; caps + the key should use the shifted or the unshifted table.
-; It's located at the unshifted table + $80.
 handle_caps:
-	lda prefix ; reuse it as temp
-	pha
 	phy ; scancode
+
 	tya
-	pha
-	lsr
-	lsr
-	lsr
-	ora #$80
-	tay
-	ldx #4 * 2
-	jsr fetch_kbd
-	tax
-	pla ; scancode
 	and #7
 	tay
 	lda #$80
@@ -310,26 +373,21 @@ handle_caps:
 	lsr
 	dey
 	bra :-
-:	sta prefix
+:	tax
+
+	pla ; scancode
+	pha
+	lsr
+	lsr
+	lsr
+	tay
 	txa
 	ldx #0
-	ply
-	and prefix
-	bne :+
-	ldx #4 * 2
-:	pla
-	sta prefix
+	and caps,y
+	beq :+
+	inx
+:	ply ; scancode
 	jmp bit_found
-
-fetch_kbd:
-	lda kbdtab,x
-	sta ckbtab
-	lda kbdtab + 1,x
-	sta ckbtab + 1
-	ldx #BANK_KEYBD
-	lda #ckbtab
-	sta fetvec
-	jmp fetch
 
 ;****************************************
 ; RECEIVE SCANCODE:

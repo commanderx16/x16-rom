@@ -18,6 +18,7 @@ SEGMENTS {
 
 	GDRVVEC:    load = GDRVVEC,  type = bss;
 	KVECTORS:   load = KVECTORS, type = bss;
+	KEYMAP:     load = KEYMAP,   type = bss;
 	KVARSB0:    load = KVARSB0,  type = bss, define=yes;
 	
 	EDITOR:   load = KERNAL,   type = ro;

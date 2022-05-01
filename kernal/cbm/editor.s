@@ -703,8 +703,6 @@ isooff
 	lda mode
 	and #$ff-$40
 isosto	sta mode
-	lda #$ff
-	jsr kbd_config  ;reload keymap
 	jsr clsr        ;clear screen
 	jmp loop2
 

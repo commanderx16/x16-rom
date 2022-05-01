@@ -7,8 +7,6 @@ CTRL  = 2
 ALT   = 4
 ALTGR = 6
 
-COMPRESSED_OUTPUT=1
-
 def get_kbd_layout(base_filename, load_patch = False):
 	filename_klc = base_filename
 	filename_changes = base_filename + 'patch'
@@ -283,308 +281,303 @@ all_petscii_codes_ok_if_missing = [
 	chr(0x9d), # CURSOR_LEFT  - covered by cursor keys
 ]
 
-if len(sys.argv) >= 3 and sys.argv[2] == '-iso':
-	iso_mode = True
-else:
-	iso_mode = False
+for iso_mode in [False, True]:
+	load_patch = not iso_mode
+	kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
 
-load_patch = not iso_mode
-kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
+	layout = kbd_layout['layout']
+	shiftstates = kbd_layout['shiftstates']
 
-layout = kbd_layout['layout']
-shiftstates = kbd_layout['shiftstates']
+	keytab = {}
+	capstab = {}
+	for shiftstate in shiftstates:
+		keytab[shiftstate] = [ '\0' ] * 128
+	# some layouts don't define Alt at all
+	if not ALT in keytab:
+		keytab[ALT] = [ '\0' ] * 128
 
-keytab = {}
-capstab = {}
-for shiftstate in shiftstates:
-	keytab[shiftstate] = [ '\0' ] * 128
-# some layouts don't define Alt at all
-if not ALT in keytab:
-	keytab[ALT] = [ '\0' ] * 128
+	# create PS/2 Code 2 -> PETSCII tables, capstab
+	for hid_scancode in layout.keys():
+		ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
+		l = layout[hid_scancode]['chars']
+		capstab[ps2_scancode] = layout[hid_scancode]['cap'];
+		for shiftstate in keytab.keys():
+			if shiftstate in l:
+				c_unicode = l[shiftstate]
+				if iso_mode:
+					keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
+				else:
+					keytab[shiftstate][ps2_scancode] = petscii_from_unicode(c_unicode)
 
-# create PS/2 Code 2 -> PETSCII tables, capstab
-for hid_scancode in layout.keys():
-	ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
-	l = layout[hid_scancode]['chars']
-	capstab[ps2_scancode] = layout[hid_scancode]['cap'];
+	# stamp in f-keys and numpad keys independent of shiftstate
 	for shiftstate in keytab.keys():
-		if shiftstate in l:
-			c_unicode = l[shiftstate]
-			if iso_mode:
-				keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
-			else:
-				keytab[shiftstate][ps2_scancode] = petscii_from_unicode(c_unicode)
+		keytab[shiftstate][5]    = chr(0x85) # f1
+		keytab[shiftstate][6]    = chr(0x89) # f2
+		keytab[shiftstate][4]    = chr(0x86) # f3
+		keytab[shiftstate][12]   = chr(0x8a) # f4
+		keytab[shiftstate][3]    = chr(0x87) # f5
+		keytab[shiftstate][11]   = chr(0x8b) # f6
+		keytab[shiftstate][2]    = chr(0x88) # f7
+		keytab[shiftstate][10]   = chr(0x8c) # f8
 
-# stamp in f-keys and numpad keys independent of shiftstate
-for shiftstate in keytab.keys():
-	keytab[shiftstate][5]    = chr(0x85) # f1
-	keytab[shiftstate][6]    = chr(0x89) # f2
-	keytab[shiftstate][4]    = chr(0x86) # f3
-	keytab[shiftstate][12]   = chr(0x8a) # f4
-	keytab[shiftstate][3]    = chr(0x87) # f5
-	keytab[shiftstate][11]   = chr(0x8b) # f6
-	keytab[shiftstate][2]    = chr(0x88) # f7
-	keytab[shiftstate][10]   = chr(0x8c) # f8
+		# C128 addition
+		keytab[shiftstate][0x76] = chr(0x1b) # Esc
 
-	# C128 addition
-	keytab[shiftstate][0x76] = chr(0x1b) # Esc
+		# C65 additions
+		keytab[shiftstate][1]    = chr(0x10) # f9
+		keytab[shiftstate][9]    = chr(0x15) # f10
+		keytab[shiftstate][0x78] = chr(0x16) # f11
+		keytab[shiftstate][7]    = chr(0x17) # f12
 
-	# C65 additions
-	keytab[shiftstate][1]    = chr(0x10) # f9
-	keytab[shiftstate][9]    = chr(0x15) # f10
-	keytab[shiftstate][0x78] = chr(0x16) # f11
-	keytab[shiftstate][7]    = chr(0x17) # f12
+		# numpad
+		keytab[shiftstate][0x70] = '0'
+		keytab[shiftstate][0x69] = '1'
+		keytab[shiftstate][0x72] = '2'
+		keytab[shiftstate][0x7a] = '3'
+		keytab[shiftstate][0x6b] = '4'
+		keytab[shiftstate][0x73] = '5'
+		keytab[shiftstate][0x74] = '6'
+		keytab[shiftstate][0x6c] = '7'
+		keytab[shiftstate][0x75] = '8'
+		keytab[shiftstate][0x7d] = '9'
+		keytab[shiftstate][0x7c] = '*'
+		keytab[shiftstate][0x7b] = '-'
+		keytab[shiftstate][0x79] = '+'
+		keytab[shiftstate][0x71] = '.'
 
-	# numpad
-	keytab[shiftstate][0x70] = '0'
-	keytab[shiftstate][0x69] = '1'
-	keytab[shiftstate][0x72] = '2'
-	keytab[shiftstate][0x7a] = '3'
-	keytab[shiftstate][0x6b] = '4'
-	keytab[shiftstate][0x73] = '5'
-	keytab[shiftstate][0x74] = '6'
-	keytab[shiftstate][0x6c] = '7'
-	keytab[shiftstate][0x75] = '8'
-	keytab[shiftstate][0x7d] = '9'
-	keytab[shiftstate][0x7c] = '*'
-	keytab[shiftstate][0x7b] = '-'
-	keytab[shiftstate][0x79] = '+'
-	keytab[shiftstate][0x71] = '.'
-
-# stamp in Ctrl/Alt color codes
-petscii_from_ctrl_scancode = [ # Ctrl
-	(0x16, 0x90), # '1'
-	(0x1e, 0x05), # '2'
-	(0x26, 0x1c), # '3'
-	(0x25, 0x9f), # '4'
-	(0x2e, 0x9c), # '5'
-	(0x36, 0x1e), # '6'
-	(0x3d, 0x1f), # '7'
-	(0x3e, 0x9e), # '8'
-	(0x46, 0x12), # '9' REVERSE ON
-	(0x45, 0x92), # '0' REVERSE OFF
-]
-petscii_from_alt_scancode = [ # Alt
-	(0x16, 0x81), # '1'
-	(0x1e, 0x95), # '2'
-	(0x26, 0x96), # '3'
-	(0x25, 0x97), # '4'
-	(0x2e, 0x98), # '5'
-	(0x36, 0x99), # '6'
-	(0x3d, 0x9a), # '7'
-	(0x3e, 0x9b), # '8'
-]
-for (scancode, petscii) in petscii_from_ctrl_scancode:
-	if keytab[CTRL][scancode] == chr(0): # only if unassigned
-		keytab[CTRL][scancode] = chr(petscii)
-for (scancode, petscii) in petscii_from_alt_scancode:
-	if keytab[ALT][scancode] == chr(0): # only if unassigned
-		keytab[ALT][scancode] = chr(petscii)
-
-# stamp in Alt graphic characters
-if not iso_mode:
-	petscii_from_alt_scancode = [
-		(0x1c, 0xb0), # 'A'
-		(0x32, 0xbf), # 'B'
-		(0x21, 0xbc), # 'C'
-		(0x23, 0xac), # 'D'
-		(0x24, 0xb1), # 'E'
-		(0x2b, 0xbb), # 'F'
-		(0x34, 0xa5), # 'G'
-		(0x33, 0xb4), # 'H'
-		(0x43, 0xa2), # 'I'
-		(0x3b, 0xb5), # 'J'
-		(0x42, 0xa1), # 'K'
-		(0x4b, 0xb6), # 'L'
-		(0x3a, 0xa7), # 'M'
-		(0x31, 0xaa), # 'N'
-		(0x44, 0xb9), # 'O'
-		(0x4d, 0xaf), # 'P'
-		(0x15, 0xab), # 'Q'
-		(0x2d, 0xb2), # 'R'
-		(0x1b, 0xae), # 'S'
-		(0x2c, 0xa3), # 'T'
-		(0x3c, 0xb8), # 'U'
-		(0x2a, 0xbe), # 'V'
-		(0x1d, 0xb3), # 'W'
-		(0x22, 0xbd), # 'X'
-		(0x35, 0xb7), # 'Y'
-		(0x1a, 0xad), # 'Z'
+	# stamp in Ctrl/Alt color codes
+	petscii_from_ctrl_scancode = [ # Ctrl
+		(0x16, 0x90), # '1'
+		(0x1e, 0x05), # '2'
+		(0x26, 0x1c), # '3'
+		(0x25, 0x9f), # '4'
+		(0x2e, 0x9c), # '5'
+		(0x36, 0x1e), # '6'
+		(0x3d, 0x1f), # '7'
+		(0x3e, 0x9e), # '8'
+		(0x46, 0x12), # '9' REVERSE ON
+		(0x45, 0x92), # '0' REVERSE OFF
 	]
+	petscii_from_alt_scancode = [ # Alt
+		(0x16, 0x81), # '1'
+		(0x1e, 0x95), # '2'
+		(0x26, 0x96), # '3'
+		(0x25, 0x97), # '4'
+		(0x2e, 0x98), # '5'
+		(0x36, 0x99), # '6'
+		(0x3d, 0x9a), # '7'
+		(0x3e, 0x9b), # '8'
+	]
+	for (scancode, petscii) in petscii_from_ctrl_scancode:
+		if keytab[CTRL][scancode] == chr(0): # only if unassigned
+			keytab[CTRL][scancode] = chr(petscii)
 	for (scancode, petscii) in petscii_from_alt_scancode:
 		if keytab[ALT][scancode] == chr(0): # only if unassigned
 			keytab[ALT][scancode] = chr(petscii)
 
-# generate Ctrl codes for A-Z
-for i in range(0, len(keytab[REG])):
-	c = keytab[REG][i]
-	if iso_mode and ord(c) >= ord('a') and ord(c) <= ord('z'):
-		c = chr(ord(c) - ord('a') + 1)
-	elif not iso_mode and ord(c) >= ord('A') and ord(c) <= ord('Z'):
-		c = chr(ord(c) - ord('A') + 1)
-	else:
-		c = None
-		
-	if c and keytab[CTRL][i] == chr(0): # only if unassigned
-		keytab[CTRL][i] = c
+	# stamp in Alt graphic characters
+	if not iso_mode:
+		petscii_from_alt_scancode = [
+			(0x1c, 0xb0), # 'A'
+			(0x32, 0xbf), # 'B'
+			(0x21, 0xbc), # 'C'
+			(0x23, 0xac), # 'D'
+			(0x24, 0xb1), # 'E'
+			(0x2b, 0xbb), # 'F'
+			(0x34, 0xa5), # 'G'
+			(0x33, 0xb4), # 'H'
+			(0x43, 0xa2), # 'I'
+			(0x3b, 0xb5), # 'J'
+			(0x42, 0xa1), # 'K'
+			(0x4b, 0xb6), # 'L'
+			(0x3a, 0xa7), # 'M'
+			(0x31, 0xaa), # 'N'
+			(0x44, 0xb9), # 'O'
+			(0x4d, 0xaf), # 'P'
+			(0x15, 0xab), # 'Q'
+			(0x2d, 0xb2), # 'R'
+			(0x1b, 0xae), # 'S'
+			(0x2c, 0xa3), # 'T'
+			(0x3c, 0xb8), # 'U'
+			(0x2a, 0xbe), # 'V'
+			(0x1d, 0xb3), # 'W'
+			(0x22, 0xbd), # 'X'
+			(0x35, 0xb7), # 'Y'
+			(0x1a, 0xad), # 'Z'
+		]
+		for (scancode, petscii) in petscii_from_alt_scancode:
+			if keytab[ALT][scancode] == chr(0): # only if unassigned
+				keytab[ALT][scancode] = chr(petscii)
 
-# stamp in backspace and TAB
-for shiftstate in keytab.keys():
-	if shiftstate == 0:
-		keytab[shiftstate][0x66] = chr(0x14) # backspace
-		keytab[shiftstate][0x0d] = chr(0x09) # TAB
-		keytab[shiftstate][0x5a] = chr(0x0d) # CR
-		keytab[shiftstate][0x29] = chr(0x20) # SPACE
-	else:
-		keytab[shiftstate][0x66] = chr(0x94) # insert
-		keytab[shiftstate][0x0d] = chr(0x18) # shift-TAB
-		keytab[shiftstate][0x5a] = chr(0x8d) # shift-CR
-		keytab[shiftstate][0x29] = chr(0xA0) # shift-SPACE
-
-
-# analyze problems
-all_keytabs = keytab[REG] + keytab[SHFT] + keytab[CTRL] + keytab[ALT]
-if ALTGR in keytab:
-	all_keytabs += keytab[ALTGR]
-petscii_chars_not_reachable = ""
-for c in all_petscii_chars:
-	if not c in all_keytabs:
-		petscii_chars_not_reachable += unicode_from_petscii(c)
-
-petscii_codes_not_reachable = ""
-for c in all_petscii_codes:
-	if not c in all_keytabs:
-		if not c in all_petscii_codes_ok_if_missing:
-			petscii_codes_not_reachable += c
-
-petscii_graphs_not_reachable = ""
-for c in all_petscii_graphs:
-	if not c in all_keytabs:
-		petscii_graphs_not_reachable += c
-
-unicode_not_reachable = ""
-for c_unicode in kbd_layout['all_originally_reachable_characters']:
-	if iso_mode:
-		c_encoded = latin15_from_unicode(c_unicode)
-	else:
-		c_encoded = petscii_from_unicode(c_unicode)
-	if (c_encoded == chr(0) or not c_encoded in all_keytabs) and not c_unicode in unicode_not_reachable:
-		unicode_not_reachable += c_unicode
-
-petscii_chars_not_reachable = ''.join(sorted(petscii_chars_not_reachable))
-petscii_codes_not_reachable = ''.join(sorted(petscii_codes_not_reachable))
-petscii_graphs_not_reachable = ''.join(sorted(petscii_graphs_not_reachable))
-unicode_not_reachable = ''.join(sorted(unicode_not_reachable))
-
-# print
-
-name = kbd_layout['name'].replace(' - Custom', '')
-kbd_id = kbd_layout['short_id'].lower()
-
-print("; Name:   " + name)
-print("; Locale: " + kbd_layout['localename'])
-print("; KLID:   " + kbd_id)
-print(";")
-if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
-	print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
-	if len(petscii_chars_not_reachable) > 0:
-		print("; chars: " + pprint.pformat(petscii_chars_not_reachable))
-	if len(petscii_codes_not_reachable) > 0:
-		print("; codes: ", end = '')
-		for c in petscii_codes_not_reachable:
-			if ord(c) in control_codes:
-				print(control_codes[ord(c)] + ' ', end = '')
-			else:
-				print(hex(ord(c)) + ' ', end = '')
-		print()
-	if len(petscii_graphs_not_reachable) > 0:
-		print("; graph: '", end = '')
-		for c in petscii_graphs_not_reachable:
-			print("\\x{0:02x}".format(ord(c)), end = '')
-		print("'")
-if len(unicode_not_reachable) > 0:
-	if iso_mode:
-		print("; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:")
-	else:
-		print("; Unicode characters reachable with this layout on Windows but not covered by PETSCII:")
-	print("; '", end = '')
-	for c in unicode_not_reachable:
-		if ord(c) < 0x20:
-			print("\\x{0:02x}".format(ord(c)), end = '')
+	# generate Ctrl codes for A-Z
+	for i in range(0, len(keytab[REG])):
+		c = keytab[REG][i]
+		if iso_mode and ord(c) >= ord('a') and ord(c) <= ord('z'):
+			c = chr(ord(c) - ord('a') + 1)
+		elif not iso_mode and ord(c) >= ord('A') and ord(c) <= ord('Z'):
+			c = chr(ord(c) - ord('A') + 1)
 		else:
-			print(c, end = '')
-	print("'")
-	
-print()
+			c = None
 
-if iso_mode:
-	print('.segment "IKBDMETA"\n')
-	prefix = 'i'
-else:
-	print('.segment "KBDMETA"\n')
-	prefix = ''
-locale1 = kbd_layout['localename'][0:2].upper()
-locale2 = kbd_layout['localename'][3:5].upper()
-if locale1 != locale2:
-	locale1 = kbd_layout['localename'].upper()
-if len(kbd_layout['localename']) != 5:
-	sys.exit("unknown locale format: " + kbd_layout['localename'])
-print('\t.byte "' + locale1 + '"', end = '')
-for i in range(0, 6 - len(locale1)):
-	print(", 0", end = '')
-print()
-for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
-	if shiftstate == ALTGR and not ALTGR in keytab.keys():
-		print_shiftstate = ALT
-	else:
-		print_shiftstate = shiftstate
-	print("\t.word {}kbtab_{}_{}".format(prefix, kbd_id, print_shiftstate), end = '')
-	if shiftstate == REG:
+		if c and keytab[CTRL][i] == chr(0): # only if unassigned
+			keytab[CTRL][i] = c
+
+	# stamp in backspace and TAB
+	for shiftstate in keytab.keys():
+		if shiftstate == 0:
+			keytab[shiftstate][0x66] = chr(0x14) # backspace
+			keytab[shiftstate][0x0d] = chr(0x09) # TAB
+			keytab[shiftstate][0x5a] = chr(0x0d) # CR
+			keytab[shiftstate][0x29] = chr(0x20) # SPACE
+		else:
+			keytab[shiftstate][0x66] = chr(0x94) # insert
+			keytab[shiftstate][0x0d] = chr(0x18) # shift-TAB
+			keytab[shiftstate][0x5a] = chr(0x8d) # shift-CR
+			keytab[shiftstate][0x29] = chr(0xA0) # shift-SPACE
+
+
+	# analyze problems
+	all_keytabs = keytab[REG] + keytab[SHFT] + keytab[CTRL] + keytab[ALT]
+	if ALTGR in keytab:
+		all_keytabs += keytab[ALTGR]
+	petscii_chars_not_reachable = ""
+	for c in all_petscii_chars:
+		if not c in all_keytabs:
+			petscii_chars_not_reachable += unicode_from_petscii(c)
+
+	petscii_codes_not_reachable = ""
+	for c in all_petscii_codes:
+		if not c in all_keytabs:
+			if not c in all_petscii_codes_ok_if_missing:
+				petscii_codes_not_reachable += c
+
+	petscii_graphs_not_reachable = ""
+	for c in all_petscii_graphs:
+		if not c in all_keytabs:
+			petscii_graphs_not_reachable += c
+
+	unicode_not_reachable = ""
+	for c_unicode in kbd_layout['all_originally_reachable_characters']:
+		if iso_mode:
+			c_encoded = latin15_from_unicode(c_unicode)
+		else:
+			c_encoded = petscii_from_unicode(c_unicode)
+		if (c_encoded == chr(0) or not c_encoded in all_keytabs) and not c_unicode in unicode_not_reachable:
+			unicode_not_reachable += c_unicode
+
+	petscii_chars_not_reachable = ''.join(sorted(petscii_chars_not_reachable))
+	petscii_codes_not_reachable = ''.join(sorted(petscii_codes_not_reachable))
+	petscii_graphs_not_reachable = ''.join(sorted(petscii_graphs_not_reachable))
+	unicode_not_reachable = ''.join(sorted(unicode_not_reachable))
+
+	# print
+
+	name = kbd_layout['name'].replace(' - Custom', '')
+	kbd_id = kbd_layout['short_id'].lower()
+
+	if not iso_mode:
+		print("; Commander X16 PETSCII/ISO Keyboard Table")
+		print("; ***this file is auto-generated!***")
+		print(";")
+		print("; Name:   " + name)
+		print("; Locale: " + kbd_layout['localename'])
+		print("; KLID:   " + kbd_id)
 		print()
-	else:
-		print("-13")
-print()
 
+		print('.segment "KBDMETA"\n')
+		prefix = ''
+		locale1 = kbd_layout['localename'][0:2].upper()
+		locale2 = kbd_layout['localename'][3:5].upper()
+		if locale1 != locale2:
+			locale1 = kbd_layout['localename'].upper()
+		if len(kbd_layout['localename']) != 5:
+			sys.exit("unknown locale format: " + kbd_layout['localename'])
+		print('\t.byte "' + locale1 + '"', end = '')
+		for i in range(0, 6 - len(locale1)):
+			print(", 0", end = '')
+		print()
+		print("\t.word {}kbtab_{}".format(prefix, kbd_id))
+		print()
 
-if iso_mode:
-	print('.segment "IKBDTABLES"\n')
-else:
-	print('.segment "KBDTABLES"\n')
+		print('.segment "KBDTABLES"\n')
+		print("kbtab_{}:".format(kbd_id))
+		print()
 
-for shiftstate in [SHFT, ALT, CTRL, ALTGR, REG]:
-	if shiftstate == ALTGR and not ALTGR in keytab.keys():
-		continue
-	print("{}kbtab_{}_{}: ; ".format(prefix, kbd_id, shiftstate), end = '')
-	if shiftstate == 0:
-		print('Unshifted', end='')
-	if shiftstate & 1:
-		print('Shft ', end='')
-	if shiftstate & 6 == 6:
-		print('AltGr ', end='')
+	if iso_mode:
+		print(";****************************************")
+		print(";* ISO                                  *")
+		print(";****************************************")
 	else:
-		if shiftstate & 2:
-			print('Ctrl ', end='')
-		if shiftstate & 4:
-			print('Alt ', end='')
-	if COMPRESSED_OUTPUT == 1 and shiftstate != REG:
-		start = 13
-		end = 104
-	else:
-		start = 0
-		end = 128
-	for i in range(start, end):
-		if i == start or i & 7 == 0:
+		print(";****************************************")
+		print(";* PETSCII                              *")
+		print(";****************************************")
+	if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
+		print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
+		if len(petscii_chars_not_reachable) > 0:
+			print("; chars: " + pprint.pformat(petscii_chars_not_reachable))
+		if len(petscii_codes_not_reachable) > 0:
+			print("; codes: ", end = '')
+			for c in petscii_codes_not_reachable:
+				if ord(c) in control_codes:
+					print(control_codes[ord(c)] + ' ', end = '')
+				else:
+					print(hex(ord(c)) + ' ', end = '')
 			print()
-			print('\t.byte ', end='')
-		c = keytab[shiftstate][i]
-		if ord(c) >= 0x20 and ord(c) <= 0x7e:
-			print("'{}'".format(c), end = '')
+		if len(petscii_graphs_not_reachable) > 0:
+			print("; graph: '", end = '')
+			for c in petscii_graphs_not_reachable:
+				print("\\x{0:02x}".format(ord(c)), end = '')
+			print("'")
+	if len(unicode_not_reachable) > 0:
+		if iso_mode:
+			print("; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:")
 		else:
-			print("${:02x}".format(ord(c)), end = '')
-		if i & 7 != 7:
-			print(',', end = '')
+			print("; Unicode characters reachable with this layout on Windows but not covered by PETSCII:")
+		print("; '", end = '')
+		for c in unicode_not_reachable:
+			if ord(c) < 0x20:
+				print("\\x{0:02x}".format(ord(c)), end = '')
+			else:
+				print(c, end = '')
+		print("'")
+
 	print()
 
+	for shiftstate in [REG, SHFT, ALT, CTRL, ALTGR]:
+		if shiftstate == 0:
+			print('; Unshifted', end='')
+		if shiftstate & 1:
+			print('; Shft ', end='')
+		if shiftstate & 6 == 6:
+			print('; AltGr ', end='')
+		else:
+			if shiftstate & 2:
+				print('; Ctrl ', end='')
+			if shiftstate & 4:
+				print('; Alt ', end='')
+
+		if shiftstate == ALTGR and not ALTGR in keytab.keys():
+			shiftstate2 = ALT
+		else:
+			shiftstate2 = shiftstate
+
+		start = 0
+		end = 128
+		for i in range(start, end):
+			if i == start or i & 7 == 0:
+				print()
+				print('\t.byte ', end='')
+			c = keytab[shiftstate2][i]
+			if ord(c) >= 0x20 and ord(c) <= 0x7e:
+				print("'{}'".format(c), end = '')
+			else:
+				print("${:02x}".format(ord(c)), end = '')
+			if i & 7 != 7:
+				print(',', end = '')
+		print()
+		print()
+
+print(";****************************************")
 print("; bit field: for which codes CAPS means SHIFT; big endian")
 for ibyte in range(0, 16):
 	byte = 0
@@ -596,4 +589,11 @@ for ibyte in range(0, 16):
 			caps = False
 		byte = byte | (caps << (7-ibit))
 	print("\t.byte %" + format(byte, '08b'))
+print()
 
+print(";****************************************")
+print("; locale")
+print('\t.byte "' + locale1 + '"', end = '')
+for i in range(0, 6 - len(locale1)):
+	print(", 0", end = '')
+print()
