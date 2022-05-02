@@ -143,7 +143,7 @@ clean:
 	rm -f $(CX_OBJS)
 	rm -f test/*.o test/*.l
 
-$(BUILD_DIR)/codex.bin: $(CX_SRCS) $(CX_INCS) $(CX_OBJS) $(KSUP_VECS) $(CFG_DIR)/codex-x16.cfg cx
+$(BUILD_DIR)/codex.bin: $(CX_SRCS) $(CX_INCS) $(CX_OBJS) $(KSUP_VECS) $(CFG_DIR)/codex-x16.cfg
 	ld65 --config $(CFG_DIR)/codex-x16.cfg --mapfile $(BUILD_DIR)/codex.map -Ln $(BUILD_DIR)/codex.sym -o $(BUILD_DIR)/codex.bin $(CX_OBJS) $(KSUP_VECS)
 
 cx-dc: $(CX_DC_SRCS) $(CX_INCS) $(CX_DC_OBJS) $(PLUGIN_OBJS) $(CFG_SUBDIR)/cx-plugin.cfg
