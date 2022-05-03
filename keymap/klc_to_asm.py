@@ -286,10 +286,11 @@ all_petscii_codes_ok_if_missing = [
 	chr(0x9d), # CURSOR_LEFT  - covered by cursor keys
 ]
 
+table_count = 0
 for iso_mode in [False, True]:
 	load_patch = not iso_mode
 	kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
-	pprint.pprint(kbd_layout)
+	#pprint.pprint(kbd_layout)
 
 	layout = kbd_layout['layout']
 	shiftstates = kbd_layout['shiftstates']
@@ -318,11 +319,11 @@ for iso_mode in [False, True]:
 	for shiftstate in shiftstates:
 		if not shiftstate in [REG, SHFT, ALT, CTRL]:
 			if keytab[shiftstate] == [ '\0' ] * 128:
-				print("EMPTY", shiftstate)
+				print("; EMPTY", shiftstate)
 				del keytab[shiftstate]
 				shiftstates.remove(shiftstate)
 
-	pprint.pprint(keytab)
+	#pprint.pprint(keytab)
 
 	# stamp in f-keys and numpad keys independent of shiftstate
 	for shiftstate in keytab.keys():
@@ -559,7 +560,14 @@ for iso_mode in [False, True]:
 	print()
 
 	for shiftstate in shiftstates: #[REG, SHFT, ALT, CTRL, ALTGR]:
-		print('; {}: '.format(shiftstate), end='')
+		if shiftstate == ALT and iso_mode:
+			continue # Alt in ISO is the same as unshifted
+
+		print('\t.byte ${:02x} ; '.format(shiftstate | iso_mode << 7), end='')
+		if (iso_mode):
+			print('(ISO) ', end='')
+		else:
+			print('(PETSCII) ', end='')
 		if shiftstate == 0:
 			print('Unshifted', end='')
 		if shiftstate & 1:
@@ -568,20 +576,23 @@ for iso_mode in [False, True]:
 			print('Ctrl ', end='')
 		if shiftstate & 4:
 			print('Alt ', end='')
-
 		start = 0
 		end = 128
 		for i in range(start, end):
-			if i == start or i & 7 == 0:
+			if i & 7 == 0:
 				print()
 				print('\t.byte ', end='')
-			c = keytab[shiftstate][i]
-			if ord(c) >= 0x20 and ord(c) <= 0x7e:
-				print("'{}'".format(c), end = '')
+			if i == start:
+				print("    ", end = '')
 			else:
-				print("${:02x}".format(ord(c)), end = '')
-			if i & 7 != 7:
-				print(',', end = '')
+				c = keytab[shiftstate][i]
+				if ord(c) >= 0x20 and ord(c) <= 0x7e:
+					print("'{}'".format(c), end = '')
+				else:
+					print("${:02x}".format(ord(c)), end = '')
+				if i & 7 != 7:
+					print(',', end = '')
+		table_count += 1
 		print()
 		print()
 
@@ -605,3 +616,5 @@ print('\t.byte "' + locale1 + '"', end = '')
 for i in range(0, 6 - len(locale1)):
 	print(", 0", end = '')
 print()
+
+print("table_count", table_count)
