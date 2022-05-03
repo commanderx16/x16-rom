@@ -290,7 +290,6 @@ table_count = 0
 for iso_mode in [False, True]:
 	load_patch = not iso_mode
 	kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
-	#pprint.pprint(kbd_layout)
 
 	layout = kbd_layout['layout']
 	shiftstates = kbd_layout['shiftstates']
@@ -299,9 +298,6 @@ for iso_mode in [False, True]:
 	capstab = {}
 	for shiftstate in shiftstates:
 		keytab[shiftstate] = [ '\0' ] * 128
-	# some layouts don't define Alt at all
-#	if not ALT in keytab:
-#		keytab[ALT] = [ '\0' ] * 128
 
 	# create PS/2 "Code 2" -> PETSCII tables, capstab
 	for hid_scancode in layout.keys():
@@ -316,14 +312,13 @@ for iso_mode in [False, True]:
 				else:
 					keytab[shiftstate][ps2_scancode] = petscii_from_unicode(c_unicode)
 
+	# remove all tables that are effectively empty
+	# (because all character codes are outside of ISO-8859-15)
 	for shiftstate in shiftstates:
 		if not shiftstate in [REG, SHFT, ALT, CTRL]:
 			if keytab[shiftstate] == [ '\0' ] * 128:
-				#print("; EMPTY", shiftstate)
 				del keytab[shiftstate]
 				shiftstates.remove(shiftstate)
-
-	#pprint.pprint(keytab)
 
 	# stamp in f-keys and numpad keys independent of shiftstate
 	for shiftstate in keytab.keys():
@@ -559,7 +554,7 @@ for iso_mode in [False, True]:
 
 	print()
 
-	for shiftstate in shiftstates: #[REG, SHFT, ALT, CTRL, ALTGR]:
+	for shiftstate in shiftstates:
 		if shiftstate == ALT and iso_mode:
 			continue # Alt in ISO is the same as unshifted
 
