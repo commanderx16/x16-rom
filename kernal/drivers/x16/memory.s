@@ -229,7 +229,11 @@ fetvec	=*+1
 ;
 ;  exits with .x & status altered
 
-; XXX this needs to be in RAM in order to work!
+; XXX
+; Exposing a variable in the $0200 range is hard to keep stable
+; and is bad API. (`stash` has the same problem).
+; https://github.com/commanderx16/x16-rom/issues/305
+; XXX
 
 stash:	sta stash1
 	lda ram_bank    ;save current config (RAM)
@@ -259,7 +263,17 @@ __stavec	=*+1
 ;
 ;  exits with .a= data byte & status flags valid, .x is altered
 
-; XXX this needs to be in RAM in order to work!
+; XXX
+; This is currently undocumented because
+; * There aren't many use cases I can think of.
+; * Even then, it is not super useful, since you can easily
+;   achieve the same with `fetch` and doing the compare using
+;   a temporary memory location (both `fetch` and `compare` are
+;   already slow).
+; * Exposing a variable in the $0200 range is hard to keep stable
+;   and is bad API. (`stash` has the same problem).
+; We might remove this at some point.
+; XXX
 
 cmpare:
 	pha
