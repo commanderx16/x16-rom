@@ -20,8 +20,8 @@ kbtab_409:
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
 ; '\x1b\x1c\x1d\_`{|}~'
 
-; Unshifted
-	.byte $00,$10,$88,$87,$86,$85,$89,$17
+	.byte $00 ; (PETSCII) Unshifted
+	.byte     $10,$88,$87,$86,$85,$89,$17
 	.byte $00,$15,$8c,$8b,$8a,$09,'_',$00
 	.byte $00,$00,$00,$00,$00,'Q','1',$00
 	.byte $00,$00,'Z','S','A','W','2',$00
@@ -38,8 +38,8 @@ kbtab_409:
 	.byte '0','.','2','5','6','8',$1b,$00
 	.byte $16,'+','3','-','*','9',$00,$00
 
-; Shft 
-	.byte $00,$10,$88,$87,$86,$85,$89,$17
+	.byte $01 ; (PETSCII) Shft 
+	.byte     $10,$88,$87,$86,$85,$89,$17
 	.byte $00,$15,$8c,$8b,$8a,$18,$de,$00
 	.byte $00,$00,$00,$00,$00,$d1,'!',$00
 	.byte $00,$00,$da,$d3,$c1,$d7,'@',$00
@@ -56,26 +56,8 @@ kbtab_409:
 	.byte '0','.','2','5','6','8',$1b,$00
 	.byte $16,'+','3','-','*','9',$00,$00
 
-; Alt 
-	.byte $00,$10,$88,$87,$86,$85,$89,$17
-	.byte $00,$15,$8c,$8b,$8a,$18,$db,$00
-	.byte $00,$00,$00,$00,$00,$ab,$81,$00
-	.byte $00,$00,$ad,$ae,$b0,$b3,$95,$00
-	.byte $00,$bc,$bd,$ac,$b1,$97,$96,$00
-	.byte $00,$a0,$be,$bb,$a3,$b2,$98,$00
-	.byte $00,$aa,$bf,$b4,$a5,$b7,$99,$00
-	.byte $00,$00,$a7,$b5,$b8,$9a,$9b,$00
-	.byte $00,$00,$a1,$a2,$b9,$00,$00,$00
-	.byte $00,$00,$00,$b6,$00,$af,$dc,$00
-	.byte $00,$00,$00,$00,$a4,$a6,$00,$00
-	.byte $00,$00,$8d,$df,$00,$a8,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$94,$00
-	.byte $00,'1',$00,'4','7',$00,$00,$00
-	.byte '0','.','2','5','6','8',$1b,$00
-	.byte $16,'+','3','-','*','9',$00,$00
-
-; Ctrl 
-	.byte $00,$10,$88,$87,$86,$85,$89,$17
+	.byte $04 ; (PETSCII) Ctrl 
+	.byte     $10,$88,$87,$86,$85,$89,$17
 	.byte $00,$15,$8c,$8b,$8a,$18,$00,$00
 	.byte $00,$00,$00,$00,$00,$11,$90,$00
 	.byte $00,$00,$1a,$13,$01,$17,$05,$00
@@ -92,8 +74,8 @@ kbtab_409:
 	.byte '0','.','2','5','6','8',$1b,$00
 	.byte $16,'+','3','-','*','9',$00,$00
 
-; AltGr 
-	.byte $00,$10,$88,$87,$86,$85,$89,$17
+	.byte $02 ; (PETSCII) Alt 
+	.byte     $10,$88,$87,$86,$85,$89,$17
 	.byte $00,$15,$8c,$8b,$8a,$18,$db,$00
 	.byte $00,$00,$00,$00,$00,$ab,$81,$00
 	.byte $00,$00,$ad,$ae,$b0,$b3,$95,$00
@@ -117,8 +99,8 @@ kbtab_409:
 ; chars: 'π'
 ; graph: '\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf'
 
-; Unshifted
-	.byte $00,$10,$88,$87,$86,$85,$89,$17
+	.byte $80 ; (ISO) Unshifted
+	.byte     $10,$88,$87,$86,$85,$89,$17
 	.byte $00,$15,$8c,$8b,$8a,$09,'`',$00
 	.byte $00,$00,$00,$00,$00,'q','1',$00
 	.byte $00,$00,'z','s','a','w','2',$00
@@ -135,8 +117,8 @@ kbtab_409:
 	.byte '0','.','2','5','6','8',$1b,$00
 	.byte $16,'+','3','-','*','9',$00,$00
 
-; Shft 
-	.byte $00,$10,$88,$87,$86,$85,$89,$17
+	.byte $81 ; (ISO) Shft 
+	.byte     $10,$88,$87,$86,$85,$89,$17
 	.byte $00,$15,$8c,$8b,$8a,$18,'~',$00
 	.byte $00,$00,$00,$00,$00,'Q','!',$00
 	.byte $00,$00,'Z','S','A','W','@',$00
@@ -153,26 +135,8 @@ kbtab_409:
 	.byte '0','.','2','5','6','8',$1b,$00
 	.byte $16,'+','3','-','*','9',$00,$00
 
-; Alt 
-	.byte $00,$10,$88,$87,$86,$85,$89,$17
-	.byte $00,$15,$8c,$8b,$8a,$18,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$81,$00
-	.byte $00,$00,$00,$00,$00,$00,$95,$00
-	.byte $00,$00,$00,$00,$00,$97,$96,$00
-	.byte $00,$a0,$00,$00,$00,$00,$98,$00
-	.byte $00,$00,$00,$00,$00,$00,$99,$00
-	.byte $00,$00,$00,$00,$00,$9a,$9b,$00
-	.byte $00,$00,$00,$00,$00,$00,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$00,$00
-	.byte $00,$00,$8d,$00,$00,$00,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$94,$00
-	.byte $00,'1',$00,'4','7',$00,$00,$00
-	.byte '0','.','2','5','6','8',$1b,$00
-	.byte $16,'+','3','-','*','9',$00,$00
-
-; Ctrl 
-	.byte $00,$10,$88,$87,$86,$85,$89,$17
+	.byte $84 ; (ISO) Ctrl 
+	.byte     $10,$88,$87,$86,$85,$89,$17
 	.byte $00,$15,$8c,$8b,$8a,$18,$00,$00
 	.byte $00,$00,$00,$00,$00,$11,$90,$00
 	.byte $00,$00,$1a,$13,$01,$17,$05,$00
@@ -189,23 +153,74 @@ kbtab_409:
 	.byte '0','.','2','5','6','8',$1b,$00
 	.byte $16,'+','3','-','*','9',$00,$00
 
-; AltGr 
-	.byte $00,$10,$88,$87,$86,$85,$89,$17
-	.byte $00,$15,$8c,$8b,$8a,$18,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$81,$00
-	.byte $00,$00,$00,$00,$00,$00,$95,$00
-	.byte $00,$00,$00,$00,$00,$97,$96,$00
-	.byte $00,$a0,$00,$00,$00,$00,$98,$00
-	.byte $00,$00,$00,$00,$00,$00,$99,$00
-	.byte $00,$00,$00,$00,$00,$9a,$9b,$00
-	.byte $00,$00,$00,$00,$00,$00,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$00,$00
-	.byte $00,$00,$8d,$00,$00,$00,$00,$00
-	.byte $00,$00,$00,$00,$00,$00,$94,$00
-	.byte $00,'1',$00,'4','7',$00,$00,$00
-	.byte '0','.','2','5','6','8',$1b,$00
-	.byte $16,'+','3','-','*','9',$00,$00
+; 4 filler tables
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 
 ;****************************************
 ; bit field: for which codes CAPS means SHIFT; big endian
