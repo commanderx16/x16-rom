@@ -319,7 +319,7 @@ for iso_mode in [False, True]:
 	for shiftstate in shiftstates:
 		if not shiftstate in [REG, SHFT, ALT, CTRL]:
 			if keytab[shiftstate] == [ '\0' ] * 128:
-				print("; EMPTY", shiftstate)
+				#print("; EMPTY", shiftstate)
 				del keytab[shiftstate]
 				shiftstates.remove(shiftstate)
 
@@ -596,6 +596,14 @@ for iso_mode in [False, True]:
 		print()
 		print()
 
+filler_count = 11 - table_count
+if filler_count > 0:
+	print("; {} filler tables".format(filler_count))
+	for filler in range(0, filler_count):
+		for i in range(0, 16):
+			print("\t.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff")
+		print()
+
 print(";****************************************")
 print("; bit field: for which codes CAPS means SHIFT; big endian")
 for ibyte in range(0, 16):
@@ -617,4 +625,3 @@ for i in range(0, 6 - len(locale1)):
 	print(", 0", end = '')
 print()
 
-print("table_count", table_count)

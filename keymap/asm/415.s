@@ -1,4 +1,3 @@
-; EMPTY 6
 ; Commander X16 PETSCII/ISO Keyboard Table
 ; ***this file is auto-generated!***
 ;
@@ -212,6 +211,24 @@ kbtab_415:
 	.byte '0','.','2','5','6','8',$1b,$00
 	.byte $16,'+','3','-','*','9',$00,$00
 
+; 1 filler tables
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+
 ;****************************************
 ; bit field: for which codes CAPS means SHIFT; big endian
 	.byte %00000000
@@ -234,4 +251,3 @@ kbtab_415:
 ;****************************************
 ; locale
 	.byte "PL", 0, 0, 0, 0
-table_count 10
