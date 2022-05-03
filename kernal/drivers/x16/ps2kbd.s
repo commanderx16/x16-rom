@@ -329,8 +329,6 @@ handle_caps:
 	pla
 	jmp cont
 
-
-
 down_ext:
 	cpx #$e1 ; prefix $E1 -> E1-14 = Pause/Break
 	beq is_stop
