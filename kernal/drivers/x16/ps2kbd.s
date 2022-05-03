@@ -252,18 +252,20 @@ _kbd_scan:
 	lda #$02 ; this one is unused
 	tay
 :
-	lda shflag
-	cmp #MODIFIER_CAPS
-	beq handle_caps
-
+	; combine mode & modifiers into ID byte
 	lda mode
 	asl
+	asl ; bit 6
 	php
 	lda shflag
 	and #<(~MODIFIER_CAPS)
 	asl
 	plp
 	ror
+
+	ldx shflag
+	cpx #MODIFIER_CAPS
+	beq handle_caps
 
 cont:	jsr find_table
 	bcc drv_end
@@ -295,6 +297,8 @@ find_table:
 ; The caps table has one bit per scancode, indicating whether
 ; caps + the key should use the shifted or the unshifted table.
 handle_caps:
+	and #$80 ; remember PETSCII vs. ISO
+	pha
 	phy ; scancode
 
 	tya
@@ -315,13 +319,17 @@ handle_caps:
 	lsr
 	tay
 	txa
-	ldx #0 ; unshifted
 	and caps,y
 	beq :+
-	inx ; shift
-:	txa
 	ply ; scancode
+	pla
+	ora #MODIFIER_SHIFT
 	jmp cont
+:	ply ; scancode
+	pla
+	jmp cont
+
+
 
 down_ext:
 	cpx #$e1 ; prefix $E1 -> E1-14 = Pause/Break
