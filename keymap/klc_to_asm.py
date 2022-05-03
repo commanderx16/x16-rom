@@ -563,7 +563,10 @@ for iso_mode in [False, True]:
 		if shiftstate == ALT and iso_mode:
 			continue # Alt in ISO is the same as unshifted
 
-		print('\t.byte ${:02x} ; '.format(shiftstate | iso_mode << 7), end='')
+		# X16 shiftstate has ALT and CTRL swapped
+		converted_shiftstate = shiftstate & 1 | (shiftstate & 2) << 1 | (shiftstate & 4) >> 1
+
+		print('\t.byte ${:02x} ; '.format(converted_shiftstate | iso_mode << 7), end='')
 		if (iso_mode):
 			print('(ISO) ', end='')
 		else:

@@ -42,19 +42,7 @@ curkbd:	.res 1           ;    current keyboard layout index
 
 .segment "KEYMAP"
 keymap_data:
-; PETSCII
-	.res 128 ; unshifted
-	.res 128 ; shift
-	.res 128 ; ctrl
-	.res 128 ; alt
-	.res 128 ; altgr
-pettab_len = * - keymap_data
-; ISO
-	.res 128 ; unshifted
-	.res 128 ; shift
-	.res 128 ; ctrl
-	.res 128 ; alt
-	.res 128 ; altgr
+	.res 11*128
 
 caps:	.res 16 ; for which keys caps means shift
 kbdnam:
