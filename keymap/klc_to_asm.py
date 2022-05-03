@@ -289,6 +289,7 @@ all_petscii_codes_ok_if_missing = [
 for iso_mode in [False, True]:
 	load_patch = not iso_mode
 	kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
+	pprint.pprint(kbd_layout)
 
 	layout = kbd_layout['layout']
 	shiftstates = kbd_layout['shiftstates']
@@ -298,10 +299,10 @@ for iso_mode in [False, True]:
 	for shiftstate in shiftstates:
 		keytab[shiftstate] = [ '\0' ] * 128
 	# some layouts don't define Alt at all
-	if not ALT in keytab:
-		keytab[ALT] = [ '\0' ] * 128
+#	if not ALT in keytab:
+#		keytab[ALT] = [ '\0' ] * 128
 
-	# create PS/2 Code 2 -> PETSCII tables, capstab
+	# create PS/2 "Code 2" -> PETSCII tables, capstab
 	for hid_scancode in layout.keys():
 		ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
 		l = layout[hid_scancode]['chars']
@@ -313,6 +314,15 @@ for iso_mode in [False, True]:
 					keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
 				else:
 					keytab[shiftstate][ps2_scancode] = petscii_from_unicode(c_unicode)
+
+	for shiftstate in shiftstates:
+		if not shiftstate in [REG, SHFT, ALT, CTRL]:
+			if keytab[shiftstate] == [ '\0' ] * 128:
+				print("EMPTY", shiftstate)
+				del keytab[shiftstate]
+				shiftstates.remove(shiftstate)
+
+	pprint.pprint(keytab)
 
 	# stamp in f-keys and numpad keys independent of shiftstate
 	for shiftstate in keytab.keys():
@@ -548,23 +558,16 @@ for iso_mode in [False, True]:
 
 	print()
 
-	for shiftstate in [REG, SHFT, ALT, CTRL, ALTGR]:
+	for shiftstate in shiftstates: #[REG, SHFT, ALT, CTRL, ALTGR]:
+		print('; {}: '.format(shiftstate), end='')
 		if shiftstate == 0:
-			print('; Unshifted', end='')
+			print('Unshifted', end='')
 		if shiftstate & 1:
-			print('; Shft ', end='')
-		if shiftstate & 6 == 6:
-			print('; AltGr ', end='')
-		else:
-			if shiftstate & 2:
-				print('; Ctrl ', end='')
-			if shiftstate & 4:
-				print('; Alt ', end='')
-
-		if shiftstate == ALTGR and not ALTGR in keytab.keys():
-			shiftstate2 = ALT
-		else:
-			shiftstate2 = shiftstate
+			print('Shft ', end='')
+		if shiftstate & 2:
+			print('Ctrl ', end='')
+		if shiftstate & 4:
+			print('Alt ', end='')
 
 		start = 0
 		end = 128
@@ -572,7 +575,7 @@ for iso_mode in [False, True]:
 			if i == start or i & 7 == 0:
 				print()
 				print('\t.byte ', end='')
-			c = keytab[shiftstate2][i]
+			c = keytab[shiftstate][i]
 			if ord(c) >= 0x20 and ord(c) <= 0x7e:
 				print("'{}'".format(c), end = '')
 			else:
