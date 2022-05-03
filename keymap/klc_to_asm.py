@@ -288,6 +288,7 @@ all_petscii_codes_ok_if_missing = [
 
 asm_fn = sys.argv[2]
 bin_fn = sys.argv[3]
+lzsa_fn = sys.argv[4]
 asm = open(asm_fn, 'w')
 bin = open(bin_fn, 'wb')
 data = bytearray()
@@ -518,7 +519,7 @@ for iso_mode in [False, True]:
 
 		print('.segment "KBDTABLES"\n', file=asm)
 		print("kbtab_{}:".format(kbd_id), file=asm)
-		print('\t.incbin "{}"'.format(bin_fn), file=asm)
+		print('\t.incbin "{}"'.format(lzsa_fn), file=asm)
 		print("", file=asm)
 
 	if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:

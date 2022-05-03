@@ -11,7 +11,7 @@
 .include "asm/40C.s"    ; French
 .include "asm/807.s"    ; Swiss German
 .include "asm/80C.s"    ; Belgian French
-;.include "asm/416.s"    ; Portuguese (Brazil ABNT)
+.include "asm/416.s"    ; Portuguese (Brazil ABNT)
 
 .segment "KBDMETA"
 	.byte 0 ; terminator

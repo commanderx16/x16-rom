@@ -13,7 +13,7 @@
 .segment "KBDTABLES"
 
 kbtab_409:
-	.incbin "asm/409.bin"
+	.incbin "asm/409.bin.lzsa"
 
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
 ; '\x1b\x1c\x1d\_`{|}~'

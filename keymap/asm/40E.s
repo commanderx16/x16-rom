@@ -13,7 +13,7 @@
 .segment "KBDTABLES"
 
 kbtab_40e:
-	.incbin "asm/40E.bin"
+	.incbin "asm/40E.bin.lzsa"
 
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
 ; graph: '\xa4\xa6\xa8\xa9\xba'
