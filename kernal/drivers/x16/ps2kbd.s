@@ -31,6 +31,8 @@ MODIFIER_ALTGR = MODIFIER_ALT | MODIFIER_CTRL
 ; set of modifiers that are toggled on each key press
 MODIFIER_TOGGLE_MASK = MODIFIER_CAPS | MODIFIER_4080
 
+TABLE_COUNT = 11
+
 .segment "ZPKERNAL" : zeropage
 ckbtab:	.res 2           ;    used for keyboard lookup
 
@@ -42,7 +44,7 @@ curkbd:	.res 1           ;    current keyboard layout index
 
 .segment "KEYMAP"
 keymap_data:
-	.res 11*128
+	.res TABLE_COUNT*128
 
 caps:	.res 16 ; for which keys caps means shift
 kbdnam:
@@ -246,58 +248,80 @@ _kbd_scan:
 	cpy #$01 ; f9
 	beq cycle_layout
 	cmp #$83 ; convert weird f7 scancode
-	bne not_f7
+	bne :+
 	lda #$02 ; this one is unused
 	tay
-not_f7:
-	cmp #$0d ; scancodes < $0D and > $68 are independent of modifiers
-	bcc is_unshifted
-	cmp #$68
-	bcc not_numpad
-is_unshifted:
-	ldx #0
-	bra bit_found ; use unshifted table
-
-not_numpad:
+:
 	lda shflag
-	cmp #MODIFIER_ALTGR
-	bne naltgr
-	ldx #4
-	bra bit_found ; use AltGr table
-naltgr:
 	cmp #MODIFIER_CAPS
 	beq handle_caps
 
-	ldx #1
-:	lsr
-	bcs bit_found
-	inx
-	cpx #4
-	bne :-
-	ldx #0
-bit_found:
-.assert keymap_data = $a000, error; so we can ORA instead of ADC and carry
-	txa
-	lsr
+	lda mode
+	asl
 	php
-	ora #>keymap_data
-	sta ckbtab+1
+	lda shflag
+	and #<(~MODIFIER_CAPS)
+	asl
 	plp
-	lda #0
 	ror
-	sta ckbtab
-	bit mode
-	bvc :+
-	lda ckbtab
-	clc
-	adc #<pettab_len
-	sta ckbtab
-	lda ckbtab+1
-	adc #>pettab_len
-	sta ckbtab+1
-:	lda (ckbtab),y
+
+cont:	jsr find_table
+	bcc drv_end
+	lda (ckbtab),y
 	beq drv_end
 	jmp kbdbuf_put
+
+find_table:
+.assert keymap_data = $a000, error; so we can ORA instead of ADC and carry
+	sta tmp2
+	lda #<keymap_data
+	sta ckbtab
+	lda #>keymap_data
+	sta ckbtab+1
+	ldx #TABLE_COUNT
+@loop:	lda (ckbtab)
+	cmp tmp2
+	beq @ret
+	lda ckbtab
+	eor #$80
+	sta ckbtab
+	bmi :+
+	inc ckbtab+1
+:	dex
+	bne @loop
+	; .C = 0
+@ret:	rts
+
+; The caps table has one bit per scancode, indicating whether
+; caps + the key should use the shifted or the unshifted table.
+handle_caps:
+	phy ; scancode
+
+	tya
+	and #7
+	tay
+	lda #$80
+:	cpy #0
+	beq :+
+	lsr
+	dey
+	bra :-
+:	tax
+
+	pla ; scancode
+	pha
+	lsr
+	lsr
+	lsr
+	tay
+	txa
+	ldx #0 ; unshifted
+	and caps,y
+	beq :+
+	inx ; shift
+:	txa
+	ply ; scancode
+	jmp cont
 
 down_ext:
 	cpx #$e1 ; prefix $E1 -> E1-14 = Pause/Break
@@ -346,36 +370,6 @@ is_stop:
 	ror
 kbdbuf_put2:
 	jmp kbdbuf_put
-
-; The caps table has one bit per scancode, indicating whether
-; caps + the key should use the shifted or the unshifted table.
-handle_caps:
-	phy ; scancode
-
-	tya
-	and #7
-	tay
-	lda #$80
-:	cpy #0
-	beq :+
-	lsr
-	dey
-	bra :-
-:	tax
-
-	pla ; scancode
-	pha
-	lsr
-	lsr
-	lsr
-	tay
-	txa
-	ldx #0
-	and caps,y
-	beq :+
-	inx
-:	ply ; scancode
-	jmp bit_found
 
 ;****************************************
 ; RECEIVE SCANCODE:
