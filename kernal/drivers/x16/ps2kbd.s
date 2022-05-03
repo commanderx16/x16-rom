@@ -4,7 +4,9 @@
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
 .include "banks.inc"
+.include "regs.inc"
 .include "io.inc"
+.include "mac.inc"
 
 ; code
 .import ps2_receive_byte; [ps2]
@@ -18,6 +20,8 @@
 .import shflag
 .import keyhdl
 .import check_charset_switch
+
+.import memory_decompress_internal ; [lzsa]
 
 .export kbd_config, kbd_scan, receive_scancode_resume, keymap
 
@@ -124,36 +128,44 @@ _kbd_config:
 	sta tmp2
 
 ; copy into banked RAM
+	PushW r0
+	PushW r1
+	PushW r4
+	lda tmp2
+	sta r0
+	lda tmp2+1
+	sta r0+1
 	lda #<keymap_data
-	sta ckbtab
+	sta r1
 	lda #>keymap_data
-	sta ckbtab+1
-	ldx #>(keymap_len+$ff)
-	ldy #0
-@l1:	phx
-@l2:	ldx #BANK_KEYBD
-	jsr fetch
-	sta (ckbtab),y
-	plx
-	cpx #1 ; last bank?
-	phx
-	bne :+
-	cpy #(<keymap_len)-1
-	bne :+
-	plx
-	bra @end
-:	iny
-	bne @l2
-	inc tmp2+1
-	inc ckbtab+1
-	plx
-	dex
-	bne @l1
-@end:
-
+	sta r1+1
+	LoadW r4, kbd_getsrc
+	lda #r0
+	sta fetvec
+	jsr memory_decompress_internal
+	PopW r4
+	PopW r1
+	PopW r0
 	jsr joystick_from_ps2_init
 	clc             ;ok
 	rts
+
+kbd_getsrc:
+	php
+	phx
+	phy
+	ldy #0
+	ldx #BANK_KEYBD
+	lda #r0
+	jsr fetch
+	inc r0L
+	bne :+
+	inc r0H
+:	ply
+	plx
+	plp
+	rts
+
 
 ; cycle keyboard layouts
 cycle_layout:
