@@ -7,7 +7,7 @@
 .include "io.inc"
 .include "mac.inc"
 
-.export memory_decompress
+.export memory_decompress, memory_decompress_internal
 
 .segment "KVAR"
 
@@ -39,6 +39,13 @@ offshi:	.res 1
 ;            can be found at the end of this source file.
 ;---------------------------------------------------------------
 memory_decompress:
+	PushW r4
+	LoadW r4, ngetsrc
+	jsr memory_decompress_internal
+	PopW r4
+	rts
+
+memory_decompress_internal:
 	PushW r2
 	PushW r3
 
@@ -276,13 +283,14 @@ getlargesrc:
 					; fall through grab high 8 bits
 
 getsrc:
+	jmp (r4)
+
+ngetsrc:
 	lda (r0)
 	inc r0L
-	beq getsrc_adj_hi
+	beq :+
 	rts
-
-getsrc_adj_hi:
-	inc r0H
+:	inc r0H
 	rts
 
 ; -----------------------------------------------------------------------------

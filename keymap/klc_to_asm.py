@@ -286,6 +286,13 @@ all_petscii_codes_ok_if_missing = [
 	chr(0x9d), # CURSOR_LEFT  - covered by cursor keys
 ]
 
+asm_fn = sys.argv[2]
+bin_fn = sys.argv[3]
+lzsa_fn = sys.argv[4]
+asm = open(asm_fn, 'w')
+bin = open(bin_fn, 'wb')
+data = bytearray()
+
 table_count = 0
 for iso_mode in [False, True]:
 	load_patch = not iso_mode
@@ -487,15 +494,15 @@ for iso_mode in [False, True]:
 	kbd_id = kbd_layout['short_id'].lower()
 
 	if not iso_mode:
-		print("; Commander X16 PETSCII/ISO Keyboard Table")
-		print("; ***this file is auto-generated!***")
-		print(";")
-		print("; Name:   " + name)
-		print("; Locale: " + kbd_layout['localename'])
-		print("; KLID:   " + kbd_id)
-		print()
+		print("; Commander X16 PETSCII/ISO Keyboard Table", file=asm)
+		print("; ***this file is auto-generated!***", file=asm)
+		print(";", file=asm)
+		print("; Name:   " + name, file=asm)
+		print("; Locale: " + kbd_layout['localename'], file=asm)
+		print("; KLID:   " + kbd_id, file=asm)
+		print("", file=asm)
 
-		print('.segment "KBDMETA"\n')
+		print('.segment "KBDMETA"\n', file=asm)
 		prefix = ''
 		locale1 = kbd_layout['localename'][0:2].upper()
 		locale2 = kbd_layout['localename'][3:5].upper()
@@ -503,56 +510,49 @@ for iso_mode in [False, True]:
 			locale1 = kbd_layout['localename'].upper()
 		if len(kbd_layout['localename']) != 5:
 			sys.exit("unknown locale format: " + kbd_layout['localename'])
-		print('\t.byte "' + locale1 + '"', end = '')
+		print('\t.byte "' + locale1 + '"', end = '', file=asm)
 		for i in range(0, 6 - len(locale1)):
-			print(", 0", end = '')
-		print()
-		print("\t.word {}kbtab_{}".format(prefix, kbd_id))
-		print()
+			print(", 0", end = '', file=asm)
+		print("", file=asm)
+		print("\t.word {}kbtab_{}".format(prefix, kbd_id), file=asm)
+		print("", file=asm)
 
-		print('.segment "KBDTABLES"\n')
-		print("kbtab_{}:".format(kbd_id))
-		print()
+		print('.segment "KBDTABLES"\n', file=asm)
+		print("kbtab_{}:".format(kbd_id), file=asm)
+		print('\t.incbin "{}"'.format(lzsa_fn), file=asm)
+		print("", file=asm)
 
-	if iso_mode:
-		print(";****************************************")
-		print(";* ISO                                  *")
-		print(";****************************************")
-	else:
-		print(";****************************************")
-		print(";* PETSCII                              *")
-		print(";****************************************")
 	if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
-		print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:")
+		print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:", file=asm)
 		if len(petscii_chars_not_reachable) > 0:
-			print("; chars: " + pprint.pformat(petscii_chars_not_reachable))
+			print("; chars: " + pprint.pformat(petscii_chars_not_reachable), file=asm)
 		if len(petscii_codes_not_reachable) > 0:
-			print("; codes: ", end = '')
+			print("; codes: ", end = '', file=asm)
 			for c in petscii_codes_not_reachable:
 				if ord(c) in control_codes:
-					print(control_codes[ord(c)] + ' ', end = '')
+					print(control_codes[ord(c)] + ' ', end = '', file=asm)
 				else:
-					print(hex(ord(c)) + ' ', end = '')
-			print()
+					print(hex(ord(c)) + ' ', end = '', file=asm)
+			print("", file=asm)
 		if len(petscii_graphs_not_reachable) > 0:
-			print("; graph: '", end = '')
+			print("; graph: '", end = '', file=asm)
 			for c in petscii_graphs_not_reachable:
-				print("\\x{0:02x}".format(ord(c)), end = '')
-			print("'")
+				print("\\x{0:02x}".format(ord(c)), end = '', file=asm)
+			print("'", file=asm)
 	if len(unicode_not_reachable) > 0:
 		if iso_mode:
-			print("; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:")
+			print("; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:", file=asm)
 		else:
-			print("; Unicode characters reachable with this layout on Windows but not covered by PETSCII:")
-		print("; '", end = '')
+			print("; Unicode characters reachable with this layout on Windows but not covered by PETSCII:", file=asm)
+		print("; '", end = '', file=asm)
 		for c in unicode_not_reachable:
 			if ord(c) < 0x20:
-				print("\\x{0:02x}".format(ord(c)), end = '')
+				print("\\x{0:02x}".format(ord(c)), end = '', file=asm)
 			else:
-				print(c, end = '')
-		print("'")
+				print(c, end = '', file=asm)
+		print("'", file=asm)
 
-	print()
+	print("", file=asm)
 
 	for shiftstate in shiftstates:
 		if shiftstate == ALT and iso_mode:
@@ -561,49 +561,22 @@ for iso_mode in [False, True]:
 		# X16 shiftstate has ALT and CTRL swapped
 		converted_shiftstate = shiftstate & 1 | (shiftstate & 2) << 1 | (shiftstate & 4) >> 1
 
-		print('\t.byte ${:02x} ; '.format(converted_shiftstate | iso_mode << 7), end='')
-		if (iso_mode):
-			print('(ISO) ', end='')
-		else:
-			print('(PETSCII) ', end='')
-		if shiftstate == 0:
-			print('Unshifted', end='')
-		if shiftstate & 1:
-			print('Shft ', end='')
-		if shiftstate & 2:
-			print('Ctrl ', end='')
-		if shiftstate & 4:
-			print('Alt ', end='')
-		start = 0
+		data.append(converted_shiftstate | iso_mode << 7)
+
+		start = 1
 		end = 128
 		for i in range(start, end):
-			if i & 7 == 0:
-				print()
-				print('\t.byte ', end='')
-			if i == start:
-				print("    ", end = '')
-			else:
-				c = keytab[shiftstate][i]
-				if ord(c) >= 0x20 and ord(c) <= 0x7e:
-					print("'{}'".format(c), end = '')
-				else:
-					print("${:02x}".format(ord(c)), end = '')
-				if i & 7 != 7:
-					print(',', end = '')
+			data.append(ord(keytab[shiftstate][i]))
 		table_count += 1
-		print()
-		print()
 
+# empty filler tables
 filler_count = 11 - table_count
 if filler_count > 0:
-	print("; {} filler tables".format(filler_count))
 	for filler in range(0, filler_count):
-		for i in range(0, 16):
-			print("\t.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff")
-		print()
+		for i in range(0, 128):
+			data.append(0xff)
 
-print(";****************************************")
-print("; bit field: for which codes CAPS means SHIFT; big endian")
+# bit field: for which codes CAPS means SHIFT; big endian"
 for ibyte in range(0, 16):
 	byte = 0
 	for ibit in range(0, 8):
@@ -613,13 +586,11 @@ for ibyte in range(0, 16):
 		else:
 			caps = False
 		byte = byte | (caps << (7-ibit))
-	print("\t.byte %" + format(byte, '08b'))
-print()
+	data.append(byte)
 
-print(";****************************************")
-print("; locale")
-print('\t.byte "' + locale1 + '"', end = '')
+# locale
+data.extend(locale1.encode('latin-1'))
 for i in range(0, 6 - len(locale1)):
-	print(", 0", end = '')
-print()
+	data.append(0)
 
+bin.write(data)
