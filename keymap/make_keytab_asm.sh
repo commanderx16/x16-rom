@@ -1,4 +1,4 @@
-layouts="20409 809 41D 407 406 410 415 414 40E 40A 40B 416 405 411 40C 807 10409 425 80C 1009 40F 816 80A"
+layouts="20409 809 41D 407 406 410 415 414 40E 40A 40B 416 405 411 40C 807 10409 425 80C 1009 40F 816 80A Colemak"
 
 for layout in $layouts; do
 	filename=$(ls klc/${layout}\ *.klc)

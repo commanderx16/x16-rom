@@ -23,6 +23,7 @@
 .include "asm/40F.s"    ; Icelandic
 .include "asm/816.s"    ; Portuguese
 .include "asm/80A.s"    ; Latin American Spanish
+.include "asm/Colemak.s"; US - Colemak
 
 .segment "KBDMETA"
 	.byte 0 ; terminator

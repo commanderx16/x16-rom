@@ -498,7 +498,8 @@ for iso_mode in [False, True]:
 		print("; ***this file is auto-generated!***", file=asm)
 		print(";", file=asm)
 		print("; Name:   " + name, file=asm)
-		print("; Locale: " + kbd_layout['localename'], file=asm)
+		if 'localename' in kbd_layout:
+			print("; Locale: " + kbd_layout['localename'], file=asm)
 		print("; KLID:   " + kbd_id, file=asm)
 		print("", file=asm)
 
@@ -512,6 +513,8 @@ for iso_mode in [False, True]:
 			# Since we include both 20409 and 10409 in the X16 ROM,
 			# we rename the Dvorak one to a non-standard "locale".
 			locale1 = 'EN*US'
+		elif name == 'Colemak':
+			locale1 = 'EN!US'
 		else:
 			locale1 = kbd_layout['localename'].upper()
 			if len(kbd_layout['localename']) != 5:
