@@ -1,5 +1,3 @@
-// Alt is column 9!
-
 //        - -> -                  [unchanged]
 // [Shft] _ -> PETSCII GRAPH 0xdd
 // [Alt]    -> PETSCII GRAPH 0xdc
