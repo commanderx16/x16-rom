@@ -25,7 +25,7 @@ kbtab_colemak:
 ; ISO
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
 ; chars: 'π'
-; graph: '\xa3\xa5\xa6\xa7\xa8\xa9\xac\xad\xae\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xbc\xbe'
+; graph: '\xa3\xa5\xa6\xa7\xa8\xa9\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xbc\xbe'
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
-; '£¥¨²³´¸¹ÁÃÄÅÆÇÉÍÐÑÓÕÖØÚÜÞ÷ĐđĦħŁłŒˇ˘˙˚˛˝–—‘’“”‹›'
+; '£¥¨¯²³´¸¹ÁÃÄÅÆÇÉÍÐÑÓÕÖØÚÜÞ÷ĐđĦħŁłŒˇ˘˙˚˛˝–—‘’“”‹›'
 

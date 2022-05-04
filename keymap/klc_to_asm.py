@@ -308,7 +308,7 @@ table_count = 0
 for iso_mode in [False, True]:
 	load_patch = not iso_mode
 	kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
-	pprint.pprint(kbd_layout)
+	#pprint.pprint(kbd_layout)
 
 	layout = kbd_layout['layout']
 	shiftstates = kbd_layout['shiftstates']
@@ -321,13 +321,20 @@ for iso_mode in [False, True]:
 	# create PS/2 "Code 2" -> PETSCII tables, capstab
 	for hid_scancode in layout.keys():
 		ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
-		l = layout[hid_scancode]['chars']
+		chars = layout[hid_scancode]['chars']
+		deads = layout[hid_scancode]['deads']
 		capstab[ps2_scancode] = layout[hid_scancode]['cap'];
 		for shiftstate in keytab.keys():
-			if shiftstate in l:
-				c_unicode = l[shiftstate]
+			if shiftstate in chars:
+				c_unicode = chars[shiftstate]
+				dead = deads[shiftstate]
 				if iso_mode:
-					keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
+					if dead:
+						if not c_unicode in kbd_layout['deadkeys']:
+							sys.exit("missing dead key: " + hex(ord(c_unicode)))
+						keytab[shiftstate][ps2_scancode] = chr(0x80) # magic
+					else:
+						keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
 				else:
 					keytab[shiftstate][ps2_scancode] = petscii_from_unicode(c_unicode)
 
