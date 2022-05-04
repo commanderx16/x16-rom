@@ -64,6 +64,7 @@ def get_kbd_layout(base_filename, load_patch = False):
 		section_changes.append(fields)
 
 	kbd_layout = {}
+	kbd_layout['deadkeys'] = {}
 	for lines in sections:
 		fields = lines[0]
 		if fields[0] == 'KBD':
@@ -126,8 +127,12 @@ def get_kbd_layout(base_filename, load_patch = False):
 			kbd_layout['layout'] = layout
 			kbd_layout['all_originally_reachable_characters'] = ''.join(sorted(all_originally_reachable_characters))
 		elif fields[0] == 'DEADKEY':
-			# TODO
-			pass
+			in_c = chr(int(lines[0][1], 16))
+			kbd_layout['deadkeys'][in_c] = {}
+			for fields in lines[1:]:
+				add_c = chr(int(fields[0], 16))
+				res_c = chr(int(fields[1], 16))
+				kbd_layout['deadkeys'][in_c][add_c] = res_c
 		elif fields[0] == 'LIGATURE':
 			# TODO
 			pass	
@@ -297,6 +302,7 @@ table_count = 0
 for iso_mode in [False, True]:
 	load_patch = not iso_mode
 	kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
+	#pprint.pprint(kbd_layout['deadkeys'])
 
 	layout = kbd_layout['layout']
 	shiftstates = kbd_layout['shiftstates']
