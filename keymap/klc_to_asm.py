@@ -522,6 +522,10 @@ for iso_mode in [False, True]:
 		print('\t.incbin "{}"'.format(lzsa_fn), file=asm)
 		print("", file=asm)
 
+	if iso_mode:
+		print("; ISO", file=asm)
+	else:
+		print("; PETSCII", file=asm)
 	if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
 		print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:", file=asm)
 		if len(petscii_chars_not_reachable) > 0:
@@ -539,6 +543,9 @@ for iso_mode in [False, True]:
 			for c in petscii_graphs_not_reachable:
 				print("\\x{0:02x}".format(ord(c)), end = '', file=asm)
 			print("'", file=asm)
+		if not iso_mode:
+			print("; *** THIS IS BAD! ***", file=asm)
+
 	if len(unicode_not_reachable) > 0:
 		if iso_mode:
 			print("; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:", file=asm)
