@@ -171,7 +171,7 @@ def petscii_from_unicode(c):
 		return chr(ord(c) + 0x80)
 	if ord(c) >= ord('a') and ord(c) <= ord('z'):
 		return chr(ord(c) - 0x20)
-	if ord(c) < 0x20 and c != '\r':
+	if ord(c) < 0x20 and c != '\r' and c != chr(0x1b) and c != chr(0x1c) and c != chr(0x1d):
 		return chr(0)
 	if ord(c) >= 0x7e:
 		return chr(0)

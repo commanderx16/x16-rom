@@ -19,7 +19,7 @@ kbtab_80a:
 ; chars: '£π←'
 ; graph: '\xa4\xa6\xa8\xa9\xba'
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\x1b\x1c\x1d\_{|}~¡¨¬°´¿Ññ'
+; '\_{|}~¡¨¬°´¿Ññ'
 
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
 ; chars: 'π'
