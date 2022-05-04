@@ -315,6 +315,7 @@ for iso_mode in [False, True]:
 
 	keytab = {}
 	capstab = {}
+	deadkeys = {}
 	for shiftstate in shiftstates:
 		keytab[shiftstate] = [ '\0' ] * 128
 
@@ -333,6 +334,7 @@ for iso_mode in [False, True]:
 						if not c_unicode in kbd_layout['deadkeys']:
 							sys.exit("missing dead key: " + hex(ord(c_unicode)))
 						keytab[shiftstate][ps2_scancode] = chr(0x80) # magic
+						deadkeys[c_unicode] = (shiftstate, ps2_scancode)
 					else:
 						keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
 				else:
@@ -622,6 +624,27 @@ for ibyte in range(0, 16):
 			caps = False
 		byte = byte | (caps << (7-ibit))
 	data.append(byte)
+
+# deadkeys
+deadkey_data = bytearray()
+for in_c in kbd_layout['deadkeys'].keys():
+	(shiftstate, ps2_scancode) = deadkeys[in_c]
+	data1 = bytearray()
+	for add_c in kbd_layout['deadkeys'][in_c].keys():
+		res_c = kbd_layout['deadkeys'][in_c][add_c]
+		add_c = latin15_from_unicode(add_c)
+		res_c = latin15_from_unicode(res_c)
+		if add_c == chr(0) or res_c == chr(0):
+			#print("skip")
+			pass
+		else:
+			data1.append(ord(add_c))
+			data1.append(ord(res_c))
+	data1 = bytearray([shiftstate, ps2_scancode, len(data1) + 3]) + data1
+	#pprint.pprint(data1)
+	deadkey_data.extend(data1)
+print(len(deadkey_data))
+data.extend(deadkey_data)
 
 # locale
 data.extend(locale1.encode('latin-1'))
