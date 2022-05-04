@@ -1,5 +1,6 @@
 .segment "KBDMETA"
 
+; result from survey, ordered by frequency
 .include "asm/20409.s"  ; United States-International
 .include "asm/809.s"    ; United Kingdom
 .include "asm/41D.s"    ; Swedish
@@ -22,8 +23,18 @@
 .include "asm/1009.s"   ; Canadian French
 .include "asm/40F.s"    ; Icelandic
 .include "asm/816.s"    ; Portuguese
-.include "asm/80A.s"    ; Latin American Spanish
+; nobody asked for these, but they may be useful
 .include "asm/Colemak.s"; US - Colemak
+.include "asm/413.s"    ; Dutch
+.include "asm/41A.s"    ; Croatian
+.include "asm/41B.s"    ; Slovak
+.include "asm/41C.s"    ; Albanian
+.include "asm/424.s"    ; Slovenian
+.include "asm/426.s"    ; Latvian
+.include "asm/427.s"    ; Lithuanian IBM
+.include "asm/80A.s"    ; Latin American Spanish
+
+; there is space for 3 or 4 more
 
 .segment "KBDMETA"
 	.byte 0 ; terminator
