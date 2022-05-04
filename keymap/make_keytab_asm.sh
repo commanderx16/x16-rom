@@ -1,4 +1,4 @@
-layouts="406 407 409 40A 40B 40C 40E 410 414 415 416 41D 807 809 80C"
+layouts="20409 809 41D 407 406 410 415 414 40E 40A 40B 416 405 411 40C 807 10409 425 80C 1009 40F 816 80A"
 
 for layout in $layouts; do
 	filename=$(ls klc/${layout}\ *.klc)

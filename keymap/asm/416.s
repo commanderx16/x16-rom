@@ -15,11 +15,14 @@
 kbtab_416:
 	.incbin "asm/416.bin.lzsa"
 
+; PETSCII
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
 ; graph: '\xa4\xa6\xa8\xa9\xba'
+; *** THIS IS BAD! ***
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\x1b\x1c\x1d\_{|}~¢§¨ª¬°²³´¹ºÇç₢'
+; '\_{|}~¢§¨ª¬°²³´¹ºÇç₢'
 
+; ISO
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
 ; chars: 'π'
 ; graph: '\xa1\xa4\xa5\xa6\xa8\xa9\xab\xad\xae\xaf\xb1\xb4\xb5\xb6\xb7\xb8\xbb\xbc\xbd\xbe\xbf'

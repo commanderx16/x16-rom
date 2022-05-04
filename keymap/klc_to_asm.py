@@ -171,7 +171,7 @@ def petscii_from_unicode(c):
 		return chr(ord(c) + 0x80)
 	if ord(c) >= ord('a') and ord(c) <= ord('z'):
 		return chr(ord(c) - 0x20)
-	if ord(c) < 0x20 and c != '\r':
+	if ord(c) < 0x20 and c != '\r' and c != chr(0x1b) and c != chr(0x1c) and c != chr(0x1d):
 		return chr(0)
 	if ord(c) >= 0x7e:
 		return chr(0)
@@ -504,12 +504,18 @@ for iso_mode in [False, True]:
 
 		print('.segment "KBDMETA"\n', file=asm)
 		prefix = ''
-		locale1 = kbd_layout['localename'][0:2].upper()
-		locale2 = kbd_layout['localename'][3:5].upper()
-		if locale1 != locale2:
+		if kbd_id == '10409':
+			# The layout 10409 "United States-Dvorak" has a locale
+			# of 'EN-US', just like the other US layouts:
+			# *   409 "US"
+			# * 20409 "United States-International"
+			# Since we include both 20409 and 10409 in the X16 ROM,
+			# we rename the Dvorak one to a non-standard "locale".
+			locale1 = 'EN*US'
+		else:
 			locale1 = kbd_layout['localename'].upper()
-		if len(kbd_layout['localename']) != 5:
-			sys.exit("unknown locale format: " + kbd_layout['localename'])
+			if len(kbd_layout['localename']) != 5:
+				sys.exit("unknown locale format: " + kbd_layout['localename'])
 		print('\t.byte "' + locale1 + '"', end = '', file=asm)
 		for i in range(0, 6 - len(locale1)):
 			print(", 0", end = '', file=asm)
@@ -522,6 +528,10 @@ for iso_mode in [False, True]:
 		print('\t.incbin "{}"'.format(lzsa_fn), file=asm)
 		print("", file=asm)
 
+	if iso_mode:
+		print("; ISO", file=asm)
+	else:
+		print("; PETSCII", file=asm)
 	if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
 		print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:", file=asm)
 		if len(petscii_chars_not_reachable) > 0:
@@ -539,6 +549,9 @@ for iso_mode in [False, True]:
 			for c in petscii_graphs_not_reachable:
 				print("\\x{0:02x}".format(ord(c)), end = '', file=asm)
 			print("'", file=asm)
+		if not iso_mode:
+			print("; *** THIS IS BAD! ***", file=asm)
+
 	if len(unicode_not_reachable) > 0:
 		if iso_mode:
 			print("; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:", file=asm)
