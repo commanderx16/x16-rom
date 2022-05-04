@@ -26,14 +26,7 @@
 // [Alt]    -> PETSCII GRAPH 0xa8
 2b	OEM_2		1	0023	0027	001c	-1	-1	f8a8		// NUMBER SIGN, APOSTROPHE, INFORMATION SEPARATOR FOUR, <none>, <none>, PETSCII GRAPH 0xA8
 
-
-
-
-
-
-
-
 // § -> £
 // [Alt]    -> PETSCII GRAPH 0xdc
-04	3		1	3	00a3	-1	-1	-1	-1		// DIGIT THREE, POUND SIGN, <none>, <none>, <none>, <none>
+04	3		1	3	00a3	-1	00b3	-1	-1		// DIGIT THREE, POUND SIGN, <none>, <none>, <none>, <none>
 
