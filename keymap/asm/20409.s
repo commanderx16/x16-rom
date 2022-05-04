@@ -16,7 +16,7 @@ kbtab_20409:
 	.incbin "asm/20409.bin.lzsa"
 
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\x1d\_`{|}~¡¢¤¥¦§¨©«¬®°²³´µ¶¹»¼½¾¿ÁÄÅÆÇÉÍÐÑÓÖ×ØÚÜÞßáäåæçéíðñóö÷øúüþ‘’€'
+; '\_`{|}~¡¢¤¥¦§¨©«¬®°²³´µ¶¹»¼½¾¿ÁÄÅÆÇÉÍÐÑÓÖ×ØÚÜÞßáäåæçéíðñóö÷øúüþ‘’€'
 
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
 ; chars: 'π'

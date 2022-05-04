@@ -1,7 +1,7 @@
 //        - -> -                  [unchanged]
 // [Shft] _ -> PETSCII GRAPH 0xdd
 // [Alt]    -> PETSCII GRAPH 0xdc
-0c	OEM_MINUS	0	002d	f8dd	-1	-1	-1	f8dc		// HYPHEN-MINUS, PETSCII GRAPH 0xDD, <none>, <none>, PETSCII GRAPH 0xDC
+0c	OEM_MINUS	0	002d	f8dd	-1	00a5	-1	f8dc		// HYPHEN-MINUS, PETSCII GRAPH 0xDD, <none>, YEN SIGN, <none>, PETSCII GRAPH 0xDC
 
 //        = -> =                  [unchanged]
 // [Shft] + -> +                  [unchanged]
