@@ -7,7 +7,7 @@
 
 .segment "KBDMETA"
 
-	.byte "HU", 0, 0, 0, 0
+	.byte "HU-HU", 0
 	.word kbtab_40e
 
 .segment "KBDTABLES"

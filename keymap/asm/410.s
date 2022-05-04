@@ -7,7 +7,7 @@
 
 .segment "KBDMETA"
 
-	.byte "IT", 0, 0, 0, 0
+	.byte "IT-IT", 0
 	.word kbtab_410
 
 .segment "KBDTABLES"

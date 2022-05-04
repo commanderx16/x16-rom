@@ -7,7 +7,7 @@
 
 .segment "KBDMETA"
 
-	.byte "EN-US", 0
+	.byte "EN-DV", 0
 	.word kbtab_10409
 
 .segment "KBDTABLES"

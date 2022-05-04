@@ -7,7 +7,7 @@
 
 .segment "KBDMETA"
 
-	.byte "IS", 0, 0, 0, 0
+	.byte "IS-IS", 0
 	.word kbtab_40f
 
 .segment "KBDTABLES"
