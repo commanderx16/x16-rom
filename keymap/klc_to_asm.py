@@ -99,6 +99,7 @@ def get_kbd_layout(base_filename, load_patch = False):
 					# TODO: 807 has extension lines we don't support
 					continue
 				chars = {}
+				deads = {}
 				i = 3
 				for shiftstate in shiftstates:
 					if i > len(fields) - 1:
@@ -106,11 +107,15 @@ def get_kbd_layout(base_filename, load_patch = False):
 					c = fields[i]
 					# TODO: '@' suffix -> dead key
 					if c[-1] == '@':
+						dead = True
 						c = c[:-1]
+					else:
+						dead = False
 					if c != '-1' and c != '%%':
 						if len(c) > 1:
 							c = chr(int(c[0:4], 16))
 						chars[shiftstate] = c
+						deads[shiftstate] = dead
 						if (line_number < len(lines[1:])):
 							all_originally_reachable_characters += c
 					i += 1
@@ -121,7 +126,8 @@ def get_kbd_layout(base_filename, load_patch = False):
 				layout[int(fields[0], 16)] = {
 					#'vk_name': 'VK_' + fields[1],
 					'cap': cap,
-					'chars': chars
+					'chars': chars,
+					'deads': deads
 				}
 				line_number += 1
 			kbd_layout['layout'] = layout
@@ -302,7 +308,7 @@ table_count = 0
 for iso_mode in [False, True]:
 	load_patch = not iso_mode
 	kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
-	#pprint.pprint(kbd_layout['deadkeys'])
+	pprint.pprint(kbd_layout)
 
 	layout = kbd_layout['layout']
 	shiftstates = kbd_layout['shiftstates']
