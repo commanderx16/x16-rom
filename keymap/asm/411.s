@@ -1,22 +1,25 @@
 ; Commander X16 PETSCII/ISO Keyboard Table
 ; ***this file is auto-generated!***
 ;
-; Name:   US
-; Locale: en-US
-; KLID:   409
+; Name:   Japanese
+; Locale: ja-JP
+; KLID:   411
 
 .segment "KBDMETA"
 
-	.byte "EN-US", 0
-	.word kbtab_409
+	.byte "JA-JP", 0
+	.word kbtab_411
 
 .segment "KBDTABLES"
 
-kbtab_409:
-	.incbin "asm/409.bin.lzsa"
+kbtab_411:
+	.incbin "asm/411.bin.lzsa"
 
+; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
+; chars: '£π←'
+; graph: '\xa4\xa6\xa8\xa9\xba'
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\x1b\x1c\x1d\_`{|}~'
+; '\x1b\x1c\x1d\_{|}~'
 
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
 ; chars: 'π'
