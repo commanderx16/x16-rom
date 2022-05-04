@@ -3,8 +3,9 @@
 0c	OEM_4		1	00df	003f	-1	005c	1e9e	f8dc	// LATIN SMALL LETTER SHARP S (German), QUESTION MARK, <none>, REVERSE SOLIDUS, Latin Capital Letter Sharp S, PETSCII GRAPH 0xDC
 
 //        ´ -> ^
+// [Shift]  -> PETSCII GRAPH 0xa9
 // [Alt]    -> PETSCII GRAPH 0xa6
-0d	OEM_6		0	005e	-1	-1	-1	-1	f8a6		// CIRCUMFLEX ACCENT, <none>, <none>, <none>, <none>, PETSCII GRAPH 0xA6
+0d	OEM_6		0	005e	f8a9	-1	-1	-1	f8a6		// CIRCUMFLEX ACCENT, PETSCII GRAPH 0xA6, <none>, <none>, <none>, PETSCII GRAPH 0xA6
 
 //        ü
 // [Shft] Ü -> PETSCII GRAPH 0xba

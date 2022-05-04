@@ -15,8 +15,6 @@
 kbtab_407:
 	.incbin "asm/407.bin.lzsa"
 
-; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
-; graph: '\xa9'
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
 ; '\_`{|}~§°²³´µÄÖÜßäöüẞ€'
 
