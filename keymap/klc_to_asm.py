@@ -643,6 +643,7 @@ for in_c in kbd_layout['deadkeys'].keys():
 	data1 = bytearray([shiftstate, ps2_scancode, len(data1) + 3]) + data1
 	#pprint.pprint(data1)
 	deadkey_data.extend(data1)
+deadkey_data.append(0xff)
 print(len(deadkey_data))
 data.extend(deadkey_data)
 
