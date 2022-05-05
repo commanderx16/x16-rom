@@ -341,7 +341,6 @@ find_combination:
 	sta ckbtab
 	lda #>deadkeys
 	sta ckbtab+1
-
 ; find dead key's group
 @loop1:	lda (ckbtab)
 	ldy #1
@@ -358,7 +357,6 @@ find_combination:
 	bcc @loop1
 	inc ckbtab+1
 	bra @loop1
-
 ; find mapping in this group
 @found1:
 	iny
@@ -375,7 +373,6 @@ find_combination:
 	bne @loop2
  ; not found in group
 	rts             ; (.Z = 1)
-
 @found2:
 	iny
 	lda (ckbtab),y  ; (.Z = 0)
