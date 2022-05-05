@@ -319,14 +319,13 @@ cont:
 @combine_dead:
 	pha
 	jsr find_combination
-	bne :+
+	bne @found
 ; can't be combined -> two chars: "^" + "x" = "^x"
 	lda #' '
-	jsr find_combination
-	jsr kbdbuf_put
+	jsr @combine_dead
 	pla
 	bra @end
-:	plx
+@found:	plx            ; clean up
 @end:	stz dk_scan
 	jmp kbdbuf_put
 
