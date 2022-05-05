@@ -3,6 +3,7 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
+.macpack longbranch
 .include "banks.inc"
 .include "regs.inc"
 .include "io.inc"
@@ -287,11 +288,11 @@ _kbd_scan:
 
 	ldx shflag
 	cpx #MODIFIER_CAPS
-	beq handle_caps
+	jeq handle_caps
 
 cont:
 	phx ; shift state
-	pha ; scancode
+	phy ; scancode
 
 	jsr find_table
 	bcc @skip
@@ -317,6 +318,21 @@ cont:
 
 @combine_dead:
 	pha
+	jsr find_combination
+	bne :+
+	lda #' '
+	jsr find_combination
+	jsr kbdbuf_put
+	pla
+	stz dk_scan
+	jmp kbdbuf_put
+:	plx
+	stz dk_scan
+	jmp kbdbuf_put
+
+
+find_combination:
+	pha
 	lda #<deadkeys
 	sta ckbtab
 	lda #>deadkeys
@@ -325,7 +341,8 @@ cont:
 ; find dead key's group
 @loop1:	lda (ckbtab)
 	bpl :+
-	pla
+	pla ; dead key not found - XXX must never happen!
+	lda #0
 	rts
 :	ldy #1
 	cmp dk_shift
@@ -357,13 +374,15 @@ cont:
 	iny
 	dex
 	bne @loop2
-	; XXX
-	rts ; not found in group
+
+ ; not found in group
+	lda #0
+	rts
 
 @found2:
 	iny
 	lda (ckbtab),y
-	jmp kbdbuf_put
+	rts
 
 ; The caps table has one bit per scancode, indicating whether
 ; caps + the key should use the shifted or the unshifted table.

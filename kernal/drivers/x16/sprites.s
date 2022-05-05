@@ -153,6 +153,7 @@ convert_16x16x1_mask:
 ; Note: A negative x coordinate turns the sprite off.
 ;---------------------------------------------------------------
 sprite_set_position:
+.if 0
 	ldx #>VERA_SPRITES_BASE
 	stx VERA_ADDR_M
 	ldx #((^VERA_SPRITES_BASE) | $10)
@@ -190,4 +191,5 @@ sprite_set_position:
 	lda VERA_DC_VIDEO
 	ora #$40
 	sta VERA_DC_VIDEO
+.endif
 	rts
