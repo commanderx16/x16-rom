@@ -640,7 +640,7 @@ for in_c in kbd_layout['deadkeys'].keys():
 		else:
 			data1.append(ord(add_c))
 			data1.append(ord(res_c))
-	data1 = bytearray([shiftstate, ps2_scancode, len(data1) + 3]) + data1
+	data1 = bytearray([shiftstate | 0x80, ps2_scancode, len(data1) + 3]) + data1
 	#pprint.pprint(data1)
 	deadkey_data.extend(data1)
 deadkey_data.append(0xff)
