@@ -291,26 +291,20 @@ _kbd_scan:
 	jeq handle_caps
 
 cont:
-	phx ; shift state
-
 	jsr find_table
 	bcc @skip
 	lda (ckbtab),y
 	beq @skip
 	cmp #$80        ; dead key -> save it
 	beq @dead
-	plx             ; clean up
 	ldx dk_scan
 	bne @combine_dead
 	jmp kbdbuf_put
 
-@skip:	pla
-	rts
-
 @dead:	sty dk_scan
-	pla
+	lda tmp2
 	sta dk_shift
-	rts
+@skip:	rts
 
 @combine_dead:
 	pha
