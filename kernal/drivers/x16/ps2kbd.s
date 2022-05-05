@@ -361,18 +361,15 @@ find_combination:
 	sbc #3          ; (.C = 1)
 	lsr
 	tax             ; ...into count
-	iny
 	pla
-@loop2:	cmp (ckbtab),y
+@loop2:	iny
+	cmp (ckbtab),y
 	beq @found2
-	iny
 	iny
 	dex
 	bne @loop2
-
  ; not found in group
-	lda #0
-	rts
+	rts             ; (.Z = 1)
 
 @found2:
 	iny
