@@ -301,12 +301,13 @@ cont:
 	bne @combine_dead
 	jmp kbdbuf_put
 
-
 @dead:	sty dk_scan
 	lda tmp2
 	sta dk_shift
 @skip:	rts
 
+; combine a dead key and a second key,
+; handling the special case of unsupported combinations
 @combine_dead:
 	pha
 	jsr find_combination
@@ -320,7 +321,7 @@ cont:
 @end:	stz dk_scan
 	jmp kbdbuf_put
 
-; combine a dead key and a second key
+; use tables to combine a dead key and a second key
 ; In:  .A               second key
 ;      dk_shift/dk_scan dead key
 ; Out: .Z: =1 found
