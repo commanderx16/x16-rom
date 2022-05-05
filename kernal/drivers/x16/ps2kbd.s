@@ -320,16 +320,15 @@ cont:
 	pha
 	jsr find_combination
 	bne :+
+; can't be combined -> two chars: "^" + "x" = "^x"
 	lda #' '
 	jsr find_combination
 	jsr kbdbuf_put
 	pla
-	stz dk_scan
-	jmp kbdbuf_put
+	bra @end
 :	plx
-	stz dk_scan
+@end:	stz dk_scan
 	jmp kbdbuf_put
-
 
 find_combination:
 	pha
@@ -340,11 +339,7 @@ find_combination:
 
 ; find dead key's group
 @loop1:	lda (ckbtab)
-	bpl :+
-	pla ; dead key not found - XXX must never happen!
-	lda #0
-	rts
-:	ldy #1
+	ldy #1
 	cmp dk_shift
 	bne :+
 	lda (ckbtab),y
@@ -359,13 +354,13 @@ find_combination:
 	inc ckbtab+1
 	bra @loop1
 
+; find mapping in this group
 @found1:
 	iny
-	lda (ckbtab),y ; skip
-	sec
-	sbc #3
+	lda (ckbtab),y  ; convert group length...
+	sbc #3          ; (.C = 1)
 	lsr
-	tax ; count
+	tax             ; ...into count
 	iny
 	pla
 @loop2:	cmp (ckbtab),y
