@@ -292,26 +292,22 @@ _kbd_scan:
 
 cont:
 	phx ; shift state
-	phy ; scancode
 
 	jsr find_table
 	bcc @skip
 	lda (ckbtab),y
 	beq @skip
-	cmp #$80
+	cmp #$80        ; dead key -> save it
 	beq @dead
-	plx
-	plx
+	plx             ; clean up
 	ldx dk_scan
 	bne @combine_dead
 	jmp kbdbuf_put
 
 @skip:	pla
-	pla
 	rts
 
-@dead:	pla
-	sta dk_scan
+@dead:	sty dk_scan
 	pla
 	sta dk_shift
 	rts
