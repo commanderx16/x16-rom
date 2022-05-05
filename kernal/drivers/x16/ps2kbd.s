@@ -330,6 +330,11 @@ cont:
 @end:	stz dk_scan
 	jmp kbdbuf_put
 
+; combine a dead key and a second key
+; In:  .A               second key
+;      dk_shift/dk_scan dead key
+; Out: .Z: =1 found
+;          .A: ISO code
 find_combination:
 	pha
 	lda #<deadkeys
@@ -373,7 +378,7 @@ find_combination:
 
 @found2:
 	iny
-	lda (ckbtab),y
+	lda (ckbtab),y  ; (.Z = 0)
 	rts
 
 ; The caps table has one bit per scancode, indicating whether
