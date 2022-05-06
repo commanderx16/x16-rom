@@ -264,9 +264,7 @@ _kbd_scan:
 	tay
 
 	cpx #0
-	beq :+
-	jmp down_ext
-:
+	jne down_ext
 ; *** regular scancodes
 	cpy #$01 ; f9
 	beq cycle_layout
