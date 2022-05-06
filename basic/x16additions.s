@@ -225,9 +225,26 @@ vpoke	jsr getbyt ; bank
 	rts
 
 ;***************
+bvrfy
+	lda #1
+	.byte $2c ; skip lda #0 (bit xxxx)
+bload
+	lda #0
+	pha
+	jsr plsvbin
+	bcc bload2
+	pla
+	bcs :+
+bload2
+	jmp cld8 ; jump to load command w/ ram bank switch to chosen bank
+
 vload	jsr plsv   ;parse the parameters
 	bcc vld1   ;require bank/addr
-	jmp snerr
+:	jmp snerr
+
+bvload	jsr plsvbin	;parse, with SA=2 if successful
+	bcs :-
+
 vld1	lda andmsk ;bank number
 	adc #2
 	jmp cld10  ;jump to load command

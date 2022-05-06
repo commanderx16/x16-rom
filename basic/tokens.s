@@ -105,6 +105,9 @@ stmdsp2	; statements
 	.word locate-1
 	.word boot-1
 	.word ckeymap-1
+	.word bload-1
+	.word bvload-1
+	.word bvrfy-1
 
 	; functions
 ptrfunc	.word vpeek

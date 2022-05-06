@@ -79,6 +79,7 @@ cload	lda #0          ;load flag
 :	pha
 	jsr plsv        ;parse parameters
 	bcs cld9
+cld8				;entry-point for BLOAD
 	ldx andmsk
 	stx ram_bank
 cld9	pla
@@ -174,9 +175,14 @@ jerxit	jmp erexit
 ;- the carry flag is clear
 ;- eormsk contains 1
 ;
+plsvbin
+	lda #2			; enable headerless mode
+	.byte $2c		; skip lda #0 ($4c = bit xxxxx)
 plsv
+	lda #0			; disable headerless mode
 ;default file name
 ;
+	sta addend		; headerless mode stashed in addend
 	lda #0          ;length=0
 	sta eormsk
 	jsr $ffbd
@@ -211,7 +217,7 @@ plsv
 	ldx andmsk      ;device #
 	jsr paoc19      ;store x,y then maybe quit
 	sty andmsk      ;bank number
-	ldy #0
+	ldy addend		;headerless mode?
 	jsr $ffba
 	jsr frmadr      ;put address in poker
 ;

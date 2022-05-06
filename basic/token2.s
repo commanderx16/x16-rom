@@ -78,6 +78,9 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "LOCAT", 'E' + $80
 	.byt "BOO", 'T' + $80
 	.byt "KEYMA", 'P' + $80
+	.byt "BLOA", 'D' + $80
+	.byt "BVLOA", 'D' + $80
+	.byt "BVERIF", 'Y' + $80
 	.byt "VPEE", 'K' + $80
 	.byt "M", 'X' + $80
 	.byt "M", 'Y' + $80
