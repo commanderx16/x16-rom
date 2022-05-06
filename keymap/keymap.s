@@ -25,13 +25,13 @@
 .include "asm/816.s"    ; Portuguese
 ; nobody asked for these, but they may be useful
 ;.include "asm/Colemak.s"; US - Colemak
-.include "asm/413.s"    ; Dutch
+;.include "asm/413.s"    ; Dutch
 .include "asm/41A.s"    ; Croatian
 .include "asm/41B.s"    ; Slovak
 .include "asm/41C.s"    ; Albanian
 .include "asm/424.s"    ; Slovenian
-;.include "asm/426.s"    ; Latvian
-;.include "asm/427.s"    ; Lithuanian IBM
+.include "asm/426.s"    ; Latvian
+.include "asm/427.s"    ; Lithuanian IBM
 ;.include "asm/80A.s"    ; Latin American Spanish
 
 ; there is space for 3 or 4 more
