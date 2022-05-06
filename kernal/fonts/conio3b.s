@@ -14,18 +14,15 @@ font_init:
 	LoadW r0, SystemFont
 set_font2:
 	ldy #0
-	lda (r0),y
-	sta baselineOffset
+:	lda (r0),y
+	sta baselineOffset,y
 	iny
-	lda (r0),y
-	sta curSetWidth
-	iny
-	lda (r0),y
-	sta curSetWidth+1
-	iny
-	lda (r0),y
-	sta curHeight
-	iny
+	cpy #4
+	bne :-
+
+	.assert curSetWidth = baselineOffset+1, error
+	.assert curHeight = baselineOffset+3, error
+
 	lda (r0),y
 	sta curIndexTable
 	iny
