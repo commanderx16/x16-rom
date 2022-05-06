@@ -129,7 +129,7 @@
 	jmp mouse_scan         ; $FF71: mouse_scan - read mouse state                  [unsupported C128: JMPFAR – goto another bank]
 	jmp indfet             ; $FF74: [C128] FETCH – LDA (fetvec),Y from any bank
 	jmp stash              ; $FF77: [C128] STASH – STA (stavec),Y to any bank
-	jmp cmpare             ; $FF7A: [C128] CMPARE – CMP (cmpvec),Y to any bank
+	.byte 0,0,0            ; $FF7A: [unsupported C128: CMPARE – CMP (cmpvec),Y to any bank]
 	jmp primm              ; $FF7D: [C128] PRIMM – print string following the caller’s code
 
 	;KERNAL revision

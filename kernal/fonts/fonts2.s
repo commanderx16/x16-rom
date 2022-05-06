@@ -3,7 +3,7 @@
 ;
 ; Font library: drawing
 
-.export GRAPH_get_char_size 
+.export GRAPH_get_char_size
 
 ;
 ; For italics (actually slanted) characters, the original GEOS
@@ -35,7 +35,7 @@
 ; This looks way better and matches the slant of Helvetica
 ; Italics vs. Helvetica Regular (1/4.6) better.
 ;
-less_slanted = 1	
+less_slanted = 1
 
 ;---------------------------------------------------------------
 ; GRAPH_get_char_size
@@ -96,7 +96,7 @@ GRAPH_get_char_size:
 	ldx #0
 :	sec
 	rts
-	
+
 get_char_size:
 	subv $20
 _GetRealSize2:
