@@ -64,6 +64,7 @@ def get_kbd_layout(base_filename, load_patch = False):
 		section_changes.append(fields)
 
 	kbd_layout = {}
+	kbd_layout['deadkeys'] = {}
 	for lines in sections:
 		fields = lines[0]
 		if fields[0] == 'KBD':
@@ -98,6 +99,7 @@ def get_kbd_layout(base_filename, load_patch = False):
 					# TODO: 807 has extension lines we don't support
 					continue
 				chars = {}
+				deads = {}
 				i = 3
 				for shiftstate in shiftstates:
 					if i > len(fields) - 1:
@@ -105,11 +107,15 @@ def get_kbd_layout(base_filename, load_patch = False):
 					c = fields[i]
 					# TODO: '@' suffix -> dead key
 					if c[-1] == '@':
+						dead = True
 						c = c[:-1]
+					else:
+						dead = False
 					if c != '-1' and c != '%%':
 						if len(c) > 1:
 							c = chr(int(c[0:4], 16))
 						chars[shiftstate] = c
+						deads[shiftstate] = dead
 						if (line_number < len(lines[1:])):
 							all_originally_reachable_characters += c
 					i += 1
@@ -120,14 +126,19 @@ def get_kbd_layout(base_filename, load_patch = False):
 				layout[int(fields[0], 16)] = {
 					#'vk_name': 'VK_' + fields[1],
 					'cap': cap,
-					'chars': chars
+					'chars': chars,
+					'deads': deads
 				}
 				line_number += 1
 			kbd_layout['layout'] = layout
 			kbd_layout['all_originally_reachable_characters'] = ''.join(sorted(all_originally_reachable_characters))
 		elif fields[0] == 'DEADKEY':
-			# TODO
-			pass
+			in_c = chr(int(lines[0][1], 16))
+			kbd_layout['deadkeys'][in_c] = {}
+			for fields in lines[1:]:
+				add_c = chr(int(fields[0], 16))
+				res_c = chr(int(fields[1], 16))
+				kbd_layout['deadkeys'][in_c][add_c] = res_c
 		elif fields[0] == 'LIGATURE':
 			# TODO
 			pass	
@@ -297,25 +308,35 @@ table_count = 0
 for iso_mode in [False, True]:
 	load_patch = not iso_mode
 	kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
+	#pprint.pprint(kbd_layout)
 
 	layout = kbd_layout['layout']
 	shiftstates = kbd_layout['shiftstates']
 
 	keytab = {}
 	capstab = {}
+	deadkeys = {}
 	for shiftstate in shiftstates:
 		keytab[shiftstate] = [ '\0' ] * 128
 
 	# create PS/2 "Code 2" -> PETSCII tables, capstab
 	for hid_scancode in layout.keys():
 		ps2_scancode = ps2_set2_code_from_hid_code(hid_scancode)
-		l = layout[hid_scancode]['chars']
+		chars = layout[hid_scancode]['chars']
+		deads = layout[hid_scancode]['deads']
 		capstab[ps2_scancode] = layout[hid_scancode]['cap'];
 		for shiftstate in keytab.keys():
-			if shiftstate in l:
-				c_unicode = l[shiftstate]
+			if shiftstate in chars:
+				c_unicode = chars[shiftstate]
+				dead = deads[shiftstate]
 				if iso_mode:
-					keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
+					if dead:
+						if not c_unicode in kbd_layout['deadkeys']:
+							sys.exit("missing dead key: " + hex(ord(c_unicode)))
+						keytab[shiftstate][ps2_scancode] = chr(0x80) # magic
+						deadkeys[c_unicode] = (shiftstate, ps2_scancode)
+					else:
+						keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
 				else:
 					keytab[shiftstate][ps2_scancode] = petscii_from_unicode(c_unicode)
 
@@ -603,6 +624,30 @@ for ibyte in range(0, 16):
 			caps = False
 		byte = byte | (caps << (7-ibit))
 	data.append(byte)
+
+# deadkeys
+deadkey_data = bytearray()
+for in_c in kbd_layout['deadkeys'].keys():
+	(shiftstate, ps2_scancode) = deadkeys[in_c]
+	data1 = bytearray()
+	for add_c in kbd_layout['deadkeys'][in_c].keys():
+		res_c = kbd_layout['deadkeys'][in_c][add_c]
+		add_c = latin15_from_unicode(add_c)
+		res_c = latin15_from_unicode(res_c)
+		if add_c == chr(0) or res_c == chr(0):
+			#print("skip")
+			pass
+		else:
+			data1.append(ord(add_c))
+			data1.append(ord(res_c))
+	data1 = bytearray([shiftstate | 0x80, ps2_scancode, len(data1) + 3]) + data1
+	#pprint.pprint(data1)
+	deadkey_data.extend(data1)
+while len(deadkey_data) < 150:
+	deadkey_data.append(0xff)
+if len(deadkey_data) > 150:
+	sys.exit("too much deadkey data: " + str(len(deadkey_data)))
+data.extend(deadkey_data)
 
 # locale
 data.extend(locale1.encode('latin-1'))

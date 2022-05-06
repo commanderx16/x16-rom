@@ -3,6 +3,7 @@
 ;----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
+.macpack longbranch
 .include "banks.inc"
 .include "regs.inc"
 .include "io.inc"
@@ -45,12 +46,18 @@ ckbtab:	.res 2           ;    used for keyboard lookup
 prefix:	.res 1           ;    PS/2: prefix code (e0/e1)
 brkflg:	.res 1           ;    PS/2: was key-up event
 curkbd:	.res 1           ;    current keyboard layout index
+dk_shift:
+	.res 1
+dk_scan:
+	.res 1
 
 .segment "KEYMAP"
 keymap_data:
 	.res TABLE_COUNT*128
 
 caps:	.res 16 ; for which keys caps means shift
+deadkeys:
+	.res 150
 kbdnam:
 	.res 6
 keymap_len = * - keymap_data ; 10 * $80 + $10 + 6 = $516
@@ -80,6 +87,8 @@ kbd_scan:
 ;  $ff: reload current layout (PETSCII vs. ISO might have changed)
 ;
 _kbd_config:
+	stz dk_scan ; clear dead key
+
 	cmp #$ff
 	bne :+
 	lda curkbd
@@ -255,7 +264,7 @@ _kbd_scan:
 	tay
 
 	cpx #0
-	bne down_ext
+	jne down_ext
 ; *** regular scancodes
 	cpy #$01 ; f9
 	beq cycle_layout
@@ -277,34 +286,86 @@ _kbd_scan:
 
 	ldx shflag
 	cpx #MODIFIER_CAPS
-	beq handle_caps
+	jeq handle_caps
 
-cont:	jsr find_table
-	bcc drv_end
+cont:
+	jsr find_table
+	bcc @skip
 	lda (ckbtab),y
-	beq drv_end
+	beq @skip
+	cmp #$80        ; dead key -> save it
+	beq @dead
+	ldx dk_scan
+	bne @combine_dead
 	jmp kbdbuf_put
 
-find_table:
-.assert keymap_data = $a000, error; so we can ORA instead of ADC and carry
-	sta tmp2
-	lda #<keymap_data
+@dead:	sty dk_scan
+	lda tmp2
+	sta dk_shift
+@skip:	rts
+
+; combine a dead key and a second key,
+; handling the special case of unsupported combinations
+@combine_dead:
+	pha
+	jsr find_combination
+	bne @found
+; can't be combined -> two chars: "^" + "x" = "^x"
+	lda #' '
+	jsr @combine_dead
+	pla
+	bra @end
+@found:	plx            ; clean up
+@end:	stz dk_scan
+	jmp kbdbuf_put
+
+; use tables to combine a dead key and a second key
+; In:  .A               second key
+;      dk_shift/dk_scan dead key
+; Out: .Z: =1 found
+;          .A: ISO code
+find_combination:
+	pha
+	lda #<deadkeys
 	sta ckbtab
-	lda #>keymap_data
+	lda #>deadkeys
 	sta ckbtab+1
-	ldx #TABLE_COUNT
-@loop:	lda (ckbtab)
-	cmp tmp2
-	beq @ret
-	lda ckbtab
-	eor #$80
+; find dead key's group
+@loop1:	lda (ckbtab)
+	ldy #1
+	cmp dk_shift
+	bne :+
+	lda (ckbtab),y
+	cmp dk_scan
+	beq @found1
+:	iny
+	lda (ckbtab),y ; skip
+	clc
+	adc ckbtab
 	sta ckbtab
-	bmi :+
+	bcc @loop1
 	inc ckbtab+1
-:	dex
-	bne @loop
-	; .C = 0
-@ret:	rts
+	bra @loop1
+; find mapping in this group
+@found1:
+	iny
+	lda (ckbtab),y  ; convert group length...
+	sbc #3          ; (.C = 1)
+	lsr
+	tax             ; ...into count
+	pla
+@loop2:	iny
+	cmp (ckbtab),y
+	beq @found2
+	iny
+	dex
+	bne @loop2
+ ; not found in group
+	rts             ; (.Z = 1)
+@found2:
+	iny
+	lda (ckbtab),y  ; (.Z = 0)
+	rts
 
 ; The caps table has one bit per scancode, indicating whether
 ; caps + the key should use the shifted or the unshifted table.
@@ -388,6 +449,27 @@ is_stop:
 	ror
 kbdbuf_put2:
 	jmp kbdbuf_put
+
+find_table:
+.assert keymap_data = $a000, error; so we can ORA instead of ADC and carry
+	sta tmp2
+	lda #<keymap_data
+	sta ckbtab
+	lda #>keymap_data
+	sta ckbtab+1
+	ldx #TABLE_COUNT
+@loop:	lda (ckbtab)
+	cmp tmp2
+	beq @ret
+	lda ckbtab
+	eor #$80
+	sta ckbtab
+	bmi :+
+	inc ckbtab+1
+:	dex
+	bne @loop
+	; .C = 0
+@ret:	rts
 
 ;****************************************
 ; RECEIVE SCANCODE:
