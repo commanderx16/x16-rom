@@ -643,8 +643,10 @@ for in_c in kbd_layout['deadkeys'].keys():
 	data1 = bytearray([shiftstate | 0x80, ps2_scancode, len(data1) + 3]) + data1
 	#pprint.pprint(data1)
 	deadkey_data.extend(data1)
-deadkey_data.append(0xff)
-print(len(deadkey_data))
+while len(deadkey_data) < 150:
+	deadkey_data.append(0xff)
+if len(deadkey_data) > 150:
+	sys.exit("too much deadkey data: " + str(len(deadkey_data)))
 data.extend(deadkey_data)
 
 # locale

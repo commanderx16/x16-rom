@@ -24,7 +24,7 @@
 .include "asm/40F.s"    ; Icelandic
 .include "asm/816.s"    ; Portuguese
 ; nobody asked for these, but they may be useful
-.include "asm/Colemak.s"; US - Colemak
+;.include "asm/Colemak.s"; US - Colemak
 .include "asm/413.s"    ; Dutch
 .include "asm/41A.s"    ; Croatian
 .include "asm/41B.s"    ; Slovak

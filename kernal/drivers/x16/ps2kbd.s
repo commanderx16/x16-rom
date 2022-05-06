@@ -46,6 +46,10 @@ ckbtab:	.res 2           ;    used for keyboard lookup
 prefix:	.res 1           ;    PS/2: prefix code (e0/e1)
 brkflg:	.res 1           ;    PS/2: was key-up event
 curkbd:	.res 1           ;    current keyboard layout index
+dk_shift:
+	.res 1
+dk_scan:
+	.res 1
 
 .segment "KEYMAP"
 keymap_data:
@@ -53,14 +57,10 @@ keymap_data:
 
 caps:	.res 16 ; for which keys caps means shift
 deadkeys:
-	.res 128
+	.res 150
 kbdnam:
 	.res 6
 keymap_len = * - keymap_data ; 10 * $80 + $10 + 6 = $516
-dk_shift:
-	.res 1
-dk_scan:
-	.res 1
 
 .segment "PS2KBD"
 
