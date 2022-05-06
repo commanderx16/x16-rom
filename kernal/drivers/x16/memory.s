@@ -230,7 +230,7 @@ fetvec	=*+1
 
 ; XXX
 ; Exposing a variable in the $0200 range is hard to keep stable
-; and is bad API. (`stash` has the same problem).
+; and is bad API.
 ; https://github.com/commanderx16/x16-rom/issues/305
 ; XXX
 
