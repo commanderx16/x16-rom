@@ -177,12 +177,12 @@ jerxit	jmp erexit
 ;
 plsvbin
 	lda #2			; enable headerless mode
-	.byte $2c		; skip lda #0 ($4c = bit xxxxx)
+	.byte $2c		; skip lda #0 ($2c = bit $xxxx)
 plsv
 	lda #0			; disable headerless mode
+	sta addend		; headerless mode stashed in addend
 ;default file name
 ;
-	sta addend		; headerless mode stashed in addend
 	lda #0          ;length=0
 	sta eormsk
 	jsr $ffbd
