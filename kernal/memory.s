@@ -4,6 +4,7 @@
 ; (C)2019 Michael Steil, License: 2-clause BSD
 
 .include "regs.inc"
+.include "io.inc"
 .include "mac.inc"
 
 .export memory_fill
@@ -22,15 +23,14 @@
 ;            a    byte value
 ;---------------------------------------------------------------
 memory_fill:
-.ifp02
-	tax
-	lda r0H
-	pha
-	txa
-.else
-	ldx r0H
+	ldx r1L
+	bne @0
+	ldx r1H
+	beq @5
+@0:	ldx r0H
+	cpx #IO_PAGE    ; detect I/O area
+	beq io_fill
 	phx
-.endif
 	ldx r1H
 	beq @2
 	ldy #0
@@ -46,17 +46,26 @@ memory_fill:
 	sta (r0),y
 	cpy #0
 	bne @3
-@4:
-.ifp02
-	tax
-	pla
-	sta r0H
-	txa
-.else
-	plx
+@4:	plx
 	stx r0H
-.endif
-	rts
+@5:	rts
+
+io_fill:
+	ldx r1H
+	beq @2
+	ldy #0
+@1:	sta (r0)
+	iny
+	bne @1
+	dex
+	bne @1
+@2:	ldy r1L
+	beq @4
+@3:	dey
+	sta (r0)
+	cpy #0
+	bne @3
+@4:	rts
 
 ;---------------------------------------------------------------
 ; memory_copy
@@ -75,14 +84,28 @@ memory_copy:
 	lda r2L
 	ora r2H
 	beq @7
-	PushB r0L
+
+; detect I/O area
+	lda r0H
+	cmp #IO_PAGE
+	bne @1
+	lda r1H
+	cmp #IO_PAGE
+	beq @0
+	jmp io_fetch
+@0:	jmp io_copy
+@1:	lda r1H
+	cmp #IO_PAGE
+	beq io_stash
+
+	PushB r0H
 	PushB r1H
 
 	CmpW r0, r1
 	bcc @8
 
-; forward copy
-@3:	ldy #0
+; RAM forward copy
+	ldy #0
 	ldx r2H
 	beq @5
 @4:	lda (r0),y
@@ -100,10 +123,10 @@ memory_copy:
 	iny
 	bra @5
 @6:	PopB r1H
-	PopB r0L
+	PopB r0H
 @7:	rts
 
-; backward copy
+; RAM backward copy
 @8:	AddB r2H, r0H
 	AddB r2H, r1H
 	ldx r2H
@@ -126,6 +149,67 @@ memory_copy:
 	dex
 	bra @A
 
+; copy from RAM to I/O
+io_stash:
+	PushB r0H
+	ldy #0
+	ldx r2H
+	beq @5
+@4:	lda (r0),y
+	sta (r1)
+	iny
+	bne @4
+	inc r0H
+	dex
+	bne @4
+@5:	cpy r2L
+	beq @6
+	lda (r0),y
+	sta (r1)
+	iny
+	bra @5
+@6:	PopB r0H
+	rts
+
+io_fetch:
+	PushB r1H
+	ldy #0
+	ldx r2H
+	beq @5
+@4:	lda (r0)
+	sta (r1),y
+	iny
+	bne @4
+	inc r1H
+	dex
+	bne @4
+@5:	cpy r2L
+	beq @6
+	lda (r0)
+	sta (r1),y
+	iny
+	bra @5
+@6:	PopB r1H
+	rts
+
+io_copy:
+	ldy #0
+	ldx r2H
+	beq @5
+@4:	lda (r0)
+	sta (r1)
+	iny
+	bne @4
+	dex
+	bne @4
+@5:	cpy r2L
+	beq @6
+	lda (r0)
+	sta (r1)
+	iny
+	bra @5
+@6:	rts
+
 ;---------------------------------------------------------------
 ; memory_crc
 ;
@@ -141,10 +225,12 @@ memory_crc:
 	sta r2L
 	sta r2H
 
-	PushB r0H
+	lda r0H
+	cmp #IO_PAGE
+	beq io_crc
+	pha
 	lda r1H
 	beq @2
-	pha
 	ldy #0
 @1:	lda (r0),y
 	jsr crc16_f
@@ -153,7 +239,6 @@ memory_crc:
 	inc r0H
 	dec r1H
 	bne @1
-	PopB r1H
 @2:	ldy r1L
 	beq @4
 @3:	dey
@@ -163,6 +248,25 @@ memory_crc:
 	bne @3
 @4:	PopB r0H
 	rts
+
+io_crc:
+	lda r1H
+	beq @2
+	ldy #0
+@1:	lda (r0)
+	jsr crc16_f
+	iny
+	bne @1
+	dec r1H
+	bne @1
+@2:	ldy r1L
+	beq @4
+@3:	dey
+	lda (r0)
+	jsr crc16_f
+	cpy #0
+	bne @3
+@4:	rts
 
 ; This is taken from
 ; http://www.6502.org/source/integers/crc-more.html

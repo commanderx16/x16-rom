@@ -69,6 +69,7 @@ This will leave the binaries in the `bin/` subdirectory; you may use thes direct
 Consult the Nesdev Wiki [Installing CC65][nd-cc65] page for some hints, including Windows installs. However, the Debian packages they suggest from [trikaliotis.net] appear to have signature errors.
 
 
+
 Credits
 -------
 
@@ -92,6 +93,9 @@ Release Notes
 	* API
 		* keyhandler vector ($032E/$032F) doesn't need to return Z
 		* PLOT API will clear cursor
+* BASIC
+		* on RESET, runs PRG starting with "AUTOBOOT.X16" from device 8 (N.B.: on host fs, name it "AUTOBOOT.X16*" for now!)
+		* BOOT statement with the same function
 * DOS
 	* better detection of volume label
 	* fixed `$=P` (list partitions), `$*=P`/`D` (dir filtering), hidden files

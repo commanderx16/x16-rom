@@ -49,8 +49,8 @@ iobase                       = $fff3
 close_all                    = $ff4a
 lkupla                       = $ff59
 lkupsa                       = $ff5c
-screen_mode                  = $ff5f
-dlchr                        = $ff62 ; NYI
+screen_mode                  = $ff5f ; old name: swapper
+screen_set_charset           = $ff62 ; old name: dlchr
 pfkey                        = $ff65 ; NYI
 jsrfar                       = $ff6e
 fetch                        = $ff74
@@ -124,7 +124,7 @@ console_get_char             = $fee1
 console_put_image            = $fed8
 console_set_paging_message   = $fed5
 
-;***empty***                 = $fed2
+keymap                       = $fed2
 
 entropy_get                  = $fecf
 

@@ -176,30 +176,35 @@
 
 .macro smb bitN, dest
 	pha
-	lda #1 << bitN
-	ora dest
-	sta dest
+	smbf bitN, dest
 	pla
 .endmacro
 
 .macro smbf bitN, dest
 	lda #1 << bitN
-	ora dest
-	sta dest
+	.ifp02
+		ora dest
+		sta dest
+	.else
+		tsb dest
+	.endif
 .endmacro
 
 .macro rmb bitN, dest
 	pha
-	lda #(1 << bitN) ^ $ff
-	and dest
-	sta dest
+	rmbf bitN, dest
 	pla
 .endmacro
 
 .macro rmbf bitN, dest
-	lda #(1 << bitN) ^ $ff
-	and dest
-	sta dest
+	.ifp02
+		lda #(1 << bitN) ^ $ff
+		and dest
+		sta dest
+	.else
+		lda #1 << bitN
+		trb dest
+	.endif
 .endmacro
 
 .macro bbs bitN, source, addr

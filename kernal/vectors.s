@@ -23,6 +23,7 @@
 .import console_init, console_put_char, console_get_char, console_put_image, console_set_paging_message
 
 .import kbdbuf_peek, kbdbuf_get_modifiers, kbdbuf_put
+.import keymap
 
 .import entropy_get
 
@@ -53,7 +54,7 @@
 
 	jmp entropy_get                ; $FECF
 
-	.byte 0,0,0                    ; $FED2
+	jmp keymap                     ; $FED2
 
 	jmp console_set_paging_message ; $FED5
 	jmp console_put_image          ; $FED8
@@ -128,7 +129,7 @@
 	jmp mouse_scan         ; $FF71: mouse_scan - read mouse state                  [unsupported C128: JMPFAR – goto another bank]
 	jmp indfet             ; $FF74: [C128] FETCH – LDA (fetvec),Y from any bank
 	jmp stash              ; $FF77: [C128] STASH – STA (stavec),Y to any bank
-	jmp cmpare             ; $FF7A: [C128] CMPARE – CMP (cmpvec),Y to any bank
+	.byte 0,0,0            ; $FF7A:                                                [unsupported C128: CMPARE]
 	jmp primm              ; $FF7D: [C128] PRIMM – print string following the caller’s code
 
 	;KERNAL revision

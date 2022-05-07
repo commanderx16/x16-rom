@@ -1,29 +1,29 @@
 //        - -> -                  [unchanged]
 // [Shft] _ -> PETSCII GRAPH 0xdd
 // [Alt]    -> PETSCII GRAPH 0xdc
-0c	OEM_MINUS	0	002d	f8dd	-1	f8dc	-1		// HYPHEN-MINUS, PETSCII GRAPH 0xDD, <none>, PETSCII GRAPH 0xDC, <none>
+0c	OEM_MINUS	0	002d	f8dd	-1	00a5	-1	f8dc		// HYPHEN-MINUS, PETSCII GRAPH 0xDD, <none>, YEN SIGN, <none>, PETSCII GRAPH 0xDC
 
 //        = -> =                  [unchanged]
 // [Shft] + -> +                  [unchanged]
 // [Alt]    -> PETSCII GRAPH 0xa6
-0d	OEM_PLUS	0	003d	002b	-1	f8a6	-1		// EQUALS SIGN, PLUS SIGN, <none>, PETSCII GRAPH 0xA6, <none>
+0d	OEM_PLUS	0	003d	002b	-1	-1	-1	f8a6		// EQUALS SIGN, PLUS SIGN, <none>, <none>, PETSCII GRAPH 0xA6
 
 //        [ -> [                  [unchanged]
 // [Shft] { -> PETSCII GRAPH 0xba
 // [Alt] ^[ -> PETSCII GRAPH 0xa4
-1a	OEM_4		0	005b	f8ba	-1	f8a4	-1		// LEFT SQUARE BRACKET, PETSCII GRAPH 0xBA, <none>, PETSCII GRAPH 0xA4, <none>
+1a	OEM_4		0	005b	f8ba	001b	-1	-1	f8a4		// LEFT SQUARE BRACKET, PETSCII GRAPH 0xBA, ESCAPE, <none>, <none>, PETSCII GRAPH 0xA4
 
 //        ] -> [                  [unchanged]
 // [Shft] } -> PETSCII GRAPH 0xc0
 // [Alt] ^] -> PETSCII GRAPH 0xdf
-1b	OEM_6		0	005d	f8c0	-1	f8df	-1		// RIGHT SQUARE BRACKET, PETSCII GRAPH 0xC0,<none>,  PETSCII GRAPH 0xDF, <none>
+1b	OEM_6		0	005d	f8c0	001d	-1	-1	f8df		// RIGHT SQUARE BRACKET, PETSCII GRAPH 0xC0, INFORMATION SEPARATOR THREE,  <none>, PETSCII GRAPH 0xDF
 
 //        ` -> ←
 // [Shft] ~ -> π
 // [Alt]    -> PETSCII GRAPH 0xdb
-29	OEM_3		0	2190	03c0	-1	f8db	-1		// LEFTWARDS ARROW, GREEK SMALL LETTER PI, <none>, PETSCII GRAPH 0xDB, <none>
+29	OEM_3		0	2190	03c0	-1	00a6	-1	f8db		// LEFTWARDS ARROW, GREEK SMALL LETTER PI, <none>, BROKEN BAR, <none>, PETSCII GRAPH 0xDB
 
 //        \ -> #                  [unchanged]
 // [Shft] | -> PETSCII GRAPH 0xa9
 // [Alt]    -> PETSCII GRAPH 0xa8
-2b	OEM_5		0	0023	f8a9	-1	f8a8	007c		// NUMBER SIGN, PETSCII GRAPH 0xA9, <none>, PETSCII GRAPH 0xA8, VERTICAL LINE
+2b	OEM_5		0	0023	f8a9	001c	005c	007c	f8a8		// NUMBER SIGN, PETSCII GRAPH 0xA9, INFORMATION SEPARATOR FOUR, REVERSE SOLIDUS, PETSCII GRAPH 0xA8

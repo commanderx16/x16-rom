@@ -100,6 +100,8 @@ screen_init:
 	dex
 	bne :-
 
+	lda #$ff
+	sta cscrmd      ; force setting color on first mode change
 	rts
 
 ;NTSC=1
@@ -158,7 +160,7 @@ screen_init:
 ;             $81: 640x400@16c ; XXX currently unsupported
 ;   Out:  .c  =0: success, =1: failure
 ; Get:
-;   Out:  .a  mode (only for "get")
+;   Out:  .a  mode
 ;---------------------------------------------------------------
 screen_mode:
 	bcc @set
@@ -177,9 +179,16 @@ screen_mode:
 	plx
 	bcs @rts
 
+	pha             ; save scale
+	txa
+	eor cscrmd
+	asl             ; C: is it graph/text switch?
 	stx cscrmd
+
+	pla             ; scale
 	pha
 
+	php             ; save if graph/text switch
 	; set VERA scaling
 	jsr set_scale
 
@@ -204,8 +213,10 @@ screen_mode:
 	LoadW r0, 0
 	jsr GRAPH_init
 	lda #$0e ; light blue on translucent
-@cont:	sta color
-
+@cont:	plp
+	bcc :+
+	sta color ; only set color if graph/text switch
+:
 	; set editor size
 	pla
 	jsr calc_scaled_res

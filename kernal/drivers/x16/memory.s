@@ -23,7 +23,6 @@
 .export indfet
 .export stash
 .export stavec
-.export cmpare
 
 .export jsrfar
 
@@ -229,7 +228,11 @@ fetvec	=*+1
 ;
 ;  exits with .x & status altered
 
-; XXX this needs to be in RAM in order to work!
+; XXX
+; Exposing a variable in the $0200 range is hard to keep stable
+; and is bad API.
+; https://github.com/commanderx16/x16-rom/issues/305
+; XXX
 
 stash:	sta stash1
 	lda ram_bank    ;save current config (RAM)
@@ -249,46 +252,6 @@ __stavec	=*+1
 	rts
 
 .segment "MEMDRV"
-
-
-;  CMPARE  ram code      ( CMP (cmpare_vector),Y  to any bank )
-;
-;  enter with 'cmpvec' pointing to indirect adr & .y= index
-;             .a= data byte to compare to memory
-;             .x= memory configuration
-;
-;  exits with .a= data byte & status flags valid, .x is altered
-
-; XXX this needs to be in RAM in order to work!
-
-cmpare:
-	pha
-	lda ram_bank    ;save current config (RAM)
-	pha
-	txa
-	sta ram_bank    ;set RAM bank
-	and #$07
-	ldx rom_bank    ;save current config (ROM)
-	jmp cmpare0
-.segment "KERNRAM2" ; *** RAM code ***
-cmpare0:
-	sta rom_bank    ;set ROM bank
-	pla
-cmpvec	=*+1
-	cmp ($ff),y     ;compare bytes ($ff here is a dummy address, 'CMPVEC')
-	php
-	stx rom_bank    ;restore previous memory configuration
-	jmp cmpare1
-.segment "MEMDRV"
-cmpare1:
-	pla
-	tax
-	pla
-	sta ram_bank
-	txa
-	pha
-	plp
-	rts
 
 enter_basic:
 	bcc :+

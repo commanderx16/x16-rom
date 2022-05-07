@@ -52,7 +52,6 @@ FontTVar4:	.res 1
 
 .segment "GRAPH"
 
-.include "fonts1.s"
 .include "fonts2.s"
 .include "fonts3.s"
 .include "fonts4.s"

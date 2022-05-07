@@ -59,50 +59,35 @@ movfm	= $fe63 ; FAC = mem(.Y:.A) (5 bytes)
 movmf	= $fe66 ; mem(.Y:.X) = round(FAC) (5 bytes)
 movfa	= $fe69 ; FAC = ARG
 movaf	= $fe6c ; ARG = round(FAC)
-; X16 additions - BASIC only
-bfaddt	= $fe6f ; BASIC ONLY, DO NOT USE
-bfmultt	= $fe72 ; BASIC ONLY, DO NOT USE
-bfdivt	= $fe75 ; BASIC ONLY, DO NOT USE
-bfpwrt	= $fe78 ; BASIC ONLY, DO NOT USE
-floatb	= $fe7b ; BASIC ONLY, DO NOT USE
-fcompn	= $fe7e ; BASIC ONLY, DO NOT USE
 ; X16 additions
-faddh	= $fe81 ; FAC += .5
-zerofc	= $fe84 ; FAC = 0
-normal	= $fe87 ; Normalize FAC
-negfac	= $fe8a ; FAC = -FAC
-mul10	= $fe8d ; FAC *= 10
-div10	= $fe90 ; FAC /= 10
-movef	= $fe93 ; ARG = FAC
-sgn	= $fe96 ; FAC = sgn(FAC)
-float	= $fe99 ; FAC = (u8).A
-floats	= $fe9c ; FAC = (s16)facho+1:facho
-qint	= $fe9f ; facho:facho+1:facho+2:facho+2 = u32(FAC)
-finlog	= $fea2 ; FAC += (s8).A
-foutc	= $fea5 ; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
-.if 0 ; removed for now due to segment overflow
-polyx	= $fea8 ; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
-poly	= $feab ; Polynomial Evaluation 2 (EXP)
+faddh	= $fe6f ; FAC += .5
+zerofc	= $fe72 ; FAC = 0
+normal	= $fe75 ; Normalize FAC
+negfac	= $fe78 ; FAC = -FAC
+mul10	= $fe7b ; FAC *= 10
+div10	= $fe7e ; FAC /= 10
+movef	= $fe81 ; ARG = FAC
+sgn	= $fe84 ; FAC = sgn(FAC)
+float	= $fe87 ; FAC = (u8).A
+floats	= $fe8a ; FAC = (s16)facho+1:facho
+qint	= $fe8d ; facho:facho+1:facho+2:facho+2 = u32(FAC)
+finlog	= $fe90 ; FAC += (s8).A
+foutc	= $fe93 ; Convert FAC to ASCIIZ string at fbuffr - 1 + .Y
+polyx	= $fe96 ; Polynomial Evaluation 1 (SIN/COS/ATN/LOG)
+poly	= $fe99 ; Polynomial Evaluation 2 (EXP)
+.if 0 ; XXX see comment in jumptab.s
+; X16 additions - BASIC only
+bfaddt	= $fe9c ; BASIC ONLY, DO NOT USE
+bfmultt	= $fe9f ; BASIC ONLY, DO NOT USE
+bfdivt	= $fea2 ; BASIC ONLY, DO NOT USE
+bfpwrt	= $fea5 ; BASIC ONLY, DO NOT USE
+floatb	= $fea8 ; BASIC ONLY, DO NOT USE
+fcompn	= $feab ; BASIC ONLY, DO NOT USE
+.else
+.import bfaddt
+.import bfmultt
+.import bfdivt
+.import bfpwrt
+.import floatb
+.import fcompn
 .endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

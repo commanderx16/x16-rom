@@ -1,7 +1,9 @@
-layouts="406 407 409 40A 40B 40C 40E 410 414 415 416 41D 807 809 80C"
+layouts="20409 809 41D 407 406 410 415 414 40E 40A 40B 416 405 411 40C 807 10409 425 80C 1009 40F 816 41A 41B 41C 424 426 427"
 
 for layout in $layouts; do
 	filename=$(ls klc/${layout}\ *.klc)
-	python3 klc_to_asm.py "$filename" > asm/$layout.s
-	python3 klc_to_asm.py "$filename" > asm/i$layout.s -iso
+	echo $filename
+	python3 klc_to_asm.py "$filename" asm/$layout.s asm/$layout.bin asm/$layout.bin.lzsa
+	lzsa -f 2 -r --prefer-ratio asm/$layout.bin asm/$layout.bin.lzsa
+	rm asm/$layout.bin
 done

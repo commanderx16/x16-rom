@@ -17,7 +17,7 @@ bridge monitor                    ; $FECC
 
 bridge entropy_get                ; $FECF
 
-.byte 0,0,0                       ; $FED2
+bridge keymap                     ; $FED2
 
 bridge console_set_paging_message ; $FED5
 bridge console_put_image          ; $FED8

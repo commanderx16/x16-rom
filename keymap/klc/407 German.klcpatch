@@ -1,7 +1,32 @@
+//        ß
+// [Alt]    -> PETSCII GRAPH 0xdc
+0c	OEM_4		1	00df	003f	-1	005c	1e9e	f8dc	// LATIN SMALL LETTER SHARP S (German), QUESTION MARK, <none>, REVERSE SOLIDUS, Latin Capital Letter Sharp S, PETSCII GRAPH 0xDC
+
+//        ´ -> ^
+// [Shift]  -> PETSCII GRAPH 0xa9
+// [Alt]    -> PETSCII GRAPH 0xa6
+0d	OEM_6		0	005e	f8a9	-1	-1	-1	f8a6		// CIRCUMFLEX ACCENT, PETSCII GRAPH 0xA6, <none>, <none>, <none>, PETSCII GRAPH 0xA6
+
+//        ü
+// [Shft] Ü -> PETSCII GRAPH 0xba
+// [Alt]    -> PETSCII GRAPH 0xa4
+1a	OEM_1		1	00fc	f8ba	001b	-1	-1	f8a4		// LATIN SMALL LETTER U WITH DIAERESIS, PETSCII GRAPH 0xBA, ESCAPE, <none>, <none>
+
+//        +
+// [Alt]    -> PETSCII GRAPH 0xdf
+1b	OEM_PLUS	1	002b	002a	001d	007e	-1	f8df		// PLUS SIGN, ASTERISK, INFORMATION SEPARATOR THREE, TILDE, <none>, PETSCII GRAPH 0xDF
+
+//        ^ -> ←
+// [Shft] ° -> π
+// [Alt]    -> PETSCII GRAPH 0xdb
+29	OEM_5		0	2190	03c0	-1	-1	-1	f8db		// LEFTWARDS ARROW, GREEK SMALL LETTER PI, <none>, <none>, <none>, PETSCII GRAPH 0xDB
+
+
+//        #
+// [Alt]    -> PETSCII GRAPH 0xa8
+2b	OEM_2		1	0023	0027	001c	-1	-1	f8a8		// NUMBER SIGN, APOSTROPHE, INFORMATION SEPARATOR FOUR, <none>, <none>, PETSCII GRAPH 0xA8
+
 // § -> £
-04	3		1	3	00a3	-1	-1	-1		// DIGIT THREE, POUND SIGN, <none>, <none>, <none>
-// ´ -> ^
-0d	OEM_6		0	005e	-1	-1	-1	-1		// CIRCUMFLEX ACCENT, <none>, <none>, <none>, <none>
-// ^ -> ←
-// ° -> π
-29	OEM_5		0	2190	03c0	-1	-1	-1		// LEFTWARDS ARROW, GREEK SMALL LETTER PI, <none>, <none>, <none>
+// [Alt]    -> PETSCII GRAPH 0xdc
+04	3		1	3	00a3	-1	00b3	-1	-1		// DIGIT THREE, POUND SIGN, <none>, <none>, <none>, <none>
+

@@ -30,9 +30,18 @@ The following components are in the public domain:
 
 | Component                                 | Subdirectory | License       |
 |-------------------------------------------|--------------|---------------|
-| PETSCII and ISO charsets                  | `charset`    | public domain |
+| PETSCII charset                           | `charset`    | public domain |
+| ISO charset (PXLfont)                     | `charset`    | public domain |
 | Keyboard tables                           | `keymap`     | public domain |
 | Machine Language Monitor                  | `monitor`    | public domain |
+
+## 3-Clause BSD
+
+The following components are under the 3-clause BSD license:
+
+| Component                                 | File            | License       |
+|-------------------------------------------|-----------------|---------------|
+| LZSA2 Decompression                       | `kernal/lzsa.s` | 3-clause BSD  |
 
 ## 2-Clause BSD
 

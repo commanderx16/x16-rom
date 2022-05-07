@@ -4,9 +4,10 @@
 ; (C)2019 Emmanuel Marty, Peter Ferrie, M. Steil; License: 3-clause BSD
 
 .include "regs.inc"
+.include "io.inc"
 .include "mac.inc"
 
-.export memory_decompress
+.export memory_decompress, memory_decompress_internal
 
 .segment "KVAR"
 
@@ -16,10 +17,6 @@ nibbles:
 	.res 1
 offslo:	.res 1
 offshi:	.res 1
-
-.ifp02
-save_y:	.res 1
-.endif
 
 .segment "LZSA"
 
@@ -42,7 +39,23 @@ save_y:	.res 1
 ;            can be found at the end of this source file.
 ;---------------------------------------------------------------
 memory_decompress:
+	PushW r4
+	LoadW r4, ngetsrc
+	jsr memory_decompress_internal
+	PopW r4
+	rts
+
+memory_decompress_internal:
 	PushW r2
+	PushW r3
+
+	lda r1H
+	cmp #IO_PAGE
+	beq @1
+	LoadW r3, putdst_ram
+	bra @2
+@1:	LoadW r3, putdst_io
+@2:
 
 	ldy #$00
 	sty nibcount
@@ -95,7 +108,7 @@ copy_literals:
 	bne copy_literals
 	dey
 	bne copy_literals
-   
+
 no_literals:
 	pla                             ; retrieve token from stack
 	pha                             ; preserve token again
@@ -112,7 +125,7 @@ no_literals:
 	jsr getcombinedbits             ; rotate Z bit into bit 0, read nibble for bits 4-1
 	ora #$e0                        ; set bits 7-5 to 1
 	bne got_offset_lo               ; go store low byte of match offset and prepare match
-   
+
 offset_9_bit:                           ; 01Z: 9 bit offset
 	;;asl                           ; shift Z (offset bit 8) in place
 	rol
@@ -190,14 +203,7 @@ prepare_copy_match_y:
 	iny
 
 copy_match_loop:
-.ifp02
-	sty save_y
-	ldy #0
-	lda (r2),y                      ; get one byte of backreference
-	ldy save_y
-.else
 	lda (r2)                        ; get one byte of backreference
-.endif
 	jsr putdst                      ; copy to destination
 
 ; Forward decompression -- put backreference bytes forward
@@ -228,6 +234,7 @@ combinedbitz:
 	rts
 
 decompression_done:
+	PopW r3
 	PopW r2
 	rts
 
@@ -254,20 +261,20 @@ need_nibbles:
 getput:
 	jsr getsrc
 putdst:
-.ifp02
-	sty save_y
-	ldy #0
-	sta (r1),y
-	ldy save_y
-.else
+	jmp (r3)			; dispatch RAM vs. I/O
+
+; Store in RAM and increment
+putdst_ram:
 	sta (r1)
-.endif
 	inc r1L
-	beq putdst_adj_hi
+	beq :+
+	rts
+:	inc r1H
 	rts
 
-putdst_adj_hi:
-	inc r1H
+; Store into port in I/O area, assume device auto-increments
+putdst_io:
+	sta (r1)
 	rts
 
 getlargesrc:
@@ -276,20 +283,14 @@ getlargesrc:
 					; fall through grab high 8 bits
 
 getsrc:
-.ifp02
-	sty save_y
-	ldy #0
-	lda (r0),y
-	ldy save_y
-.else
-	lda (r0)
-.endif
-	inc r0L
-	beq getsrc_adj_hi
-	rts
+	jmp (r4)
 
-getsrc_adj_hi:
-	inc r0H
+ngetsrc:
+	lda (r0)
+	inc r0L
+	beq :+
+	rts
+:	inc r0H
 	rts
 
 ; -----------------------------------------------------------------------------

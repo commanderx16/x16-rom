@@ -46,7 +46,7 @@ boot	lda #0
 	jsr runc
 	jmp newstt
 bootfn:
-	.byte "AUTOBOOT.X16*"
+	.byte "AUTOBOOT.X16"
 bootfnlen=*-bootfn
 
 initat	inc chrget+7

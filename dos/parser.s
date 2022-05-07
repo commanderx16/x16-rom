@@ -1037,7 +1037,7 @@ cmds:
 	          ; 'CD'  change directory
 	.byte 'D' ; duplicate
 	.byte 'L' ; toggle lock
-	.byte 'G' ; 'GP'  get partition
+	.byte 'G' ; 'G-P' get partition
 	          ; 'G-D' get disk change
 	.byte 'M' ; 'MD'  make directory
 	          ; 'M-R' memory read
@@ -1053,7 +1053,7 @@ cmds:
 	.byte 'U' ; 'Ux'  user
 	.byte 'F' ; 'F-L' file lock
 	          ; 'F-U' file unlock
-	          ; 'F-R' file restore     
+	          ; 'F-R' file restore
 	.byte 'W' ; 'W-n' write protect
 	.byte 'P' ; 'P'   position
 	.byte 255 ; echo (internal)

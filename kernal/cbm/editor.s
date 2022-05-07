@@ -42,6 +42,8 @@ nwrap=2 ;max number of physical lines per logical line
 .export lstp
 .export lsxp
 .export cursor_blink
+.export check_charset_switch
+
 .export tblx
 .export pntr
 
@@ -90,6 +92,7 @@ ldtb1	.res 61 +1       ;flags+endspace
 .export mode; [ps2kbd]
 .export data; [cpychr]
 mode	.res 1           ;    bit7=1: charset locked, bit6=1: ISO
+                         ;    bits3-0: current charset
 gdcol	.res 1           ;    original color before cursor
 autodn	.res 1           ;    auto scroll down flag(=0 on,<>0 off)
 lintmp	.res 1           ;    temporary for line index
@@ -174,7 +177,7 @@ cint	jsr iokeys
 	clc
 	jsr screen_mode ;set screen mode to default
 ;
-	lda #0          ;make sure we're in pet mode
+	lda #2          ;uppercase PETSCII, not locked
 	sta mode
 	sta blnon       ;we dont have a good char from the screen yet
 
@@ -607,7 +610,14 @@ nc3w	cmp #$12
 nc1	cmp #$13
 	bne nc2
 	jsr nxtd
-nc2	cmp #$1d
+nc2	cmp #$04        ;END
+	bne nc25
+	stz pntr        ;column
+	lda nlinesm1
+	sta tblx        ;line
+	jsr stupt       ;move cursor to tblx,pntr
+	jmp loop2
+nc25	cmp #$1d        ;CSR RIGHT
 	bne ncx2
 	iny
 	jsr chkdwn
@@ -643,16 +653,21 @@ colr1	jsr chkcol      ;check for a color
 	bne upper       ;branch if not
 	bit mode
 	bvs outhre      ;ISO
-	lda #3
-	jsr screen_set_charset
-	jmp loop2
+	lda mode
+	and #$c0
+	ora #3          ;upper/lower
+	jmp setchr
 
 upper
 	cmp #$8e        ;does he want upper case
 	bne lock        ;branch if not
 	bit mode
 	bvs outhre      ;ISO
-	lda #2
+	lda mode
+	and #$c0
+	ora #2          ;upper/graph
+setchr	sta mode
+	and #$0f
 	jsr screen_set_charset
 outhre	jmp loop2
 
@@ -688,8 +703,6 @@ isooff
 	lda mode
 	and #$ff-$40
 isosto	sta mode
-	lda #$ff
-	jsr kbd_config  ;reload keymap
 	jsr clsr        ;clear screen
 	jmp loop2
 
@@ -1073,6 +1086,17 @@ cursor_blink:
 
 @5	rts
 
+; call with .a: shflag
+check_charset_switch:
+	cmp #3
+	bne @skip
+	lda mode
+	bmi @skip       ;not if locked
+	bvs @skip       ;not if ISO mode
+	eor #1          ;alternate between 2 and 3
+	sta mode
+	jmp screen_set_charset
+@skip	rts
 
 runtb	.byt "LOAD",$d,"RUN:",$d
 runtb_end:
@@ -1080,7 +1104,7 @@ runtb_end:
 fkeytb	.byt "LIST:", 13, 0
 	.byt "MONITOR:", 13, 0
 	.byt "RUN:", 13, 0
-	.byt $93, "S", 'C' + $80, "255", 13, 0
+	.byt $93, "S", 'C' + $80, "-1", 13, 0
 	.byt "LOAD", 13, 0
 	.byt "SAVE", '"', 0
 	.byt "DOS",'"', "$",13, 0

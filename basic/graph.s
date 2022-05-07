@@ -14,7 +14,7 @@ y2H	=r3H
 
 ;***************
 cscreen
-	jsr getbyt
+	jsr getbytneg
 	cpx #$ff
 	bne @set
 	; Toggle between 40x30 and 80x60
