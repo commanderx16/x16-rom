@@ -79,6 +79,33 @@ See [LICENSE.md](LICENSE.md)
 Release Notes
 -------------
 
+### Release 41 ("Marrakech")
+
+* KERNAL
+	* keyboard
+		* added 16 more keyboard layouts (28 total)
+		* US layout is now US-International
+		* "keymap" API to activate a built-in keyboard layout
+		* custom keyboard layouts can be loaded from disk (to $0:$A000)
+		* Caps key behaves as expected
+		* support for Shift+AltGr combinations
+		* support for dead keys (e.g. ^ + e = ê)
+		* PgUp/PgDown, End, Menu and Del generate PETSCII codes
+		* Numpad support
+		* Shift+Alt toggles between charsets (like C64)
+		* Editor: "End" will position cursor on last line
+	* VERA source/target support for `memory_fill`, `memory_copy`, `memory_crc`, `memory_decompress` [with PG Lewis]
+	* fixed headerless load for verify/VRAM cases [Mike Ketchen]
+	* don't reset screen colors on mode switch
+* BASIC:
+	* `BLOAD`, `BVLOAD` and `BVERIFY` commands for header-less loading [ZeroByteOrg]
+	* `KEYMAP` command to change keyboard layout
+	* support `DOS8`..`DOS31` (and `A=9:DOSA` etc.) to switch default device
+	* `MOUSE` and `SCREEN` accept -1 as argument (was: $FF)
+	* Changed auto-boot filename from `AUTOBOOT.X16*` to `AUTOBOOT.X16`
+* Monitor:
+	* fixed RMB/SMB disassembly
+
 ### Release 40 ("Bonn")
 
 * KERNAL
