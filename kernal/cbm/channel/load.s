@@ -29,6 +29,8 @@
 ;*                                *
 ;**********************************
 
+.importzp tmp2
+
 loadsp	stx eal         ;.x has low alt start
 	sty eah
 load	jmp (iload)     ;monitor load entry
@@ -38,6 +40,7 @@ nload	and #$1f
 	dec verck       ;<0: RAM, =0: VERIFY, >0: VRAM
 	lda #0
 	sta status
+	sta tmp2        ;flags for headerless load
 ;
 	lda fa          ;check device number
 	bne ld20
@@ -70,7 +73,14 @@ ld25	ldx sa          ;save sa in .x
 	lda sa
 	jsr tksa        ;tell it to load
 ;
-	jsr acptr       ;get first byte
+	txa             ;get old sa
+	and #$02        ;check for headerless load
+	beq ld27
+	sec
+	ror tmp2        ;set high bit of headerless load flag
+	bcc ld30        ;don't load first two bytes
+;
+ld27	jsr acptr       ;get first byte
 	sta memuss
 ;
 	lda status      ;test status for error
@@ -81,7 +91,7 @@ ld25	ldx sa          ;save sa in .x
 	sta memuss+1
 ;
 	txa             ;find out old sa
-        and #$01
+	and #$01
 	beq ld30        ;(sa & 1) == 0 load where user wants
 	lda memuss      ;else use disk address
 	sta eal
@@ -96,19 +106,6 @@ ld30	jsr loding      ;tell user loading
 ;
 ;block-wise load into RAM
 ;
-	txa
-	and #$02
-	beq bld10	;(sa & 2) == 0 ignore first two bytes
-	lda memuss	;else write first two bytes
-	sta (eal)
-	inc eal
-	bne :+
-	inc eah
-:	lda memuss+1
-	sta (eal)
-	inc eal
-	bne bld10
-	inc eah
 bld10	jsr stop        ;stop key?
 	beq break2
 	ldx eal
@@ -144,10 +141,15 @@ bld10	jsr stop        ;stop key?
 	bra @loop
 @skip
 .endif
-        sta eah
+	sta eah
 	bit status      ;eoi?
 	bvc bld10       ;no...continue load
-	bra ld70
+	lda tmp2        ;first block of headerless load?
+	bpl ld70        ;no, regular eoi
+	lsr a
+	lsr a
+	bcc ld70        ;no timeout/fnf so just eoi
+ld34	jmp ld15    ;file not found when on first attempt
 
 ;
 ;initialize vera registers
@@ -163,14 +165,6 @@ ld35
 	lda eah
 	sta VERA_ADDR_M ;set address bits 15:8
 ;
-	txa
-	and #$02
-	beq ld40	;(sa & 2) == 0 ignore first two bytes
-	lda memuss	;else write first two bytes to VRAM
-        sta VERA_DATA0
-	lda memuss+1
-        sta VERA_DATA0
-;
 ld40	lda #$fd        ;mask off timeout
 	and status
 	sta status
@@ -185,8 +179,12 @@ ld45	jsr acptr       ;get byte off ieee
 	lda status      ;was there a timeout?
 	lsr a
 	lsr a
-	bcs ld40        ;yes...try again
-	txa
+	bcc ld46        ;no...keep going
+	asl tmp2        ;first read of headerless load?
+	bcc ld40        ;no...must be timeout, try again
+	bcs ld34        ;yes, file not found
+;
+ld46	txa
 	ldy verck       ;what operation are we doing?
 	bmi ld50        ;load into ram
 	beq ld47        ;verify
