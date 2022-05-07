@@ -40,7 +40,7 @@ nload	and #$1f
 	dec verck       ;<0: RAM, =0: VERIFY, >0: VRAM
 	lda #0
 	sta status
-	sta tmp2		;flags for headerless load
+	sta tmp2        ;flags for headerless load
 ;
 	lda fa          ;check device number
 	bne ld20
@@ -73,12 +73,12 @@ ld25	ldx sa          ;save sa in .x
 	lda sa
 	jsr tksa        ;tell it to load
 ;
-	txa				;get old sa
-	and #$02		;check for headerless load
+	txa             ;get old sa
+	and #$02        ;check for headerless load
 	beq ld27
 	sec
-	ror tmp2		;set high bit of headerless load flag
-	bcc ld30		;don't load first two bytes
+	ror tmp2        ;set high bit of headerless load flag
+	bcc ld30        ;don't load first two bytes
 ;
 ld27	jsr acptr       ;get first byte
 	sta memuss
@@ -144,12 +144,12 @@ bld10	jsr stop        ;stop key?
 	sta eah
 	bit status      ;eoi?
 	bvc bld10       ;no...continue load
-	lda tmp2		;first block of headerless load?
-	bpl ld70		;no, regular eoi
+	lda tmp2        ;first block of headerless load?
+	bpl ld70        ;no, regular eoi
 	lsr a
 	lsr a
-	bcc ld70		;no timeout/fnf so just eoi
-ld34	jmp ld15		;file not found when on first attempt
+	bcc ld70        ;no timeout/fnf so just eoi
+ld34	jmp ld15    ;file not found when on first attempt
 
 ;
 ;initialize vera registers
@@ -179,10 +179,10 @@ ld45	jsr acptr       ;get byte off ieee
 	lda status      ;was there a timeout?
 	lsr a
 	lsr a
-	bcc ld46		;no...keep going
-	asl tmp2		;first read of headerless load?
+	bcc ld46        ;no...keep going
+	asl tmp2        ;first read of headerless load?
 	bcc ld40        ;no...must be timeout, try again
-	bcs ld34		;yes, file not found
+	bcs ld34        ;yes, file not found
 ;
 ld46	txa
 	ldy verck       ;what operation are we doing?
