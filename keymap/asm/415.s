@@ -16,15 +16,16 @@ kbtab_415:
 	.incbin "asm/415.bin.lzsa"
 
 ; PETSCII
+; ~~~~~~~
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
-; graph: '\xa4\xa6\xa8\xa9\xba'
-; *** THIS IS BAD! ***
+;   graph: '\xa4\xa6\xa8\xa9\xba' <--- *** THIS IS BAD! ***
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\_{|}~ÓóĄąĆćĘęŁłŃńŚśŹźŻż€'
+;   '\_{|}~ÓóĄąĆćĘęŁłŃńŚśŹźŻż€'
 
 ; ISO
+; ~~~
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
-; 'ĄąĆćĘęŁłŃńŚśŹźŻż'
+;   'ĄąĆćĘęŁłŃńŚśŹźŻż'
 ; ISO-8859-15 characters not reachable by this layout:
-; 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòôõö÷øùúûüýþ'
+;   'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòôõö÷øùúûüýþ'
 

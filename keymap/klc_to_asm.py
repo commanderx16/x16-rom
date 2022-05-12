@@ -589,38 +589,39 @@ for iso_mode in [False, True]:
 		print("", file=asm)
 
 	if iso_mode:
-		print("; ISO", file=asm)
+		print("; ISO\n; ~~~", file=asm)
 	else:
-		print("; PETSCII", file=asm)
+		print("; PETSCII\n; ~~~~~~~", file=asm)
 
-	print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:", file=asm)
-	if not iso_mode and (len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0):
-		if len(petscii_chars_not_reachable) > 0:
-			print("; chars: " + pprint.pformat(petscii_chars_not_reachable), file=asm)
-		if len(petscii_codes_not_reachable) > 0:
-			print("; codes: ", end = '', file=asm)
-			for c in petscii_codes_not_reachable:
-				if ord(c) in control_codes:
-					print(control_codes[ord(c)] + ' ', end = '', file=asm)
-				else:
-					print(hex(ord(c)) + ' ', end = '', file=asm)
-			print("", file=asm)
-		if len(petscii_graphs_not_reachable) > 0:
-			print("; graph: '", end = '', file=asm)
-			for c in petscii_graphs_not_reachable:
-				print("\\x{0:02x}".format(ord(c)), end = '', file=asm)
-			print("'", file=asm)
-		if not iso_mode:
-			print("; *** THIS IS BAD! ***", file=asm)
-	else:
-		print("; --none--", file=asm)
+	if not iso_mode:
+		print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:", file=asm)
+		if (len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0):
+			if len(petscii_chars_not_reachable) > 0:
+				print(";   chars: " + pprint.pformat(petscii_chars_not_reachable), file=asm)
+			if len(petscii_codes_not_reachable) > 0:
+				print(";   codes: ", end = '', file=asm)
+				for c in petscii_codes_not_reachable:
+					if ord(c) in control_codes:
+						print(control_codes[ord(c)] + ' ', end = '', file=asm)
+					else:
+						print(hex(ord(c)) + ' ', end = '', file=asm)
+				print("", file=asm)
+			if len(petscii_graphs_not_reachable) > 0:
+				print(";   graph: '", end = '', file=asm)
+				for c in petscii_graphs_not_reachable:
+					print("\\x{0:02x}".format(ord(c)), end = '', file=asm)
+				print("'", end = '', file=asm)
+			if not iso_mode:
+				print(" <--- *** THIS IS BAD! ***", file=asm)
+		else:
+			print(";   --none--", file=asm)
 
 	if iso_mode:
 		print("; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:", file=asm)
 	else:
 		print("; Unicode characters reachable with this layout on Windows but not covered by PETSCII:", file=asm)
 	if len(unicode_not_reachable) > 0:
-		print("; '", end = '', file=asm)
+		print(";   '", end = '', file=asm)
 		for c in unicode_not_reachable:
 			if ord(c) < 0x20:
 				print("\\x{0:02x}".format(ord(c)), end = '', file=asm)
@@ -628,16 +629,17 @@ for iso_mode in [False, True]:
 				print(c, end = '', file=asm)
 		print("'", file=asm)
 	else:
-		print("; --none--", file=asm)
+		print(";   --none--", file=asm)
 
-	print("; ISO-8859-15 characters not reachable by this layout:", file=asm)
-	if iso_mode and len(latin15_not_reachable) > 0:
-		print("; '", end = '', file=asm)
-		for c in latin15_not_reachable:
-			print(c, end = '', file=asm)
-		print("'", file=asm)
-	else:
-		print("; --none--", file=asm)
+	if iso_mode:
+		print("; ISO-8859-15 characters not reachable by this layout:", file=asm)
+		if len(latin15_not_reachable) > 0:
+			print(";   '", end = '', file=asm)
+			for c in latin15_not_reachable:
+				print(c, end = '', file=asm)
+			print("'", file=asm)
+		else:
+			print(";   --none--", file=asm)
 
 	print("", file=asm)
 

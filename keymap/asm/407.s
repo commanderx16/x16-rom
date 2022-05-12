@@ -16,12 +16,16 @@ kbtab_407:
 	.incbin "asm/407.bin.lzsa"
 
 ; PETSCII
+; ~~~~~~~
+; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
+;   --none--
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\_{|}~§°²³´µÄÖÜßäöüẞ€'
+;   '\_{|}~§°²³´µÄÖÜßäöüẞ€'
 
 ; ISO
+; ~~~
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
-; '´ẞ'
+;   '´ẞ'
 ; ISO-8859-15 characters not reachable by this layout:
-; 'ÃÅÆÇËÏÐÑÕ×ØÞãåæçëïðñõ÷øþ'
+;   'ÃÅÆÇËÏÐÑÕ×ØÞãåæçëïðñõ÷øþ'
 
