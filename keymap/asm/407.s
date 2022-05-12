@@ -26,5 +26,5 @@ kbtab_407:
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
 ; '^`´ẞ'
 ; ISO-8859-15 characters not reachable by this layout:
-; 'ÀÁÂÃÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕ×ØÙÚÛÝÞàáâãåæçèéêëìíîïðñòóôõ÷øùúûýþ'
+; 'ÃÅÆÇËÏÐÑÕ×ØÞãåæçëïðñõ÷øþ'
 

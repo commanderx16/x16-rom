@@ -32,5 +32,5 @@ kbtab_426:
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
 ; '#@QWXY^{|}~¨°±´ÕĀāČčĒēĢģĪīĶķĻļŅņŖŗŪū–—’'
 ; ISO-8859-15 characters not reachable by this layout:
-; ''*+`ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôö÷øùúûüýþ'
+; ''*+`ÀÁÂÃÆÇÈÊËÌÍÎÏÐÑÒÔØÙÚÛÝÞßàáâãæçèêëìíîïðñòô÷øùúûýþ'
 

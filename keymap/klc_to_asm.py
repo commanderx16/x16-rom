@@ -65,6 +65,7 @@ def get_kbd_layout(base_filename, load_patch = False):
 
 	kbd_layout = {}
 	kbd_layout['deadkeys'] = {}
+	kbd_layout['all_deadkey_reachable_characters'] = ""
 	for lines in sections:
 		fields = lines[0]
 		if fields[0] == 'KBD':
@@ -138,6 +139,7 @@ def get_kbd_layout(base_filename, load_patch = False):
 				add_c = chr(int(fields[0], 16))
 				res_c = chr(int(fields[1], 16))
 				kbd_layout['deadkeys'][in_c][add_c] = res_c
+				kbd_layout['all_deadkey_reachable_characters'] += res_c
 		elif fields[0] == 'LIGATURE':
 			# TODO
 			pass	
@@ -532,7 +534,7 @@ for iso_mode in [False, True]:
 	latin15_not_reachable = ""
 	for c in list(range(0x20, 0x7f)) + list(range(0xc0, 0xff)):
 		u = unicode_from_latin15(chr(c))
-		if not u in kbd_layout['all_originally_reachable_characters']:
+		if u not in kbd_layout['all_originally_reachable_characters'] and u not in kbd_layout['all_deadkey_reachable_characters']:
 			latin15_not_reachable += u
 
 	petscii_chars_not_reachable = ''.join(sorted(petscii_chars_not_reachable))
