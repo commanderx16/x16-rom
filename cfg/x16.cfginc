@@ -31,8 +31,8 @@ KVECTORS: start = $0314, size = $0020; # KERNAL vectors
 
 /* $0334-$03FF: variables and RAM code (not available for *legacy* GEOS apps) */
 KVAR2:    start = $0334, size = $0057; # KERNAL: screen editor table
-KERNRAM2: start = $038B, size = $002C; # KERNAL: banked IRQ, fetch, stash
-/*        start = $03B7, size = $0014; # reserved for KERNAL growth */
+KERNRAM2: start = $038B, size = $003F; # KERNAL: banked IRQ, fetch, stash
+/*        start = $03CA, size = $0002; # reserved for KERNAL growth */
 FPVARS:   start = $03CB, size = $0009; # MATH
 BVARS:    start = $03D4, size = $002C; # BASIC
 
