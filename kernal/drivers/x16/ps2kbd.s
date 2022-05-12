@@ -293,9 +293,13 @@ _kbd_scan:
 
 cont:
 	jsr find_table
-	bcs :+
+	bcs @notab
 
-@xxx:	lda tmp2
+; For some encodings (e.g. US-Mac), Alt and AltGr is the same, so
+; the tables use modifiers $C6 (Alt/AltGr) and $C7 (Shift+Alt/AltGr).
+; If we don't find a table and the modifier is (Shift+)Alt/AltGr,
+; try these modifier codes.
+	lda tmp2
 	cmp #$82
 	beq @again
 	cmp #$83
@@ -304,12 +308,11 @@ cont:
 	beq @again
 	cmp #$87
 	bne @skip
-@again:	lda tmp2
-	ora #$46
+@again:	ora #$46
 	jsr find_table
 	bcc @skip
 
-:	lda (ckbtab),y
+@notab:	lda (ckbtab),y
 	beq @maybe_dead
 	ldx dk_scan
 	bne @combine_dead
