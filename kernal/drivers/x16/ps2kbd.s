@@ -293,8 +293,23 @@ _kbd_scan:
 
 cont:
 	jsr find_table
+	bcs :+
+
+@xxx:	lda tmp2
+	cmp #$82
+	beq @again
+	cmp #$83
+	beq @again
+	cmp #$86
+	beq @again
+	cmp #$87
+	bne @skip
+@again:	lda tmp2
+	ora #$46
+	jsr find_table
 	bcc @skip
-	lda (ckbtab),y
+
+:	lda (ckbtab),y
 	beq @maybe_dead
 	ldx dk_scan
 	bne @combine_dead

@@ -223,6 +223,14 @@ def unicode_from_petscii(c):
 		return chr(0x03c0)
 	return c
 
+def convert_shiftstate(shiftstate, x16_kbdid, iso_mode):
+	# X16 shiftstate has ALT and CTRL swapped
+	converted_shiftstate = shiftstate & 1 | (shiftstate & 2) << 1 | (shiftstate & 4) >> 1
+	if x16_kbdid == 'EN-US/MAC' and shiftstate & ALTGR == ALTGR and iso_mode:
+		converted_shiftstate |= 0x40 # write "Alt" table as "Alt/AltGr" table
+	converted_shiftstate |= iso_mode << 7
+	return converted_shiftstate
+
 # constants
 
 # a string with all printable 7-bit PETSCII characters
@@ -529,21 +537,21 @@ for iso_mode in [False, True]:
 		# For EN_US, we ship multiple layouts, so we need to suffix the
 		# locale for a unique identifier.
 		if kbd_id == '20409':
-			locale1 = 'EN-US/INT'
+			x16_kbdid = 'EN-US/INT'
 		elif kbd_id == '10409':
-			locale1 = 'EN-US/DVO'
+			x16_kbdid = 'EN-US/DVO'
 		elif name == 'Colemak':
-			locale1 = 'EN-US/COL'
+			x16_kbdid = 'EN-US/COL'
 		elif name == 'United States-Extended':
-			locale1 = 'EN-US/MAC'
+			x16_kbdid = 'EN-US/MAC'
 		else:
-			locale1 = kbd_layout['localename'].upper()
+			x16_kbdid = kbd_layout['localename'].upper()
 			if len(kbd_layout['localename']) != 5:
 				sys.exit("unknown locale format: " + kbd_layout['localename'])
-		if len(locale1) > 14:
-			sys.exit("identifier too long: " + locale1)
-		print('\t.byte "' + locale1 + '"', end = '', file=asm)
-		for i in range(0, 14 - len(locale1)):
+		if len(x16_kbdid) > 14:
+			sys.exit("identifier too long: " + x16_kbdid)
+		print('\t.byte "' + x16_kbdid + '"', end = '', file=asm)
+		for i in range(0, 14 - len(x16_kbdid)):
 			print(", 0", end = '', file=asm)
 		print("", file=asm)
 		print("\t.word {}kbtab_{}".format(prefix, kbd_id), file=asm)
@@ -593,14 +601,14 @@ for iso_mode in [False, True]:
 
 	print("", file=asm)
 
+	print(shiftstates)
 	for shiftstate in shiftstates:
+		converted_shiftstate = convert_shiftstate(shiftstate, x16_kbdid, iso_mode)
+
 		if shiftstate == ALT and iso_mode:
-			continue # Alt in ISO is the same as unshifted
+			continue # don't write table, Alt in ISO is the same as unshifted
 
-		# X16 shiftstate has ALT and CTRL swapped
-		converted_shiftstate = shiftstate & 1 | (shiftstate & 2) << 1 | (shiftstate & 4) >> 1
-
-		data.append(converted_shiftstate | iso_mode << 7)
+		data.append(converted_shiftstate)
 
 		start = 1
 		end = 128
@@ -615,7 +623,7 @@ if filler_count > 0:
 		for i in range(0, 128):
 			data.append(0xff)
 
-# bit field: for which codes CAPS means SHIFT; big endian"
+# bit field: for which codes CAPS means SHIFT; big endian
 for ibyte in range(0, 16):
 	byte = 0
 	for ibit in range(0, 8):
@@ -644,14 +652,16 @@ for in_c in kbd_layout['deadkeys'].keys():
 			data1.append(ord(add_c))
 			data1.append(ord(res_c))
 			count += 1
-			print("  dead key {} + {} -> {}".format(in_c, add_c, res_c))
-	data1 = bytearray([shiftstate | 0x80, ps2_scancode, len(data1) + 3]) + data1
-	print("dead key {}: {}".format(in_c, count))
+			#print("  dead key {} + {} -> {}".format(in_c, add_c, res_c))
+	converted_shiftstate = convert_shiftstate(shiftstate, x16_kbdid, True)
+	data1 = bytearray([converted_shiftstate, ps2_scancode, len(data1) + 3]) + data1
+	pprint.pprint(hex(converted_shiftstate))
+	#print("dead key {}: {}".format(in_c, count))
 	if (count > 0):
 		#pprint.pprint(data1)
 		deadkey_data.extend(data1)
 deadkey_data.append(0xff) # terminator for dead key groups
-print("deadkey data: " + str(len(deadkey_data)))
+#print("deadkey data: " + str(len(deadkey_data)))
 if len(deadkey_data) > 223:
 	sys.exit("too much deadkey data: " + str(len(deadkey_data)))
 while len(deadkey_data) < 223:
@@ -659,8 +669,8 @@ while len(deadkey_data) < 223:
 data.extend(deadkey_data)
 
 # locale
-data.extend(locale1.encode('latin-1'))
-for i in range(0, 6 - len(locale1)):
+data.extend(x16_kbdid.encode('latin-1'))
+for i in range(0, 14 - len(x16_kbdid)):
 	data.append(0)
 
 bin.write(data)
