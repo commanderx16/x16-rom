@@ -188,8 +188,6 @@ cycle_layout:
 	lda #0
 	bcs :-          ;end of list? use 0
 ; put name into keyboard buffer
-;	lda #$8d ; shift + cr
-;	jsr kbdbuf_put
 	ldx #0
 :	lda kbdnam,x
 	beq :+

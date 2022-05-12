@@ -335,7 +335,6 @@ table_count = 0
 for iso_mode in [False, True]:
 	load_patch = not iso_mode
 	kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
-	#pprint.pprint(kbd_layout)
 
 	layout = kbd_layout['layout']
 	shiftstates = kbd_layout['shiftstates']
@@ -700,13 +699,9 @@ for in_c in kbd_layout['deadkeys'].keys():
 			#print("  dead key {} + {} -> {}".format(in_c, add_c, res_c))
 	converted_shiftstate = convert_shiftstate(shiftstate, x16_kbdid, True)
 	data1 = bytearray([converted_shiftstate, ps2_scancode, len(data1) + 3]) + data1
-	#pprint.pprint(hex(converted_shiftstate))
-	#print("dead key {}: {}".format(in_c, count))
 	if (count > 0):
-		#pprint.pprint(data1)
 		deadkey_data.extend(data1)
 deadkey_data.append(0xff) # terminator for dead key groups
-#print("deadkey data: " + str(len(deadkey_data)))
 if len(deadkey_data) > 223:
 	sys.exit("too much deadkey data: " + str(len(deadkey_data)))
 while len(deadkey_data) < 223:
