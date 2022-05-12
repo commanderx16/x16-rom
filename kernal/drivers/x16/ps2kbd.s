@@ -37,6 +37,7 @@ MODIFIER_ALTGR = MODIFIER_ALT | MODIFIER_CTRL
 MODIFIER_TOGGLE_MASK = MODIFIER_CAPS | MODIFIER_4080
 
 TABLE_COUNT = 11
+KBDNAM_LEN = 14
 
 .segment "ZPKERNAL" : zeropage
 ckbtab:	.res 2           ;    used for keyboard lookup
@@ -57,10 +58,10 @@ keymap_data:
 
 caps:	.res 16 ; for which keys caps means shift
 deadkeys:
-	.res 150
+	.res 224
 kbdnam:
-	.res 6
-keymap_len = * - keymap_data ; 10 * $80 + $10 + 6 = $516
+	.res KBDNAM_LEN ; zero-terminated
+keymap_len = * - keymap_data
 
 .segment "PS2KBD"
 
@@ -96,7 +97,7 @@ _kbd_config:
 
 	lda #<$c000
 	sta tmp2
-	lda #>$c000
+	lda #(>$c000) >> 1
 	sta tmp2+1
 	lda #tmp2
 	sta fetvec
@@ -106,7 +107,9 @@ _kbd_config:
 	sta curkbd
 	asl
 	asl
-	asl             ;*8
+	asl
+	asl             ;*16
+	rol tmp2+1
 	tay
 	ldx #BANK_KEYBD
 	jsr fetch
@@ -123,7 +126,7 @@ _kbd_config:
 	sta kbdnam,x
 	inx
 	iny
-	cpx #6
+	cpx #KBDNAM_LEN
 	bne :-
 ; get address
 	ldx #BANK_KEYBD
@@ -185,15 +188,13 @@ cycle_layout:
 	lda #0
 	bcs :-          ;end of list? use 0
 ; put name into keyboard buffer
-	lda #$8d ; shift + cr
-	jsr kbdbuf_put
 	ldx #0
 :	lda kbdnam,x
 	beq :+
 	jsr kbdbuf_put
+	beq :+
 	inx
-	cpx #6
-	bne :-
+	bra :-
 :	lda #$8d ; shift + cr
 	jmp kbdbuf_put
 
@@ -290,16 +291,35 @@ _kbd_scan:
 
 cont:
 	jsr find_table
+	bcs @notab
+
+; For some encodings (e.g. US-Mac), Alt and AltGr is the same, so
+; the tables use modifiers $C6 (Alt/AltGr) and $C7 (Shift+Alt/AltGr).
+; If we don't find a table and the modifier is (Shift+)Alt/AltGr,
+; try these modifier codes.
+	lda tmp2
+	cmp #$82
+	beq @again
+	cmp #$83
+	beq @again
+	cmp #$86
+	beq @again
+	cmp #$87
+	bne @skip
+@again:	ora #$46
+	jsr find_table
 	bcc @skip
-	lda (ckbtab),y
-	beq @skip
-	cmp #$80        ; dead key -> save it
-	beq @dead
+
+@notab:	lda (ckbtab),y
+	beq @maybe_dead
 	ldx dk_scan
 	bne @combine_dead
 	jmp kbdbuf_put
 
-@dead:	sty dk_scan
+; unassigned key or dead key -> save it, on next keypress,
+; scan dead key tables; if nothing found, it's unassigned
+@maybe_dead:
+	sty dk_scan
 	lda tmp2
 	sta dk_shift
 @skip:	rts
@@ -312,8 +332,10 @@ cont:
 	bne @found
 ; can't be combined -> two chars: "^" + "x" = "^x"
 	lda #' '
-	jsr @combine_dead
-	pla
+	jsr find_combination
+	beq :+
+	jsr kbdbuf_put
+:	pla
 	bra @end
 @found:	plx            ; clean up
 @end:	stz dk_scan
@@ -332,7 +354,12 @@ find_combination:
 	sta ckbtab+1
 ; find dead key's group
 @loop1:	lda (ckbtab)
-	ldy #1
+	cmp #$ff
+	bne :+
+	pla
+	lda #0 ; end of groups
+	rts
+:	ldy #1
 	cmp dk_shift
 	bne :+
 	lda (ckbtab),y
@@ -460,7 +487,7 @@ find_table:
 	ldx #TABLE_COUNT
 @loop:	lda (ckbtab)
 	cmp tmp2
-	beq @ret
+	beq @ret        ; .C = 1: found
 	lda ckbtab
 	eor #$80
 	sta ckbtab
@@ -468,7 +495,7 @@ find_table:
 	inc ckbtab+1
 :	dex
 	bne @loop
-	; .C = 0
+	clc             ; .C = 0: not found
 @ret:	rts
 
 ;****************************************

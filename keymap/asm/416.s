@@ -7,7 +7,7 @@
 
 .segment "KBDMETA"
 
-	.byte "PT-BR", 0
+	.byte "PT-BR", 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.word kbtab_416
 
 .segment "KBDTABLES"
@@ -16,16 +16,16 @@ kbtab_416:
 	.incbin "asm/416.bin.lzsa"
 
 ; PETSCII
-; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
-; graph: '\xa4\xa6\xa8\xa9\xba'
-; *** THIS IS BAD! ***
-; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\_{|}~¢§¨ª¬°²³´¹ºÇç₢'
+; ~~~~~~~
+; C64 keyboard regressions:
+;   graph: '\xa4\xa6\xa8\xa9\xba' <--- *** THIS IS BAD! ***
+; Keys outside of PETSCII:
+;   '\_{|}~¢§¨ª¬°²³´¹ºÇç₢'
 
 ; ISO
-; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
-; chars: '^π'
-; graph: '\xa1\xa4\xa5\xa6\xa8\xa9\xab\xad\xae\xaf\xb1\xb4\xb5\xb6\xb7\xb8\xbb\xbc\xbd\xbe\xbf'
-; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
-; '^`~¨´₢'
+; ~~~
+; Keys outside of ISO-8859-15:
+;   '¨´₢'
+; Non-reachable ISO-8859-15:
+;   'ÅÆÐ×ØÞßåæð÷øþ'
 

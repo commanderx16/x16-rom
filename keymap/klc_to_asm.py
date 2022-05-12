@@ -65,6 +65,7 @@ def get_kbd_layout(base_filename, load_patch = False):
 
 	kbd_layout = {}
 	kbd_layout['deadkeys'] = {}
+	kbd_layout['all_deadkey_reachable_characters'] = ""
 	for lines in sections:
 		fields = lines[0]
 		if fields[0] == 'KBD':
@@ -86,7 +87,6 @@ def get_kbd_layout(base_filename, load_patch = False):
 				shiftstates.append(int(fields[0]))
 			# The US layout does not use "Alt" *at all*. We add it, so that the
 			# .klcpatch file can define keys with "Alt" in an extra column.
-
 			if not ALT in shiftstates:
 				shiftstates.append(ALT)
 			kbd_layout['shiftstates'] = shiftstates
@@ -139,6 +139,7 @@ def get_kbd_layout(base_filename, load_patch = False):
 				add_c = chr(int(fields[0], 16))
 				res_c = chr(int(fields[1], 16))
 				kbd_layout['deadkeys'][in_c][add_c] = res_c
+				kbd_layout['all_deadkey_reachable_characters'] += res_c
 		elif fields[0] == 'LIGATURE':
 			# TODO
 			pass	
@@ -188,31 +189,49 @@ def petscii_from_unicode(c):
 		return chr(0)
 	return c
 
+latin15_from_unicode_tab = {
+	0x20ac: 0xa4, # '€'
+	0x160: 0xa6,  # 'Š'
+	0x161: 0xa8,  # 'š'
+	0x17d: 0xb4,  # 'Ž'
+	0x17e: 0xb8,  # 'ž'
+	0x152: 0xbc,  # 'Œ'
+	0x153: 0xbd,  # 'œ'
+	0x178: 0xbe   # 'Ÿ'
+}
+
+unicode_from_latin15_tab = {
+	0xa4: 0x20ac, # '€'
+	0xa6: 0x160,  # 'Š'
+	0xa8: 0x161,  # 'š'
+	0xb4: 0x17d,  # 'Ž'
+	0xb8: 0x17e,  # 'ž'
+	0xbc: 0x152,  # 'Œ'
+	0xbd: 0x153,  # 'œ'
+	0xbe: 0x178   # 'Ÿ'
+}
+
 def latin15_from_unicode(c):
 	# Latin-15 and 8 bit Unicode are almost the same
 	if ord(c) <= 0xff:
 		# Latin-1 characters (i.e. 8 bit Unicode) not included in Latin-15
-		if ord(c) in [0xA4, 0xA6, 0xA8, 0xB4, 0xB8, 0xBC, 0xBD, 0xBE]: #'¤¦¨´¸¼½¾'
+		if ord(c) in unicode_from_latin15_tab.keys(): #'¤¦¨´¸¼½¾'
 			return chr(0);
 		else:
 			return c
 	
 	# Latin-15 supports some other Unicode characters
-	latin15_from_unicode_tab = { 
-		0x20ac: 0xa4, # '€'
-		0x160: 0xa6,  # 'Š'
-		0x161: 0xa8,  # 'š'
-		0x17d: 0xb4,  # 'Ž'
-		0x17e: 0xb8,  # 'ž'
-		0x152: 0xbc,  # 'Œ'
-		0x153: 0xbd,  # 'œ'
-		0x178: 0xbe   # 'Ÿ'
-	}
 	if ord(c) in latin15_from_unicode_tab:
 		return chr(latin15_from_unicode_tab[ord(c)])
 	
 	# all other characters are unsupported		
 	return chr(0)
+
+def unicode_from_latin15(c):
+	if ord(c) in unicode_from_latin15_tab.keys(): #'¤¦¨´¸¼½¾'
+		return chr(unicode_from_latin15_tab[ord(c)]);
+	else:
+		return c
 
 def unicode_from_petscii(c):
 	# only does the minumum
@@ -223,6 +242,14 @@ def unicode_from_petscii(c):
 	if ord(c) == 0xde: # 'π'
 		return chr(0x03c0)
 	return c
+
+def convert_shiftstate(shiftstate, x16_kbdid, iso_mode):
+	# X16 shiftstate has ALT and CTRL swapped
+	converted_shiftstate = shiftstate & 1 | (shiftstate & 2) << 1 | (shiftstate & 4) >> 1
+	if x16_kbdid == 'EN-US/MAC' and shiftstate & ALTGR == ALTGR and iso_mode:
+		converted_shiftstate |= 0x40 # write "Alt" table as "Alt/AltGr" table
+	converted_shiftstate |= iso_mode << 7
+	return converted_shiftstate
 
 # constants
 
@@ -308,7 +335,6 @@ table_count = 0
 for iso_mode in [False, True]:
 	load_patch = not iso_mode
 	kbd_layout = get_kbd_layout(sys.argv[1], load_patch)
-	#pprint.pprint(kbd_layout)
 
 	layout = kbd_layout['layout']
 	shiftstates = kbd_layout['shiftstates']
@@ -333,7 +359,7 @@ for iso_mode in [False, True]:
 					if dead:
 						if not c_unicode in kbd_layout['deadkeys']:
 							sys.exit("missing dead key: " + hex(ord(c_unicode)))
-						keytab[shiftstate][ps2_scancode] = chr(0x80) # magic
+						keytab[shiftstate][ps2_scancode] = chr(0) # 0 = empty or dead – check dead tables
 						deadkeys[c_unicode] = (shiftstate, ps2_scancode)
 					else:
 						keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)
@@ -501,8 +527,14 @@ for iso_mode in [False, True]:
 			c_encoded = latin15_from_unicode(c_unicode)
 		else:
 			c_encoded = petscii_from_unicode(c_unicode)
-		if (c_encoded == chr(0) or not c_encoded in all_keytabs) and not c_unicode in unicode_not_reachable:
+		if c_encoded == chr(0) and not c_unicode in unicode_not_reachable:
 			unicode_not_reachable += c_unicode
+
+	latin15_not_reachable = ""
+	for c in list(range(0x20, 0x7f)) + list(range(0xc0, 0xff)):
+		u = unicode_from_latin15(chr(c))
+		if u not in kbd_layout['all_originally_reachable_characters'] and u not in kbd_layout['all_deadkey_reachable_characters']:
+			latin15_not_reachable += u
 
 	petscii_chars_not_reachable = ''.join(sorted(petscii_chars_not_reachable))
 	petscii_codes_not_reachable = ''.join(sorted(petscii_codes_not_reachable))
@@ -512,7 +544,7 @@ for iso_mode in [False, True]:
 	# print
 
 	name = kbd_layout['name'].replace(' - Custom', '')
-	kbd_id = kbd_layout['short_id'].lower()
+	kbd_id = kbd_layout['short_id'].lower().replace('-', '_')
 
 	if not iso_mode:
 		print("; Commander X16 PETSCII/ISO Keyboard Table", file=asm)
@@ -526,22 +558,25 @@ for iso_mode in [False, True]:
 
 		print('.segment "KBDMETA"\n', file=asm)
 		prefix = ''
-		if kbd_id == '10409':
-			# The layout 10409 "United States-Dvorak" has a locale
-			# of 'EN-US', just like the other US layouts:
-			# *   409 "US"
-			# * 20409 "United States-International"
-			# Since we include both 20409 and 10409 in the X16 ROM,
-			# we rename the Dvorak one to a non-standard "locale".
-			locale1 = 'EN*US'
+		# For most layouts, we can use the locale as the unique identifier.
+		# For EN_US, we ship multiple layouts, so we need to suffix the
+		# locale for a unique identifier.
+		if kbd_id == '20409':
+			x16_kbdid = 'EN-US/INT'
+		elif kbd_id == '10409':
+			x16_kbdid = 'EN-US/DVO'
 		elif name == 'Colemak':
-			locale1 = 'EN!US'
+			x16_kbdid = 'EN-US/COL'
+		elif name == 'United States-Extended':
+			x16_kbdid = 'EN-US/MAC'
 		else:
-			locale1 = kbd_layout['localename'].upper()
+			x16_kbdid = kbd_layout['localename'].upper()
 			if len(kbd_layout['localename']) != 5:
 				sys.exit("unknown locale format: " + kbd_layout['localename'])
-		print('\t.byte "' + locale1 + '"', end = '', file=asm)
-		for i in range(0, 6 - len(locale1)):
+		if len(x16_kbdid) > 14:
+			sys.exit("identifier too long: " + x16_kbdid)
+		print('\t.byte "' + x16_kbdid + '"', end = '', file=asm)
+		for i in range(0, 14 - len(x16_kbdid)):
 			print(", 0", end = '', file=asm)
 		print("", file=asm)
 		print("\t.word {}kbtab_{}".format(prefix, kbd_id), file=asm)
@@ -553,52 +588,71 @@ for iso_mode in [False, True]:
 		print("", file=asm)
 
 	if iso_mode:
-		print("; ISO", file=asm)
+		print("; ISO\n; ~~~", file=asm)
 	else:
-		print("; PETSCII", file=asm)
-	if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
-		print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:", file=asm)
-		if len(petscii_chars_not_reachable) > 0:
-			print("; chars: " + pprint.pformat(petscii_chars_not_reachable), file=asm)
-		if len(petscii_codes_not_reachable) > 0:
-			print("; codes: ", end = '', file=asm)
-			for c in petscii_codes_not_reachable:
-				if ord(c) in control_codes:
-					print(control_codes[ord(c)] + ' ', end = '', file=asm)
-				else:
-					print(hex(ord(c)) + ' ', end = '', file=asm)
-			print("", file=asm)
-		if len(petscii_graphs_not_reachable) > 0:
-			print("; graph: '", end = '', file=asm)
-			for c in petscii_graphs_not_reachable:
-				print("\\x{0:02x}".format(ord(c)), end = '', file=asm)
-			print("'", file=asm)
-		if not iso_mode:
-			print("; *** THIS IS BAD! ***", file=asm)
+		print("; PETSCII\n; ~~~~~~~", file=asm)
 
-	if len(unicode_not_reachable) > 0:
-		if iso_mode:
-			print("; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:", file=asm)
+	if not iso_mode:
+		# PETSCII characters reachable on a C64 keyboard that are not reachable with this layout
+		print("; C64 keyboard regressions:", file=asm)
+		if (len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0):
+			if len(petscii_chars_not_reachable) > 0:
+				print(";   chars: " + pprint.pformat(petscii_chars_not_reachable), file=asm)
+			if len(petscii_codes_not_reachable) > 0:
+				print(";   codes: ", end = '', file=asm)
+				for c in petscii_codes_not_reachable:
+					if ord(c) in control_codes:
+						print(control_codes[ord(c)] + ' ', end = '', file=asm)
+					else:
+						print(hex(ord(c)) + ' ', end = '', file=asm)
+				print("", file=asm)
+			if len(petscii_graphs_not_reachable) > 0:
+				print(";   graph: '", end = '', file=asm)
+				for c in petscii_graphs_not_reachable:
+					print("\\x{0:02x}".format(ord(c)), end = '', file=asm)
+				print("'", end = '', file=asm)
+			if not iso_mode:
+				print(" <--- *** THIS IS BAD! ***", file=asm)
 		else:
-			print("; Unicode characters reachable with this layout on Windows but not covered by PETSCII:", file=asm)
-		print("; '", end = '', file=asm)
+			print(";   --none--", file=asm)
+
+	if iso_mode:
+		# Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15
+		print("; Keys outside of ISO-8859-15:", file=asm)
+	else:
+		# Unicode characters reachable with this layout on Windows but not covered by PETSCII
+		print("; Keys outside of PETSCII:", file=asm)
+	if len(unicode_not_reachable) > 0:
+		print(";   '", end = '', file=asm)
 		for c in unicode_not_reachable:
 			if ord(c) < 0x20:
 				print("\\x{0:02x}".format(ord(c)), end = '', file=asm)
 			else:
 				print(c, end = '', file=asm)
 		print("'", file=asm)
+	else:
+		print(";   --none--", file=asm)
+
+	if iso_mode:
+		# ISO-8859-15 characters not reachable by this layout
+		print("; Non-reachable ISO-8859-15:", file=asm)
+		if len(latin15_not_reachable) > 0:
+			print(";   '", end = '', file=asm)
+			for c in latin15_not_reachable:
+				print(c, end = '', file=asm)
+			print("'", file=asm)
+		else:
+			print(";   --none--", file=asm)
 
 	print("", file=asm)
 
 	for shiftstate in shiftstates:
+		converted_shiftstate = convert_shiftstate(shiftstate, x16_kbdid, iso_mode)
+
 		if shiftstate == ALT and iso_mode:
-			continue # Alt in ISO is the same as unshifted
+			continue # don't write table, Alt in ISO is the same as unshifted
 
-		# X16 shiftstate has ALT and CTRL swapped
-		converted_shiftstate = shiftstate & 1 | (shiftstate & 2) << 1 | (shiftstate & 4) >> 1
-
-		data.append(converted_shiftstate | iso_mode << 7)
+		data.append(converted_shiftstate)
 
 		start = 1
 		end = 128
@@ -613,7 +667,7 @@ if filler_count > 0:
 		for i in range(0, 128):
 			data.append(0xff)
 
-# bit field: for which codes CAPS means SHIFT; big endian"
+# bit field: for which codes CAPS means SHIFT; big endian
 for ibyte in range(0, 16):
 	byte = 0
 	for ibit in range(0, 8):
@@ -630,6 +684,7 @@ deadkey_data = bytearray()
 for in_c in kbd_layout['deadkeys'].keys():
 	(shiftstate, ps2_scancode) = deadkeys[in_c]
 	data1 = bytearray()
+	count = 0
 	for add_c in kbd_layout['deadkeys'][in_c].keys():
 		res_c = kbd_layout['deadkeys'][in_c][add_c]
 		add_c = latin15_from_unicode(add_c)
@@ -640,18 +695,22 @@ for in_c in kbd_layout['deadkeys'].keys():
 		else:
 			data1.append(ord(add_c))
 			data1.append(ord(res_c))
-	data1 = bytearray([shiftstate | 0x80, ps2_scancode, len(data1) + 3]) + data1
-	#pprint.pprint(data1)
-	deadkey_data.extend(data1)
-while len(deadkey_data) < 150:
-	deadkey_data.append(0xff)
-if len(deadkey_data) > 150:
+			count += 1
+			#print("  dead key {} + {} -> {}".format(in_c, add_c, res_c))
+	converted_shiftstate = convert_shiftstate(shiftstate, x16_kbdid, True)
+	data1 = bytearray([converted_shiftstate, ps2_scancode, len(data1) + 3]) + data1
+	if (count > 0):
+		deadkey_data.extend(data1)
+deadkey_data.append(0xff) # terminator for dead key groups
+if len(deadkey_data) > 224:
 	sys.exit("too much deadkey data: " + str(len(deadkey_data)))
+while len(deadkey_data) < 224:
+	deadkey_data.append(0xff)
 data.extend(deadkey_data)
 
 # locale
-data.extend(locale1.encode('latin-1'))
-for i in range(0, 6 - len(locale1)):
+data.extend(x16_kbdid.encode('latin-1'))
+for i in range(0, 14 - len(x16_kbdid)):
 	data.append(0)
 
 bin.write(data)
