@@ -246,7 +246,7 @@ def unicode_from_petscii(c):
 def convert_shiftstate(shiftstate, x16_kbdid, iso_mode):
 	# X16 shiftstate has ALT and CTRL swapped
 	converted_shiftstate = shiftstate & 1 | (shiftstate & 2) << 1 | (shiftstate & 4) >> 1
-	if x16_kbdid == 'EN-US/MAC' and shiftstate & ALTGR == ALTGR and iso_mode:
+	if x16_kbdid == 'EN-US' and shiftstate & ALTGR == ALTGR and iso_mode:
 		converted_shiftstate |= 0x40 # write "Alt" table as "Alt/AltGr" table
 	converted_shiftstate |= iso_mode << 7
 	return converted_shiftstate
@@ -568,7 +568,8 @@ for iso_mode in [False, True]:
 		elif name == 'Colemak':
 			x16_kbdid = 'EN-US/COL'
 		elif name == 'United States-Extended':
-			x16_kbdid = 'EN-US/MAC'
+			# this is the designated default layout, so it doesn't get a suffix
+			x16_kbdid = 'EN-US'
 		else:
 			x16_kbdid = kbd_layout['localename'].upper()
 			if len(kbd_layout['localename']) != 5:
