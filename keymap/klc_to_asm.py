@@ -226,7 +226,10 @@ def latin15_from_unicode(c):
 	return chr(0)
 
 def unicode_from_latin15(c):
-	pass
+	if ord(c) in unicode_from_latin15_tab.keys(): #'¤¦¨´¸¼½¾'
+		return chr(unicode_from_latin15_tab[ord(c)]);
+	else:
+		return c
 
 def unicode_from_petscii(c):
 	# only does the minumum
@@ -526,6 +529,12 @@ for iso_mode in [False, True]:
 		if (c_encoded == chr(0) or not c_encoded in all_keytabs) and not c_unicode in unicode_not_reachable:
 			unicode_not_reachable += c_unicode
 
+	latin15_not_reachable = ""
+	for c in list(range(0x20, 0x7f)) + list(range(0xc0, 0xff)):
+		u = unicode_from_latin15(chr(c))
+		if not u in kbd_layout['all_originally_reachable_characters']:
+			latin15_not_reachable += u
+
 	petscii_chars_not_reachable = ''.join(sorted(petscii_chars_not_reachable))
 	petscii_codes_not_reachable = ''.join(sorted(petscii_codes_not_reachable))
 	petscii_graphs_not_reachable = ''.join(sorted(petscii_graphs_not_reachable))
@@ -612,6 +621,13 @@ for iso_mode in [False, True]:
 				print("\\x{0:02x}".format(ord(c)), end = '', file=asm)
 			else:
 				print(c, end = '', file=asm)
+		print("'", file=asm)
+
+	if iso_mode and len(latin15_not_reachable) > 0:
+		print("; ISO-8859-15 characters not reachable by this layout:", file=asm)
+		print("; '", end = '', file=asm)
+		for c in latin15_not_reachable:
+			print(c, end = '', file=asm)
 		print("'", file=asm)
 
 	print("", file=asm)

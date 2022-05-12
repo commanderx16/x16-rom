@@ -25,4 +25,6 @@ kbtab_us_ext:
 ; graph: '\xa4\xa6\xa8\xac\xad\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb7\xb8\xb9\xbb\xbc\xbe\xbf'
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
 ; '¨¯°±´·¸»¿ÆÐØÞŒƒʔʼˀˆˇˍ˘˙˚˛˜˝̵̧̨̛̣̦̰̱̀́̂̃̄̆̇̉̊̋̌̏̑–—‘’‚“”„†‡•…‰‸‹›⁄€№™≠≤≥'
+; ISO-8859-15 characters not reachable by this layout:
+; 'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÑÒÓÔÕÖ×ÙÚÛÜÝàáâãäåçèéêëìíîïñòóôõöùúûüý'
 
