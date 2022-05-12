@@ -334,7 +334,9 @@ find_combination:
 	sta ckbtab+1
 ; find dead key's group
 @loop1:	lda (ckbtab)
-	bvc :+
+	cmp #$ff
+	bne :+
+	pla
 	lda #0 ; end of groups
 	rts
 :	ldy #1
