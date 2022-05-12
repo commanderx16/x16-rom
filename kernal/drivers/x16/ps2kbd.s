@@ -57,7 +57,7 @@ keymap_data:
 
 caps:	.res 16 ; for which keys caps means shift
 deadkeys:
-	.res 206
+	.res 223
 kbdnam:
 	.res 6
 keymap_len = * - keymap_data ; 10 * $80 + $10 + 6 = $516

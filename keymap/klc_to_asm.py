@@ -525,13 +525,12 @@ for iso_mode in [False, True]:
 
 		print('.segment "KBDMETA"\n', file=asm)
 		prefix = ''
+		# For most layouts, we can use the locale as the unique identifier.
+		# For EN_US, we ship multiple layouts, so we need to suffix the
+		# locale for a unique identifier.
+		if kbd_id == '20409':
+			locale1 = 'EN_US/Int'
 		if kbd_id == '10409':
-			# The layout 10409 "United States-Dvorak" has a locale
-			# of 'EN-US', just like the other US layouts:
-			# *   409 "US"
-			# * 20409 "United States-International"
-			# Since we include both 20409 and 10409 in the X16 ROM,
-			# we rename the Dvorak one to a non-standard "locale".
 			locale1 = 'EN*US'
 		elif name == 'Colemak':
 			locale1 = 'EN!US'
@@ -649,9 +648,9 @@ for in_c in kbd_layout['deadkeys'].keys():
 		deadkey_data.extend(data1)
 deadkey_data.append(0xff) # terminator for dead key groups
 print("deadkey data: " + str(len(deadkey_data)))
-if len(deadkey_data) > 206:
+if len(deadkey_data) > 223:
 	sys.exit("too much deadkey data: " + str(len(deadkey_data)))
-while len(deadkey_data) < 206:
+while len(deadkey_data) < 223:
 	deadkey_data.append(0xff)
 data.extend(deadkey_data)
 
