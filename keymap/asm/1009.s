@@ -24,9 +24,6 @@ kbtab_1009:
 ; '\_{|}~¢¤¦§¨«¬­¯°±²³´µ¶¸»¼½¾Éé'
 
 ; ISO
-; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
-; chars: '^π'
-; graph: '\xa1\xa4\xa5\xa6\xa8\xa9\xaa\xae\xb4\xb7\xb8\xb9\xba\xbc\xbd\xbe\xbf'
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
 ; '^`¤¦¨´¸¼½¾'
 ; ISO-8859-15 characters not reachable by this layout:

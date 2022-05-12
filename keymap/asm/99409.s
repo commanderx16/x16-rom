@@ -20,9 +20,6 @@ kbtab_us_ext:
 ; '\_`{|}~¡¢¥§¨©ª«®¯°±´¶·¸º»¿ÆÐØÞßæð÷øþŒœƒʔʼˀˆˇˍ˘˙˚˛˜˝̵̧̨̛̣̦̰̱̀́̂̃̄̆̇̉̊̋̌̏̑–—‘’‚“”„†‡•…‰‸‹›⁄€№™≠≤≥'
 
 ; ISO
-; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
-; chars: 'π'
-; graph: '\xa4\xa6\xa8\xac\xad\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb7\xb8\xb9\xbb\xbc\xbe\xbf'
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
 ; '¨¯°±´·¸»¿ÆÐØÞŒƒʔʼˀˆˇˍ˘˙˚˛˜˝̵̧̨̛̣̦̰̱̀́̂̃̄̆̇̉̊̋̌̏̑–—‘’‚“”„†‡•…‰‸‹›⁄€№™≠≤≥'
 

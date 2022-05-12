@@ -592,7 +592,7 @@ for iso_mode in [False, True]:
 		print("; ISO", file=asm)
 	else:
 		print("; PETSCII", file=asm)
-	if len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0:
+	if not iso_mode and (len(petscii_chars_not_reachable) > 0 or len(petscii_codes_not_reachable) > 0 or len(petscii_graphs_not_reachable) > 0):
 		print("; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:", file=asm)
 		if len(petscii_chars_not_reachable) > 0:
 			print("; chars: " + pprint.pformat(petscii_chars_not_reachable), file=asm)
