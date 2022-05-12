@@ -632,7 +632,6 @@ for iso_mode in [False, True]:
 
 	print("", file=asm)
 
-	print(shiftstates)
 	for shiftstate in shiftstates:
 		converted_shiftstate = convert_shiftstate(shiftstate, x16_kbdid, iso_mode)
 
@@ -686,7 +685,7 @@ for in_c in kbd_layout['deadkeys'].keys():
 			#print("  dead key {} + {} -> {}".format(in_c, add_c, res_c))
 	converted_shiftstate = convert_shiftstate(shiftstate, x16_kbdid, True)
 	data1 = bytearray([converted_shiftstate, ps2_scancode, len(data1) + 3]) + data1
-	pprint.pprint(hex(converted_shiftstate))
+	#pprint.pprint(hex(converted_shiftstate))
 	#print("dead key {}: {}".format(in_c, count))
 	if (count > 0):
 		#pprint.pprint(data1)
