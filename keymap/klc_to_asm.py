@@ -702,9 +702,9 @@ for in_c in kbd_layout['deadkeys'].keys():
 	if (count > 0):
 		deadkey_data.extend(data1)
 deadkey_data.append(0xff) # terminator for dead key groups
-if len(deadkey_data) > 223:
+if len(deadkey_data) > 224:
 	sys.exit("too much deadkey data: " + str(len(deadkey_data)))
-while len(deadkey_data) < 223:
+while len(deadkey_data) < 224:
 	deadkey_data.append(0xff)
 data.extend(deadkey_data)
 

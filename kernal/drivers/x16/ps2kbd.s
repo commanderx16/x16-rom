@@ -58,10 +58,10 @@ keymap_data:
 
 caps:	.res 16 ; for which keys caps means shift
 deadkeys:
-	.res 223
+	.res 224
 kbdnam:
 	.res KBDNAM_LEN ; zero-terminated
-keymap_len = * - keymap_data ; 10 * $80 + $10 + 6 = $516
+keymap_len = * - keymap_data
 
 .segment "PS2KBD"
 
