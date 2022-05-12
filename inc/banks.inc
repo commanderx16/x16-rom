@@ -13,8 +13,8 @@ BANK_CODEX   = 7
 .ifdef MACHINE_X16
 cbdos_flags= $026A
 status     = $0289 ; channel: status byte
-jsrfar3    = $02c6 ; jsrfar: RAM part
-jmpfr      = $02e1 ; jsrfar: core jmp instruction
+jsrfar3    = $02c4 ; jsrfar: RAM part
+jmpfr      = $02df ; jsrfar: core jmp instruction
 imparm     = $82   ; jsrfar: temporary byte
 stavec     = $03b2 ; stash: argument
 banked_irq = $038b ; irq handler: RAM part
