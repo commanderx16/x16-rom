@@ -37,6 +37,7 @@ MODIFIER_ALTGR = MODIFIER_ALT | MODIFIER_CTRL
 MODIFIER_TOGGLE_MASK = MODIFIER_CAPS | MODIFIER_4080
 
 TABLE_COUNT = 11
+KBDNAM_LEN = 14
 
 .segment "ZPKERNAL" : zeropage
 ckbtab:	.res 2           ;    used for keyboard lookup
@@ -59,7 +60,7 @@ caps:	.res 16 ; for which keys caps means shift
 deadkeys:
 	.res 223
 kbdnam:
-	.res 6
+	.res KBDNAM_LEN ; zero-terminated
 keymap_len = * - keymap_data ; 10 * $80 + $10 + 6 = $516
 
 .segment "PS2KBD"
@@ -96,7 +97,7 @@ _kbd_config:
 
 	lda #<$c000
 	sta tmp2
-	lda #>$c000
+	lda #(>$c000) >> 1
 	sta tmp2+1
 	lda #tmp2
 	sta fetvec
@@ -106,7 +107,9 @@ _kbd_config:
 	sta curkbd
 	asl
 	asl
-	asl             ;*8
+	asl
+	asl             ;*16
+	rol tmp2+1
 	tay
 	ldx #BANK_KEYBD
 	jsr fetch
@@ -123,7 +126,7 @@ _kbd_config:
 	sta kbdnam,x
 	inx
 	iny
-	cpx #6
+	cpx #KBDNAM_LEN
 	bne :-
 ; get address
 	ldx #BANK_KEYBD
@@ -185,15 +188,15 @@ cycle_layout:
 	lda #0
 	bcs :-          ;end of list? use 0
 ; put name into keyboard buffer
-	lda #$8d ; shift + cr
-	jsr kbdbuf_put
+;	lda #$8d ; shift + cr
+;	jsr kbdbuf_put
 	ldx #0
 :	lda kbdnam,x
 	beq :+
 	jsr kbdbuf_put
+	beq :+
 	inx
-	cpx #6
-	bne :-
+	bra :-
 :	lda #$8d ; shift + cr
 	jmp kbdbuf_put
 

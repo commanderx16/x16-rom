@@ -529,17 +529,21 @@ for iso_mode in [False, True]:
 		# For EN_US, we ship multiple layouts, so we need to suffix the
 		# locale for a unique identifier.
 		if kbd_id == '20409':
-			locale1 = 'EN_US/Int'
-		if kbd_id == '10409':
-			locale1 = 'EN*US'
+			locale1 = 'EN-US/INT'
+		elif kbd_id == '10409':
+			locale1 = 'EN-US/DVO'
 		elif name == 'Colemak':
-			locale1 = 'EN!US'
+			locale1 = 'EN-US/COL'
+		elif name == 'United States-Extended':
+			locale1 = 'EN-US/MAC'
 		else:
 			locale1 = kbd_layout['localename'].upper()
 			if len(kbd_layout['localename']) != 5:
 				sys.exit("unknown locale format: " + kbd_layout['localename'])
+		if len(locale1) > 14:
+			sys.exit("identifier too long: " + locale1)
 		print('\t.byte "' + locale1 + '"', end = '', file=asm)
-		for i in range(0, 6 - len(locale1)):
+		for i in range(0, 14 - len(locale1)):
 			print(", 0", end = '', file=asm)
 		print("", file=asm)
 		print("\t.word {}kbtab_{}".format(prefix, kbd_id), file=asm)

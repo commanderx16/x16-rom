@@ -7,7 +7,7 @@
 
 .segment "KBDMETA"
 
-	.byte "CS-CZ", 0
+	.byte "CS-CZ", 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.word kbtab_405
 
 .segment "KBDTABLES"

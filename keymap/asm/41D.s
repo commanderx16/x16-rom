@@ -7,7 +7,7 @@
 
 .segment "KBDMETA"
 
-	.byte "SV-SE", 0
+	.byte "SV-SE", 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.word kbtab_41d
 
 .segment "KBDTABLES"

@@ -7,7 +7,7 @@
 
 .segment "KBDMETA"
 
-	.byte "EN-CA", 0
+	.byte "EN-CA", 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.word kbtab_1009
 
 .segment "KBDTABLES"

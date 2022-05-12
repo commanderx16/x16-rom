@@ -7,7 +7,7 @@
 
 .segment "KBDMETA"
 
-	.byte "JA-JP", 0
+	.byte "JA-JP", 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.word kbtab_411
 
 .segment "KBDTABLES"
