@@ -24,7 +24,7 @@ kbtab_41d:
 
 ; ISO
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
-; '^`~¤¨´½'
+; '¤¨´½'
 ; ISO-8859-15 characters not reachable by this layout:
 ; 'ÆÇÐ×ØÞßæçð÷øþ'
 

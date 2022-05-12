@@ -17,11 +17,11 @@ kbtab_809:
 
 ; PETSCII
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\_`{|}~¦¬ÁÉÍÓÚáéíóú€'
+; '\_{|}~¦¬ÁÉÍÓÚáéíóú€'
 
 ; ISO
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
-; '¦ÁÉÍÓÚ'
+; '¦'
 ; ISO-8859-15 characters not reachable by this layout:
 ; 'ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔÕÖ×ØÙÛÜÝÞßàâãäåæçèêëìîïðñòôõö÷øùûüýþ'
 

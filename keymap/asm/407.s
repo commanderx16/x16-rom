@@ -17,11 +17,11 @@ kbtab_407:
 
 ; PETSCII
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\_`{|}~§°²³´µÄÖÜßäöüẞ€'
+; '\_{|}~§°²³´µÄÖÜßäöüẞ€'
 
 ; ISO
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
-; '^`´ẞ'
+; '´ẞ'
 ; ISO-8859-15 characters not reachable by this layout:
 ; 'ÃÅÆÇËÏÐÑÕ×ØÞãåæçëïðñõ÷øþ'
 

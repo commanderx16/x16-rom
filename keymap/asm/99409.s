@@ -17,9 +17,9 @@ kbtab_us_ext:
 
 ; PETSCII
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\_`{|}~¡¢¥§¨©ª«®¯°±´¶·¸º»¿ÆÐØÞßæð÷øþŒœƒʔʼˀˆˇˍ˘˙˚˛˜˝̵̧̨̛̣̦̰̱̀́̂̃̄̆̇̉̊̋̌̏̑–—‘’‚“”„†‡•…‰‸‹›⁄€№™≠≤≥'
+; '\_{|}~¡¢¥§¨©ª«®¯°±´¶·¸º»¿ÆÐØÞßæð÷øþŒœƒʔʼˀˆˇˍ˘˙˚˛˜˝̵̧̨̛̣̦̰̱̀́̂̃̄̆̇̉̊̋̌̏̑–—‘’‚“”„†‡•…‰‸‹›⁄€№™≠≤≥'
 
 ; ISO
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
-; '¨¯°±´·¸»¿ÆÐØÞŒƒʔʼˀˆˇˍ˘˙˚˛˜˝̵̧̨̛̣̦̰̱̀́̂̃̄̆̇̉̊̋̌̏̑–—‘’‚“”„†‡•…‰‸‹›⁄€№™≠≤≥'
+; '¨´¸ƒʔʼˀˆˇˍ˘˙˚˛˜˝̵̧̨̛̣̦̰̱̀́̂̃̄̆̇̉̊̋̌̏̑–—‘’‚“”„†‡•…‰‸‹›⁄№™≠≤≥'
 

@@ -17,9 +17,9 @@ kbtab_20409:
 
 ; PETSCII
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\_`{|}~¡¢¤¥¦§¨©«¬®°²³´µ¶¹»¼½¾¿ÁÄÅÆÇÉÍÐÑÓÖ×ØÚÜÞßáäåæçéíðñóö÷øúüþ‘’€'
+; '\_{|}~¡¢¤¥¦§¨©«¬®°²³´µ¶¹»¼½¾¿ÁÄÅÆÇÉÍÐÑÓÖ×ØÚÜÞßáäåæçéíðñóö÷øúüþ‘’€'
 
 ; ISO
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
-; '"'^`~¢£¤¦§¨°´¹¼½¾ÁÄÅÆÇÉÍÐÑÓÖØÚÜÞ÷‘’'
+; '¤¦¨´¼½¾‘’'
 

@@ -24,7 +24,7 @@ kbtab_80c:
 
 ; ISO
 ; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
-; '`~¨´'
+; '¨´'
 ; ISO-8859-15 characters not reachable by this layout:
 ; 'ÅÆÇÐ×ØÞßåæð÷øþ'
 
