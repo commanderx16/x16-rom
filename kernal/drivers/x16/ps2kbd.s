@@ -57,7 +57,7 @@ keymap_data:
 
 caps:	.res 16 ; for which keys caps means shift
 deadkeys:
-	.res 205
+	.res 206
 kbdnam:
 	.res 6
 keymap_len = * - keymap_data ; 10 * $80 + $10 + 6 = $516
@@ -332,7 +332,10 @@ find_combination:
 	sta ckbtab+1
 ; find dead key's group
 @loop1:	lda (ckbtab)
-	ldy #1
+	bvc :+
+	lda #0 ; end of groups
+	rts
+:	ldy #1
 	cmp dk_shift
 	bne :+
 	lda (ckbtab),y

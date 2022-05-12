@@ -630,6 +630,7 @@ deadkey_data = bytearray()
 for in_c in kbd_layout['deadkeys'].keys():
 	(shiftstate, ps2_scancode) = deadkeys[in_c]
 	data1 = bytearray()
+	count = 0
 	for add_c in kbd_layout['deadkeys'][in_c].keys():
 		res_c = kbd_layout['deadkeys'][in_c][add_c]
 		add_c = latin15_from_unicode(add_c)
@@ -640,12 +641,17 @@ for in_c in kbd_layout['deadkeys'].keys():
 		else:
 			data1.append(ord(add_c))
 			data1.append(ord(res_c))
+			count += 1
 	data1 = bytearray([shiftstate | 0x80, ps2_scancode, len(data1) + 3]) + data1
-	#pprint.pprint(data1)
-	deadkey_data.extend(data1)
-if len(deadkey_data) > 205:
+	print("dead key {}: {}".format(in_c, count))
+	if (count > 0):
+		#pprint.pprint(data1)
+		deadkey_data.extend(data1)
+deadkey_data.append(0xff) # terminator for dead key groups
+print("deadkey data: " + str(len(deadkey_data)))
+if len(deadkey_data) > 206:
 	sys.exit("too much deadkey data: " + str(len(deadkey_data)))
-while len(deadkey_data) < 205:
+while len(deadkey_data) < 206:
 	deadkey_data.append(0xff)
 data.extend(deadkey_data)
 
