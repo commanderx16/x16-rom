@@ -17,15 +17,15 @@ kbtab_809:
 
 ; PETSCII
 ; ~~~~~~~
-; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:
+; C64 keyboard regressions:
 ;   --none--
-; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
+; Keys outside of PETSCII:
 ;   '\_{|}~¦¬ÁÉÍÓÚáéíóú€'
 
 ; ISO
 ; ~~~
-; Unicode characters reachable with this layout on Windows but not covered by ISO-8859-15:
+; Keys outside of ISO-8859-15:
 ;   '¦'
-; ISO-8859-15 characters not reachable by this layout:
+; Non-reachable ISO-8859-15:
 ;   'ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔÕÖ×ØÙÛÜÝÞßàâãäåæçèêëìîïðñòôõö÷øùûüýþ'
 
