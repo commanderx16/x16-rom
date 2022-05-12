@@ -332,7 +332,7 @@ for iso_mode in [False, True]:
 					if dead:
 						if not c_unicode in kbd_layout['deadkeys']:
 							sys.exit("missing dead key: " + hex(ord(c_unicode)))
-						keytab[shiftstate][ps2_scancode] = chr(0x80) # magic
+						keytab[shiftstate][ps2_scancode] = chr(0) # 0 = empty or dead – check dead tables
 						deadkeys[c_unicode] = (shiftstate, ps2_scancode)
 					else:
 						keytab[shiftstate][ps2_scancode] = latin15_from_unicode(c_unicode)

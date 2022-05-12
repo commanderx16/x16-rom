@@ -292,14 +292,15 @@ cont:
 	jsr find_table
 	bcc @skip
 	lda (ckbtab),y
-	beq @skip
-	cmp #$80        ; dead key -> save it
-	beq @dead
+	beq @maybe_dead
 	ldx dk_scan
 	bne @combine_dead
 	jmp kbdbuf_put
 
-@dead:	sty dk_scan
+; unassigned key or dead key -> save it, on next keypress,
+; scan dead key tables; if nothing found, it's unassigned
+@maybe_dead:
+	sty dk_scan
 	lda tmp2
 	sta dk_shift
 @skip:	rts
