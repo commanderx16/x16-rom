@@ -17,7 +17,7 @@ kbtab_us_ext:
 
 ; PETSCII
 ; Unicode characters reachable with this layout on Windows but not covered by PETSCII:
-; '\x1d\_`{|}~¡¢¥§¨©ª«®¯°±´¶·¸º»¿ÆÐØÞßæð÷øþŒœƒʔʼˀˆˇˍ˘˙˚˛˜˝̵̧̨̛̣̦̰̱̀́̂̃̄̆̇̉̊̋̌̏̑–—‘’‚“”„†‡•…‰‸‹›⁄€№™≠≤≥'
+; '\_`{|}~¡¢¥§¨©ª«®¯°±´¶·¸º»¿ÆÐØÞßæð÷øþŒœƒʔʼˀˆˇˍ˘˙˚˛˜˝̵̧̨̛̣̦̰̱̀́̂̃̄̆̇̉̊̋̌̏̑–—‘’‚“”„†‡•…‰‸‹›⁄€№™≠≤≥'
 
 ; ISO
 ; PETSCII characters reachable on a C64 keyboard that are not reachable with this layout:

@@ -187,31 +187,46 @@ def petscii_from_unicode(c):
 		return chr(0)
 	return c
 
+latin15_from_unicode_tab = {
+	0x20ac: 0xa4, # '€'
+	0x160: 0xa6,  # 'Š'
+	0x161: 0xa8,  # 'š'
+	0x17d: 0xb4,  # 'Ž'
+	0x17e: 0xb8,  # 'ž'
+	0x152: 0xbc,  # 'Œ'
+	0x153: 0xbd,  # 'œ'
+	0x178: 0xbe   # 'Ÿ'
+}
+
+unicode_from_latin15_tab = {
+	0xa4: 0x20ac, # '€'
+	0xa6: 0x160,  # 'Š'
+	0xa8: 0x161,  # 'š'
+	0xb4: 0x17d,  # 'Ž'
+	0xb8: 0x17e,  # 'ž'
+	0xbc: 0x152,  # 'Œ'
+	0xbd: 0x153,  # 'œ'
+	0xbe: 0x178   # 'Ÿ'
+}
+
 def latin15_from_unicode(c):
 	# Latin-15 and 8 bit Unicode are almost the same
 	if ord(c) <= 0xff:
 		# Latin-1 characters (i.e. 8 bit Unicode) not included in Latin-15
-		if ord(c) in [0xA4, 0xA6, 0xA8, 0xB4, 0xB8, 0xBC, 0xBD, 0xBE]: #'¤¦¨´¸¼½¾'
+		if ord(c) in unicode_from_latin15_tab.keys(): #'¤¦¨´¸¼½¾'
 			return chr(0);
 		else:
 			return c
 	
 	# Latin-15 supports some other Unicode characters
-	latin15_from_unicode_tab = { 
-		0x20ac: 0xa4, # '€'
-		0x160: 0xa6,  # 'Š'
-		0x161: 0xa8,  # 'š'
-		0x17d: 0xb4,  # 'Ž'
-		0x17e: 0xb8,  # 'ž'
-		0x152: 0xbc,  # 'Œ'
-		0x153: 0xbd,  # 'œ'
-		0x178: 0xbe   # 'Ÿ'
-	}
 	if ord(c) in latin15_from_unicode_tab:
 		return chr(latin15_from_unicode_tab[ord(c)])
 	
 	# all other characters are unsupported		
 	return chr(0)
+
+def unicode_from_latin15(c):
+	pass
 
 def unicode_from_petscii(c):
 	# only does the minumum
