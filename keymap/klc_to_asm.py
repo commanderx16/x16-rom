@@ -512,7 +512,7 @@ for iso_mode in [False, True]:
 	# print
 
 	name = kbd_layout['name'].replace(' - Custom', '')
-	kbd_id = kbd_layout['short_id'].lower()
+	kbd_id = kbd_layout['short_id'].lower().replace('-', '_')
 
 	if not iso_mode:
 		print("; Commander X16 PETSCII/ISO Keyboard Table", file=asm)
@@ -643,10 +643,10 @@ for in_c in kbd_layout['deadkeys'].keys():
 	data1 = bytearray([shiftstate | 0x80, ps2_scancode, len(data1) + 3]) + data1
 	#pprint.pprint(data1)
 	deadkey_data.extend(data1)
-while len(deadkey_data) < 150:
-	deadkey_data.append(0xff)
-if len(deadkey_data) > 150:
+if len(deadkey_data) > 205:
 	sys.exit("too much deadkey data: " + str(len(deadkey_data)))
+while len(deadkey_data) < 205:
+	deadkey_data.append(0xff)
 data.extend(deadkey_data)
 
 # locale
