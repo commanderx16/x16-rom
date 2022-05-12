@@ -312,8 +312,10 @@ cont:
 	bne @found
 ; can't be combined -> two chars: "^" + "x" = "^x"
 	lda #' '
-	jsr @combine_dead
-	pla
+	jsr find_combination
+	beq :+
+	jsr kbdbuf_put
+:	pla
 	bra @end
 @found:	plx            ; clean up
 @end:	stz dk_scan
@@ -463,7 +465,7 @@ find_table:
 	ldx #TABLE_COUNT
 @loop:	lda (ckbtab)
 	cmp tmp2
-	beq @ret
+	beq @ret        ; .C = 1: found
 	lda ckbtab
 	eor #$80
 	sta ckbtab
@@ -471,7 +473,7 @@ find_table:
 	inc ckbtab+1
 :	dex
 	bne @loop
-	; .C = 0
+	clc             ; .C = 0: not found
 @ret:	rts
 
 ;****************************************

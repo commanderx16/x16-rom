@@ -86,7 +86,6 @@ def get_kbd_layout(base_filename, load_patch = False):
 				shiftstates.append(int(fields[0]))
 			# The US layout does not use "Alt" *at all*. We add it, so that the
 			# .klcpatch file can define keys with "Alt" in an extra column.
-
 			if not ALT in shiftstates:
 				shiftstates.append(ALT)
 			kbd_layout['shiftstates'] = shiftstates
@@ -642,6 +641,7 @@ for in_c in kbd_layout['deadkeys'].keys():
 			data1.append(ord(add_c))
 			data1.append(ord(res_c))
 			count += 1
+			print("  dead key {} + {} -> {}".format(in_c, add_c, res_c))
 	data1 = bytearray([shiftstate | 0x80, ps2_scancode, len(data1) + 3]) + data1
 	print("dead key {}: {}".format(in_c, count))
 	if (count > 0):

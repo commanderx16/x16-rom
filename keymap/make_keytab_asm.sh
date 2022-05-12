@@ -5,5 +5,5 @@ for layout in $layouts; do
 	echo $filename
 	python3 klc_to_asm.py "$filename" asm/$layout.s asm/$layout.bin asm/$layout.bin.lzsa
 	lzsa -f 2 -r --prefer-ratio asm/$layout.bin asm/$layout.bin.lzsa
-	rm asm/$layout.bin
+	#rm asm/$layout.bin
 done
