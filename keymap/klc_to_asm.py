@@ -528,7 +528,7 @@ for iso_mode in [False, True]:
 			c_encoded = latin15_from_unicode(c_unicode)
 		else:
 			c_encoded = petscii_from_unicode(c_unicode)
-		if (c_encoded == chr(0)) and not c_unicode in unicode_not_reachable:
+		if c_encoded == chr(0) and not c_unicode in unicode_not_reachable:
 			unicode_not_reachable += c_unicode
 
 	latin15_not_reachable = ""
