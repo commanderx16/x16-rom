@@ -531,7 +531,7 @@ for iso_mode in [False, True]:
 			unicode_not_reachable += c_unicode
 
 	latin15_not_reachable = ""
-	for c in list(range(0x20, 0x7f)) + list(range(0xc0, 0xff)):
+	for c in list(range(0x20, 0x7f)) + list(range(0xa0, 0xff)):
 		u = unicode_from_latin15(chr(c))
 		if u not in kbd_layout['all_originally_reachable_characters'] and u not in kbd_layout['all_deadkey_reachable_characters']:
 			latin15_not_reachable += u

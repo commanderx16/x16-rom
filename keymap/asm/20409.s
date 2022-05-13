@@ -27,5 +27,5 @@ kbtab_20409:
 ; Keys outside of ISO-8859-15:
 ;   '¤¦¨´¼½¾‘’'
 ; Non-reachable ISO-8859-15:
-;   --none--
+;   ' Ššª­¯±Ž·žºŒœŸ'
 
