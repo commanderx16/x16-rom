@@ -1,7 +1,18 @@
-KBD	US-Ext	"United States-Extended"
+// This is based on Apple's "ABC - Extended" layout,
+// converted into .klc format by Andrew Dunning
+//     https://github.com/adunning/Mac-Keyboard-Layouts-for-Windows
+// and slightly modified for the Commander X16:
+// * Alt+m -> µ (replaces dead key with 0 ISO-8859-15-reachable characters)
+// * Alt+l -> ¬ (replaces dead key with 0 ISO-8859-15-reachable characters)
+// All but the following ISO-8859-15 characters are reachable by this layout:
+// * ¹
+// * ²
+// * ³
+// * SHY (SOFT HYPHEN, 00ad)
+
+KBD	US-Ext	"ABC - Extended (X16)"
 
 COPYRIGHT	"(c) 2011 Andrew Dunning"
-// X16 modifications by Michael Steil: Alt+m -> µ, Alt+l = ¬
 
 COMPANY	"Andrew Dunning"
 

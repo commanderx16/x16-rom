@@ -1,13 +1,13 @@
 ; Commander X16 PETSCII/ISO Keyboard Table
 ; ***this file is auto-generated!***
 ;
-; Name:   United States-Extended
+; Name:   ABC - Extended (X16)
 ; Locale: en-US
 ; KLID:   us_ext
 
 .segment "KBDMETA"
 
-	.byte "EN-US", 0, 0, 0, 0, 0, 0, 0, 0, 0
+	.byte "EN-US/X16", 0, 0, 0, 0, 0
 	.word kbtab_us_ext
 
 .segment "KBDTABLES"
