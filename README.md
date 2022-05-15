@@ -105,6 +105,8 @@ Release Notes
 	* Changed auto-boot filename from `AUTOBOOT.X16*` to `AUTOBOOT.X16`
 * Monitor:
 	* fixed RMB/SMB disassembly
+* Charset:
+	* X16 logo included in ISO charset, code $AD, Shift+Alt+k in ISO mode
 
 ### Release 40 ("Bonn")
 

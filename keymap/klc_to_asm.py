@@ -247,7 +247,7 @@ def convert_shiftstate(shiftstate, x16_kbdid, iso_mode):
 	# X16 shiftstate has ALT and CTRL swapped
 	converted_shiftstate = shiftstate & 1 | (shiftstate & 2) << 1 | (shiftstate & 4) >> 1
 	# default layout treats Alt like AltGr
-	if x16_kbdid == 'EN-US/X16' and shiftstate & ALTGR == ALTGR and iso_mode:
+	if x16_kbdid == 'ABC/X16' and shiftstate & ALTGR == ALTGR and iso_mode:
 		converted_shiftstate |= 0x40 # write "Alt" table as "Alt/AltGr" table
 	converted_shiftstate |= iso_mode << 7
 	return converted_shiftstate
@@ -569,7 +569,7 @@ for iso_mode in [False, True]:
 		elif name == 'Colemak':
 			x16_kbdid = 'EN-US/COL'
 		elif name == 'ABC - Extended (X16)':
-			x16_kbdid = 'EN-US/X16'
+			x16_kbdid = 'ABC/X16'
 			# this is the designated default layout
 		else:
 			x16_kbdid = kbd_layout['localename'].upper()

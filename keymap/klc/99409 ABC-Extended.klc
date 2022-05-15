@@ -4,11 +4,11 @@
 // and slightly modified for the Commander X16:
 // * Alt+m -> µ (replaces dead key with 0 ISO-8859-15-reachable characters)
 // * Alt+l -> ¬ (replaces dead key with 0 ISO-8859-15-reachable characters)
-// All but the following ISO-8859-15 characters are reachable by this layout:
-// * ¹
-// * ²
-// * ³
-// * SHY (SOFT HYPHEN, 00ad)
+// * Shift+Alt+a -> ¹
+// * Shift+Alt+b -> ²
+// * Shift+Alt+c -> ³
+// * Shift+Alt+- -> SHY (SOFT HYPHEN, 00ad)
+// * Shift+Alt+k -> SHY (SOFT HYPHEN, 00ad)
 
 KBD	US-Ext	"ABC - Extended (X16)"
 
@@ -66,7 +66,7 @@ LAYOUT		;an extra '@' at the end is a dead key
 22	G		1	g	G	-1	00a9	2038@		// LATIN SMALL LETTER G, LATIN CAPITAL LETTER G, <none>, COPYRIGHT SIGN, CARET
 23	H		1	h	H	-1	02cd@	0331		// LATIN SMALL LETTER H, LATIN CAPITAL LETTER H, <none>, MODIFIER LETTER LOW MACRON, COMBINING MACRON BELOW
 24	J		1	j	J	-1	02dd@	030b		// LATIN SMALL LETTER J, LATIN CAPITAL LETTER J, <none>, DOUBLE ACUTE ACCENT, COMBINING DOUBLE ACUTE ACCENT
-25	K		1	k	K	-1	02da@	030a		// LATIN SMALL LETTER K, LATIN CAPITAL LETTER K, <none>, RING ABOVE, COMBINING RING ABOVE
+25	K		1	k	K	-1	02da@	00ad		// LATIN SMALL LETTER K, LATIN CAPITAL LETTER K, <none>, RING ABOVE, COMBINING RING ABOVE
 26	L		5	l	L	-1	00ac	0335		// LATIN SMALL LETTER L, LATIN CAPITAL LETTER L, <none>, HYPHEN-MINUS, COMBINING SHORT STROKE OVERLAY
 27	OEM_1		0	003b	003a	-1	2026	2116@		// SEMICOLON, COLON, <none>, HORIZONTAL ELLIPSIS, NUMERO SIGN
 28	OEM_7		4	0027	0022	-1	00e6	00c6		// APOSTROPHE, QUOTATION MARK, <none>, LATIN SMALL LETTER AE, LATIN CAPITAL LETTER AE
