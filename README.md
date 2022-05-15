@@ -84,7 +84,7 @@ Release Notes
 * KERNAL
 	* keyboard
 		* added 16 more keyboard layouts (28 total)
-		* default layout is now Macintosh US (full ISO-8859-15, no dead keys)
+		* default layout ("ABC/X16") is now based on Macintosh "ABC - Extended" (full ISO-8859-15, no dead keys)
 		* "keymap" API to activate a built-in keyboard layout
 		* custom keyboard layouts can be loaded from disk (to $0:$A000)
 		* Caps key behaves as expected
