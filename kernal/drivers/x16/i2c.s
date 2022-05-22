@@ -7,8 +7,8 @@
 
 pr  = d1prb
 ddr = d1ddrb
-pcr = d1pcr
-SDA = (1 << 2)
+SDA = (1 << 0)
+SCL = (1 << 1)
 
 .segment "I2C"
 
@@ -179,9 +179,7 @@ rec_bit:
 	jsr sda_high
 	jsr scl_high
 	lda pr
-	.assert SDA = 4, error, "update the shift instructions if SDA is not bit #2"
-	lsr
-	lsr
+	.assert SDA = (1 << 0), error, "update shift instruction if SDA is not bit #0"
 	lsr             ; bit -> C
 	jsr scl_low
 ; fallthrough
@@ -203,20 +201,17 @@ i2c_start:
 ; fallthrough
 
 scl_low:
-	lda pcr
-	and #%00011111
-	ora #%11000000
-	sta pcr
+	lda #SCL
+	tsb ddr
 	rts
 
 i2c_init:
-	lda #SDA
+	lda #SDA | SCL
 	trb pr
-	bra scl_high
 ; fallthrough
 
 scl_high:
-	lda #%11100000
-	tsb pcr
+	lda #SCL
+	trb ddr
 	rts
 
