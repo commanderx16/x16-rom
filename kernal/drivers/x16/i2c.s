@@ -189,6 +189,7 @@ rec_bit:
 sda_low:
 	lda #SDA
 	tsb ddr
+	ina             ; clear Z
 	rts
 
 i2c_stop:
