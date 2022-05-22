@@ -95,7 +95,7 @@ i2c_write_byte:
 	txa                ; device
 	asl
 	jsr i2c_write
-	beq @error
+	bcs @error
 	tya                ; offset
 	jsr i2c_write
 	pla                ; value

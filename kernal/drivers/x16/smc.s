@@ -23,7 +23,6 @@ uc_address = $42
 ; 0x05 0x00-0xFF - Activity LED Level (PWM)
 
 smc_set_activity_led:
-	rts
 	cmp activity_led_state
 	beq @rts
 	sta activity_led_state
