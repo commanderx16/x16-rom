@@ -37,7 +37,7 @@ i2c_read_byte:
 	jsr i2c_stop
 
 	jsr i2c_start
-@xxx:	plx
+	plx
 	phx
 	txa
 	sec
@@ -107,9 +107,7 @@ i2c_send_addr_offset:
 	bcc @ok
 	rts
 @ok:	tya                ; offset
-	jmp i2c_write
-; XXX fallthrough
-
+; fallthrough
 
 i2c_write:
 	ldx #8
