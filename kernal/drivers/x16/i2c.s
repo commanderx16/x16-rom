@@ -29,24 +29,19 @@ SDA = (1 << 2)
 i2c_read_byte:
 	php
 	sei
-	phx
 	phy
+	phx
 
-	jsr i2c_init
-	jsr i2c_start
-	txa                ; device
-	asl
-	pha                ; device * 2
-	jsr i2c_write
-	bcs @error
-	plx                ; device * 2
-	tya                ; offset
-	phx                ; device * 2
-	jsr i2c_write
+	jsr i2c_send_addr_offset
+	bcs i2c_error
 	jsr i2c_stop
+
 	jsr i2c_start
-	pla                ; device * 2
-	inc
+@xxx:	plx
+	phx
+	txa
+	sec
+	rol                ; device * 2 + 1
 	jsr i2c_write
 	jsr i2c_read
 	pha
@@ -54,18 +49,19 @@ i2c_read_byte:
 	jsr i2c_stop
 	pla
 
-	ply
 	plx
+	ply
 	plp
 	ora #0             ; set flags
 	clc
 	rts
 
-@error:
+i2c_error2:
+	pla                ; value
+i2c_error:
 	jsr i2c_stop
-	pla                ; device * 2
-	ply
 	plx
+	ply
 	plp
 	lda #$ee
 	sec
@@ -86,59 +82,34 @@ i2c_read_byte:
 i2c_write_byte:
 	php
 	sei
-	phx
 	phy
+	phx
 
 	pha                ; value
+	jsr i2c_send_addr_offset
+	bcs i2c_error2
+	pla                ; value
+	jsr i2c_write
+	jsr i2c_stop
+
+	plx
+	ply
+	plp
+	clc
+	rts
+
+i2c_send_addr_offset:
 	jsr i2c_init
 	jsr i2c_start
 	txa                ; device
 	asl
 	jsr i2c_write
-	bcs @error
-	tya                ; offset
-	jsr i2c_write
-	pla                ; value
-	jsr i2c_write
-	jsr i2c_stop
-
-	ply
-	plx
-	plp
-	clc
+	bcc @ok
 	rts
+@ok:	tya                ; offset
+	jmp i2c_write
+; XXX fallthrough
 
-@error:
-	pla                ; value
-	ply
-	plx
-	plp
-	sec
-	rts
-
-;---------------------------------------------------------------
-; Copyright (c) 2015, Dieter Hauer
-; All rights reserved.
-;
-; Redistribution and use in source and binary forms, with or without
-; modification, are permitted provided that the following conditions are met:
-;
-; 1. Redistributions of source code must retain the above copyright notice, this
-;    list of conditions and the following disclaimer.
-; 2. Redistributions in binary form must reproduce the above copyright notice,
-;    this list of conditions and the following disclaimer in the documentation
-;    and/or other materials provided with the distribution.
-;
-; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-; ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-; WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-; DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-; ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-; (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-; ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 i2c_write:
 	ldx #8
@@ -149,6 +120,7 @@ i2c_write:
 	dex
 	bne @loop
 	bra rec_bit     ; C = 0: success
+; XXX fallthrough
 
 i2c_read:
 	ldx #8
@@ -220,3 +192,26 @@ scl_high:
 	tsb pcr
 	rts
 
+;---------------------------------------------------------------
+; Copyright (c) 2015, Dieter Hauer
+; All rights reserved.
+;
+; Redistribution and use in source and binary forms, with or without
+; modification, are permitted provided that the following conditions are met:
+;
+; 1. Redistributions of source code must retain the above copyright notice, this
+;    list of conditions and the following disclaimer.
+; 2. Redistributions in binary form must reproduce the above copyright notice,
+;    this list of conditions and the following disclaimer in the documentation
+;    and/or other materials provided with the distribution.
+;
+; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+; ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+; WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+; DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+; ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+; (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+; ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
