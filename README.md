@@ -146,7 +146,7 @@ Release Notes
 	* Proto 2 Hardware Features
 		* I2C bus (driver by Dieter Hauer, 2-clause BSD)
 		* SMC: reset and shutdown support
-		* RTC: DA$/TI$ and KERNAL APIs bridge to real-time-clock
+		* RTC: `DA$`/`TI$` and KERNAL APIs bridge to real-time-clock
 	* Screen Features
 		* New screen_mode API allows setting and getting current mode and resolution
 		* support for 320x240 framebuffer (mode $80/128) [with gaekwad]
@@ -157,7 +157,7 @@ Release Notes
 	* Other Features
 		* support for LOADing files without 2-byte PRG header [Elektron72]
 		* support for LOAD into banked RAM (acptr and macptr)
-		* support BEL code (PRINT CHR$(7))
+		* support BEL code (`PRINT CHR$(7)`)
 		* keyboard joystick (joystick 0) supports all SNES buttons
 		* support for 4 SNES controllers (joystick 1-4) [John J Bliss]
 	* Bugs
@@ -174,14 +174,14 @@ Release Notes
 	* made Math package compatible with C128/C65, but fixing FADDT, FMULTT, FDIVT, FPWRT
 * BASIC
 	* Features
-		* added BIN$ & HEX$ functions [Jimmy Dansbo]
+		* added `BIN$` & `HEX$` functions [Jimmy Dansbo]
 		* added LOCATE statement
 	* Bugs/Optimizations
 		* removed extra space from BASIC error messages [Elektron72]
-		* fixed DA$ and TI$ when accessed together or with BIN$()/HEX$() [Jaxartes]
-		* fixed null handling in GET/READ/INPUT [Jaxartes]
-		* fixed bank setting in VPOKE and VPEEK [Jaxartes]
-		* fixed optional 'color' argument parsing for LINE, FRAME, RECT
+		* fixed `DA$` and `TI$` when accessed together or with `BIN$()`/`HEX$()` [Jaxartes]
+		* fixed null handling in `GET`/`READ`/`INPUT` [Jaxartes]
+		* fixed bank setting in `VPOKE` and `VPEEK` [Jaxartes]
+		* fixed optional 'color' argument parsing for `LINE`, `FRAME`, `RECT`
 * DOS
 	* reliable memory initialization
 	* fixed writing LFN directory entries across sector boundary
@@ -204,11 +204,11 @@ Release Notes
 	* fixed `stash` to preserve A
 	* `entropy_get`: better entropy
 * MATH
-	* optimized addition, multiplication and SQR [Michael Jørgensen]
+	* optimized addition, multiplication and `SQR` [Michael Jørgensen]
 	* ported over `INT(.9+.1)` = 0 fix from C128
 * BASIC
 	* updated power-on logo to match the real X16 logo better
-	* like LOAD/SAVE, OPEN now also defaults to last IEEE device (or 8)
+	* like `LOAD`/`SAVE`, `OPEN` now also defaults to last IEEE device (or 8)
 	* fixed STOP key when showing directory listing (`DOS"$"`)
 * CHARSET
 	* changed PETSCII screen codes $65/$67 to PET 1/8th blocks
@@ -246,8 +246,8 @@ Release Notes
 * KERNAL
 	* support for VERA 0.9 register layout (Frank van den Hoef)
 * BASIC
-	* TI$ and DA$ (DATE$) are now connected to the new date/time API
-	* TI is independent of TI$ and can be assigned
+	* `TI$` and `DA$` (`DATE$`) are now connected to the new date/time API
+	* TI is independent of `TI$` and can be assigned
 * DOS
 	* enabled partition types 0x0b and 0x0c, should accept more image types
 * Build
@@ -256,7 +256,7 @@ Release Notes
 	* ROM banks are built independently
 	* support to replace CBM channel and editor code with GPLed "open-roms" code by the MEGA65 project
 * bug fixes
-	* LOAD respects target address
+	* `LOAD` respects target address
 	* FAT32 code no longer overwrites RAM
 	* monitor is not as broken any more
 
@@ -283,17 +283,17 @@ Release Notes
 	* GRAPH_move_rect supports overlapping [gaekwad]
 
 * BASIC
-	* default LOAD/SAVE device is now 8
-	* added RESET statement [Ingo Hinterding]
-	* added CLS statement [Ingo Hinterding]
+	* default `LOAD`/`SAVE` device is now 8
+	* added `RESET` statement [Ingo Hinterding]
+	* added `CLS` statement [Ingo Hinterding]
 
 * CHARSET
 	* fixed capital Ö [Ingo Hinterding]
 	* Changed Û, î, ã to be more consistent [Ingo Hinterding]
 
 * bug fixes
-	* COLOR statement with two arguments
-	* PEEK for ROM addresses
+	* `COLOR` statement with two arguments
+	* `PEEK` for ROM addresses
 	* keyboard code no longer changes RAM bank
 	* fixed clock update
 	* fixed side effects of Ctrl+A and color control codes [codewar65]
@@ -329,7 +329,7 @@ Release Notes
 
 * bug fixes:
 	* got rid of $2c partial instruction skip [Joshua Scholar]
-	* fixed TI/TI$
+	* fixed `TI`/`TI$`
 	* fixed CBDOS infinite loop
 	* zp address 0 is no longer overwritten by mouse code
 	* mouse scanning is disabled if mouse is off
@@ -366,9 +366,9 @@ Release Notes
 ### Release 33
 
 * BASIC
-	* additional LOAD syntax to load to a specific address `LOAD [filename[,device[,bank,address]]]`
-	* LOAD into banked RAM will auto-wrap into successive banks
-	* LOAD allows trailing garbage; great to just type `LOAD` into a directory line [John-Paul Gignac]
+	* additional `LOAD` syntax to load to a specific address `LOAD [filename[,device[,bank,address]]]`
+	* `LOAD` into banked RAM will auto-wrap into successive banks
+	* `LOAD` allows trailing garbage; great to just type `LOAD` into a directory line [John-Paul Gignac]
 	* new BASIC statement: `VLOAD` to load into video RAM: `VLOAD [filename[,device[,bank,address]]]` [John-Paul Gignac]
 	* complete jump table bridge
 * KERNAL: memory size detection
