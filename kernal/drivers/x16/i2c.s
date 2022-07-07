@@ -189,6 +189,7 @@ rec_bit:
 sda_low:
 	lda #SDA
 	tsb ddr
+	jsr sleep_a_bit
 	rts
 
 i2c_stop:
@@ -196,6 +197,7 @@ i2c_stop:
 sda_high:
 	lda #SDA
 	trb ddr
+	jsr sleep_a_bit
 	rts
 
 i2c_start:
@@ -207,6 +209,7 @@ scl_low:
 	and #%00011111
 	ora #%11000000
 	sta pcr
+	jsr sleep_a_bit
 	rts
 
 i2c_init:
@@ -218,5 +221,20 @@ i2c_init:
 scl_high:
 	lda #%11100000
 	tsb pcr
+	jsr sleep_a_bit
 	rts
 
+sleep_a_bit:
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	rts
