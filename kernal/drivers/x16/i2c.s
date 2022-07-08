@@ -225,16 +225,8 @@ scl_high:
 	rts
 
 sleep_a_bit:
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
+	pha
+	pla
+	pha
+	pla
 	rts

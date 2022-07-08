@@ -10,11 +10,14 @@
 .importzp mhz ; [declare]
 
 .export ps2_init, ps2_receive_byte
+.import i2c_read_byte
 
 port_ddr  =d1ddrb
 port_data =d1prb
 bit_data=1              ; 6522 IO port data bit mask  (PA0/PB0)
 bit_clk =2              ; 6522 IO port clock bit mask (PA1/PB1)
+
+smc_address = $42
 
 .segment "KVARSB0"
 
@@ -48,55 +51,33 @@ ps2dis:	lda port_ddr,x
 ;           1: parity error
 ;****************************************
 ps2_receive_byte:
-; set input, bus idle
-	lda port_ddr,x ; set CLK and DATA as input
-	and #$ff-bit_clk-bit_data
-	sta port_ddr,x ; -> bus is idle, keyboard can start sending
+    txa
+    pha
+    
+    ldx #smc_address
+    ldy #$07            ; SMC register that returns the next available keycode
+    
+    jsr i2c_read_byte
+    
+    beq ps2_no_byte_received
+    cmp #$ee
+    beq ps2_no_byte_received
+    
+    sta ps2byte
+    
+    pla
+    tax
 
-	lda #bit_clk+bit_data
-	ldy #10 * mhz
-:	dey
-	beq lc08c
-	bit port_data,x
-	bne :- ; wait for CLK=0 and DATA=0 (start bit)
-
-	lda #bit_clk
-lc044:	bit port_data,x ; wait for CLK=1 (not ready)
-	beq lc044
-	ldy #9 ; 9 bits including parity
-lc04a:	bit port_data,x
-	bne lc04a ; wait for CLK=0 (ready)
-	lda port_data,x
-	and #bit_data
-	cmp #bit_data
-	ror ps2byte ; save bit
-	lda #bit_clk
-lc058:	bit port_data,x
-	beq lc058 ; wait for CLK=1 (not ready)
-	dey
-	bne lc04a
-	rol ps2byte ; get parity bit into C
-lc061:	bit port_data,x
-	bne lc061 ; wait for CLK=0 (ready)
-lc065:	bit port_data,x
-	beq lc065 ; wait for CLK=1 (not ready)
-lc069:	jsr ps2dis
-	lda ps2byte
-	php ; save parity
-lc07c:	lsr a ; calculate parity
-	bcc lc080
-	iny
-lc080:	cmp #0
-	bne lc07c
-	tya
-	plp ; transmitted parity
-	adc #1
-	lsr a ; C=0: parity OK
-	lda ps2byte
-	ldy #1 ; Z=0
-	rts
-
-lc08c:	jsr ps2dis
-	clc
-	lda #0 ; Z=1
-	rts
+    lda ps2byte
+    
+    clc
+    ldy #1 ; Z=0
+    rts
+    
+ps2_no_byte_received:
+    pla
+    tax
+    
+    clc
+    lda #0 ; Z=1
+    rts
