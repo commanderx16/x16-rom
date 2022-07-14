@@ -10,8 +10,7 @@ ddr = d1ddrb
 SDA = (1 << 0)
 SCL = (1 << 1)
 
-.segment "ZPKERNAL" : zeropage
-i2c_delay_loops:	.res 1
+i2c_delay_loops = $7f
 
 .segment "I2C"
 
@@ -37,7 +36,7 @@ i2c_delay_loops:	.res 1
 ;     > NAK to indicate end of requested bytes from device
 ;   Stop condition
 ;
-; Pass:      x    device
+; Pass:      x    7-bit device address
 ;            y    offset
 ;
 ; Return:    a    value
@@ -104,10 +103,10 @@ i2c_read_byte:
 ;---------------------------------------------------------------
 ; i2c_write_byte
 ;
-; Function:
+; Function: Write a byte value to an offset of an I2C device
 ;
 ; Pass:      a    value
-;            x    device
+;            x    7-bit device address
 ;            y    offset
 ;
 ; Return:    x    device (preserved)
@@ -173,11 +172,14 @@ i2c_write_byte:
 ;---------------------------------------------------------------
 ; i2c_write
 ;
-; Function: Writes a single byte over I2C
+; Function: Write a single byte over I2C
 ;
 ; Pass:      a    byte to write
 ;
-; Return:    C    1 if ACK, 0 if NAK
+; Return:    c    1 if ACK, 0 if NAK
+;
+; I2C Exit:  SDA: Z
+;            SCL: 0
 ;---------------------------------------------------------------
 i2c_write:
 	ldx #8
@@ -193,11 +195,14 @@ i2c_write:
 ;---------------------------------------------------------------
 ; i2c_read
 ;
-; Function: Reads a single from a device over I2C
+; Function: Read a single byte from a device over I2C
 ;
 ; Pass:      None
 ;
 ; Return:    a    value from device
+;
+; I2C Exit:  SDA: Z
+;            SCL: 0
 ;---------------------------------------------------------------
 i2c_read:
 	ldx #8
@@ -212,6 +217,18 @@ i2c_read:
 
 ;---------------------------------------------------------------
 
+;---------------------------------------------------------------
+; i2c_nack
+;
+; Function: Send an I2C NAK.
+;
+; Pass:      None
+;
+; Return:    None
+;
+; I2C Exit: SDA: Z
+;           SCL: 0
+;---------------------------------------------------------------
 i2c_nack:
 	sec
 ; fallthrough
@@ -219,11 +236,14 @@ i2c_nack:
 ;---------------------------------------------------------------
 ; send_bit
 ;
-; Function: Send a single bit over I2C
-;
+; Function: Send a single bit over I2C.
 ; Pass:      C    bit value to send.
 ;
 ; Return:    None
+;
+; I2C Exit: SDA: Z if C is set;
+;                0 if C is clear
+;           SCL: 0
 ;---------------------------------------------------------------
 send_bit:
 	bcs @1
@@ -242,17 +262,19 @@ send_bit:
 ;
 ; Pass:      None
 ;
-; Return:    C    bit value received
+; Return:    c    bit value received
+;
+; I2C Exit:  SDA: Z
+;            SCL: 0
 ;---------------------------------------------------------------
 rec_bit:
-	jsr sda_high
+	jsr sda_high		; Release SDA so that device can drive it
 	jsr scl_high
-	jsr sleep_a_bit	; Give pull-ups a chance to overcome the I2C wire capacitance
+	jsr sleep_a_bit		; Give pull-ups a chance to overcome the I2C wire capacitance
 	lda pr
 	.assert SDA = (1 << 0), error, "update the shift instructions if SDA is not bit #0"
 	lsr             ; bit -> C
-	jsr scl_low
-; fallthrough
+	jmp scl_low
 
 ;---------------------------------------------------------------
 ; sda_low
@@ -262,6 +284,9 @@ rec_bit:
 ; Pass:      None
 ;
 ; Return:    None
+;
+; I2C Exit:  SDA: 0
+;            SCL: unchanged
 ;---------------------------------------------------------------
 sda_low:
 	lda #SDA
@@ -271,11 +296,15 @@ sda_low:
 ;---------------------------------------------------------------
 ; i2c_stop
 ;
-; Function: Signal an I2C stop condition
+; Function: Signal an I2C stop condition. This is done by driving
+;           SDA high while SCL high.
 ;
 ; Pass:      None
 ;
 ; Return:    None
+;
+; I2C Exit:  SDA: Z
+;            SCL: Z
 ;---------------------------------------------------------------
 i2c_stop:
 	jsr sda_low
@@ -295,6 +324,9 @@ i2c_stop:
 ; Pass:      None
 ;
 ; Return:    None
+;
+; I2C Exit:  SDA: Z
+;            SCL: unchanged
 ;---------------------------------------------------------------
 sda_high:
 	lda #SDA
@@ -306,12 +338,16 @@ sda_high:
 ;
 ; Function: Signal an I2C start condition. The start condition
 ;           drives the SDA signal low prior to driving SCL low.
-;           Both SDA and SCL will be in the LOW state at the end
-;           of this function.
+;           Start/Stop is the only time when it is legal to for
+;           SDA to change while SCL is high. Both SDA and SCL
+;           will be in the LOW state at the end of this function.
 ;
 ; Pass:      None
 ;
 ; Return:    None
+;
+; I2C Exit:  SDA: 0
+;            SCL: 0
 ;---------------------------------------------------------------
 i2c_start:
 	jsr sda_low
@@ -326,6 +362,9 @@ i2c_start:
 ; Pass:      None
 ;
 ; Return:    None
+;
+; I2C Exit:  SDA: unchanged
+;            SCL: 0
 ;---------------------------------------------------------------
 scl_low:
 	lda #SCL
@@ -335,11 +374,14 @@ scl_low:
 ;---------------------------------------------------------------
 ; i2c_init
 ;
-; Function: Configure VIA for being an I2C controller
+; Function: Configure VIA for being an I2C controller.
 ;
 ; Pass:      None
 ;
 ; Return:    None
+;
+; I2C Exit:  SDA: Z
+;            SCL: Z
 ;---------------------------------------------------------------
 i2c_init:
 	lda #SDA | SCL
@@ -356,6 +398,9 @@ i2c_init:
 ; Pass:      None
 ;
 ; Return:    None
+;
+; I2C Exit:  SDA: unchanged
+;            SCL: Z
 ;---------------------------------------------------------------
 scl_high:
 	lda #SCL
