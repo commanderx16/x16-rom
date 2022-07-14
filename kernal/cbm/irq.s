@@ -43,7 +43,7 @@ puls1	jmp (cinv)      ;...irq
 ; VBLANK IRQ handler
 ;
 key
-	jsr mouse_scan  ;scan mouse (do this first to avoid sprite tearing)
+	; jsr mouse_scan  ;scan mouse (do this first to avoid sprite tearing)
 	jsr joystick_scan
 	jsr clock_update
 	jsr cursor_blink

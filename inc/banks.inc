@@ -15,7 +15,7 @@ cbdos_flags= $026A
 status     = $0289 ; channel: status byte
 jsrfar3    = $02c4 ; jsrfar: RAM part
 jmpfr      = $02df ; jsrfar: core jmp instruction
-imparm     = $82   ; jsrfar: temporary byte
+imparm     = $81   ; jsrfar: temporary byte
 stavec     = $03b2 ; stash: argument
 banked_irq = $038b ; irq handler: RAM part
 .elseif .defined(MACHINE_C64)

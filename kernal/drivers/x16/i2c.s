@@ -7,8 +7,11 @@
 
 pr  = d1prb
 ddr = d1ddrb
-pcr = d1pcr
-SDA = (1 << 2)
+SDA = (1 << 0)
+SCL = (1 << 1)
+
+.segment "ZPKERNAL" : zeropage
+i2c_delay_loops:	.res 1
 
 .segment "I2C"
 
@@ -18,6 +21,21 @@ SDA = (1 << 2)
 ; i2c_read_byte
 ;
 ; Function:
+;
+; Read sequence:
+;   Start condition
+;     > 7 bits of device address, MSb first
+;     > 1 bit = 0 (write indicator bit)
+;     < Read ACK/NAK from device
+;     > 8 bits of register offset
+;   Stop condition
+;   Start condition
+;     > 7 bits of device address, MSb first
+;     > 1 bit = 1 (read indicator bit)
+;     < Read ACK/NAK from device (this is not done by the kernel!!)
+;     < Read 8 bits from device
+;     > NAK to indicate end of requested bytes from device
+;   Stop condition
 ;
 ; Pass:      x    device
 ;            y    offset
@@ -48,6 +66,16 @@ i2c_read_byte:
 	pla                ; device * 2
 	inc
 	jsr i2c_write
+
+	; DELAY to give time to process the register offset
+	phx
+	ldx i2c_delay_loops
+	bra @2
+@1:	jsr sleep_a_bit
+	dex
+@2:	bne @1
+	plx
+
 	jsr i2c_read
 	pha
 	jsr i2c_nack
@@ -179,9 +207,7 @@ rec_bit:
 	jsr sda_high
 	jsr scl_high
 	lda pr
-	.assert SDA = 4, error, "update the shift instructions if SDA is not bit #2"
-	lsr
-	lsr
+	.assert SDA = (1 << 0), error, "update the shift instructions if SDA is not bit #0"
 	lsr             ; bit -> C
 	jsr scl_low
 ; fallthrough
@@ -205,23 +231,18 @@ i2c_start:
 ; fallthrough
 
 scl_low:
-	lda pcr
-	and #%00011111
-	ora #%11000000
-	sta pcr
-	jsr sleep_a_bit
+	lda #SCL
+	tsb ddr
 	rts
 
 i2c_init:
-	lda #SDA
+	lda #SDA | SCL
 	trb pr
-	bra scl_high
 ; fallthrough
 
 scl_high:
-	lda #%11100000
-	tsb pcr
-	jsr sleep_a_bit
+	lda #SCL
+	trb ddr
 	rts
 
 sleep_a_bit:
