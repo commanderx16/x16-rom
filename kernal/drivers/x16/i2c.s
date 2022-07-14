@@ -10,10 +10,6 @@ ddr = d1ddrb
 SDA = (1 << 0)
 SCL = (1 << 1)
 
-.ifndef I2C_CLOCK_STRETCH_ENABLE
-i2c_delay_loops = $7f
-.endif
-
 .segment "I2C"
 
 .export i2c_read_byte, i2c_write_byte
@@ -68,20 +64,6 @@ i2c_read_byte:
 	pla                ; device * 2
 	inc
 	jsr i2c_write
-
-.ifdef I2C_CLOCK_STRETCH_ENABLE
-	jsr clock_stretch_wait
-.else
-	; DELAY to give time to process the register offset
-	phx
-	ldx i2c_delay_loops
-	inx
-	bra @2
-@1:	jsr sleep_a_bit
-	dex
-@2:	bne @1
-	plx
-.endif
 
 	jsr i2c_read
 	pha
@@ -192,7 +174,6 @@ i2c_write:
 @loop:	rol
 	pha
 	jsr send_bit
-	jsr sleep_a_bit
 	pla
 	dex
 	bne @loop
@@ -214,7 +195,6 @@ i2c_read:
 	ldx #8
 @loop:	pha
 	jsr rec_bit
-	jsr sleep_a_bit
 	pla
 	rol
 	dex
@@ -257,7 +237,6 @@ send_bit:
 	bra @2
 @1:	jsr sda_high
 @2:	jsr scl_high
-	jsr sleep_a_bit
 	jsr scl_low
 	rts
 
@@ -276,7 +255,6 @@ send_bit:
 rec_bit:
 	jsr sda_high		; Release SDA so that device can drive it
 	jsr scl_high
-	jsr sleep_a_bit		; Give pull-ups a chance to overcome the I2C wire capacitance
 	lda pr
 	.assert SDA = (1 << 0), error, "update the shift instructions if SDA is not bit #0"
 	lsr             ; bit -> C
@@ -314,11 +292,11 @@ sda_low:
 ;---------------------------------------------------------------
 i2c_stop:
 	jsr sda_low
-	jsr sleep_a_bit
+	jsr i2c_brief_delay
 	jsr scl_high
-	jsr sleep_a_bit
+	jsr i2c_brief_delay
 	jsr sda_high
-	jsr sleep_a_bit
+	jsr i2c_brief_delay
 	rts
 
 ;---------------------------------------------------------------
@@ -357,7 +335,7 @@ sda_high:
 ;---------------------------------------------------------------
 i2c_start:
 	jsr sda_low
-	jsr sleep_a_bit
+	jsr i2c_brief_delay
 ; fallthrough
 
 ;---------------------------------------------------------------
@@ -411,42 +389,13 @@ i2c_init:
 scl_high:
 	lda #SCL
 	trb ddr
+:	lda pr     ; Wait for clock to go high
+	and #SCL
+	beq :-
 	rts
 
 ;---------------------------------------------------------------
-; clock_stretch_wait
-;
-; Function: Wait for device to release SCL indicating that it is
-;           ready to 
-;
-; Pass:      None
-;
-; Return:    c    1 if device is ready; 0 otherwise
-;
-; I2C Exit:  SDA: Z
-;            SCL: Z
-;---------------------------------------------------------------
-clock_stretch_wait:
-	jsr scl_high    ; Release SCL so device can drive it
-
-	phx
-	ldx #$ff        ; Max wait time
-
-:	jsr sleep_a_bit ; Give device some time
-	lda pr
-	.assert SCL = (1 << 1), error, "update the shift instructions if SDA is not bit #0"
-	lsr
-	lsr             ; bit -> C
-	bcs @ready      ; Clock is high, device is ready
-	dex
-	bcc :-
-	clc             ; Timed out waiting for device
-@ready:
-	plx
-	rts
-
-;---------------------------------------------------------------
-; sleep_a_bit
+; i2c_brief_delay
 ;
 ; Function: delay CPU execution to give I2C signals a chance to
 ;           settle and devices to respond.
@@ -455,7 +404,7 @@ clock_stretch_wait:
 ;
 ; Return:    None
 ;---------------------------------------------------------------
-sleep_a_bit:
+i2c_brief_delay:
 	pha
 	pla
 	pha
