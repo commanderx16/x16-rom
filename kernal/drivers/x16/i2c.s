@@ -43,6 +43,7 @@ i2c_delay_loops:	.res 1
 ; Return:    a    value
 ;            x    device (preserved)
 ;            y    offset (preserved)
+;            c    1 on error (NAK)
 ;---------------------------------------------------------------
 i2c_read_byte:
 	php
@@ -51,7 +52,7 @@ i2c_read_byte:
 	phy
 
 	jsr i2c_init
-	jsr i2c_start
+	jsr i2c_start                        ; SDA -> LOW, (wait 5 us), SCL -> LOW, (no wait)
 	txa                ; device
 	asl
 	pha                ; device * 2
@@ -70,6 +71,7 @@ i2c_read_byte:
 	; DELAY to give time to process the register offset
 	phx
 	ldx i2c_delay_loops
+	inx
 	bra @2
 @1:	jsr sleep_a_bit
 	dex
@@ -175,7 +177,7 @@ i2c_write_byte:
 ;
 ; Pass:      a    byte to write
 ;
-; Return:    C = 1 if ACK, 0 if NAK
+; Return:    C    1 if ACK, 0 if NAK
 ;---------------------------------------------------------------
 i2c_write:
 	ldx #8
@@ -195,7 +197,7 @@ i2c_write:
 ;
 ; Pass:      None
 ;
-; Return:    a value from device
+; Return:    a    value from device
 ;---------------------------------------------------------------
 i2c_read:
 	ldx #8
@@ -219,7 +221,7 @@ i2c_nack:
 ;
 ; Function: Send a single bit over I2C
 ;
-; Pass:      C = bit value to send.
+; Pass:      C    bit value to send.
 ;
 ; Return:    None
 ;---------------------------------------------------------------
@@ -240,7 +242,7 @@ send_bit:
 ;
 ; Pass:      None
 ;
-; Return:    C = bit value received
+; Return:    C    bit value received
 ;---------------------------------------------------------------
 rec_bit:
 	jsr sda_high
@@ -276,12 +278,16 @@ sda_low:
 ; Return:    None
 ;---------------------------------------------------------------
 i2c_stop:
+	jsr sda_low
+	jsr sleep_a_bit
 	jsr scl_high
 	jsr sleep_a_bit
-	; fallthrough
+	jsr sda_high
+	jsr sleep_a_bit
+	rts
 
 ;---------------------------------------------------------------
-; i2c_stop
+; sda_high
 ;
 ; Function: Release SDA signal and let pull up resistors return
 ;           it to logic 1 level
@@ -298,7 +304,10 @@ sda_high:
 ;---------------------------------------------------------------
 ; i2c_start
 ;
-; Function: Signal an I2C start condition.
+; Function: Signal an I2C start condition. The start condition
+;           drives the SDA signal low prior to driving SCL low.
+;           Both SDA and SCL will be in the LOW state at the end
+;           of this function.
 ;
 ; Pass:      None
 ;
