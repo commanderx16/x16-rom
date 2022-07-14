@@ -10,7 +10,9 @@ ddr = d1ddrb
 SDA = (1 << 0)
 SCL = (1 << 1)
 
+.ifndef I2C_CLOCK_STRETCH_ENABLE
 i2c_delay_loops = $7f
+.endif
 
 .segment "I2C"
 
@@ -67,6 +69,9 @@ i2c_read_byte:
 	inc
 	jsr i2c_write
 
+.ifdef I2C_CLOCK_STRETCH_ENABLE
+	jsr clock_stretch_wait
+.else
 	; DELAY to give time to process the register offset
 	phx
 	ldx i2c_delay_loops
@@ -76,6 +81,7 @@ i2c_read_byte:
 	dex
 @2:	bne @1
 	plx
+.endif
 
 	jsr i2c_read
 	pha
@@ -405,6 +411,38 @@ i2c_init:
 scl_high:
 	lda #SCL
 	trb ddr
+	rts
+
+;---------------------------------------------------------------
+; clock_stretch_wait
+;
+; Function: Wait for device to release SCL indicating that it is
+;           ready to 
+;
+; Pass:      None
+;
+; Return:    c    1 if device is ready; 0 otherwise
+;
+; I2C Exit:  SDA: Z
+;            SCL: Z
+;---------------------------------------------------------------
+clock_stretch_wait:
+	jsr scl_high    ; Release SCL so device can drive it
+
+	phx
+	ldx #$ff        ; Max wait time
+
+:	jsr sleep_a_bit ; Give device some time
+	lda pr
+	.assert SCL = (1 << 1), error, "update the shift instructions if SDA is not bit #0"
+	lsr
+	lsr             ; bit -> C
+	bcs @ready      ; Clock is high, device is ready
+	dex
+	bcc :-
+	clc             ; Timed out waiting for device
+@ready:
+	plx
 	rts
 
 ;---------------------------------------------------------------
