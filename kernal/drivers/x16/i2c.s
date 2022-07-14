@@ -168,23 +168,43 @@ i2c_write_byte:
 ; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+;---------------------------------------------------------------
+; i2c_write
+;
+; Function: Writes a single byte over I2C
+;
+; Pass:      a    byte to write
+;
+; Return:    C = 1 if ACK, 0 if NAK
+;---------------------------------------------------------------
 i2c_write:
 	ldx #8
 @loop:	rol
 	pha
 	jsr send_bit
+	jsr sleep_a_bit
 	pla
 	dex
 	bne @loop
 	bra rec_bit     ; C = 0: success
 
+;---------------------------------------------------------------
+; i2c_read
+;
+; Function: Reads a single from a device over I2C
+;
+; Pass:      None
+;
+; Return:    a value from device
+;---------------------------------------------------------------
 i2c_read:
 	ldx #8
 @loop:	pha
 	jsr rec_bit
+	jsr sleep_a_bit
 	pla
 	rol
-        dex
+	dex
 	bne @loop
 	rts
 
@@ -194,57 +214,155 @@ i2c_nack:
 	sec
 ; fallthrough
 
+;---------------------------------------------------------------
+; send_bit
+;
+; Function: Send a single bit over I2C
+;
+; Pass:      C = bit value to send.
+;
+; Return:    None
+;---------------------------------------------------------------
 send_bit:
 	bcs @1
 	jsr sda_low
 	bra @2
 @1:	jsr sda_high
 @2:	jsr scl_high
+	jsr sleep_a_bit
 	jsr scl_low
-        bra sda_low
+	rts
 
+;---------------------------------------------------------------
+; rec_bit
+;
+; Function: Clock in a single bit from a device over I2C
+;
+; Pass:      None
+;
+; Return:    C = bit value received
+;---------------------------------------------------------------
 rec_bit:
 	jsr sda_high
 	jsr scl_high
+	jsr sleep_a_bit	; Give pull-ups a chance to overcome the I2C wire capacitance
 	lda pr
 	.assert SDA = (1 << 0), error, "update the shift instructions if SDA is not bit #0"
 	lsr             ; bit -> C
 	jsr scl_low
 ; fallthrough
 
+;---------------------------------------------------------------
+; sda_low
+;
+; Function: Actively drive the SDA signal low
+;
+; Pass:      None
+;
+; Return:    None
+;---------------------------------------------------------------
 sda_low:
 	lda #SDA
 	tsb ddr
-	jsr sleep_a_bit
 	rts
 
+;---------------------------------------------------------------
+; i2c_stop
+;
+; Function: Signal an I2C stop condition
+;
+; Pass:      None
+;
+; Return:    None
+;---------------------------------------------------------------
 i2c_stop:
 	jsr scl_high
+	jsr sleep_a_bit
+	; fallthrough
+
+;---------------------------------------------------------------
+; i2c_stop
+;
+; Function: Release SDA signal and let pull up resistors return
+;           it to logic 1 level
+;
+; Pass:      None
+;
+; Return:    None
+;---------------------------------------------------------------
 sda_high:
 	lda #SDA
 	trb ddr
-	jsr sleep_a_bit
 	rts
 
+;---------------------------------------------------------------
+; i2c_start
+;
+; Function: Signal an I2C start condition.
+;
+; Pass:      None
+;
+; Return:    None
+;---------------------------------------------------------------
 i2c_start:
 	jsr sda_low
+	jsr sleep_a_bit
 ; fallthrough
 
+;---------------------------------------------------------------
+; scl_low
+;
+; Function: Actively drive I2C clock low
+;
+; Pass:      None
+;
+; Return:    None
+;---------------------------------------------------------------
 scl_low:
 	lda #SCL
 	tsb ddr
 	rts
 
+;---------------------------------------------------------------
+; i2c_init
+;
+; Function: Configure VIA for being an I2C controller
+;
+; Pass:      None
+;
+; Return:    None
+;---------------------------------------------------------------
 i2c_init:
 	lda #SDA | SCL
 	trb pr
+	jsr sda_high
 ; fallthrough
 
+;---------------------------------------------------------------
+; scl_high
+;
+; Function: Release I2C clock signal and let pullups float it to
+;           logic 1 level.
+;
+; Pass:      None
+;
+; Return:    None
+;---------------------------------------------------------------
 scl_high:
 	lda #SCL
 	trb ddr
 	rts
 
+;---------------------------------------------------------------
+; sleep_a_bit
+;
+; Function: delay CPU execution to give I2C signals a chance to
+;           settle and devices to respond.
+;
+; Pass:      None
+;
+; Return:    None
+;---------------------------------------------------------------
 sleep_a_bit:
 	pha
 	pla
