@@ -14,6 +14,126 @@ SCL = (1 << 1)
 
 .export i2c_read_byte, i2c_write_byte
 
+__I2C_USE_INLINE_FUNCTIONS__=1
+
+; Cost vs. benefit of inline I2C pin functions
+;
+;                         JSR     Inline       Diff
+;                       -----------------------------------
+; Size (bytes)          |  244  |   263    |   19 (+7.8%) |
+; Kbd Read (us @ 8MHz)  |  485  |   333    |  152 (-31%)  |
+;                       -----------------------------------
+;
+; Inlining of I2C pin functions (scl_low, scl_high, sda_low, sda_high)
+; increases the I2C module size by 19 bytes and increases performance
+; by 31%. The keyboard scan code read time was used as the benchmark
+; since that is normally done once every VSYNC.
+
+;---------------------------------------------------------------
+; scl_high
+;
+; Function: Release I2C clock signal and let pullups float it to
+;           logic 1 level.
+;
+; Pass:      None
+;
+; Return:    None
+;
+; I2C Exit:  SDA: unchanged
+;            SCL: Z
+;---------------------------------------------------------------
+.if __I2C_USE_INLINE_FUNCTIONS__
+
+.macro scl_high
+.scope
+	lda #SCL
+	trb ddr
+
+wait_for_clk:
+	lda pr
+	and #SCL
+	beq wait_for_clk
+.endscope
+.endmacro
+
+.else
+
+.macro scl_high
+	jsr _scl_high
+.endmacro
+
+.endif
+
+;---------------------------------------------------------------
+; scl_low
+;
+; Function: Actively drive I2C clock low
+;
+; Pass:      None
+;
+; Return:    None
+;
+; I2C Exit:  SDA: unchanged
+;            SCL: 0
+;---------------------------------------------------------------
+.if __I2C_USE_INLINE_FUNCTIONS__
+.macro scl_low
+	lda #SCL
+	tsb ddr
+.endmacro
+.else
+.macro scl_low
+	jsr _scl_low
+.endmacro
+.endif
+
+;---------------------------------------------------------------
+; sda_high
+;
+; Function: Release SDA signal and let pull up resistors return
+;           it to logic 1 level
+;
+; Pass:      None
+;
+; Return:    None
+;
+; I2C Exit:  SDA: Z
+;            SCL: unchanged
+;---------------------------------------------------------------
+.if __I2C_USE_INLINE_FUNCTIONS__
+.macro sda_high
+	lda #SDA
+	trb ddr
+.endmacro
+.else
+.macro sda_high
+	jsr _sda_high
+.endmacro
+.endif
+
+;---------------------------------------------------------------
+; sda_low
+;
+; Function: Actively drive the SDA signal low
+;
+; Pass:      None
+;
+; Return:    None
+;
+; I2C Exit:  SDA: 0
+;            SCL: unchanged
+;---------------------------------------------------------------
+.if __I2C_USE_INLINE_FUNCTIONS__
+.macro sda_low
+	lda #SDA
+	tsb ddr
+.endmacro
+.else
+.macro sda_low
+	jsr _sda_low
+.endmacro
+.endif
+
 ;---------------------------------------------------------------
 ; i2c_read_byte
 ;
@@ -233,11 +353,11 @@ i2c_nack:
 ;---------------------------------------------------------------
 send_bit:
 	bcs @1
-	jsr sda_low
+	sda_low
 	bra @2
-@1:	jsr sda_high
-@2:	jsr scl_high
-	jsr scl_low
+@1:	sda_high
+@2:	scl_high
+	scl_low
 	rts
 
 ;---------------------------------------------------------------
@@ -253,28 +373,12 @@ send_bit:
 ;            SCL: 0
 ;---------------------------------------------------------------
 rec_bit:
-	jsr sda_high		; Release SDA so that device can drive it
-	jsr scl_high
+	sda_high		; Release SDA so that device can drive it
+	scl_high
 	lda pr
 	.assert SDA = (1 << 0), error, "update the shift instructions if SDA is not bit #0"
 	lsr             ; bit -> C
-	jmp scl_low
-
-;---------------------------------------------------------------
-; sda_low
-;
-; Function: Actively drive the SDA signal low
-;
-; Pass:      None
-;
-; Return:    None
-;
-; I2C Exit:  SDA: 0
-;            SCL: unchanged
-;---------------------------------------------------------------
-sda_low:
-	lda #SDA
-	tsb ddr
+	scl_low
 	rts
 
 ;---------------------------------------------------------------
@@ -291,30 +395,12 @@ sda_low:
 ;            SCL: Z
 ;---------------------------------------------------------------
 i2c_stop:
-	jsr sda_low
+	sda_low
 	jsr i2c_brief_delay
-	jsr scl_high
+	scl_high
 	jsr i2c_brief_delay
-	jsr sda_high
+	sda_high
 	jsr i2c_brief_delay
-	rts
-
-;---------------------------------------------------------------
-; sda_high
-;
-; Function: Release SDA signal and let pull up resistors return
-;           it to logic 1 level
-;
-; Pass:      None
-;
-; Return:    None
-;
-; I2C Exit:  SDA: Z
-;            SCL: unchanged
-;---------------------------------------------------------------
-sda_high:
-	lda #SDA
-	trb ddr
 	rts
 
 ;---------------------------------------------------------------
@@ -334,25 +420,9 @@ sda_high:
 ;            SCL: 0
 ;---------------------------------------------------------------
 i2c_start:
-	jsr sda_low
+	sda_low
 	jsr i2c_brief_delay
-; fallthrough
-
-;---------------------------------------------------------------
-; scl_low
-;
-; Function: Actively drive I2C clock low
-;
-; Pass:      None
-;
-; Return:    None
-;
-; I2C Exit:  SDA: unchanged
-;            SCL: 0
-;---------------------------------------------------------------
-scl_low:
-	lda #SCL
-	tsb ddr
+	scl_low
 	rts
 
 ;---------------------------------------------------------------
@@ -370,29 +440,37 @@ scl_low:
 i2c_init:
 	lda #SDA | SCL
 	trb pr
-	jsr sda_high
-; fallthrough
+	sda_high
+	scl_high
+	rts
 
-;---------------------------------------------------------------
-; scl_high
-;
-; Function: Release I2C clock signal and let pullups float it to
-;           logic 1 level.
-;
-; Pass:      None
-;
-; Return:    None
-;
-; I2C Exit:  SDA: unchanged
-;            SCL: Z
-;---------------------------------------------------------------
-scl_high:
+.if !__I2C_USE_INLINE_FUNCTIONS__
+_sda_low:
+	lda #SDA
+	tsb ddr
+	rts
+
+_sda_high:
+	lda #SDA
+	trb ddr
+	rts
+
+_scl_high:
 	lda #SCL
 	trb ddr
 :	lda pr     ; Wait for clock to go high
 	and #SCL
 	beq :-
+	sda_high
+	scl_high
 	rts
+
+_scl_low:
+	lda #SCL
+	tsb ddr
+	rts
+
+.endif
 
 ;---------------------------------------------------------------
 ; i2c_brief_delay
