@@ -1,7 +1,8 @@
 ;----------------------------------------------------------------------
 ; I2C Driver
 ;----------------------------------------------------------------------
-; (C)2015,2021 Dieter Hauer, Michael Steil, License: 2-clause BSD
+; (C)2015-2022 Dieter Hauer, Michael Steil, Joe Burks
+; License: 2-clause BSD
 
 .include "io.inc"
 
