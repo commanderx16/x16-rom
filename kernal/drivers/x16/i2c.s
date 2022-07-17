@@ -178,6 +178,23 @@ wait_for_clk:
 .endmacro
 
 ;---------------------------------------------------------------
+; i2c_ack
+;
+; Function: Send an I2C ACK.
+;
+; Pass:      None
+;
+; Return:    None
+;
+; I2C Exit: SDA: Z
+;           SCL: 0
+;---------------------------------------------------------------
+.macro i2c_ack
+	clc
+	send_bit
+.endmacro
+
+;---------------------------------------------------------------
 ; i2c_nack
 ;
 ; Function: Send an I2C NAK.
@@ -302,11 +319,12 @@ i2c_read_first_byte:
 ; Return:	a    value
 ;---------------------------------------------------------------
 i2c_read_next_byte:
-	clc					; ACK
-	send_bit
+	i2c_ack
 
 i2c_read_next_byte_after_ack:
-	jmp i2c_read
+	jsr i2c_read
+	cmp #0
+	rts
 	
 ;---------------------------------------------------------------
 ; i2c_read_stop
@@ -320,8 +338,7 @@ i2c_read_next_byte_after_ack:
 ;---------------------------------------------------------------
 i2c_read_stop:
 	i2c_nack
-	jsr i2c_stop
-	rts
+	jmp i2c_stop
 
 ;---------------------------------------------------------------
 ; i2c_write_byte
@@ -408,9 +425,9 @@ i2c_write:
 	ldx #8
 i2c_write_loop:
 	rol
-	pha
+	tay
 	send_bit
-	pla
+	tya
 	dex
 	bne i2c_write_loop
 	rec_bit     ; C = 0: success
@@ -431,9 +448,9 @@ i2c_write_loop:
 i2c_read:
 	ldx #8
 i2c_read_loop:	
-	pha
+	tay
 	rec_bit
-	pla
+	tya
 	rol
 	dex
 	bne i2c_read_loop
