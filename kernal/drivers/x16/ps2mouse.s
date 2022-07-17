@@ -9,8 +9,7 @@
 .include "mac.inc"
 
 ; code
-.import ps2_receive_byte; [ps2]
-
+.import i2c_read_first_byte, i2c_read_next_byte, i2c_read_stop
 .import screen_save_state
 .import screen_restore_state
 
@@ -137,10 +136,13 @@ mouse_scan:
 _mouse_scan:
 	bit msepar ; do nothing if mouse is off
 	bpl @a
-	ldx #0
-	jsr ps2_receive_byte
-	bcs @a ; parity error
+	
+	ldx #$42
+	ldy #$09
+	jsr i2c_read_first_byte
+	bcs @a ; error
 	bne @b ; no data
+	jsr i2c_read_stop
 @a:	rts
 @b:
 .if 0
@@ -161,8 +163,9 @@ _mouse_scan:
 .endif
 	sta mousebt
 
-	ldx #0
-	jsr ps2_receive_byte
+	ldx #$42
+	ldy #$09
+	jsr i2c_read_next_byte
 	clc
 	adc mousex
 	sta mousex
@@ -174,11 +177,13 @@ _mouse_scan:
 :	adc mousex+1
 	sta mousex+1
 
-	ldx #0
-	jsr ps2_receive_byte
+	ldx #$42
+	ldy #$09
+	jsr i2c_read_next_byte
 	clc
 	adc mousey
 	sta mousey
+	jsr i2c_read_stop
 
 	lda mousebt
 	and #$20

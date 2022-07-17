@@ -13,7 +13,7 @@ SCL = (1 << 1)
 
 .segment "I2C"
 
-.export i2c_read_byte, i2c_write_byte
+.export i2c_read_byte, i2c_write_byte, i2c_read_first_byte, i2c_read_next_byte, i2c_read_stop
 
 __I2C_USE_INLINE_FUNCTIONS__=1
 
@@ -136,6 +136,65 @@ wait_for_clk:
 .endif
 
 ;---------------------------------------------------------------
+; send_bit
+;
+; Function: Send a single bit over I2C.
+; Pass:      C    bit value to send.
+;
+; Return:    None
+;
+; I2C Exit: SDA: Z if C is set;
+;                0 if C is clear
+;           SCL: 0
+;---------------------------------------------------------------
+.macro send_bit
+	bcs @1
+	sda_low
+	bra @2
+@1:	sda_high
+@2:	scl_high
+	scl_low
+.endmacro
+
+;---------------------------------------------------------------
+; rec_bit
+;
+; Function: Clock in a single bit from a device over I2C
+;
+; Pass:      None
+;
+; Return:    c    bit value received
+;
+; I2C Exit:  SDA: Z
+;            SCL: 0
+;---------------------------------------------------------------
+.macro rec_bit
+	sda_high		; Release SDA so that device can drive it
+	scl_high
+	lda pr
+	.assert SDA = (1 << 0), error, "update the shift instructions if SDA is not bit #0"
+	lsr             ; bit -> C
+	scl_low
+.endmacro
+
+;---------------------------------------------------------------
+; i2c_nack
+;
+; Function: Send an I2C NAK.
+;
+; Pass:      None
+;
+; Return:    None
+;
+; I2C Exit: SDA: Z
+;           SCL: 0
+;---------------------------------------------------------------
+.macro i2c_nack
+	sec
+	send_bit
+.endmacro
+
+;---------------------------------------------------------------
 ; i2c_read_byte
 ;
 ; Function:
@@ -165,10 +224,48 @@ wait_for_clk:
 ;---------------------------------------------------------------
 i2c_read_byte:
 	php
-	sei
+	cli
 	phx
 	phy
 
+	jsr i2c_read_first_byte
+	bcs @err
+	pha
+	jsr i2c_read_stop
+	pla
+	
+	ply
+	plx
+	plp
+	
+	clc
+	cmp #0
+	
+	rts
+
+@err:
+	ply
+	plx
+	plp
+	sec
+	lda #$ee
+	rts
+
+;---------------------------------------------------------------
+; i2c_read_first_byte
+;
+; Function: Reads one byte over I2C without stopping the
+;           transmission. Subsequent bytes may be read by
+;           i2c_read_next_byte. When done, call function
+;           i2c_read_stop to close the I2C transmission.
+;
+; Pass:      x    7-bit device address
+;            y    offset
+;
+; Return:    a    value
+;            c    1 on error (NAK)
+;---------------------------------------------------------------
+i2c_read_first_byte:
 	jsr i2c_init
 	jsr i2c_start                        ; SDA -> LOW, (wait 5 us), SCL -> LOW, (no wait)
 	txa                ; device
@@ -185,28 +282,45 @@ i2c_read_byte:
 	pla                ; device * 2
 	inc
 	jsr i2c_write
-
-	jsr i2c_read
-	pha
-	jsr i2c_nack
-	jsr i2c_stop
-	pla
-
-	ply
-	plx
-	plp
-	ora #0             ; set flags
-	clc
-	rts
-
+	bra i2c_read_next_byte_after_ack
+	
 @error:
 	jsr i2c_stop
-	pla                ; device * 2
-	ply
-	plx
-	plp
 	lda #$ee
-	sec
+	rts
+
+;---------------------------------------------------------------
+; i2c_read_next_byte
+;
+; Function:	After the first byte has been read by 
+;			i2c_read_first_byte, this function may be used to
+;			read one or more subsequent bytes without 
+;			restarting the I2C transmission
+;
+; Pass:		Nothing
+;
+; Return:	a    value
+;---------------------------------------------------------------
+i2c_read_next_byte:
+	clc					; ACK
+	send_bit
+
+i2c_read_next_byte_after_ack:
+	jmp i2c_read
+	
+;---------------------------------------------------------------
+; i2c_read_stop
+;
+; Function:	Stops I2C transmission that has been initialized
+;			with i2c_read_first_byte
+;
+; Pass:		Nothing
+;
+; Return:	Nothing
+;---------------------------------------------------------------
+i2c_read_stop:
+	i2c_nack
+	jsr i2c_stop
 	rts
 
 ;---------------------------------------------------------------
@@ -292,13 +406,15 @@ i2c_write_byte:
 ;---------------------------------------------------------------
 i2c_write:
 	ldx #8
-@loop:	rol
+i2c_write_loop:
+	rol
 	pha
-	jsr send_bit
+	send_bit
 	pla
 	dex
-	bne @loop
-	bra rec_bit     ; C = 0: success
+	bne i2c_write_loop
+	rec_bit     ; C = 0: success
+	rts
 
 ;---------------------------------------------------------------
 ; i2c_read
@@ -314,73 +430,17 @@ i2c_write:
 ;---------------------------------------------------------------
 i2c_read:
 	ldx #8
-@loop:	pha
-	jsr rec_bit
+i2c_read_loop:	
+	pha
+	rec_bit
 	pla
 	rol
 	dex
-	bne @loop
+	bne i2c_read_loop
 	rts
 
 ;---------------------------------------------------------------
 
-;---------------------------------------------------------------
-; i2c_nack
-;
-; Function: Send an I2C NAK.
-;
-; Pass:      None
-;
-; Return:    None
-;
-; I2C Exit: SDA: Z
-;           SCL: 0
-;---------------------------------------------------------------
-i2c_nack:
-	sec
-; fallthrough
-
-;---------------------------------------------------------------
-; send_bit
-;
-; Function: Send a single bit over I2C.
-; Pass:      C    bit value to send.
-;
-; Return:    None
-;
-; I2C Exit: SDA: Z if C is set;
-;                0 if C is clear
-;           SCL: 0
-;---------------------------------------------------------------
-send_bit:
-	bcs @1
-	sda_low
-	bra @2
-@1:	sda_high
-@2:	scl_high
-	scl_low
-	rts
-
-;---------------------------------------------------------------
-; rec_bit
-;
-; Function: Clock in a single bit from a device over I2C
-;
-; Pass:      None
-;
-; Return:    c    bit value received
-;
-; I2C Exit:  SDA: Z
-;            SCL: 0
-;---------------------------------------------------------------
-rec_bit:
-	sda_high		; Release SDA so that device can drive it
-	scl_high
-	lda pr
-	.assert SDA = (1 << 0), error, "update the shift instructions if SDA is not bit #0"
-	lsr             ; bit -> C
-	scl_low
-	rts
 
 ;---------------------------------------------------------------
 ; i2c_stop

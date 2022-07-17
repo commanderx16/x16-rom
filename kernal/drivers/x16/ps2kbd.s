@@ -10,7 +10,7 @@
 .include "mac.inc"
 
 ; code
-.import ps2_receive_byte; [ps2]
+.import i2c_read_first_byte, i2c_read_next_byte, i2c_read_stop
 .import joystick_from_ps2_init, joystick_from_ps2; [joystick]
 ; data
 .import mode; [declare]
@@ -506,23 +506,32 @@ find_table:
 ;           1: key up
 ;****************************************
 receive_scancode:
-	ldx #1
-	jsr ps2_receive_byte
-	bcs rcvsc1 ; parity error
-	bne rcvsc2 ; non-zero code
-rcvsc1:	lda #0
+	ldx #$42
+	ldy #$07
+	jsr i2c_read_first_byte
+	bcs rcvsc1a ; I2C error
+	bne rcvsc3 ; non-zero code
+rcvsc1:
+	jsr i2c_read_stop
+rcvsc1a:
+	lda #0
 	rts
-rcvsc2:	cmp #$e0 ; extend prefix 1
-	beq rcvsc3
+rcvsc2:
+	ldx #$42
+	ldy #$07
+	jsr i2c_read_next_byte
+	beq rcvsc1
+rcvsc3:	cmp #$e0 ; extend prefix 1
+	beq rcvsc4
 	cmp #$e1 ; extend prefix 2
-	bne rcvsc4
-rcvsc3:	sta prefix
-	beq receive_scancode ; always
-rcvsc4:	cmp #$f0
 	bne rcvsc5
+rcvsc4:	sta prefix
+	beq rcvsc2 ; always
+rcvsc5:	cmp #$f0
+	bne rcvsc6
 	rol brkflg ; set to 1
-	bne receive_scancode ; always
-rcvsc5:	pha
+	bne rcvsc2 ; always
+rcvsc6:	pha
 	lsr brkflg ; break bit into C
 	ldx prefix
 	lda #0
