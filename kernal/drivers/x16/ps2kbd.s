@@ -532,6 +532,7 @@ rcvsc5:	cmp #$f0
 	rol brkflg ; set to 1
 	bne rcvsc2 ; always
 rcvsc6:	pha
+	jsr i2c_read_stop
 	lsr brkflg ; break bit into C
 	ldx prefix
 	lda #0

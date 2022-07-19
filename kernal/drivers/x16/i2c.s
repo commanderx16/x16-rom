@@ -288,7 +288,9 @@ i2c_read_first_byte:
 	txa                ; device
 	asl
 	pha                ; device * 2
+	phy
 	jsr i2c_write
+	ply
 	bcs @error
 	plx                ; device * 2
 	tya                ; offset
@@ -324,6 +326,7 @@ i2c_read_next_byte:
 i2c_read_next_byte_after_ack:
 	jsr i2c_read
 	cmp #0
+	clc
 	rts
 	
 ;---------------------------------------------------------------
