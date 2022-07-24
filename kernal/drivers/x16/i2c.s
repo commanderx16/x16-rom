@@ -304,8 +304,10 @@ i2c_read_first_byte:
 	bra i2c_read_next_byte_after_ack
 	
 @error:
+	pla
 	jsr i2c_stop
 	lda #$ee
+	sec
 	rts
 
 ;---------------------------------------------------------------
