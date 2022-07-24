@@ -255,8 +255,8 @@ i2c_read_byte:
 	plx
 	plp
 	
-	clc
 	cmp #0
+	clc
 	
 	rts
 

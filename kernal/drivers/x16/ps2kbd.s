@@ -10,7 +10,7 @@
 .include "mac.inc"
 
 ; code
-.import i2c_read_first_byte, i2c_read_next_byte, i2c_read_stop
+.import i2c_read_byte
 .import joystick_from_ps2_init, joystick_from_ps2; [joystick]
 ; data
 .import mode; [declare]
@@ -508,18 +508,17 @@ find_table:
 receive_scancode:
 	ldx #$42
 	ldy #$07
-	jsr i2c_read_first_byte
-	bcs rcvsc1a ; I2C error
+	jsr i2c_read_byte
+	bcs rcvsc1 ; I2C error
 	bne rcvsc3 ; non-zero code
 rcvsc1:
-	jsr i2c_read_stop
-rcvsc1a:
 	lda #0
 	rts
 rcvsc2:
 	ldx #$42
 	ldy #$07
-	jsr i2c_read_next_byte
+	jsr i2c_read_byte
+	bcs rcvsc1
 	beq rcvsc1
 rcvsc3:	cmp #$e0 ; extend prefix 1
 	beq rcvsc4
@@ -532,7 +531,6 @@ rcvsc5:	cmp #$f0
 	rol brkflg ; set to 1
 	bne rcvsc2 ; always
 rcvsc6:	pha
-	jsr i2c_read_stop
 	lsr brkflg ; break bit into C
 	ldx prefix
 	lda #0
