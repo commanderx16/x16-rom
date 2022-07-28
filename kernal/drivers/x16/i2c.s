@@ -6,8 +6,8 @@
 
 .include "io.inc"
 
-pr  = d1prb
-ddr = d1ddrb
+pr  = d1pra
+ddr = d1ddra
 SDA = (1 << 0)
 SCL = (1 << 1)
 
