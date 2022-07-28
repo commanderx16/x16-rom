@@ -21,14 +21,13 @@ __I2C_USE_INLINE_FUNCTIONS__=1
 ;
 ;                         JSR     Inline       Diff
 ;                       -----------------------------------
-; Size (bytes)          |  244  |   263    |   19 (+7.8%) |
-; Kbd Read (us @ 8MHz)  |  485  |   333    |  152 (-31%)  |
+; Size (bytes)          |  264  |   360    |   96 (+36%) |
+; Kbd Scan (us @ 8MHz)  |  497  |   284    |  152 (-43%)  |
 ;                       -----------------------------------
 ;
-; Inlining of I2C pin functions (scl_low, scl_high, sda_low, sda_high)
-; increases the I2C module size by 19 bytes and increases performance
-; by 31%. The keyboard scan code read time was used as the benchmark
-; since that is normally done once every VSYNC.
+; The keyboard scan code read time was used as the benchmark
+; since that is normally done once every VSYNC, whether a
+; scancode is available or not.
 
 ;---------------------------------------------------------------
 ; scl_high
@@ -148,12 +147,16 @@ wait_for_clk:
 ;           SCL: 0
 ;---------------------------------------------------------------
 .macro send_bit
+.if __I2C_USE_INLINE_FUNCTIONS__
 	bcs @1
 	sda_low
 	bra @2
 @1:	sda_high
 @2:	scl_high
 	scl_low
+.else
+	jsr _send_bit
+.endif
 .endmacro
 
 ;---------------------------------------------------------------
@@ -169,12 +172,16 @@ wait_for_clk:
 ;            SCL: 0
 ;---------------------------------------------------------------
 .macro rec_bit
+.if __I2C_USE_INLINE_FUNCTIONS__
 	sda_high		; Release SDA so that device can drive it
 	scl_high
 	lda pr
 	.assert SDA = (1 << 0), error, "update the shift instructions if SDA is not bit #0"
 	lsr             ; bit -> C
 	scl_low
+.else
+	jsr _rec_bit
+.endif
 .endmacro
 
 ;---------------------------------------------------------------
@@ -544,13 +551,29 @@ _scl_high:
 :	lda pr     ; Wait for clock to go high
 	and #SCL
 	beq :-
-	sda_high
-	scl_high
 	rts
 
 _scl_low:
 	lda #SCL
 	tsb ddr
+	rts
+
+_send_bit:
+	bcs @1
+	sda_low
+	bra @2
+@1:	sda_high
+@2:	scl_high
+	scl_low
+	rts
+
+_rec_bit:
+	sda_high		; Release SDA so that device can drive it
+	scl_high
+	lda pr
+	.assert SDA = (1 << 0), error, "update the shift instructions if SDA is not bit #0"
+	lsr             ; bit -> C
+	scl_low
 	rts
 
 .endif
