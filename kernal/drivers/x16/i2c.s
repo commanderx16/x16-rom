@@ -375,10 +375,14 @@ i2c_write_byte:
 	jsr i2c_start
 	txa                ; device
 	asl
+	phy
 	jsr i2c_write
+	ply
 	bcs @error
 	tya                ; offset
+	phy
 	jsr i2c_write
+	ply
 	pla                ; value
 	jsr i2c_write
 	jsr i2c_stop
