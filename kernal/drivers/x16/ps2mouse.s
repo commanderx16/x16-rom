@@ -138,7 +138,7 @@ _mouse_scan:
 	bpl @a
 	
 	ldx #$42
-	ldy #$09
+	ldy #$21
 	jsr i2c_read_first_byte
 	bcs @a ; error
 	bne @b ; no data
@@ -164,7 +164,7 @@ _mouse_scan:
 	sta mousebt
 
 	ldx #$42
-	ldy #$09
+	ldy #$21
 	jsr i2c_read_next_byte
 	clc
 	adc mousex
@@ -178,19 +178,36 @@ _mouse_scan:
 	sta mousex+1
 
 	ldx #$42
-	ldy #$09
+	ldy #$21
 	jsr i2c_read_next_byte
+	pha                     ; Push low 8 bits onto stack
+	jsr i2c_read_stop       ; Stop I2C transfer
+	ply                     ; Pop low 8 bits to y
+	lda mousebt             ; Load flags
+	and #$20                ; Check sign bit
+	beq :+                  ; set?
+	lda #$ff                ; sign extend into all of a
+:
+	eor #$ff                ; invert high 8 bits
+	tax                     ; High 8 bits in x
+	tya                     ; Low 8 bits in a
+	eor #$ff                ; invert low 8 bits
+	; At this point x:a = ~dY (not negative dY, bitwise not)
+	clc                     ; Is this necessary?
+	adc #1                  ; Add 1 to low 8 bits
+	bcc :+                  ; Check carry
+	inx                     ; Need to carry into upper 8 bits
+:
+    ; At this point x:a = -dY
 	clc
-	adc mousey
-	sta mousey
-	jsr i2c_read_stop
+	adc mousey              ; Add low 8 bits to mousey
+	sta mousey              ; mousey = result
+	txa                     ; High 8 bits in a
+	adc mousey+1            ; Add high 8 bits to mousey+1
+	sta mousey+1            ; mousey+1 = result
+:
 
-	lda mousebt
-	and #$20
-	beq :+
-	lda #$ff
-:	adc mousey+1
-	sta mousey+1
+
 
 	lda mousebt
 	and #7
