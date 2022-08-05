@@ -193,19 +193,12 @@ _mouse_scan:
 	tya                     ; Low 8 bits in a
 	eor #$ff                ; invert low 8 bits
 	; At this point x:a = ~dY (not negative dY, bitwise not)
-	clc                     ; Is this necessary?
-	adc #1                  ; Add 1 to low 8 bits
-	bcc :+                  ; Check carry
-	inx                     ; Need to carry into upper 8 bits
-:
-    ; At this point x:a = -dY
-	clc
+	sec                     ; Add 1 to low 8 bits
 	adc mousey              ; Add low 8 bits to mousey
 	sta mousey              ; mousey = result
 	txa                     ; High 8 bits in a
 	adc mousey+1            ; Add high 8 bits to mousey+1
 	sta mousey+1            ; mousey+1 = result
-:
 
 
 
