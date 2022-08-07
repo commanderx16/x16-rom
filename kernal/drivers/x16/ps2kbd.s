@@ -26,6 +26,9 @@
 
 .export kbd_config, kbd_scan, receive_scancode_resume, keymap
 
+I2C_ADDRESS = $42
+I2C_GET_SCANCODE_OFFSET = $07
+
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
 MODIFIER_CTRL  = 4 ; C64:  Ctrl
@@ -506,31 +509,25 @@ find_table:
 ;           1: key up
 ;****************************************
 receive_scancode:
-	ldx #$42
-	ldy #$07
+	ldx #I2C_ADDRESS
+	ldy #I2C_GET_SCANCODE_OFFSET
 	jsr i2c_read_byte
 	bcs rcvsc1 ; I2C error
-	bne rcvsc3 ; non-zero code
+	bne rcvsc2 ; non-zero code
 rcvsc1:
 	lda #0
 	rts
-rcvsc2:
-	ldx #$42
-	ldy #$07
-	jsr i2c_read_byte
-	bcs rcvsc1
-	beq rcvsc1
-rcvsc3:	cmp #$e0 ; extend prefix 1
-	beq rcvsc4
+rcvsc2:	cmp #$e0 ; extend prefix 1
+	beq rcvsc3
 	cmp #$e1 ; extend prefix 2
+	bne rcvsc4
+rcvsc3:	sta prefix
+	beq receive_scancode ; always
+rcvsc4:	cmp #$f0
 	bne rcvsc5
-rcvsc4:	sta prefix
-	beq rcvsc2 ; always
-rcvsc5:	cmp #$f0
-	bne rcvsc6
 	rol brkflg ; set to 1
-	bne rcvsc2 ; always
-rcvsc6:	pha
+	bne receive_scancode ; always
+rcvsc5:	pha
 	lsr brkflg ; break bit into C
 	ldx prefix
 	lda #0
