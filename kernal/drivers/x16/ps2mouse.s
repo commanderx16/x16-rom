@@ -29,6 +29,9 @@ mousey:	.res 2           ;    cur y coordinate
 mousebt:
 	.res 1           ;    cur buttons (1: left, 2: right, 4: third)
 
+I2C_ADDRESS = $42
+I2C_GET_MOUSE_MOVEMENT_OFFSET = $21
+
 .segment "PS2MOUSE"
 
 ; "MOUSE" KERNAL call
@@ -137,8 +140,8 @@ _mouse_scan:
 	bit msepar ; do nothing if mouse is off
 	bpl @a
 	
-	ldx #$42
-	ldy #$21
+	ldx #I2C_ADDRESS
+	ldy #I2C_GET_MOUSE_MOVEMENT_OFFSET
 	jsr i2c_read_first_byte
 	bcs @a ; error
 	bne @b ; no data
@@ -163,8 +166,6 @@ _mouse_scan:
 .endif
 	sta mousebt
 
-	ldx #$42
-	ldy #$21
 	jsr i2c_read_next_byte
 	clc
 	adc mousex
@@ -177,8 +178,6 @@ _mouse_scan:
 :	adc mousex+1
 	sta mousex+1
 
-	ldx #$42
-	ldy #$21
 	jsr i2c_read_next_byte
 	pha                     ; Push low 8 bits onto stack
 	jsr i2c_read_stop       ; Stop I2C transfer
