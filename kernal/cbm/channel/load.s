@@ -108,11 +108,19 @@ ld30	jsr loding      ;tell user loading
 ;
 bld10	jsr stop        ;stop key?
 	beq break2
+	lda verck
+	cmp #1							; check load into RAM/VRAM
+	bcc bld11						; RAM
+	ldx #<VERA_DATA0
+	ldy #>VERA_DATA0
+	bra bld12
+bld11:
 	ldx eal
 	ldy eah
 .ifdef MACHINE_X16
         phy             ;save address hi
 .endif
+bld12:
 	lda #0          ;load as many bytes as device wants
 	jsr macptr
 	bcc :+
@@ -131,6 +139,9 @@ bld10	jsr stop        ;stop key?
 	; this should reflect the banked RAM address following
 	; the last byte written (exception: $BFFF -> $A000)
 	ply             ;start address hi
+	lda verck				; check mode for VRAM
+	cmp #1
+	bcs @skip				; VRAM mode (don't do the bank wrap calc)
 	cpy #$a0
 	bcc @skip       ;below banked RAM
 	cpy #$c0
@@ -164,6 +175,7 @@ ld35
 	sta VERA_ADDR_L ;set address bits 7:0
 	lda eah
 	sta VERA_ADDR_M ;set address bits 15:8
+	bra bld10       ; attempt block read using macptr
 ;
 ld40	lda #$fd        ;mask off timeout
 	and status
