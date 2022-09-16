@@ -247,6 +247,8 @@ file_read:
 ; In:   y:x  pointer to data
 ;       a    number of bytes to read
 ;            =0: implementation decides; up to 512
+;       c    =0: regular load into memory
+;            =1: stream load into single address (e.g. VERA_data0)
 ; Out:  y:x  number of bytes read
 ;       c    =1: error or EOF (no bytes received)
 ;---------------------------------------------------------------
@@ -254,6 +256,12 @@ file_read_block:
 	stx fat32_ptr
 	sty fat32_ptr + 1
 	tax
+	; backup krn_ptr1 and use as load type: MSB clear=ram / MSB set=single address
+	lda krn_ptr1
+	pha
+	lda #0
+	ror
+	sta krn_ptr1
 	bne @1
 
 	; A=0: read to end of 512-byte sector
@@ -278,6 +286,9 @@ file_read_block:
 
 	; Read
 @2:	jsr fat32_read
+	; restore krn_ptr1 (doesn't affect C)
+	pla
+	sta krn_ptr1
 	bcc @eoi_or_error
 
 	clc
@@ -383,5 +394,3 @@ status_from_errno:
 	.byte $71 ; ERRNO_FS_INCONSISTENT  = 10 -> DIRECTORY ERROR
 	.byte $26 ; ERRNO_WRITE_PROTECT_ON = 11 -> WRITE PROTECT ON
 	.byte $70 ; ERRNO_OUT_OF_RESOURCES = 12 -> NO CHANNEL
-
-

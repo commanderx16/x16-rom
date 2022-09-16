@@ -2959,6 +2959,7 @@ fat32_read_byte:
 ;
 ; fat32_ptr          : pointer to store read data
 ; fat32_size (16-bit): size of data to read
+; krn_ptr1           : if MSB set, copy all bytes to same destination address.
 ;
 ; On return fat32_size reflects the number of bytes actually read
 ;
@@ -2966,7 +2967,6 @@ fat32_read_byte:
 ;-----------------------------------------------------------------------------
 fat32_read:
 	stz fat32_errno
-
 	set16 fat32_ptr2, fat32_size
 
 @again:	; Calculate number of bytes remaining in file
@@ -3035,6 +3035,11 @@ fat32_read:
 	; Copy bytecnt bytes from buffer
 	ldy bytecnt
 .ifdef MACHINE_X16
+.importzp krn_ptr1
+	bit krn_ptr1    ; test if C=1 or C=0 when called... 1=stream copy, 0=normal
+	bpl @5a
+	jmp x16_stream_copy
+@5a:
 	; If destination may fall into banked RAM area,
 	; we use a special case implementation
 	lda fat32_ptr + 1
@@ -3056,6 +3061,7 @@ fat32_read:
 @6c:
 	; fat32_ptr += bytecnt, fat32_bufptr += bytecnt, fat32_size -= bytecnt, file_offset += bytecnt
 	add16 fat32_ptr, fat32_ptr, bytecnt
+.define cont_6d = (*)
 	add16 fat32_bufptr, fat32_bufptr, bytecnt
 	sub16 fat32_size, fat32_size, bytecnt
 	add32_16 cur_context + context::file_offset, cur_context + context::file_offset, bytecnt
@@ -3068,7 +3074,8 @@ fat32_read:
 @7:
 	sec	; Indicate success
 
-@done:	; Calculate number of bytes read
+@done:
+	; Calculate number of bytes read
 	php
 	sub16 fat32_size, fat32_ptr2, fat32_size
 	plp
@@ -3081,7 +3088,7 @@ fat32_read:
 ; restores ram_bank prior to each write, and wraps the
 ; pointer if the write address crosses the $c000 threshold
 cont_6c = @6c
-.importzp bank_save, krn_ptr1
+.importzp bank_save
 ram_bank = 0             ; RAM banking control register address
 tmp_swapindex = krn_ptr1 ; use meaningful aliases for this tmp space
 tmp_done = krn_ptr1+1    ; during bank-aware copy routine
@@ -3114,21 +3121,43 @@ x16_banked_copy:
 	lda fat32_ptr+1
 	cmp #$bf            ; only wrap when leaving page $BF
 	bne @nowrap
-	inc bank_save
 	inx
 	lda #$9f
 	sta fat32_ptr+1
 @nowrap:
 	cpy tmp_done
 	bne @loop
-
 	; restore temporary zero page
+	stx bank_save
 	pla
 	sta krn_ptr1+1
 	pla
 	sta krn_ptr1
 	jmp cont_6c
+
+x16_stream_copy:
+	; move Y (bytecnt) into X for countdown
+	; load Y with 0 and use as index counting forward to preserve byte order.
+	;               as the main loop at @6a above would reverse the bytes.
+	tya
+	tax
+	ldy #0
+	dex
+	beq @last
+@loop:
+	lda (fat32_bufptr),y
+	sta (fat32_ptr)
+	iny
+	dex
+	bne @loop
+@last:
+	lda (fat32_bufptr),y
+	sta (fat32_ptr)
+	jmp cont_6d
+
+
 .endif
+
 
 
 ;-----------------------------------------------------------------------------
