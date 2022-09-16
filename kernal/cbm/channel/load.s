@@ -106,11 +106,13 @@ ld30	jsr loding      ;tell user loading
 ;
 ;block-wise load into RAM
 ;
-bld10	jsr stop        ;stop key?
+bld10
+	jsr stop        ;stop key?
 	beq break2
 	lda verck
-	cmp #1							; check load into RAM/VRAM
-	bcc bld11						; RAM
+	clc
+	bmi bld11							; check load into RAM/VRAM
+	sec       						; RAM
 	ldx #<VERA_DATA0
 	ldy #>VERA_DATA0
 	bra bld12
@@ -140,8 +142,7 @@ bld12:
 	; the last byte written (exception: $BFFF -> $A000)
 	ply             ;start address hi
 	lda verck				; check mode for VRAM
-	cmp #1
-	bcs @skip				; VRAM mode (don't do the bank wrap calc)
+	bpl @skip				; don't do bank check if VRAM (RAM: verck=$FF)
 	cpy #$a0
 	bcc @skip       ;below banked RAM
 	cpy #$c0

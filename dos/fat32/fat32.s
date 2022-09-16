@@ -3061,7 +3061,7 @@ fat32_read:
 @6c:
 	; fat32_ptr += bytecnt, fat32_bufptr += bytecnt, fat32_size -= bytecnt, file_offset += bytecnt
 	add16 fat32_ptr, fat32_ptr, bytecnt
-.define cont_6d = (*)
+:
 	add16 fat32_bufptr, fat32_bufptr, bytecnt
 	sub16 fat32_size, fat32_size, bytecnt
 	add32_16 cur_context + context::file_offset, cur_context + context::file_offset, bytecnt
@@ -3153,7 +3153,7 @@ x16_stream_copy:
 @last:
 	lda (fat32_bufptr),y
 	sta (fat32_ptr)
-	jmp cont_6d
+	jmp :-
 
 
 .endif

@@ -252,6 +252,7 @@ file_read:
 ; Out:  y:x  number of bytes read
 ;       c    =1: error or EOF (no bytes received)
 ;---------------------------------------------------------------
+.import krn_ptr1
 file_read_block:
 	stx fat32_ptr
 	sty fat32_ptr + 1
