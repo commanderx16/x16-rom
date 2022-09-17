@@ -141,7 +141,7 @@ bld12:
 	; this should reflect the banked RAM address following
 	; the last byte written (exception: $BFFF -> $A000)
 	ply             ;start address hi
-	lda verck				; check mode for VRAM
+	ldx verck				; check mode for VRAM
 	bpl @skip				; don't do bank check if VRAM (RAM: verck=$FF)
 	cpy #$a0
 	bcc @skip       ;below banked RAM
