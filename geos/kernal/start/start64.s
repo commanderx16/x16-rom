@@ -86,7 +86,7 @@ _ResetHandle:
 	jsr gjsrfar
 	.word screen_mode
 	.byte BANK_KERNAL
-
+	
 	jsr gjsrfar
 	.word FB_init
 	.byte BANK_KERNAL

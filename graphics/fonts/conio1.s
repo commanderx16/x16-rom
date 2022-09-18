@@ -65,8 +65,9 @@ put_char:
 	tay
 	lda PutCharTab80,y
 	ldx PutCharTab80+1,y
-	beq set_color
-	jsr @callroutine
+	bne :+
+	jmp set_color
+:	jsr @callroutine
 	clc ; C=0: OK
 	rts
 
@@ -260,4 +261,3 @@ control_up:
 control_attrclr:
 	LoadB currentMode, 0
 	rts
-

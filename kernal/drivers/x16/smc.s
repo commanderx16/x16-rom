@@ -3,10 +3,9 @@
 ;----------------------------------------------------------------------
 ; (C)2021 Michael Steil, License: 2-clause BSD
 
-.segment "KVAR"
-
+.segment "KVAR3"
 activity_led_state:
-	.res 0
+	.res 1
 
 .segment "I2C"
 
