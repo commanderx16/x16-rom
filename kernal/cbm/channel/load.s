@@ -114,6 +114,8 @@ bld10
 	bmi bld11							; check load into RAM/VRAM
 	sec       						; RAM
 	ldx #<VERA_DATA0
+	ldy eah
+	phy
 	ldy #>VERA_DATA0
 	bra bld12
 bld11:

@@ -263,6 +263,7 @@ file_read_block:
 	lda #0
 	ror
 	sta krn_ptr1
+	txa
 	bne @1
 
 	; A=0: read to end of 512-byte sector
