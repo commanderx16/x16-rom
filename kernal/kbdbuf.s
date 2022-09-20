@@ -40,6 +40,7 @@ kbdbuf_peek:
 	rts
 
 kbdbuf_get:
+	.assert * = $CA62, error, "Update address ofkbdbuf_get in graphics/kernal_vectors.inc"
 	KVARS_START_TRASH_A_NZ
 	lda ndx         ;queue index
 	beq @1          ;nobody there...exit

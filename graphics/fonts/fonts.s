@@ -4,7 +4,6 @@
 
 .include "regs.inc"
 .include "mac.inc"
-;.include "fb.inc"
 .include "fonts.inc"
 
 .import FB_init
@@ -25,6 +24,8 @@
 
 .export curIndexTable, baselineOffset, curSetWidth, curHeight, cardDataPntr, currentMode, windowTop, windowBottom, leftMargin, rightMargin
 
+.include "font_internal.inc"
+
 curIndexTable = k_curIndexTable
 baselineOffset = k_baselineOffset
 curSetWidth = k_curSetWidth
@@ -36,34 +37,14 @@ windowBottom = k_windowBottom
 leftMargin = k_leftMargin
 rightMargin = k_rightMargin
 
-;.segment "ZPFONTS" : zp
-; ; GEOS public ZP
-; curIndexTable:	.res 2
-
-.segment "VARFONTS"
-; ; GEOS public
-; baselineOffset:	.res 1
-; curSetWidth:	.res 2
-; curHeight:	.res 1
-; cardDataPntr:	.res 2
-
-; currentMode:	.res 1
-; windowTop:	.res 2
-; windowBottom:	.res 2
-; leftMargin:	.res 2
-; rightMargin:	.res 2
-
-unused: .res 15
 ; GEOS private
-fontTemp1:	.res 8
-fontTemp2:	.res 9
-PrvCharWidth:	.res 1
-FontTVar1:	.res 1
-FontTVar2:	.res 2
-FontTVar3:	.res 1
-FontTVar4:	.res 1
-
-.include "font_internal.inc"
+fontTemp1       = k_fontTemp1
+fontTemp2       = k_fontTemp2
+PrvCharWidth    = k_PrvCharWidth
+FontTVar1       = k_FontTVar1
+FontTVar2       = k_FontTVar2
+FontTVar3       = k_FontTVar3
+FontTVar4       = k_FontTVar4
 
 .segment "GRAPH"
 

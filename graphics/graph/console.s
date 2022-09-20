@@ -21,8 +21,7 @@
 .import kbdbuf_get
 .import sprite_set_image
 .import sprite_set_position
-
-bsout = $ffd2
+.import bsout
 
 LF=10
 CR=13

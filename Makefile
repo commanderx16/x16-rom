@@ -434,7 +434,7 @@ $(BUILD_DIR)/codex.bin: $(CFG_DIR)/codex-$(MACHINE).cfg
 # Bank 8 : Graphics
 $(BUILD_DIR)/graph.bin: $(GRAPH_OBJS) $(KERNAL_DEPS) $(CFG_DIR)/graph.cfg
 	@mkdir -p $$(dirname $@) 
-	$(LD) -C $(CFG_DIR)/graph.cfg $(GRAPH_OBJS) -o $@ -Ln $(BUILD_DIR)/graph.sym
+	$(LD) -C $(CFG_DIR)/graph.cfg $(GRAPH_OBJS) -o $@ -m $(BUILD_DIR)/graph.map -Ln $(BUILD_DIR)/graph.sym
 
 # Bank 9 : DEMO
 $(BUILD_DIR)/demo.bin: $(DEMO_OBJS) $(DEMO_DEPS) $(CFG_DIR)/demo-$(MACHINE).cfg

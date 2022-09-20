@@ -37,12 +37,11 @@
 .export GRAPH_move_rect
 .export GRAPH_draw_oval
 
-.segment "KVAR_2"
-
 .export col1, col2, col_bg
-col1: .res 1
-col2: .res 1
-col_bg: .res 1
+col1	= $0267
+col2 	= $0268
+col_bg	= $0269
+
 
 .segment "GRAPH"
 

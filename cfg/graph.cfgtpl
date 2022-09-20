@@ -1,39 +1,12 @@
 MEMORY {
- 
-ZPKERNAL: start = $008e, size = $0002; # KERNAL
-ZPDOS: start = $0090, size = $000B; # DOS
- 
-ZPMATH: start = $00A9, size = $002B; # MATH
-ZPBASIC: start = $00D4, size = $002B; # BASIC (last byte used: $FE)
- 
-KVAR: start = $0297, size = $0026; # KERNAL
-KVAR_2: start = $0267, size = $0003;
- 
-KERNRAM: start = $02C4, size = $0020; # KERNAL RAM code
- 
-BVECTORS: start = $0300, size = $0013; # BASIC vectors
-KVECTORS: start = $0314, size = $0020; # KERNAL vectors
- 
-KVAR2: start = $0334, size = $0057; # KERNAL: screen editor table
-KERNRAM2: start = $038B, size = $003F; # KERNAL: banked IRQ, fetch, stash
- 
-FPVARS: start = $03CB, size = $0009; # MATH
-BVARS: start = $03D4, size = $002C; # BASIC
- 
-KEYMAP: start = $A000, size = $0800; # the current keyboard mapping table
-KVARSB0: start = $A80a, size = $07f6; # there is a lot of space free here
-DOSDAT: start = $B000, size = $1000; # there is a lot of space free here, too
-
-ROM: start = $C000, size = $3FFA, fill=yes, fillval=$AA;
-VECTORS:  start = $FFFA, size = $0006, fill=yes, fillval=$AA;
+    GRVARSB0: start = $af00, size = $0100;
+    ROM: start = $C000, size = $3FFA, fill=yes, fillval=$AA;
+    VECTORS:  start = $FFFA, size = $0006, fill=yes, fillval=$AA;
 }
+
 SEGMENTS {
-    GRAPH: load = ROM, type = ro;
-    ZPFONTS:    load = ZPKERNAL, type = zp;
-    VARFONTS:   load = KVAR,     type = bss;
-    KVAR:       load = KVAR,     type = bss;
-    KVAR_2:     load = KVAR_2,    type = bss;
-    KVARSB0:    load = KVARSB0,  type = bss, define=yes;
+    GRAPH:      load = ROM, type = ro;
+    KVARSB0:    load = GRVARSB0,  type = bss, define=yes;
     CONSOLE:    load = ROM,   type = ro;
     VECTORS:    load = VECTORS,  type = ro;
 }

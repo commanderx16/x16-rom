@@ -19,6 +19,7 @@
 .export FB_fill_pixels
 .export FB_filter_pixels
 .export FB_move_pixels
+.export bsout
 
 .export kbdbuf_get
 .export sprite_set_image
@@ -131,7 +132,13 @@ sprite_set_position:
 	.byte BANK_KERNAL
 	rts
 
-ram_bank=$00
-rom_bank=$01
+bsout:
+ 	jsr grjsrfar	
+	.word k_bsout
+	.byte BANK_KERNAL
+	rts
+
+ram_bank = $00
+rom_bank = $01
 
 grjsrfar: .include "jsrfar.inc"
