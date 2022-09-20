@@ -6,9 +6,6 @@
 
 .include "mac.inc"
 .include "regs.inc"
-;.include "fb.inc"
-
-.export grjsrfar
 
 .import leftMargin, windowTop, rightMargin, windowBottom
 .import FB_VERA
@@ -573,11 +570,3 @@ GRAPH_move_rect:
 ;---------------------------------------------------------------
 GRAPH_draw_oval:
 	brk; NYI
-
-
-.include "banks.inc"
-ram_bank=$00
-rom_bank=$01
-
-grjsrfar:
-	.include "jsrfar.inc"

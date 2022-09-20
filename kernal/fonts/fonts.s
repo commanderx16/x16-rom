@@ -8,6 +8,12 @@
 .export windowTop
 .export currentMode
 
+.import jsrfar
+
+.include "banks.inc"
+.include "graphics.inc"
+
+
 .segment "VARFONTS"
 ; GEOS public
 baselineOffset:	.res 1
@@ -35,22 +41,22 @@ FontTVar4:	    .res 1
 .segment "GRAPH"
 
 GRAPH_get_char_size:
-    jsr $ff6e
-    .word $c045
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_get_char_size
+    .byte BANK_GRAPH
     rts
 GRAPH_put_char:
-    jsr $ff6e
-    .word $c048
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_put_char
+    .byte BANK_GRAPH
     rts
 GRAPH_set_font:
-    jsr $ff6e
-    .word $c04b
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_set_font
+    .byte BANK_GRAPH
     rts
 font_init:
-    jsr $ff6e
-    .word $c04e
-    .byte 8
+    jsr jsrfar
+    .word gr_font_init
+    .byte BANK_GRAPH
     rts

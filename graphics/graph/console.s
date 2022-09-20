@@ -18,7 +18,9 @@
 .import leftMargin, windowTop, rightMargin, windowBottom
 .import currentMode
 
-.import grjsrfar
+.import kbdbuf_get
+.import sprite_set_image
+.import sprite_set_position
 
 bsout = $ffd2
 
@@ -722,21 +724,3 @@ console_get_char:
 	MoveW r1, py
 
 	jmp @input_loop
-
-kbdbuf_get:
-	jsr grjsrfar	
-	.word $CA62
-	.byte 0
-	rts
-
-sprite_set_image:
-	jsr grjsrfar	
-	.word $e445
-	.byte 0
-	rts
-
-sprite_set_position:
- 	jsr grjsrfar	
-	.word $E4DF
-	.byte 0
-	rts

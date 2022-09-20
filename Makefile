@@ -275,11 +275,10 @@ CHARSET_SOURCES= \
 
 GRAPH_SOURCES= \
 	graphics/jmptbl.s \
+	graphics/kernal.s \
 	graphics/graph/graph.s \
 	graphics/fonts/fonts.s \
-	graphics/graph/console.s \
-	graphics/graph/frambuffer.s
-
+	graphics/graph/console.s
 
 DEMO_SOURCES= \
 	demo/test.s

@@ -1,5 +1,9 @@
 .include "mac.inc"
 .include "regs.inc"
+.include "banks.inc"
+.include "graphics.inc"
+
+.import jsrfar
 
 .export GRAPH_clear
 .export GRAPH_draw_image
@@ -10,11 +14,7 @@
 .export GRAPH_move_rect
 .export GRAPH_set_colors
 .export GRAPH_set_window
-.export console_get_char
-.export console_init
-.export console_put_char
-.export console_put_image
-.export console_set_paging_message
+
 .export col1,col2,col_bg
 .import FB_VERA
 
@@ -22,6 +22,10 @@
 col1:	.res 1
 col2:	.res 1
 col_bg:	.res 1
+
+.assert col1 = $0267, error, "Update col1 in graphics/graph/graph.s"
+.assert col2 = $0268, error, "Update col2 in graphics/graph/graph.s"
+.assert col_bg = $0269, error, "Update col_bg in graphics/graph/graph.s"
 
 .segment "GDRVVEC"
 .export I_FB_init, I_FB_get_info, I_FB_set_palette, I_FB_cursor_position, I_FB_cursor_next_line, I_FB_get_pixel, I_FB_get_pixels, I_FB_set_pixel, I_FB_set_pixels, I_FB_set_8_pixels, I_FB_set_8_pixels_opaque, I_FB_fill_pixels, I_FB_filter_pixels, I_FB_move_pixels; [vectors]
@@ -60,33 +64,33 @@ I_FB_END:
 .segment "GRAPH"
 
 GRAPH_clear:
-    jsr $ff6e
-    .word $c000
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_clear
+    .byte BANK_GRAPH
     rts
 
 GRAPH_draw_image:
-    jsr $ff6e
-    .word $c003
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_draw_image
+    .byte BANK_GRAPH
     rts
 
 GRAPH_draw_line:
-    jsr $ff6e
-    .word $c006
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_draw_line
+    .byte BANK_GRAPH
     rts
 
 GRAPH_draw_oval:
-    jsr $ff6e
-    .word $c009
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_draw_oval
+    .byte BANK_GRAPH
     rts
 
 GRAPH_draw_rect:
-    jsr $ff6e
-    .word $c00c
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_draw_rect
+    .byte BANK_GRAPH
     rts
 
 GRAPH_init:
@@ -102,55 +106,25 @@ GRAPH_init:
 	dey
 	bpl :-
 
-    jsr $ff6e
-    .word $c00f
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_init
+    .byte BANK_GRAPH
     rts
 
 GRAPH_move_rect:
-    jsr $ff6e
-    .word $c012
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_move_rect
+    .byte BANK_GRAPH
     rts
 
 GRAPH_set_colors:
-    jsr $ff6e
-    .word $c015
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_set_colors
+    .byte BANK_GRAPH
     rts
 
 GRAPH_set_window:
-    jsr $ff6e
-    .word $c018
-    .byte 8
-    rts
- 
-console_get_char:
-    jsr $ff6e
-    .word $c057
-    .byte 8
-    rts
-  
-console_init:
-    jsr $ff6e
-    .word $c051
-    .byte 8
-    rts
-  
-console_put_char:
-    jsr $ff6e
-    .word $c054
-    .byte 8
-    rts
-  
-console_put_image:
-    jsr $ff6e
-    .word $c05a
-    .byte 8
-    rts
-  
-console_set_paging_message:
-    jsr $ff6e
-    .word $c05d
-    .byte 8
+    jsr jsrfar
+    .word gr_GRAPH_set_window
+    .byte BANK_GRAPH
     rts
