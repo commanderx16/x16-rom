@@ -37,11 +37,7 @@
 .export GRAPH_move_rect
 .export GRAPH_draw_oval
 
-.export col1, col2, col_bg
-col1	= $0267
-col2 	= $0268
-col_bg	= $0269
-
+.import col1, col2, col_bg			;Set during link stage, read from Kernal.sym
 
 .segment "GRAPH"
 

@@ -20,7 +20,4 @@ k_FB_filter_pixels          = $FF1A
 k_FB_move_pixels            = $FF1D
 
 ;Misc
-k_kbdbuf_get                = $CA62
-k_sprite_set_image          = $E445
-k_sprite_set_position       = $E4DF
 k_bsout                     = $FFD2

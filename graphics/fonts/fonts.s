@@ -20,7 +20,7 @@
 .import FB_fill_pixels
 .import FB_filter_pixels
 .import FB_move_pixels
-.import col1, col2, col_bg
+.import col1, col2, col_bg          ;Set during link stage, read from Kernal.sym
 
 .export curIndexTable, baselineOffset, curSetWidth, curHeight, cardDataPntr, currentMode, windowTop, windowBottom, leftMargin, rightMargin
 

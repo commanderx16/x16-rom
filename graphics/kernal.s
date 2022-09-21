@@ -19,11 +19,17 @@
 .export FB_fill_pixels
 .export FB_filter_pixels
 .export FB_move_pixels
-.export bsout
+
+.import k_kbdbuf_get                ;Set during link stage from Kernal.sym
+.import k_sprite_set_position       ;Set during link stage from Kernal.sym
+.import k_sprite_set_image          ;Set during link stage from Kernal.sym
 
 .export kbdbuf_get
-.export sprite_set_image
 .export sprite_set_position
+.export sprite_set_image
+.export bsout
+
+
 
 .include "banks.inc"
 .include "kernal_vectors.inc"

@@ -14,7 +14,7 @@
 .import GRAPH_draw_rect
 .import GRAPH_get_char_size
 .import GRAPH_draw_image
-.import col1, col2, col_bg
+.import col1, col2, col_bg					;Set during link stage, read from Kernal.sym
 .import leftMargin, windowTop, rightMargin, windowBottom
 .import currentMode
 
