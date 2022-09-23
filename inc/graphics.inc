@@ -23,3 +23,5 @@ gr_console_put_char            = $C02A
 gr_console_get_char            = $C02D
 gr_console_put_image           = $C030
 gr_console_set_paging_message  = $C033
+
+gr_set_window_fullscreen       = $C036

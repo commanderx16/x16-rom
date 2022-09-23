@@ -2,6 +2,7 @@
 .include "regs.inc"
 .include "banks.inc"
 .include "graphics.inc"
+.include "fb.inc"
 
 .import jsrfar
 
@@ -93,12 +94,22 @@ GRAPH_draw_rect:
     .byte BANK_GRAPH
     rts
 
+;---------------------------------------------------------------
+; GRAPH_init
+;
+; Function:  Enable a given low-level graphics mode driver,
+;            and switch to this mode.
+;
+; Pass:      r0     pointer to FB_* driver vectors
+;                   If 0, this enables the default driver
+;                   (320x240@256c).
+;---------------------------------------------------------------
 GRAPH_init:
 	lda r0L
 	ora r0H
 	bne :+
 	LoadW r0, FB_VERA
-
+:
 	; copy VERA driver vectors
 	ldy #<(I_FB_END - I_FB_BASE - 1)
 :	lda (r0),y
@@ -106,9 +117,27 @@ GRAPH_init:
 	dey
 	bpl :-
 
-    jsr jsrfar
-    .word gr_GRAPH_init
+	jsr FB_init
+
+	jsr jsrfar
+    .word gr_set_window_fullscreen
     .byte BANK_GRAPH
+
+	lda #0  ; primary:    black
+	ldx #10 ; secondary:  gray
+	ldy #1  ; background: white
+	jsr jsrfar
+    .word gr_GRAPH_set_colors
+    .byte BANK_GRAPH
+
+	jsr jsrfar
+    .word gr_GRAPH_clear
+    .byte BANK_GRAPH
+
+	jsr jsrfar
+    .word gr_font_init
+    .byte BANK_GRAPH
+
     rts
 
 GRAPH_move_rect:

@@ -27,6 +27,7 @@
 .import GRAPH_put_char
 .import GRAPH_set_font
 .import font_init
+.import set_window_fullscreen
 
 .import console_init, console_put_char, console_get_char, console_put_image, console_set_paging_message
 
@@ -52,6 +53,8 @@ jmp console_put_char            ;C02A
 jmp console_get_char            ;C02D
 jmp console_put_image           ;C030
 jmp console_set_paging_message  ;C033
+
+jmp set_window_fullscreen       ;C036
 
 .include "banks.inc"
 .segment "VECTORS" 

@@ -32,7 +32,6 @@
 ;        data into the appropriate hardware format. [NYI]
 ;---------------------------------------------------------------
 sprite_set_image:
-	.assert * = $E445, error, "Update address of sprite_set_image in graphics/kernal_vectors.inc"
 	pha ; sprite number
 	php
 
@@ -154,7 +153,6 @@ convert_16x16x1_mask:
 ; Note: A negative x coordinate turns the sprite off.
 ;---------------------------------------------------------------
 sprite_set_position:
-	.assert * = $E4DF, error, "Update address of sprite_set_position in graphics/kernal_vectors.inc"
 	ldx #>VERA_SPRITES_BASE
 	stx VERA_ADDR_M
 	ldx #((^VERA_SPRITES_BASE) | $10)

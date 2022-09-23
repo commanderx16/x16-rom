@@ -6,6 +6,7 @@
 
 .include "mac.inc"
 .include "regs.inc"
+.include "banks.inc"
 
 .import leftMargin, windowTop, rightMargin, windowBottom
 .import FB_VERA
@@ -36,8 +37,11 @@
 .export GRAPH_draw_image
 .export GRAPH_move_rect
 .export GRAPH_draw_oval
+.export set_window_fullscreen
 
 .import col1, col2, col_bg			;Set during link stage, read from Kernal.sym
+
+.import grjsrfar
 
 .segment "GRAPH"
 
@@ -52,18 +56,11 @@
 ;                   (320x240@256c).
 ;---------------------------------------------------------------
 GRAPH_init:
-	jsr FB_init
+	jsr grjsrfar
+	.word $ff20
+	.byte BANK_KERNAL
 
-	jsr set_window_fullscreen
-
-	lda #0  ; primary:    black
-	ldx #10 ; secondary:  gray
-	ldy #1  ; background: white
-	jsr GRAPH_set_colors
-
-	jsr GRAPH_clear
-
-	jmp font_init
+	rts
 
 ;---------------------------------------------------------------
 ; GRAPH_clear

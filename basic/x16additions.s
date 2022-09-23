@@ -626,7 +626,7 @@ test:
 
 @copy:
 	sei
-	lda #8
+	lda #9
 	sta rom_bank
 	lda #<$c000
 	sta 2
