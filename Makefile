@@ -81,8 +81,8 @@ else
 endif
 
 KERNAL_GRAPH_SOURCES = \
-	kernal/fonts/fonts.s \
 	kernal/graph/graph.s \
+	kernal/fonts/fonts.s \
 	kernal/graph/console.s
 
 ifeq ($(MACHINE),c64)
