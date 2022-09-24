@@ -65,9 +65,8 @@ put_char:
 	tay
 	lda PutCharTab80,y
 	ldx PutCharTab80+1,y
-	bne :+
-	jmp set_color
-:	jsr @callroutine
+	beq set_color
+	jsr @callroutine
 	clc ; C=0: OK
 	rts
 
