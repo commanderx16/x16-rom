@@ -22,7 +22,7 @@ ZPBASIC:  start = $00D4, size = $002B; # BASIC (last byte used: $FE)
 /* $0200-$02FF: always-available variables and RAM code */
 KVAR:     start = $0200, size = $00bd; # KERNAL
 KVAR1a:   start = $02BD, size = $0001;
-/*        start = $02BE, size = $0005; # reserved for KERNAL growth */
+/*        start = $02BE, size = $0006; # reserved for KERNAL growth */
 KERNRAM:  start = $02C4, size = $0020; # KERNAL RAM code
 GDRVVEC:  start = $02E4, size = $001C; # framebuffer driver vectors
 
