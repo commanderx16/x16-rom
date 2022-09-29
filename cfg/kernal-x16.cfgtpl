@@ -12,6 +12,7 @@ SEGMENTS {
 	ZPFONTS:    load = ZPKERNAL, type = zp;
 
 	KVAR:       load = KVAR,     type = bss;
+	KVAR1a:      load = KVAR1a,    type = bss;
 	VARCHANNEL: load = KVAR,     type = bss;
 	VARFONTS:   load = KVAR,     type = bss;
 	KVAR2:      load = KVAR2,    type = bss;

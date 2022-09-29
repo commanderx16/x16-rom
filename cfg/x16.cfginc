@@ -20,8 +20,9 @@ ZPMATH:   start = $00A9, size = $002B; # MATH
 ZPBASIC:  start = $00D4, size = $002B; # BASIC (last byte used: $FE)
 
 /* $0200-$02FF: always-available variables and RAM code */
-KVAR:     start = $0200, size = $00BD; # KERNAL
-/*        start = $02BD, size = $0007; # reserved for KERNAL growth */
+KVAR:     start = $0200, size = $00bd; # KERNAL
+KVAR1a:   start = $02BD, size = $0001;
+/*        start = $02BE, size = $0006; # reserved for KERNAL growth */
 KERNRAM:  start = $02C4, size = $0020; # KERNAL RAM code
 GDRVVEC:  start = $02E4, size = $001C; # framebuffer driver vectors
 
@@ -38,5 +39,5 @@ BVARS:    start = $03D4, size = $002C; # BASIC
 
 /* KERNAL/DOS bank #0 vars */
 KEYMAP:   start = $A000, size = $0800; # the current keyboard mapping table
-KVARSB0:  start = $A800, size = $0800; # there is a lot of space free here
+KVARSB0:  start = $A800, size = $0700; # there is a lot of space free here
 DOSDAT:   start = $B000, size = $1000; # there is a lot of space free here, too

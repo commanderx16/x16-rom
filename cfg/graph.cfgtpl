@@ -1,0 +1,12 @@
+MEMORY {
+    GRVARSB0: start = $af00, size = $0100;
+    ROM: start = $C000, size = $3FFA, fill=yes, fillval=$AA;
+    VECTORS:  start = $FFFA, size = $0006, fill=yes, fillval=$AA;
+}
+
+SEGMENTS {
+    GRAPH:      load = ROM, type = ro;
+    KVARSB0:    load = GRVARSB0,  type = bss, define=yes;
+    CONSOLE:    load = ROM,   type = ro;
+    VECTORS:    load = VECTORS,  type = ro;
+}

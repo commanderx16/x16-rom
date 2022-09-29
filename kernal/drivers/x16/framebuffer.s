@@ -247,6 +247,7 @@ get_pixels_FG:
 ;            x        color
 ;---------------------------------------------------------------
 FB_set_8_pixels:
+	.byte $db
 ; this takes about 120 cycles, independently of the pattern
 	sec
 	rol
