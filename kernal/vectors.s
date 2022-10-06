@@ -6,7 +6,7 @@
 .feature labels_without_colons
 
 .import plot, scrorg, iclall, igetin, istop, savesp, loadsp, ibsout, ibasin, iclrch, ickout, ichkin, iclose, iopen, setnam, setlfs, readst, talk, listn, unlsn, untlk, ciout, acptr, settmo, kbd_scan, tksa, secnd, setmsg, ramtas, ioinit, cint, cmpare, stash, indfet, jsrfar, screen_set_charset, screen_mode, lkupsa, lkupla, close_all, enter_basic, macptr
-.import I_FB_move_pixels, I_FB_filter_pixels, I_FB_fill_pixels, I_FB_set_8_pixels_opaque, I_FB_set_8_pixels, I_FB_set_pixels, I_FB_set_pixel, I_FB_get_pixels, I_FB_get_pixel, I_FB_cursor_next_line, I_FB_cursor_position, I_FB_set_palette, I_FB_get_info, I_FB_init
+.import FB_move_pixels, FB_filter_pixels, FB_fill_pixels, FB_set_8_pixels_opaque, FB_set_8_pixels, FB_set_pixels, FB_set_pixel, FB_get_pixels, FB_get_pixel, FB_cursor_next_line, FB_cursor_position, FB_set_palette, FB_get_info, FB_init
 .import memory_decompress, memory_crc, memory_copy, memory_fill
 .import monitor
 .import mouse_config, mouse_scan, mouse_get; [mouse]
@@ -76,20 +76,20 @@
 .ifdef MACHINE_C64
 	.res 14*3
 .else
-	jmp (I_FB_init)                ; $FEF6: FB_init
-	jmp (I_FB_get_info)            ; $FEF9: FB_get_info
-	jmp (I_FB_set_palette)         ; $FEFC: FB_set_palette
-	jmp (I_FB_cursor_position)     ; $FEFF: FB_cursor_position
-	jmp (I_FB_cursor_next_line)    ; $FF02: FB_cursor_next_line
-	jmp (I_FB_get_pixel)           ; $FF05: FB_get_pixel
-	jmp (I_FB_get_pixels)          ; $FF08: FB_get_pixels
-	jmp (I_FB_set_pixel)           ; $FF0B: FB_set_pixel
-	jmp (I_FB_set_pixels)          ; $FF0E: FB_set_pixels
-	jmp (I_FB_set_8_pixels)        ; $FF11: FB_set_8_pixels
-	jmp (I_FB_set_8_pixels_opaque) ; $FF14: FB_set_8_pixels_opaque
-	jmp (I_FB_fill_pixels)         ; $FF17: FB_fill_pixels
-	jmp (I_FB_filter_pixels)       ; $FF1A: FB_filter_pixels
-	jmp (I_FB_move_pixels)         ; $FF1D: FB_move_pixels
+	jmp FB_init                    ; $FEF6: FB_init
+	jmp FB_get_info                ; $FEF9: FB_get_info
+	jmp FB_set_palette             ; $FEFC: FB_set_palette
+	jmp FB_cursor_position         ; $FEFF: FB_cursor_position
+	jmp FB_cursor_next_line        ; $FF02: FB_cursor_next_line
+	jmp FB_get_pixel               ; $FF05: FB_get_pixel
+	jmp FB_get_pixels              ; $FF08: FB_get_pixels
+	jmp FB_set_pixel               ; $FF0B: FB_set_pixel
+	jmp FB_set_pixels              ; $FF0E: FB_set_pixels
+	jmp FB_set_8_pixels            ; $FF11: FB_set_8_pixels
+	jmp FB_set_8_pixels_opaque     ; $FF14: FB_set_8_pixels_opaque
+	jmp FB_fill_pixels             ; $FF17: FB_fill_pixels
+	jmp FB_filter_pixels           ; $FF1A: FB_filter_pixels
+	jmp FB_move_pixels             ; $FF1D: FB_move_pixels
 .endif
 
 	;
