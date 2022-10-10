@@ -140,7 +140,7 @@ _UseSystemFont:
 	LoadW r0, 0
 	php
 	sei
-	jsr GRAPH_set_font
+	jsrfar GRAPH_set_font
 	get_font_parameters
 	plp
 	rts

@@ -11,6 +11,22 @@
 .import leftMargin, windowTop, rightMargin, windowBottom
 .import FB_VERA
 
+.import font_init
+
+.export GRAPH_init
+.export GRAPH_clear
+.export GRAPH_set_window
+.export GRAPH_set_colors
+.export GRAPH_draw_line
+.export GRAPH_draw_rect
+.export GRAPH_draw_image
+.export GRAPH_move_rect
+.export GRAPH_draw_oval
+.export set_window_fullscreen
+
+.import I_FB_BASE
+.import I_FB_END
+
 .import FB_init
 .import FB_get_info
 .import FB_set_palette
@@ -25,19 +41,6 @@
 .import FB_fill_pixels
 .import FB_filter_pixels
 .import FB_move_pixels
-
-.import font_init
-
-.export GRAPH_init
-.export GRAPH_clear
-.export GRAPH_set_window
-.export GRAPH_set_colors
-.export GRAPH_draw_line
-.export GRAPH_draw_rect
-.export GRAPH_draw_image
-.export GRAPH_move_rect
-.export GRAPH_draw_oval
-.export set_window_fullscreen
 
 .import col1, col2, col_bg			;Set during link stage, read from Kernal.sym
 
@@ -56,11 +59,31 @@
 ;                   (320x240@256c).
 ;---------------------------------------------------------------
 GRAPH_init:
-	jsr grjsrfar
-	.word $ff20
-	.byte BANK_KERNAL
+	lda r0L
+	ora r0H
+	bne :+
+	LoadW r0, FB_VERA
+:
+	; copy VERA driver vectors
+	ldy #<(I_FB_END - I_FB_BASE - 1)
+:	lda (r0),y
+	sta I_FB_BASE,y
+	dey
+	bpl :-
 
-	rts
+	jsr FB_init
+
+	jsr set_window_fullscreen
+
+	lda #0  ; primary:    black
+	ldx #10 ; secondary:  gray
+	ldy #1  ; background: white
+	
+	jsr GRAPH_set_colors
+
+    jsr GRAPH_clear
+
+    jmp font_init
 
 ;---------------------------------------------------------------
 ; GRAPH_clear

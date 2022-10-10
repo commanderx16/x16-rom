@@ -25,3 +25,18 @@ gr_console_put_image           = $C030
 gr_console_set_paging_message  = $C033
 
 gr_set_window_fullscreen       = $C036
+
+gr_FB_init                     = $C039
+gr_FB_get_info                 = $C03C
+gr_FB_set_palette              = $C03F
+gr_FB_cursor_position          = $C042
+gr_FB_cursor_next_line         = $C045
+gr_FB_get_pixel                = $C048
+gr_FB_get_pixels               = $C04B
+gr_FB_set_pixel                = $C04E
+gr_FB_set_pixels               = $C051
+gr_FB_set_8_pixels             = $C054
+gr_FB_set_8_pixels_opaque      = $C057
+gr_FB_fill_pixels              = $C05A
+gr_FB_filter_pixels            = $C05D
+gr_FB_move_pixels              = $C060
