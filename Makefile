@@ -436,7 +436,7 @@ $(BUILD_DIR)/codex.bin: $(CFG_DIR)/codex-$(MACHINE).cfg
 # Bank 8 : Graphics
 $(BUILD_DIR)/graph.bin: $(GRAPH_OBJS) $(KERNAL_DEPS) $(CFG_DIR)/graph.cfg
 	@mkdir -p $$(dirname $@) 
-	$(LD) -C $(CFG_DIR)/graph.cfg $(GRAPH_OBJS) -o $@ -m $(BUILD_DIR)/graph.map -Ln $(BUILD_DIR)/graph.sym `${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/Kernal.sym col1 col2 col_bg ptr_fg` `${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/Kernal.sym -p k_ kbdbuf_get sprite_set_image sprite_set_position`
+	$(LD) -C $(CFG_DIR)/graph.cfg $(GRAPH_OBJS) -o $@ -m $(BUILD_DIR)/graph.map -Ln $(BUILD_DIR)/graph.sym `${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/kernal.sym col1 col2 col_bg ptr_fg` `${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/kernal.sym -p k_ kbdbuf_get sprite_set_image sprite_set_position`
 
 # Bank 9 : DEMO
 $(BUILD_DIR)/demo.bin: $(DEMO_OBJS) $(DEMO_DEPS) $(CFG_DIR)/demo-$(MACHINE).cfg
