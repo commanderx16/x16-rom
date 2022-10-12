@@ -110,7 +110,7 @@ fat	.res 10          ;    primary device numbers
 sat	.res 10          ;    secondary addresses
 .assert * = status, error, "update banks.inc!"
 __status
-		.res 1           ;$90 i/o operation status byte
+	.res 1           ;$90 i/o operation status byte
 verck	.res 1           ;$93 load or verify flag
 xsav	.res 1           ;$97 temp for basin
 ldtnd	.res 1           ;$98 index to logical file
