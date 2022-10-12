@@ -8,6 +8,7 @@ BANK_MONITOR = 5
 BANK_CHARSET = 6
 BANK_CODEX   = 7
 BANK_GRAPH   = 8
+BANK_DEMO	 = 9
 
 ; XXX these constant RAM addresses are KERNAL
 ; XXX implementation details and need to go away!
