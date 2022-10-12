@@ -108,7 +108,7 @@ rtc_set_date_time:
 	jsr i2c_write_byte_as_bcd ; 4: day
 
 	dey
-	lda #$08
+	lda #$08                  ; enable battery backup, reset week day
 	jsr i2c_write_byte_as_bcd ; 3: day of week
 
 	dey
