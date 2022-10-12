@@ -50,6 +50,15 @@ FontTVar4:	    .res 1
 .assert leftMargin = k_leftMargin, error, "update font_internal.inc!"
 .assert rightMargin = k_rightMargin, error, "update font_internal.inc!"
 
+.assert fontTemp1 = k_fontTemp1, error, "update font_internal.inc!"
+.assert fontTemp2 = k_fontTemp2, error, "update font_internal.inc!"
+.assert PrvCharWidth = k_PrvCharWidth, error, "update font_internal.inc!"
+.assert FontTVar1 = k_FontTVar1, error, "update font_internal.inc!"
+.assert FontTVar2 = k_FontTVar2, error, "update font_internal.inc!"
+.assert FontTVar3 = k_FontTVar3, error, "update font_internal.inc!"
+.assert FontTVar4 = k_FontTVar4, error, "update font_internal.inc!"
+
+
 .segment "GRAPH"
 
 GRAPH_get_char_size:

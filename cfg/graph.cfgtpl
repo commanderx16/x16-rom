@@ -1,14 +1,16 @@
 MEMORY {
-    GRVARSB0: start = $af00, size = $0100;
-    ROM: start = $C000, size = $3FFA, fill=yes, fillval=$AA;
-    VECTORS:  start = $FFFA, size = $0006, fill=yes, fillval=$AA;
-    GDRVVEC:  start = $02E4, size = $001C; # framebuffer driver vectors
+    GRAPHVAR:	start = $02BB, size = $0003;
+    GRVARSB0:	start = $af00, size = $0100;
+    ROM:		start = $C000, size = $3FFA, fill=yes, fillval=$AA;
+    VECTORS:	start = $FFFA, size = $0006, fill=yes, fillval=$AA;
+    GDRVVEC:	start = $02E4, size = $001C; # framebuffer driver vectors
 }
 
 SEGMENTS {
-    GRAPH:      load = ROM, type = ro;
-    KVARSB0:    load = GRVARSB0,  type = bss, define=yes;
-    CONSOLE:    load = ROM,   type = ro;
-    VECTORS:    load = VECTORS,  type = ro;
-    GDRVVEC:    load = GDRVVEC,  type = bss;
+    GRAPHVAR:	load = GRAPHVAR, type = bss;
+    GRAPH:		load = ROM, type = ro;
+    KVARSB0:	load = GRVARSB0,  type = bss, define=yes;
+    CONSOLE:	load = ROM,   type = ro;
+    VECTORS:	load = VECTORS,  type = ro;
+    GDRVVEC:	load = GDRVVEC,  type = bss;
 }
