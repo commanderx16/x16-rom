@@ -18,7 +18,7 @@
 ; GEOS public
 baselineOffset:	.res 1
 curSetWidth:	.res 2
-curHeight:	    .res 1
+curHeight:		.res 1
 cardDataPntr:	.res 2
 
 currentMode:	.res 1
