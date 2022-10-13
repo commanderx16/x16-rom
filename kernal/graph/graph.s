@@ -22,13 +22,6 @@
 .export GRAPH_set_colors
 .export GRAPH_set_window
 
-.export col1,col2,col_bg
-
-.segment "KVAR"
-col1:	.res 1
-col2:	.res 1
-col_bg:	.res 1
-
 .segment "GRAPH"
 
 GRAPH_clear:

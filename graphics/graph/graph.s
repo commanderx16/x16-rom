@@ -42,7 +42,14 @@
 .import FB_filter_pixels
 .import FB_move_pixels
 
-.import col1, col2, col_bg			;Set during link stage, read from Kernal.sym
+.export col1, col2, col_bg
+
+.segment "GRAPHVAR"
+col1: .res 1
+col2: .res 1
+col_bg: .res 1
+
+;.import col1, col2, col_bg			;Set during link stage, read from Kernal.sym
 
 .import grjsrfar
 
