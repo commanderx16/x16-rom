@@ -261,8 +261,8 @@ file_read_block:
 	lda krn_ptr1
 	pha
 	lda #0
-	ror
-	sta krn_ptr1
+	ror            ; store carry flag as MSB of krn_ptr1
+	sta krn_ptr1   ; fat32_read examines it to determine which copy routine to use.
 	txa
 	bne @1
 
