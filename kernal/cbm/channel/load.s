@@ -113,8 +113,8 @@ bld10
 	clc
 	bmi bld11							; check load into RAM/VRAM
 	sec       						; RAM
-	ldx #<VERA_DATA0
-	ldy eah
+	ldx #<VERA_DATA0      ; use data0 for call to MACPTR instead of VRAM address
+	ldy eah								; store VRAM address as EAH instead of data0 address.
 	phy
 	ldy #>VERA_DATA0
 	bra bld12
