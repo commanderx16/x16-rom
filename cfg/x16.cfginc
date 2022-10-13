@@ -21,8 +21,8 @@ ZPBASIC:  start = $00D4, size = $002B; # BASIC (last byte used: $FE)
 
 /* $0200-$02FF: always-available variables and RAM code */
 KVAR:     start = $0200, size = $00BB; # KERNAL
-/*GRAPHVAR: start = $02BB, size = $0003; # GRAPH BANK VARS*/
-/*        start = $02BE, size = $0006; # reserved for KERNAL growth */
+/*        start = $02BB, size = $0006; # reserved for KERNAL growth */
+GRAPHVAR: start = $02C1, size = $0003; # GRAPH BANK VARS
 KERNRAM:  start = $02C4, size = $0020; # KERNAL RAM code
 GDRVVEC:  start = $02E4, size = $001C; # framebuffer driver vectors
 
