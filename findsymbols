@@ -1,0 +1,70 @@
+#!/bin/bash
+
+#Help message
+usage () {
+	echo "Usage: findsymbols file [-p prefix] symbol ..."
+	echo "  file:"
+	echo "    Symbol file created with the -Ln option in ld65"
+	echo "  -p prefix:"
+	echo "    A prefix added to all returned symbol names"
+	echo "  symbol:"
+	echo "    Name of one or more symbols"
+
+	exit 1
+}
+
+#Validate input
+if [ $# -lt 2 ]; then
+	usage
+fi
+
+if [[ ! -f $1 ]]; then
+	echo "File not found"
+	usage
+fi
+
+#Get symbol names from command line parameters
+args=($@)
+unset args[0]		#Delete file
+
+#Look for optional prefix
+prefix=""
+prefixFound=0
+index=$#
+
+while [ $index -gt 0 ]; do
+	index=$(($index-1))
+	if [[ ${args[$index]} == "-p" ]]; then
+		prefixFound=1
+		unset args[$(($index+1))]
+		unset args[$index]
+	elif [ $prefixFound -eq 0 ]; then
+		prefix=${args[$index]}
+	fi
+done
+
+if [ $prefixFound -eq 0 ]; then
+	prefix=""
+fi
+
+#Parse file with awk
+cat $1 |
+awk -v prefix=$prefix -v args="$(IFS=:;echo "${args[*]}")" '
+BEGIN {
+	split(args, symbols, ":");
+}
+{
+	for (s in symbols) {
+		if (symbols[s] == substr($3,2)) {
+			output[symbols[s]] = "$" substr($2,3)
+		}
+	}
+}
+END {
+	for (s in output) {
+		printf "-D " prefix s "=" output[s] " ";
+	}
+	printf("\n");
+}
+'
+exit 0

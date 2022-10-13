@@ -1,0 +1,1 @@
+.include "../../kernal/fonts/font_internal.inc"

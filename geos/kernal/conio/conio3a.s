@@ -32,7 +32,7 @@ _PutString:
 
 ;-------
 
-.include "../../../kernal/fonts/font_internal.inc"
+.include "../../../graphics/fonts/font_internal.inc"
 
 .macro get_font_parameters
 	pha

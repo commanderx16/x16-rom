@@ -1,0 +1,16 @@
+MEMORY {
+    #include "x16.cfginc"
+    
+    GRVARSB0:	start = $af00, size = $0100;
+    GRAPH:		start = $C000, size = $3FFA, fill=yes, fillval=$AA;
+    VECTORS:  start = $FFFA, size = $0006, fill=yes, fillval=$AA;
+}
+
+SEGMENTS {
+    GRAPHVAR:	load = GRAPHVAR, type = bss;
+    GRAPH:		load = GRAPH, type = ro;
+    KVARSB0:	load = GRVARSB0,  type = bss, define=yes;
+    CONSOLE:	load = GRAPH,   type = ro;
+    VECTORS:	load = VECTORS,  type = ro;
+    GDRVVEC:	load = GDRVVEC,  type = bss;
+}

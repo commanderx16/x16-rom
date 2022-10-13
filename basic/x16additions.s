@@ -626,7 +626,7 @@ test:
 
 @copy:
 	sei
-	lda #8
+	lda #BANK_DEMO
 	sta rom_bank
 	lda #<$c000
 	sta 2
