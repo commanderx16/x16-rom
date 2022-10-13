@@ -260,4 +260,3 @@ control_up:
 control_attrclr:
 	LoadB currentMode, 0
 	rts
-

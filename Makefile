@@ -273,6 +273,15 @@ CHARSET_SOURCES= \
 	charset/petscii.s \
 	charset/iso-8859-15.s
 
+GRAPH_SOURCES= \
+	graphics/jmptbl.s \
+	graphics/kernal.s \
+	graphics/graph/graph.s \
+	graphics/fonts/fonts.s \
+	graphics/graph/console.s \
+	graphics/drivers/framebuffer.s \
+	graphics/drivers/fb_vectors.s
+
 DEMO_SOURCES= \
 	demo/test.s
 
@@ -287,8 +296,7 @@ GENERIC_DEPS = \
 	kernsup/kernsup.inc
 
 KERNAL_DEPS = \
-	$(GENERIC_DEPS) \
-	kernal/fonts/fonts.inc
+	$(GENERIC_DEPS)
 
 KEYMAP_DEPS = \
 	$(GENERIC_DEPS)
@@ -334,6 +342,7 @@ GEOS_OBJS    = $(addprefix $(BUILD_DIR)/, $(GEOS_SOURCES:.s=.o))
 BASIC_OBJS   = $(addprefix $(BUILD_DIR)/, $(BASIC_SOURCES:.s=.o))
 MONITOR_OBJS = $(addprefix $(BUILD_DIR)/, $(MONITOR_SOURCES:.s=.o))
 CHARSET_OBJS = $(addprefix $(BUILD_DIR)/, $(CHARSET_SOURCES:.s=.o))
+GRAPH_OBJS   = $(addprefix $(BUILD_DIR)/, $(GRAPH_SOURCES:.s=.o))
 DEMO_OBJS    = $(addprefix $(BUILD_DIR)/, $(DEMO_SOURCES:.s=.o))
 
 ifeq ($(MACHINE),c64)
@@ -348,6 +357,7 @@ else
 		$(BUILD_DIR)/monitor.bin \
 		$(BUILD_DIR)/charset.bin \
 		$(BUILD_DIR)/codex.bin \
+		$(BUILD_DIR)/graph.bin \
 		$(BUILD_DIR)/demo.bin
 endif
 
@@ -423,7 +433,12 @@ $(BUILD_DIR)/charset.bin: $(CHARSET_OBJS) $(CHARSET_DEPS) $(CFG_DIR)/charset-$(M
 $(BUILD_DIR)/codex.bin: $(CFG_DIR)/codex-$(MACHINE).cfg
 	(cd codex; make)
 
-# Bank 8 : DEMO
+# Bank 8 : Graphics
+$(BUILD_DIR)/graph.bin: $(GRAPH_OBJS) $(KERNAL_DEPS) $(CFG_DIR)/graph.cfg
+	@mkdir -p $$(dirname $@) 
+	$(LD) -C $(CFG_DIR)/graph.cfg $(GRAPH_OBJS) -o $@ -m $(BUILD_DIR)/graph.map -Ln $(BUILD_DIR)/graph.sym `${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/kernal.sym ptr_fg` `${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/kernal.sym -p k_ kbdbuf_get sprite_set_image sprite_set_position`
+
+# Bank 9 : DEMO
 $(BUILD_DIR)/demo.bin: $(DEMO_OBJS) $(DEMO_DEPS) $(CFG_DIR)/demo-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
 	$(LD) -C $(CFG_DIR)/demo-$(MACHINE).cfg $(DEMO_OBJS) -o $@ -m $(BUILD_DIR)/demo.map -Ln $(BUILD_DIR)/demo.sym

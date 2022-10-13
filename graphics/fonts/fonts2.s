@@ -805,4 +805,3 @@ BitMaskLeadingClear:
 	.byte %00000011
 	.byte %00000001
 	.byte %00000000
-

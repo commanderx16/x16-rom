@@ -7,12 +7,14 @@ BANK_BASIC   = 4
 BANK_MONITOR = 5
 BANK_CHARSET = 6
 BANK_CODEX   = 7
+BANK_GRAPH   = 8
+BANK_DEMO	 = 9
 
 ; XXX these constant RAM addresses are KERNAL
 ; XXX implementation details and need to go away!
 .ifdef MACHINE_X16
-cbdos_flags= $026A
-status     = $0289 ; channel: status byte
+cbdos_flags= $0268
+status     = $0287 ; channel: status byte
 jsrfar3    = $02c4 ; jsrfar: RAM part
 jmpfr      = $02df ; jsrfar: core jmp instruction
 imparm     = $82   ; jsrfar: temporary byte
