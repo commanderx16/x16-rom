@@ -65,6 +65,7 @@ codex:
 
 ;***************
 geos:
+	sec
 	jsr bjsrfar
 	.word $c000 ; entry
 	.byte BANK_GEOS
