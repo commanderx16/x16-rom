@@ -72,23 +72,12 @@ poke	jsr getnum
 	ldy #0
 	sta (poker),y
 	rts
-pokefr	ldy r0L
-	phy
-	ldy r0H
-	phy
-	sta r0H
-	lda poker
-	sta r0L
-	lda #r0
+pokefr	lda #poker
 	sta stavec
 	txa
 	ldx curbank
 	ldy #0
 	jsr stash
-	pla
-	sta r0H
-	pla
-	sta r0L
 	rts
 fnwait	jsr getnum
 	stx andmsk
