@@ -11,6 +11,7 @@ SEGMENTS {
 	ZPBASIC:  load = ZPBASIC,  type = zp;
 	BVECTORS: load = BVECTORS, type = bss;
 	BVARS:    load = BVARS,    type = bss;
+	BVARS2:   load = BVARS2,   type = bss;
 
 	ZPMATH:   load = ZPMATH,   type = zp;
 	FPVARS:   load = FPVARS,   type = bss;
