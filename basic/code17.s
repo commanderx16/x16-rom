@@ -51,13 +51,13 @@ peek	lda poker+1
 	jsr getadr0
 	ldy #0
 	lda poker+1
-	cmp #$c0
+	cmp #$a0
 	bcs peek1
-	lda (poker),y   ;RAM
+	lda (poker),y   ;Low RAM
 	jmp peek2
-peek1	lda #poker
-	ldx #BANK_KERNAL
-	jsr fetch       ;ROM
+peek1	lda #poker	;High RAM or ROM
+	ldx curbank
+	jsr fetch
 peek2	tay
 dosgfl	pla
 	sta poker
