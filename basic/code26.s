@@ -43,7 +43,7 @@ plot	=$fff0
 
 csys	jsr frmadr      ;get int. addr
 	lda linnum+1
-	cmp #$c0
+	cmp #$a0
 	bcs csysfar
 	lda #>csysrz    ;push return address
 	pha
