@@ -57,27 +57,31 @@ csys	jsr frmadr      ;get int. addr
 	plp             ;load 6502 status reg
 	jmp (linnum)    ;go do it
 
-csysfar	pha		;Far jump
-	lda spreg
-	pha
-	lda sareg
-	pha
-	ldx sxreg
-	phx
-	ldy syreg
+csysfar	jsr csysfr2
+	bra csysrz+1
 
-	lda linnum	;Set far address
+csysfr2	pha		;Far jump; extra byte on stack for return bank
+	
+	lda spreg	;Processor status -> stack
+	pha
+	lda sareg	;A -> stack
+	pha
+	ldx sxreg	;X -> stack
+	phx
+	ldy syreg	;Fetch Y
+
+	lda linnum	;Set jsrfar target address
 	sta jmpfr+1
 	lda linnum+1
 	sta jmpfr+2
-	
-	tsx		;Set return bank
-	lda BANK_BASIC
+
+	tsx		;Push return bank to extra byte reserved on stack
+	lda #BANK_BASIC
 	sta $0104,x
 	plx
 
-	lda curbank	;Fetch target bank
-	jsr jsrfar3
+	lda curbank	;Fetch target bank, and go far!
+	jmp jsrfar3
 
 csysrz	=*-1            ;return to here
 	php             ;save status reg
