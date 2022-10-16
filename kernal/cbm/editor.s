@@ -246,7 +246,14 @@ loop3
 	jsr kbdbuf_get
 	sta blnsw
 	sta autodn      ;turn on auto scroll down
+.ifp02
 	beq loop3
+.else
+	bne ploop3
+.byte	$CB	; WAI instruction
+	bra loop3
+ploop3
+.endif
 	pha
 	php
 	sei
