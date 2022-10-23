@@ -234,8 +234,12 @@ DoMouseFault:
 
 .export MouseInit
 MouseInit:
-	lda #1 ; default pointer
-	ldx #2 ; scale
+	sec			; Get screen dimensions
+	jsr gjsrfar
+	.word screen_mode
+	.byte BANK_KERNAL
+
+	lda #1 			; Use default pointer
 	jsr gjsrfar
 	.word mouse_config
 	.byte BANK_KERNAL
