@@ -246,7 +246,16 @@ loop3
 	jsr kbdbuf_get
 	sta blnsw
 	sta autodn      ;turn on auto scroll down
+.ifp02
 	beq loop3
+.else
+        ; power saving: a character from the keyboard
+	; cannot arrive before the next timer IRQ
+	bne ploop3
+        .byte $cb       ; WAI instruction
+	bra loop3
+ploop3
+.endif
 	pha
 	php
 	sei
