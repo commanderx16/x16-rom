@@ -173,7 +173,12 @@ cint	jsr iokeys
 	jsr panic       ;set up vic
 
 	; XXX this is too specific
-	lda #0          ;80x60
+	; Screen mode: First 320x240 graphics mode (just to initialize
+	; the framebuffer driver) then 80x60 text mode.
+	lda #128        ;320x240 graphics
+	clc
+	jsr screen_mode
+	lda #0          ;80x60 text
 	clc
 	jsr screen_mode ;set screen mode to default
 ;
