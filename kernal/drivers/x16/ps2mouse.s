@@ -145,7 +145,7 @@ _mouse_scan:
 	jsr i2c_read_first_byte
 	bcs @a ; error
 	bne @b ; no data
-	jsr i2c_read_stop
+	jmp i2c_read_stop
 @a:	rts
 @b:
 .if 0
