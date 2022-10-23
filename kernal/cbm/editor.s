@@ -249,8 +249,10 @@ loop3
 .ifp02
 	beq loop3
 .else
+        ; power saving: a character from the keyboard
+	; cannot arrive before the next timer IRQ
 	bne ploop3
-.byte	$CB	; WAI instruction
+        .byte $cb       ; WAI instruction
 	bra loop3
 ploop3
 .endif
