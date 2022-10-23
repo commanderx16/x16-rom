@@ -60,27 +60,27 @@ csys	jsr frmadr      ;get int. addr
 csysfar	jsr csysfr2
 	bra csysrz+1
 
-csysfr2	pha		;Far jump; extra byte on stack for return bank
+csysfr2	pha             ;Far jump; extra byte on stack for return bank
 	
-	lda spreg	;Processor status -> stack
+	lda spreg       ;Processor status -> stack
 	pha
-	lda sareg	;A -> stack
+	lda sareg       ;A -> stack
 	pha
-	ldx sxreg	;X -> stack
+	ldx sxreg       ;X -> stack
 	phx
-	ldy syreg	;Fetch Y
+	ldy syreg       ;Fetch Y
 
-	lda linnum	;Set jsrfar target address
+	lda linnum       ;Set jsrfar target address
 	sta jmpfr+1
 	lda linnum+1
 	sta jmpfr+2
 
-	tsx		;Push return bank to extra byte reserved on stack
+	tsx             ;Push return bank to extra byte reserved on stack
 	lda #BANK_BASIC
 	sta $0104,x
 	plx
 
-	lda curbank	;Fetch target bank, and go far!
+	lda curbank     ;Fetch target bank, and go far!
 	jmp jsrfar3
 
 csysrz	=*-1            ;return to here
