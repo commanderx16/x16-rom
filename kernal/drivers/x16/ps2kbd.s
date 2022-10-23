@@ -514,8 +514,7 @@ receive_scancode:
 	jsr i2c_read_byte
 	bcs rcvsc1 ; I2C error
 	bne rcvsc2 ; non-zero code
-rcvsc1:
-	lda #0
+rcvsc1:	lda #0
 	rts
 rcvsc2:	cmp #$e0 ; extend prefix 1
 	beq rcvsc3
