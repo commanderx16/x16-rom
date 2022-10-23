@@ -77,8 +77,7 @@ pokefr	lda #poker
 	txa
 	ldx curbank
 	ldy #0
-	jsr stash
-	rts
+	jmp stash
 fnwait	jsr getnum
 	stx andmsk
 	ldx #0
