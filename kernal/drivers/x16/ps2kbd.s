@@ -10,7 +10,7 @@
 .include "mac.inc"
 
 ; code
-.import ps2_receive_byte; [ps2]
+.import i2c_read_byte
 .import joystick_from_ps2_init, joystick_from_ps2; [joystick]
 ; data
 .import mode; [declare]
@@ -25,6 +25,9 @@
 .import memory_decompress_internal ; [lzsa]
 
 .export kbd_config, kbd_scan, receive_scancode_resume, keymap
+
+I2C_ADDRESS = $42
+I2C_GET_SCANCODE_OFFSET = $07
 
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
@@ -506,9 +509,10 @@ find_table:
 ;           1: key up
 ;****************************************
 receive_scancode:
-	ldx #1
-	jsr ps2_receive_byte
-	bcs rcvsc1 ; parity error
+	ldx #I2C_ADDRESS
+	ldy #I2C_GET_SCANCODE_OFFSET
+	jsr i2c_read_byte
+	bcs rcvsc1 ; I2C error
 	bne rcvsc2 ; non-zero code
 rcvsc1:	lda #0
 	rts

@@ -26,7 +26,6 @@
 ;---------------------------------------------------------------
 ioinit:
 	jsr vera_wait_ready
-	jsr ps2_init    ;inhibit ps/2 communcation
 	jsr serial_init
 	jsr entropy_init
 	jsr clklo       ;release the clock line
