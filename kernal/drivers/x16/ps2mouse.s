@@ -181,25 +181,22 @@ _mouse_scan:
 	jsr i2c_read_next_byte
 	pha                     ; Push low 8 bits onto stack
 	jsr i2c_read_stop       ; Stop I2C transfer
-	ply                     ; Pop low 8 bits to y
+	ply                     ; Pop low 8 bits to Y
 	lda mousebt             ; Load flags
 	and #$20                ; Check sign bit
 	beq :+                  ; set?
-	lda #$ff                ; sign extend into all of a
-:
-	eor #$ff                ; invert high 8 bits
-	tax                     ; High 8 bits in x
-	tya                     ; Low 8 bits in a
+	lda #$ff                ; sign extend into all of A
+:	eor #$ff                ; invert high 8 bits
+	tax                     ; High 8 bits in X
+	tya                     ; Low 8 bits in A
 	eor #$ff                ; invert low 8 bits
-	; At this point x:a = ~dY (not negative dY, bitwise not)
+	; At this point X:A = ~dY (not negative dY, bitwise not)
 	sec                     ; Add 1 to low 8 bits
 	adc mousey              ; Add low 8 bits to mousey
 	sta mousey              ; mousey = result
-	txa                     ; High 8 bits in a
+	txa                     ; High 8 bits in A
 	adc mousey+1            ; Add high 8 bits to mousey+1
 	sta mousey+1            ; mousey+1 = result
-
-
 
 	lda mousebt
 	and #7
