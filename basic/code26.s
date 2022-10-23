@@ -42,6 +42,9 @@ setmsg	=$ff90
 plot	=$fff0
 
 csys	jsr frmadr      ;get int. addr
+	lda linnum+1
+	cmp #$a0
+	bcs csysfar
 	lda #>csysrz    ;push return address
 	pha
 	lda #<csysrz
@@ -53,6 +56,33 @@ csys	jsr frmadr      ;get int. addr
 	ldy syreg
 	plp             ;load 6502 status reg
 	jmp (linnum)    ;go do it
+
+csysfar	jsr csysfr2
+	bra csysrz+1
+
+csysfr2	pha             ;Far jump; extra byte on stack for return bank
+	
+	lda spreg       ;Processor status -> stack
+	pha
+	lda sareg       ;A -> stack
+	pha
+	ldx sxreg       ;X -> stack
+	phx
+	ldy syreg       ;Fetch Y
+
+	lda linnum       ;Set jsrfar target address
+	sta jmpfr+1
+	lda linnum+1
+	sta jmpfr+2
+
+	tsx             ;Push return bank to extra byte reserved on stack
+	lda #BANK_BASIC
+	sta $0104,x
+	plx
+
+	lda curbank     ;Fetch target bank, and go far!
+	jmp jsrfar3
+
 csysrz	=*-1            ;return to here
 	php             ;save status reg
 	sta sareg       ;save 6502 regs
@@ -69,8 +99,9 @@ nsnerr6	ldx vartab      ;end save addr
 	ldy vartab+1
 	lda #<txttab    ;indirect with start address
 	jsr $ffd8       ;save it
-	bcs erexit
-	rts
+	bcs :+
+	jmp erexit
+:	rts
 
 cverf	lda #1          ;verify flag
 	bra :+

@@ -108,6 +108,7 @@ stmdsp2	; statements
 	.word bload-1
 	.word bvload-1
 	.word bvrfy-1
+	.word setbank-1
 
 	; functions
 ptrfunc	.word vpeek

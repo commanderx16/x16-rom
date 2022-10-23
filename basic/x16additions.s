@@ -606,6 +606,18 @@ ckeymap:
 @fcerr:	jmp fcerr
 
 ;***************
+.export curbank
+.segment "BVARS"
+	curbank: .res 1
+
+.segment "BASIC"
+.export setbank
+setbank:
+	jsr getbyt
+	stx curbank
+	rts
+
+;***************
 test:
 	beq @test0
 	jsr getbyt
