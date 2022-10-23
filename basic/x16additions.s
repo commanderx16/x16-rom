@@ -608,7 +608,7 @@ ckeymap:
 
 ;***************
 .export curbank
-.segment "BVARS2"
+.segment "BVARS"
 	curbank: .res 1
 
 .segment "BASIC"
