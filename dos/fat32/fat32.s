@@ -3036,7 +3036,7 @@ fat32_read:
 	ldy bytecnt
 .ifdef MACHINE_X16
 .importzp krn_ptr1
-	bit krn_ptr1    ; test if C=1 or C=0 when called... 1=stream copy, 0=normal
+	bit krn_ptr1    		; MSB=1: stream copy, MSB=0: normal copy
 	bpl @5a
 	jmp x16_stream_copy
 @5a:
@@ -3072,10 +3072,9 @@ fat32_read:
 	beq @7
 	jmp @again		; Not done yet
 @7:
-	sec	; Indicate success
+	sec		; Indicate success
 
-@done:
-	; Calculate number of bytes read
+@done:	; Calculate number of bytes read
 	php
 	sub16 fat32_size, fat32_ptr2, fat32_size
 	plp
@@ -3154,10 +3153,7 @@ x16_stream_copy:
 	lda (fat32_bufptr),y
 	sta (fat32_ptr)
 	jmp :-
-
-
 .endif
-
 
 
 ;-----------------------------------------------------------------------------
