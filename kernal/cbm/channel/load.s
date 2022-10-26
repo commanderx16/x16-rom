@@ -106,13 +106,25 @@ ld30	jsr loding      ;tell user loading
 ;
 ;block-wise load into RAM
 ;
-bld10	jsr stop        ;stop key?
+bld10
+	jsr stop        ;stop key?
 	beq break2
+	lda verck
+	clc
+	bmi bld11							; check load into RAM/VRAM
+	sec       						; RAM
+	ldx #<VERA_DATA0      ; use data0 for call to MACPTR instead of VRAM address
+	ldy eah								; store VRAM address as EAH instead of data0 address.
+	phy
+	ldy #>VERA_DATA0
+	bra bld12
+bld11:
 	ldx eal
 	ldy eah
 .ifdef MACHINE_X16
         phy             ;save address hi
 .endif
+bld12:
 	lda #0          ;load as many bytes as device wants
 	jsr macptr
 	bcc :+
@@ -131,6 +143,8 @@ bld10	jsr stop        ;stop key?
 	; this should reflect the banked RAM address following
 	; the last byte written (exception: $BFFF -> $A000)
 	ply             ;start address hi
+	ldx verck				; check mode for VRAM
+	bpl @skip				; don't do bank check if VRAM (RAM: verck=$FF)
 	cpy #$a0
 	bcc @skip       ;below banked RAM
 	cpy #$c0
@@ -164,6 +178,7 @@ ld35
 	sta VERA_ADDR_L ;set address bits 7:0
 	lda eah
 	sta VERA_ADDR_M ;set address bits 15:8
+	bra bld10       ; attempt block read using macptr
 ;
 ld40	lda #$fd        ;mask off timeout
 	and status
