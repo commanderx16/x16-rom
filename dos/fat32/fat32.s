@@ -2969,7 +2969,8 @@ fat32_read:
 	stz fat32_errno
 	set16 fat32_ptr2, fat32_size
 
-@again:	; Calculate number of bytes remaining in file
+fat32_read_again:
+	; Calculate number of bytes remaining in file
 	sub32 tmp_buf, cur_context + context::file_size, cur_context + context::file_offset
 	lda tmp_buf + 0
 	ora tmp_buf + 1
@@ -2977,7 +2978,7 @@ fat32_read:
 	ora tmp_buf + 3
 	bne @1
 	clc		; End of file
-	jmp @done
+	jmp fat32_read_done
 @1:
 	; Calculate number of bytes remaining in buffer
 	sec
@@ -2998,7 +2999,7 @@ fat32_read:
 	lda #ERRNO_FS_INCONSISTENT
 	jsr set_errno
 	sec
-	jmp @done
+	jmp fat32_read_done
 @2:	lda #2
 	sta bytecnt + 1
 
@@ -3034,9 +3035,10 @@ fat32_read:
 @5:
 	; Copy bytecnt bytes from buffer
 	ldy bytecnt
+
 .ifdef MACHINE_X16
 .importzp krn_ptr1
-	bit krn_ptr1    		; MSB=1: stream copy, MSB=0: normal copy
+	bit krn_ptr1        ; MSB=1: stream copy, MSB=0: normal copy
 	bpl @5a
 	jmp x16_stream_copy
 @5a:
@@ -3050,6 +3052,7 @@ fat32_read:
 	jmp x16_banked_copy
 @5b:
 .endif
+
 	dey
 	beq @6b
 @6:	lda (fat32_bufptr), y
@@ -3058,10 +3061,10 @@ fat32_read:
 	bne @6
 @6b:	lda (fat32_bufptr), y
 	sta (fat32_ptr), y
-@6c:
+fat32_read_cont1:
 	; fat32_ptr += bytecnt, fat32_bufptr += bytecnt, fat32_size -= bytecnt, file_offset += bytecnt
 	add16 fat32_ptr, fat32_ptr, bytecnt
-:
+fat32_read_cont2:
 	add16 fat32_bufptr, fat32_bufptr, bytecnt
 	sub16 fat32_size, fat32_size, bytecnt
 	add32_16 cur_context + context::file_offset, cur_context + context::file_offset, bytecnt
@@ -3069,16 +3072,15 @@ fat32_read:
 	; Check if done
 	lda fat32_size + 0
 	ora fat32_size + 1
-	beq @7
-	jmp @again		; Not done yet
-@7:
-	sec		; Indicate success
+	beq :+
+	jmp fat32_read_again; Not done yet
+:	sec                 ; Indicate success
 
-@done:	; Calculate number of bytes read
+fat32_read_done:
+	; Calculate number of bytes read
 	php
 	sub16 fat32_size, fat32_ptr2, fat32_size
 	plp
-
 	rts
 
 
@@ -3086,7 +3088,6 @@ fat32_read:
 ;-----------------------------------------------------------------------------
 ; restores ram_bank prior to each write, and wraps the
 ; pointer if the write address crosses the $c000 threshold
-cont_6c = @6c
 .importzp bank_save
 ram_bank = 0             ; RAM banking control register address
 tmp_swapindex = krn_ptr1 ; use meaningful aliases for this tmp space
@@ -3132,7 +3133,7 @@ x16_banked_copy:
 	sta krn_ptr1+1
 	pla
 	sta krn_ptr1
-	jmp cont_6c
+	jmp fat32_read_cont1
 
 x16_stream_copy:
 	; move Y (bytecnt) into X for countdown
@@ -3152,7 +3153,7 @@ x16_stream_copy:
 @last:
 	lda (fat32_bufptr),y
 	sta (fat32_ptr)
-	jmp :-
+	jmp fat32_read_cont2
 .endif
 
 
