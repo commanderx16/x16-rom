@@ -185,7 +185,7 @@ reddy	.byt $d,"READY.",$d,0
 erbrk	=30
 brktxt	.byt $d
 err30	.byt "BREAK",0,$a0 ;shifted space
-err31	.byt "NOT GRAPHICS MOD",$c5
+err31	.byt "NOT GRAPHICS MOD", 'E'+$80
 errngm	=31
 
 forsiz	=$12
