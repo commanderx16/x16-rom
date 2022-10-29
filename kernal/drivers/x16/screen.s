@@ -311,6 +311,11 @@ screen_set_position:
 ;---------------------------------------------------------------
 screen_get_color:
 	tya
+	cmp llen
+	bcc :+
+	sec
+	sbc llen
+:
 	sec
 	rol
 	bra ldapnt2
@@ -359,6 +364,11 @@ ldapnt3:
 screen_set_color:
 	pha
 	tya
+	cmp llen
+	bcc :+
+	sec
+	sbc llen
+:
 	sec
 	rol
 	bra stapnt2
