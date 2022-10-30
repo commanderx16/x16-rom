@@ -42,7 +42,7 @@ faddret2 jmp movfa      ; Copy from ARG to FAC.
 fadd     jsr conupk
 
 ;--------------------------------------------------------------
-; Entry point for faddt
+; Entry point for bfaddt
 ; On entry the two values are stored in FAC and ARG.
 ; The variable arisgn contains the XOR of the two sign bits.
 ; Additionally, the Z-flag is the value of the FAC exponent.

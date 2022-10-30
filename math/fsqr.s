@@ -142,7 +142,7 @@ sqr
 
          stz arisgn
          lda facexp
-         jsr fdivt      ; Calculate S/x
+         jsr bfdivt     ; Calculate S/x
 
          ; Copy current result (x) from TEMP2 to ARG
          lda tempf2
@@ -157,7 +157,7 @@ sqr
          stx arglo
 
          lda facexp
-         jsr faddt      ; Calculate x + S/x
+         jsr bfaddt     ; Calculate x + S/x
          dec facexp     ; Divide result by 2
 
          dec itercnt

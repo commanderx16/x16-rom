@@ -45,7 +45,7 @@
 fmult    jsr conupk
 
 ;--------------------------------------------------------------
-; Entry point for fmultt
+; Entry point for bfmultt
 ; On entry the two values are stored in FAC and ARG.
 ; The variable arisgn contains the XOR of the two sign bits.
 ; Additionally, the Z-flag is the value of the FAC exponent.
@@ -225,7 +225,7 @@ mul10
 
 ; 3. FAC += ARG
          stz arisgn
-         jsr faddt      ; The Z flag is clear here.
+         jsr bfaddt     ; The Z flag is clear here.
 
 ; 4. FAC *= 2
          inc facexp
