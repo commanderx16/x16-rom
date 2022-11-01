@@ -19,13 +19,16 @@ CLRCHN:
 	; FALLTROUGH
 
 clrchn_reset: ; entry needed by setup_vicii
-
-	; Set input device number to keyboard
-	lda #$00
-	sta DFLTN
-
+	
+	; Load previous output device num to .X
+	ldx DFLTO
 	; Set output device number to screen
 	lda #$03
 	sta DFLTO
+
+	; Load previous input device number to .A
+	lda DFLTN
+	; Set input device number to keyboard
+	stz DFLTN
 
 	rts
