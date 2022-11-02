@@ -96,7 +96,14 @@ char	jsr get_point
 
 linfc	jmp fcerr
 
+ngmerr	ldx #errngm                 ; error code for not graphics mode
+	jmp error
+
 get_point:
+	sec
+	jsr screen_mode             ; what screen mode are we in?
+	asl a                       ; is it graphics mode?
+	bcc ngmerr                  ; if not: that's an error
 	jsr frmadr
 	lda poker
 	sta x1L

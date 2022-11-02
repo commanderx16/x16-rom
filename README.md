@@ -32,7 +32,7 @@ Each [release of the X16 emulator][emu-releases] includes a compatible build of 
 
 ### Building the ROM
 
-Building this source code requires only [GNU Make] and the [cc65] assembler. GNU Make is almost invariably available as a system package with any Linux distribution; cc65 less often so. 
+Building this source code requires only [GNU Make], [Python 3.7] (or higher) and the [cc65] assembler. GNU Make is almost invariably available as a system package with any Linux distribution; cc65 less often so. 
 
 - Red Hat/CentOS: `sudo yum install make cc65` 
 - Debian/Ubuntu: `sudo apt-get install make cc65`
@@ -42,6 +42,8 @@ On macOS, cc65 in [homebrew](https://brew.sh/), which must be installed before i
 - macOS: `brew install cc65`
 
 If cc65 is not available as a package on your system, you'll need to install or build/install it per the instructions below.
+
+To check the version of python you have use `python3 --version`.
 
 Once the prerequisites are available, type `make` to build `rom.bin`. To use that with the emulator, copy it to the same directory as the `x16emu` binary or use `x16emu -rom .../path/to/rom.bin`.
 
@@ -414,6 +416,7 @@ Release Notes
 
 <!-------------------------------------------------------------------->
 [GNU Make]: https://www.gnu.org/software/make/
+[Python 3.7]: https://www.python.org/downloads/release/python-370/
 [cc65]: https://cc65.github.io/
 [emu-releases]: https://github.com/commanderx16/x16-emulator/releases
 [nd-cc65]: https://wiki.nesdev.com/w/index.php/Installing_CC65
