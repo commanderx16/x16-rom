@@ -126,7 +126,7 @@ div10
 fdivf
 	stx arisgn
 	jsr movfm	;put it into fac.
-	jmp fdivt	;skip over next two bytes.
+	jmp bfdivt	;skip over next instruction.
 
 
 

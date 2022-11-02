@@ -85,21 +85,21 @@
 	jmp fadd   ; $B867
 
 	; FAC += ARG
-	; [FIXED VERSION of "faddt2"]
+	; [FIXED VERSION of "bfaddt"]
 	jmp faddt
 
 	; FAC *= mem(.Y:.A)
 	jmp fmult  ; $BA28
 
 	; FAC *= ARG
-	; [FIXED VERSION of "fmultt2"]
+	; [FIXED VERSION of "bfmultt"]
 	jmp fmultt
 
 	; FAC = mem(.Y:.A) / FAC
 	jmp fdiv   ; $BB0F
 
 	; FAC /= ARG
-	; [FIXED VERSION of "fdivt2"]
+	; [FIXED VERSION of "bfdivt"]
 	jmp fdivt
 
 	; FAC = log(FAC)
@@ -118,7 +118,7 @@
 	jmp fpwr
 
 	; FAC = ARG^FAC
-	; [FIXED VERSION of "fpwrt2"]
+	; [FIXED VERSION of "bfpwrt"]
 	jmp fpwrt
 
 	; FAC = e^FAC

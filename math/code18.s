@@ -63,7 +63,7 @@ fsubt	lda facsgn
 	eor argsgn	;complement arisgn.
 	sta arisgn
 	lda facexp	;set codes on facexp.
-	jmp faddt	;(y)=argexp.
+	jmp bfaddt	;(y)=argexp.
 
 fadflt
 	bcs normal	;here if signs differ. if carry, fac is set ok.
