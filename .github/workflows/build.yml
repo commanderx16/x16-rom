@@ -1,0 +1,32 @@
+name: ROM Build CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install Dependencies
+        run: |
+          sudo apt-get install -y make build-essential
+          git clone https://github.com/cc65/cc65.git
+          cd cc65
+          make -j4
+          sudo make install
+      - name: Build ROM
+        run: |
+          make
+          mkdir artifact
+          cp build/x16/*.h artifact/.
+          cp build/x16/*.sym artifact/.
+          cp build/x16/rom.bin artifact/.
+      - name: Archive Build Result
+        uses: actions/upload-artifact@v3
+        with:
+          name: ROM Image
+          path: artifact
