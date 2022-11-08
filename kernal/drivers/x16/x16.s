@@ -25,6 +25,8 @@
 ;            -- This is KERNAL API --
 ;---------------------------------------------------------------
 ioinit:
+	lda #%10000000
+	sta VERA_CTRL        ; reset Vera
 	jsr vera_wait_ready
 	jsr serial_init
 	jsr entropy_init
