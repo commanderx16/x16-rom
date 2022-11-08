@@ -26,13 +26,60 @@
 ;---------------------------------------------------------------
 ioinit:
 	lda #%10000000
-	sta VERA_CTRL        ; reset Vera
+	sta VERA_CTRL        	; reset VERA
+	jsr ym_init		; reset YM
 	jsr vera_wait_ready
 	jsr serial_init
 	jsr entropy_init
 	jsr clklo       ;release the clock line
 	; fallthrough
 
+;---------------------------------------------------------------
+; Re-initialize the YM-2151 to default state (everything off).
+;
+;---------------------------------------------------------------
+YM_ADDRESS = $9f40
+YM_DATA = $9f41
+
+ym_init:
+	ldx #$e0
+	ldy #$0f
+@1:	jsr @ym_write	; disable all lfos $e0..$ff
+	inx
+	bne @1
+	ldx #$08
+	ldy #7
+@2:	jsr @ym_write	; set key off for all voices
+	dey
+	bpl @2
+	ldx #$01
+	ldy #$02
+	jsr @ym_write	; reset lfo
+	ldx #$19
+	ldy #$80
+	jsr @ym_write	; clear pmd
+	ldx #$0f
+	ldy #0
+@3:	jsr @ym_write	; clear everything else $0f..$ff
+	inx
+	bne @3
+	ldx #$01
+	ldy #$00
+	jsr @ym_write	; re-enable lfo
+	rts
+
+@ym_write:  ; .X=reg, .Y=value
+	bit YM_DATA	; ready for write?
+	bmi @ym_write
+	stx YM_ADDRESS
+	nop
+	nop
+	nop
+	nop
+	nop
+	sty YM_DATA
+	rts
+  
 ;---------------------------------------------------------------
 ; Set up VBLANK IRQ
 ;
