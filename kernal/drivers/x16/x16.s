@@ -45,6 +45,7 @@ ym_init:
 	ldx #$e0
 	ldy #$0f
 @1:	jsr @ym_write	; disable all lfos $e0..$ff
+	bcs @abort	; YM didn't respond correctly, abort
 	inx
 	bne @1
 	ldx #$08
@@ -66,11 +67,16 @@ ym_init:
 	ldx #$01
 	ldy #$00
 	jsr @ym_write	; re-enable lfo
-	rts
+@abort:	rts
 
 @ym_write:  ; .X=reg, .Y=value
+	phy
+	ldy #255	; attempts counter to avoid lockup when YM is faulty
+@4:	dey		
+	beq @no_ym
 	bit YM_DATA	; ready for write?
-	bmi @ym_write
+	bmi @4
+	ply
 	stx YM_ADDRESS
 	nop
 	nop
@@ -78,6 +84,11 @@ ym_init:
 	nop
 	nop
 	sty YM_DATA
+	clc	; YM responded ok
+	rts
+@no_ym:
+	ply
+	sec	; faulty YM
 	rts
   
 ;---------------------------------------------------------------
