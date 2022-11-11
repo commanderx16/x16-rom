@@ -51,6 +51,7 @@
 	jsr free_context
 .endmacro
 
+.import bank_save
 ram_bank = 0
 
 .macro BANKING_START
@@ -609,7 +610,6 @@ copy_start:
 ;
 ; Append one file to destination file.
 ;---------------------------------------------------------------
-.import bank_save
 copy_do:
 @context_src = tmp0
 	jsr alloc_context
