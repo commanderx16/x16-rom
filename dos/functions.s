@@ -658,9 +658,8 @@ copy_do:
 
 	bra @cloop
 
-	BANKING_END
-
 @done:
+	BANKING_END
 	; close source
 	lda @context_src
 	jsr fat32_set_context
@@ -678,6 +677,7 @@ copy_do:
 	rts
 
 @error_errno:
+	BANKING_END
 	jsr convert_errno_status
 	pha
 	lda @context_src
