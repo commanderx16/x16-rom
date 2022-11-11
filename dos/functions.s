@@ -51,6 +51,23 @@
 	jsr free_context
 .endmacro
 
+ram_bank = 0
+
+.macro BANKING_START
+	pha
+	lda ram_bank
+	sta bank_save
+	stz ram_bank
+	pla
+.endmacro
+
+.macro BANKING_END
+	pha
+	lda bank_save
+	sta ram_bank
+	pla
+.endmacro
+
 .bss
 
 cur_medium:
@@ -592,6 +609,7 @@ copy_start:
 ;
 ; Append one file to destination file.
 ;---------------------------------------------------------------
+.import bank_save
 copy_do:
 @context_src = tmp0
 	jsr alloc_context
@@ -605,6 +623,8 @@ copy_do:
 	bcc @error_errno
 
 @cloop:
+	BANKING_START
+	
 	; read
 	lda @context_src
 	jsr fat32_set_context
@@ -637,6 +657,8 @@ copy_do:
 	bcc @error_errno
 
 	bra @cloop
+
+	BANKING_END
 
 @done:
 	; close source
