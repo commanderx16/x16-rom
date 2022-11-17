@@ -86,13 +86,12 @@ FB_set_palette:
 	iny
 @1:	sty  VERA_ADDR_M
 	sta  VERA_ADDR_L
-	ldy  #0
-@loop:	lda  (r0),y
+@loop:	lda  (r0)
 	sta  VERA_DATA0
 	inc  r0
 	bne  @3
 	inc  r0+1
-@3:	lda  (r0),y
+@3:	lda  (r0)
 	sta  VERA_DATA0
 	inc  r0
 	bne  @4
