@@ -264,9 +264,8 @@ _kbd_scan:
 	jsr receive_down_scancode_no_modifiers
 	bne :+
 	rts
-:
-	tay
 
+:	tay
 	cpx #0
 	jne down_ext
 ; *** regular scancodes
@@ -554,6 +553,8 @@ receive_down_scancode_no_modifiers:
 	beq no_key
 	jsr joystick_from_ps2
 	php
+	cmp #$fa
+	bcs cmd_resp
 	jsr check_mod
 	bcc no_mod
 	bit #MODIFIER_TOGGLE_MASK
@@ -577,6 +578,10 @@ key_up:	lda #0 ; no key to return
 no_mod:	plp
 	bcs key_up
 no_key:	rts ; original Z is retained
+cmd_resp:
+	plp
+	lda #0
+	rts
 
 check_mod:
 	cpx #$e1
