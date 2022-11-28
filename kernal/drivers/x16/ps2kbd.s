@@ -11,6 +11,7 @@
 
 ; code
 .import i2c_read_byte
+.import i2c_write_first_byte, i2c_write_next_byte, i2c_write_stop
 .import joystick_from_ps2_init, joystick_from_ps2; [joystick]
 ; data
 .import mode; [declare]
@@ -28,6 +29,7 @@
 
 I2C_ADDRESS = $42
 I2C_GET_SCANCODE_OFFSET = $07
+I2C_KBD_CMD2 = $1a
 
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
@@ -623,12 +625,26 @@ md_ctl:	lda #MODIFIER_CTRL
 md_sh:	lda #MODIFIER_SHIFT
 	bra :+
 md_caps:
+	jsr caps_led
 	lda #MODIFIER_CAPS
 	bra :+
 md_4080disp:
 	lda #MODIFIER_4080
 :	sec
 	rts
+
+caps_led:
+	ldx #I2C_ADDRESS
+	ldy #I2C_KBD_CMD2
+	lda #$ed
+	jsr i2c_write_first_byte
+	lda shflag
+	and #MODIFIER_CAPS
+	lsr
+	lsr
+	ora #2
+	jsr i2c_write_next_byte
+	jmp i2c_write_stop
 
 tab_extended:
 	;         end      lf hom              (END & HOME special cased)

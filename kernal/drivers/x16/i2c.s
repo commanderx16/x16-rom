@@ -419,7 +419,7 @@ i2c_write_byte:
 ; Return:    c    1 on error (NAK)
 ;---------------------------------------------------------------
 i2c_write_first_byte:
-    pha                ; value
+	pha                ; value
 	jsr i2c_init
 	jsr i2c_start
 	txa                ; device
@@ -434,7 +434,7 @@ i2c_write_first_byte:
 	ply
 	pla                ; value
 	jsr i2c_write
-    rts
+	rts
 
 @error:
 	pla                ; value
