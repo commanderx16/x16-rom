@@ -23,6 +23,8 @@
 .import keyhdl
 .import check_charset_switch
 
+.import screen_mode
+
 .import memory_decompress_internal ; [lzsa]
 
 .export kbd_config, kbd_scan, receive_scancode_resume, keymap
@@ -629,6 +631,7 @@ md_caps:
 	lda #MODIFIER_CAPS
 	bra :+
 md_4080disp:
+	jsr sw_4080
 	lda #MODIFIER_4080
 :	sec
 	rts
@@ -645,6 +648,17 @@ caps_led:
 	ora #2
 	jsr i2c_write_next_byte
 	jmp i2c_write_stop
+
+sw_4080:
+	ldx #0
+	lda shflag
+	and #MODIFIER_4080
+	beq :+
+	ldx #3
+:	txa
+	clc
+	jmp screen_mode
+	
 
 tab_extended:
 	;         end      lf hom              (END & HOME special cased)
