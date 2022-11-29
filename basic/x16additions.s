@@ -620,9 +620,9 @@ setbank:
 
 ;***************
 ;Clears the flag set when the 40/80 key (=Scroll Lock) is pressed
-;Called when returned to the BASIC editor to prevent key 40/80
-;press during program execution to take effect when returning
-;from the program
+;This function is intended to be called when the Kernal enters/returns
+;to the BASIC editor to prevent 40/80 key
+;presses during program execution to take effect
 clear_4080_flag:
 	lda ram_bank
 	pha
