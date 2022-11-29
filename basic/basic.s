@@ -1,4 +1,5 @@
 .feature labels_without_colons
+.import shflag
 
 .include "banks.inc"
 .include "kernal.inc"
@@ -35,4 +36,3 @@
 .include "init.s"
 .include "x16additions.s"
 .include "graph.s"
-

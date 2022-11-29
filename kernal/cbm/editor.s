@@ -35,6 +35,12 @@ nwrap=2 ;max number of physical lines per logical line
 .import iokeys
 .import panic
 
+.import shflag
+SCREEN_MODE_4030 = 3
+MODIFIER_4080 = 32
+
+.include "io.inc"
+
 ; kernal
 .export crsw
 .export indx
@@ -243,6 +249,35 @@ stdone
 ;
 loop4	jsr prt
 loop3
+	lda ram_bank    ;Check if 40/80 column modifier key bit is set
+	pha
+	lda #BANK_KERNAL
+	sta ram_bank
+	lda shflag
+	and #MODIFIER_4080
+	beq loop3b
+
+	lda shflag      ;Clear 40/80 key bit
+	and #(255-MODIFIER_4080)
+	sta shflag
+	
+	sec             ;Get current screen mode
+	jsr screen_mode
+
+	eor #SCREEN_MODE_4030
+	clc
+:	jsr screen_mode ;Set new screen mode, will clear screen
+
+	ldx #0          ;Print READY.
+:	lda redy,x
+	beq loop3b
+	jsr prt
+	inx
+	bra :-
+redy:	.byte "READY.", 13, 0
+
+loop3b:	pla
+	sta ram_bank
 	jsr kbdbuf_get
 	sta blnsw
 	sta autodn      ;turn on auto scroll down
@@ -311,8 +346,9 @@ loop3a	jmp loop3
 ;
 lp29	pla
 	cmp #$d
-	bne loop4
-	ldy lnmx
+	beq :+
+	jmp loop4
+:	ldy lnmx
 	sty crsw
 clp5
 	jsr screen_get_char

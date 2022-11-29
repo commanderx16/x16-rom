@@ -414,7 +414,7 @@ $(BUILD_DIR)/geos.bin: $(GEOS_OBJS) $(GEOS_DEPS) $(CFG_DIR)/geos-$(MACHINE).cfg
 # Bank 4 : BASIC
 $(BUILD_DIR)/basic.bin: $(BASIC_OBJS) $(BASIC_DEPS) $(CFG_DIR)/basic-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C $(CFG_DIR)/basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.sym
+	$(LD) -C $(CFG_DIR)/basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.sym `${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/kernal.sym shflag`
 	./scripts/relist.py $(BUILD_DIR)/basic.map $(BUILD_DIR)/basic
 
 # Bank 5 : MONITOR

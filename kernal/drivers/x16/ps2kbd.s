@@ -28,6 +28,7 @@
 .import memory_decompress_internal ; [lzsa]
 
 .export kbd_config, kbd_scan, receive_scancode_resume, keymap
+.export MODIFIER_4080
 
 I2C_ADDRESS = $42
 I2C_GET_SCANCODE_OFFSET = $07
@@ -286,7 +287,7 @@ _kbd_scan:
 	asl ; bit 6
 	php
 	lda shflag
-	and #<(~MODIFIER_CAPS)
+	and #<(~MODIFIER_TOGGLE_MASK)
 	asl
 	plp
 	ror
@@ -631,7 +632,6 @@ md_caps:
 	lda #MODIFIER_CAPS
 	bra :+
 md_4080disp:
-	jsr sw_4080
 	lda #MODIFIER_4080
 :	sec
 	rts
@@ -648,18 +648,7 @@ caps_led:
 	ora #2
 	jsr i2c_write_next_byte
 	jmp i2c_write_stop
-
-sw_4080:
-	ldx #0
-	lda shflag
-	and #MODIFIER_4080
-	beq :+
-	ldx #3
-:	txa
-	clc
-	jmp screen_mode
 	
-
 tab_extended:
 	;         end      lf hom              (END & HOME special cased)
 	.byte $00,$00,$00,$9d,$00,$00,$00,$00 ; @$68
