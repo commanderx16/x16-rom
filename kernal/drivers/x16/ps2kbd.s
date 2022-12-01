@@ -287,14 +287,16 @@ _kbd_scan:
 	asl ; bit 6
 	php
 	lda shflag
-	and #<(~MODIFIER_TOGGLE_MASK)
+	and #(255-MODIFIER_4080-MODIFIER_CAPS)
 	asl
 	plp
 	ror
 
-	ldx shflag
-	cpx #MODIFIER_CAPS
-	jeq handle_caps
+	tax
+	lda shflag
+	and #MODIFIER_CAPS
+	jne handle_caps
+	txa
 
 cont:
 	jsr find_table
@@ -404,7 +406,8 @@ find_combination:
 ; The caps table has one bit per scancode, indicating whether
 ; caps + the key should use the shifted or the unshifted table.
 handle_caps:
-	and #$80 ; remember PETSCII vs. ISO
+	txa
+	and #$81 ; remember PETSCII vs. ISO + Shift flag
 	pha
 	phy ; scancode
 
@@ -430,7 +433,14 @@ handle_caps:
 	beq :+
 	ply ; scancode
 	pla
-	ora #MODIFIER_SHIFT
+	pha
+	eor #MODIFIER_SHIFT
+	lsr
+	pla
+	php
+	lsr
+	plp
+	rol
 	jmp cont
 :	ply ; scancode
 	pla
