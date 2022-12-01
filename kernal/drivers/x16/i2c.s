@@ -373,22 +373,9 @@ i2c_write_byte:
 	phx
 	phy
 
-	pha                ; value
-	jsr i2c_init
-	jsr i2c_start
-	txa                ; device
-	asl
-	phy
-	jsr i2c_write
-	ply
+	jsr i2c_write_first_byte
 	bcs @error
-	tya                ; offset
-	phy
-	jsr i2c_write
-	ply
-	pla                ; value
-	jsr i2c_write
-	jsr i2c_stop
+	jsr i2c_write_stop
 
 	ply
 	plx
@@ -397,7 +384,6 @@ i2c_write_byte:
 	rts
 
 @error:
-	pla                ; value
 	ply
 	plx
 	plp
