@@ -406,9 +406,7 @@ find_combination:
 ; The caps table has one bit per scancode, indicating whether
 ; caps + the key should use the shifted or the unshifted table.
 handle_caps:
-	txa
-	and #$81 ; remember PETSCII vs. ISO + Shift flag
-	pha
+	phx ; mode + shflag - caps lock - 40/80 key
 	phy ; scancode
 
 	tya
@@ -431,10 +429,11 @@ handle_caps:
 	txa
 	and caps,y
 	beq :+
+
 	ply ; scancode
-	pla
+	pla ; mode + shflag - caps lock - 40/80 key
 	pha
-	eor #MODIFIER_SHIFT
+	eor #MODIFIER_SHIFT ; toggle shift bit
 	lsr
 	pla
 	php
@@ -442,6 +441,7 @@ handle_caps:
 	plp
 	rol
 	jmp cont
+
 :	ply ; scancode
 	pla
 	jmp cont
