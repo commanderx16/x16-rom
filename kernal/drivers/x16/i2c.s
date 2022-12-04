@@ -420,6 +420,7 @@ i2c_write_first_byte:
 	ply
 	pla                ; value
 	jsr i2c_write
+	clc
 	rts
 
 @error:
@@ -486,7 +487,7 @@ i2c_write_stop:
 ;
 ; Pass:      a    byte to write
 ;
-; Return:    c    1 if ACK, 0 if NAK
+; Return:    c    0 if ACK, 1 if NAK
 ;
 ; I2C Exit:  SDA: Z
 ;            SCL: 0
