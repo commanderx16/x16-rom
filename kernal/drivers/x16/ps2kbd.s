@@ -276,7 +276,10 @@ _kbd_scan:
 ; *** regular scancodes
 	cpy #$01 ; f9
 	beq cycle_layout
-	cmp #$83 ; convert weird f7 scancode
+	cmp #$84 ; Eat weird Alt + PrtScr scan code
+	bne :+
+	rts
+:	cmp #$83 ; convert weird f7 scancode
 	bne :+
 	lda #$02 ; this one is unused
 	tay
