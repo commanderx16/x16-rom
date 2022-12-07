@@ -49,6 +49,16 @@ memory_decompress:
 memory_decompress_internal:
 	PushW r2
 
+	lda r1H
+	cmp #IO_PAGE
+	bne start_decompression
+	PushB VERA_CTRL                 ; we're decompressing to I/O - save VERA state
+	lda #1
+	sta VERA_CTRL                   ; switch to data port 1
+	PushB VERA_ADDR_L               ; save data port 1 address
+	PushB VERA_ADDR_M
+	PushB VERA_ADDR_H
+start_decompression:
 	ldy #$00
 	sty nibcount
 
@@ -213,7 +223,16 @@ combinedbitz:
 	rts
 
 decompression_done:
-	stz VERA_CTRL			; could also push/pull, but this is shorter, KERNAL assumes D0..
+	lda r1H
+	cmp #IO_PAGE			
+	bne dont_restore_io
+	lda #1                          ; we've decompressed to I/O - restore VERA state
+	sta VERA_CTRL                   ; switch to data port 1
+	PopB VERA_ADDR_H                ; pop the address for D1
+	PopB VERA_ADDR_M
+	PopB VERA_ADDR_L
+	PopB VERA_CTRL                  ; restore control
+dont_restore_io:
 	PopW r2
 	rts
 
