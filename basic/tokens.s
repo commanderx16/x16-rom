@@ -109,6 +109,10 @@ stmdsp2	; statements
 	.word bvload-1
 	.word bvrfy-1
 	.word setbank-1
+	.word fmnote-1
+	.word fminst-1
+	.word psginst-1
+	.word psgnote-1
 
 	; functions
 ptrfunc	.word vpeek

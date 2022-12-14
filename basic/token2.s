@@ -82,6 +82,10 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "BVLOA", 'D' + $80
 	.byt "BVERIF", 'Y' + $80
 	.byt "BAN", 'K' + $80
+	.byt "FMNOT", 'E' + $80
+	.byt "FMINS", 'T' + $80
+	.byt "PSGINS", 'T' + $80
+	.byt "PSGNOT", 'E' + $80
 	.byt "VPEE", 'K' + $80
 	.byt "M", 'X' + $80
 	.byt "M", 'Y' + $80
@@ -177,6 +181,9 @@ errtab	.word err01
 	.word err29
 	.word err30
 	.word err31
+	.word err32
+	.word err33
+	.word err34
 
 okmsg	.byt $d,"OK",$d,$0
 err	.byt " ERROR",0
@@ -187,6 +194,12 @@ brktxt	.byt $d
 err30	.byt "BREAK",0,$a0 ;shifted space
 err31	.byt "NOT GRAPHICS MOD", 'E'+$80
 errngm	=31
+err32	.byt "INVALID CHANNE", $cc
+erchan	=32
+err33	.byt "INVALID INSTRUMEN", $d4
+erinst	=33
+err34	.byt "INVALID OCTAV", $c5
+eroct	=34
 
 forsiz	=$12
 fndfor	tsx
