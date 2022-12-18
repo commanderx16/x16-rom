@@ -137,7 +137,7 @@ The following special file syntax and `OPEN` options are specific to CMDR-DOS:
 | Feature               | Syntax      | Description                                                                    |
 |-----------------------|-------------|--------------------------------------------------------------------------------|
 | Open for Read & Write | `,?,M`      | Allows arbitrarily reading, writing and setting the position (`P`)<sup>1</sup> |
-| Get current working directory | `$=C` | Produces a single-entry directory listing containing the name of the current working directory
+| Get current working directory | `$=C` | Produces a directory listing containing the name of the current working directory followed by all parent directory names all the way up to `/` |
 
 * <sup>1</sup>: once the EOF has been reached while reading, no further reads or writes are possible.
 
