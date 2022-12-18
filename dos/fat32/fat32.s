@@ -2395,6 +2395,13 @@ fat32_rmdir:
 	rts
 
 @4:
+	; If bookmarked cwd is about to be removed, clear the bookmark
+	cmp32_ne fat32_dirent + dirent::start, cur_volume + fs::saved_cwd_cluster, @5
+	stz cur_volume + fs::saved_cwd_cluster
+	stz cur_volume + fs::saved_cwd_cluster + 1
+	stz cur_volume + fs::saved_cwd_cluster + 2
+	stz cur_volume + fs::saved_cwd_cluster + 3
+@5:
 	; Unlink cluster chain
 	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	jmp unlink_cluster_chain
