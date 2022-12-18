@@ -63,6 +63,7 @@ lba_fsinfo           .dword        ; Sector number of FS info
 free_clusters        .dword        ; Number of free clusters (from FS info)
 free_cluster         .dword        ; Cluster to start search for free clusters, also holds result of find_free_cluster
 cwd_cluster          .dword        ; Cluster of current directory
+saved_cwd_cluster    .dword        ; Used by fat32_cwd_save and fat32_cwd_restore to allow the user to bookmark a cwd and return to it later
 .endstruct
 
 FS_SIZE      = 64
@@ -98,6 +99,7 @@ tmp_dirent_flag:     .byte 0
 shortname_buf:       .res 11       ; Used for shortname creation
 tmp_timestamp:       .byte 0
 tmp_filetype:        .byte 0       ; Used to match file type in find_dirent
+tmp_cwd_cluster:     .res 4        ; Used by fat32_cwd_dirent
 
 ; Temp - LFN
 lfn_index:           .byte 0       ; counter when collecting/decoding LFN entries
@@ -131,9 +133,6 @@ volume_for_context:  .res FAT32_CONTEXTS
 ; Volumes
 volume_idx:          .byte 0       ; Index of current filesystem
 cur_volume:          .tag fs       ; Current file descriptor state
-
-; expose the cwd cluster to the rest of DOS
-fat32_cwd_cluster := cur_volume + fs::cwd_cluster
 
 .if FAT32_CONTEXTS > 1
 contexts:            .res CONTEXT_SIZE * FAT32_CONTEXTS
@@ -2111,6 +2110,67 @@ fat32_read_dirent_filtered:
 	rts
 
 ;-----------------------------------------------------------------------------
+; fat32_cwd_dirent
+;
+; Finds the dirent for the cwd, or synthesizes the entry in the case of the
+; root directory
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_cwd_dirent:
+	stz fat32_errno
+	; are we in the root dir?
+	lda cur_volume + fs::cwd_cluster
+	ora cur_volume + fs::cwd_cluster + 1
+	ora cur_volume + fs::cwd_cluster + 2
+	ora cur_volume + fs::cwd_cluster + 3
+	bne @not_root
+
+	lda #<@slash
+	sta fat32_ptr
+	lda #>@slash
+	sta fat32_ptr+1
+	jsr find_dirent
+	bcc @error
+	; implicit sec
+	rts
+
+@not_root:
+	lda #<@dotdot
+	sta fat32_ptr
+	lda #>@dotdot
+	sta fat32_ptr+1
+	jsr find_dir
+	bcs @found
+
+	lda #ERRNO_FILE_NOT_FOUND
+	jmp set_errno
+@found:
+	; store the old cwd cluster so that we can
+	; match the entry in the parent directory
+	set32 tmp_cwd_cluster, cur_volume + fs::cwd_cluster
+	; now open the parent dir so we can search it
+	set32 cur_context + context::cluster, fat32_dirent + dirent::start
+	jsr open_cluster
+	bcc @error
+@next:
+	jsr fat32_read_dirent
+	bcc @error
+
+	cmp32_ne fat32_dirent + dirent::start, tmp_cwd_cluster, @next
+	; we found it
+	sec
+	rts	
+
+@error:
+	clc
+	rts
+@slash:
+	.byte "/",0
+@dotdot:
+	.byte "..",0
+
+;-----------------------------------------------------------------------------
 ; fat32_chdir
 ;
 ; * c=0: failure; sets errno
@@ -3772,3 +3832,40 @@ fat32_seek:
 	pla
 @error:	clc
 	rts
+
+;-----------------------------------------------------------------------------
+; fat32_cwd_save
+;
+; This bookmarks the current cwd without changing any other state
+;
+; * c=0: failure; sets errno (but never fails in practice)
+;-----------------------------------------------------------------------------
+fat32_cwd_save:
+	stz fat32_errno
+	set32 cur_volume + fs::saved_cwd_cluster, cur_volume + fs::cwd_cluster
+
+	sec
+	rts
+
+;-----------------------------------------------------------------------------
+; fat32_cwd_restore
+;
+; This restores the cwd bookmark set by fat32_cwd_save
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_cwd_restore:
+	stz fat32_errno
+
+	; Check if context is free
+	lda cur_context + context::flags
+	bne @error
+
+	set32 cur_volume + fs::cwd_cluster, cur_volume + fs::saved_cwd_cluster
+
+	sec
+	rts
+@error:
+	clc
+	rts
+

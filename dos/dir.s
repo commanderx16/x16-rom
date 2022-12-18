@@ -42,7 +42,9 @@ dir_eof:
 	.byte 0
 part_index:
 	.byte 0
-show_ts_or_cluster:
+show_timestamp:
+	.byte 0
+show_cwd:
 	.byte 0
 
 .code
@@ -55,7 +57,8 @@ dir_open:
 	lda #0
 	jsr set_status
 
-	stz show_ts_or_cluster
+	stz show_timestamp
+	stz show_cwd
 
 	ply ; filename length
 	lda #0
@@ -71,18 +74,15 @@ dir_open:
 	cmp #'P'
 	beq @part_dir
 	cmp #'C'
-	beq @show_cluster
+	beq @cwd
 	cmp #'T'
 	bne @files_dir
 	lda #$80
-	sta show_ts_or_cluster
+	sta show_timestamp
 	ldx #3 ; skip "=T"
 	bra @cont1
-
-@show_cluster:
-	lda #$40
-	sta show_ts_or_cluster
-	ldx #3 ; skip "=C"
+@cwd:
+	inc show_cwd
 	bra @cont1
 
 @part_dir:
@@ -192,22 +192,6 @@ dir_open:
 @not_part4:
 	jsr storetxt
 
-	bit show_ts_or_cluster
-	bvc @vleol
-
-	; show cluster number of cwd
-	lda #' '
-	jsr storedir
-	lda fat32_cwd_cluster+3
-	jsr storehex8
-	lda fat32_cwd_cluster+2
-	jsr storehex8
-	lda fat32_cwd_cluster+1
-	jsr storehex8
-	lda fat32_cwd_cluster
-	jsr storehex8
-
-@vleol:
 	lda #0 ; end of line
 	jsr storedir
 	phy
@@ -287,6 +271,12 @@ read_dir_entry:
 	bra @cont1
 
 @not_part1:
+	lda show_cwd
+	beq @not_cwd
+@read_cwd:
+	jsr fat32_cwd_dirent
+	bra @cont1
+@not_cwd:
 	jsr fat32_read_dirent_filtered
 @cont1:
 	bcs @found
@@ -475,10 +465,9 @@ read_dir_entry:
 	bit part_index
 	bpl @not_part3
 
-	bit show_ts_or_cluster
-	bmi :+
-	jmp @chk_cluster
-:
+	bit show_timestamp
+	bpl @not_part3
+
 	; timestamp
 	lda fat32_dirent + dirent::mtime_year
 	cmp #$ff
@@ -537,27 +526,19 @@ read_dir_entry:
 
 	stz dir_eof
 
+	; if we have just read the cwd, we're done with the listing
+	; and we set dir_eof, as the fat32 driver does not keep
+	; this state, and subsequent calls to fat32_cwd_dirent
+	; will dutifully return the cwd dirent
+	lda show_cwd
+	beq :+
+	inc dir_eof
+:
+
 	sty dirbuffer_w
 	stz dirbuffer_r
 	clc ; ok
 	rts
-
-@chk_cluster:
-	bvc @not_part3
-
-	; show cluster number after filename (8 hex characters)
-	lda #' '
-	jsr storedir
-	
-	lda fat32_dirent + dirent::start+3
-	jsr storehex8
-	lda fat32_dirent + dirent::start+2
-	jsr storehex8
-	lda fat32_dirent + dirent::start+1
-	jsr storehex8
-	lda fat32_dirent + dirent::start
-	jsr storehex8
-	bra @not_part3
 
 
 @read_dir_entry_end:

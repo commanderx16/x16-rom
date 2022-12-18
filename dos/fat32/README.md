@@ -72,6 +72,7 @@ Most API calls require a context to be allocated and set. Contexts are associate
 * `fat32_read_dirent`: Enumerate next dir entry. Returns dir entry in struct `fat32_dirent`.
 * `fat32_read_dirent_filtered`: Same as above, but uses filename filer. Pass filter in `fat32_ptr`.
 * `fat32_find_dirent`: Read single dir entry. Pass path in `fat32_ptr`, returns dir entry in struct `fat32_dirent`.
+* `fat32_cwd_dirent`: Return the dir entry of the current working directory by reading it from the parent directory
 
 ### Directory Entry Manipulation
 
@@ -81,6 +82,8 @@ Most API calls require a context to be allocated and set. Contexts are associate
 
 ### Subdirectories
 
+* `fat32_cwd_restore`: Change the current working directory to the one in the bookmark
+* `fat32_cwd_save`: Bookmark the current working directory
 * `fat32_chdir`: Change directory. Pass path in `fat32_ptr`.
 * `fat32_mkdir`: Make subdirectory. Pass path in `fat32_ptr`.
 * `fat32_rmdir`: Remove subdirectory. Pass path in `fat32_ptr`.

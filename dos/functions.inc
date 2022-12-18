@@ -43,3 +43,5 @@
 .global block_write_u2
 .global block_execute
 .global set_position
+.global cwd_save
+.global cwd_restore
