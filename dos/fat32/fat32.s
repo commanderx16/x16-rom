@@ -99,7 +99,6 @@ tmp_dirent_flag:     .byte 0
 shortname_buf:       .res 11       ; Used for shortname creation
 tmp_timestamp:       .byte 0
 tmp_filetype:        .byte 0       ; Used to match file type in find_dirent
-tmp_cwd_cluster:     .res 4        ; Used by fat32_cwd_dirent
 
 ; Temp - LFN
 lfn_index:           .byte 0       ; counter when collecting/decoding LFN entries
@@ -2146,10 +2145,8 @@ fat32_cwd_dirent:
 	lda #ERRNO_FILE_NOT_FOUND
 	jmp set_errno
 @found:
-	; store the old cwd cluster so that we can
-	; match the entry in the parent directory
-	set32 tmp_cwd_cluster, cur_volume + fs::cwd_cluster
-	; now open the parent dir so we can search it
+	; now open the parent dir so we can search it, but we're not changing
+	; the cwd itself
 	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	jsr open_cluster
 	bcc @error
@@ -2157,7 +2154,7 @@ fat32_cwd_dirent:
 	jsr fat32_read_dirent
 	bcc @error
 
-	cmp32_ne fat32_dirent + dirent::start, tmp_cwd_cluster, @next
+	cmp32_ne fat32_dirent + dirent::start, cur_volume + fs::cwd_cluster, @next
 	; we found it
 	sec
 	rts	
