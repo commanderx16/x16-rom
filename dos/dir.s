@@ -42,7 +42,7 @@ dir_eof:
 	.byte 0
 part_index:
 	.byte 0
-show_timestamp:
+show_timestamps:
 	.byte 0
 show_cwd:
 	.byte 0
@@ -57,7 +57,7 @@ dir_open:
 	lda #0
 	jsr set_status
 
-	stz show_timestamp
+	stz show_timestamps
 	stz show_cwd
 
 	ply ; filename length
@@ -78,7 +78,7 @@ dir_open:
 	cmp #'T'
 	bne @files_dir
 	lda #$80
-	sta show_timestamp
+	sta show_timestamps
 	ldx #3 ; skip "=T"
 	bra @cont1
 @cwd:
@@ -466,7 +466,7 @@ read_dir_entry:
 	bit part_index
 	bpl @not_part3
 
-	bit show_timestamp
+	bit show_timestamps
 	bpl @not_part3
 
 	; timestamp
