@@ -1222,33 +1222,3 @@ set_position:
 
 @error:	lda #$70 ; no channel
 	rts
-
-;---------------------------------------------------------------
-; cwd_save
-;
-; asks fat32 to stash the current working directory
-;---------------------------------------------------------------
-cwd_save:
-	FAT32_CONTEXT_START
-	jsr fat32_cwd_save
-	bcs @ok
-	jmp convert_status_end_context
-@ok:
-	FAT32_CONTEXT_END
-	lda #0
-	rts
-
-;---------------------------------------------------------------
-; cwd_restore
-;
-; asks fat32 to restore the current working directory
-;---------------------------------------------------------------
-cwd_restore:
-	FAT32_CONTEXT_START
-	jsr fat32_cwd_restore
-	bcs @ok
-	jmp convert_status_end_context
-@ok:
-	FAT32_CONTEXT_END
-	lda #0
-	rts

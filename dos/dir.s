@@ -82,6 +82,7 @@ dir_open:
 	ldx #3 ; skip "=T"
 	bra @cont1
 @cwd:
+	jsr fat32_open_tree
 	inc show_cwd
 	bra @cont1
 
@@ -272,11 +273,11 @@ read_dir_entry:
 
 @not_part1:
 	lda show_cwd
-	beq @not_cwd
-@read_cwd:
-	jsr fat32_cwd_dirent
+	beq @not_walk
+@read_walk:
+	jsr fat32_walk_tree
 	bra @cont1
-@not_cwd:
+@not_walk:
 	jsr fat32_read_dirent_filtered
 @cont1:
 	bcs @found
@@ -525,15 +526,6 @@ read_dir_entry:
 	jsr storedir
 
 	stz dir_eof
-
-	; if we have just read the cwd, we're done with the listing
-	; and we set dir_eof, as the fat32 driver does not keep
-	; this state, and subsequent calls to fat32_cwd_dirent
-	; will dutifully return the cwd dirent
-	lda show_cwd
-	beq :+
-	inc dir_eof
-:
 
 	sty dirbuffer_w
 	stz dirbuffer_r

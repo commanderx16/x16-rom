@@ -847,12 +847,6 @@ cmd_c:
 :	cmp #'D'
 	bne :+
 	jmp cmd_cd
-:	cmp #'<'
-    bne :+
-	jmp cmd_clt
-:	cmp #'>'
-    bne :+
-	jmp cmd_cgt
 :   jmp cmd_copy
 
 ;---------------------------------------------------------------
@@ -1041,8 +1035,6 @@ cmds:
 	.byte 'C' ; copy
 	          ; 'CP'  change partition
 	          ; 'CD'  change directory
-	          ; 'C>'  bookmark cwd
-	          ; 'C<'  restore bookmarked cwd
 	.byte 'D' ; duplicate
 	.byte 'L' ; toggle lock
 	.byte 'G' ; 'G-P' get partition
@@ -2087,18 +2079,4 @@ cmd_u0_mw:
 	clc
 	rts
 
-;---------------------------------------------------------------
-; C< - restore cwd
-;---------------------------------------------------------------
-cmd_clt:
-	jsr cwd_restore
-	clc
-	rts
 
-;---------------------------------------------------------------
-; C> - save cwd
-;---------------------------------------------------------------
-cmd_cgt:
-	jsr cwd_save
-	clc
-	rts

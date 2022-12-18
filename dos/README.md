@@ -132,7 +132,7 @@ And this table shows which of the standard commands are supported:
 * <sup>4</sup>: CMDR-DOS was architected to run on the main computer, so it shouldn't be DOS that keeps track of the time
 * <sup>5</sup>: Instead of testing the ROM, this command currently verifies that no buffers are allocated, otherwise it halts. This is used by unit tests to detect leaks.
 
-The following added filename string options are specific to CMDR-DOS:
+The following special file syntax and `OPEN` options are specific to CMDR-DOS:
 
 | Feature               | Syntax      | Description                                                                    |
 |-----------------------|-------------|--------------------------------------------------------------------------------|
@@ -146,9 +146,6 @@ The following added command channel features are specific to CMDR-DOS:
 | Feature               | Syntax      | Description                                                                    |
 |-----------------------|-------------|--------------------------------------------------------------------------------|
 | POSITION              | `P` _channel_ _p0_ _p1_ _p2_ _p3_  | Set position within file (like sd2iec); all args binary |
-| BOOKMARK CWD          | `C>`   | Bookmark current working directory |
-| RESTORE CWD FROM BOOKMARK | `C<`   | Restores previously-saved working directory |
-
 
 All currently unsupported commands are decoded in `cmdch.s` anyway, but hooked into `31,SYNTAX ERROR,00,00`, so adding features should be as easy as adding the implementation.
 

@@ -63,7 +63,6 @@ lba_fsinfo           .dword        ; Sector number of FS info
 free_clusters        .dword        ; Number of free clusters (from FS info)
 free_cluster         .dword        ; Cluster to start search for free clusters, also holds result of find_free_cluster
 cwd_cluster          .dword        ; Cluster of current directory
-saved_cwd_cluster    .dword        ; Used by fat32_cwd_save and fat32_cwd_restore to allow the user to bookmark a cwd and return to it later
 .endstruct
 
 FS_SIZE      = 64
@@ -114,6 +113,11 @@ marked_entry_cluster_sector: .res 1
 marked_entry_offset: .res 2
 tmp_entry:           .res 21       ; SFN entry fields except name, saved during rename
 lfn_buf:             .res 20*32    ; create/collect LFN; 20 dirents (13c * 20 > 255c)
+
+; State maintained for iterating over the tree starting from the cwd
+tree_cluster:        .dword 0            ; Used iteratively by fat32_walk_tree after fat32_open_tree
+tree_prev_cluster:   .dword 0            ; Used iteratively by fat32_walk_tree after fat32_open_tree
+tree_state:          .byte 0             ; Used by fat32_walk_tree /fat32_open_tree
 
 ; API arguments and return data
 fat32_dirent:        .tag dirent   ; Buffer containing decoded directory entry
@@ -2108,64 +2112,6 @@ fat32_read_dirent_filtered:
 	clc
 	rts
 
-;-----------------------------------------------------------------------------
-; fat32_cwd_dirent
-;
-; Finds the dirent for the cwd, or synthesizes the entry in the case of the
-; root directory
-;
-; * c=0: failure; sets errno
-;-----------------------------------------------------------------------------
-fat32_cwd_dirent:
-	stz fat32_errno
-	; are we in the root dir?
-	lda cur_volume + fs::cwd_cluster
-	ora cur_volume + fs::cwd_cluster + 1
-	ora cur_volume + fs::cwd_cluster + 2
-	ora cur_volume + fs::cwd_cluster + 3
-	bne @not_root
-
-	lda #<@slash
-	sta fat32_ptr
-	lda #>@slash
-	sta fat32_ptr+1
-	jsr find_dirent
-	bcc @error
-	; implicit sec
-	rts
-
-@not_root:
-	lda #<@dotdot
-	sta fat32_ptr
-	lda #>@dotdot
-	sta fat32_ptr+1
-	jsr find_dir
-	bcs @found
-
-	lda #ERRNO_FILE_NOT_FOUND
-	jmp set_errno
-@found:
-	; now open the parent dir so we can search it, but we're not changing
-	; the cwd itself
-	set32 cur_context + context::cluster, fat32_dirent + dirent::start
-	jsr open_cluster
-	bcc @error
-@next:
-	jsr fat32_read_dirent
-	bcc @error
-
-	cmp32_ne fat32_dirent + dirent::start, cur_volume + fs::cwd_cluster, @next
-	; we found it
-	sec
-	rts	
-
-@error:
-	clc
-	rts
-@slash:
-	.byte "/",0
-@dotdot:
-	.byte "..",0
 
 ;-----------------------------------------------------------------------------
 ; fat32_chdir
@@ -2395,13 +2341,6 @@ fat32_rmdir:
 	rts
 
 @4:
-	; If bookmarked cwd is about to be removed, clear the bookmark
-	cmp32_ne fat32_dirent + dirent::start, cur_volume + fs::saved_cwd_cluster, @5
-	stz cur_volume + fs::saved_cwd_cluster
-	stz cur_volume + fs::saved_cwd_cluster + 1
-	stz cur_volume + fs::saved_cwd_cluster + 2
-	stz cur_volume + fs::saved_cwd_cluster + 3
-@5:
 	; Unlink cluster chain
 	set32 cur_context + context::cluster, fat32_dirent + dirent::start
 	jmp unlink_cluster_chain
@@ -3838,38 +3777,92 @@ fat32_seek:
 	rts
 
 ;-----------------------------------------------------------------------------
-; fat32_cwd_save
+; fat32_open_tree
 ;
-; This bookmarks the current cwd without changing any other state
-;
-; * c=0: failure; sets errno (but never fails in practice)
-;-----------------------------------------------------------------------------
-fat32_cwd_save:
-	stz fat32_errno
-	set32 cur_volume + fs::saved_cwd_cluster, cur_volume + fs::cwd_cluster
-
-	sec
-	rts
-
-;-----------------------------------------------------------------------------
-; fat32_cwd_restore
-;
-; This restores the cwd bookmark set by fat32_cwd_save
+; Resets the state for the tree walk
 ;
 ; * c=0: failure; sets errno
 ;-----------------------------------------------------------------------------
-fat32_cwd_restore:
+fat32_open_tree:
 	stz fat32_errno
-
-	; Check if context is free
-	lda cur_context + context::flags
-	bne @error
-
-	set32 cur_volume + fs::cwd_cluster, cur_volume + fs::saved_cwd_cluster
+	set32 tree_cluster, cur_volume + fs::cwd_cluster
+	lda #1
+	sta tree_state
 
 	sec
 	rts
+
+;-----------------------------------------------------------------------------
+; fat32_walk_tree
+;
+; Finds the dirent for the walk up the tree from the cwd, 
+; or synthesizes the entry in the case of the root directory
+;
+; * c=0: failure; sets errno
+;-----------------------------------------------------------------------------
+fat32_walk_tree:
+	stz fat32_errno
+
+	lda tree_state
+	bne :+
+	jmp @error
+:
+
+	; are we in the root dir?
+	lda tree_cluster
+	ora tree_cluster + 1
+	ora tree_cluster + 2
+	ora tree_cluster + 3
+	bne @not_root
+
+	lda #<@slash
+	sta fat32_ptr
+	lda #>@slash
+	sta fat32_ptr+1
+	jsr find_dirent
+	bcs :+
+	jmp @error
+:
+	stz tree_state ; eof
+	; implicit sec
+	rts
+
+@not_root:
+	set32 cur_context + context::cluster, tree_cluster
+	jsr open_cluster
+	bcs :+
+	jmp @error
+:
+	lda #<@dotdot
+	sta fat32_ptr
+	lda #>@dotdot
+	sta fat32_ptr+1
+@next1:
+	jsr fat32_read_dirent
+	bcc @error
+	ldy #0
+	jsr match_name
+	bcc @next1
+@found:
+	; advance the walk
+	set32 tree_prev_cluster, tree_cluster
+	set32 tree_cluster, fat32_dirent + dirent::start
+	; now open the parent dir so we can search it, but we're not changing the cwd itself
+	set32 cur_context + context::cluster, tree_cluster
+	jsr open_cluster
+	bcc @error
+@next2:
+	jsr fat32_read_dirent
+	bcc @error
+
+	cmp32_ne fat32_dirent + dirent::start, tree_prev_cluster, @next2
+	; we found it
+	sec
+	rts	
 @error:
 	clc
 	rts
-
+@slash:
+	.byte "/",0
+@dotdot:
+	.byte "..",0
