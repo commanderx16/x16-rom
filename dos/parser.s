@@ -2078,5 +2078,3 @@ cmd_u0_mw:
 	lda #$31
 	clc
 	rts
-
-
