@@ -1041,8 +1041,8 @@ cmds:
 	.byte 'C' ; copy
 	          ; 'CP'  change partition
 	          ; 'CD'  change directory
-			  ; 'C>'  bookmark cwd
-			  ; 'C<'  restore bookmarked cwd
+	          ; 'C>'  bookmark cwd
+	          ; 'C<'  restore bookmarked cwd
 	.byte 'D' ; duplicate
 	.byte 'L' ; toggle lock
 	.byte 'G' ; 'G-P' get partition
