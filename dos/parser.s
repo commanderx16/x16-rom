@@ -847,7 +847,7 @@ cmd_c:
 :	cmp #'D'
 	bne :+
 	jmp cmd_cd
-:   jmp cmd_copy
+:	jmp cmd_copy
 
 ;---------------------------------------------------------------
 ; G* dispatcher
