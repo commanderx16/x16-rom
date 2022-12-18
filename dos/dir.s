@@ -42,7 +42,7 @@ dir_eof:
 	.byte 0
 part_index:
 	.byte 0
-show_timestamps:
+show_ts_or_cluster:
 	.byte 0
 
 .code
@@ -55,7 +55,7 @@ dir_open:
 	lda #0
 	jsr set_status
 
-	stz show_timestamps
+	stz show_ts_or_cluster
 
 	ply ; filename length
 	lda #0
@@ -70,11 +70,19 @@ dir_open:
 	lda buffer+2
 	cmp #'P'
 	beq @part_dir
+	cmp #'C'
+	beq @show_cluster
 	cmp #'T'
 	bne @files_dir
 	lda #$80
-	sta show_timestamps
+	sta show_ts_or_cluster
 	ldx #3 ; skip "=T"
+	bra @cont1
+
+@show_cluster:
+	lda #$40
+	sta show_ts_or_cluster
+	ldx #3 ; skip "=C"
 	bra @cont1
 
 @part_dir:
@@ -183,6 +191,23 @@ dir_open:
 	ldx #txt_mbr - txt_tables
 @not_part4:
 	jsr storetxt
+
+	bit show_ts_or_cluster
+	bvc @vleol
+
+	; show cluster number of cwd
+	lda #' '
+	jsr storedir
+	lda fat32_cwd_cluster+3
+	jsr storehex8
+	lda fat32_cwd_cluster+2
+	jsr storehex8
+	lda fat32_cwd_cluster+1
+	jsr storehex8
+	lda fat32_cwd_cluster
+	jsr storehex8
+
+@vleol:
 	lda #0 ; end of line
 	jsr storedir
 	phy
@@ -450,9 +475,10 @@ read_dir_entry:
 	bit part_index
 	bpl @not_part3
 
-	bit show_timestamps
-	bpl @not_part3
-
+	bit show_ts_or_cluster
+	bmi :+
+	jmp @chk_cluster
+:
 	; timestamp
 	lda fat32_dirent + dirent::mtime_year
 	cmp #$ff
@@ -515,6 +541,23 @@ read_dir_entry:
 	stz dirbuffer_r
 	clc ; ok
 	rts
+
+@chk_cluster:
+	bvc @not_part3
+
+	; show cluster number after filename (8 hex characters)
+	lda #' '
+	jsr storedir
+	
+	lda fat32_dirent + dirent::start+3
+	jsr storehex8
+	lda fat32_dirent + dirent::start+2
+	jsr storehex8
+	lda fat32_dirent + dirent::start+1
+	jsr storehex8
+	lda fat32_dirent + dirent::start
+	jsr storehex8
+	bra @not_part3
 
 
 @read_dir_entry_end:

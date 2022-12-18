@@ -132,6 +132,9 @@ volume_for_context:  .res FAT32_CONTEXTS
 volume_idx:          .byte 0       ; Index of current filesystem
 cur_volume:          .tag fs       ; Current file descriptor state
 
+; expose the cwd cluster to the rest of DOS
+fat32_cwd_cluster := cur_volume + fs::cwd_cluster
+
 .if FAT32_CONTEXTS > 1
 contexts:            .res CONTEXT_SIZE * FAT32_CONTEXTS
 .endif

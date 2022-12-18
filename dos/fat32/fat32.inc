@@ -48,6 +48,7 @@
 
 .global fat32_size
 .global fat32_dirent
+.global fat32_cwd_cluster
 .global sync_sector_buffer
 .global fat32_errno
 .global fat32_readonly
