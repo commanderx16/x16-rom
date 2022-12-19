@@ -67,7 +67,7 @@ fail:
 		lda	(r0)
     jsr ym_write
     bcs fail
-		ldy #1
+		ldy #0
 		txa ; ym_write preserves X (YM register)
     ; Now skip over $28 and $30 by adding $10 to the register address.
 		; C guaranteed clear by successful ym_write
