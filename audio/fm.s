@@ -1,7 +1,10 @@
 .include "io.inc" ; for YM2151 addresses
 
+.import patches_lo, patches_hi
+
 .export ym_write
 .export ym_loadpatch
+.export ym_loadpatch_rom
 
 YM_TIMEOUT = 64 ; max value is 128.
 
@@ -43,6 +46,16 @@ fail:
 ;
 ; Writes first value from patch table to YM:$20, and all remaining values to
 ; YM:$38, $40, $48, .... $F0, $F8 (+voice # on all registers)
+
+.proc ym_loadpatch_rom: near
+    pha
+    lda patches_hi,x
+    tay
+    lda patches_lo,x
+    tax
+    pla
+.endproc
+; fall through from _rom load routine into generic one...
 .proc ym_loadpatch: near
     cmp #8
     bcs fail ; invalid voice number
