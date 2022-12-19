@@ -1,0 +1,16 @@
+MEMORY {
+	#include "x16.cfginc"
+
+	ZP:				start = $0002, size = $0002, fill=no;
+	ROM:      start = $C000, size = $3FFA, fill=yes, fillval=$AA;
+	VECTORS:  start = $FFFA, size = $0006, fill=yes, fillval=$AB;
+
+}
+
+SEGMENTS {
+	ZEROPAGE:		load = ZP, type = zp;
+	API:				load = ROM,			type = ro;
+	CODE:       load = ROM,     type = ro;
+	PATCHDATA:	load = ROM,			type = ro;
+	VECTORS:		load = VECTORS, type = ro;
+}

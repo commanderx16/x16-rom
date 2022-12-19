@@ -1,14 +1,15 @@
 ; ROM banks
-BANK_KERNAL  = 0
-BANK_KEYBD   = 1
-BANK_CBDOS   = 2
-BANK_GEOS    = 3
-BANK_BASIC   = 4
-BANK_MONITOR = 5
-BANK_CHARSET = 6
-BANK_CODEX   = 7
-BANK_GRAPH   = 8
-BANK_DEMO	 = 9
+BANK_KERNAL  = $00
+BANK_KEYBD   = $01
+BANK_CBDOS   = $02
+BANK_GEOS    = $03
+BANK_BASIC   = $04
+BANK_MONITOR = $05
+BANK_CHARSET = $06
+BANK_CODEX   = $07
+BANK_GRAPH   = $08
+BANK_DEMO	   = $09
+BANK_AUDIO   = $0A
 
 ; XXX these constant RAM addresses are KERNAL
 ; XXX implementation details and need to go away!
