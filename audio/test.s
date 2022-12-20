@@ -1,11 +1,12 @@
 .export patches_lo, patches_hi
 
-.import ym_write, ym_loadpatch, ym_loadpatch_rom
+.import ym_write, ym_loadpatch, ym_loadpatch_rom, ym_playnote
 
 .segment "API"
     jmp ym_write
     jmp ym_loadpatch
     jmp ym_loadpatch_rom
+    jmp ym_playnote
 
 .segment "PATCHDATA"
 fm_patches:

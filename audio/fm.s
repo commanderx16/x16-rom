@@ -5,6 +5,7 @@
 .export ym_write
 .export ym_loadpatch
 .export ym_loadpatch_rom
+.export ym_playnote
 
 YM_TIMEOUT = 64 ; max value is 128.
 
@@ -85,6 +86,37 @@ next:
 		jsr ym_write
     ply
     bcc next
+fail:
+		rts ; return C set as failed patch write.
+success:
+    clc
+    rts
+.endproc
+
+.proc ym_playnote: near
+    cmp #8
+    bcs fail ; invalid voice number
+		stx	r0L	; note
+		sty r0H ; octave
+    ; C guaranteed clear by cmp #8
+		pha		 ; push the voice to the stack for later
+		adc	#$28 ; register for the selected voice
+		tax
+		lda	r0L
+    jsr ym_write
+	
+	; turn off any playing note
+		ldx #$08	; key on/off register
+		pla 		; should have 0s in the high 5 bits because of the cmp #8
+		sta r0L		; re-use r0L for the channel
+	jsr ym_write
+
+	; turn on new note
+		clc
+		lda #$78
+		adc r0L
+		; X should have been presevered from the last write
+	jsr ym_write
 fail:
 		rts ; return C set as failed patch write.
 success:
