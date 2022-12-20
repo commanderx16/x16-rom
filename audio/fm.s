@@ -103,7 +103,7 @@ success:
 		adc	#$28 ; register for the selected voice
 		tax
 		lda	r0L
-    jsr ym_write
+	jsr ym_write
 	
 	; turn off any playing note
 		ldx #$08	; key on/off register
