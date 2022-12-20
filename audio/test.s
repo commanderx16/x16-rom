@@ -1,12 +1,45 @@
 .export patches_lo, patches_hi
 
-.import ym_write, ym_loadpatch, ym_loadpatch_rom, ym_playnote
+.import ym_write, ym_loadpatch, ym_loadpatch_rom, ym_playnote, ym_setnote
+.import ym_trigger, ym_release
+.import bas_fmnote
+
+.import notecon_fm2bas
+.import notecon_psg2bas
+.import notecon_midi2bas
+.import notecon_freq2bas
+.import notecon_bas2fm
+.import notecon_psg2fm
+.import notecon_freq2fm
+.import notecon_midi2fm
+.import notecon_bas2psg
+.import notecon_fm2psg
+.import notecon_freq2psg
+.import notecon_midi2psg
+
 
 .segment "API"
     jmp ym_write
     jmp ym_loadpatch
     jmp ym_loadpatch_rom
     jmp ym_playnote
+    jmp ym_setnote
+    jmp ym_trigger
+    jmp ym_release
+    jmp bas_fmnote
+    ; note that most of these are stubs that return error (.X and .Y = 0)
+    jmp notecon_fm2bas
+    jmp notecon_psg2bas
+    jmp notecon_midi2bas
+    jmp notecon_freq2bas
+    jmp notecon_bas2fm
+    jmp notecon_psg2fm
+    jmp notecon_freq2fm
+    jmp notecon_midi2fm
+    jmp notecon_bas2psg
+    jmp notecon_fm2psg
+    jmp notecon_freq2psg
+    jmp notecon_midi2psg
 
 .segment "PATCHDATA"
 fm_patches:

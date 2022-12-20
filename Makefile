@@ -285,8 +285,11 @@ DEMO_SOURCES= \
 	demo/test.s
 
 AUDIO_SOURCES= \
+  audio/zeropage.s \
+  audio/basic.s \
 	audio/fm.s \
-	audio/test.s
+	audio/test.s \
+	audio/noteconvert.s
 
 GENERIC_DEPS = \
 	inc/kernal.inc \
