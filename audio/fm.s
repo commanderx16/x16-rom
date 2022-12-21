@@ -115,6 +115,7 @@ success:
 .endproc
 
 ; inputs: .A = voice, .X = KC (note)  .Y = KF (key fraction (pitch bend))
+; affects: .A .X .Y
 ; returns: C set on error
 .proc ym_setnote: near
 	and #$07 ; mask to voice range 0..7
@@ -167,11 +168,14 @@ fail:
 ; masks voice to range 0-7
 .proc ym_playnote: near
 	php
+  pha
 	jsr ym_setnote
 	bcs fail
+  pla
 	plp
 	jmp ym_trigger
 fail:
+  pla ; clear the stack.
 	plp
 	sec
 	rts
