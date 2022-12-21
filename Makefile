@@ -285,11 +285,12 @@ DEMO_SOURCES= \
 	demo/test.s
 
 AUDIO_SOURCES= \
+	audio/main.s \
 	audio/memory.s \
 	audio/basic.s \
 	audio/fm.s \
 	audio/psg.s \
-	audio/test.s \
+	audio/fmpatches.s \
 	audio/noteconvert.s
 
 GENERIC_DEPS = \

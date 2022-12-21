@@ -17,6 +17,7 @@
 .export ym_setnote
 .export ym_trigger
 .export ym_release
+.export ym_init
 
 YM_TIMEOUT = 64 ; max value is 128.
 
