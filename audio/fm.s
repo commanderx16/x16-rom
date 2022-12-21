@@ -80,34 +80,34 @@ fail:
 ; when the routine is called.
 .proc ym_loadpatch: near
 	and #$07 ; mask voice to range 0..7
-	stx	azp0L  ; TODO: use the Kernal's tmp1 ZP variable and not ABI
+	stx azp0L  ; TODO: use the Kernal's tmp1 ZP variable and not ABI
 	sty azp0H
 	clc
-	adc	#$20 ; first byte of patch goes to YM:$20+voice
+	adc #$20 ; first byte of patch goes to YM:$20+voice
 	tax
-	lda	(azp0)
+	lda (azp0)
 	jsr ym_write
 	bcs fail
 	ldy #0
-	txa ; ym_write preserves X (YM register)
+	txa      ; ym_write preserves X (YM register)
 	; Now skip over $28 and $30 by adding $10 to the register address.
 	; C guaranteed clear by successful ym_write
 	adc #$10
-	tax ; set up for loop
+	tax      ; set up for loop
 next:
 	txa
 	; C guaranteed clear by successful ym_write
 	adc #$08
-	bcs	success
+	bcs success
 	iny
 	tax
 	lda (azp0),y
-	phy ; ym_write clobbers .Y
+	phy      ; ym_write clobbers .Y
 	jsr ym_write
 	ply
 	bcc next
 fail:
-	rts ; return C set as failed patch write.
+	rts      ; return C set as failed patch write.
 success:
 	clc
 	rts
