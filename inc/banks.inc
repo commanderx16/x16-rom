@@ -8,7 +8,7 @@ BANK_MONITOR = $05
 BANK_CHARSET = $06
 BANK_CODEX   = $07
 BANK_GRAPH   = $08
-BANK_DEMO	   = $09
+BANK_DEMO    = $09
 BANK_AUDIO   = $0A
 
 ; XXX these constant RAM addresses are KERNAL

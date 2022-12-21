@@ -13,52 +13,52 @@
 ; returning an error.
 ;
 ;
-    .export notecon_fm2bas
-    .export notecon_psg2bas
-    .export notecon_midi2bas
-    .export notecon_freq2bas
-    .export notecon_bas2fm
-    .export notecon_psg2fm
-    .export notecon_freq2fm
-    .export notecon_midi2fm
-    .export notecon_bas2psg
-    .export notecon_fm2psg
-    .export notecon_freq2psg
-    .export notecon_midi2psg
+	.export notecon_fm2bas
+	.export notecon_psg2bas
+	.export notecon_midi2bas
+	.export notecon_freq2bas
+	.export notecon_bas2fm
+	.export notecon_psg2fm
+	.export notecon_freq2fm
+	.export notecon_midi2fm
+	.export notecon_bas2psg
+	.export notecon_fm2psg
+	.export notecon_freq2psg
+	.export notecon_midi2psg
 
 ; inputs: .X = BASIC xxNOTE format.
 ; returns: (standard) (.Y always returns 0, even though BAS format doesn't use it)
 ;
 ; * Function ignores the MSB of the octave value instead of returning an error.
 .proc notecon_bas2fm: near
-    txa
-    and #$7F ; ignore bit7 (octave is only bits 4-6)
-    tax
-    and #$0F ; mask off the octave
-    beq err
-    cmp #13
-    bcc go
+	txa
+	and #$7F ; ignore bit7 (octave is only bits 4-6)
+	tax
+	and #$0F ; mask off the octave
+	beq err
+	cmp #13
+	bcc go
 err:
-    jmp return_error
+	jmp return_error
 go:
-    dex
-    cmp #10
-    bcs inc3
-    cmp #7
-    bcs inc2
-    cmp #4
-    bcs inc1
-    bra inc0
+	dex
+	cmp #10
+	bcs inc3
+	cmp #7
+	bcs inc2
+	cmp #4
+	bcs inc1
+	bra inc0
 inc3:
-    inx
+	inx
 inc2:
-    inx
+	inx
 inc1:
-    inx
+	inx
 inc0:
-    ldy #0
-    clc
-    rts
+	ldy #0
+	clc
+	rts
 .endproc
 
 ; stubs for as-yet unimplemented conversion routines. Just return error until
@@ -78,8 +78,8 @@ notecon_midi2psg:
 
 ; save some code size by having a generic "return error" routine
 .proc return_error: near
-    ldx #0
-    ldy #0
-    sec
-    rts
+	ldx #0
+	ldy #0
+	sec
+	rts
 .endproc
