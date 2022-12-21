@@ -1,6 +1,11 @@
+; Code by Barry Yost (a.k.a. ZXeroByte)
+; - 2022
+
+; This file is for code dealing with the VERA PSG
+
 .include "io.inc" ; for YM2151 addresses
 
-.importzp r0, r0L, r0H
+.importzp azp0, azp0L, azp0H
 .import patches_lo, patches_hi
 
 .import notecon_bas2fm
@@ -75,12 +80,12 @@ fail:
 ; when the routine is called.
 .proc ym_loadpatch: near
 	and #$07 ; mask voice to range 0..7
-	stx	r0L  ; TODO: use the Kernal's tmp1 ZP variable and not ABI
-	sty r0H
+	stx	azp0L  ; TODO: use the Kernal's tmp1 ZP variable and not ABI
+	sty azp0H
 	clc
 	adc	#$20 ; first byte of patch goes to YM:$20+voice
 	tax
-	lda	(r0)
+	lda	(azp0)
 	jsr ym_write
 	bcs fail
 	ldy #0
@@ -96,7 +101,7 @@ next:
 	bcs	success
 	iny
 	tax
-	lda (r0),y
+	lda (azp0),y
 	phy ; ym_write clobbers .Y
 	jsr ym_write
 	ply
@@ -168,5 +173,54 @@ fail:
 fail:
 	plp
 	sec
+	rts
+.endproc
+
+;---------------------------------------------------------------
+; Re-initialize the YM-2151 to default state (everything off)
+;---------------------------------------------------------------
+; inputs: none
+; affects: .A .X .Y
+; returns: C set on failure
+;
+.proc ym_init: near
+  ; set release=max ($0F) for all operators on all voices ($E0..$FF)
+	lda #$0f
+  ldx #$e0
+i1:
+	jsr ym_write
+	bcs abort       ; YM didn't respond correctly, abort
+	inx
+	bne i1
+
+  ; Release all 8 voices (write values 0..7 into YM register $08)
+  lda #7
+	ldx #$08
+i2:
+	jsr ym_write
+	dec
+	bpl i2
+
+  ; reset lfo
+  lda #$02
+	ldx #$01
+	jsr ym_write    ; disable LFO
+  lda #$80
+	ldx #$19
+	jsr ym_write	  ; clear pmd  (amd will be cleared when all regs are zeroed)
+
+  ; write 0 into all registers $0F .. $FF
+  lda #0
+	ldx #$0f
+i3:
+	jsr ym_write    ; clear everything else $0f..$ff
+	inx
+	bne i3
+
+  ; re-enable LFO
+  lda #$00
+	ldx #$01
+	jsr ym_write
+abort:
 	rts
 .endproc

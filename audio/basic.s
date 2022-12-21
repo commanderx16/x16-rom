@@ -7,7 +7,7 @@
 
 .export bas_fmnote
 
-.importzp r0, r0L, r0H
+.importzp azp0, azp0L, azp0H
 
 
 .import ym_playnote
@@ -16,16 +16,15 @@
 ; tmp just to get it building:
 .import ym_write
 
-; .A = voice, .X = note  .Y was supposed to be octave (unused)
-; NOTE: .Y reserved to be "volume?"
+; .A = voice, .X = note  .Y = octave
 ; masks voice to range 0-7
 ; note is bit-stuffed as 0-3=note, 4-6=octave, 7=ignored
 .proc bas_fmnote: near
 	and #$07 ; mask voice to range 0..7
-	sta	r0L  ; raw voice number
+	sta	azp0L  ; raw voice number
 	lda #0
-	rol      ; get C flag as LSB and store to r0H
-	sta r0H
+	rol      ; get C flag as LSB and store to azp0H
+	sta azp0H
 	jsr notecon_bas2fm
 	bcc continue
 	rts      ;
@@ -34,7 +33,7 @@ continue:
 	and #$0F ; mask for the note bits
 	bne play01
 release:
-	lda r0L  ; voice number to be released
+	lda azp0H  ; voice number to be released
 	ldx #08  ; select the KCONTROL register
 	jmp ym_write
 play01:
@@ -62,19 +61,19 @@ inc0:
 	phx
 	adc	#$28 ; register for the selected voice
 	tax
-	lda	r0L
+	lda	azp0H
 	jsr ym_write
 
 	; turn off any playing note
 	ldx #$08	; key on/off register
 	pla 		; should have 0s in the high 5 bits because of the cmp #8
-	sta r0L		; re-use r0L for the channel
+	sta azp0H		; re-use azp0H for the channel
 	jsr ym_write
 
 	; turn on new note
 	clc
 	lda #$78
-	adc r0L
+	adc azp0H
 	; X should have been presevered from the last write
 	jsr ym_write
 fail:

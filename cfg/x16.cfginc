@@ -15,7 +15,8 @@
 /*        start = $0000, size = $0080; # available to the user (or GEOS) */
 ZPKERNAL: start = $0080, size = $0010; # KERNAL
 ZPDOS:    start = $0090, size = $000B; # DOS
-/*        start = $009B, size = $000E; # reserved for DOS or BASIC growth */
+/*        start = $009B, size = $000B; # reserved for DOS or BASIC growth */
+ZPAUDIO:  start = $00A6, size = $0003; # AUDIO
 ZPMATH:   start = $00A9, size = $002B; # MATH
 ZPBASIC:  start = $00D4, size = $002B; # BASIC (last byte used: $FE)
 

@@ -285,9 +285,10 @@ DEMO_SOURCES= \
 	demo/test.s
 
 AUDIO_SOURCES= \
-	audio/zeropage.s \
+	audio/memory.s \
 	audio/basic.s \
 	audio/fm.s \
+	audio/psg.s \
 	audio/test.s \
 	audio/noteconvert.s
 

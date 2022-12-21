@@ -1,5 +1,5 @@
 ; Routines for converting note values between various standards
-; Code by Barry Yost (ZeroByte) 2022
+; Code by MooingLemur, Barry Yost (a.k.a. ZeroByte) 2022
 ;
 
 ; The general form of these routines will be to return YM2151/VERA PSG register
