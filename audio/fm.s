@@ -50,8 +50,8 @@ wait:
 
   ; write the value into the YM shadow
   ldy ram_bank
-  sty returnbank
   stz ram_bank
+  sty returnbank
   cpx #$19   ; PMD/AMD register is a special case. Shadow PMD writes into $1A.
   bne storeit
   cmp #$80   ; If value >= $80 then PMD. Store in $1A
