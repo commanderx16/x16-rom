@@ -6,8 +6,14 @@
 .include "io.inc" ; for YM2151 addresses
 
 .importzp azp0, azp0L, azp0H
+
+; BRAM storage
+.import ymshadow, returnbank, _PMD
+
+; Pointer to FM patch data indexes
 .import patches_lo, patches_hi
 
+; Import subroutines
 .import notecon_bas2fm
 
 .export ym_write
@@ -41,12 +47,41 @@ wait:
 	nop
 	nop
 	sta YM_DATA
+
+  ; write the value into the YM shadow
+  ldy ram_bank
+  sty returnbank
+  stz ram_bank
+  cpx #$19   ; PMD/AMD register is a special case. Shadow PMD writes into $1A.
+  bne storeit
+  cmp #$80   ; If value >= $80 then PMD. Store in $1A
+  bcc storeit
+  sta _PMD
+  bra done
+storeit:
+  sta ymshadow,X
+done:
+  ldy returnbank
+  sty ram_bank
 	clc
 	rts
 fail:
 	sec
 	rts
 .endproc
+
+; inputs    : .X = YM register  *note that the PMD parameter is shadowed as $1A
+; affects   : .A, .X
+; preserves : .X
+; returns   : .A = retreived value
+.proc ym_read: near
+  ldy ram_bank
+  stz ram_bank
+  lda ymshadow,X
+  sty ram_bank
+  rts
+.endproc
+
 
 
 ; inputs: .A = voice # .X = index of ROM patch 0..31

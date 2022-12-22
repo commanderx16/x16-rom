@@ -5,6 +5,8 @@
 
 .exportzp azp0, azp0L, azp0H, azptmp
 
+.export ymshadow, returnbank, _PMD
+
 ; declare 3 bytes of ZP space for audio routines
 .segment "ZPAUDIO"
 	azp0:   .res 2  ; 16bit pointer (in the style of r0, r0L, r0H in ABI)
@@ -17,3 +19,8 @@
 ; to facilitate functionalities like modifying the active values of the chip.
 .segment "YMSHADOW"
 	ymshadow: .res $ff
+
+; define some unused YM registers as extra storage space in the AUDIO page...
+; do these need to be symbols, or just a .include file? I'm thinking the latter..
+	returnbank := ymshadow + $00 ; for RAM bank-swap return
+	_PMD       := ymshadow + $1A ;
