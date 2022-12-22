@@ -18,7 +18,7 @@
 ; YM2151 is write-only. The library will keep a RAM shadow of writes in order
 ; to facilitate functionalities like modifying the active values of the chip.
 .segment "YMSHADOW"
-	ymshadow: .res $ff
+	ymshadow: .res $100
 
 ; define some unused YM registers as extra storage space in the AUDIO page...
 ; do these need to be symbols, or just a .include file? I'm thinking the latter..
