@@ -39,5 +39,6 @@ BVARS:    start = $03D3, size = $002D; # BASIC
 
 /* KERNAL/DOS bank #0 vars */
 KEYMAP:   start = $A000, size = $0800; # the current keyboard mapping table
-KVARSB0:  start = $A800, size = $0700; # there is a lot of space free here
+KVARSB0:  start = $A800, size = $0600; # there is a lot of space free here
+BAUDIO:   start = $AE00, size = $0100; # YM2150 shadow for audio routines
 DOSDAT:   start = $B000, size = $1000; # there is a lot of space free here, too
