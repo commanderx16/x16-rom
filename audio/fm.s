@@ -17,6 +17,7 @@
 .import notecon_bas2fm
 
 .export ym_write
+.export ym_read
 .export ym_loadpatch
 .export ym_loadpatch_rom
 .export ym_playnote
