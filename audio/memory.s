@@ -15,5 +15,5 @@
 
 ; YM2151 is write-only. The library will keep a RAM shadow of writes in order
 ; to facilitate functionalities like modifying the active values of the chip.
-.segment "SHADOW"
+.segment "YMSHADOW"
 	ymshadow: .res $ff
