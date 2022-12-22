@@ -23,7 +23,7 @@
 ;
 
 ; imports from fm.s
-.import ym_write, ym_loadpatch, ym_loadpatch_rom, ym_playnote, ym_setnote
+.import ym_write, ym_loadpatch, ym_playnote, ym_setnote
 .import ym_trigger, ym_release, ym_init, ym_read
 
 ; imports from psg.s
@@ -50,7 +50,6 @@
 	jmp ym_write
 	jmp ym_read
 	jmp ym_loadpatch
-	jmp ym_loadpatch_rom
 	jmp ym_playnote
 	jmp ym_setnote
 	jmp ym_trigger

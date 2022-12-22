@@ -19,7 +19,6 @@
 .export ym_write
 .export ym_read
 .export ym_loadpatch
-.export ym_loadpatch_rom
 .export ym_playnote
 .export ym_setnote
 .export ym_trigger
@@ -85,13 +84,19 @@ fail:
 
 
 
-; inputs: .A = voice # .X = index of ROM patch 0..31
-; affects: ABI r0, .Y
+; inputs:
+;   .C clear: .A = voice # .XY = address of patch (little-endian)
+;   .C set:   .A = voice # .X = index of ROM patch 0..31
+;
+; affects: .A, .X, .Y
 ; returns: .C: clear=success, set=failed
 ;
-; configures .XY with memory address of a patch from the ROM
-; and falls through into the gneric ym_loadpatch.
-.proc ym_loadpatch_rom: near
+; Note that this routine is not BankRAM-aware. If the patch is in BRAM, then
+; it must be entirely contained in a single bank, and that bank must be active
+; when the routine is called.
+;
+.proc ym_loadpatch: near
+  bcc _loadpatch
 	pha
 	txa
 	and #$1F ; mask instrument number to range 0..31
@@ -101,21 +106,7 @@ fail:
 	lda patches_lo,x
 	tax
 	pla
-.endproc
-; DO NOT ADD ANY CODE BETWEEN THIS ROUTINE AND THE NEXT
-; It falls through from _rom load routine into generic one...
-
-; inputs: .A = voice # .XY = address of patch (little-endian)
-; affects: ABI r0
-; returns: .C: clear=success, set=failed
-;
-; Writes first value from patch table to YM:$20, and all remaining values to
-; YM:$38, $40, $48, .... $F0, $F8 (+voice # on all registers)
-;
-; Note that this routine is not BankRAM-aware. If the patch is in BRAM, then
-; it must be entirely contained in a single bank, and that bank must be active
-; when the routine is called.
-.proc ym_loadpatch: near
+_loadpatch:
 	and #$07 ; mask voice to range 0..7
 	stx azp0L  ; TODO: use the Kernal's tmp1 ZP variable and not ABI
 	sty azp0H
