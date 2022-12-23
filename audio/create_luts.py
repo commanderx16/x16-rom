@@ -14,7 +14,7 @@ def chunks(lst, n):
 
 def list_to_dotbyte_strings(lst):
     result = []
-    for chunk in chunks(lst, 8):
+    for chunk in chunks(lst, 12):
         result.append("\t.byte " + ','.join(['${:02x}'.format(int(x)) for x in chunk]) + "\n")
     return result
 
@@ -38,83 +38,6 @@ lutfile.write(".export midi2ymkc\n")
 lutfile.write(".export ymkc2midi\n")
 
 lutfile.write("\n\n")
-
-# Create the KF delta tables
-kf = []
-
-for vi in range(128):
-    # Calculate all of the VERA frequencies for the 64 KF values starting at note v
-    # At this point, v is still a float
-    vf = list(frequency_vera[vi] * 2**(x/768) for x in range(64))
-    for bf in range(6):
-        # for each significant KF bit, find the median difference in value
-        # between the bit being cleared and the bit being set
-        tmp_diffs = []
-        for i in range(64):
-            with_bit = (i | 2**bf)
-            without_bit = with_bit - 2**bf
-
-            tmp_diffs.append(vf[with_bit] - vf[without_bit])
-        try:
-            kf[bf]
-        except:
-            kf.append([])
-        try:
-            kf[bf][vi]
-        except:
-            kf[bf].append([])
-        kf[bf][vi] = statistics.median(tmp_diffs)
-
-# Output the KF delta tables cleverly
-#
-# Fortunately the high tables are either all zeroes (so those can completely overlap)
-# or they share values with the beginning of the low tables but with leading zeroes
-# (so they can be placed cleverly for maximum overlap)
-
-# Start with the low bytes of bitfield 0 (two copies)
-low0 = [(int(x) & 0xff) for x in kf[0]]
-# Count the number of 0 values that we need to add so that there are 128 leading 0s
-zcnt = 128 - low0.count(0)
-# insert that many 0's to the beginning of low0 and make a new list
-overlap = ([0]*zcnt) + low0
-
-# Output the KF delta conversion bitfield tables (High)
-
-# Print the first label
-lutfile.write("; KF bit {:d} delta per MIDI note (high)\n".format(0+2))
-lutfile.write("kfdelta{:d}_h:\n".format(0+2))
-
-# Handle the overlaps that cause outputs prior to bfs 1-5 (kfdelta3-7_h)
-for bf in range(1,6):
-    thishigh = [(int(x) // 256) for x in kf[bf]]
-    z = []
-    while thishigh != overlap[0:128]:
-        try:
-            z.append(overlap.pop(0))
-        except:
-            raise Exception("We expected proper overlap and we didn't get it.")
-    if len(z) > 0:
-        lutfile.write("".join(list_to_dotbyte_strings([int(x) for x in z])))
-    lutfile.write("; KF bit {:d} delta per MIDI note (high)\n".format(bf+2))
-    lutfile.write("kfdelta{:d}_h:\n".format(bf+2))
-# Handle the overlaps that cause outputs prior to the low bitfield tables
-# and after the high bitfield 5 label (kfdelta7_h)
-z = []
-while low0 != overlap[0:128]:
-    try:
-        z.append(overlap.pop(0))
-    except:
-        raise Exception("We expected proper overlap and we didn't get it.")
-if len(z) > 0:
-    lutfile.write("".join(list_to_dotbyte_strings([int(x) for x in z])))
-
-# Output the KF delta conversion bitfield tables (Low)
-
-for bf in range(6):
-    lutfile.write("; KF bit {:d} delta per MIDI note (low)\n".format(bf+2))
-    lutfile.write("kfdelta{:d}_l:\n".format(bf+2))
-    lutfile.write("".join(list_to_dotbyte_strings([(x.astype(int) & 0xff) for x in kf[bf]])))
-
 
 # Output the PSG pitch tables
 lutfile.write("; PSG pitch tables\n")
@@ -156,3 +79,86 @@ for n in range(128):
     midinote.append(note)
 
 lutfile.write("".join(list_to_dotbyte_strings(midinote)))
+
+
+# Create the KF delta tables
+kf = []
+
+for vi in range(128):
+    # Calculate all of the VERA frequencies for the 64 KF values starting at note v
+    # At this point, v is still a float
+    vf = list(frequency_vera[vi] * 2**(x/768) for x in range(64))
+    for bf in range(6):
+        # for each significant KF bit, find the median difference in value
+        # between the bit being cleared and the bit being set
+        tmp_diffs = []
+        for i in range(64):
+            with_bit = (i | 2**bf)
+            without_bit = with_bit - 2**bf
+
+            tmp_diffs.append(vf[with_bit] - vf[without_bit])
+        try:
+            kf[bf]
+        except:
+            kf.append([])
+        try:
+            kf[bf][vi]
+        except:
+            kf[bf].append([])
+        kf[bf][vi] = statistics.median(tmp_diffs)
+
+# Output the KF delta tables cleverly
+#
+# Fortunately the high tables are either all zeroes (so those can completely overlap)
+# or they share values with the beginning of the low tables but with leading zeroes
+# (so they can be placed cleverly for maximum overlap)
+
+# Start with the low bytes of bitfield 5
+low5 = [(int(x) & 0xff) for x in kf[5]]
+# Count the number of 0 values that we need to add so that there are 128 leading 0s
+zcnt = 128 - low5.count(0)
+# insert that many 0's to the beginning of low0 and make a new list
+overlap = ([0]*zcnt) + low5
+
+# Output the KF delta conversion bitfield tables (High)
+
+# Print the first label
+lutfile.write("; KF bit {:d} delta per MIDI note (high)\n".format(0+2))
+lutfile.write("kfdelta{:d}_h:\n".format(0+2))
+
+# Handle the data and the rest of the high labels
+for bf in range(1,6):
+    thishigh = [(int(x) // 256) for x in kf[bf]]
+    z = []
+    while thishigh != overlap[0:128]:
+        try:
+            z.append(overlap.pop(0))
+        except:
+            raise Exception("We expected proper overlap and we didn't get it.")
+    if len(z) > 0:
+        lutfile.write("".join(list_to_dotbyte_strings([int(x) for x in z])))
+    lutfile.write("; KF bit {:d} delta per MIDI note (high)\n".format(bf+2))
+    lutfile.write("kfdelta{:d}_h:\n".format(bf+2))
+
+# Output the KF delta conversion bitfield tables (Low)
+
+for bf in range(6):
+    thislow = [(int(x) & 0xff) for x in kf[bf]]
+    z = []
+    while thislow != overlap[0:128]:
+        try:
+            z.append(overlap.pop(0))
+        except:
+            raise Exception("We expected proper overlap and we didn't get it.")
+    if len(z) > 0:
+        lutfile.write("".join(list_to_dotbyte_strings([int(x) for x in z])))
+    lutfile.write("; KF bit {:d} delta per MIDI note (low)\n".format(bf+2))
+    lutfile.write("kfdelta{:d}_l:\n".format(bf+2))
+
+if overlap != low5:
+    raise Exception("The remainder of the nonoverlapping bytes should match the final data block, but for some reason it does not.")
+
+# Output final bytes
+lutfile.write("".join(list_to_dotbyte_strings([int(x) for x in overlap])))
+
+
