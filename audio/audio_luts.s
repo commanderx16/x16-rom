@@ -8,6 +8,8 @@
 .export midi2psg_h,midi2psg_l
 .export midi2ymkc
 .export ymkc2midi
+.export midi2bas
+.export bas2midi
 
 
 ; PSG pitch tables
@@ -37,8 +39,8 @@ midi2psg_h:
 	.byte $57,$5d,$62,$68,$6e,$75,$7c,$83
 ; MIDI to YM2151 KC
 midi2ymkc:
-	.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-	.byte $00,$00,$01,$02,$04,$05,$06,$08,$09,$0a,$0c,$0d
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$00,$01,$02,$04,$05,$06,$08,$09,$0a,$0c,$0d
 	.byte $0e,$10,$11,$12,$14,$15,$16,$18,$19,$1a,$1c,$1d
 	.byte $1e,$20,$21,$22,$24,$25,$26,$28,$29,$2a,$2c,$2d
 	.byte $2e,$30,$31,$32,$34,$35,$36,$38,$39,$3a,$3c,$3d
@@ -46,8 +48,21 @@ midi2ymkc:
 	.byte $4e,$50,$51,$52,$54,$55,$56,$58,$59,$5a,$5c,$5d
 	.byte $5e,$60,$61,$62,$64,$65,$66,$68,$69,$6a,$6c,$6d
 	.byte $6e,$70,$71,$72,$74,$75,$76,$78,$79,$7a,$7c,$7d
-	.byte $7e,$7e,$7e,$7e,$7e,$7e,$7e,$7e,$7e,$7e,$7e,$7e
-	.byte $7e,$7e,$7e,$7e,$7e,$7e,$7e,$7e
+	.byte $7e,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+; MIDI to BAS
+midi2bas:
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $01,$02,$03,$04,$05,$06,$07,$08,$09,$0a,$0b,$0c
+	.byte $11,$12,$13,$14,$15,$16,$17,$18,$19,$1a,$1b,$1c
+	.byte $21,$22,$23,$24,$25,$26,$27,$28,$29,$2a,$2b,$2c
+	.byte $31,$32,$33,$34,$35,$36,$37,$38,$39,$3a,$3b,$3c
+	.byte $41,$42,$43,$44,$45,$46,$47,$48,$49,$4a,$4b,$4c
+	.byte $51,$52,$53,$54,$55,$56,$57,$58,$59,$5a,$5b,$5c
+	.byte $61,$62,$63,$64,$65,$66,$67,$68,$69,$6a,$6b,$6c
+	.byte $71,$72,$73,$74,$75,$76,$77,$78,$79,$7a,$7b,$7c
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+	.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 ; YM2151 KC to MIDI
 ymkc2midi:
 	.byte $0d,$0e,$0f,$0f,$10,$11,$12,$12,$13,$14,$15,$15
@@ -61,6 +76,19 @@ ymkc2midi:
 	.byte $55,$56,$57,$57,$58,$59,$5a,$5a,$5b,$5c,$5d,$5d
 	.byte $5e,$5f,$60,$60,$61,$62,$63,$63,$64,$65,$66,$66
 	.byte $67,$68,$69,$69,$6a,$6b,$6c,$6c
+; BAS to MIDI
+bas2midi:
+	.byte $ff,$0c,$0d,$0e,$0f,$10,$11,$12,$13,$14,$15,$16
+	.byte $ff,$ff,$ff,$ff,$ff,$18,$19,$1a,$1b,$1c,$1d,$1e
+	.byte $1f,$20,$21,$22,$ff,$ff,$ff,$ff,$ff,$24,$25,$26
+	.byte $27,$28,$29,$2a,$2b,$2c,$2d,$2e,$ff,$ff,$ff,$ff
+	.byte $ff,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$3a
+	.byte $ff,$ff,$ff,$ff,$ff,$3c,$3d,$3e,$3f,$40,$41,$42
+	.byte $43,$44,$45,$46,$ff,$ff,$ff,$ff,$ff,$48,$49,$4a
+	.byte $4b,$4c,$4d,$4e,$4f,$50,$51,$52,$ff,$ff,$ff,$ff
+	.byte $ff,$54,$55,$56,$57,$58,$59,$5a,$5b,$5c,$5d,$5e
+	.byte $ff,$ff,$ff,$ff,$ff,$60,$61,$62,$63,$64,$65,$66
+	.byte $67,$68,$69,$6a,$ff,$ff,$ff,$ff
 ; KF bit 0 delta per MIDI note (high)
 kfdelta0_h:
 ; KF bit 1 delta per MIDI note (high)

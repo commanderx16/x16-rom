@@ -41,6 +41,8 @@
 .import midi2psg_h,midi2psg_l
 .import midi2ymkc
 .import ymkc2midi
+.import midi2bas
+.import bas2midi
 
 ; inputs: .X = BASIC xxNOTE format.
 ; returns: (standard) (.Y always returns 0, even though BAS format doesn't use it)
@@ -77,44 +79,122 @@ inc0:
 	rts
 .endproc
 
+.proc notecon_fm2bas: near
+	; inputs: .X = YM2151 KC
+	; outputs: .X = BASIC oct/note
+	txa
+	cmp #$80
+	bcs error
+	tax
+	lda ymkc2midi,x
+	tax
+	lda midi2bas,x
+	cmp #$FF
+	beq error
+	tax
+	; carry is clear
+	rts
+error:
+	jmp return_error
+.endproc
+	
+.proc notecon_midi2bas: near
+	; inputs: .A = MIDI note
+	; outputs: .X = BASIC oct/note
+	and #$7F
+	tax
+	lda bas2midi,x
+	tax
+	clc
+	rts
+.endproc
+
+.proc notecon_bas2midi: near
+	; inputs: .X = BASIC oct/note
+	; outputs: .A = MIDI note
+	txa
+	and #$7F
+	tax
+	lda bas2midi,x
+	cmp #$FF
+	beq error
+	; carry is already clear
+	rts
+error:
+	jmp return_error
+.endproc
+
 .proc notecon_fm2midi: near
 	; inputs: .X = YM2151 KC
 	; outputs: .A = MIDI note
+	txa
+	and #$7F
+	tax
 	lda ymkc2midi,x
+	clc
 	rts
 .endproc
 
 .proc notecon_midi2fm: near
 	; inputs: .X = MIDI note
 	; outputs: .A = YM2151 KC
-	lda midi2ymkc,x
-	rts
-.endproc
-
-.proc notecon_midi2psg: near
-	; inputs .X = midi note (0-127)
-	; clobbers: .A
-	; outputs .X .Y = low, high of VERA PSG frequency
-	lda midi2psg_l,x
-	ldy midi2psg_h,x
+	txa
+	and #$7F
 	tax
+	lda midi2ymkc,x
+	cmp #$FF
+	beq error
+	; carry is already clear
 	rts
+error:
+	jmp return_error
 .endproc
 
 .proc notecon_fm2psg: near
 	; inputs: .X = YM2151 KC, .Y = YM2151 KF
 	; clobbers: .A
 	; outputs: .X .Y = low, high of VERA PSG frequency
+	txa
+	cmp #$80
+	bcc :+
+	jmp return_error
+:	tax
+
 	lda ymkc2midi,x
 	tax
-	lda midi2psg_l,x
-	sta psgfreqtmp ; lay down the base psg freq in RAM
-	lda midi2psg_h,x
-	sta psgfreqtmp+1
+	; fall through to notecon_midi2psg
+
+.endproc
+
+.proc notecon_midi2psg: near
+	; inputs .X = midi note (0-127), .Y = YM2151 KF
+	; clobbers: .A
+	; outputs .X .Y = low, high of VERA PSG frequency
+	txa
+	cmp #$80
+	bcc :+
+	jmp return_error
+:	tax
 
 	lda ram_bank
 	pha
 	stz ram_bank
+
+	lda midi2psg_l,x
+	sta psgfreqtmp ; lay down the base psg freq in RAM
+	lda midi2psg_h,x
+	sta psgfreqtmp+1
+	
+	; fall through to apply_kf_delta
+.endproc
+
+.proc apply_kf_delta ; private sub
+	; inputs: .X = MIDI note, .Y = KF
+	;         psgfreqtmp = 16-bit base PSG frequency
+	;    expects RAM bank to restore to be pushed onto the stack
+	;    and bank with AUDIOBSS to be active
+	; clobbers: .A
+	; outputs: .X .Y = low, high of VERA PSG frequency
 test7:
 	; Test bit 7 in KF and adjust freq if set
 	tya ; KF
@@ -194,6 +274,7 @@ end:
 	ldy psgfreqtmp+1
 	pla
 	sta ram_bank
+	clc
 	rts
 .endproc
 
@@ -202,16 +283,13 @@ end:
 ; they are implemented
 
 notecon_freq2bas:
-notecon_midi2bas:
 notecon_psg2bas:
-notecon_fm2bas:
 notecon_psg2fm:
 notecon_freq2fm:
 notecon_bas2psg:
 notecon_freq2psg:
 notecon_psg2midi:
 notecon_freq2midi:
-notecon_bas2midi:
 
 ; save some code size by having a generic "return error" routine
 .proc return_error: near

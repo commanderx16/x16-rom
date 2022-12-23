@@ -36,6 +36,9 @@ lutfile.write(".export kfdelta2_l,kfdelta3_l,kfdelta4_l,kfdelta5_l,kfdelta6_l,kf
 lutfile.write(".export midi2psg_h,midi2psg_l\n")
 lutfile.write(".export midi2ymkc\n")
 lutfile.write(".export ymkc2midi\n")
+lutfile.write(".export midi2bas\n")
+lutfile.write(".export bas2midi\n")
+
 
 lutfile.write("\n\n")
 
@@ -58,13 +61,29 @@ lutfile.write("midi2ymkc:\n")
 kc = []
 for n in range(128):
     if n < 13:
-        kc.append(0x00)
+        kc.append(0xFF)
     elif n > 108:
-        kc.append(0x7E)
+        kc.append(0xFF)
     else:
         kc.append((((n-13) // 12) << 4) | (0,1,2,4,5,6,8,9,10,12,13,14)[(n-1) % 12])
     
 lutfile.write("".join(list_to_dotbyte_strings(kc)))
+
+# Create the MIDI notes to BAS table
+lutfile.write("; MIDI to BAS\n")
+lutfile.write("midi2bas:\n")
+
+bc = []
+for n in range(128):
+    if n < 12:
+        bc.append(0xFF)
+    elif n > 107:
+        bc.append(0xFF)
+    else:
+        bc.append((((n-12) // 12) << 4) | (n % 12)+1)
+    
+lutfile.write("".join(list_to_dotbyte_strings(bc)))
+
 
 # Create the FM KC to MIDI notestable
 lutfile.write("; YM2151 KC to MIDI\n")
@@ -79,6 +98,24 @@ for n in range(128):
     midinote.append(note)
 
 lutfile.write("".join(list_to_dotbyte_strings(midinote)))
+
+# Create the BAS to MIDI notestable
+lutfile.write("; BAS to MIDI\n")
+lutfile.write("bas2midi:\n")
+
+midinote = []
+for n in range(128):
+    octave = (n >> 4) & 7
+    note = 12 + (octave * 12)
+    code = (n & 0x0F)-1
+    if code < 0 or code >= 11:
+        note = 0xFF # error
+    else:
+        note += code
+    midinote.append(note)
+
+lutfile.write("".join(list_to_dotbyte_strings(midinote)))
+
 
 
 # Create the KF delta tables
