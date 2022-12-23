@@ -61,6 +61,10 @@ ymkc2midi:
 	.byte $55,$56,$57,$57,$58,$59,$5a,$5a,$5b,$5c,$5d,$5d
 	.byte $5e,$5f,$60,$60,$61,$62,$63,$63,$64,$65,$66,$66
 	.byte $67,$68,$69,$69,$6a,$6b,$6c,$6c
+; KF bit 0 delta per MIDI note (high)
+kfdelta0_h:
+; KF bit 1 delta per MIDI note (high)
+kfdelta1_h:
 ; KF bit 2 delta per MIDI note (high)
 kfdelta2_h:
 ; KF bit 3 delta per MIDI note (high)
@@ -76,7 +80,11 @@ kfdelta6_h:
 ; KF bit 7 delta per MIDI note (high)
 kfdelta7_h:
 	.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; KF bit 0 delta per MIDI note (low)
+kfdelta0_l:
 	.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; KF bit 1 delta per MIDI note (low)
+kfdelta1_l:
 	.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ; KF bit 2 delta per MIDI note (low)
 kfdelta2_l:
@@ -103,6 +111,6 @@ kfdelta7_l:
 	.byte $14,$16,$17,$18,$1a,$1b,$1d,$1f,$21,$23,$25,$27
 	.byte $29,$2c,$2e,$31,$34,$37,$3b,$3e,$42,$46,$4a,$4e
 	.byte $53,$58,$5d,$63,$69,$6f,$76,$7d,$84,$8c,$94,$9d
-	.byte $a6,$b0,$bb,$c6,$d2,$de,$ec,$fa,$09,$18,$29,$3b
-	.byte $4d,$61,$76,$8d,$a4,$bd,$d8,$f4,$12,$31,$52,$76
-	.byte $9b,$c3,$ed,$1a,$49,$7b,$b0,$e8
+	.byte $a7,$b0,$bb,$c6,$d2,$de,$ec,$fa,$09,$18,$29,$3b
+	.byte $4e,$61,$76,$8d,$a4,$bd,$d8,$f4,$12,$31,$53,$76
+	.byte $9c,$c3,$ed,$1a,$49,$7b,$b0,$e8
