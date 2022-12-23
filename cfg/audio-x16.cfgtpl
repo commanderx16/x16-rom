@@ -12,6 +12,6 @@ SEGMENTS {
 	CODE:      load = ROM,     type = ro;
 	PATCHDATA: load = ROM,     type = ro;
 	VECTORS:   load = VECTORS, type = ro;
-	KVARSB0:   load = KVARSB0, type = bss;
+	AUDIOBSS:  load = AUDIOBSS,type = bss;
 	YMSHADOW:  load = BAUDIO,  type = bss;
 }
