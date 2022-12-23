@@ -12,33 +12,35 @@
 ; BAS -> FM / PSG functions will simply ignore the MSB of the octave instead of
 ; returning an error.
 ;
-;
-	.export notecon_fm2bas
-	.export notecon_psg2bas
-	.export notecon_midi2bas
-	.export notecon_freq2bas
-	.export notecon_bas2fm
-	.export notecon_psg2fm
-	.export notecon_freq2fm
-	.export notecon_midi2fm
-	.export notecon_bas2midi
-	.export notecon_fm2midi
-	.export notecon_freq2midi
-	.export notecon_psg2midi
-	.export notecon_bas2psg
-	.export notecon_fm2psg
-	.export notecon_freq2psg
-	.export notecon_midi2psg
 
-	.import psgfreqtmp
+.include "io.inc" ; for YM2151 addresses
+	
+.export notecon_fm2bas
+.export notecon_psg2bas
+.export notecon_midi2bas
+.export notecon_freq2bas
+.export notecon_bas2fm
+.export notecon_psg2fm
+.export notecon_freq2fm
+.export notecon_midi2fm
+.export notecon_bas2midi
+.export notecon_fm2midi
+.export notecon_freq2midi
+.export notecon_psg2midi
+.export notecon_bas2psg
+.export notecon_fm2psg
+.export notecon_freq2psg
+.export notecon_midi2psg
 
-	.import kfdelta2_h,kfdelta3_h,kfdelta4_h
-	.import kfdelta5_h,kfdelta6_h,kfdelta7_h
-	.import kfdelta2_l,kfdelta3_l,kfdelta4_l
-	.import kfdelta5_l,kfdelta6_l,kfdelta7_l
-	.import midi2psg_h,midi2psg_l
-	.import midi2ymkc
-	.import ymkc2midi
+.import psgfreqtmp
+
+.import kfdelta2_h,kfdelta3_h,kfdelta4_h
+.import kfdelta5_h,kfdelta6_h,kfdelta7_h
+.import kfdelta2_l,kfdelta3_l,kfdelta4_l
+.import kfdelta5_l,kfdelta6_l,kfdelta7_l
+.import midi2psg_h,midi2psg_l
+.import midi2ymkc
+.import ymkc2midi
 
 ; inputs: .X = BASIC xxNOTE format.
 ; returns: (standard) (.Y always returns 0, even though BAS format doesn't use it)
