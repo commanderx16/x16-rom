@@ -41,7 +41,7 @@ lutfile.write(".export midi2bas\n")
 lutfile.write(".export bas2midi\n")
 
 
-lutfile.write("\n\n")
+lutfile.write("\n.segment \"LUTS\"\n\n")
 
 # Output the PSG pitch tables
 lutfile.write("; PSG pitch tables\n")
@@ -170,7 +170,7 @@ for vi in range(128):
         v2.append(v1)
     max_value = max(ec)
     max_index = ec.index(max_value)
-    # print("Note: {}, Median Deviation {:+.02f} Worst KF: ${:02x}, Deviation: {:+.02f} cents, PSG freq: Base: {:d} Calculated: {:d} Base+KF Delta: {:d}".format(vi,statistics.median(ec),max_index,max_value,int(frequency_vera[vi]),int(vf[max_index]),int(frequency_vera[vi]+v2[max_index])))
+    print("Note: {}, Median Deviation {:+.02f} Worst KF: ${:02x}, Deviation: {:+.02f} cents, PSG freq: Base: {:d} Calculated: {:d} Base+KF Delta: {:d}".format(vi,statistics.median(ec),max_index,max_value,int(frequency_vera[vi]),int(vf[max_index]),int(frequency_vera[vi]+v2[max_index])))
     # print(["{:+02.02f}".format(x) for x in ec[0::4]])
     # print(["{:d}".format(int(x)) for x in v2[0::4]])
 
