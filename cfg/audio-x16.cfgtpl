@@ -10,6 +10,7 @@ MEMORY {
 SEGMENTS {
 	ZPAUDIO:     load = ZPAUDIO, type = zp;
 	API:         load = ROM,     type = ro;
+	LUTS:        load = ROM,     type = ro, align = $100;
 	CODE:        load = ROM,     type = ro;
 	PATCHDATA:   load = ROM,     type = ro;
 	KSUP_CODE10: load = KSUP_CODE10, type = ro;

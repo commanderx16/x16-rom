@@ -11,7 +11,7 @@
 .export midi2bas
 .export bas2midi
 
-
+.segment "LUTS"
 ; PSG pitch tables
 midi2psg_l:
 	.byte $15,$17,$18,$1a,$1b,$1d,$1f,$20,$22,$24,$27,$29
