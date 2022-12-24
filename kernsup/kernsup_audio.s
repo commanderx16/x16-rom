@@ -22,20 +22,20 @@ symbol:
 
 ; BASIC's entry into jsrfar
 .setcpu "65c02"
-ram_bank = 0
-rom_bank = 1
+    ram_bank = 0
+    rom_bank = 1
 .export ajsrfar
 ajsrfar:
 .include "jsrfar.inc"
 
 
-	.segment "KSUP_VEC10"
+.segment "KSUP_VEC10"
 
-	xjsrfar = ajsrfar
-	.include "kernsup.inc"
+    xjsrfar = ajsrfar
+.include "kernsup.inc"
 
-	.byte 0, 0, 0, 0 ; signature
+    .byte 0, 0, 0, 0 ; signature
 
-	.word $ffff ; nmi
-	.word $ffff ; reset
-	.word banked_irq
+    .word $ffff ; nmi
+    .word $ffff ; reset
+    .word banked_irq

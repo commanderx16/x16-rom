@@ -1,7 +1,7 @@
 MEMORY {
 	#include "x16.cfginc"
 
-	ROM:         start = $C000, size = $3FFA, fill=yes, fillval=$AA;
+	ROM:         start = $C000, size = $3B00, fill=yes, fillval=$AA;
 	KSUP_CODE10: start = $FB00, size = $03A8, fill=yes, fillval=$AA;
 	KSUP_VEC10:  start = $FEA8, size = $0158, fill=yes, fillval=$AA;
 

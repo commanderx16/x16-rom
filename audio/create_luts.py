@@ -6,6 +6,7 @@
 
 import numpy as np
 import statistics
+import math
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
@@ -122,8 +123,8 @@ lutfile.write("".join(list_to_dotbyte_strings(midinote)))
 kf = []
 
 for vi in range(128):
-    # Calculate all of the VERA frequencies for the 64 KF values starting at note v
-    # At this point, v is still a float
+    # Calculate all of the VERA frequencies for the 256 KF values starting at note frequency_vera[vi]
+    # At this point, frequency_vera[vi] is still a float
     vf = list(frequency_vera[vi] * 2**(x/3072) for x in range(256))
     for bf in range(8):
         # for each significant KF bit, find the median difference in value
@@ -142,7 +143,39 @@ for vi in range(128):
             kf[bf][vi]
         except:
             kf[bf].append([])
-        kf[bf][vi] = statistics.median(tmp_diffs)
+        kf[bf][vi] = statistics.mean(tmp_diffs)
+    # Find the error amount (in cents) for each kf and show the worst
+    ec = []
+    v2 = []
+    for ei in range(256):
+        v1 = 0
+        if ei & 0x01 > 0:
+            v1 += kf[0][vi]
+        if ei & 0x02 > 0:
+            v1 += kf[1][vi]
+        if ei & 0x04 > 0:
+            v1 += kf[2][vi]
+        if ei & 0x08 > 0:
+            v1 += kf[3][vi]
+        if ei & 0x10 > 0:
+            v1 += kf[4][vi]
+        if ei & 0x20 > 0:
+            v1 += kf[5][vi]
+        if ei & 0x40 > 0:
+            v1 += kf[6][vi]
+        if ei & 0x80 > 0:
+            v1 += kf[7][vi]
+        error_cents = 100*math.log(int(frequency_vera[vi]+v1) / int(vf[ei]),2**(1/12))
+        ec.append(error_cents)
+        v2.append(v1)
+    max_value = max(ec)
+    max_index = ec.index(max_value)
+    # print("Note: {}, Median Deviation {:+.02f} Worst KF: ${:02x}, Deviation: {:+.02f} cents, PSG freq: Base: {:d} Calculated: {:d} Base+KF Delta: {:d}".format(vi,statistics.median(ec),max_index,max_value,int(frequency_vera[vi]),int(vf[max_index]),int(frequency_vera[vi]+v2[max_index])))
+    # print(["{:+02.02f}".format(x) for x in ec[0::4]])
+    # print(["{:d}".format(int(x)) for x in v2[0::4]])
+
+
+
 
 # Output the KF delta tables cleverly
 #

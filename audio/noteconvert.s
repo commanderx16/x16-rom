@@ -292,15 +292,16 @@ end:
 	; clobbers: .A
 	; outputs: .X .Y = low, high of VERA PSG frequency
 
-	MAX_HZ = 24414 
+	MAX_HZ = 24411
 
 	cpy #(>MAX_HZ) 
-	bcc pass   ; if high byte < that of MAX_HZ, we're clear
-	beq check  ; if high byte = that of MAX_HZ, we check low byte
-	bra error  ; if high byte > that of MAX_HZ, error
+	bcc pass          ; if high byte < that of MAX_HZ, we're clear
+	beq check         ; if high byte = that of MAX_HZ, we check low byte
+	jmp return_error  ; if high byte > that of MAX_HZ, error
 check:
 	cpx #(<MAX_HZ+1) 
-	bcs error ; if low byte of freq is > MAX_HZ, error
+	bcc pass         ; if low byte of freq is <= that of MAX_HZ, fine
+	jmp return_error ; if low byte of freq is >  that of MAX_HZ, error
 pass:
 	lda ram_bank
 	pha
@@ -347,16 +348,11 @@ pass:
 	jsr add_div4
 	; overshot by: 0.000215752x or 0.02%
 end:
-	pla
-	sta ram_bank
 	ldx psgfreqtmp
 	ldy psgfreqtmp+1
+	pla
+	sta ram_bank
 	clc
-	rts
-error:
-	ldx #0
-	ldy #0
-	sec
 	rts
 add_div4:
 	lsr hztmp+1
@@ -364,8 +360,9 @@ add_div4:
 add_div2:
 	lsr hztmp+1
 	ror hztmp
+add:
 	lda hztmp
-	clc
+	; no clc here because rounding up seems to help accuracy
 	adc psgfreqtmp
 	sta psgfreqtmp
 	lda hztmp+1

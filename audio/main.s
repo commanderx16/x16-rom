@@ -78,5 +78,4 @@
 	jmp notecon_freq2midi     ; $C048
 	jmp notecon_psg2midi      ; $C04B
 
-.include "banks.inc"
 
