@@ -1,17 +1,19 @@
 MEMORY {
 	#include "x16.cfginc"
 
-	ROM:      start = $C000, size = $3FFA, fill=yes, fillval=$AA;
-	VECTORS:  start = $FFFA, size = $0006, fill=yes, fillval=$AB;
+	ROM:         start = $C000, size = $3FFA, fill=yes, fillval=$AA;
+	KSUP_CODE10: start = $FB00, size = $03A8, fill=yes, fillval=$AA;
+	KSUP_VEC10:  start = $FEA8, size = $0158, fill=yes, fillval=$AA;
 
 }
 
 SEGMENTS {
-	ZPAUDIO:   load = ZPAUDIO, type = zp;
-	API:       load = ROM,     type = ro;
-	CODE:      load = ROM,     type = ro;
-	PATCHDATA: load = ROM,     type = ro;
-	VECTORS:   load = VECTORS, type = ro;
-	AUDIOBSS:  load = AUDIOBSS,type = bss;
-	YMSHADOW:  load = BAUDIO,  type = bss;
+	ZPAUDIO:     load = ZPAUDIO, type = zp;
+	API:         load = ROM,     type = ro;
+	CODE:        load = ROM,     type = ro;
+	PATCHDATA:   load = ROM,     type = ro;
+	KSUP_CODE10: load = KSUP_CODE10, type = ro;
+	KSUP_VEC10:  load = KSUP_VEC10,  type = ro;
+	AUDIOBSS:    load = AUDIOBSS,type = bss;
+	YMSHADOW:    load = BAUDIO,  type = bss;
 }

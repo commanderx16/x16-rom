@@ -32,13 +32,13 @@
 .export notecon_freq2psg
 .export notecon_midi2psg
 
-.import psgfreqtmp
+.import psgfreqtmp, hztmp
 
-.import kfdelta2_h,kfdelta3_h,kfdelta4_h
-.import kfdelta5_h,kfdelta6_h,kfdelta7_h
-.import kfdelta2_l,kfdelta3_l,kfdelta4_l
-.import kfdelta5_l,kfdelta6_l,kfdelta7_l
-.import midi2psg_h,midi2psg_l
+.import kfdelta2_h, kfdelta3_h, kfdelta4_h
+.import kfdelta5_h, kfdelta6_h, kfdelta7_h
+.import kfdelta2_l, kfdelta3_l, kfdelta4_l
+.import kfdelta5_l, kfdelta6_l, kfdelta7_l
+.import midi2psg_h, midi2psg_l
 .import midi2ymkc
 .import ymkc2midi
 .import midi2bas
@@ -203,17 +203,7 @@ error:
 	sta psgfreqtmp ; lay down the base psg freq in RAM
 	lda midi2psg_h,x
 	sta psgfreqtmp+1
-	
-	; fall through to apply_kf_delta
-.endproc
 
-.proc apply_kf_delta ; private sub
-	; inputs: .X = MIDI note, .Y = KF
-	;         psgfreqtmp = 16-bit base PSG frequency
-	;    expects RAM bank to restore to be pushed onto the stack
-	;    and bank with AUDIOBSS to be active
-	; clobbers: .A
-	; outputs: .X .Y = low, high of VERA PSG frequency
 test7:
 	; Test bit 7 in KF and adjust freq if set
 	tya ; KF
@@ -297,6 +287,92 @@ end:
 	rts
 .endproc
 
+.proc notecon_freq2psg: near
+	; inputs: .X .Y = low, high of Hz frequency
+	; clobbers: .A
+	; outputs: .X .Y = low, high of VERA PSG frequency
+
+	MAX_HZ = 24414 
+
+	cpy #(>MAX_HZ) 
+	bcc pass   ; if high byte < that of MAX_HZ, we're clear
+	beq check  ; if high byte = that of MAX_HZ, we check low byte
+	bra error  ; if high byte > that of MAX_HZ, error
+check:
+	cpx #(<MAX_HZ+1) 
+	bcs error ; if low byte of freq is > MAX_HZ, error
+pass:
+	lda ram_bank
+	pha
+	stz ram_bank
+
+	stx psgfreqtmp
+	stx hztmp
+	sty psgfreqtmp+1
+	sty hztmp+1
+
+	; we want to multiply by 2.68435456
+	; aka add 1.68435456x the original value
+
+	; multiply by 2
+	asl psgfreqtmp
+	rol psgfreqtmp+1
+	; remaining to add: 0.68435456x
+
+	; add 0.5x
+	jsr add_div2
+	; remaining to add: 0.18435456x
+
+	; add 0.125x
+	jsr add_div4
+	; remaining to add: 0.05935456x
+
+	; add 0.03125x
+	jsr add_div4
+	; remaining to add: 0.02810456x
+
+	; add 0.015625x
+	jsr add_div2
+	; remaining to add: 0.01247956x
+
+	; add 0.0078125x
+	jsr add_div2
+	; remaining to add: 0.00466706x
+
+	; add 0.00390625x
+	jsr add_div2
+	; remaining to add: 0.00076081x
+
+	; add 0.000976562x (a slight overshoot)
+	jsr add_div4
+	; overshot by: 0.000215752x or 0.02%
+end:
+	pla
+	sta ram_bank
+	ldx psgfreqtmp
+	ldy psgfreqtmp+1
+	clc
+	rts
+error:
+	ldx #0
+	ldy #0
+	sec
+	rts
+add_div4:
+	lsr hztmp+1
+	ror hztmp
+add_div2:
+	lsr hztmp+1
+	ror hztmp
+	lda hztmp
+	clc
+	adc psgfreqtmp
+	sta psgfreqtmp
+	lda hztmp+1
+	adc psgfreqtmp+1
+	sta psgfreqtmp+1
+	rts
+.endproc
 
 ; stubs for as-yet unimplemented conversion routines. Just return error until
 ; they are implemented
@@ -305,7 +381,6 @@ notecon_freq2bas:
 notecon_psg2bas:
 notecon_psg2fm:
 notecon_freq2fm:
-notecon_freq2psg:
 notecon_psg2midi:
 notecon_freq2midi:
 

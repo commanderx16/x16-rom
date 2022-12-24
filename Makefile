@@ -285,6 +285,7 @@ DEMO_SOURCES= \
 	demo/test.s
 
 AUDIO_SOURCES= \
+	kernsup/kernsup_audio.s \
 	audio/main.s \
 	audio/memory.s \
 	audio/basic.s \

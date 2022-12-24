@@ -79,5 +79,4 @@
 	jmp notecon_psg2midi      ; $C04B
 
 .include "banks.inc"
-.segment "VECTORS"
- .byt $ff, $ff, $ff, $ff, <banked_irq, >banked_irq
+
