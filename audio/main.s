@@ -31,7 +31,9 @@
 
 ; imports from basic.s
 .import bas_fmnote
+.import bas_psgnote
 
+; imports from noteconvert.s
 .import notecon_fm2bas
 .import notecon_psg2bas
 .import notecon_midi2bas
@@ -77,5 +79,6 @@
 	jmp notecon_fm2midi       ; $C045
 	jmp notecon_freq2midi     ; $C048
 	jmp notecon_psg2midi      ; $C04B
+	jmp bas_psgnote           ; $C04E
 
 
