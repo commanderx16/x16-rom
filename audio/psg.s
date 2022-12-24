@@ -72,6 +72,16 @@
 	SET_VERA_STRIDE stride
 .endmacro
 
+.macro PRESERVE_AND_SET_BANK
+	lda rom_bank
+	pha
+	stz rom_bank
+.endmacro
+
+.macro RESTORE_BANK
+	pla
+	sta rom_bank
+.endmacro
 
 
 ;---------------------------------------------------------------
@@ -82,6 +92,7 @@
 ; returns: none
 ;
 .proc psg_init: near
+	PRESERVE_AND_SET_BANK
 	PRESERVE_VERA
 
 	lda #0
@@ -101,6 +112,7 @@ loop2:
 	bne loop2
 
 	RESTORE_VERA
+	RESTORE_BANK
 	rts
 .endproc
 
@@ -116,6 +128,7 @@ loop2:
 	and #$0F
 	sta psgtmp1
 
+	PRESERVE_AND_SET_BANK
 	PRESERVE_VERA
 
 	lda psgtmp1
@@ -147,6 +160,7 @@ loop2:
 	sta VERA_DATA0    ; set VERA volume
 	
 	RESTORE_VERA
+	RESTORE_BANK
 	rts
 .endproc
 
@@ -164,6 +178,7 @@ loop2:
 	and #$0F
 	tay
 
+	PRESERVE_AND_SET_BANK
 	PRESERVE_VERA
 
 	tya
@@ -187,7 +202,8 @@ loop2:
 :	ora psgtmp1       ; apply L+R channels
 	sta VERA_DATA0    ; set VERA volume
 	
-	RESTORE_VERA	
+	RESTORE_VERA
+	RESTORE_BANK
 	rts
 .endproc
 
