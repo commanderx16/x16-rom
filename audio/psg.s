@@ -73,14 +73,14 @@
 .endmacro
 
 .macro PRESERVE_AND_SET_BANK
-	lda rom_bank
+	lda ram_bank
 	pha
-	stz rom_bank
+	stz ram_bank
 .endmacro
 
 .macro RESTORE_BANK
 	pla
-	sta rom_bank
+	sta ram_bank
 .endmacro
 
 
