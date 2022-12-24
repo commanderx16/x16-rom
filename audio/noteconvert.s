@@ -13,7 +13,7 @@
 ; returning an error.
 ;
 
-.include "io.inc" ; for YM2151 addresses
+.include "io.inc" 
 	
 .export notecon_fm2bas
 .export notecon_psg2bas
@@ -81,7 +81,7 @@ inc0:
 
 .proc notecon_fm2bas: near
 	; inputs: .X = YM2151 KC
-	; outputs: .X = BASIC oct/note
+	; outputs: .A = .X = BASIC oct/note
 	txa
 	cmp #$80
 	bcs error
@@ -98,9 +98,25 @@ error:
 	jmp return_error
 .endproc
 	
+.proc notecon_bas2psg: near
+	; inputs: .X = BASIC oct/note (also process .Y as KF)
+	; clobbers: .A
+	; outputs .X .Y = low, high of VERA PSG frequency
+	txa
+	and #$7F
+	tax
+	lda bas2midi,x
+	cmp #$FF
+	beq error
+	tax
+	jmp notecon_midi2psg
+error:
+	jmp return_error
+.endproc
+
 .proc notecon_midi2bas: near
 	; inputs: .A = MIDI note
-	; outputs: .X = BASIC oct/note
+	; outputs: .A = .X = BASIC oct/note
 	and #$7F
 	tax
 	lda bas2midi,x
@@ -111,13 +127,14 @@ error:
 
 .proc notecon_bas2midi: near
 	; inputs: .X = BASIC oct/note
-	; outputs: .A = MIDI note
+	; outputs: .A = .X = MIDI note
 	txa
 	and #$7F
 	tax
 	lda bas2midi,x
 	cmp #$FF
 	beq error
+	tax
 	; carry is already clear
 	rts
 error:
@@ -126,18 +143,19 @@ error:
 
 .proc notecon_fm2midi: near
 	; inputs: .X = YM2151 KC
-	; outputs: .A = MIDI note
+	; outputs: .A = .X = MIDI note
 	txa
 	and #$7F
 	tax
 	lda ymkc2midi,x
+	tax
 	clc
 	rts
 .endproc
 
 .proc notecon_midi2fm: near
 	; inputs: .X = MIDI note
-	; outputs: .A = YM2151 KC
+	; outputs: .A = .X = YM2151 KC
 	txa
 	and #$7F
 	tax
@@ -145,6 +163,7 @@ error:
 	cmp #$FF
 	beq error
 	; carry is already clear
+	tax
 	rts
 error:
 	jmp return_error
@@ -286,7 +305,6 @@ notecon_freq2bas:
 notecon_psg2bas:
 notecon_psg2fm:
 notecon_freq2fm:
-notecon_bas2psg:
 notecon_freq2psg:
 notecon_psg2midi:
 notecon_freq2midi:

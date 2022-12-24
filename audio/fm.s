@@ -48,21 +48,21 @@ wait:
 	nop
 	sta YM_DATA
 
-  ; write the value into the YM shadow
-  ldy ram_bank
-  stz ram_bank
-  sty returnbank
-  cpx #$19   ; PMD/AMD register is a special case. Shadow PMD writes into $1A.
-  bne storeit
-  cmp #$80   ; If value >= $80 then PMD. Store in $1A
-  bcc storeit
-  sta _PMD
-  bra done
+	; write the value into the YM shadow
+	ldy ram_bank
+	stz ram_bank
+	sty returnbank
+	cpx #$19   ; PMD/AMD register is a special case. Shadow PMD writes into $1A.
+	bne storeit
+	cmp #$80   ; If value >= $80 then PMD. Store in $1A
+	bcc storeit
+	sta _PMD
+	bra done
 storeit:
-  sta ymshadow,X
+	sta ymshadow,X
 done:
-  ldy returnbank
-  sty ram_bank
+	ldy returnbank
+	sty ram_bank
 	clc
 	rts
 fail:
@@ -75,11 +75,11 @@ fail:
 ; preserves : .X
 ; returns   : .A = retreived value
 .proc ym_read: near
-  ldy ram_bank
-  stz ram_bank
-  lda ymshadow,X
-  sty ram_bank
-  rts
+	ldy ram_bank
+	stz ram_bank
+	lda ymshadow,X
+	sty ram_bank
+	rts
 .endproc
 
 
@@ -96,7 +96,7 @@ fail:
 ; when the routine is called.
 ;
 .proc ym_loadpatch: near
-  bcc _loadpatch
+	bcc _loadpatch
 	pha
 	txa
 	and #$1F ; mask instrument number to range 0..31
@@ -195,14 +195,14 @@ fail:
 ; masks voice to range 0-7
 .proc ym_playnote: near
 	php
-  pha
+	pha
 	jsr ym_setnote
 	bcs fail
-  pla
+	pla
 	plp
 	jmp ym_trigger
 fail:
-  pla ; clear the stack.
+	pla ; clear the stack.
 	plp
 	sec
 	rts
@@ -216,41 +216,41 @@ fail:
 ; returns: C set on failure
 ;
 .proc ym_init: near
-  ; set release=max ($0F) for all operators on all voices ($E0..$FF)
+	; set release=max ($0F) for all operators on all voices ($E0..$FF)
 	lda #$0f
-  ldx #$e0
+	ldx #$e0
 i1:
 	jsr ym_write
 	bcs abort       ; YM didn't respond correctly, abort
 	inx
 	bne i1
 
-  ; Release all 8 voices (write values 0..7 into YM register $08)
-  lda #7
+	; Release all 8 voices (write values 0..7 into YM register $08)
+	lda #7
 	ldx #$08
 i2:
 	jsr ym_write
 	dec
 	bpl i2
 
-  ; reset lfo
-  lda #$02
+	; reset lfo
+	lda #$02
 	ldx #$01
 	jsr ym_write    ; disable LFO
-  lda #$80
+	lda #$80
 	ldx #$19
 	jsr ym_write	  ; clear pmd  (amd will be cleared when all regs are zeroed)
 
-  ; write 0 into all registers $0F .. $FF
-  lda #0
+	; write 0 into all registers $0F .. $FF
+	lda #0
 	ldx #$0f
 i3:
 	jsr ym_write    ; clear everything else $0f..$ff
 	inx
 	bne i3
 
-  ; re-enable LFO
-  lda #$00
+	; re-enable LFO
+	lda #$00
 	ldx #$01
 	jsr ym_write
 abort:

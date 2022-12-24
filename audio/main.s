@@ -44,36 +44,39 @@
 .import notecon_fm2psg
 .import notecon_freq2psg
 .import notecon_midi2psg
+.import notecon_bas2midi
+.import notecon_fm2midi
+.import notecon_freq2midi
+.import notecon_psg2midi
 
 
 .segment "API"
-	jmp ym_write
-	jmp ym_read
-	jmp ym_loadpatch
-	jmp ym_playnote
-	jmp ym_setnote
-	jmp ym_trigger
-	jmp ym_release
-  jmp ym_init
-
-  jmp psg_init
-
-	jmp bas_fmnote
-
-	; note that most of these are stubs that return error (.X and .Y = 0)
-	jmp notecon_fm2bas
-	jmp notecon_psg2bas
-	jmp notecon_midi2bas
-	jmp notecon_freq2bas
-	jmp notecon_bas2fm
-	jmp notecon_psg2fm
-	jmp notecon_freq2fm
-	jmp notecon_midi2fm
-	jmp notecon_bas2psg
-	jmp notecon_fm2psg
-	jmp notecon_freq2psg
-	jmp notecon_midi2psg
-
+	jmp ym_write              ; $C000
+	jmp ym_read               ; $C003
+	jmp ym_loadpatch          ; $C006
+	jmp ym_playnote           ; $C009
+	jmp ym_setnote            ; $C00C
+	jmp ym_trigger            ; $C00F
+	jmp ym_release            ; $C012
+	jmp ym_init               ; $C015
+	jmp psg_init              ; $C018
+	jmp bas_fmnote            ; $C01B
+	jmp notecon_fm2bas        ; $C01E
+	jmp notecon_psg2bas       ; $C021
+	jmp notecon_midi2bas      ; $C024
+	jmp notecon_freq2bas      ; $C027
+	jmp notecon_bas2fm        ; $C02A
+	jmp notecon_psg2fm        ; $C02D
+	jmp notecon_freq2fm       ; $C030
+	jmp notecon_midi2fm       ; $C033
+	jmp notecon_bas2psg       ; $C036
+	jmp notecon_fm2psg        ; $C039
+	jmp notecon_freq2psg      ; $C03C
+	jmp notecon_midi2psg      ; $C03F
+	jmp notecon_bas2midi      ; $C042
+	jmp notecon_fm2midi       ; $C045
+	jmp notecon_freq2midi     ; $C048
+	jmp notecon_psg2midi      ; $C04B
 
 .include "banks.inc"
 .segment "VECTORS"
