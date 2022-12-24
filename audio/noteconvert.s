@@ -44,47 +44,31 @@
 .import midi2bas
 .import bas2midi
 
-; inputs: .X = BASIC xxNOTE format.
-; returns: (standard) (.Y always returns 0, even though BAS format doesn't use it)
-;
-; * Function ignores the MSB of the octave value instead of returning an error.
 .proc notecon_bas2fm: near
+	; inputs: .X = BASIC oct/note
+	; outputs: .A = .X = YM2151 KC
 	txa
-	and #$7F ; ignore bit7 (octave is only bits 4-6)
+	and #$7F
 	tax
-	and #$0F ; mask off the octave
-	beq err
-	cmp #13
-	bcc go
-err:
-	jmp return_error
-go:
-	dex
-	cmp #10
-	bcs inc3
-	cmp #7
-	bcs inc2
-	cmp #4
-	bcs inc1
-	bra inc0
-inc3:
-	inx
-inc2:
-	inx
-inc1:
-	inx
-inc0:
-	ldy #0
-	clc
+	lda bas2midi,x
+	cmp #$FF
+	beq error
+	tax
+	lda midi2ymkc,x
+	cmp #$FF
+	beq error
+	tax
+	; carry is clear
 	rts
+error:
+	jmp return_error
 .endproc
 
 .proc notecon_fm2bas: near
 	; inputs: .X = YM2151 KC
 	; outputs: .A = .X = BASIC oct/note
 	txa
-	cmp #$80
-	bcs error
+	and #$7F
 	tax
 	lda ymkc2midi,x
 	tax
@@ -174,10 +158,8 @@ error:
 	; clobbers: .A
 	; outputs: .X .Y = low, high of VERA PSG frequency
 	txa
-	cmp #$80
-	bcc :+
-	jmp return_error
-:	tax
+	and #$7F
+	tax
 
 	lda ymkc2midi,x
 	tax
@@ -190,10 +172,8 @@ error:
 	; clobbers: .A
 	; outputs .X .Y = low, high of VERA PSG frequency
 	txa
-	cmp #$80
-	bcc :+
-	jmp return_error
-:	tax
+	and #$7F
+	tax
 
 	lda ram_bank
 	pha
