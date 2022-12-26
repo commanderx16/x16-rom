@@ -400,8 +400,8 @@ fail:
 ;
 .proc ym_init: near
 	; explicit initial PRESERVE_AND_SET_BANK
-	lda rambank
-	stz rambank
+	lda ram_bank
+	stz ram_bank
 	sta audio_prev_bank
 	lda #1
 	sta audio_bank_refcnt
