@@ -107,9 +107,13 @@ skip_restore:
 ; returns: none
 ;
 .proc psg_init: near
-	PRESERVE_AND_SET_BANK
+	; explicit PRESERVE_AND_SET_BANK
+	lda rambank
+	stz rambank
+	sta audio_prev_bank
 	lda #1
 	sta audio_bank_refcnt
+
 	PRESERVE_VERA
 
 	lda #0

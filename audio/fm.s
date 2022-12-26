@@ -399,11 +399,14 @@ fail:
 ; returns: C set on failure
 ;
 .proc ym_init: near
-	; Zero the channel attenuation and ensure bank refcnt is correct
-	PRESERVE_AND_SET_BANK
+	; explicit initial PRESERVE_AND_SET_BANK
+	lda rambank
+	stz rambank
+	sta audio_prev_bank
 	lda #1
 	sta audio_bank_refcnt
 
+	; zero out the channel attenuation
 	ldx #8
 att:
 	stz ym_atten-1,x
