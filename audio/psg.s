@@ -131,10 +131,11 @@ loop1:
 	dex
 	bne loop1
 
-	; zero out the attenuation state for all 16 channels
+	; zero out the shadow and attenuation state for all 16 channels
 	ldx #16
 loop2:
 	stz psg_atten-1,x
+	stz psg_volshadow-1,x
 	dex
 	bne loop2
 

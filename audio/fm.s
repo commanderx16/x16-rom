@@ -209,11 +209,13 @@ ym_chk_alg_change:
 
 
 ; inputs    : .A = attenuation amount (0 is native volume)  .X = YM channel
-; affects   : .A, .X, .Y
-; preserves : none
+; affects   : .Y
+; preserves : .A, .X
 ; returns   : .C clear if success, set if failed
 .proc ym_set_atten: near
 	PRESERVE_AND_SET_BANK
+	pha
+	phx
 
 	; if unchanged, return
 	cmp ym_atten,x
@@ -257,10 +259,14 @@ ym_chk_alg_change:
 	bcs fail
 end:
 	RESTORE_BANK
+	plx
+	pla
 	clc
 	rts
 fail:
 	RESTORE_BANK
+	plx
+	pla
 	sec
 	rts
 .endproc

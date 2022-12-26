@@ -351,15 +351,215 @@ add:
 	rts
 .endproc
 
-; stubs for as-yet unimplemented conversion routines. Just return error until
-; they are implemented
+.proc notecon_psg2midi: near
+	; inputs: .X .Y = low, high of VERA PSG frequency
+	; outputs: .X = midi note, .Y = KF
 
-notecon_freq2bas:
-notecon_psg2bas:
-notecon_psg2fm:
-notecon_freq2fm:
-notecon_psg2midi:
-notecon_freq2midi:
+	lda ram_bank
+	pha
+	stz ram_bank
+
+	stx psgfreqtmp
+	sty psgfreqtmp+1
+
+	ldx #0
+mloop:
+	lda psgfreqtmp+1
+	cmp midi2psg_h,x
+	beq mlow
+	bcs mnext
+	bra mpassed
+mlow:
+	lda psgfreqtmp
+	cmp midi2psg_l,x
+	beq mfound
+	bcs mnext
+	bra mpassed
+mnext:
+	inx
+	bpl :+
+	jmp error
+:	bra mloop
+mpassed:
+	dex
+	bpl :+
+	jmp error
+:
+mfound:
+	lda psgfreqtmp
+	sec
+	sbc midi2psg_l,x
+	sta psgfreqtmp
+	lda psgfreqtmp+1
+	sbc midi2psg_h,x
+	sta psgfreqtmp+1
+
+	; Now the delta is in psgfreqtmp.  Find the KF.
+	stz hztmp
+b7:
+	; bit 7
+	lda psgfreqtmp
+	cmp kfdelta7_l,x
+	lda psgfreqtmp+1
+	sbc kfdelta7_h,x
+	bcc b6
+	lda psgfreqtmp
+	sbc kfdelta7_l,x
+	sta psgfreqtmp
+	lda psgfreqtmp+1
+	sbc kfdelta7_h,x
+	sta psgfreqtmp+1
+	lda hztmp
+	ora #$80
+	sta hztmp
+b6:
+	; bit 6
+	lda psgfreqtmp
+	cmp kfdelta6_l,x
+	lda psgfreqtmp+1
+	sbc kfdelta6_h,x
+	bcc b5
+	lda psgfreqtmp
+	sbc kfdelta6_l,x
+	sta psgfreqtmp
+	lda psgfreqtmp+1
+	sbc kfdelta6_h,x
+	sta psgfreqtmp+1
+	lda hztmp
+	ora #$40
+	sta hztmp
+b5:
+	; bit 5
+	lda psgfreqtmp
+	cmp kfdelta5_l,x
+	lda psgfreqtmp+1
+	sbc kfdelta5_h,x
+	bcc b4
+	lda psgfreqtmp
+	sbc kfdelta5_l,x
+	sta psgfreqtmp
+	lda psgfreqtmp+1
+	sbc kfdelta5_h,x
+	sta psgfreqtmp+1
+	lda hztmp
+	ora #$20
+	sta hztmp
+b4:
+	; bit 4
+	lda psgfreqtmp
+	cmp kfdelta4_l,x
+	lda psgfreqtmp+1
+	sbc kfdelta4_h,x
+	bcc b3
+	lda psgfreqtmp
+	sbc kfdelta4_l,x
+	sta psgfreqtmp
+	lda psgfreqtmp+1
+	sbc kfdelta4_h,x
+	sta psgfreqtmp+1
+	lda hztmp
+	ora #$10
+	sta hztmp
+b3:
+	; bit 3
+	lda psgfreqtmp
+	cmp kfdelta3_l,x
+	lda psgfreqtmp+1
+	sbc kfdelta3_h,x
+	bcc b2
+	lda psgfreqtmp
+	sbc kfdelta3_l,x
+	sta psgfreqtmp
+	lda psgfreqtmp+1
+	sbc kfdelta3_h,x
+	sta psgfreqtmp+1
+	lda hztmp
+	ora #$08
+	sta hztmp
+b2:
+	; bit 2
+	lda psgfreqtmp
+	cmp kfdelta2_l,x
+	lda psgfreqtmp+1
+	sbc kfdelta2_h,x
+	bcc b1
+	lda psgfreqtmp
+	sbc kfdelta2_l,x
+	sta psgfreqtmp
+	lda psgfreqtmp+1
+	sbc kfdelta2_h,x
+	sta psgfreqtmp+1
+	lda hztmp
+	ora #$04
+	sta hztmp
+b1:
+	ldy hztmp
+	clc
+	bra end
+error:
+	ldx #0
+	ldy #0
+	sec
+end:
+	pla
+	sta ram_bank
+	rts
+.endproc
+
+.proc notecon_freq2fm: near
+	; inputs: .X .Y = low, high of Hz frequency
+	; clobbers: .A
+	; outputs: .X = KC, .Y = KF
+	jsr notecon_freq2midi
+	bcs error
+	jmp notecon_midi2fm
+error:
+	jmp return_error
+.endproc
+
+.proc notecon_psg2fm: near
+	; inputs: .X .Y = low, high of PSG frequency
+	; clobbers: .A
+	; outputs: .X = KC, .Y = KF
+	jsr notecon_psg2midi
+	bcs error
+	jmp notecon_midi2fm
+error:
+	jmp return_error
+.endproc
+
+.proc notecon_psg2bas: near
+	; inputs: .X .Y = low, high of PSG frequency
+	; clobbers: .A
+	; outputs: .X = BASIC oct/note, .Y = KF
+	jsr notecon_psg2midi
+	bcs error
+	jmp notecon_midi2bas
+error:
+	jmp return_error
+.endproc
+
+.proc notecon_freq2midi: near
+	; inputs: .X .Y = low, high of Hz frequency
+	; clobbers: .A
+	; outputs: .X = MIDI note, .Y = KF
+	jsr notecon_freq2psg
+	bcs error
+	jmp notecon_psg2midi
+error:
+	jmp return_error
+.endproc
+
+.proc notecon_freq2bas: near
+	; inputs: .X .Y = low, high of Hz frequency
+	; clobbers: .A
+	; outputs: .X = BASIC oct/note, .Y = KF
+	jsr notecon_freq2midi
+	bcs error
+	jmp notecon_midi2bas
+error:
+	jmp return_error
+.endproc
 
 ; save some code size by having a generic "return error" routine
 .proc return_error: near
