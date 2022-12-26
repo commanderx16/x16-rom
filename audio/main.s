@@ -28,6 +28,8 @@
 
 ; imports from psg.s
 .import psg_init
+.import psg_playfreq
+.import psg_setvol
 
 ; imports from basic.s
 .import bas_fmnote
@@ -80,5 +82,8 @@
 	jmp notecon_freq2midi     ; $C048
 	jmp notecon_psg2midi      ; $C04B
 	jmp bas_psgnote           ; $C04E
+	jmp psg_playfreq          ; $C051
+	jmp psg_setvol            ; $C054
+
 
 

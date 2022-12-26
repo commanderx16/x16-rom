@@ -98,12 +98,17 @@
 	lda #0
 	SET_VERA_PSG_POINTER
 
-	; write zero into all 64 PSG registers.
-	lda #64
-loop:
+	; write zeroes into all 16 PSG voices for freq and volume
+	; and set waveform to pulse, 50%
+	ldx #16
+	lda #$3F
+loop1:
 	stz VERA_DATA0
-	dec
-	bne loop
+	stz VERA_DATA0
+	stz VERA_DATA0
+	sta VERA_DATA0
+	dex
+	bne loop1
 
 	ldx #16
 loop2:
