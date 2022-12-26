@@ -221,8 +221,7 @@ snerr9:	jmp snerr
 	tay
 	lda ptrfunc,y
 	sta jmper+1
-	iny
-	lda ptrfunc,y
+	lda ptrfunc+1,y
 	sta jmper+2
 	jsr jmper
 	jmp chknum
