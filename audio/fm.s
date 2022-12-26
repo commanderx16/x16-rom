@@ -399,6 +399,18 @@ fail:
 ; returns: C set on failure
 ;
 .proc ym_init: near
+	; Zero the channel attenuation and ensure bank refcnt is correct
+	PRESERVE_AND_SET_BANK
+	lda #1
+	sta audio_bank_refcnt
+
+	ldx #8
+att:
+	stz ym_atten-1,x
+	dex
+	bne att
+	RESTORE_BANK
+
 	; set release=max ($0F) for all operators on all voices ($E0..$FF)
 	lda #$0f
 	ldx #$e0
