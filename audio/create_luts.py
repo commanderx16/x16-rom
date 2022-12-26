@@ -39,6 +39,7 @@ lutfile.write(".export midi2ymkc\n")
 lutfile.write(".export ymkc2midi\n")
 lutfile.write(".export midi2bas\n")
 lutfile.write(".export bas2midi\n")
+lutfile.write(".export fm_op_alg_carrier\n")
 
 
 lutfile.write("\n.segment \"LUTS\"\n\n")
@@ -231,4 +232,22 @@ if overlap != low7:
 # Output final bytes
 lutfile.write("".join(list_to_dotbyte_strings([int(x) for x in overlap])))
 
+# FM alg+op -> carrier
+lutfile.write("""
+; Lookup table to find whether op is a carrier, per alg
+fm_op_alg_carrier:
+\t; ALG   0   1   2   3   4   5   6   7
+\t.byte $00,$00,$00,$00,$00,$00,$00,$01 ; M1
+\t.byte $00,$00,$00,$00,$01,$01,$01,$01 ; M2
+\t.byte $00,$00,$00,$00,$00,$01,$01,$01 ; C1
+\t.byte $01,$01,$01,$01,$01,$01,$01,$01 ; C2
+\t; alg 0  1->2->3->4
+\t; alg 1  (1+2)->3->4
+\t; alg 2  (1+(2->3))->4
+\t; alg 3  ((1->2)+3)->4
+\t; alg 4  1->2, 3->4
+\t; alg 5  1->(2+3+4)
+\t; alg 6  1->2, 3, 4
+\t; alg 7  1, 2, 3, 4
 
+""")

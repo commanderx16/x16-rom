@@ -10,6 +10,7 @@
 .export ymkc2midi
 .export midi2bas
 .export bas2midi
+.export fm_op_alg_carrier
 
 .segment "LUTS"
 
@@ -143,3 +144,20 @@ kfdelta7_l:
 	.byte $a7,$b0,$bb,$c6,$d2,$de,$ec,$fa,$09,$18,$29,$3b
 	.byte $4e,$61,$76,$8d,$a4,$bd,$d8,$f4,$12,$31,$53,$76
 	.byte $9c,$c3,$ed,$1a,$49,$7b,$b0,$e8
+
+; Lookup table to find whether op is a carrier, per alg
+fm_op_alg_carrier:
+	; ALG   0   1   2   3   4   5   6   7
+	.byte $00,$00,$00,$00,$00,$00,$00,$01 ; M1
+	.byte $00,$00,$00,$00,$01,$01,$01,$01 ; M2
+	.byte $00,$00,$00,$00,$00,$01,$01,$01 ; C1
+	.byte $01,$01,$01,$01,$01,$01,$01,$01 ; C2
+	; alg 0  1->2->3->4
+	; alg 1  (1+2)->3->4
+	; alg 2  (1+(2->3))->4
+	; alg 3  ((1->2)+3)->4
+	; alg 4  1->2, 3->4
+	; alg 5  1->(2+3+4)
+	; alg 6  1->2, 3, 4
+	; alg 7  1, 2, 3, 4
+

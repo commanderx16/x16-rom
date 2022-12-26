@@ -23,13 +23,21 @@
 ;
 
 ; imports from fm.s
-.import ym_write, ym_loadpatch, ym_playnote, ym_setnote
-.import ym_trigger, ym_release, ym_init, ym_read
+.import ym_write
+.import ym_loadpatch
+.import ym_playnote
+.import ym_setnote
+.import ym_trigger
+.import ym_release
+.import ym_init
+.import ym_read
+.import ym_set_atten
 
 ; imports from psg.s
 .import psg_init
 .import psg_playfreq
 .import psg_setvol
+.import psg_set_atten
 
 ; imports from basic.s
 .import bas_fmnote
@@ -84,6 +92,7 @@
 	jmp bas_psgnote           ; $C04E
 	jmp psg_playfreq          ; $C051
 	jmp psg_setvol            ; $C054
-
+	jmp ym_set_atten          ; $C057
+	jmp psg_set_atten         ; $C05A
 
 

@@ -84,8 +84,8 @@ noop:
 	clc              ; result = success
 	rts
 release:
-	pla
-	ldx #$00
+	plx
+	lda #$00
 	jmp psg_setvol
 error:
 	pla

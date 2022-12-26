@@ -7,8 +7,11 @@
 
 .export ymshadow, returnbank, _PMD
 .export psgfreqtmp, hztmp
-.export psgtmp1, psg_atten
-.export fm_atten
+.export psgtmp1, psg_atten, psg_volshadow
+.export ymtmp1, ymtmp2, ym_atten
+
+.export audio_prev_bank
+.export audio_bank_refcnt
 
 ; declare 3 bytes of ZP space for audio routines
 .segment "ZPAUDIO": zeropage
@@ -27,10 +30,17 @@
 	psgtmp1:    .res 1  ; tmp for things that happen in psg.s
 	psg_atten:  .res 16 ; attenuation levels for the 16 PSG channels
 	                    ; AKA inverse channel volume
+	psg_volshadow: .res 16 ; we need to shadow the intended volume
+	                       ; so changes to psg_atten can be applied
 
 	; fm.s
-	fm_atten:   .res 8  ; attenuation levels for the 8 YM2151 channels
-	
+	ymtmp1:          .res 1  ; needed for scratch in fm.s
+	ymtmp2:          .res 1  ; 
+	ym_atten:        .res 8  ; attenuation levels for the 8 YM2151 channels
+
+	; shared (for bank mgmt)
+	audio_bank_refcnt: .res 1
+	audio_prev_bank: .res 1	
 
 ; YM2151 is write-only. The library will keep a RAM shadow of writes in order
 ; to facilitate functionalities like modifying the active values of the chip.

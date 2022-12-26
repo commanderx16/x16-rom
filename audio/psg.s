@@ -10,9 +10,13 @@
 .export psg_init
 .export psg_playfreq
 .export psg_setvol
+.export psg_set_atten
 
 .import psgtmp1
 .import psg_atten
+.import psg_volshadow
+.import audio_prev_bank
+.import audio_bank_refcnt
 
 .macro PRESERVE_VERA
 	; save the state of VERA data0 / CTRL registers
@@ -73,14 +77,25 @@
 .endmacro
 
 .macro PRESERVE_AND_SET_BANK
+.scope
 	lda ram_bank
-	pha
 	stz ram_bank
+	beq skip_preserve
+	sta audio_prev_bank
+skip_preserve:
+	inc audio_bank_refcnt
+.endscope
 .endmacro
 
 .macro RESTORE_BANK
-	pla
+.scope
+	dec audio_bank_refcnt
+	bne skip_restore
+	lda audio_prev_bank
+	stz audio_prev_bank
 	sta ram_bank
+skip_restore:
+.endscope
 .endmacro
 
 
@@ -93,6 +108,8 @@
 ;
 .proc psg_init: near
 	PRESERVE_AND_SET_BANK
+	lda #1
+	sta audio_bank_refcnt
 	PRESERVE_VERA
 
 	lda #0
@@ -110,6 +127,7 @@ loop1:
 	dex
 	bne loop1
 
+	; zero out the attenuation state for all 16 channels
 	ldx #16
 loop2:
 	stz psg_atten-1,x
@@ -131,9 +149,11 @@ loop2:
 
 .proc psg_playfreq: near
 	and #$0F
-	sta psgtmp1
-
+	pha
 	PRESERVE_AND_SET_BANK
+	pla
+	sta psgtmp1
+	
 	PRESERVE_VERA
 
 	lda psgtmp1
@@ -157,6 +177,7 @@ loop2:
 :	sta psgtmp1
 
 	lda #$3F          ; max volume
+	sta psg_volshadow,x
 	sec
 	sbc psg_atten,x   ; apply attenuation
 	bpl :+
@@ -174,19 +195,20 @@ loop2:
 ;-----------------------------------------------------------------
 ; Set PSG voice volume w/ attenuation
 ; 
-; inputs: .A = voice
-;         .X = volume
-; clobbers: .Y
+; inputs: .X = voice
+;         .A = volume
+; affects: .Y
+; preserves: none
 ;-----------------------------------------------------------------
 
 .proc psg_setvol: near
-	and #$0F
 	tay
-
 	PRESERVE_AND_SET_BANK
 	PRESERVE_VERA
 
-	tya
+	txa
+	and #$0F
+	tax
 	SET_VERA_PSG_POINTER 0, 2 ; 0 stride, offset 2 (volume register)
 
 	; Retrieve L/R, set them both on if they're not set
@@ -197,10 +219,11 @@ loop2:
 	lda #$C0
 :	sta psgtmp1
 
-	txa
+	tya
 	and #$3F
+	sta psg_volshadow,x
 	sec
-	sbc psg_atten,y   ; apply attenuation
+	sbc psg_atten,x   ; apply attenuation
 
 	bpl :+
 	lda #$00          ; clamp at 0
@@ -213,3 +236,31 @@ loop2:
 .endproc
 
 
+;-----------------------------------------------------------------
+; psg_set_atten
+;-----------------------------------------------------------------
+; Set PSG voice attenuation (and reapply volume)
+; 
+; inputs: .X = voice
+;         .A = volume
+; affects: .Y
+; preserves: none
+;-----------------------------------------------------------------
+
+.proc psg_set_atten: near
+	tay
+	PRESERVE_AND_SET_BANK
+
+	txa
+	and #$0F
+	tax
+	tya
+	and #$7F
+
+	sta psg_atten,x
+	lda psg_volshadow,x
+	jsr psg_setvol
+
+	RESTORE_BANK
+	rts
+.endproc

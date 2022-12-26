@@ -9,12 +9,17 @@
 
 ; BRAM storage
 .import ymshadow, returnbank, _PMD
+.import ymtmp1, ymtmp2, ym_atten
+.import audio_bank_refcnt, audio_prev_bank
 
 ; Pointer to FM patch data indexes
 .import patches_lo, patches_hi
 
 ; Import subroutines
 .import notecon_bas2fm
+
+; Import LUTs
+.import fm_op_alg_carrier
 
 .export ym_write
 .export ym_read
@@ -24,14 +29,37 @@
 .export ym_trigger
 .export ym_release
 .export ym_init
+.export ym_set_atten
 
 YM_TIMEOUT = 64 ; max value is 128.
+
+.macro PRESERVE_AND_SET_BANK
+.scope
+	ldy ram_bank
+	stz ram_bank
+	beq skip_preserve
+	sty audio_prev_bank
+skip_preserve:
+	inc audio_bank_refcnt
+.endscope
+.endmacro
+
+.macro RESTORE_BANK
+.scope
+	dec audio_bank_refcnt
+	bne skip_restore
+	ldy audio_prev_bank
+	stz audio_prev_bank
+	sty ram_bank
+skip_restore:
+.endscope
+.endmacro
 
 .segment  "CODE"
 
 ; inputs    : .A = value, .X = YM register
-; affects   : .Y
 ; preserves : .A .X
+; affects   : .Y
 ; returns   : .C clear=success, set=timeout
 .proc ym_write: near
 	ldy #YM_TIMEOUT
@@ -40,38 +68,135 @@ wait:
 	bmi fail
 	bit YM_DATA
 	bmi wait
-	stx YM_REG
-	nop ; slight pause between selecting YM register and writing the value
-	nop ; (hw-imposed restriction)
-	nop
-	nop
-	nop
-	sta YM_DATA
 
-	; write the value into the YM shadow
-	ldy ram_bank
-	stz ram_bank
-	sty returnbank
+	PRESERVE_AND_SET_BANK
+	phx
+	pha
+
+	stx YM_REG
+
+	; write the value into the YM shadow first, so that if we cook the value 
+	; later before writing to the chip, we have the original values here
+	; but if it's an RLFBCON write, branch elsewhere to handle writing
+	; all of the affected TL values if necessary
+	cpx #$20
+	bcc storeit
+	cpx #$28
+	bcc is_rlfbcon
 	cpx #$19   ; PMD/AMD register is a special case. Shadow PMD writes into $1A.
 	bne storeit
 	cmp #$80   ; If value >= $80 then PMD. Store in $1A
 	bcc storeit
 	sta _PMD
-	bra done
+	bra chk_tl_register
+is_rlfbcon:
+	; go ahead and write it out to the chip now
+	sta YM_DATA
+	; check to see if we need to reapply the TLs from the shadow
+	; then store this value into the shadow
+	jmp ym_chk_alg_change
 storeit:
 	sta ymshadow,X
+chk_tl_register:
+	; we need to cook the value if we're writing to a TL and we have an attenuation
+	; level set for this channel
+	cpx #$60
+	bcc write
+	cpx #$80
+	bcs write
+	
+	; We're about to write a TL, let's find out what channel this write is for
+	; If the write is meant for a TL that is not a carrier, bail out
+	; If the write is meant for a TL that is a carrier, but there is no attenuation
+	;  then bail out also
+	; Otherwise, apply the attenuation value
+	pha
+	jsr ym_get_channel_from_register
+	bcc pla_then_write
+	lda ym_atten, x
+	beq pla_then_write
+	pla
+
+	clc
+	adc ym_atten, x
+	bpl :+
+	lda #$7F
+:
+	bra write
+pla_then_write:
+	pla
+write:
+	; plenty of clocks have passed in between the write to YM_REG
+	; so there's definitely no need for NOPs
+	sta YM_DATA
 done:
-	ldy returnbank
-	sty ram_bank
+	pla
+	plx
+	RESTORE_BANK
 	clc
 	rts
+latefail:
+	pla
+	plx
+	RESTORE_BANK
 fail:
 	sec
 	rts
+ym_chk_alg_change:
+	sta ymtmp1 ; RLFBCON
+	and #$07
+	sta ymtmp2 ; just the CON portion
+	lda ymshadow,x
+	and #$07
+	tay
+	lda ymtmp1
+	sta ymshadow,x ; we've finally shadowed this write
+
+	; Is the old ALG the same as the new one? If so, we're done
+	cpy ymtmp2
+	beq done
+
+	; Put the channel number into X
+	txa
+	and #$07
+	tax
+
+	; If no attenuation is set, we're done
+	lda ym_atten,x
+	beq done
+
+	; get the register number for the TL into X
+	txa
+	clc
+	adc #$60
+	tax
+
+	; reapply M1	
+	lda ymshadow,x
+	jsr ym_write
+	bcs latefail
+
+	; reapply M2
+	txa
+	adc #$08
+	tax
+	lda ymshadow,x
+	jsr ym_write
+	bcs latefail
+
+	; reapply C1
+	txa
+	adc #$08
+	tax
+	lda ymshadow,x
+	jsr ym_write
+	bcs latefail
+
+	bra done
 .endproc
 
 ; inputs    : .X = YM register  *note that the PMD parameter is shadowed as $1A
-; affects   : .A, .X
+; affects   : .A, .Y
 ; preserves : .X
 ; returns   : .A = retreived value
 .proc ym_read: near
@@ -79,6 +204,64 @@ fail:
 	stz ram_bank
 	lda ymshadow,X
 	sty ram_bank
+	rts
+.endproc
+
+
+; inputs    : .A = attenuation amount (0 is native volume)  .X = YM channel
+; affects   : .A, .X, .Y
+; preserves : none
+; returns   : .C clear if success, set if failed
+.proc ym_set_atten: near
+	PRESERVE_AND_SET_BANK
+
+	; if unchanged, return
+	cmp ym_atten,x
+	beq end
+
+	sta ym_atten,x
+	
+	; get the register number for the TL into X
+	txa
+	clc
+	adc #$60
+	tax
+
+	; reapply M1	
+	lda ymshadow,x
+	jsr ym_write
+	bcs fail
+
+	; reapply M2
+	txa
+	adc #$08
+	tax
+	lda ymshadow,x
+	jsr ym_write
+	bcs fail
+
+	; reapply C1
+	txa
+	adc #$08
+	tax
+	lda ymshadow,x
+	jsr ym_write
+	bcs fail
+
+	; reapply C2
+	txa
+	adc #$08
+	tax
+	lda ymshadow,x
+	jsr ym_write
+	bcs fail
+end:
+	RESTORE_BANK
+	clc
+	rts
+fail:
+	RESTORE_BANK
+	sec
 	rts
 .endproc
 
@@ -254,5 +437,37 @@ i3:
 	ldx #$01
 	jsr ym_write
 abort:
+	rts
+.endproc
+
+.proc ym_get_channel_from_register: near
+	; inputs: .X = YM2151 register
+	;   assumes YMSHADOW/AUDIOBSS is banked in
+	; affects: .A .Y
+	; outputs: .X = channel 0-7, or $FF if error (register < $20)
+	; returns with .C set if operator is a carrier in this alg
+	txa
+	tay
+	cmp #$20
+	bcc fail
+	and #$07 
+	tax ; channel number is safely in .X
+	cpy #$40
+	bcc end ; carry is clear
+	tya
+	and #$18
+	sta ymtmp1
+
+	lda ymshadow+$20,x ; get the alg (con) out of the shadow
+	and #$07
+	ora ymtmp1 ; combine it with 8*op
+	tay
+	lda fm_op_alg_carrier,y ; lookup whether operator is a carrier
+	ror ; set carry if true
+end:
+	rts
+fail:
+	clc
+	ldx #$FF
 	rts
 .endproc
