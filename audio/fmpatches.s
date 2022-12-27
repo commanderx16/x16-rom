@@ -268,14 +268,11 @@ YMP_Silent:
 
 .linecont -
 
+; We're still using the old patch table for now
+; so it's stuffed at the front
+
 patches_lo:
 	.lobytes PATCHTABLE
-patches_hi:
-	.hibytes PATCHTABLE
-
-; We're still using the old patch table for now
-
-patches_lo_:
 	.lobytes M0_PIANO
 	.lobytes M1_MALLET
 	.lobytes M2_ORGAN
@@ -293,7 +290,8 @@ patches_lo_:
 	.lobytes ME_PERC
 	.lobytes MF_SFX
 
-patches_hi_:
+patches_hi:
+	.hibytes PATCHTABLE
 	.hibytes M0_PIANO
 	.hibytes M1_MALLET
 	.hibytes M2_ORGAN

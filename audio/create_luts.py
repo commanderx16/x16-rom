@@ -144,7 +144,7 @@ for vi in range(128):
             kf[bf][vi]
         except:
             kf[bf].append([])
-        kf[bf][vi] = statistics.mean(tmp_diffs)
+        kf[bf][vi] = statistics.median(tmp_diffs)
     # Find the error amount (in cents) for each kf and show the worst
     ec = []
     v2 = []

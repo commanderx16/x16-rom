@@ -275,7 +275,7 @@ fail:
 
 ; inputs:
 ;   .C clear: .A = voice # .XY = address of patch (little-endian)
-;   .C set:   .A = voice # .X = index of ROM patch 0..31
+;   .C set:   .A = voice # .X = index of ROM patch 0..127
 ;
 ; affects: .A, .X, .Y
 ; returns: .C: clear=success, set=failed
@@ -288,7 +288,7 @@ fail:
 	bcc _loadpatch
 	pha
 	txa
-	and #$1F ; mask instrument number to range 0..31
+	and #$7F ; mask instrument number to range 0..127
 	tax
 	lda patches_hi,x
 	tay

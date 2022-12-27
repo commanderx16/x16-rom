@@ -11,6 +11,8 @@
 .export psg_playfreq
 .export psg_setvol
 .export psg_set_atten
+.export psg_setfreq
+.export psg_write
 
 .import psgtmp1
 .import psg_atten
@@ -44,36 +46,40 @@
 .endmacro
 
 .macro SET_VERA_STRIDE stride
-   .ifnblank stride
-      .if stride < 0
-         lda #((^VERA_PSG_BASE) | $08 | ((0-stride) << 4)))
-      .else
-         lda #(^VERA_PSG_BASE | (stride << 4))
-      .endif
-   .else
-      lda #(^VERA_PSG_BASE) | $10
-   .endif
+.ifnblank stride
+.if stride < 0
+	lda #((^VERA_PSG_BASE) | $08 | ((0-stride) << 4)))
+.else
+	lda #(^VERA_PSG_BASE | (stride << 4))
+.endif
+.else
+	lda #(^VERA_PSG_BASE) | $10
+.endif
 	sta VERA_ADDR_H
 .endmacro
 
-.macro SET_VERA_PSG_POINTER stride, offset
-	; "input": voice number is in .A
-
-	; point data0 at PSG registers
-	stz VERA_CTRL
-	and #$0F
-	asl
-	asl
+.macro SET_VERA_PSG_POINTER_REG stride, offset
 	clc
-	.ifnblank offset
+	stz VERA_CTRL
+.ifnblank offset
 	adc #<(VERA_PSG_BASE + offset)
-	.else
+.else
 	adc #<(VERA_PSG_BASE)
-	.endif
+.endif
 	sta VERA_ADDR_L
 	lda #>VERA_PSG_BASE
 	sta VERA_ADDR_M
 	SET_VERA_STRIDE stride
+.endmacro
+
+.macro SET_VERA_PSG_POINTER_VOICE stride, offset
+	; "input": voice number is in .A
+
+	; point data0 at PSG registers
+	and #$0F
+	asl
+	asl
+	SET_VERA_PSG_POINTER_REG stride, offset
 .endmacro
 
 .macro PRESERVE_AND_SET_BANK
@@ -117,7 +123,7 @@ skip_restore:
 	PRESERVE_VERA
 
 	lda #0
-	SET_VERA_PSG_POINTER
+	SET_VERA_PSG_POINTER_VOICE
 
 	; write zeroes into all 16 PSG voices for freq and volume
 	; and set waveform to pulse, 50%
@@ -162,7 +168,7 @@ loop2:
 	PRESERVE_VERA
 
 	lda psgtmp1
-	SET_VERA_PSG_POINTER
+	SET_VERA_PSG_POINTER_VOICE
 
 	; Set frequency
 	stx VERA_DATA0
@@ -196,6 +202,91 @@ loop2:
 .endproc
 
 ;-----------------------------------------------------------------
+; psg_setfreq
+;-----------------------------------------------------------------
+; Set the PSG frequency
+; inputs: .A    = voice
+;         .X .Y = 16-bit PSG frequency
+;-----------------------------------------------------------------
+
+.proc psg_setfreq: near
+	and #$0F
+	pha
+	PRESERVE_AND_SET_BANK
+	pla
+	sta psgtmp1
+	
+	PRESERVE_VERA
+
+	lda psgtmp1
+	SET_VERA_PSG_POINTER_VOICE
+
+	; Set frequency
+	stx VERA_DATA0
+	sty VERA_DATA0
+	
+	RESTORE_VERA
+	RESTORE_BANK
+	rts
+.endproc
+
+;-----------------------------------------------------------------
+; psg_write
+;-----------------------------------------------------------------
+; Do a PSG register write, while cooking volume
+; inputs: .A = value, .X = PSG register ($00-$3F)
+; affects: .Y
+; preserves: .A .X
+;-----------------------------------------------------------------
+
+.proc psg_write: near
+	pha
+	phx
+
+	tay
+	PRESERVE_AND_SET_BANK
+	PRESERVE_VERA
+
+	txa
+	SET_VERA_PSG_POINTER_REG
+	
+	; Writing something besides volume?
+	; skip to the write
+	txa
+	and #$03
+	cmp #$02
+	bne write
+
+	; We are writing volume
+	; Preserve the L+R bits from the incoming write
+	tya
+	and #$C0
+	sta psgtmp1
+
+	; Shadow the raw value
+	tya
+	and #$3F
+	sta psg_volshadow,y
+
+	; Apply attenuation
+	sec
+	sbc psg_atten,y
+	bpl :+
+	lda #$00
+:	ora psgtmp1
+	tay
+write:
+	sty VERA_DATA0
+	
+	RESTORE_VERA
+	RESTORE_BANK
+	plx
+	pla
+	rts
+.endproc
+
+
+;-----------------------------------------------------------------
 ; psg_setvol
 ;-----------------------------------------------------------------
 ; Set PSG voice volume w/ attenuation
@@ -214,7 +305,7 @@ loop2:
 	txa
 	and #$0F
 	tax
-	SET_VERA_PSG_POINTER 0, 2 ; 0 stride, offset 2 (volume register)
+	SET_VERA_PSG_POINTER_VOICE 0, 2 ; 0 stride, offset 2 (volume register)
 
 	; Retrieve L/R, set them both on if they're not set
 	; otherwise keep state

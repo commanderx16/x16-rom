@@ -17,7 +17,7 @@
 ; At this time, the actual locations of the FM patches and LUTs are not
 ; considered to be "directly accessible" and their location is not hard-coded
 ; into this project. It is intended that programmers should use the published
-; API calls that leverage them. e.g. ym_loadpatch_rom in order to configure the
+; API calls that leverage them. e.g. ym_loadpatch in order to configure the
 ; YM2151 with that instrument configuration, or notecon_midi2psg in order to
 ; get the result of the note table lookup.
 ;
@@ -38,6 +38,8 @@
 .import psg_playfreq
 .import psg_setvol
 .import psg_set_atten
+.import psg_setfreq
+.import psg_write
 
 ; imports from basic.s
 .import bas_fmnote
@@ -94,5 +96,6 @@
 	jmp psg_setvol            ; $C054
 	jmp ym_set_atten          ; $C057
 	jmp psg_set_atten         ; $C05A
-
+	jmp psg_setfreq           ; $C05D
+	jmp psg_write             ; $C060
 

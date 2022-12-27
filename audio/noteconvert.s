@@ -398,7 +398,11 @@ mfound:
 	stz hztmp
 b7:
 	; bit 7
-	lda psgfreqtmp
+	lda kfdelta7_l,x
+	ora kfdelta7_h,x
+	bne :+
+	jmp finalize
+:	lda psgfreqtmp
 	cmp kfdelta7_l,x
 	lda psgfreqtmp+1
 	sbc kfdelta7_h,x
@@ -414,7 +418,11 @@ b7:
 	sta hztmp
 b6:
 	; bit 6
-	lda psgfreqtmp
+	lda kfdelta6_l,x
+	ora kfdelta6_h,x
+	bne :+
+	jmp finalize
+:	lda psgfreqtmp
 	cmp kfdelta6_l,x
 	lda psgfreqtmp+1
 	sbc kfdelta6_h,x
@@ -430,7 +438,11 @@ b6:
 	sta hztmp
 b5:
 	; bit 5
-	lda psgfreqtmp
+	lda kfdelta5_l,x
+	ora kfdelta5_h,x
+	bne :+
+	jmp finalize
+:	lda psgfreqtmp
 	cmp kfdelta5_l,x
 	lda psgfreqtmp+1
 	sbc kfdelta5_h,x
@@ -446,7 +458,11 @@ b5:
 	sta hztmp
 b4:
 	; bit 4
-	lda psgfreqtmp
+	lda kfdelta4_l,x
+	ora kfdelta4_h,x
+	bne :+
+	jmp finalize
+:	lda psgfreqtmp
 	cmp kfdelta4_l,x
 	lda psgfreqtmp+1
 	sbc kfdelta4_h,x
@@ -462,6 +478,9 @@ b4:
 	sta hztmp
 b3:
 	; bit 3
+	lda kfdelta3_l,x
+	ora kfdelta3_h,x
+	beq finalize
 	lda psgfreqtmp
 	cmp kfdelta3_l,x
 	lda psgfreqtmp+1
@@ -478,11 +497,14 @@ b3:
 	sta hztmp
 b2:
 	; bit 2
+	lda kfdelta2_l,x
+	ora kfdelta2_h,x
+	beq finalize
 	lda psgfreqtmp
 	cmp kfdelta2_l,x
 	lda psgfreqtmp+1
 	sbc kfdelta2_h,x
-	bcc b1
+	bcc finalize
 	lda psgfreqtmp
 	sbc kfdelta2_l,x
 	sta psgfreqtmp
@@ -492,7 +514,7 @@ b2:
 	lda hztmp
 	ora #$04
 	sta hztmp
-b1:
+finalize:
 	ldy hztmp
 	clc
 	bra end
