@@ -229,9 +229,4 @@ if args.i is not None:
                 sys.stderr.write("Skipped {:s} Block\n".format(fur[0:4].decode('utf-8')))
             blocklen = unpack("<L",fur[4:8])[0]
             fur = fur[8+blocklen:]
-            continue
- 
-
-
-
-    
+            continue   
