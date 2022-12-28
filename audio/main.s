@@ -31,13 +31,15 @@
 .import ym_release
 .import ym_init
 .import ym_read
-.import ym_set_atten
+.import ym_setatten
+.import ym_setdrum
+.import ym_playdrum
 
 ; imports from psg.s
 .import psg_init
 .import psg_playfreq
 .import psg_setvol
-.import psg_set_atten
+.import psg_setatten
 .import psg_setfreq
 .import psg_write
 
@@ -94,8 +96,10 @@
 	jmp bas_psgnote           ; $C04E
 	jmp psg_playfreq          ; $C051
 	jmp psg_setvol            ; $C054
-	jmp ym_set_atten          ; $C057
-	jmp psg_set_atten         ; $C05A
+	jmp ym_setatten           ; $C057
+	jmp psg_setatten          ; $C05A
 	jmp psg_setfreq           ; $C05D
 	jmp psg_write             ; $C060
+	jmp ym_setdrum            ; $C063
+	jmp ym_playdrum           ; $C066
 

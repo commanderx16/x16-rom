@@ -10,7 +10,7 @@
 .export psg_init
 .export psg_playfreq
 .export psg_setvol
-.export psg_set_atten
+.export psg_setatten
 .export psg_setfreq
 .export psg_write
 
@@ -333,7 +333,7 @@ write:
 
 
 ;-----------------------------------------------------------------
-; psg_set_atten
+; psg_setatten
 ;-----------------------------------------------------------------
 ; Set PSG voice attenuation (and reapply volume)
 ; 
@@ -343,7 +343,7 @@ write:
 ; preserves: none
 ;-----------------------------------------------------------------
 
-.proc psg_set_atten: near
+.proc psg_setatten: near
 	tay
 	PRESERVE_AND_SET_BANK
 

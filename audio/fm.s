@@ -14,6 +14,7 @@
 
 ; Pointer to FM patch data indexes
 .import patches_lo, patches_hi
+.import drum_patches, drum_kc
 
 ; Import subroutines
 .import notecon_bas2fm
@@ -25,11 +26,13 @@
 .export ym_read
 .export ym_loadpatch
 .export ym_playnote
+.export ym_playdrum
 .export ym_setnote
 .export ym_trigger
 .export ym_release
 .export ym_init
-.export ym_set_atten
+.export ym_setatten
+.export ym_setdrum
 
 YM_TIMEOUT = 64 ; max value is 128.
 
@@ -212,7 +215,7 @@ ym_chk_alg_change:
 ; affects   : .Y
 ; preserves : .A, .X
 ; returns   : .C clear if success, set if failed
-.proc ym_set_atten: near
+.proc ym_setatten: near
 	PRESERVE_AND_SET_BANK
 	pha
 	phx
@@ -275,7 +278,7 @@ fail:
 
 ; inputs:
 ;   .C clear: .A = voice # .XY = address of patch (little-endian)
-;   .C set:   .A = voice # .X = index of ROM patch 0..127
+;   .C set:   .A = voice # .X = index of ROM patch 0..127 (159 including drums)
 ;
 ; affects: .A, .X, .Y
 ; returns: .C: clear=success, set=failed
@@ -288,8 +291,12 @@ fail:
 	bcc _loadpatch
 	pha
 	txa
-	and #$7F ; mask instrument number to range 0..127
-	tax
+	cmp #$FF
+	bne :+
+:	cmp #$A0 ; > max patch
+	bcc :+ ; mask instrument number to range 0..159
+	lda #$80 ; silent patch
+:	tax
 	lda patches_hi,x
 	tay
 	lda patches_lo,x
@@ -328,6 +335,45 @@ fail:
 success:
 	clc
 	rts
+.endproc
+
+.proc ym_setdrum: near
+; inputs: .A = voice, .X = Channel 10 style MIDI note for drum sound
+; affects: .A .X .Y
+; returns: C set on error
+	
+	phx ; save MIDI note
+	and #$07
+	pha ; save voice
+
+	; constrain to MIDI note value 0-127
+	txa
+	and #$7F
+	tax
+
+	lda drum_patches,x ; load patch number for drum
+	
+	tax
+
+	pla ; load voice
+	pha ; resave voice
+	sec
+	jsr ym_loadpatch
+	bcs error
+
+	ply ; restore voice here temporarily
+	plx ; restore MIDI note
+	lda drum_kc,x ; load KC value for drum sound
+	tax
+	tya ; set voice
+	ldy #0
+	jmp ym_setnote
+error:
+	plx
+	pla
+	sec
+	rts
+
 .endproc
 
 ; inputs: .A = voice, .X = KC (note)  .Y = KF (key fraction (pitch bend))
@@ -396,6 +442,22 @@ fail:
 	sec
 	rts
 .endproc
+
+; inputs: .A = voice, .X = note (KC)
+; affects: .A .X .Y
+; masks voice to range 0-7
+.proc ym_playdrum: near
+	pha
+	jsr ym_setdrum
+	bcs fail
+	pla
+	jmp ym_trigger
+fail:
+	pla ; clear the stack.
+	sec
+	rts
+.endproc
+
 
 ;---------------------------------------------------------------
 ; Re-initialize the YM-2151 to default state (everything off)

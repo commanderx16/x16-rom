@@ -6,6 +6,7 @@
 
 
 .export patches_lo, patches_hi
+.export drum_patches, drum_kc
 
 .segment "PATCHDATA"
 
@@ -294,7 +295,7 @@ drum_patches:
 	.byte $8F ; 59: Ride Cymbal 2 = 143 Ride Cymbal
 	.byte $93 ; 60: High Bongo = 147 Bongo
 	.byte $93 ; 61: Low Bongo = 147 Bongo
-	.byte $A8 ; 62: Mute High Conga = 138 Tom
+	.byte $8A ; 62: Mute High Conga = 138 Tom
 	.byte $93 ; 63: Open High Conga = 147 Bongo
 
 	.byte $93 ; 64: Low Conga = 147 Bongo
