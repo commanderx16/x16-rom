@@ -212,8 +212,6 @@ patches_hi:
 
 fm_patches:
 
-
-
 ; 000 Acoustic Piano
 M000_Acoustic_Piano:
 	.byte $C4,$00
@@ -292,6 +290,7 @@ M010_Music_Box:
 	.byte $00,$00,$00,$00,$F6,$B4,$FC,$FD
 
 ; 011 Vibraphone
+; Instrument is affected by LFO
 M011_Vibraphone:
 	.byte $C4,$02
 	.byte $35,$35,$34,$31,$2D,$50,$0A,$04
@@ -530,6 +529,7 @@ M043_Contrabass:
 	.byte $00,$00,$00,$00,$00,$00,$00,$0A
 
 ; 044 Tremolo Strings
+; Instrument is affected by LFO
 M044_Tremolo_Strings:
 	.byte $FC,$02
 	.byte $51,$13,$51,$11,$1C,$1B,$0B,$09
@@ -1129,6 +1129,7 @@ M125_Helicopter:
 	.byte $40,$80,$80,$00,$00,$00,$00,$04
 
 ; 126 Applause
+; Instrument is affected by LFO
 M126_Applause:
 	.byte $F8,$01
 	.byte $3F,$3F,$3F,$30,$00,$00,$00,$00

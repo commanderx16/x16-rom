@@ -145,7 +145,7 @@ def extract_instrument_v127(ins):
                     # [11,19,27,35] AMSEN and D1R
                     tmp = ins[11+x]
                     ympdata[14+y] = (tmp & 0x9F)
-                    if (ympdata[1] & 0x18) > 0 and (ympdata[14+y] & 0x80):
+                    if (ympdata[1] & 0x07) > 0 and (ympdata[14+y] & 0x80):
                         instrument_affected_by_lfo = True
                     # [12,20,28,36] D2R (we get DT2 later)
                     tmp = ins[12+x]
@@ -165,7 +165,7 @@ def extract_instrument_v127(ins):
                     sys.stderr.write("Skipping unsupported feature: '{}'\n".format(feature.decode('utf-8')))
             ins = ins[4+feature_length:]
             continue
-        print("\n; {}, Chip {}".format(instrument_name,instypes[instrument_type]))
+        print("\n; {}".format(instrument_name,instypes[instrument_type]))
         if instrument_has_macros:
             print("; WARNING: Instrument has macros")
         if instrument_uses_eg:
