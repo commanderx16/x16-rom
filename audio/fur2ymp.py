@@ -132,33 +132,33 @@ def extract_instrument_v127(ins):
                 # [7] AM2|4|LLPatch: Skip
                 for i in range(4):
                     x = i*8
-                    y = i*6
+                    y = i
                     # [8,16,24,32] DT1 and MUL
                     tmp = ins[8+x]
                     ympdata[2+y] = (tmp & 0x7F)
                     # [9,17,25,33] TL
                     tmp = ins[9+x]
-                    ympdata[3+y] = (tmp & 0x7F)
+                    ympdata[6+y] = (tmp & 0x7F)
                     # [10,18,26,34] KS and AR
                     tmp = ins[10+x]
-                    ympdata[4+y] = (tmp & 0xDF)
+                    ympdata[10+y] = (tmp & 0xDF)
                     # [11,19,27,35] AMSEN and D1R
                     tmp = ins[11+x]
-                    ympdata[5+y] = (tmp & 0x8F)
-                    if (ympdata[1] & 0x18) > 0 and (ympdata[5+y] & 0x80):
+                    ympdata[14+y] = (tmp & 0x9F)
+                    if (ympdata[1] & 0x18) > 0 and (ympdata[14+y] & 0x80):
                         instrument_affected_by_lfo = True
                     # [12,20,28,36] D2R (we get DT2 later)
                     tmp = ins[12+x]
-                    ympdata[6+y] = (tmp & 0x0F)
+                    ympdata[18+y] = (tmp & 0x1F)
                     if (tmp & 0x80) > 0:
                         instrument_uses_eg = True
                     # [13,21,29,37] D1L and RR
                     tmp = ins[13+x]
-                    ympdata[7+y] = tmp
+                    ympdata[22+y] = tmp
                     # [14,22,30,38] Parameters not on OPM: Skip
                     # [15,23,31,39] DT2
                     tmp = ins[15+x]
-                    ympdata[6+y] = ympdata[6+y] | ((tmp & 0x18) << 3)
+                    ympdata[18+y] = ympdata[18+y] | ((tmp & 0x18) << 3)
 
             else:
                 if debug:
@@ -172,7 +172,7 @@ def extract_instrument_v127(ins):
             print("; WARNING: Instrument uses OPN SSG-EG")
         if instrument_affected_by_lfo:
             print("; Instrument is affected by LFO")
-        print("{}:".format(re.sub("[^A-Za-z0-9]","_",instrument_name)))
+        print("{}:".format(re.sub("^([0-9])",r"M\1",re.sub("[^A-Za-z0-9]","_",instrument_name))))
         print("".join(list_to_dotbyte_strings(ympdata[0:2])), end='')
         print("".join(list_to_dotbyte_strings(ympdata[2:])), end='')
 
