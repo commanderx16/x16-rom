@@ -11,7 +11,7 @@
 
 .linecont +
 
-.define M0_PIANO \
+.define GM0_PIANO \
 	M000_Acoustic_Piano, \
 	M001_Bright_Acoustic_Piano, \
 	M002_Electric_Grand_Piano, \
@@ -21,7 +21,7 @@
 	M006_Harpsichord, \
 	M007_Clavinet
 
-.define M1_MALLET \
+.define GM1_MALLET \
 	M008_Celesta, \
 	M009_Glockenspiel, \
 	M010_Music_Box, \
@@ -31,7 +31,7 @@
 	M014_Tubular_Bells, \
 	M015_Dulcimer
 
-.define M2_ORGAN \
+.define GM2_ORGAN \
 	M016_Drawbar_Organ, \
 	M017_Percussive_Organ, \
 	M018_Rock_Organ, \
@@ -41,7 +41,7 @@
 	M022_Harmonica, \
 	M023_Bandoneon
 
-.define M3_GUITAR \
+.define GM3_GUITAR \
 	M024_Acoustic_Nylon_Guitar, \
 	M025_Acoustic_Steel_Guitar, \
 	M026_Electric_Jazz_Guitar, \
@@ -51,7 +51,7 @@
 	M030_Electric_Distorted_Guitar, \
 	M031_Electric_Guitar_Harmonics
 
-.define M4_BASS \
+.define GM4_BASS \
 	M032_Acoustic_Bass, \
 	M033_Electric_Finger_Bass, \
 	M034_Electric_Picked_Bass, \
@@ -61,7 +61,7 @@
 	M038_Synth_Bass_1, \
 	M039_Synth_Bass_2
 
-.define M5_STRINGS \
+.define GM5_STRINGS \
 	M040_Violin, \
 	M041_Viola, \
 	M042_Cello, \
@@ -71,7 +71,7 @@
 	M046_Harp, \
 	M047_Timpani
 
-.define M6_ENSEMBLE \
+.define GM6_ENSEMBLE \
 	M048_String_Ensemble_1, \
 	M049_String_Ensemble_2, \
 	M050_Synth_Strings_1, \
@@ -81,7 +81,7 @@
 	M054_Synth_Choir, \
 	M055_Orch_Hit
 
-.define M7_BRASS \
+.define GM7_BRASS \
 	M056_Trumpet, \
 	M057_Trombone, \
 	M058_Tuba, \
@@ -91,7 +91,7 @@
 	M062_Synth_Brass_1, \
 	M063_Synth_Brass_2
 
-.define M8_REED \
+.define GM8_REED \
 	M064_Soprano_Sax, \
 	M065_Alto_Sax, \
 	M066_Tenor_Sax, \
@@ -101,7 +101,7 @@
 	M070_Bassoon, \
 	M071_Clarinet
 
-.define M9_PIPE \
+.define GM9_PIPE \
 	M072_Piccolo, \
 	M073_Flute, \
 	M074_Recorder, \
@@ -111,7 +111,7 @@
 	M078_Whistle, \
 	M079_Ocarina
 
-.define MA_LEAD \
+.define GMA_LEAD \
 	M080_Lead_1_Square, \
 	M081_Lead_2_Saw, \
 	M082_Lead_3_Triangle, \
@@ -121,7 +121,7 @@
 	M086_Lead_7_Fifths, \
 	M087_Lead_8_Solo
 
-.define MB_PAD \
+.define GMB_PAD \
 	M088_Pad_1_Fantasia, \
 	M089_Pad_2_Warm, \
 	M090_Pad_3_Poly, \
@@ -131,7 +131,7 @@
 	M094_Pad_7_Halo, \
 	M095_Pad_8_Sweep
 
-.define MC_SYNFX \
+.define GMC_SYNFX \
 	M096_FX_1_Rain, \
 	M097_FX_2_Soundtrack, \
 	M098_FX_3_Crystal, \
@@ -141,7 +141,7 @@
 	M102_FX_7_Echoes, \
 	M103_FX_8_Sci_Fi
 
-.define MD_ETHNIC \
+.define GMD_ETHNIC \
 	M104_Sitar, \
 	M105_Banjo, \
 	M106_Shamisen, \
@@ -151,7 +151,7 @@
 	M110_Fiddle, \
 	M111_Shanai
 
-.define ME_PERC \
+.define GME_PERC \
 	M112_Tinkle_Bell, \
 	M113_Agogo, \
 	M114_Steel_Drum, \
@@ -161,7 +161,7 @@
 	M118_Synth_Drum, \
 	M119_Reverse_Cymbal
 
-.define MF_SFX \
+.define GMF_SFX \
 	M120_Guitar_Fret_Noise, \
 	M121_Breath_Noise, \
 	M122_Seashore, \
@@ -171,44 +171,249 @@
 	M126_Applause, \
 	M127_Gunshot
 
+.define GM_DRUMS \
+	M128_Silent, \
+	M129_Snare_Roll, \
+	M130_Snap, \
+	M131_High_Q, \
+	M132_Scratch, \
+	M133_Square_Click, \
+	M134_Kick, \
+	M135_Rim, \
+	M136_Snare_, \
+	M137_Clap, \
+	M138_Tom, \
+	M139_Closed_Hi_Hat, \
+	M140_Pedal_Hi_Hat, \
+	M141_Open_Hi_Hat, \
+	M142_Crash, \
+	M143_Ride_Cymbal, \
+	M144_Splash_Cymbal, \
+	M145_Tambourine, \
+	M146_Vibraslap, \
+	M147_Bongo, \
+	M148_Maracas, \
+	M149_Short_Whistle, \
+	M150_Long_Whistle, \
+	M151_Short_Guiro, \
+	M152_Long_Guiro, \
+	M153_Mute_Cuica, \
+	M154_Open_Cuica, \
+	M155_Mute_Triangle, \
+	M156_Open_Triangle, \
+	M157_Jingle_Bell, \
+	M158_Bell_Tree, \
+	M159_Surdo
+
 .linecont -
 
+
+
 patches_lo:
-	.lobytes M0_PIANO
-	.lobytes M1_MALLET
-	.lobytes M2_ORGAN
-	.lobytes M3_GUITAR
-	.lobytes M4_BASS
-	.lobytes M5_STRINGS
-	.lobytes M6_ENSEMBLE
-	.lobytes M7_BRASS
-	.lobytes M8_REED
-	.lobytes M9_PIPE
-	.lobytes MA_LEAD
-	.lobytes MB_PAD
-	.lobytes MC_SYNFX
-	.lobytes MD_ETHNIC
-	.lobytes ME_PERC
-	.lobytes MF_SFX
+	.lobytes GM0_PIANO
+	.lobytes GM1_MALLET
+	.lobytes GM2_ORGAN
+	.lobytes GM3_GUITAR
+	.lobytes GM4_BASS
+	.lobytes GM5_STRINGS
+	.lobytes GM6_ENSEMBLE
+	.lobytes GM7_BRASS
+	.lobytes GM8_REED
+	.lobytes GM9_PIPE
+	.lobytes GMA_LEAD
+	.lobytes GMB_PAD
+	.lobytes GMC_SYNFX
+	.lobytes GMD_ETHNIC
+	.lobytes GME_PERC
+	.lobytes GMF_SFX
+	.lobytes GM_DRUMS
 
 patches_hi:
-	.hibytes M0_PIANO
-	.hibytes M1_MALLET
-	.hibytes M2_ORGAN
-	.hibytes M3_GUITAR
-	.hibytes M4_BASS
-	.hibytes M5_STRINGS
-	.hibytes M6_ENSEMBLE
-	.hibytes M7_BRASS
-	.hibytes M8_REED
-	.hibytes M9_PIPE
-	.hibytes MA_LEAD
-	.hibytes MB_PAD
-	.hibytes MC_SYNFX
-	.hibytes MD_ETHNIC
-	.hibytes ME_PERC
-	.hibytes MF_SFX
+	.hibytes GM0_PIANO
+	.hibytes GM1_MALLET
+	.hibytes GM2_ORGAN
+	.hibytes GM3_GUITAR
+	.hibytes GM4_BASS
+	.hibytes GM5_STRINGS
+	.hibytes GM6_ENSEMBLE
+	.hibytes GM7_BRASS
+	.hibytes GM8_REED
+	.hibytes GM9_PIPE
+	.hibytes GMA_LEAD
+	.hibytes GMB_PAD
+	.hibytes GMC_SYNFX
+	.hibytes GMD_ETHNIC
+	.hibytes GME_PERC
+	.hibytes GMF_SFX
+	.hibytes GM_DRUMS
 
+; These are the patches that are used for the drums
+drum_patches:
+	.byte $80,$80,$80,$80,$80,$80,$80,$80
+	.byte $80,$80,$80,$80,$80,$80,$80,$80
+	.byte $80,$80,$80,$80,$80,$80,$80,$80
+	.byte $80
+	.byte $81 ; 25: 129 Snare Roll
+	.byte $82 ; 26: 130 Snap
+	.byte $83 ; 27: 131 High Q
+	.byte $82 ; 28: Slap = 130 Snap
+	.byte $84 ; 29: Scratch Pull = 132 Scratch
+	.byte $84 ; 30: Scratch Push = 132 Scratch
+	.byte $82 ; 31: Sticks = 130 Snap
+
+	.byte $85 ; 32: 133 Square Click
+	.byte $70 ; 33: Metronome Bell = 112 Tinkle Bell
+	.byte $82 ; 34: Metronome Click = 130 Snap
+	.byte $86 ; 35: Acoustic Bass Drum = 134 Kick
+	.byte $86 ; 36: Electric Bass Drum = 134 Kick
+	.byte $87 ; 37: Side Stick = 135 Rim
+	.byte $88 ; 38: Acoustic Snare = 136 Snare
+	.byte $89 ; 39: Hand Clap = 137 Clap
+
+	.byte $88 ; 40: Electric Snare = 136 Snare
+	.byte $8A ; 41: Low Floor Tom = 138 Tom
+	.byte $8B ; 42: 139 Closed Hi-Hat
+	.byte $8A ; 43: High Floor Tom = 138 Tom
+	.byte $8C ; 44: 140 Pedal Hi-Hat
+	.byte $8A ; 45: Low Tom = 138 Tom
+	.byte $8D ; 46: 141 Open Hi-Hat
+	.byte $8A ; 47: Low-Mid Tom = 138 Tom
+	
+	.byte $8A ; 48: High-Mid Tom = 138 Tom
+	.byte $8E ; 49: Crash Cymbal 1 = 142 Crash
+	.byte $8A ; 50: High Tom = 138 Tom
+	.byte $8F ; 51: Ride Cymbal 1 = 143 Ride Cymbal
+	.byte $90 ; 52: Chinese Cymbal = 144 Splash Cymbal
+	.byte $8F ; 53: Ride Bell = 143 Ride Cymbal
+	.byte $91 ; 54: 145 Tambourine
+	.byte $90 ; 55: 144 Splash Cymbal
+
+	.byte $71 ; 56: Cowbell = 113 Agogo
+	.byte $8E ; 57: Crash Cymbal 2 = 142 Crash
+	.byte $92 ; 58: 146 Vibraslap
+	.byte $8F ; 59: Ride Cymbal 2 = 143 Ride Cymbal
+	.byte $93 ; 60: High Bongo = 147 Bongo
+	.byte $93 ; 61: Low Bongo = 147 Bongo
+	.byte $A8 ; 62: Mute High Conga = 138 Tom
+	.byte $93 ; 63: Open High Conga = 147 Bongo
+
+	.byte $93 ; 64: Low Conga = 147 Bongo
+	.byte $93 ; 65: High Timbale = 147 Bongo
+	.byte $93 ; 66: Low Timbale = 147 Bongo
+	.byte $71 ; 67: High Agogo = 113 Agogo
+	.byte $71 ; 68: Low Agogo = 113 Agogo
+	.byte $78 ; 69: Cabasa = 120 Guitar Fret Noise
+	.byte $94 ; 70: 148 Maracas
+	.byte $95 ; 71: 149 Short Whistle
+
+	.byte $96 ; 72: 150 Long Whistle
+	.byte $97 ; 73: 151 Short Guiro
+	.byte $98 ; 74: 152 Long Guiro
+	.byte $85 ; 75: Claves = 133 Square Click
+	.byte $73 ; 76: High Woodblock = 115 Woodblock
+	.byte $73 ; 77: Low Woodblock = 115 Woodblock
+	.byte $99 ; 78: 153 Mute Cuica
+	.byte $9A ; 79: 154 Open Cuica
+
+	.byte $9B ; 80: 155 Mute Triangle
+	.byte $9C ; 81: 156 Open Triangle
+	.byte $94 ; 82: Shaker = 148 Maracas
+	.byte $9D ; 83: 157 Jingle Bell
+	.byte $9E ; 84: 158 Bell Tree
+	.byte $87 ; 85: Castanets = 135 Rim
+	.byte $9F ; 86: Mute Surdo = 159 Surdo
+	.byte $9F ; 87: Open Surdo = 159 Surdo
+
+	.byte $80,$80,$80,$80,$80,$80,$80,$80
+	.byte $80,$80,$80,$80,$80,$80,$80,$80
+	.byte $80,$80,$80,$80,$80,$80,$80,$80
+	.byte $80,$80,$80,$80,$80,$80,$80,$80
+	.byte $80,$80,$80,$80,$80,$80,$80,$80
+
+
+; These are the KC values for the drum patches
+; indexed by GM drums' corresponding MIDI note
+drum_kc:
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00
+	.byte $00 ; 25 Snare Roll (C#0)
+	.byte $3E ; 26 Snap (YM C3/MIDI C4)
+	.byte $1E ; 27 High Q (YM C1/MIDI C2)
+	.byte $10 ; 28 Slap (C#1)
+	.byte $18 ; 29 Scratch Pull (G1)
+	.byte $11 ; 30 Scratch Push (D1)
+	.byte $75 ; 31 Sticks (F7)
+
+	.byte $4E ; 32 Square Click (YM C4/MIDI C5)
+	.byte $5E ; 33 Metronome Bell (YM C5/MIDI C6)
+	.byte $4E ; 34 Metronome Click (YM C4/MIDI C5)
+	.byte $2E ; 35 Acoustic Bass Drum (YM C2/MIDI C3)
+	.byte $3E ; 36 Electric Bass Drum (YM C3/MIDI C4)
+	.byte $61 ; 37 Side Stick (D6)
+	.byte $41 ; 38 Acoustic Snare (D4)
+	.byte $2E ; 39 Hand Clap (YM C2/MIDI C3)
+
+	.byte $2E ; 40 Electric Snare (YM C2/MIDI C3)
+	.byte $2E ; 41 Low Floor Tom (YM C2/MIDI C3)
+	.byte $5E ; 42 Closed Hi-Hat (YM C5/MIDI C6)
+	.byte $35 ; 43 High Floor Tom (F3)
+	.byte $7E ; 44 Pedal Hi-Hat (YM C7/MIDI C8)
+	.byte $38 ; 45 Low Tom (G3)
+	.byte $7E ; 46 Open Hi-Hat (YM C7/MIDI C8)
+	.byte $3C ; 47 Low-Mid Tom (A#3)
+
+	.byte $40 ; 48 High-Mid Tom (C#4)
+	.byte $7E ; 49 Crash Cymbal 1 (YM C7/MIDI C8)
+	.byte $44 ; 50 High Tom (E4)
+	.byte $7E ; 51 Ride Cymbal 1 (YM C7/MIDI C8)
+	.byte $2E ; 52 Chinese Cymbal (YM C2/MIDI C3)
+	.byte $31 ; 53 Ride Bell (D3)
+	.byte $38 ; 54 Tambourine (G3)
+	.byte $2E ; 55 Splash Cymbal (F4)
+
+	.byte $68 ; 56 Cowbell (G6)
+	.byte $2E ; 57 Crash Cymbal 2 (YM C2/MIDI C3)
+	.byte $08 ; 58 Vibraslap (G0)
+	.byte $6E ; 51 Ride Cymbal 2 (YM C6/MIDI C7)
+	.byte $3A ; 60 High Bongo (A3)
+	.byte $34 ; 61 Low Bongo (E3)
+	.byte $2E ; 62 Mute High Conga (YM C2/MIDI C3)
+	.byte $2E ; 63 Open High Conga (YM C2/MIDI C3)
+
+	.byte $28 ; 64 Low Conga (G2)
+	.byte $4A ; 65 High Timbale (A4)
+	.byte $44 ; 66 Low Timbale (E4)
+	.byte $75 ; 67 High Agogo (F7)
+	.byte $6E ; 68 Low Agogo (YM C6/MIDI C7)
+	.byte $7E ; 69 Cabasa (YM C7/MIDI C8)
+	.byte $1E ; 70 Maracas (YM C1/MIDI C2)
+	.byte $3E ; 71 Short Whistle (YM C3/MIDI C4)
+
+	.byte $3E ; 72 Long Whistle (YM C3/MIDI C4)
+	.byte $0D ; 73 Short Guiro (B0)
+	.byte $0E ; 74 Long Guiro (YM C0/MIDI C1)
+	.byte $68 ; 75 Claves (G6)
+	.byte $55 ; 76 High Woodblock (F5)
+	.byte $4E ; 77 Low Woodblock (YM C4/MIDI C5)
+	.byte $7E ; 78 Mute Cuica (YM C7/MIDI C8)
+	.byte $65 ; 79 Open Cuica (F6)
+
+	.byte $7E ; 80 Mute Triangle (YM C7/MIDI C8)
+	.byte $7E ; 81 Open Triangle (YM C7/MIDI C8)
+	.byte $6E ; 82 Shaker (YM C6/MIDI C7)
+	.byte $44 ; 83 Jingle Bell (E4)
+	.byte $25 ; 84 Bell Tree (F2)
+	.byte $65 ; 85 Castanets (F6)
+	.byte $45 ; 86 Mute Surdo (F4)
+	.byte $3E ; 87 Open Surdo (YM C3/MIDI C4)
+	
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
 
 fm_patches:
 
@@ -1142,3 +1347,227 @@ M127_Gunshot:
 	.byte $00,$00,$00,$60,$00,$00,$00,$00
 	.byte $1F,$1F,$1F,$5F,$00,$00,$00,$09
 	.byte $00,$00,$00,$0E,$60,$50,$50,$08
+
+; 128 Silent
+M128_Silent:
+	.byte $E7,$00
+	.byte $00,$00,$00,$00,$7F,$7F,$7F,$7F
+	.byte $1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F
+	.byte $1F,$1F,$1F,$1F,$FF,$FF,$FF,$FF
+
+; 129 Snare Roll
+M129_Snare_Roll:
+	.byte $F8,$00
+	.byte $00,$00,$00,$60,$00,$00,$00,$00
+	.byte $1F,$1F,$1F,$5F,$00,$00,$00,$0D
+	.byte $00,$00,$00,$00,$60,$50,$50,$38
+
+; 130 Snap
+M130_Snap:
+	.byte $FB,$00
+	.byte $52,$50,$00,$0F,$08,$16,$11,$00
+	.byte $1F,$1F,$1F,$1F,$00,$00,$00,$15
+	.byte $80,$C0,$40,$00,$FF,$FF,$FF,$FF
+
+; 131 High Q
+M131_High_Q:
+	.byte $C0,$00
+	.byte $50,$50,$00,$00,$00,$00,$27,$00
+	.byte $1F,$1F,$1F,$1F,$18,$11,$16,$0E
+	.byte $80,$C0,$4E,$00,$FF,$FF,$FF,$FF
+
+; 132 Scratch
+M132_Scratch:
+	.byte $E8,$00
+	.byte $55,$52,$01,$01,$2C,$2D,$00,$02
+	.byte $1A,$14,$14,$11,$17,$15,$1B,$10
+	.byte $00,$00,$00,$00,$F3,$B1,$F4,$FB
+
+; 133 Square Click
+M133_Square_Click:
+	.byte $FB,$00
+	.byte $32,$32,$32,$31,$1B,$25,$1D,$02
+	.byte $1F,$1F,$1F,$1F,$09,$09,$09,$16
+	.byte $00,$00,$00,$00,$00,$00,$00,$F9
+
+; 134 Kick
+M134_Kick:
+	.byte $FD,$00
+	.byte $50,$50,$00,$00,$11,$00,$00,$02
+	.byte $1F,$1F,$1F,$1F,$18,$00,$00,$00
+	.byte $00,$13,$0D,$19,$FF,$0F,$0F,$0F
+
+; 135 Rim
+M135_Rim:
+	.byte $FB,$00
+	.byte $52,$50,$00,$0F,$08,$28,$22,$00
+	.byte $1F,$1F,$1F,$1F,$00,$00,$00,$12
+	.byte $80,$C0,$40,$00,$FF,$FF,$FF,$FF
+
+; 136 Snare 
+M136_Snare_:
+	.byte $FC,$00
+	.byte $5F,$51,$0F,$00,$00,$10,$00,$00
+	.byte $1F,$1F,$1F,$1F,$1F,$1A,$11,$0E
+	.byte $00,$00,$00,$0A,$05,$F1,$FC,$7A
+
+; 137 Clap
+M137_Clap:
+	.byte $FB,$00
+	.byte $52,$50,$00,$0F,$08,$16,$1A,$00
+	.byte $1F,$1F,$1F,$1F,$00,$00,$00,$11
+	.byte $80,$C0,$40,$0F,$FF,$FF,$FF,$6F
+
+; 138 Tom
+M138_Tom:
+	.byte $C0,$00
+	.byte $30,$31,$34,$30,$22,$2B,$1F,$05
+	.byte $D9,$1F,$DF,$1F,$12,$14,$11,$0F
+	.byte $0A,$0A,$00,$09,$F3,$F3,$F6,$96
+
+; 139 Closed Hi-Hat
+M139_Closed_Hi_Hat:
+	.byte $F6,$00
+	.byte $3F,$38,$3F,$39,$00,$65,$00,$53
+	.byte $16,$00,$18,$1F,$0F,$0C,$16,$0B
+	.byte $00,$00,$12,$00,$06,$4F,$2F,$4F
+
+; 140 Pedal Hi-Hat
+M140_Pedal_Hi_Hat:
+	.byte $F6,$00
+	.byte $3F,$38,$3F,$39,$00,$20,$0E,$7C
+	.byte $16,$00,$16,$1F,$0F,$0C,$0F,$0B
+	.byte $00,$00,$18,$00,$06,$4F,$5F,$4F
+
+; 141 Open Hi-Hat
+M141_Open_Hi_Hat:
+	.byte $F6,$00
+	.byte $3F,$38,$3F,$39,$00,$20,$12,$25
+	.byte $16,$00,$18,$1F,$0F,$0C,$0A,$0B
+	.byte $00,$00,$0B,$00,$06,$4F,$5F,$4F
+
+; 142 Crash
+M142_Crash:
+	.byte $C0,$00
+	.byte $50,$50,$00,$0F,$00,$00,$00,$00
+	.byte $1F,$1F,$1F,$18,$1A,$05,$03,$00
+	.byte $C0,$C0,$40,$0A,$F0,$F0,$F0,$06
+
+; 143 Ride Cymbal
+M143_Ride_Cymbal:
+	.byte $C0,$00
+	.byte $32,$37,$36,$3F,$54,$1E,$0C,$00
+	.byte $1F,$1F,$1F,$1F,$00,$00,$00,$0C
+	.byte $C0,$00,$C0,$00,$00,$00,$00,$F6
+
+; 144 Splash Cymbal
+M144_Splash_Cymbal:
+	.byte $C0,$00
+	.byte $50,$50,$00,$00,$00,$03,$00,$04
+	.byte $1F,$1F,$1F,$18,$1A,$05,$03,$00
+	.byte $C0,$40,$40,$0A,$F0,$00,$90,$06
+
+; 145 Tambourine
+M145_Tambourine:
+	.byte $FC,$00
+	.byte $0B,$2F,$68,$4B,$00,$00,$00,$00
+	.byte $1F,$DF,$1F,$15,$00,$00,$11,$11
+	.byte $1F,$C0,$00,$00,$FF,$00,$FF,$FE
+
+; 146 Vibraslap
+M146_Vibraslap:
+	.byte $F8,$00
+	.byte $00,$00,$00,$60,$30,$00,$00,$00
+	.byte $1F,$1F,$1F,$5F,$00,$00,$00,$0C
+	.byte $00,$00,$00,$0D,$60,$50,$50,$38
+
+; 147 Bongo
+M147_Bongo:
+	.byte $D0,$00
+	.byte $30,$32,$3C,$30,$0C,$2B,$27,$00
+	.byte $D8,$1F,$DF,$1F,$0E,$14,$11,$11
+	.byte $0A,$0A,$00,$09,$F3,$F3,$F7,$FA
+
+; 148 Maracas
+M148_Maracas:
+	.byte $FA,$00
+	.byte $62,$32,$38,$6A,$00,$16,$21,$07
+	.byte $1F,$1F,$1F,$10,$00,$00,$00,$0F
+	.byte $40,$40,$80,$4B,$40,$B1,$F4,$B8
+
+; 149 Short Whistle
+M149_Short_Whistle:
+	.byte $C7,$00
+	.byte $29,$47,$76,$05,$00,$00,$00,$0E
+	.byte $0F,$16,$12,$12,$09,$09,$09,$09
+	.byte $19,$19,$59,$D9,$1D,$1E,$1D,$1B
+
+; 150 Long Whistle
+M150_Long_Whistle:
+	.byte $C7,$00
+	.byte $29,$47,$76,$05,$00,$00,$00,$0E
+	.byte $0F,$16,$12,$12,$09,$09,$09,$09
+	.byte $00,$00,$40,$C0,$1D,$1E,$1D,$1B
+
+; 151 Short Guiro
+M151_Short_Guiro:
+	.byte $F8,$00
+	.byte $00,$00,$00,$60,$28,$07,$00,$00
+	.byte $1F,$1F,$1F,$5F,$00,$00,$00,$0E
+	.byte $00,$00,$00,$12,$60,$50,$50,$27
+
+; 152 Long Guiro
+M152_Long_Guiro:
+	.byte $F8,$00
+	.byte $00,$00,$00,$60,$28,$07,$00,$00
+	.byte $1F,$1F,$1F,$5F,$00,$00,$00,$0C
+	.byte $00,$00,$00,$12,$60,$50,$50,$27
+
+; 153 Mute Cuica
+M153_Mute_Cuica:
+	.byte $C0,$00
+	.byte $30,$37,$30,$30,$07,$00,$34,$00
+	.byte $1F,$1F,$1F,$1F,$18,$11,$16,$10
+	.byte $00,$00,$0E,$1D,$FF,$FF,$FF,$6F
+
+; 154 Open Cuica
+M154_Open_Cuica:
+	.byte $C0,$00
+	.byte $30,$37,$30,$30,$07,$04,$34,$00
+	.byte $1F,$1F,$1F,$1F,$18,$01,$0D,$0D
+	.byte $00,$00,$0E,$1D,$FF,$BF,$DF,$6F
+
+; 155 Mute Triangle
+M155_Mute_Triangle:
+	.byte $CC,$00
+	.byte $3A,$3A,$30,$31,$7F,$18,$7F,$00
+	.byte $1F,$1F,$1F,$1F,$0D,$11,$04,$0C
+	.byte $00,$00,$00,$1F,$F3,$F1,$F4,$1F
+
+; 156 Open Triangle
+M156_Open_Triangle:
+	.byte $CC,$00
+	.byte $3A,$3A,$30,$31,$7F,$18,$7F,$00
+	.byte $1F,$1F,$1F,$1F,$0D,$11,$04,$0C
+	.byte $00,$00,$00,$08,$F3,$F1,$F4,$15
+
+; 157 Jingle Bell
+M157_Jingle_Bell:
+	.byte $C7,$00
+	.byte $29,$47,$76,$05,$00,$00,$00,$02
+	.byte $1F,$12,$1F,$12,$0D,$0D,$14,$14
+	.byte $10,$94,$4F,$D3,$1D,$1E,$1D,$1B
+
+; 158 Bell Tree
+M158_Bell_Tree:
+	.byte $C7,$00
+	.byte $2B,$4D,$79,$0D,$00,$00,$00,$02
+	.byte $1F,$1F,$1F,$1F,$14,$13,$14,$13
+	.byte $8D,$4F,$4F,$8D,$6D,$9E,$4D,$6D
+
+; 159 Surdo
+M159_Surdo:
+	.byte $C4,$00
+	.byte $70,$51,$00,$00,$30,$10,$00,$00
+	.byte $1F,$1F,$1F,$1F,$19,$1A,$0C,$0E
+	.byte $80,$00,$40,$0A,$F5,$F1,$FC,$7A
