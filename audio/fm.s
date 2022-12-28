@@ -1,4 +1,4 @@
-; Code by Barry Yost (a.k.a. ZXeroByte)
+; Code by Barry Yost (a.k.a. ZeroByte) and MooingLemur
 ; - 2022
 
 ; This file is for code dealing with the VERA PSG

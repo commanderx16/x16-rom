@@ -1,9 +1,6 @@
-; Patch data in 'YMP' (YM Patch) format.
-
-; The format is simply the values for registers:
-; $20, $38, $40, $48, $50, $58, ... , $F0, $F8
-; (skips $28 and $30 which are note selections, not patch data)
-
+; Patch tables created by Barry Yost (a.k.a. ZeroByte) and MooingLemur
+; used for predefined YM2151 instruments and drums
+; - 2022
 
 .export patches_lo, patches_hi
 .export drum_patches, drum_kc
@@ -393,8 +390,8 @@ drum_kc:
 	.byte $3E ; 71 Short Whistle (YM C3/MIDI C4)
 
 	.byte $3E ; 72 Long Whistle (YM C3/MIDI C4)
-	.byte $0D ; 73 Short Guiro (B0)
-	.byte $0E ; 74 Long Guiro (YM C0/MIDI C1)
+	.byte $1A ; 73 Short Guiro (A1)
+	.byte $1A ; 74 Long Guiro (A1)
 	.byte $68 ; 75 Claves (G6)
 	.byte $55 ; 76 High Woodblock (F5)
 	.byte $4E ; 77 Low Woodblock (YM C4/MIDI C5)
@@ -416,7 +413,14 @@ drum_kc:
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 
+; Patch data in 'YMP' (YM Patch) format.
+
+; The format is simply the values for registers:
+; $20, $38, $40, $48, $50, $58, ... , $F0, $F8
+; (skips $28 and $30 which are note selections, not patch data)
+
 fm_patches:
+
 
 ; 000 Acoustic Piano
 M000_Acoustic_Piano:
@@ -1500,29 +1504,29 @@ M148_Maracas:
 M149_Short_Whistle:
 	.byte $C7,$00
 	.byte $29,$47,$76,$05,$00,$00,$00,$0E
-	.byte $0F,$16,$12,$12,$09,$09,$09,$09
+	.byte $0F,$16,$12,$12,$0B,$0B,$0B,$0B
 	.byte $19,$19,$59,$D9,$1D,$1E,$1D,$1B
 
 ; 150 Long Whistle
 M150_Long_Whistle:
 	.byte $C7,$00
 	.byte $29,$47,$76,$05,$00,$00,$00,$0E
-	.byte $0F,$16,$12,$12,$09,$09,$09,$09
-	.byte $00,$00,$40,$C0,$1D,$1E,$1D,$1B
+	.byte $0F,$16,$12,$12,$05,$05,$05,$05
+	.byte $1F,$1F,$5F,$DF,$1D,$1E,$1D,$1B
 
 ; 151 Short Guiro
 M151_Short_Guiro:
 	.byte $F8,$00
-	.byte $00,$00,$00,$60,$28,$07,$00,$00
-	.byte $1F,$1F,$1F,$5F,$00,$00,$00,$0E
-	.byte $00,$00,$00,$12,$60,$50,$50,$27
+	.byte $00,$00,$7C,$30,$1E,$08,$32,$02
+	.byte $1F,$1F,$15,$5F,$00,$00,$00,$0E
+	.byte $00,$00,$08,$1F,$6F,$5F,$FF,$1F
 
 ; 152 Long Guiro
 M152_Long_Guiro:
 	.byte $F8,$00
-	.byte $00,$00,$00,$60,$28,$07,$00,$00
-	.byte $1F,$1F,$1F,$5F,$00,$00,$00,$0C
-	.byte $00,$00,$00,$12,$60,$50,$50,$27
+	.byte $00,$00,$7C,$30,$1E,$08,$32,$02
+	.byte $1F,$1F,$0B,$4C,$00,$00,$00,$0A
+	.byte $00,$00,$08,$1F,$6F,$5F,$FF,$1F
 
 ; 153 Mute Cuica
 M153_Mute_Cuica:
