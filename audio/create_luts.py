@@ -110,7 +110,7 @@ for n in range(128):
     octave = (n >> 4) & 7
     note = 12 + (octave * 12)
     code = (n & 0x0F)-1
-    if code < 0 or code >= 11:
+    if code < 0 or code > 11:
         note = 0xFF # error
     else:
         note += code
