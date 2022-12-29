@@ -84,7 +84,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "BAN", 'K' + $80
 	.byt "FMNOT", 'E' + $80
 	.byt "FMINS", 'T' + $80
-	.byt "PSGINS", 'T' + $80
+	.byt "PSGINI", 'T' + $80
 	.byt "PSGNOT", 'E' + $80
 	.byt "PSGVO", 'L' + $80
 	.byt "VPEE", 'K' + $80

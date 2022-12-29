@@ -47,8 +47,10 @@ psgnote:
 	rts
 
 ;***************
-psginst:
-	nop
+psginit:
+	jsr jsrfar
+	.word psg_init
+	.byte $0A
 	rts
 
 ;***************
