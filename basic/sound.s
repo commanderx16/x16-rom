@@ -14,6 +14,20 @@ fminit:
 	.word ym_init
 	.byte BANK_AUDIO
 	rts
+
+;***************
+fmfreq:
+	jsr get_channel
+	pha				; push the channel
+	jsr chkcom
+	jsr get_freq
+	pla		; channel
+	clc
+	jsr jsrfar
+	.word bas_fmhz
+	.byte BANK_AUDIO
+	rts
+
 ;***************
 fmnote:
 	jsr get_channel
