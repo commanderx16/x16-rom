@@ -57,7 +57,7 @@ fmvib:
 	jsr getbyt
 	phx				; push the speed
 	jsr chkcom
-	jsr getbyt
+	jsr get_depth
 	pla
 	jsr jsrfar
 	.word bas_fmvib
@@ -169,6 +169,13 @@ get_drum:
 :
 	rts
 
+get_depth:
+	jsr getbyt
+	txa
+	cmp #128
+	bcs depth_error
+	rts
+
 ;***************
 channel_error:
 	ldx #erchan
@@ -192,4 +199,9 @@ volume_error:
 ;***************
 drum_error:
 	ldx #erdrum
+	jmp error
+
+;***************
+depth_error:
+	ldx #erdep
 	jmp error
