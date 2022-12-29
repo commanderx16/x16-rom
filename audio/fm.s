@@ -304,8 +304,13 @@ fail:
 	pla
 _loadpatch:
 	and #$07 ; mask voice to range 0..7
+	; not sure if it's required to make the ZP ptr change
+	; here atomic, but it seems to be good hygiene
+	php ; store old interrupt flag
+	sei ; set interrupt inhibit
 	stx azp0L  ; TODO: use the Kernal's tmp1 ZP variable and not ABI
 	sty azp0H
+	plp ; restore old value of interrupt flag
 	clc
 	adc #$20 ; first byte of patch goes to YM:$20+voice
 	tax
