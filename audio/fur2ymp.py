@@ -114,7 +114,7 @@ def extract_instrument_v127(ins):
                     sys.stderr.write("Skipping unsupported feature: '{}'\n".format(feature.decode('utf-8')))
             ins = ins[4+feature_length:]
             continue
-        print("\n; {}".format(instrument_name)
+        print("\n; {}".format(instrument_name))
         if instrument_has_macros:
             print("; WARNING: Instrument has macros")
         if instrument_uses_eg:
