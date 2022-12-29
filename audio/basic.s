@@ -77,7 +77,10 @@ error:
 	jsr ym_write ; write PMD or AMD
 	bcs error2
 	eor #$80
-	jmp ym_write ; write the other one and we're outta here
+	jsr ym_write ; write the other one
+	ldx #$1B
+	lda #2
+	jsr ym_write  ; and we're outta here
 error1:
 	plx
 error2:
