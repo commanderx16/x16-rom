@@ -6,6 +6,7 @@
 ; sound capabilities, or the YM2151 FM synthesizer.
 
 .setcpu "65c02"
+.include "audio.inc"
 
 ;***************
 fmnote:
@@ -15,7 +16,7 @@ fmnote:
 	jsr get_note
 	pla		; channel
 	jsr jsrfar
-	.word $c000 + 3 * 9
+	.word bas_fmnote
 	.byte $0A
 	rts
 
@@ -29,7 +30,7 @@ fminst:
 	pla
 	sec				; load from rom
 	jsr jsrfar
-	.word $c000 + 3 * 2
+	.word ym_loadpatch
 	.byte $0A
 	rts
 
@@ -41,7 +42,7 @@ psgnote:
 	jsr get_note
 	pla				; channel
 	jsr jsrfar
-	.word $c000 + 3 * 26
+	.word bas_psgnote
 	.byte $0A
 	rts
 
@@ -57,9 +58,10 @@ psgvol:
 	jsr chkcom
 	jsr get_vol
 	eor #$3f
-	plx				; channel
+	tax
+	pla				; channel
 	jsr jsrfar
-	.word $c000 + 3 * 30
+	.word psg_setatten
 	.byte $0A
 	rts
 
