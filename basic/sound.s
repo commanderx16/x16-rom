@@ -77,6 +77,18 @@ psgnote:
 	rts
 
 ;***************
+psgwav:
+	jsr get_channel
+	pha				; push the channel
+	jsr chkcom
+	jsr getbyt
+	pla		; channel
+	jsr jsrfar
+	.word bas_psgwav
+	.byte BANK_AUDIO
+	rts
+
+;***************
 psginit:
 	jsr jsrfar
 	.word psg_init

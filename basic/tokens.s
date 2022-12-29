@@ -117,6 +117,7 @@ stmdsp2	; statements
 	.word psginit-1
 	.word psgnote-1
 	.word psgvol-1
+	.word psgwav-1
 
 	; functions
 ptrfunc	.word vpeek
