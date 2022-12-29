@@ -77,6 +77,18 @@ psgnote:
 	rts
 
 ;***************
+psgfreq:
+	jsr get_channel
+	pha				; push the channel
+	jsr chkcom
+	jsr get_freq
+	pla				; channel
+	jsr jsrfar
+	.word bas_psghz
+	.byte BANK_AUDIO
+	rts
+
+;***************
 psgwav:
 	jsr get_channel
 	pha				; push the channel
@@ -161,6 +173,12 @@ get_note:
 	ldy #0		; no semi-tones from BASIC
 	pla
 	cmp #$ff	; if facsgn was $ff, the value was negative
+	rts
+
+get_freq:
+	jsr frmadr
+	ldx poker
+	ldy poker+1
 	rts
 
 get_vol:
