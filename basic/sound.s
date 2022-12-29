@@ -27,6 +27,18 @@ fmnote:
 	rts
 
 ;***************
+fmdrum:
+	jsr get_channel
+	pha				; push the channel
+	jsr chkcom
+	jsr get_drum
+	pla		; channel
+	jsr jsrfar
+	.word ym_playdrum
+	.byte $0A
+	rts
+
+;***************
 fminst:
 	jsr get_channel
 	pha				; push the channel
@@ -134,6 +146,17 @@ get_vol:
 	bcs volume_error
 	rts
 
+get_drum:
+	jsr getbyt
+	txa
+	beq :+
+	cmp #88
+	bcs drum_error
+	cmp #25
+	bcc drum_error
+:
+	rts
+
 ;***************
 channel_error:
 	ldx #erchan
@@ -152,4 +175,9 @@ octave_error:
 ;***************
 volume_error:
 	ldx #ervol
+	jmp error
+
+;***************
+drum_error:
+	ldx #erdrum
 	jmp error

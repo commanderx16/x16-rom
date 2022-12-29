@@ -111,6 +111,7 @@ stmdsp2	; statements
 	.word setbank-1
 	.word fminit-1
 	.word fmnote-1
+	.word fmdrum-1
 	.word fminst-1
 	.word psginit-1
 	.word psgnote-1

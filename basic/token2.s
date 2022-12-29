@@ -84,6 +84,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "BAN", 'K' + $80
 	.byt "FMINI", 'T' + $80
 	.byt "FMNOT", 'E' + $80
+	.byt "FMDRU", 'M' + $80
 	.byt "FMINS", 'T' + $80
 	.byt "PSGINI", 'T' + $80
 	.byt "PSGNOT", 'E' + $80
@@ -187,6 +188,7 @@ errtab	.word err01
 	.word err33
 	.word err34
 	.word err35
+	.word err36
 
 okmsg	.byt $d,"OK",$d,$0
 err	.byt " ERROR",0
@@ -205,6 +207,8 @@ err34	.byt "INVALID OCTAV", $c5
 eroct	=34
 err35	.byt "INVALID VOLUM", $c5
 ervol	=35
+err36	.byt "INVALID DRU", 'M'+$80
+erdrum	=36
 
 forsiz	=$12
 fndfor	tsx
