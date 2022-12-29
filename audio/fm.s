@@ -33,6 +33,7 @@
 .export ym_init
 .export ym_setatten
 .export ym_setdrum
+.export ym_loaddefaultpatches
 
 YM_TIMEOUT = 64 ; max value is 128.
 
@@ -274,7 +275,34 @@ fail:
 	rts
 .endproc
 
-
+; inputs: none
+; affects: .A, .X, .Y
+; returns: .C: clear=success, set=failed
+.proc ym_loaddefaultpatches: near
+	lda #8
+loop:
+	pha
+	tay
+	ldx patches,y
+	sec
+	jsr ym_loadpatch
+	pla
+	bcs end ; carry is propagated to calling routine
+	dec
+	bpl loop
+	; carry is clear here
+end:
+	rts
+patches:
+	.byte 0 ; Acoustic Piano
+	.byte 5 ; Electric Piano
+	.byte 11 ; Vibraphone
+	.byte 35 ; Fretless Bass
+	.byte 40 ; Violin
+	.byte 56 ; Trumpet
+	.byte 76 ; Blown Bottle
+	.byte 88 ; Pad 1 "Fantasia"
+.endproc
 
 ; inputs:
 ;   .C clear: .A = voice # .XY = address of patch (little-endian)
