@@ -65,7 +65,7 @@ get_channel:
 get_inst:
 	jsr getbyt
 	txa
-	cmp #32
+	cmp #128
 	bcs channel_error
 	rts
 
@@ -73,13 +73,17 @@ get_inst:
 ; Reads and validates a note argument
 ;---------------------------------------------------------------
 ; inputs: none
-; returns: .X with the note, .Y with the octave
+; outputs: .X = high nybble octave (0-7), low nybble note (1-12)
+;              if low nybble is 0, release note
+;              if low nybble is 13-15, no-op return
+;         .Y = 0 (no semi-tones set from BASIC)
+;         .C set = the input for was negative
 ;
 get_note:
 	jsr frmnum
 	lda facsgn
-	pha
-	stz facsgn
+	pha			; store for later to set `.C` from
+	stz facsgn	; required or else conint will throw error
 	jsr conint
 	txa
 	lsr
@@ -88,12 +92,9 @@ get_note:
 	lsr
 	cmp #8
 	bcs octave_error
-	tay
-	txa
-	and #$0f
-	tax
+	ldy #0		; no semi-tones from BASIC
 	pla
-	cmp #$ff
+	cmp #$ff	; if facsgn was $ff, the value was negative
 	rts
 
 ;***************
