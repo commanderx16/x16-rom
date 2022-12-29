@@ -82,6 +82,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "BVLOA", 'D' + $80
 	.byt "BVERIF", 'Y' + $80
 	.byt "BAN", 'K' + $80
+	.byt "FMINI", 'T' + $80
 	.byt "FMNOT", 'E' + $80
 	.byt "FMINS", 'T' + $80
 	.byt "PSGINI", 'T' + $80

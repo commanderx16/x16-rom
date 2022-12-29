@@ -109,6 +109,7 @@ stmdsp2	; statements
 	.word bvload-1
 	.word bvrfy-1
 	.word setbank-1
+	.word fminit-1
 	.word fmnote-1
 	.word fminst-1
 	.word psginit-1

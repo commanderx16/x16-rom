@@ -9,6 +9,12 @@
 .include "audio.inc"
 
 ;***************
+fminit:
+	jsr jsrfar
+	.word ym_init
+	.byte $0A
+	rts
+;***************
 fmnote:
 	jsr get_channel
 	pha				; push the channel
