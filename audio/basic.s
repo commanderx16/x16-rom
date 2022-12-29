@@ -7,6 +7,7 @@
 
 .export bas_fmnote
 .export bas_psgnote
+.export bas_fmvib
 
 .importzp azp0, azp0L, azp0H
 
@@ -15,6 +16,7 @@
 .import psg_setvol
 .import ym_playnote
 .import ym_release
+.import ym_write
 .import notecon_bas2fm
 .import notecon_bas2psg
 
@@ -59,6 +61,33 @@ error:
 .endproc
 
 ;-----------------------------------------------------------------
+; bas_fmvib
+;-----------------------------------------------------------------
+; Sets YM2151 LFO (both PMD/AMD)
+; inputs: .A = speed
+;         .X = depth
+;-----------------------------------------------------------------
+.proc bas_fmvib: near
+	phx ; save depth
+	ldx #$18 ; LFO freq register
+	jsr ym_write
+	bcs error1
+	inx ; $19, LFO amplitude
+	pla ; depth in A
+	jsr ym_write ; write PMD or AMD
+	bcs error2
+	eor #$80
+	jmp ym_write ; write the other one and we're outta here
+error1:
+	plx
+error2:
+	sec
+	rts
+.endproc
+
+
+
+;-----------------------------------------------------------------
 ; bas_psgnote
 ;-----------------------------------------------------------------
 ; inputs: .A = voice
@@ -84,11 +113,12 @@ noop:
 	clc              ; result = success
 	rts
 release:
-	plx
-	lda #$00
+	pla
+	ldx #$00
 	jmp psg_setvol
 error:
 	pla
 	sec
 	rts
 .endproc
+

@@ -291,20 +291,19 @@ write:
 ;-----------------------------------------------------------------
 ; Set PSG voice volume w/ attenuation
 ; 
-; inputs: .X = voice
-;         .A = volume
+; inputs: .A = voice
+;         .X = volume
 ; affects: .Y
 ; preserves: none
 ;-----------------------------------------------------------------
 
 .proc psg_setvol: near
+	and #$0F
 	tay
 	PRESERVE_AND_SET_BANK
 	PRESERVE_VERA
 
-	txa
-	and #$0F
-	tax
+	tya
 	SET_VERA_PSG_POINTER_VOICE 0, 2 ; 0 stride, offset 2 (volume register)
 
 	; Retrieve L/R, set them both on if they're not set
@@ -315,11 +314,11 @@ write:
 	lda #$C0
 :	sta psgtmp1
 
-	tya
+	txa
 	and #$3F
-	sta psg_volshadow,x
+	sta psg_volshadow,y
 	sec
-	sbc psg_atten,x   ; apply attenuation
+	sbc psg_atten,y   ; apply attenuation
 
 	bpl :+
 	lda #$00          ; clamp at 0
@@ -337,8 +336,8 @@ write:
 ;-----------------------------------------------------------------
 ; Set PSG voice attenuation (and reapply volume)
 ; 
-; inputs: .X = voice
-;         .A = volume
+; inputs: .A = voice
+;         .X = volume
 ; affects: .Y
 ; preserves: none
 ;-----------------------------------------------------------------
@@ -348,10 +347,11 @@ write:
 	PRESERVE_AND_SET_BANK
 
 	txa
-	and #$0F
-	tax
-	tya
 	and #$7F
+	tax 
+
+	tya
+	and #$0F
 
 	sta psg_atten,x
 	lda psg_volshadow,x
