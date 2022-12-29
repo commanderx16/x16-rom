@@ -343,6 +343,7 @@ write:
 ;-----------------------------------------------------------------
 
 .proc psg_setatten: near
+	and #$0F
 	tay
 	PRESERVE_AND_SET_BANK
 
@@ -350,12 +351,8 @@ write:
 	and #$7F
 	tax 
 
-	tya
-	and #$0F
-	tay
-
-	sta psg_atten,x
-	lda psg_volshadow,x
+	sta psg_atten,y
+	lda psg_volshadow,y
 	tax
 	tya
 	jsr psg_setvol
