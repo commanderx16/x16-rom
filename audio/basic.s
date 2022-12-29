@@ -80,7 +80,7 @@ error:
 	jsr ym_write ; write the other one
 	ldx #$1B
 	lda #2
-	jsr ym_write  ; and we're outta here
+	jmp ym_write  ; and we're outta here
 error1:
 	plx
 error2:
