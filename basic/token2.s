@@ -86,6 +86,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "FMINS", 'T' + $80
 	.byt "PSGINS", 'T' + $80
 	.byt "PSGNOT", 'E' + $80
+	.byt "PSGVO", 'L' + $80
 	.byt "VPEE", 'K' + $80
 	.byt "M", 'X' + $80
 	.byt "M", 'Y' + $80
@@ -184,6 +185,7 @@ errtab	.word err01
 	.word err32
 	.word err33
 	.word err34
+	.word err35
 
 okmsg	.byt $d,"OK",$d,$0
 err	.byt " ERROR",0
@@ -200,6 +202,8 @@ err33	.byt "INVALID INSTRUMEN", $d4
 erinst	=33
 err34	.byt "INVALID OCTAV", $c5
 eroct	=34
+err35	.byt "INVALID VOLUM", $c5
+ervol	=35
 
 forsiz	=$12
 fndfor	tsx

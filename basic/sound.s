@@ -39,7 +39,7 @@ psgnote:
 	pha				; push the channel
 	jsr chkcom
 	jsr get_note
-	pla		; channel
+	pla				; channel
 	jsr jsrfar
 	.word $c000 + 3 * 26
 	.byte $0A
@@ -48,6 +48,19 @@ psgnote:
 ;***************
 psginst:
 	nop
+	rts
+
+;***************
+psgvol:
+	jsr get_channel
+	pha				; push the channel
+	jsr chkcom
+	jsr get_vol
+	eor #$3f
+	plx				; channel
+	jsr jsrfar
+	.word $c000 + 3 * 30
+	.byte $0A
 	rts
 
 ;---------------------------------------------------------------
@@ -104,6 +117,13 @@ get_note:
 	cmp #$ff	; if facsgn was $ff, the value was negative
 	rts
 
+get_vol:
+	jsr getbyt
+	txa
+	cmp #64
+	bcs volume_error
+	rts
+
 ;***************
 channel_error:
 	ldx #erchan
@@ -117,4 +137,9 @@ instrument_error:
 ;***************
 octave_error:
 	ldx #eroct
+	jmp error
+
+;***************
+volume_error:
+	ldx #ervol
 	jmp error
