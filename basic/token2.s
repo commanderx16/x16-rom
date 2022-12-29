@@ -193,6 +193,7 @@ errtab	.word err01
 	.word err35
 	.word err36
 	.word err37
+	.word err38
 
 okmsg	.byt $d,"OK",$d,$0
 err	.byt " ERROR",0
@@ -215,6 +216,8 @@ err36	.byt "INVALID DRU", 'M'+$80
 erdrum	=36
 err37	.byt "INVALID DEPT", 'H'+$80
 erdep	=37
+err38	.byt "INVALID FREQUENC", 'Y'+$80
+erfrq	=38
 
 forsiz	=$12
 fndfor	tsx

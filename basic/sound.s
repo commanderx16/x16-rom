@@ -179,6 +179,8 @@ get_freq:
 	jsr frmadr
 	ldx poker
 	ldy poker+1
+	cpy #$5f
+	bcs freq_error
 	rts
 
 get_vol:
@@ -234,4 +236,8 @@ drum_error:
 ;***************
 depth_error:
 	ldx #erdep
+	jmp error
+;***************
+freq_error:
+	ldx #erfrq
 	jmp error
