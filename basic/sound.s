@@ -35,7 +35,14 @@ fminst:
 
 ;***************
 psgnote:
-	nop
+	jsr get_channel
+	pha				; push the channel
+	jsr chkcom
+	jsr get_note
+	pla		; channel
+	jsr jsrfar
+	.word $c000 + 3 * 26
+	.byte $0A
 	rts
 
 ;***************
