@@ -38,4 +38,4 @@ bas_fmvib              = $C069
 bas_psgwav             = $C06C
 bas_psghz              = $C06F
 bas_fmhz               = $C072
-ym_loaddefaultpatches  = $C075
+ym_loaddefpatches      = $C075

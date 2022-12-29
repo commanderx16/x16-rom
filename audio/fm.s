@@ -33,7 +33,7 @@
 .export ym_init
 .export ym_setatten
 .export ym_setdrum
-.export ym_loaddefaultpatches
+.export ym_loaddefpatches
 
 YM_TIMEOUT = 64 ; max value is 128.
 
@@ -278,7 +278,7 @@ fail:
 ; inputs: none
 ; affects: .A, .X, .Y
 ; returns: .C: clear=success, set=failed
-.proc ym_loaddefaultpatches: near
+.proc ym_loaddefpatches: near
 	lda #8
 loop:
 	pha

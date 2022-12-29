@@ -34,7 +34,7 @@
 .import ym_setatten
 .import ym_setdrum
 .import ym_playdrum
-.import ym_loaddefaultpatches
+.import ym_loaddefpatches
 
 ; imports from psg.s
 .import psg_init
@@ -111,4 +111,4 @@
 	jmp bas_psgwav            ; $C06C
 	jmp bas_psghz             ; $C06F
 	jmp bas_fmhz              ; $C072
-	jmp ym_loaddefaultpatches ; $C075
+	jmp ym_loaddefpatches     ; $C075
