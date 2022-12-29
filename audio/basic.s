@@ -78,7 +78,7 @@ playnote:
 	jsr notecon_bas2psg
 	bcs error
 	pla              ; restore voice
-	jsr psg_playfreq
+	jmp psg_playfreq
 noop:
 	pla           
 	clc              ; result = success
