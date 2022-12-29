@@ -113,6 +113,7 @@ stmdsp2	; statements
 	.word fmnote-1
 	.word fmdrum-1
 	.word fminst-1
+	.word fmvib-1
 	.word psginit-1
 	.word psgnote-1
 	.word psgvol-1

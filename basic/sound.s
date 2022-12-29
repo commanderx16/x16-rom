@@ -53,6 +53,18 @@ fminst:
 	rts
 
 ;***************
+fmvib:
+	jsr getbyt
+	phx				; push the speed
+	jsr chkcom
+	jsr getbyt
+	pla
+	jsr jsrfar
+	.word bas_fmvib
+	.byte $0A
+	rts
+
+;***************
 psgnote:
 	jsr get_channel
 	pha				; push the channel
