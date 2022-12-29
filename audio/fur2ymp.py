@@ -15,57 +15,6 @@ import argparse
 import re
 from struct import unpack, pack
 
-instypes = [
-    '0: SN76489',
-    '1: FM (OPN)',
-    '2: Game Boy',
-    '3: C64',
-    '4: Amiga/sample',
-    '5: PC Engine',
-    '6: AY-3-8910',
-    '7: AY8930',
-    '8: TIA',
-    '9: SAA1099',
-    '10: VIC',
-    '11: PET',
-    '12: VRC6',
-    '13: OPLL',
-    '14: OPL',
-    '15: FDS',
-    '16: Virtual Boy',
-    '17: Namco 163',
-    '18: SCC',
-    '19: OPZ',
-    '20: POKEY',
-    '21: PC Speaker',
-    '22: WonderSwan',
-    '23: Lynx',
-    '24: VERA',
-    '25: X1-010',
-    '26: VRC6 (saw)',
-    '27: ES5506',
-    '28: MultiPCM',
-    '29: SNES',
-    '30: Sound Unit',
-    '31: Namco WSG',
-    '32: OPL (drums)',
-    '33: FM (OPM)',
-    '34: NES',
-    '35: MSM6258',
-    '36: MSM6295',
-    '37: ADPCM-A',
-    '38: ADPCM-B',
-    '39: SegaPCM',
-    '40: QSound',
-    '41: YMZ280B',
-    '42: RF5C68',
-    '43: MSM5232',
-    '44: T6W28',
-    '45: K007232',
-    '46: GA20',
-    '47: Pokémon Mini'
-]
-
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
@@ -165,7 +114,7 @@ def extract_instrument_v127(ins):
                     sys.stderr.write("Skipping unsupported feature: '{}'\n".format(feature.decode('utf-8')))
             ins = ins[4+feature_length:]
             continue
-        print("\n; {}".format(instrument_name,instypes[instrument_type]))
+        print("\n; {}".format(instrument_name)
         if instrument_has_macros:
             print("; WARNING: Instrument has macros")
         if instrument_uses_eg:
@@ -178,10 +127,7 @@ def extract_instrument_v127(ins):
 
     else:
         if debug:
-            try:
-                sys.stderr.write("Skipping instrument type {}\n".format(instypes[instrument_type]))
-            except:
-                pass
+            sys.stderr.write("Skipping instrument type {}\n".format(instrument_type))
     return
 
 

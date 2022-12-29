@@ -63,9 +63,9 @@ error:
 ;-----------------------------------------------------------------
 ; bas_fmvib
 ;-----------------------------------------------------------------
-; Sets YM2151 LFO (both PMD/AMD)
-; inputs: .A = speed
-;         .X = depth
+; Sets YM2151 LFO freq, PMD/AMD, and set Waveform to Triangle
+; inputs: .A = speed (frequency)
+;         .X = depth (PMD and AMD)
 ;-----------------------------------------------------------------
 .proc bas_fmvib: near
 	phx ; save depth
@@ -78,9 +78,10 @@ error:
 	bcs error2
 	eor #$80
 	jsr ym_write ; write the other one
-	ldx #$1B
-	lda #2
-	jmp ym_write  ; and we're outta here
+	bcs error2
+	ldx #$1B ; LFO waveform
+	lda #2 ; Triangle
+	jmp ym_write ; write to YM and we're outta here
 error1:
 	plx
 error2:
