@@ -443,7 +443,7 @@ fail:
 	rts
 .endproc
 
-; inputs: .A = voice, .X = note (KC)
+; inputs: .A = channel, .X = note (KC)
 ; affects: .A .X .Y
 ; masks voice to range 0-7
 .proc ym_playdrum: near
