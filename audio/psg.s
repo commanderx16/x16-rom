@@ -352,9 +352,12 @@ write:
 
 	tya
 	and #$0F
+	tay
 
 	sta psg_atten,x
 	lda psg_volshadow,x
+	tax
+	tya
 	jsr psg_setvol
 
 	RESTORE_BANK
