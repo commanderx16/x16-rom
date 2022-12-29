@@ -44,9 +44,12 @@
 .import psg_write
 
 ; imports from basic.s
+.import bas_fmhz
 .import bas_fmnote
-.import bas_psgnote
 .import bas_fmvib
+.import bas_psghz
+.import bas_psgnote
+.import bas_psgwav
 
 ; imports from noteconvert.s
 .import notecon_fm2bas
@@ -104,3 +107,6 @@
 	jmp ym_setdrum            ; $C063
 	jmp ym_playdrum           ; $C066
 	jmp bas_fmvib             ; $C069
+	jmp bas_psgwav            ; $C06C
+	jmp bas_psghz             ; $C06F
+	jmp bas_fmhz              ; $C072

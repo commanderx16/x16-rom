@@ -35,3 +35,6 @@ psg_write              = $C060
 ym_setdrum             = $C063
 ym_playdrum            = $C066
 bas_fmvib              = $C069
+bas_psgwav             = $C06C
+bas_psghz              = $C06F
+bas_fmhz               = $C072

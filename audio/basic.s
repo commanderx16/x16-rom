@@ -5,25 +5,62 @@
 ; audio bank for saving storage space in the BASIC bank (4) and giving immediate
 ; (i.e. non-jsrfar) access to utility functions within the audio ROM.
 
+.export bas_fmhz
 .export bas_fmnote
-.export bas_psgnote
 .export bas_fmvib
+.export bas_psghz
+.export bas_psgnote
+.export bas_psgwav
 
 .importzp azp0, azp0L, azp0H
 
 
 .import psg_playfreq
 .import psg_setvol
+.import psg_write
 .import ym_playnote
 .import ym_release
 .import ym_write
 .import notecon_bas2fm
 .import notecon_bas2psg
+.import notecon_freq2psg
+.import notecon_freq2fm
+
+;-----------------------------------------------------------------
+; bas_fmhz
+;-----------------------------------------------------------------
+; Sets FM frequency in Hz
+; inputs: .A = channel
+;         .X = LSB Hz
+;         .Y = MSB Hz
+;         .C set = no retrigger
+;-----------------------------------------------------------------
+.proc bas_fmhz: near
+	php              ; store the C flag on the stack...
+	cpx #0
+	bne hz
+	cpy #0
+	bne hz
+	plp
+	jmp ym_release
+hz:
+	pha              ; save channel
+	jsr notecon_freq2fm
+	bcs error
+	pla              ; restore channel
+	plp              ; retreive C flag from stack
+	jmp ym_playnote
+error:
+	pla
+	plp
+	sec
+	rts
+.endproc
 
 ;-----------------------------------------------------------------
 ; bas_fmnote
 ;-----------------------------------------------------------------
-; inputs: .A = voice
+; inputs: .A = channel
 ;         .X = high nybble octave (0-7), low nybble note (1-12)
 ;              if low nybble is 0, release note
 ;              if low nybble is 13-15, no-op return
@@ -85,7 +122,33 @@ error:
 error1:
 	plx
 error2:
-	sec
+	; implied sec - carry already set
+	rts
+.endproc
+
+;-----------------------------------------------------------------
+; bas_psghz
+;-----------------------------------------------------------------
+; Sets PSG frequency in Hz
+; inputs: .A = voice
+;         .X = LSB Hz
+;         .Y = MSB Hz
+;-----------------------------------------------------------------
+.proc bas_psghz: near
+	cpx #0
+	bne hz
+	cpy #0
+	bne hz
+	jmp psg_setvol ; input of 0 means voice off
+hz:
+	pha
+	jsr notecon_freq2psg
+	bcs error
+	pla
+	jmp psg_playfreq
+error:
+	pla
+	; implied sec - carry already set
 	rts
 .endproc
 
@@ -126,3 +189,25 @@ error:
 	rts
 .endproc
 
+;-----------------------------------------------------------------
+; bas_psgwav
+;-----------------------------------------------------------------
+; Sets PSG waveform and duty cycle
+; inputs: .A = voice
+;         .X = waveform + duty
+;            0-63 pulse wave with ~1%-50% duty cycle
+;            64-127 = Sawtooth
+;            128-191 = Triangle
+;            192-255 = Noise
+;-----------------------------------------------------------------
+.proc bas_psgwav: near
+	and #$0F
+	asl
+	asl
+	clc
+	adc #3
+	phx
+	tax
+	pla
+	jmp psg_write
+.endproc
