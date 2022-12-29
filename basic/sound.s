@@ -12,7 +12,7 @@
 fminit:
 	jsr jsrfar
 	.word ym_init
-	.byte $0A
+	.byte BANK_AUDIO
 	rts
 ;***************
 fmnote:
@@ -23,7 +23,7 @@ fmnote:
 	pla		; channel
 	jsr jsrfar
 	.word bas_fmnote
-	.byte $0A
+	.byte BANK_AUDIO
 	rts
 
 ;***************
@@ -35,7 +35,7 @@ fmdrum:
 	pla		; channel
 	jsr jsrfar
 	.word ym_playdrum
-	.byte $0A
+	.byte BANK_AUDIO
 	rts
 
 ;***************
@@ -49,7 +49,7 @@ fminst:
 	sec				; load from rom
 	jsr jsrfar
 	.word ym_loadpatch
-	.byte $0A
+	.byte BANK_AUDIO
 	rts
 
 ;***************
@@ -61,7 +61,7 @@ fmvib:
 	pla
 	jsr jsrfar
 	.word bas_fmvib
-	.byte $0A
+	.byte BANK_AUDIO
 	rts
 
 ;***************
@@ -73,14 +73,14 @@ psgnote:
 	pla				; channel
 	jsr jsrfar
 	.word bas_psgnote
-	.byte $0A
+	.byte BANK_AUDIO
 	rts
 
 ;***************
 psginit:
 	jsr jsrfar
 	.word psg_init
-	.byte $0A
+	.byte BANK_AUDIO
 	rts
 
 ;***************
@@ -94,7 +94,7 @@ psgvol:
 	pla				; channel
 	jsr jsrfar
 	.word psg_setatten
-	.byte $0A
+	.byte BANK_AUDIO
 	rts
 
 ;---------------------------------------------------------------
