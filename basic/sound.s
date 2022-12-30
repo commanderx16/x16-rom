@@ -8,7 +8,9 @@
 .setcpu "65c02"
 .include "audio.inc"
 
-;***************
+;---------------------------------------------------------------
+; FMINIT
+;---------------------------------------------------------------
 fminit:
 	jsr jsrfar
 	.word ym_init
@@ -18,7 +20,9 @@ fminit:
 	.byte BANK_AUDIO
 	rts
 
-;***************
+;---------------------------------------------------------------
+; FMFREQ <channel>,<frequency>
+;---------------------------------------------------------------
 fmfreq:
 	jsr get_fmchannel
 	pha				; push the channel
@@ -34,7 +38,9 @@ fmfreq:
 :
 	rts
 
-;***************
+;---------------------------------------------------------------
+; FMNOTE <channel>,<note>
+;---------------------------------------------------------------
 fmnote:
 	jsr get_fmchannel
 	pha				; push the channel
@@ -46,7 +52,9 @@ fmnote:
 	.byte BANK_AUDIO
 	rts
 
-;***************
+;---------------------------------------------------------------
+; FMDRUM <channel>,<drum>
+;---------------------------------------------------------------
 fmdrum:
 	jsr get_fmchannel
 	pha				; push the channel
@@ -58,7 +66,9 @@ fmdrum:
 	.byte BANK_AUDIO
 	rts
 
-;***************
+;---------------------------------------------------------------
+; FMINST <channel>,<instrument>
+;---------------------------------------------------------------
 fminst:
 	jsr get_fmchannel
 	pha				; push the channel
@@ -72,7 +82,9 @@ fminst:
 	.byte BANK_AUDIO
 	rts
 
-;***************
+;---------------------------------------------------------------
+; FMVIB <speed>,<depth>
+;---------------------------------------------------------------
 fmvib:
 	jsr getbyt
 	phx				; push the speed
@@ -84,7 +96,9 @@ fmvib:
 	.byte BANK_AUDIO
 	rts
 
-;***************
+;---------------------------------------------------------------
+; PSGNOTE <channel>,<note>
+;---------------------------------------------------------------
 psgnote:
 	jsr get_psgchannel
 	pha				; push the channel
@@ -96,7 +110,9 @@ psgnote:
 	.byte BANK_AUDIO
 	rts
 
-;***************
+;---------------------------------------------------------------
+; PSGFREQ <channel>,<freq>
+;---------------------------------------------------------------
 psgfreq:
 	jsr get_psgchannel
 	pha				; push the channel
@@ -108,7 +124,9 @@ psgfreq:
 	.byte BANK_AUDIO
 	rts
 
-;***************
+;---------------------------------------------------------------
+; PSGWAV <channel>,<wave>
+;---------------------------------------------------------------
 psgwav:
 	jsr get_psgchannel
 	pha				; push the channel
@@ -120,19 +138,23 @@ psgwav:
 	.byte BANK_AUDIO
 	rts
 
-;***************
+;---------------------------------------------------------------
+; PSGINIT
+;---------------------------------------------------------------
 psginit:
 	jsr jsrfar
 	.word psg_init
 	.byte BANK_AUDIO
 	rts
 
-;***************
+;---------------------------------------------------------------
+; PSGVOL <channel>,<volume>
+;---------------------------------------------------------------
 psgvol:
 	jsr get_psgchannel
 	pha				; push the channel
 	jsr chkcom
-	jsr get_vol
+	jsr get_psgvol
 	eor #$3f
 	tax
 	pla				; channel
@@ -146,6 +168,7 @@ psgvol:
 ;---------------------------------------------------------------
 ; inputs: none
 ; returns: .A with the channel 0-7
+; errors: displays error if channel > 7 or channel < 0
 ;
 get_fmchannel:
 	jsr getbyt
@@ -158,7 +181,8 @@ get_fmchannel:
 ; Reads and validates an PSG channel argument
 ;---------------------------------------------------------------
 ; inputs: none
-; returns: .A with the channel 0-7
+; returns: .A with the channel 0-15
+; errors: displays error if channel > 15 or channel < 0
 ;
 get_psgchannel:
 	jsr getbyt
@@ -171,7 +195,8 @@ get_psgchannel:
 ; Reads and validates an instrument argument
 ;---------------------------------------------------------------
 ; inputs: none
-; returns: .A with the instrument 0-31
+; returns: .A with the instrument 0-162
+; errors: displays error if instrument > 162 or instrument < 0
 ;
 get_inst:
 	jsr getbyt
@@ -189,6 +214,7 @@ get_inst:
 ;              if low nybble is 13-15, no-op return
 ;         .Y = 0 (no semi-tones set from BASIC)
 ;         .C set = the input for was negative
+; errors: displays error if octave > 7
 ;
 get_note:
 	jsr frmnum
@@ -208,6 +234,13 @@ get_note:
 	cmp #$ff	; if facsgn was $ff, the value was negative
 	rts
 
+;---------------------------------------------------------------
+; Reads and validates a frequency argument
+;---------------------------------------------------------------
+; inputs: none
+; returns: .X (lo) and .Y (hi) with 16-bit freq
+; errors: displays error if frequency >= $5f00 or frequency < 0
+;
 get_freq:
 	jsr frmadr
 	ldx poker
@@ -216,13 +249,27 @@ get_freq:
 	bcs freq_error
 	rts
 
-get_vol:
+;---------------------------------------------------------------
+; Reads and validates a PSG volume argument
+;---------------------------------------------------------------
+; inputs: none
+; returns: .A
+; errors: displays error if volume >= 64 or volume < 0
+;
+get_psgvol:
 	jsr getbyt
 	txa
 	cmp #64
 	bcs volume_error
 	rts
 
+;---------------------------------------------------------------
+; Reads and validates a FM drum instrument argument
+;---------------------------------------------------------------
+; inputs: none
+; returns: .X
+; errors: displays error if drum >= 88 or drum < 25
+;
 get_drum:
 	jsr getbyt
 	txa
@@ -234,6 +281,13 @@ get_drum:
 :
 	rts
 
+;--------------------------------------------------------------- <channel>,<volume>
+; Reads and validates a FM vibrato depth argument
+;---------------------------------------------------------------
+; inputs: none
+; returns: .X
+; errors: displays error if depth >= 128 or depth < 0
+;
 get_depth:
 	jsr getbyt
 	txa
