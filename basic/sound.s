@@ -13,6 +13,9 @@ fminit:
 	jsr jsrfar
 	.word ym_init
 	.byte BANK_AUDIO
+	jsr jsrfar
+	.word ym_loaddefpatches
+	.byte BANK_AUDIO
 	rts
 
 ;***************
