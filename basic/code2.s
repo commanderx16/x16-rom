@@ -88,7 +88,12 @@ rescon2	lda bufofs,x
 	beq reser2
 	cmp #128
 	bne nthis2
-	ora count
+
+	lda count
+	cmp #num_esc_statements	; check if statement or function
+	bcc :+
+	adc #($c0 - num_esc_statements - 1) ; an extended function (index $C0-$FF)
+:	ora #128 ; an extended statement (index $80-BF)
 	ldy bufptr
 	inx
 	iny
