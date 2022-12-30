@@ -97,6 +97,26 @@ fmvib:
 	rts
 
 ;---------------------------------------------------------------
+; FMVOL <channel>,<volume>
+;---------------------------------------------------------------
+fmvol:
+	jsr get_fmchannel
+	pha				; push the channel
+	jsr chkcom
+	jsr get_vol
+	ora #0
+	bne :+
+	lda #$40
+:
+	eor #$3f
+	tax
+	pla				; channel
+	jsr jsrfar
+	.word ym_setatten
+	.byte BANK_AUDIO
+	rts
+
+;---------------------------------------------------------------
 ; PSGNOTE <channel>,<note>
 ;---------------------------------------------------------------
 psgnote:
@@ -154,7 +174,7 @@ psgvol:
 	jsr get_psgchannel
 	pha				; push the channel
 	jsr chkcom
-	jsr get_psgvol
+	jsr get_vol
 	eor #$3f
 	tax
 	pla				; channel
@@ -256,7 +276,7 @@ get_freq:
 ; returns: .A
 ; errors: displays error if volume >= 64 or volume < 0
 ;
-get_psgvol:
+get_vol:
 	jsr getbyt
 	txa
 	cmp #64

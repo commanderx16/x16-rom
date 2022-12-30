@@ -115,6 +115,7 @@ stmdsp2	; statements
 	.word fminst-1
 	.word fmvib-1
 	.word fmfreq-1
+	.word fmvol-1
 	.word psginit-1
 	.word psgnote-1
 	.word psgvol-1
