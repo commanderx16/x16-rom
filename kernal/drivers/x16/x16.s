@@ -5,16 +5,22 @@
 
 .include "io.inc"
 
+; for initializing the audio subsystems
+.include "banks.inc" 
+.include "audio.inc"
+
 .export ioinit
 .export iokeys
 .export irq_ack
 .export emulator_get_data
 .export vera_wait_ready
+.export sound_init
 
 .import ps2_init
 .import serial_init
 .import entropy_init
 .import clklo
+.import jsrfar
 
 .segment "MACHINE"
 
@@ -81,4 +87,19 @@ vera_wait_ready:
 	lda VERA_ADDR_L
 	cmp #42
 	bne vera_wait_ready
+	rts
+
+sound_init:	
+	jsr jsrfar
+	.word psg_init
+	.byte BANK_AUDIO
+
+	jsr jsrfar
+	.word ym_init
+	.byte BANK_AUDIO
+
+	jsr jsrfar
+	.word ym_loaddefpatches
+	.byte BANK_AUDIO
+
 	rts

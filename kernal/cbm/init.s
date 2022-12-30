@@ -6,11 +6,11 @@
 
 .feature labels_without_colons
 
-.import cint, ramtas, ioinit, enter_basic, restor, vera_wait_ready
+.import cint, ramtas, ioinit, enter_basic, restor, vera_wait_ready, sound_init
 
 .export start
 
-	.segment "INIT"
+.segment "INIT"
 ; start - system reset
 ;
 start	ldx #$ff
@@ -22,6 +22,7 @@ start	ldx #$ff
 	jsr restor      ;go set up os vectors
 ;
 	jsr cint        ;go initilize screen
+	jsr sound_init  ;apply YM2151 and PSG presets
 	cli             ;interrupts okay now
 
 	sec
