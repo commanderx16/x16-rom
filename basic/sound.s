@@ -21,11 +21,14 @@ fmfreq:
 	pha				; push the channel
 	jsr chkcom
 	jsr get_freq
-	pla		; channel
+	pla				; channel
 	clc
 	jsr jsrfar
 	.word bas_fmhz
 	.byte BANK_AUDIO
+	bcc :+			; let the bank do additional validation for fm
+	jmp freq_error
+:
 	rts
 
 ;***************
