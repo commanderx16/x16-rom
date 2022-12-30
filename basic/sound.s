@@ -17,7 +17,7 @@ fminit:
 
 ;***************
 fmfreq:
-	jsr get_channel
+	jsr get_fmchannel
 	pha				; push the channel
 	jsr chkcom
 	jsr get_freq
@@ -30,7 +30,7 @@ fmfreq:
 
 ;***************
 fmnote:
-	jsr get_channel
+	jsr get_fmchannel
 	pha				; push the channel
 	jsr chkcom
 	jsr get_note
@@ -42,7 +42,7 @@ fmnote:
 
 ;***************
 fmdrum:
-	jsr get_channel
+	jsr get_fmchannel
 	pha				; push the channel
 	jsr chkcom
 	jsr get_drum
@@ -54,7 +54,7 @@ fmdrum:
 
 ;***************
 fminst:
-	jsr get_channel
+	jsr get_fmchannel
 	pha				; push the channel
 	jsr chkcom
 	jsr get_inst
@@ -80,7 +80,7 @@ fmvib:
 
 ;***************
 psgnote:
-	jsr get_channel
+	jsr get_psgchannel
 	pha				; push the channel
 	jsr chkcom
 	jsr get_note
@@ -92,7 +92,7 @@ psgnote:
 
 ;***************
 psgfreq:
-	jsr get_channel
+	jsr get_psgchannel
 	pha				; push the channel
 	jsr chkcom
 	jsr get_freq
@@ -104,7 +104,7 @@ psgfreq:
 
 ;***************
 psgwav:
-	jsr get_channel
+	jsr get_psgchannel
 	pha				; push the channel
 	jsr chkcom
 	jsr getbyt
@@ -123,7 +123,7 @@ psginit:
 
 ;***************
 psgvol:
-	jsr get_channel
+	jsr get_psgchannel
 	pha				; push the channel
 	jsr chkcom
 	jsr get_vol
@@ -136,15 +136,28 @@ psgvol:
 	rts
 
 ;---------------------------------------------------------------
-; Reads and validates a channel argument
+; Reads and validates an FM channel argument
 ;---------------------------------------------------------------
 ; inputs: none
 ; returns: .A with the channel 0-7
 ;
-get_channel:
+get_fmchannel:
 	jsr getbyt
 	txa
 	cmp #8
+	bcs channel_error
+	rts
+
+;---------------------------------------------------------------
+; Reads and validates an PSG channel argument
+;---------------------------------------------------------------
+; inputs: none
+; returns: .A with the channel 0-7
+;
+get_psgchannel:
+	jsr getbyt
+	txa
+	cmp #16
 	bcs channel_error
 	rts
 
