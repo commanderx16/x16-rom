@@ -84,15 +84,16 @@ wait:
 	; but if it's an RLFBCON write, branch elsewhere to handle writing
 	; all of the affected TL values if necessary
 	cpx #$20
-	bcc storeit
+	bcc check_pmdamd
 	cpx #$28
 	bcc is_rlfbcon
+check_pmdamd:
 	cpx #$19   ; PMD/AMD register is a special case. Shadow PMD writes into $1A.
 	bne storeit
 	cmp #$80   ; If value >= $80 then PMD. Store in $1A
 	bcc storeit
 	sta _PMD
-	bra chk_tl_register
+	bra write
 is_rlfbcon:
 	; go ahead and write it out to the chip now
 	sta YM_DATA
