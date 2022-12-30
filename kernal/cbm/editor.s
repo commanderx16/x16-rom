@@ -179,7 +179,7 @@ cint	jsr iokeys
 ;
 	lda #2          ;uppercase PETSCII, not locked
 	sta mode
-	sta blnon       ;we dont have a good char from the screen yet
+	stz blnon       ;we dont have a good char from the screen yet
 
 	jsr emulator_get_data
 	jsr kbd_config  ;set keyboard layout
