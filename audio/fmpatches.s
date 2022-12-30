@@ -178,7 +178,7 @@
 	M133_Square_Click, \
 	M134_Kick, \
 	M135_Rim, \
-	M136_Snare_, \
+	M136_Snare, \
 	M137_Clap, \
 	M138_Tom, \
 	M139_Closed_Hi_Hat, \
@@ -201,8 +201,10 @@
 	M156_Open_Triangle, \
 	M157_Jingle_Bell, \
 	M158_Bell_Tree, \
-	M159_Surdo
-
+	M159_Mute_Surdo, \
+	M160_Pure_Sine, \
+	M161_Timbale, \
+	M162_Open_Surdo
 .linecont -
 
 
@@ -296,8 +298,8 @@ drum_patches:
 	.byte $93 ; 63: Open High Conga = 147 Bongo
 
 	.byte $93 ; 64: Low Conga = 147 Bongo
-	.byte $93 ; 65: High Timbale = 147 Bongo
-	.byte $93 ; 66: Low Timbale = 147 Bongo
+	.byte $A1 ; 65: High Timbale = 161 Timbale
+	.byte $A1 ; 66: Low Timbale = 161 Timbale
 	.byte $71 ; 67: High Agogo = 113 Agogo
 	.byte $71 ; 68: Low Agogo = 113 Agogo
 	.byte $78 ; 69: Cabasa = 120 Guitar Fret Noise
@@ -319,8 +321,8 @@ drum_patches:
 	.byte $9D ; 83: 157 Jingle Bell
 	.byte $9E ; 84: 158 Bell Tree
 	.byte $87 ; 85: Castanets = 135 Rim
-	.byte $9F ; 86: Mute Surdo = 159 Surdo
-	.byte $9F ; 87: Open Surdo = 159 Surdo
+	.byte $9F ; 86: 159 Mute Surdo
+	.byte $A2 ; 87: 162 Open Surdo
 
 	.byte $80,$80,$80,$80,$80,$80,$80,$80
 	.byte $80,$80,$80,$80,$80,$80,$80,$80
@@ -369,7 +371,7 @@ drum_kc:
 	.byte $2E ; 52 Chinese Cymbal (YM C2/MIDI C3)
 	.byte $31 ; 53 Ride Bell (D3)
 	.byte $38 ; 54 Tambourine (G3)
-	.byte $2E ; 55 Splash Cymbal (F4)
+	.byte $45 ; 55 Splash Cymbal (F4)
 
 	.byte $68 ; 56 Cowbell (G6)
 	.byte $2E ; 57 Crash Cymbal 2 (YM C2/MIDI C3)
@@ -381,8 +383,8 @@ drum_kc:
 	.byte $2E ; 63 Open High Conga (YM C2/MIDI C3)
 
 	.byte $28 ; 64 Low Conga (G2)
-	.byte $4A ; 65 High Timbale (A4)
-	.byte $44 ; 66 Low Timbale (E4)
+	.byte $6E ; 65 High Timbale (YM C6/MIDI C7)
+	.byte $6D ; 66 Low Timbale (B6)
 	.byte $75 ; 67 High Agogo (F7)
 	.byte $6E ; 68 Low Agogo (YM C6/MIDI C7)
 	.byte $7E ; 69 Cabasa (YM C7/MIDI C8)
@@ -396,7 +398,7 @@ drum_kc:
 	.byte $55 ; 76 High Woodblock (F5)
 	.byte $4E ; 77 Low Woodblock (YM C4/MIDI C5)
 	.byte $7E ; 78 Mute Cuica (YM C7/MIDI C8)
-	.byte $65 ; 79 Open Cuica (F6)
+	.byte $55 ; 79 Open Cuica (F6)
 
 	.byte $7E ; 80 Mute Triangle (YM C7/MIDI C8)
 	.byte $7E ; 81 Open Triangle (YM C7/MIDI C8)
@@ -404,7 +406,7 @@ drum_kc:
 	.byte $44 ; 83 Jingle Bell (E4)
 	.byte $25 ; 84 Bell Tree (F2)
 	.byte $65 ; 85 Castanets (F6)
-	.byte $45 ; 86 Mute Surdo (F4)
+	.byte $3E ; 86 Mute Surdo (YM C3/MIDI C4)
 	.byte $3E ; 87 Open Surdo (YM C3/MIDI C4)
 	
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
@@ -1409,8 +1411,8 @@ M135_Rim:
 	.byte $1F,$1F,$1F,$1F,$00,$00,$00,$12
 	.byte $80,$C0,$40,$00,$FF,$FF,$FF,$FF
 
-; 136 Snare 
-M136_Snare_:
+; 136 Snare
+M136_Snare:
 	.byte $FC,$00
 	.byte $5F,$51,$0F,$00,$00,$10,$00,$00
 	.byte $1F,$1F,$1F,$1F,$1F,$1A,$11,$0E
@@ -1538,8 +1540,8 @@ M153_Mute_Cuica:
 ; 154 Open Cuica
 M154_Open_Cuica:
 	.byte $C0,$00
-	.byte $30,$37,$30,$30,$07,$04,$34,$00
-	.byte $1F,$1F,$1F,$1F,$18,$01,$0D,$0D
+	.byte $30,$37,$30,$30,$07,$00,$34,$00
+	.byte $1F,$1F,$1F,$1F,$18,$05,$0D,$0D
 	.byte $00,$00,$0E,$1D,$FF,$BF,$DF,$6F
 
 ; 155 Mute Triangle
@@ -1570,8 +1572,29 @@ M158_Bell_Tree:
 	.byte $1F,$1F,$1F,$1F,$14,$13,$14,$13
 	.byte $8D,$4F,$4F,$8D,$6D,$9E,$4D,$6D
 
-; 159 Surdo
-M159_Surdo:
+; 159 Mute Surdo
+M159_Mute_Surdo:
+	.byte $C4,$00
+	.byte $70,$51,$00,$00,$30,$10,$26,$00
+	.byte $1F,$1F,$1F,$1F,$19,$1A,$19,$16
+	.byte $80,$00,$59,$0F,$FF,$FF,$8C,$0A
+
+; 160 Pure Sine
+M160_Pure_Sine:
+	.byte $C7,$00
+	.byte $00,$00,$01,$00,$7F,$7F,$7F,$00
+	.byte $1F,$1F,$1F,$1F,$1F,$1F,$1F,$00
+	.byte $1F,$1F,$1F,$00,$FF,$FF,$FF,$0F
+
+; 161 Timbale
+M161_Timbale:
+	.byte $C0,$00
+	.byte $30,$37,$30,$30,$07,$04,$4A,$00
+	.byte $1F,$18,$1F,$1F,$18,$01,$00,$0D
+	.byte $00,$00,$0E,$17,$FF,$BF,$DF,$5F
+
+; 162 Open Surdo
+M162_Open_Surdo:
 	.byte $C4,$00
 	.byte $70,$51,$00,$00,$30,$10,$00,$00
 	.byte $1F,$1F,$1F,$1F,$19,$1A,$0C,$0E

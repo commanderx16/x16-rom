@@ -321,8 +321,8 @@ patches:
 	txa
 	cmp #$FF
 	bne :+
-:	cmp #$A0 ; > max patch
-	bcc :+ ; mask instrument number to range 0..159
+:	cmp #$A3 ; > max patch
+	bcc :+ ; mask instrument number to range 0..162
 	lda #$80 ; silent patch
 :	tax
 	lda patches_hi,x
