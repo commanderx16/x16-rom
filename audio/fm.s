@@ -232,7 +232,7 @@ ym_chk_alg_change:
 	sta ym_atten,y
 	
 	; get the register number for the TL into X
-	txa
+	tya
 	clc
 	adc #$60
 	tax
