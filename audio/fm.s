@@ -214,7 +214,7 @@ ym_chk_alg_change:
 .endproc
 
 
-; inputs    : .A = attenuation amount (0 is native volume)  .X = YM channel
+; inputs    : .A = YM channel   .X = = attenuation amount (0 is native volume)
 ; affects   : .Y
 ; preserves : .A, .X
 ; returns   : .C clear if success, set if failed
@@ -223,11 +223,13 @@ ym_chk_alg_change:
 	pha
 	phx
 
+	tay
+	txa
 	; if unchanged, return
-	cmp ym_atten,x
+	cmp ym_atten,y
 	beq end
 
-	sta ym_atten,x
+	sta ym_atten,y
 	
 	; get the register number for the TL into X
 	txa
