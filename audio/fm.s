@@ -202,14 +202,34 @@ ym_chk_alg_change:
 .endproc
 
 ; inputs    : .X = YM register  *note that the PMD parameter is shadowed as $1A
+;           : .C set   = retrieve TLs with attenuation applied (cooked)
+;           :    clear = retrieve raw shadow values (as received by ym_write)
 ; affects   : .A, .Y
 ; preserves : .X
 ; returns   : .A = retrieved value
 .proc ym_read: near
+	phx
 	ldy ram_bank
 	stz ram_bank
 	lda ymshadow,X
+	bcc done
+	cpx #$60
+	bcc done
+	cpx #$80
+	bcs done
+	pha
+	phy
+	jsr ym_get_channel_from_register
+	ply
+	pla
+	bcc done ; not a carrier, don't cook
+	clc
+	adc ym_atten,x
+	bpl done ; in range
+	lda #$7F ; clamp to $7F
+done:
 	sty ram_bank
+	plx
 	rts
 .endproc
 
