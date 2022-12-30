@@ -7,6 +7,16 @@
 
 .segment "PATCHDATA"
 
+; Patch data in 'YMP' (YM Patch) format.
+
+; The format is simply the values for registers:
+; $20, $38, $40, $48, $50, $58, ... , $F0, $F8
+; (skips $28 and $30 which are note selections, not patch data)
+
+fm_patches:
+.include "fmpatches.s"
+
+
 .linecont +
 
 .define GM0_PIANO \
@@ -415,11 +425,3 @@ drum_kc:
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 
-; Patch data in 'YMP' (YM Patch) format.
-
-; The format is simply the values for registers:
-; $20, $38, $40, $48, $50, $58, ... , $F0, $F8
-; (skips $28 and $30 which are note selections, not patch data)
-
-fm_patches:
-.include "fmpatches.s"
