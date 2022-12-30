@@ -291,7 +291,7 @@ AUDIO_SOURCES= \
 	audio/basic.s \
 	audio/fm.s \
 	audio/psg.s \
-	audio/fmpatches.s \
+	audio/fmpatchtables.s \
 	audio/noteconvert.s \
 	audio/audio_luts.s
 
