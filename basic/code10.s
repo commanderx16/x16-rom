@@ -213,7 +213,8 @@ isfun
 	jsr chrget
 	bne :+
 snerr9:	jmp snerr
-:	dea
+:	sec
+	sbc #$c0
 	cmp #num_esc_functions
 	bcs snerr9
 
