@@ -170,8 +170,8 @@ get_psgchannel:
 get_inst:
 	jsr getbyt
 	txa
-	cmp #128
-	bcs channel_error
+	cmp #163
+	bcs instrument_error
 	rts
 
 ;---------------------------------------------------------------
