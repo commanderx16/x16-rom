@@ -36,6 +36,7 @@
 .export ym_loaddefpatches
 
 YM_TIMEOUT = 64 ; max value is 128.
+MAX_PATCH = 162
 
 .macro PRESERVE_AND_SET_BANK
 .scope
@@ -203,7 +204,7 @@ ym_chk_alg_change:
 ; inputs    : .X = YM register  *note that the PMD parameter is shadowed as $1A
 ; affects   : .A, .Y
 ; preserves : .X
-; returns   : .A = retreived value
+; returns   : .A = retrieved value
 .proc ym_read: near
 	ldy ram_bank
 	stz ram_bank
@@ -307,7 +308,7 @@ patches:
 
 ; inputs:
 ;   .C clear: .A = voice # .XY = address of patch (little-endian)
-;   .C set:   .A = voice # .X = index of ROM patch 0..127 (159 including drums)
+;   .C set:   .A = voice # .X = index of ROM patch 0..MAX_PATCH
 ;
 ; affects: .A, .X, .Y
 ; returns: .C: clear=success, set=failed
@@ -320,11 +321,9 @@ patches:
 	bcc _loadpatch
 	pha
 	txa
-	cmp #$FF
-	bne :+
-:	cmp #$A3 ; > max patch
-	bcc :+ ; mask instrument number to range 0..162
-	lda #$80 ; silent patch
+	cmp #(MAX_PATCH+1)
+	bcc :+   ; Load the silent patch if we're out of bounds
+	lda #$80
 :	tax
 	lda patches_hi,x
 	tay
@@ -488,7 +487,7 @@ fail:
 	jmp ym_trigger
 fail:
 	pla ; clear the stack.
-	sec
+	; carry is already set
 	rts
 .endproc
 
