@@ -12,10 +12,10 @@
 ; FMINIT
 ;---------------------------------------------------------------
 fminit:
-	jsr jsrfar
+	jsr bjsrfar
 	.word ym_init
 	.byte BANK_AUDIO
-	jsr jsrfar
+	jsr bjsrfar
 	.word ym_loaddefpatches
 	.byte BANK_AUDIO
 	rts
@@ -30,7 +30,7 @@ fmfreq:
 	jsr get_freq
 	pla				; channel
 	clc
-	jsr jsrfar
+	jsr bjsrfar
 	.word bas_fmhz
 	.byte BANK_AUDIO
 	bcc :+			; let the bank do additional validation for fm
@@ -47,7 +47,7 @@ fmnote:
 	jsr chkcom
 	jsr get_note
 	pla		; channel
-	jsr jsrfar
+	jsr bjsrfar
 	.word bas_fmnote
 	.byte BANK_AUDIO
 	rts
@@ -61,7 +61,7 @@ fmdrum:
 	jsr chkcom
 	jsr get_drum
 	pla		; channel
-	jsr jsrfar
+	jsr bjsrfar
 	.word ym_playdrum
 	.byte BANK_AUDIO
 	rts
@@ -77,7 +77,7 @@ fminst:
 	tax
 	pla
 	sec				; load from rom
-	jsr jsrfar
+	jsr bjsrfar
 	.word ym_loadpatch
 	.byte BANK_AUDIO
 	rts
@@ -91,7 +91,7 @@ fmvib:
 	jsr chkcom
 	jsr get_depth
 	pla
-	jsr jsrfar
+	jsr bjsrfar
 	.word bas_fmvib
 	.byte BANK_AUDIO
 	rts
@@ -111,7 +111,7 @@ fmvol:
 	eor #$3f
 	tax
 	pla				; channel
-	jsr jsrfar
+	jsr bjsrfar
 	.word ym_setatten
 	.byte BANK_AUDIO
 	rts
@@ -125,7 +125,7 @@ psgnote:
 	jsr chkcom
 	jsr get_note
 	pla				; channel
-	jsr jsrfar
+	jsr bjsrfar
 	.word bas_psgnote
 	.byte BANK_AUDIO
 	rts
@@ -139,7 +139,7 @@ psgfreq:
 	jsr chkcom
 	jsr get_freq
 	pla				; channel
-	jsr jsrfar
+	jsr bjsrfar
 	.word bas_psghz
 	.byte BANK_AUDIO
 	rts
@@ -153,7 +153,7 @@ psgwav:
 	jsr chkcom
 	jsr getbyt
 	pla		; channel
-	jsr jsrfar
+	jsr bjsrfar
 	.word bas_psgwav
 	.byte BANK_AUDIO
 	rts
@@ -162,7 +162,7 @@ psgwav:
 ; PSGINIT
 ;---------------------------------------------------------------
 psginit:
-	jsr jsrfar
+	jsr bjsrfar
 	.word psg_init
 	.byte BANK_AUDIO
 	rts
@@ -178,7 +178,7 @@ psgvol:
 	eor #$3f
 	tax
 	pla				; channel
-	jsr jsrfar
+	jsr bjsrfar
 	.word psg_setatten
 	.byte BANK_AUDIO
 	rts
