@@ -364,7 +364,29 @@ _loadpatch:
 	clc
 	adc #$20 ; first byte of patch goes to YM:$20+voice
 	tax
+
+	; Preserve panning
+	;
+	; The read from (azp0) could be in an arbitrary banked RAM location,
+	; so we must not bank AUDIOBSS/BAUDIO in until after we've read it
+	;
+	; We first get the incoming patch RLFBCON, and remove the L+R bits,
+	; then we bank in AUDIOBSS/BAUDIO so we have access to tmp and the shadow
+	; Then we merge L+R from the shadow to the bytes from the patch.
+	; Then we can bank out before continuing onward with the rest of the routine
+	;
+	; Later on, the (azp0),y read will continue out of the bank that was
+	; active when we entered ym_loadpatch
 	lda (azp0)
+	and #$3F
+
+	PRESERVE_AND_SET_BANK
+	sta ymtmp1
+	lda ymshadow,x
+	and #$C0 ; L+R bits for YM voice
+	ora ymtmp1 ; Add the patch byte without L+R
+	RESTORE_BANK
+	
 	jsr ym_write
 	bcs fail
 	ldy #0
@@ -563,9 +585,19 @@ i2:
 	jsr ym_write	  ; clear pmd  (amd will be cleared when all regs are zeroed)
 
 	; write 0 into all registers $0F .. $FF
+	; except write $C0 into registers $20-$27
 	lda #0
-	ldx #$0f
+	ldx #$0F
 i3:
+	cpx #$20
+	bne i3a
+	lda #$C0
+	bra i3b
+i3a:
+	cpx #$28
+	bne i3b
+	lda #0
+i3b:
 	jsr ym_write    ; clear everything else $0f..$ff
 	inx
 	bne i3
