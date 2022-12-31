@@ -115,12 +115,18 @@ skip_restore:
 ; returns: none
 ;
 .proc psg_init: near
+	; Make re-entrant safe by protecting bank variables from interrupt
+	php
+	sei
+
 	; explicit PRESERVE_AND_SET_BANK
 	lda ram_bank
 	stz ram_bank
 	sta audio_prev_bank
 	lda #1
 	sta audio_bank_refcnt
+
+	plp ; restore interrupt flag
 
 	PRESERVE_VERA
 
@@ -166,6 +172,11 @@ loop2:
 	pha
 	PRESERVE_AND_SET_BANK
 	pla
+
+	; Make re-entrant safe by protecting tmp variables from interrupt
+	php
+	sei
+
 	sta psgtmp1
 	
 	PRESERVE_VERA
@@ -194,6 +205,9 @@ loop2:
 	bpl :+
 	lda #$00          ; clamp at 0
 :	ora psgtmp1       ; apply L+R channels
+
+	plp ; restore interrupt flag
+
 	sta VERA_DATA0    ; set VERA volume
 	
 	RESTORE_VERA
@@ -214,11 +228,19 @@ loop2:
 	pha
 	PRESERVE_AND_SET_BANK
 	pla
+
+	; Make re-entrant safe by protecting tmp variables from interrupt
+	php
+	sei
+
 	sta psgtmp1
 	
 	PRESERVE_VERA
 
 	lda psgtmp1
+
+	plp ; restore interrupt flag
+
 	SET_VERA_PSG_POINTER_VOICE
 
 	; Set frequency
@@ -261,6 +283,11 @@ loop2:
 	; Preserve the L+R bits from the incoming write
 	tya
 	and #$C0
+
+	; Make re-entrant safe by protecting tmp variables from interrupt
+	php
+	sei
+
 	sta psgtmp1
 
 	; Shadow the raw value
@@ -274,6 +301,9 @@ loop2:
 	bpl :+
 	lda #$00
 :	ora psgtmp1
+
+	plp ; restore interrupt flag
+
 	tay
 write:
 	sty VERA_DATA0
@@ -309,6 +339,11 @@ write:
 	; Retrieve L/R, keep state
 	lda VERA_DATA0
 	and #$C0
+
+	; Make re-entrant safe by protecting tmp variables from interrupt
+	php
+	sei
+
 	sta psgtmp1
 
 	txa
@@ -320,6 +355,9 @@ write:
 	bpl :+
 	lda #$00          ; clamp at 0
 :	ora psgtmp1       ; apply L+R channels
+
+	plp ; restore interrupt flag
+
 	sta VERA_DATA0    ; set VERA volume
 	
 	RESTORE_VERA
@@ -383,6 +421,11 @@ write:
 	ror
 	ror
 	and #$C0
+
+	; Make re-entrant safe by protecting tmp variables from interrupt
+	php
+	sei
+
 	sta psgtmp1
 
 	; Retrieve volume, clear L+R bits
@@ -390,9 +433,12 @@ write:
 	and #$3F
 	ora psgtmp1
 	sta VERA_DATA0
-	
+
+	plp ; restore interrupt flag
+
 	RESTORE_VERA
 	RESTORE_BANK
+	clc
 	rts
 .endproc
 
@@ -437,10 +483,18 @@ write:
 
 	; raw value is composed of L+R bits, plus the volume shadow
 	lda psg_volshadow,x
+
+	; make re-entrant safe by protecting tmp vars from interrupt
+	php
+	sei	
+
 	sta psgtmp1 ; should already be $00-$3F
 	lda VERA_DATA0
 	and #$C0
 	ora psgtmp1
+
+	plp ; restore interrupt flag
+
 	tay
 
 	bra done

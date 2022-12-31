@@ -179,6 +179,10 @@ error:
 	pha
 	stz ram_bank
 
+	; make this routine re-entrant by protecting temp vars from interrupt
+	php
+	sei
+
 	lda midi2psg_l,x
 	sta psgfreqtmp ; lay down the base psg freq in RAM
 	lda midi2psg_h,x
@@ -261,6 +265,7 @@ test2:
 end:
 	ldx psgfreqtmp
 	ldy psgfreqtmp+1
+	plp ; restore previous interrupt flag
 	pla
 	sta ram_bank
 	clc
@@ -286,6 +291,10 @@ pass:
 	lda ram_bank
 	pha
 	stz ram_bank
+
+	; make this routine re-entrant by protecting temp vars from interrupt
+	php
+	sei
 
 	stx psgfreqtmp
 	stx hztmp
@@ -330,6 +339,7 @@ pass:
 end:
 	ldx psgfreqtmp
 	ldy psgfreqtmp+1
+	plp ; restore interrupt flag
 	pla
 	sta ram_bank
 	clc
@@ -358,6 +368,10 @@ add:
 	lda ram_bank
 	pha
 	stz ram_bank
+
+	; make this routine re-entrant by protecting temp vars from interrupt
+	php
+	sei
 
 	stx psgfreqtmp
 	sty psgfreqtmp+1
@@ -516,15 +530,20 @@ b2:
 	sta hztmp
 finalize:
 	ldy hztmp
-	clc
 	bra end
 error:
 	ldx #0
 	ldy #0
-	sec
-end:
+	plp ; restore interrupt flag
 	pla
 	sta ram_bank
+	sec
+	rts
+end:
+	plp ; restore interrupt flag
+	pla
+	sta ram_bank
+	clc
 	rts
 .endproc
 
