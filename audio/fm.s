@@ -73,6 +73,10 @@ skip_restore:
 ; affects   : .Y
 ; returns   : .C clear=success, set=timeout
 .proc ym_write: near
+	; Make re-entrant safe by protecting tmp variables and YM state from interrupt
+	php
+	sei
+
 	ldy #YM_TIMEOUT
 wait:
 	dey
@@ -145,6 +149,7 @@ done:
 	pla
 	plx
 	RESTORE_BANK
+	plp ; restore interrupt flag
 	clc
 	rts
 latefail:
@@ -152,6 +157,7 @@ latefail:
 	plx
 	RESTORE_BANK
 fail:
+	plp ; restore interrupt flag
 	sec
 	rts
 ym_chk_alg_change:
@@ -346,6 +352,10 @@ patches:
 ; when the routine is called.
 ;
 .proc ym_loadpatch: near
+	; Make re-entrant safe by protecting tmp and pointer variables from interrupt
+	php
+	sei
+
 	bcc _loadpatch
 	pha
 	txa
@@ -360,13 +370,8 @@ patches:
 	pla
 _loadpatch:
 	and #$07 ; mask voice to range 0..7
-	; not sure if it's required to make the ZP ptr change
-	; here atomic, but it seems to be good hygiene
-	php ; store old interrupt flag
-	sei ; set interrupt inhibit
 	stx azp0L  ; TODO: use the Kernal's tmp1 ZP variable and not ABI
 	sty azp0H
-	plp ; restore old value of interrupt flag
 	clc
 	adc #$20 ; first byte of patch goes to YM:$20+voice
 	tax
@@ -414,8 +419,11 @@ next:
 	ply
 	bcc next
 fail:
+	plp ; restore interrupt flag
+	sec
 	rts      ; return C set as failed patch write.
 success:
+	plp ; restore interrupt flag
 	clc
 	rts
 .endproc
@@ -550,12 +558,18 @@ fail:
 ; returns: C set on failure
 ;
 .proc ym_init: near
+	; Make re-entrant safe by protecting bank varliables from interrupt
+	php
+	sei
+
 	; explicit initial PRESERVE_AND_SET_BANK
 	lda ram_bank
 	stz ram_bank
 	sta audio_prev_bank
 	lda #1
 	sta audio_bank_refcnt
+
+	plp ; restore interrupt flag
 
 	; zero out the channel attenuation
 	ldx #8
@@ -630,6 +644,10 @@ abort:
 	and #$C0
 
 	PRESERVE_AND_SET_BANK
+	; Make re-entrant safe by protecting tmp variables from interrupt
+	php
+	sei
+
 	sta ymtmp1
 	pla ; restore voice
 	clc
@@ -638,6 +656,8 @@ abort:
 	lda ymshadow,x
 	and #$3F
 	ora ymtmp1
+
+	plp ; restore interrupt flag
 	RESTORE_BANK
 
 	jmp ym_write
@@ -660,11 +680,19 @@ abort:
 	bcc end ; carry is clear
 	tya
 	and #$18
+
+	; Make re-entrant safe by protecting tmp variables from interrupt
+	php
+	sei
+
 	sta ymtmp1
 
 	lda ymshadow+$20,x ; get the alg (con) out of the shadow
 	and #$07
 	ora ymtmp1 ; combine it with 8*op
+
+	plp ; restore interrupt flag
+
 	tay
 	lda fm_op_alg_carrier,y ; lookup whether operator is a carrier
 	ror ; set carry if true
@@ -697,6 +725,10 @@ fail:
 ; This re-implements the meat of ym_loadpatch
 ; but via byte-by-byte file reads instead of from memory
 .proc ym_loadpatchlfn: near
+	; Make re-entrant safe by protecting tmp variables and channel I/O from interrupt
+	php
+	sei
+
 	and #$07
 	pha
 
@@ -753,6 +785,7 @@ next:
 	bra late_error
 success:
 	jsr clrch
+	plp ; restore interrupt flag
 	clc
 	rts	
 early_error:
@@ -763,6 +796,7 @@ late_error:
 	pha
 	jsr clrch
 	pla
+	plp ; restore interrupt flag
 	sec
 	rts
 .endproc
