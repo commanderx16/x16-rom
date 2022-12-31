@@ -686,11 +686,11 @@ fail:
 ; affects: .A .X .Y
 ; returns: .C  set if error, clear if success
 ;          .A contains file error if carry is set
-; 0 = YM error
-; 2 = Read timeout
-; 3 = File not open
-; 64 = EOF
-; 128 = device not present
+; A       ==   0 -> YM error
+; A &   3 ==   2 -> Read timeout
+; A &   3 ==   3 -> File not open
+; A &  64 ==  64 -> EOF
+; A & 128 == 128 -> device not present
 ;-----------------------------------------------------------------
 ; This re-implements the meat of ym_loadpatch
 ; but via byte-by-byte file reads instead of from memory
