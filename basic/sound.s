@@ -31,7 +31,7 @@ fmfreq:
 	pla				; channel
 	clc
 	jsr bjsrfar
-	.word bas_fmhz
+	.word bas_fmfreq
 	.byte BANK_AUDIO
 	bcc :+			; let the bank do additional validation for fm
 	jmp freq_error
@@ -140,7 +140,7 @@ psgfreq:
 	jsr get_freq
 	pla				; channel
 	jsr bjsrfar
-	.word bas_psghz
+	.word bas_psgfreq
 	.byte BANK_AUDIO
 	rts
 
