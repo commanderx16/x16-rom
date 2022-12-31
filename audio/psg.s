@@ -13,6 +13,8 @@
 .export psg_setatten
 .export psg_setfreq
 .export psg_write
+.export psg_setpan
+.export psg_read
 
 .import psgtmp1
 .import psg_atten
@@ -109,7 +111,7 @@ skip_restore:
 ; Re-initialize the VERA PSG to default state (everything off).
 ;---------------------------------------------------------------
 ; inputs: none
-; affects: .A .X
+; affects: .A .X .Y
 ; returns: none
 ;
 .proc psg_init: near
@@ -128,11 +130,12 @@ skip_restore:
 	; write zeroes into all 16 PSG voices for freq and volume
 	; and set waveform to pulse, 50%
 	ldx #16
+	ldy #$C0
 	lda #$3F
 loop1:
 	stz VERA_DATA0
 	stz VERA_DATA0
-	stz VERA_DATA0
+	sty VERA_DATA0
 	sta VERA_DATA0
 	dex
 	bne loop1
@@ -177,15 +180,12 @@ loop2:
 	; Retrieve the voice
 	ldx psgtmp1
 	
-	; Retrieve L/R, set them both on if they're not set
-	; otherwise keep state
+	; Retrieve L/R, keep state
 	SET_VERA_STRIDE 0
 
 	lda VERA_DATA0
 	and #$C0
-	bne :+
-	lda #$C0
-:	sta psgtmp1
+	sta psgtmp1
 
 	lda #$3F          ; max volume
 	sta psg_volshadow,x
@@ -306,13 +306,10 @@ write:
 	tya
 	SET_VERA_PSG_POINTER_VOICE 0, 2 ; 0 stride, offset 2 (volume register)
 
-	; Retrieve L/R, set them both on if they're not set
-	; otherwise keep state
+	; Retrieve L/R, keep state
 	lda VERA_DATA0
 	and #$C0
-	bne :+
-	lda #$C0
-:	sta psgtmp1
+	sta psgtmp1
 
 	txa
 	and #$3F
@@ -358,5 +355,103 @@ write:
 	jsr psg_setvol
 
 	RESTORE_BANK
+	rts
+.endproc
+
+;-----------------------------------------------------------------
+; psg_setpan
+;-----------------------------------------------------------------
+; Set PSG voice panning
+; 
+; inputs: .A = voice
+;         .X = pan (0=off, 1=left, 2=right, 3=both)
+; affects: .Y
+; preserves: none
+;-----------------------------------------------------------------
+
+.proc psg_setpan: near
+	and #$0F
+	tay
+	PRESERVE_AND_SET_BANK
+	PRESERVE_VERA
+
+	tya
+	SET_VERA_PSG_POINTER_VOICE 0, 2 ; 0 stride, offset 2 (volume register)
+
+	txa
+	ror
+	ror
+	ror
+	and #$C0
+	sta psgtmp1
+
+	; Retrieve volume, clear L+R bits
+	lda VERA_DATA0
+	and #$3F
+	ora psgtmp1
+	sta VERA_DATA0
+	
+	RESTORE_VERA
+	RESTORE_BANK
+	rts
+.endproc
+
+;-----------------------------------------------------------------
+; psg_read
+;-----------------------------------------------------------------
+; Do a PSG register read
+; inputs: .X = PSG register ($00-$3F)
+;       : .C set   = retrieve volumes with attenuation applied (cooked)
+;       :    clear = retrieve raw values (as received by psg_write, et al)
+; affects: .A .Y
+; preserves: .X
+; returns : .A = retrieve value
+;-----------------------------------------------------------------
+
+.proc psg_read: near
+	phx
+	php ; preserve carry flag
+
+	PRESERVE_AND_SET_BANK
+	PRESERVE_VERA
+
+	txa
+	SET_VERA_PSG_POINTER_REG
+	
+	; Reading something besides volume?
+	; skip to the read
+	txa
+	and #$03
+	cmp #$02
+	bne plp_read
+
+	; cooked value comes right from the VERA
+	plp
+	bcs read
+
+	; get the voice number
+	txa 
+	lsr
+	lsr
+	tax
+
+	; raw value is composed of L+R bits, plus the volume shadow
+	lda psg_volshadow,x
+	sta psgtmp1 ; should already be $00-$3F
+	lda VERA_DATA0
+	and #$C0
+	ora psgtmp1
+	tay
+
+	bra done
+plp_read:
+	plp ; pushed earlier, we didn't need it
+read:
+	ldy VERA_DATA0
+done:
+	RESTORE_VERA
+	RESTORE_BANK
+	tya
+	plx
 	rts
 .endproc

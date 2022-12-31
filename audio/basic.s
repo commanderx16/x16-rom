@@ -5,10 +5,10 @@
 ; audio bank for saving storage space in the BASIC bank (4) and giving immediate
 ; (i.e. non-jsrfar) access to utility functions within the audio ROM.
 
-.export bas_fmhz
+.export bas_fmfreq
 .export bas_fmnote
 .export bas_fmvib
-.export bas_psghz
+.export bas_psgfreq
 .export bas_psgnote
 .export bas_psgwav
 
@@ -27,7 +27,7 @@
 .import notecon_freq2fm
 
 ;-----------------------------------------------------------------
-; bas_fmhz
+; bas_fmfreq
 ;-----------------------------------------------------------------
 ; Sets FM frequency in Hz
 ; inputs: .A = channel
@@ -35,7 +35,7 @@
 ;         .Y = MSB Hz
 ;         .C set = no retrigger
 ;-----------------------------------------------------------------
-.proc bas_fmhz: near
+.proc bas_fmfreq: near
 	php              ; store the C flag on the stack...
 	cpx #0
 	bne hz
@@ -127,14 +127,14 @@ error2:
 .endproc
 
 ;-----------------------------------------------------------------
-; bas_psghz
+; bas_psgfreq
 ;-----------------------------------------------------------------
 ; Sets PSG frequency in Hz
 ; inputs: .A = voice
 ;         .X = LSB Hz
 ;         .Y = MSB Hz
 ;-----------------------------------------------------------------
-.proc bas_psghz: near
+.proc bas_psgfreq: near
 	cpx #0
 	bne hz
 	cpy #0

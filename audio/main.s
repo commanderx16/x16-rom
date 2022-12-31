@@ -35,6 +35,7 @@
 .import ym_setdrum
 .import ym_playdrum
 .import ym_loaddefpatches
+.import ym_setpan
 
 ; imports from psg.s
 .import psg_init
@@ -43,12 +44,14 @@
 .import psg_setatten
 .import psg_setfreq
 .import psg_write
+.import psg_setpan
+.import psg_read
 
 ; imports from basic.s
-.import bas_fmhz
+.import bas_fmfreq
 .import bas_fmnote
 .import bas_fmvib
-.import bas_psghz
+.import bas_psgfreq
 .import bas_psgnote
 .import bas_psgwav
 
@@ -109,6 +112,9 @@
 	jmp ym_playdrum           ; $C066
 	jmp bas_fmvib             ; $C069
 	jmp bas_psgwav            ; $C06C
-	jmp bas_psghz             ; $C06F
-	jmp bas_fmhz              ; $C072
+	jmp bas_psgfreq           ; $C06F
+	jmp bas_fmfreq            ; $C072
 	jmp ym_loaddefpatches     ; $C075
+	jmp ym_setpan             ; $C078
+	jmp psg_setpan            ; $C07B
+	jmp psg_read              ; $C07E

@@ -34,6 +34,7 @@
 .export ym_setatten
 .export ym_setdrum
 .export ym_loaddefpatches
+.export ym_setpan
 
 YM_TIMEOUT = 64 ; max value is 128.
 MAX_PATCH = 162
@@ -610,6 +611,34 @@ abort:
 	rts
 .endproc
 
+.proc ym_setpan: near
+	; inputs: .A = voice, .X = pan settings (0=off, 1=Left, 2=Right, 3=Both)
+	; affects: .A .X .Y
+	; returns: C set on error
+
+	and #$07
+	tay
+	txa
+	ror
+	ror
+	ror
+	and #$C0
+	sta ymtmp1
+
+	PRESERVE_AND_SET_BANK
+	tya
+	clc
+	adc #$20
+	tax
+	lda ymshadow,x
+	and #$3F
+	ora ymtmp1
+	RESTORE_BANK
+
+	jmp ym_write
+.endproc
+
+
 .proc ym_get_channel_from_register: near
 	; inputs: .X = YM2151 register
 	;   assumes YMSHADOW/AUDIOBSS is banked in
@@ -641,3 +670,4 @@ fail:
 	ldx #$FF
 	rts
 .endproc
+
