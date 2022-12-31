@@ -42,3 +42,4 @@ ym_loaddefpatches      = $C075
 ym_setpan              = $C078
 psg_setpan             = $C07B
 psg_read               = $C07E
+ym_loadpatchlfn        = $C081

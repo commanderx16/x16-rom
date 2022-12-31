@@ -5,6 +5,10 @@
 
 .include "io.inc" ; for YM2151 addresses
 
+; for file I/O kernal calls
+.include "kernal.inc"
+readst = $ffb7 ; for some reason this one is commented out in kernal.inc
+
 .importzp azp0, azp0L, azp0H
 
 ; BRAM storage
@@ -35,6 +39,7 @@
 .export ym_setdrum
 .export ym_loaddefpatches
 .export ym_setpan
+.export ym_loadpatchlfn
 
 YM_TIMEOUT = 64 ; max value is 128.
 MAX_PATCH = 162
@@ -671,3 +676,91 @@ fail:
 	rts
 .endproc
 
+;-----------------------------------------------------------------
+; ym_loadpatchlfn
+;-----------------------------------------------------------------
+; Load a patch from an open file into an FM channel
+; Reads 26 bytes out of the open file
+; inputs: .A = YM channel
+;         .X = Logical File Number
+; affects: .A .X .Y
+; returns: .C  set if error, clear if success
+;          .A contains file error if carry is set
+; 0 = YM error
+; 2 = Read timeout
+; 3 = File not open
+; 64 = EOF
+; 128 = device not present
+;-----------------------------------------------------------------
+; This re-implements the meat of ym_loadpatch
+; but via byte-by-byte file reads instead of from memory
+.proc ym_loadpatchlfn: near
+	and #$07
+	pha
+
+	; We're done with the input .X as soon as we call this
+	jsr chkin
+	bcs error
+
+	; Get the first byte (the RLFBCON) from the input file
+	jsr basin
+	pha
+	jsr readst
+	and #$C2
+	bne early_error
+	
+	; Pull the L+R bits out of the shadow and OR them with the patch byte
+	PRESERVE_AND_SET_BANK
+	ply ; patch byte
+	pla ; channel number
+	clc
+	adc #$20 ; RLFBCON
+	tax
+	lda ymshadow,x
+	and #$C0
+	sta ymtmp1
+	tya
+	and #$3F
+	ora ymtmp1
+	RESTORE_BANK
+
+	; write
+	jsr ym_write
+	lda #0
+	bcs late_error
+
+	txa
+	adc #$10
+	tax
+next:
+	txa
+	; C guaranteed clear by successful ym_write
+	adc #$08
+	bcs success
+	pha ; push YM register
+	jsr basin
+	pha ; push value from file
+	jsr readst
+	and #$C2
+	bne early_error
+	pla
+	plx
+	jsr ym_write
+	lda #0
+	bcc next
+	bra late_error
+success:
+	jsr clrch
+	clc
+	rts	
+early_error:
+	plx
+error:
+	plx
+late_error:
+	pha
+	jsr clrch
+	pla
+	sec
+	rts
+.endproc

@@ -36,6 +36,7 @@
 .import ym_playdrum
 .import ym_loaddefpatches
 .import ym_setpan
+.import ym_loadpatchlfn
 
 ; imports from psg.s
 .import psg_init
@@ -118,3 +119,4 @@
 	jmp ym_setpan             ; $C078
 	jmp psg_setpan            ; $C07B
 	jmp psg_read              ; $C07E
+	jmp ym_loadpatchlfn       ; $C081

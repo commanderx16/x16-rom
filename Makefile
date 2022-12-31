@@ -482,3 +482,4 @@ $(BUILD_DIR)/rom_lst.h: $(BANK_BINS)
 	./scripts/trace_lst.py 3 `find build/x16/geos/ -name \*.rlst`   >> $@
 	./scripts/trace_lst.py 4 `find build/x16/basic/ -name \*.rlst` >> $@
 	./scripts/trace_lst.py 5 `find build/x16/monitor/ -name \*.rlst`   >> $@
+	./scripts/trace_lst.py A `find build/x16/audio/ -name \*.rlst`   >> $@
