@@ -622,16 +622,16 @@ abort:
 	; returns: C set on error
 
 	and #$07
-	tay
+	pha ; preserve voice
 	txa
 	ror
 	ror
 	ror
 	and #$C0
-	sta ymtmp1
 
 	PRESERVE_AND_SET_BANK
-	tya
+	sta ymtmp1
+	pla ; restore voice
 	clc
 	adc #$20
 	tax
@@ -680,7 +680,9 @@ fail:
 ; ym_loadpatchlfn
 ;-----------------------------------------------------------------
 ; Load a patch from an open file into an FM channel
-; Reads 26 bytes out of the open file
+; Reads 26 bytes out of the open file or until any error
+; File remains open after return
+;
 ; inputs: .A = YM channel
 ;         .X = Logical File Number
 ; affects: .A .X .Y
