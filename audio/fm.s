@@ -655,6 +655,10 @@ abort:
 	; affects: .A .X .Y
 	; returns: C set on error
 
+	; Make re-entrant safe by protecting tmp variables from interrupt
+	php
+	sei
+
 	and #$07
 	pha ; preserve voice
 	txa
@@ -664,9 +668,6 @@ abort:
 	and #$C0
 
 	PRESERVE_AND_SET_BANK
-	; Make re-entrant safe by protecting tmp variables from interrupt
-	php
-	sei
 
 	sta ymtmp1
 	pla ; restore voice

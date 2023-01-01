@@ -75,7 +75,7 @@
 .import notecon_psg2midi
 
 ; imports from playstring.s
-.import bas_ymplaystring
+.import bas_fmplaystring
 .import bas_psgplaystring
 .import bas_playstringvoice
 
@@ -124,6 +124,6 @@
 	jmp psg_setpan            ; $C07B
 	jmp psg_read              ; $C07E
 	jmp ym_loadpatchlfn       ; $C081
-	jmp bas_ymplaystring      ; $C084
+	jmp bas_fmplaystring      ; $C084
 	jmp bas_psgplaystring     ; $C087
 	jmp bas_playstringvoice   ; $C08A

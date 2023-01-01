@@ -115,7 +115,7 @@ M015_Dulcimer:
 ; 016 Drawbar Organ
 ; Instrument is affected by LFO
 M016_Drawbar_Organ:
-	.byte $C7,$30
+	.byte $C7,$60
 	.byte $38,$32,$34,$31,$13,$0C,$11,$05
 	.byte $1F,$1F,$1F,$1F,$0D,$0D,$0D,$0D
 	.byte $00,$00,$00,$00,$1B,$1B,$1B,$1B
@@ -123,7 +123,7 @@ M016_Drawbar_Organ:
 ; 017 Percussive Organ
 ; Instrument is affected by LFO
 M017_Percussive_Organ:
-	.byte $C7,$30
+	.byte $C7,$60
 	.byte $36,$32,$33,$31,$10,$09,$0D,$05
 	.byte $1F,$1F,$1F,$1F,$10,$0D,$0D,$0D
 	.byte $00,$00,$00,$00,$5B,$1B,$1B,$1B
@@ -131,7 +131,7 @@ M017_Percussive_Organ:
 ; 018 Rock Organ
 ; Instrument is affected by LFO
 M018_Rock_Organ:
-	.byte $C2,$30
+	.byte $C2,$60
 	.byte $5D,$41,$02,$31,$36,$23,$1E,$02
 	.byte $17,$1F,$1F,$1F,$1F,$00,$00,$00
 	.byte $00,$00,$00,$00,$FE,$B1,$F4,$FB
@@ -286,7 +286,7 @@ M039_Synth_Bass_2:
 ; 040 Violin
 ; Instrument is affected by LFO
 M040_Violin:
-	.byte $C3,$20
+	.byte $C3,$60
 	.byte $58,$02,$41,$42,$2D,$13,$1A,$05
 	.byte $1F,$1F,$1F,$0E,$00,$0E,$00,$00
 	.byte $00,$00,$00,$00,$00,$60,$00,$0A
@@ -294,7 +294,7 @@ M040_Violin:
 ; 041 Viola
 ; Instrument is affected by LFO
 M041_Viola:
-	.byte $C3,$20
+	.byte $C3,$60
 	.byte $58,$02,$41,$42,$3B,$13,$1A,$05
 	.byte $1F,$1F,$1F,$0E,$00,$0E,$00,$00
 	.byte $00,$00,$00,$00,$00,$60,$00,$0A
@@ -302,7 +302,7 @@ M041_Viola:
 ; 042 Cello
 ; Instrument is affected by LFO
 M042_Cello:
-	.byte $C3,$23
+	.byte $C3,$63
 	.byte $58,$54,$00,$02,$3D,$38,$1A,$02
 	.byte $1F,$1F,$1F,$0F,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$09
@@ -310,7 +310,7 @@ M042_Cello:
 ; 043 Contrabass
 ; Instrument is affected by LFO
 M043_Contrabass:
-	.byte $C3,$23
+	.byte $C3,$43
 	.byte $55,$54,$00,$01,$3A,$3A,$1A,$02
 	.byte $1F,$1F,$1F,$13,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$0A
@@ -345,29 +345,33 @@ M047_Timpani:
 	.byte $D0,$0F,$0F,$0F,$0A,$0B,$2A,$1A
 
 ; 048 String Ensemble 1
+; Instrument is affected by LFO
 M048_String_Ensemble_1:
-	.byte $EC,$00
+	.byte $EC,$30
 	.byte $31,$32,$71,$01,$0B,$3C,$0E,$11
 	.byte $15,$15,$0E,$0F,$06,$00,$00,$06
 	.byte $00,$00,$00,$04,$67,$06,$0C,$07
 
 ; 049 String Ensemble 2
+; Instrument is affected by LFO
 M049_String_Ensemble_2:
-	.byte $EC,$00
+	.byte $EC,$30
 	.byte $31,$32,$71,$01,$0D,$3C,$0E,$11
 	.byte $15,$12,$0D,$11,$04,$00,$00,$06
 	.byte $00,$00,$00,$04,$07,$06,$0C,$07
 
 ; 050 Synth Strings 1
+; Instrument is affected by LFO
 M050_Synth_Strings_1:
-	.byte $FC,$00
+	.byte $FC,$30
 	.byte $51,$11,$51,$11,$1F,$1B,$0B,$09
 	.byte $13,$14,$10,$0E,$04,$00,$0B,$10
 	.byte $00,$04,$04,$04,$37,$17,$17,$27
 
 ; 051 Synth Strings 2
+; Instrument is affected by LFO
 M051_Synth_Strings_2:
-	.byte $FC,$00
+	.byte $FC,$30
 	.byte $51,$11,$51,$14,$1C,$18,$0B,$09
 	.byte $13,$14,$10,$0E,$04,$00,$0B,$10
 	.byte $00,$04,$04,$04,$07,$17,$17,$27
@@ -375,7 +379,7 @@ M051_Synth_Strings_2:
 ; 052 Choir Aahs
 ; Instrument is affected by LFO
 M052_Choir_Aahs:
-	.byte $C4,$30
+	.byte $C4,$60
 	.byte $31,$30,$31,$30,$18,$27,$0A,$13
 	.byte $1F,$1F,$0B,$0B,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$0F,$06,$06
@@ -390,7 +394,7 @@ M053_Doo:
 ; 054 Synth Choir
 ; Instrument is affected by LFO
 M054_Synth_Choir:
-	.byte $C4,$30
+	.byte $C4,$60
 	.byte $31,$30,$31,$30,$25,$25,$0A,$13
 	.byte $1F,$1F,$0B,$0B,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$0F,$0F,$0F,$0F
@@ -405,7 +409,7 @@ M055_Orch_Hit:
 ; 056 Trumpet
 ; Instrument is affected by LFO
 M056_Trumpet:
-	.byte $FC,$10
+	.byte $FC,$60
 	.byte $31,$31,$31,$31,$1D,$1D,$00,$08
 	.byte $14,$14,$13,$13,$06,$06,$06,$06
 	.byte $00,$00,$00,$00,$68,$68,$08,$08
@@ -427,7 +431,7 @@ M058_Tuba:
 ; 059 Muted Trumpet
 ; Instrument is affected by LFO
 M059_Muted_Trumpet:
-	.byte $FC,$10
+	.byte $FC,$50
 	.byte $31,$36,$31,$31,$23,$1D,$0A,$0B
 	.byte $14,$14,$13,$13,$06,$06,$06,$06
 	.byte $00,$00,$00,$00,$68,$68,$08,$08
@@ -463,7 +467,7 @@ M063_Synth_Brass_2:
 ; 064 Soprano Sax
 ; Instrument is affected by LFO
 M064_Soprano_Sax:
-	.byte $FD,$10
+	.byte $FD,$60
 	.byte $51,$34,$01,$31,$1A,$19,$18,$00
 	.byte $17,$18,$1F,$13,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$F0,$4B,$F6,$F9
@@ -471,7 +475,7 @@ M064_Soprano_Sax:
 ; 065 Alto Sax
 ; Instrument is affected by LFO
 M065_Alto_Sax:
-	.byte $FD,$10
+	.byte $FD,$60
 	.byte $51,$34,$01,$31,$17,$19,$18,$00
 	.byte $17,$0D,$0F,$12,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$F0,$4B,$F6,$F9
@@ -479,7 +483,7 @@ M065_Alto_Sax:
 ; 066 Tenor Sax
 ; Instrument is affected by LFO
 M066_Tenor_Sax:
-	.byte $FD,$10
+	.byte $FD,$60
 	.byte $51,$34,$01,$31,$1D,$19,$18,$00
 	.byte $1A,$14,$19,$14,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$F0,$4B,$F6,$F9
@@ -494,7 +498,7 @@ M067_Baritone_Sax:
 ; 068 Oboe
 ; Instrument is affected by LFO
 M068_Oboe:
-	.byte $DC,$10
+	.byte $DC,$50
 	.byte $31,$31,$31,$31,$12,$12,$00,$0A
 	.byte $1F,$1F,$16,$1D,$00,$00,$07,$00
 	.byte $00,$00,$00,$07,$00,$00,$08,$08
@@ -502,7 +506,7 @@ M068_Oboe:
 ; 069 English Horn
 ; Instrument is affected by LFO
 M069_English_Horn:
-	.byte $EC,$10
+	.byte $EC,$40
 	.byte $31,$31,$31,$32,$1C,$19,$00,$00
 	.byte $1F,$1F,$12,$16,$00,$00,$07,$00
 	.byte $00,$00,$00,$07,$00,$00,$08,$08
@@ -515,8 +519,9 @@ M070_Bassoon:
 	.byte $00,$00,$00,$00,$00,$01,$00,$0A
 
 ; 071 Clarinet
+; Instrument is affected by LFO
 M071_Clarinet:
-	.byte $C2,$00
+	.byte $C2,$50
 	.byte $31,$32,$34,$31,$2E,$26,$34,$06
 	.byte $05,$13,$1F,$13,$00,$09,$00,$08
 	.byte $17,$00,$00,$00,$5F,$0C,$00,$0B
@@ -531,7 +536,7 @@ M072_Piccolo:
 ; 073 Flute
 ; Instrument is affected by LFO
 M073_Flute:
-	.byte $CC,$10
+	.byte $CC,$50
 	.byte $31,$31,$31,$31,$29,$20,$09,$0E
 	.byte $1F,$1F,$0D,$12,$05,$04,$04,$03
 	.byte $01,$03,$01,$00,$32,$46,$49,$77
@@ -567,7 +572,7 @@ M077_Shakuhachi:
 ; 078 Whistle
 ; Instrument is affected by LFO
 M078_Whistle:
-	.byte $C7,$42
+	.byte $C7,$62
 	.byte $24,$44,$24,$44,$00,$00,$00,$0E
 	.byte $50,$04,$0A,$0E,$0C,$8C,$0C,$8B
 	.byte $0E,$03,$09,$00,$0D,$1B,$1D,$0B
@@ -580,36 +585,41 @@ M079_Ocarina:
 	.byte $00,$1F,$1F,$1F,$3F,$FF,$FF,$FF
 
 ; 080 Lead 1 Square
+; Instrument is affected by LFO
 M080_Lead_1_Square:
-	.byte $FB,$00
+	.byte $FB,$40
 	.byte $32,$32,$32,$31,$1B,$25,$1D,$02
 	.byte $1F,$1F,$1F,$19,$09,$09,$09,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$09
 
 ; 081 Lead 2 Saw
+; Instrument is affected by LFO
 M081_Lead_2_Saw:
-	.byte $FB,$00
+	.byte $FB,$50
 	.byte $31,$31,$31,$31,$1B,$28,$1C,$00
 	.byte $1F,$1F,$1F,$14,$09,$09,$09,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$09
 
 ; 082 Lead 3 Triangle
+; Instrument is affected by LFO
 M082_Lead_3_Triangle:
-	.byte $F1,$00
+	.byte $F1,$50
 	.byte $32,$32,$32,$31,$18,$3C,$21,$00
 	.byte $1F,$1F,$1F,$19,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$0A
 
 ; 083 Lead 4 Chiff Sine
+; Instrument is affected by LFO
 M083_Lead_4_Chiff_Sine:
-	.byte $FE,$00
+	.byte $FE,$50
 	.byte $30,$61,$31,$30,$0B,$00,$00,$7F
 	.byte $1F,$1B,$13,$1F,$00,$00,$10,$1F
 	.byte $17,$00,$07,$1F,$50,$0A,$FD,$FF
 
 ; 084 Lead 5 Charang
+; Instrument is affected by LFO
 M084_Lead_5_Charang:
-	.byte $CB,$00
+	.byte $CB,$50
 	.byte $31,$36,$31,$38,$0F,$0B,$0A,$00
 	.byte $17,$0D,$11,$1F,$08,$09,$0E,$09
 	.byte $00,$00,$00,$00,$F0,$80,$50,$69
@@ -617,7 +627,7 @@ M084_Lead_5_Charang:
 ; 085 Lead 6 Voice
 ; Instrument is affected by LFO
 M085_Lead_6_Voice:
-	.byte $C4,$10
+	.byte $C4,$50
 	.byte $31,$31,$31,$31,$18,$18,$00,$07
 	.byte $1F,$1F,$14,$14,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$0F,$09,$0B
@@ -625,14 +635,15 @@ M085_Lead_6_Voice:
 ; 086 Lead 7 Fifths
 ; Instrument is affected by LFO
 M086_Lead_7_Fifths:
-	.byte $D4,$10
+	.byte $D4,$50
 	.byte $04,$06,$62,$63,$1D,$27,$00,$0C
 	.byte $5F,$4E,$1F,$1D,$0A,$0A,$05,$05
 	.byte $02,$02,$02,$02,$50,$00,$08,$28
 
 ; 087 Lead 8 Solo
+; Instrument is affected by LFO
 M087_Lead_8_Solo:
-	.byte $C5,$00
+	.byte $C5,$50
 	.byte $32,$31,$32,$31,$0D,$07,$00,$1D
 	.byte $5F,$16,$1C,$15,$0D,$05,$05,$05
 	.byte $01,$07,$0C,$07,$53,$4B,$47,$38
@@ -686,7 +697,7 @@ M093_Pad_6_Metallic:
 ; 094 Pad 7 Halo
 ; Instrument is affected by LFO
 M094_Pad_7_Halo:
-	.byte $C4,$10
+	.byte $C4,$50
 	.byte $33,$31,$31,$30,$25,$25,$0A,$13
 	.byte $1F,$1F,$0B,$0B,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$06,$07
@@ -694,7 +705,7 @@ M094_Pad_7_Halo:
 ; 095 Pad 8 Sweep
 ; Instrument is affected by LFO
 M095_Pad_8_Sweep:
-	.byte $C4,$31
+	.byte $C4,$61
 	.byte $02,$04,$61,$62,$14,$14,$0A,$0A
 	.byte $45,$45,$10,$0E,$8A,$8A,$05,$05
 	.byte $02,$02,$02,$02,$09,$08,$07,$27
@@ -724,14 +735,15 @@ M098_FX_3_Crystal:
 ; 088 FX 4 Atmosphere
 ; Instrument is affected by LFO
 M088_FX_4_Atmosphere:
-	.byte $C4,$10
+	.byte $C4,$50
 	.byte $51,$51,$01,$01,$2A,$10,$02,$02
 	.byte $1F,$04,$1F,$0A,$08,$08,$0E,$05
 	.byte $00,$00,$00,$00,$F0,$B0,$F7,$F6
 
 ; 100 FX 5 Brightness
+; Instrument is affected by LFO
 M100_FX_5_Brightness:
-	.byte $FF,$00
+	.byte $FF,$40
 	.byte $61,$62,$01,$03,$0B,$0D,$0D,$10
 	.byte $1F,$1F,$1F,$1F,$17,$0F,$0A,$0D
 	.byte $00,$00,$00,$00,$1F,$BA,$C8,$B7
@@ -753,7 +765,7 @@ M102_FX_7_Echoes:
 ; 103 FX 8 Sci-Fi
 ; Instrument is affected by LFO
 M103_FX_8_Sci_Fi:
-	.byte $D5,$11
+	.byte $D5,$51
 	.byte $48,$34,$32,$32,$1D,$11,$05,$0A
 	.byte $17,$1F,$1F,$15,$86,$0A,$10,$09
 	.byte $00,$00,$13,$0E,$20,$46,$67,$88
@@ -803,15 +815,15 @@ M109_Bagpipes:
 ; 110 Fiddle
 ; Instrument is affected by LFO
 M110_Fiddle:
-	.byte $FA,$10
+	.byte $FA,$51
 	.byte $31,$62,$35,$31,$26,$29,$17,$00
-	.byte $57,$51,$4E,$4E,$0A,$0D,$0B,$04
+	.byte $57,$51,$4E,$4E,$8A,$0D,$0B,$04
 	.byte $00,$00,$00,$00,$15,$26,$58,$09
 
 ; 111 Shanai
 ; Instrument is affected by LFO
 M111_Shanai:
-	.byte $FA,$10
+	.byte $FA,$50
 	.byte $30,$31,$30,$31,$1F,$1F,$14,$00
 	.byte $16,$14,$11,$11,$00,$00,$00,$00
 	.byte $1F,$00,$1F,$1F,$FF,$BF,$FF,$9F

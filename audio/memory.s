@@ -21,6 +21,8 @@
 .export playstring_tmp2
 .export playstring_tmp3
 .export playstring_tmp4
+.export playstring_psgcnt
+.export playstring_ymcnt
 
 .export audio_prev_bank
 .export audio_bank_refcnt
@@ -56,6 +58,8 @@
 	playstring_tmp2 := psgfreqtmp+1
 	playstring_tmp3 := hztmp+0
 	playstring_tmp4 := hztmp+1
+	playstring_psgcnt := ymtmp1 ; used in bas_psgplaystring
+	playstring_ymcnt := psgtmp1 ; used in bas_fmplaystring
 
 	playstring_len:     .res 1 ; length of string
 	playstring_pos:     .res 1 ; position within string

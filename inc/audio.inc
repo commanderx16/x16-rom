@@ -43,6 +43,6 @@ ym_setpan              = $C078
 psg_setpan             = $C07B
 psg_read               = $C07E
 ym_loadpatchlfn        = $C081
-bas_ymplaystring       = $C084
+bas_fmplaystring       = $C084
 bas_psgplaystring      = $C087
 bas_playstringvoice    = $C08A

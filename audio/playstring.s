@@ -19,6 +19,7 @@
 .import playstring_tmp2
 .import playstring_tmp3
 .import playstring_tmp4
+.import playstring_ymcnt
 
 .import audio_bank_refcnt, audio_prev_bank
 
@@ -33,7 +34,7 @@
 .import psg_setvol
 .import psg_playfreq
 
-.export bas_ymplaystring
+.export bas_fmplaystring
 .export bas_psgplaystring
 .export bas_playstringvoice
 
@@ -251,7 +252,7 @@ check_notelen:
 	beq @nonum
 
 	sta playstring_tmp1 ; denominator
-	lda #192
+	lda #240
 	sta playstring_notelen ; numerator
 
 	lda #0
@@ -430,7 +431,7 @@ endwait:
 	rts
 .endproc
 
-.proc bas_ymplaystring
+.proc bas_fmplaystring
 ; inputs: .A = string length
 ;         .X .Y = pointer to string
 ;
@@ -442,6 +443,7 @@ endwait:
 
 	sta playstring_len
 	stz playstring_pos
+    stz playstring_ymcnt
 	
 	; azp0 now points to our note string
 noteloop:
@@ -454,19 +456,34 @@ noteloop:
 	tax
 	ldy #0
 	jsr notecon_midi2fm
-	lda playstring_voice
+	
+    ; if legato, skip retrigger, unless it's the first note
 
-	clc
+    clc ; set up no trigger state
+    lda playstring_art
+    bne retrigger
+    lda playstring_ymcnt
+    beq retrigger
+no_retrigger:
+	sec
+retrigger:
+    lda playstring_voice
 	jsr ym_playnote
 	bra wait
 rest:
 	lda playstring_voice
 	jsr ym_release
+    lda #$FF
+    sta playstring_ymcnt
 wait:
     clc
     jsr playstring_wait
+    inc playstring_ymcnt
+    lda playstring_art
+    beq noteloop ; legato, short circuit
 	lda playstring_voice
 	jsr ym_release
+    stz playstring_ymcnt
     sec
     jsr playstring_wait
     bra noteloop
@@ -514,6 +531,8 @@ rest:
 wait:
     clc
     jsr playstring_wait
+    lda playstring_art
+    beq noteloop ; legato, short circuit
 	lda playstring_voice
 	ldx #0
     jsr psg_setvol
@@ -536,6 +555,5 @@ end:
 	PRESERVE_AND_SET_BANK
     sta playstring_voice
     RESTORE_BANK
-    clc
     rts
 .endproc
