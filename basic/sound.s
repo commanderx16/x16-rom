@@ -25,15 +25,15 @@ fminit:
 ;---------------------------------------------------------------
 fmfreq:
 	jsr get_fmchannel
-	pha				; push the channel
+	pha                ; push the channel
 	jsr chkcom
 	jsr get_freq
-	pla				; channel
+	pla                ; channel
 	clc
 	jsr bjsrfar
 	.word bas_fmfreq
 	.byte BANK_AUDIO
-	bcc :+			; let the bank do additional validation for fm
+	bcc :+            ; let the bank do additional validation for fm
 	jmp freq_error
 :
 	rts
@@ -43,10 +43,10 @@ fmfreq:
 ;---------------------------------------------------------------
 fmnote:
 	jsr get_fmchannel
-	pha				; push the channel
+	pha                ; push the channel
 	jsr chkcom
 	jsr get_note
-	pla		; channel
+	pla                ; channel
 	jsr bjsrfar
 	.word bas_fmnote
 	.byte BANK_AUDIO
@@ -57,10 +57,10 @@ fmnote:
 ;---------------------------------------------------------------
 fmdrum:
 	jsr get_fmchannel
-	pha				; push the channel
+	pha                ; push the channel
 	jsr chkcom
 	jsr get_drum
-	pla		; channel
+	pla                ; channel
 	jsr bjsrfar
 	.word ym_playdrum
 	.byte BANK_AUDIO
@@ -71,12 +71,12 @@ fmdrum:
 ;---------------------------------------------------------------
 fminst:
 	jsr get_fmchannel
-	pha				; push the channel
+	pha                ; push the channel
 	jsr chkcom
 	jsr get_inst
 	tax
 	pla
-	sec				; load from rom
+	sec                ; load from rom
 	jsr bjsrfar
 	.word ym_loadpatch
 	.byte BANK_AUDIO
@@ -87,7 +87,7 @@ fminst:
 ;---------------------------------------------------------------
 fmvib:
 	jsr getbyt
-	phx				; push the speed
+	phx                ; push the speed
 	jsr chkcom
 	jsr get_depth
 	pla
@@ -101,7 +101,7 @@ fmvib:
 ;---------------------------------------------------------------
 fmvol:
 	jsr get_fmchannel
-	pha				; push the channel
+	pha                ; push the channel
 	jsr chkcom
 	jsr get_vol
 	ora #0
@@ -110,7 +110,7 @@ fmvol:
 :
 	eor #$3f
 	tax
-	pla				; channel
+	pla                ; channel
 	jsr bjsrfar
 	.word ym_setatten
 	.byte BANK_AUDIO
@@ -121,10 +121,10 @@ fmvol:
 ;---------------------------------------------------------------
 psgnote:
 	jsr get_psgchannel
-	pha				; push the channel
+	pha                ; push the channel
 	jsr chkcom
 	jsr get_note
-	pla				; channel
+	pla                ; channel
 	jsr bjsrfar
 	.word bas_psgnote
 	.byte BANK_AUDIO
@@ -135,10 +135,10 @@ psgnote:
 ;---------------------------------------------------------------
 psgfreq:
 	jsr get_psgchannel
-	pha				; push the channel
+	pha                ; push the channel
 	jsr chkcom
 	jsr get_freq
-	pla				; channel
+	pla                ; channel
 	jsr bjsrfar
 	.word bas_psgfreq
 	.byte BANK_AUDIO
@@ -149,10 +149,10 @@ psgfreq:
 ;---------------------------------------------------------------
 psgwav:
 	jsr get_psgchannel
-	pha				; push the channel
+	pha                ; push the channel
 	jsr chkcom
 	jsr getbyt
-	pla		; channel
+	pla                ; channel
 	jsr bjsrfar
 	.word bas_psgwav
 	.byte BANK_AUDIO
@@ -172,12 +172,12 @@ psginit:
 ;---------------------------------------------------------------
 psgvol:
 	jsr get_psgchannel
-	pha				; push the channel
+	pha                ; push the channel
 	jsr chkcom
 	jsr get_vol
 	eor #$3f
 	tax
-	pla				; channel
+	pla                ; channel
 	jsr bjsrfar
 	.word psg_setatten
 	.byte BANK_AUDIO
@@ -239,8 +239,8 @@ get_inst:
 get_note:
 	jsr frmnum
 	lda facsgn
-	pha			; store for later to set `.C` from
-	stz facsgn	; required or else conint will throw error
+	pha                ; store for later to set `.C` from
+	stz facsgn         ; required or else conint will throw error
 	jsr conint
 	txa
 	lsr
@@ -249,9 +249,9 @@ get_note:
 	lsr
 	cmp #8
 	bcs octave_error
-	ldy #0		; no semi-tones from BASIC
+	ldy #0             ; no semi-tones from BASIC
 	pla
-	cmp #$ff	; if facsgn was $ff, the value was negative
+	cmp #$ff           ; if facsgn was $ff, the value was negative
 	rts
 
 ;---------------------------------------------------------------
