@@ -117,6 +117,23 @@ fmvol:
 	rts
 
 ;---------------------------------------------------------------
+; FMPLAY <channel>,<playstring>
+;---------------------------------------------------------------
+fmplay:
+	jsr get_fmchannel
+	pha
+	jsr chkcom
+	jsr frmevl
+	jsr chkstr
+	ldx facmo
+	ldy facmo+1
+	pla
+	jsr bjsrfar
+	.word bas_ymplaystring
+	.byte BANK_AUDIO
+	rts
+
+;---------------------------------------------------------------
 ; PSGNOTE <channel>,<note>
 ;---------------------------------------------------------------
 psgnote:
