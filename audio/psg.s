@@ -392,7 +392,7 @@ write:
 ; Set PSG voice attenuation (and reapply volume)
 ; 
 ; inputs: .A = voice
-;         .X = volume
+;         .X = attenuation
 ; affects: .Y
 ; preserves: none
 ;-----------------------------------------------------------------

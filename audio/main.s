@@ -109,9 +109,9 @@
 	jmp psg_playfreq          ; $C04E
 	jmp psg_read              ; $C051
 	jmp psg_setatten          ; $C054
-	jmp psg_setpan            ; $C057
-	jmp psg_setvol            ; $C05A
-	jmp psg_setfreq           ; $C05D
+	jmp psg_setfreq           ; $C057
+	jmp psg_setpan            ; $C05A
+	jmp psg_setvol            ; $C05D
 	jmp psg_write             ; $C060
 	jmp ym_init               ; $C063
 	jmp ym_loaddefpatches     ; $C066
