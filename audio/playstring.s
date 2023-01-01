@@ -32,8 +32,8 @@
 .import psg_setvol
 .import psg_playfreq
 
-.export ym_playstring
-.export psg_playstring
+.export bas_ymplaystring
+.export bas_psgplaystring
 
 .macro PRESERVE_AND_SET_BANK
 .scope
@@ -368,7 +368,7 @@ endwait:
 	rts
 .endproc
 
-.proc ym_playstring
+.proc bas_ymplaystring
 ; inputs: .A = voice, .X .Y = pointer to CBM BASIC style string structure
 ;
 ; string structure: Byte 0: <string length>
@@ -432,7 +432,7 @@ end:
 	rts
 .endproc
 
-.proc psg_playstring
+.proc bas_psgplaystring
 ; inputs: .A = voice, .X .Y = pointer to CBM BASIC style string structure
 ;
 ; string structure: Byte 0: <string length>
