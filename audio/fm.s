@@ -22,6 +22,7 @@ readst = $ffb7 ; for some reason this one is commented out in kernal.inc
 .import playstring_pos
 .import playstring_tempo
 .import playstring_voice
+.import playstring_art
 
 ; Pointer to FM patch data indexes
 .import patches_lo, patches_hi
@@ -585,6 +586,8 @@ fail:
 	sta playstring_notelen
 	lda #4
 	sta playstring_octave
+	lda #1
+	sta playstring_art
 
 	plp ; restore interrupt flag
 

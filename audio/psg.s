@@ -28,6 +28,7 @@
 .import playstring_pos
 .import playstring_tempo
 .import playstring_voice
+.import playstring_art
 
 .macro PRESERVE_VERA
 	; save the state of VERA data0 / CTRL registers
@@ -142,6 +143,8 @@ skip_restore:
 	sta playstring_notelen
 	lda #4
 	sta playstring_octave
+	lda #1
+	sta playstring_art
 
 	plp ; restore interrupt flag
 

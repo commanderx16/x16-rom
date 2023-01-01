@@ -13,6 +13,7 @@
 .import playstring_pos
 .import playstring_tempo
 .import playstring_voice
+.import playstring_art
 
 .import playstring_tmp1
 .import playstring_tmp2
@@ -141,7 +142,7 @@ octave_down:
 
 octave_up:
 	cmp #'>'
-	bne parsestring
+	bne articulation_s
 	lda playstring_octave
 	inc
 	cmp #8
@@ -149,6 +150,11 @@ octave_up:
 	lda #7
 :	sta playstring_octave
 	jmp parsestring
+
+articulation_s:
+    cmp #'S'
+    beq check_articulation
+    jmp parsestring
 
 done: ; we're returning a note or rest
 	clc
@@ -169,6 +175,27 @@ finish_note:
 	adc #12
 	dey
 	bra :-
+
+check_articulation:
+	cpy playstring_len
+	beq @end
+
+	lda (azp0),y
+	cmp #'0'
+	bcs :+
+	jmp parsestring ; O followed by PETSCII value < '0'
+:	cmp #('9'+1)
+	bcc :+
+	jmp parsestring ; O followed by PETSCII value > '9'
+:	sbc #('0'-1) ; carry is clear so subtracting takes and extra one away
+	cmp #8
+	bcc :+
+	lda #7 ; clamp to octave 7
+:	sta playstring_art
+	inc playstring_pos ; advance to next byte in string
+@end:
+	jmp parsestring
+
 
 check_octave:
 	cpy playstring_len
@@ -306,6 +333,7 @@ parse_number:
 .endproc
 
 .proc playstring_wait: near
+    php ; store carry flag
 	lda playstring_notelen
 	; frames to wait will be 60*notelen (60=quarter, 240=whole) / tempo
 	sta playstring_tmp1
@@ -355,11 +383,44 @@ l3:
     dex
     bne l1
 
-    ldy playstring_tmp1
+    ; now we calculate the delays for different parts of the articulation
+    ; of the note, for instance if playstring_art = 1, the note is 7 ticks on
+    ; and one part off.
 
+    plp ; retrieve carry flag
+    bcs calc_rest
+    lda #8
+    sec
+    sbc playstring_art
+    bra do_mult
+calc_rest:
+    lda playstring_art
+do_mult:
+    stz playstring_tmp3
+    stz playstring_tmp4
+    tay
+    beq mult_done
+mult_loop:
+    lda playstring_tmp1
+    clc
+    adc playstring_tmp3
+    sta playstring_tmp3
+    lda #0
+    adc playstring_tmp4
+    sta playstring_tmp4
+    dey
+    bne mult_loop
+mult_done:
+    lsr playstring_tmp4
+    ror playstring_tmp3
+    lsr playstring_tmp4
+    ror playstring_tmp3
+    lsr playstring_tmp4
+    ror playstring_tmp3
+
+    ldy playstring_tmp3
 	cpy #0
 	beq endwait
-
 waitloop:
 	wai
 	dey
@@ -418,6 +479,11 @@ rest:
 	lda playstring_voice
 	jsr ym_release
 wait:
+    clc
+    jsr playstring_wait
+	lda playstring_voice
+	jsr ym_release
+    sec
     jsr playstring_wait
     bra noteloop
 fail:
@@ -483,6 +549,12 @@ rest:
     ldx #0
 	jsr psg_setvol
 wait:
+    clc
+    jsr playstring_wait
+	lda playstring_voice
+	ldx #0
+    jsr psg_setvol
+    sec
     jsr playstring_wait
     bra noteloop
 fail:

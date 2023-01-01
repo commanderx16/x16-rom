@@ -16,6 +16,7 @@
 .export playstring_pos
 .export playstring_tempo
 .export playstring_voice
+.export playstring_art
 .export playstring_tmp1
 .export playstring_tmp2
 .export playstring_tmp3
@@ -37,11 +38,6 @@
 	psgfreqtmp: .res 2  ; needed temp space for calculating frequencies during some	                   
 	hztmp:      .res 2  ; note conversions.
 
-	; playstring.s, reuse some tmp
-	playstring_tmp1 := psgfreqtmp+0
-	playstring_tmp2 := psgfreqtmp+1
-	playstring_tmp3 := hztmp+0
-	playstring_tmp4 := hztmp+1
 
 	; psg.s
 	psgtmp1:    .res 1  ; tmp for things that happen in psg.s
@@ -55,13 +51,19 @@
 	ymtmp2:          .res 1  ; 
 	ym_atten:        .res 8  ; attenuation levels for the 8 YM2151 channels
 
-	; shared (for play string playback)
-	playstring_len:     .res 1
-	playstring_pos:     .res 1
-	playstring_tempo:   .res 1
-	playstring_notelen: .res 1
-	playstring_octave:  .res 1
-	playstring_voice:   .res 1
+	; playstring.s, reuse some tmp
+	playstring_tmp1 := psgfreqtmp+0
+	playstring_tmp2 := psgfreqtmp+1
+	playstring_tmp3 := hztmp+0
+	playstring_tmp4 := hztmp+1
+
+	playstring_len:     .res 1 ; length of string
+	playstring_pos:     .res 1 ; position within string
+	playstring_tempo:   .res 1 ; BPM here
+	playstring_notelen: .res 1 ; 240 divided by note type (4=quarter note)
+	playstring_octave:  .res 1 ; stored octave 0-7
+	playstring_voice:   .res 1 ; channel
+	playstring_art:     .res 1 ; amount of space between notes, 0-7
 
 	; shared (for bank mgmt)
 	audio_bank_refcnt: .res 1
