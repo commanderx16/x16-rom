@@ -77,6 +77,7 @@
 ; imports from playstring.s
 .import bas_ymplaystring
 .import bas_psgplaystring
+.import bas_playstringvoice
 
 .segment "API"
 	jmp ym_write              ; $C000
@@ -125,3 +126,4 @@
 	jmp ym_loadpatchlfn       ; $C081
 	jmp bas_ymplaystring      ; $C084
 	jmp bas_psgplaystring     ; $C087
+	jmp bas_playstringvoice   ; $C08A

@@ -35,6 +35,7 @@
 
 .export bas_ymplaystring
 .export bas_psgplaystring
+.export bas_playstringvoice
 
 .macro PRESERVE_AND_SET_BANK
 .scope
@@ -430,34 +431,17 @@ endwait:
 .endproc
 
 .proc bas_ymplaystring
-; inputs: .A = voice, .X .Y = pointer to CBM BASIC style string structure
-;
-; string structure: Byte 0: <string length>
-;                   Byte 1: <string pointer LSB>
-;                   Byte 2: <string pointer MSB>
+; inputs: .A = string length
+;         .X .Y = pointer to string
 ;
 ; affects: .A .X .Y
-; returns: C set on error
-	phy
-	PRESERVE_AND_SET_BANK
-	ply
-
-	sta playstring_voice
 	stx azp0L
 	sty azp0H
 
-	lda (azp0)
+	PRESERVE_AND_SET_BANK
+
 	sta playstring_len
 	stz playstring_pos
-
-	ldy #1
-	lda (azp0),y ; string ptr LSB
-	tax
-	iny
-	lda (azp0),y ; string ptr MSB
-
-	stx azp0L ; string ptr LSB
-	sta azp0H ; string ptr MSB
 	
 	; azp0 now points to our note string
 noteloop:
@@ -486,10 +470,6 @@ wait:
     sec
     jsr playstring_wait
     bra noteloop
-fail:
-	RESTORE_BANK
-	sec
-	rts
 end:
 	lda playstring_voice
 	jsr ym_release
@@ -499,34 +479,17 @@ end:
 .endproc
 
 .proc bas_psgplaystring
-; inputs: .A = voice, .X .Y = pointer to CBM BASIC style string structure
-;
-; string structure: Byte 0: <string length>
-;                   Byte 1: <string pointer LSB>
-;                   Byte 2: <string pointer MSB>
+; inputs: .A = string length
+;         .X .Y = pointer to string
 ;
 ; affects: .A .X .Y
-; returns: C set on error
-	phy
-	PRESERVE_AND_SET_BANK
-	ply
-
-	sta playstring_voice
 	stx azp0L
 	sty azp0H
 
-	lda (azp0)
+	PRESERVE_AND_SET_BANK
+
 	sta playstring_len
 	stz playstring_pos
-
-	ldy #1
-	lda (azp0),y ; string ptr LSB
-	tax
-	iny
-	lda (azp0),y ; string ptr MSB
-
-	stx azp0L ; string ptr LSB
-	sta azp0H ; string ptr MSB
 	
 	; azp0 now points to our note string
 noteloop:
@@ -557,16 +520,22 @@ wait:
     sec
     jsr playstring_wait
     bra noteloop
-fail:
-	RESTORE_BANK
-	sec
-	rts
 end:
 	lda playstring_voice
 	ldx #0
     jsr psg_setvol
+    stz playstring_len
 	RESTORE_BANK
 	clc
 	rts
 .endproc
 
+.proc bas_playstringvoice: near
+    ; inputs: .A = psg/fm voice for subsequent bas_*playstring
+    ; returns: nothing
+	PRESERVE_AND_SET_BANK
+    sta playstring_voice
+    RESTORE_BANK
+    clc
+    rts
+.endproc
