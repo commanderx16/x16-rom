@@ -168,14 +168,14 @@ loop2:
 ;-----------------------------------------------------------------
 
 .proc psg_playfreq: near
+	; Make re-entrant safe by protecting tmp variables from interrupt
+	php
+	sei
+
 	and #$0F
 	pha
 	PRESERVE_AND_SET_BANK
 	pla
-
-	; Make re-entrant safe by protecting tmp variables from interrupt
-	php
-	sei
 
 	sta psgtmp1
 	
@@ -206,12 +206,12 @@ loop2:
 	lda #$00          ; clamp at 0
 :	ora psgtmp1       ; apply L+R channels
 
-	plp ; restore interrupt flag
-
 	sta VERA_DATA0    ; set VERA volume
 	
 	RESTORE_VERA
 	RESTORE_BANK
+
+	plp ; restore interrupt flag
 	rts
 .endproc
 
