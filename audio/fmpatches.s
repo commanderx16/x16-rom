@@ -79,7 +79,7 @@ M010_Music_Box:
 ; 011 Vibraphone
 ; Instrument is affected by LFO
 M011_Vibraphone:
-	.byte $C4,$02
+	.byte $C4,$03
 	.byte $35,$35,$34,$31,$2D,$50,$0A,$04
 	.byte $1F,$1F,$1F,$1F,$0E,$0A,$0D,$8A
 	.byte $06,$00,$10,$00,$AB,$B1,$FB,$F8
