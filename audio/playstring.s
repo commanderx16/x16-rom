@@ -61,9 +61,22 @@ skip_restore:
 .endmacro
 
 
+;-----------------------------------------------------------------
+; parsestring
+;-----------------------------------------------------------------
+; Internal routine that reads and processes the scripted note string
+; and returns control after finding a note
+; 
+; This routine sets up other state in playstring_* variables as
+; it reads the script data such as octave and tempo
+;
+; inputs: none
+; affects: .A .X .Y
+; returns: .A = 0 = rest, 12+ midi note
+;-----------------------------------------------------------------
 .proc parsestring: near
-	; all registers can be used, interrupts are disabled
-	; temp variables are also fair game right now
+	; all registers can be used
+	; all tmp[1-4] temp variables are also fair game right now
 	ldy playstring_pos
 	cpy playstring_len
 	bcc :+
@@ -334,6 +347,23 @@ parse_number:
 	rts
 .endproc
 
+;-----------------------------------------------------------------
+; playstring_wait
+;-----------------------------------------------------------------
+; Internal routine that waits a calculated number of ticks based
+; on the note length.  Uses the WAI instruction, thus depends on
+; the VBLANK interrupt being enabled and it being acknowledged.
+;  
+; The value of playstring_art is used to determine the proportion of
+; playstring_notelen used for the note playback, and also that for the
+; space in between notes. The carry flag is used to determine which
+; part of the note (playback or space) we're delaying on
+;
+; inputs: .C clear = wait for playback portion
+;         .C set = wait for space-in-between notes portion
+; affects: .A .X .Y
+; returns: none
+;-----------------------------------------------------------------
 .proc playstring_wait: near
     php ; store carry flag
 	lda playstring_notelen
@@ -431,11 +461,18 @@ endwait:
 	rts
 .endproc
 
-.proc bas_fmplaystring
+;-----------------------------------------------------------------
+; bas_fmplaystring
+;-----------------------------------------------------------------
+; Takes a string of scripted notes, which plays in full before
+; returning control to BASIC. Notes play on YM2151
+; preparatory routines: bas_playstringvoice
 ; inputs: .A = string length
 ;         .X .Y = pointer to string
-;
 ; affects: .A .X .Y
+; returns: none
+;-----------------------------------------------------------------
+.proc bas_fmplaystring
 	stx azp0L
 	sty azp0H
 
@@ -495,11 +532,18 @@ end:
 	rts
 .endproc
 
-.proc bas_psgplaystring
+;-----------------------------------------------------------------
+; bas_psgplaystring
+;-----------------------------------------------------------------
+; Takes a string of scripted notes, which plays in full before
+; returning control to BASIC. Notes play on the VERA PSG
+; preparatory routines: bas_playstringvoice
 ; inputs: .A = string length
 ;         .X .Y = pointer to string
-;
 ; affects: .A .X .Y
+; returns: none
+;-----------------------------------------------------------------
+.proc bas_psgplaystring
 	stx azp0L
 	sty azp0H
 
@@ -549,9 +593,16 @@ end:
 	rts
 .endproc
 
+;-----------------------------------------------------------------
+; bas_playstringvoice
+;-----------------------------------------------------------------
+; Sets the voice number for a subsequent bas_psgplaystring or
+;   bas_ymplaystring
+; inputs: .A = psg/fm voice number
+; affects: .Y
+; returns: none
+;-----------------------------------------------------------------
 .proc bas_playstringvoice: near
-    ; inputs: .A = psg/fm voice for subsequent bas_*playstring
-    ; returns: nothing
 	PRESERVE_AND_SET_BANK
     sta playstring_voice
     RESTORE_BANK
