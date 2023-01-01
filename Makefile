@@ -293,7 +293,8 @@ AUDIO_SOURCES= \
 	audio/psg.s \
 	audio/fmpatchtables.s \
 	audio/noteconvert.s \
-	audio/audio_luts.s
+	audio/audio_luts.s \
+	audio/playstring.s
 
 GENERIC_DEPS = \
 	inc/kernal.inc \

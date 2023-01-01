@@ -1,7 +1,7 @@
 ; Code by Barry Yost (a.k.a. ZeroByte) and MooingLemur
 ; - 2022
+; This file is for code dealing with the YM2151
 
-; This file is for code dealing with the VERA PSG
 
 .include "io.inc" ; for YM2151 addresses
 
@@ -15,6 +15,13 @@ readst = $ffb7 ; for some reason this one is commented out in kernal.inc
 .import ymshadow, returnbank, _PMD
 .import ymtmp1, ymtmp2, ym_atten
 .import audio_bank_refcnt, audio_prev_bank
+
+.import playstring_len
+.import playstring_notelen
+.import playstring_octave
+.import playstring_pos
+.import playstring_tempo
+.import playstring_voice
 
 ; Pointer to FM patch data indexes
 .import patches_lo, patches_hi
@@ -568,6 +575,16 @@ fail:
 	sta audio_prev_bank
 	lda #1
 	sta audio_bank_refcnt
+
+	stz playstring_len
+	stz playstring_pos
+	stz playstring_voice
+	lda #120
+	sta playstring_tempo
+	lda #60
+	sta playstring_notelen
+	lda #4
+	sta playstring_octave
 
 	plp ; restore interrupt flag
 

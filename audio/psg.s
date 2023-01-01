@@ -22,6 +22,13 @@
 .import audio_prev_bank
 .import audio_bank_refcnt
 
+.import playstring_len
+.import playstring_notelen
+.import playstring_octave
+.import playstring_pos
+.import playstring_tempo
+.import playstring_voice
+
 .macro PRESERVE_VERA
 	; save the state of VERA data0 / CTRL registers
 	lda VERA_CTRL
@@ -125,6 +132,16 @@ skip_restore:
 	sta audio_prev_bank
 	lda #1
 	sta audio_bank_refcnt
+
+	stz playstring_len
+	stz playstring_pos
+	stz playstring_voice
+	lda #120
+	sta playstring_tempo
+	lda #60
+	sta playstring_notelen
+	lda #4
+	sta playstring_octave
 
 	plp ; restore interrupt flag
 

@@ -10,6 +10,17 @@
 .export psgtmp1, psg_atten, psg_volshadow
 .export ymtmp1, ymtmp2, ym_atten
 
+.export playstring_len
+.export playstring_notelen
+.export playstring_octave
+.export playstring_pos
+.export playstring_tempo
+.export playstring_voice
+.export playstring_tmp1
+.export playstring_tmp2
+.export playstring_tmp3
+.export playstring_tmp4
+
 .export audio_prev_bank
 .export audio_bank_refcnt
 
@@ -26,6 +37,12 @@
 	psgfreqtmp: .res 2  ; needed temp space for calculating frequencies during some	                   
 	hztmp:      .res 2  ; note conversions.
 
+	; playstring.s, reuse some tmp
+	playstring_tmp1 := psgfreqtmp+0
+	playstring_tmp2 := psgfreqtmp+1
+	playstring_tmp3 := hztmp+0
+	playstring_tmp4 := hztmp+1
+
 	; psg.s
 	psgtmp1:    .res 1  ; tmp for things that happen in psg.s
 	psg_atten:  .res 16 ; attenuation levels for the 16 PSG channels
@@ -37,6 +54,14 @@
 	ymtmp1:          .res 1  ; needed for scratch in fm.s
 	ymtmp2:          .res 1  ; 
 	ym_atten:        .res 8  ; attenuation levels for the 8 YM2151 channels
+
+	; shared (for play string playback)
+	playstring_len:     .res 1
+	playstring_pos:     .res 1
+	playstring_tempo:   .res 1
+	playstring_notelen: .res 1
+	playstring_octave:  .res 1
+	playstring_voice:   .res 1
 
 	; shared (for bank mgmt)
 	audio_bank_refcnt: .res 1
