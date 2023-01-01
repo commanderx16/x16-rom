@@ -201,6 +201,23 @@ psgvol:
 	rts
 
 ;---------------------------------------------------------------
+; PSGPLAY <channel>,<playstring>
+;---------------------------------------------------------------
+psgplay:
+	jsr get_psgchannel
+	pha
+	jsr chkcom
+	jsr frmevl
+	jsr chkstr
+	ldx facmo
+	ldy facmo+1
+	pla
+	jsr bjsrfar
+	.word bas_psgplaystring
+	.byte BANK_AUDIO
+	rts
+
+;---------------------------------------------------------------
 ; Reads and validates an FM channel argument
 ;---------------------------------------------------------------
 ; inputs: none

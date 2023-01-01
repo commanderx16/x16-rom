@@ -122,6 +122,7 @@ stmdsp2	; statements
 	.word psgvol-1
 	.word psgwav-1
 	.word psgfreq-1
+	.word psgplay-1
 
 	; functions
 ptrfunc	.word vpeek
