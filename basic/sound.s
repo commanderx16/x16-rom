@@ -123,10 +123,16 @@ fmplay:
 	jsr get_fmchannel
 	pha
 	jsr chkcom
-	jsr frmevl
-	jsr chkstr
-	ldx facmo
-	ldy facmo+1
+	jsr frmstr
+	pha
+	lda index1
+	sta index2
+	lda index1+1
+	sta index2+1
+	pla
+	sta index1+1
+	ldx #<(index1+1)
+	ldy #>(index1+1)
 	pla
 	jsr bjsrfar
 	.word bas_ymplaystring
@@ -207,10 +213,16 @@ psgplay:
 	jsr get_psgchannel
 	pha
 	jsr chkcom
-	jsr frmevl
-	jsr chkstr
-	ldx facmo
-	ldy facmo+1
+	jsr frmstr
+	pha
+	lda index1
+	sta index2
+	lda index1+1
+	sta index2+1
+	pla
+	sta index1+1
+	ldx #<(index1+1)
+	ldy #>(index1+1)
 	pla
 	jsr bjsrfar
 	.word bas_psgplaystring
