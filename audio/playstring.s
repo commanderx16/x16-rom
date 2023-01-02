@@ -30,9 +30,13 @@
 
 .import ym_release
 .import ym_playnote
+.import ym_setatten
+.import ym_setpan
 
 .import psg_setvol
 .import psg_playfreq
+.import psg_setatten
+.import psg_setpan
 
 .export bas_fmplaystring
 .export bas_psgplaystring
@@ -136,11 +140,11 @@ rest_r:
 	bra done
 
 length_l:
-    cmp #'L'
-    bne tempo_t
-    ldx #0
-    jsr check_notelen
-    jmp parsestring
+	cmp #'L'
+	bne tempo_t
+	ldx #0
+	jsr check_notelen
+	jmp parsestring
 
 tempo_t:
 	cmp #'T'
@@ -164,7 +168,7 @@ octave_down:
 
 octave_up:
 	cmp #'>'
-	bne articulation_s
+	bne volume_v
 	lda playstring_octave
 	inc
 	cmp #8
@@ -173,10 +177,31 @@ octave_up:
 :	sta playstring_octave
 	jmp parsestring
 
+volume_v:
+	cmp #'V'
+	bne panning_p
+	jsr parse_number
+	ldx playstring_tmp2 ; digit count, we don't want to process
+						; a bare V with no number after it, but
+						; if someone says V0, we do want it
+	bne :+
+	jmp parsestring
+:	tax
+	lda #1
+	rts ; returns parsed volume in X
+
+panning_p:
+	cmp #'P'
+	bne articulation_s
+	jsr parse_number
+	tax
+	lda #2
+	rts ; returns parsed pan in X
+
 articulation_s:
-    cmp #'S'
-    beq check_articulation
-    jmp parsestring
+	cmp #'S'
+	beq check_articulation
+	jmp parsestring
 
 done: ; we're returning a note or rest
 	clc
@@ -242,18 +267,26 @@ check_octave:
 check_accidental:
 	cpy playstring_len
 	bcs @end
-
+@acc_loop:
 	lda (azp0),y
 	cmp #'+'
 	bne :+
 	inx
 	iny
 	inc playstring_pos
+	bra @acc_loop
+:	cmp #'#'
+	bne :+
+	inx
+	iny
+	inc playstring_pos
+	bra @acc_loop
 :	cmp #'-'
 	bne @end
 	dex
 	iny
 	inc playstring_pos
+	bra @acc_loop
 @end:
 	rts
 
@@ -319,6 +352,7 @@ check_notelen:
 
 parse_number:
 	stz playstring_tmp1 ; temp space
+	stz playstring_tmp2 ; temp for digit count
 @loop:
 	ldy playstring_pos
 	cpy playstring_len
@@ -333,7 +367,9 @@ parse_number:
 
 	sbc #('0'-1) ; carry is clear so subtracting takes and extra one away
 	pha ; stash the value
-	
+
+	inc playstring_tmp2 ; found a digit
+
 	; multiply the existing value by 10, comments are example with "3"
 	asl playstring_tmp1  ; 3 -> 6
 	lda playstring_tmp1  ; 
@@ -372,7 +408,7 @@ parse_number:
 ; returns: none
 ;-----------------------------------------------------------------
 .proc playstring_wait: near
-    php ; store carry flag
+	php ; store carry flag
 	lda playstring_notelen
 	; frames to wait will be 60*notelen (60=quarter, 240=whole) / tempo
 	sta playstring_tmp1
@@ -397,67 +433,67 @@ parse_number:
 	rol playstring_tmp2 ; x64
 
 	sec
-    sbc playstring_tmp3 ; subtract the x4
-    sta playstring_tmp1
-    lda playstring_tmp2
-    sbc playstring_tmp4
-    ;sta playstring_tmp2 
-    ; tmp1+accumulator holds notelen * 60
+	sbc playstring_tmp3 ; subtract the x4
+	sta playstring_tmp1
+	lda playstring_tmp2
+	sbc playstring_tmp4
+	;sta playstring_tmp2 
+	; tmp1+accumulator holds notelen * 60
 
-    ; divide by tempo
-    ; would normally low high bits of the numerator here
-    ; but it's already loaded
-    ldx #8
-    asl playstring_tmp1
+	; divide by tempo
+	; would normally low high bits of the numerator here
+	; but it's already loaded
+	ldx #8
+	asl playstring_tmp1
 l1:
-    rol
-    bcs l2
-    cmp playstring_tempo
-    bcc l3
+	rol
+	bcs l2
+	cmp playstring_tempo
+	bcc l3
 l2:
-    sbc playstring_tempo
-    sec
+	sbc playstring_tempo
+	sec
 l3:
-    rol playstring_tmp1
-    dex
-    bne l1
+	rol playstring_tmp1
+	dex
+	bne l1
 
-    ; now we calculate the delays for different parts of the articulation
-    ; of the note, for instance if playstring_art = 1, the note is 7 ticks on
-    ; and one part off.
+	; now we calculate the delays for different parts of the articulation
+	; of the note, for instance if playstring_art = 1, the note is 7 ticks on
+	; and one part off.
 
-    plp ; retrieve carry flag
-    bcs calc_rest
-    lda #8
-    sec
-    sbc playstring_art
-    bra do_mult
+	plp ; retrieve carry flag
+	bcs calc_rest
+	lda #8
+	sec
+	sbc playstring_art
+	bra do_mult
 calc_rest:
-    lda playstring_art
+	lda playstring_art
 do_mult:
-    stz playstring_tmp3
-    stz playstring_tmp4
-    tay
-    beq mult_done
+	stz playstring_tmp3
+	stz playstring_tmp4
+	tay
+	beq mult_done
 mult_loop:
-    lda playstring_tmp1
-    clc
-    adc playstring_tmp3
-    sta playstring_tmp3
-    lda #0
-    adc playstring_tmp4
-    sta playstring_tmp4
-    dey
-    bne mult_loop
+	lda playstring_tmp1
+	clc
+	adc playstring_tmp3
+	sta playstring_tmp3
+	lda #0
+	adc playstring_tmp4
+	sta playstring_tmp4
+	dey
+	bne mult_loop
 mult_done:
-    lsr playstring_tmp4
-    ror playstring_tmp3
-    lsr playstring_tmp4
-    ror playstring_tmp3
-    lsr playstring_tmp4
-    ror playstring_tmp3
+	lsr playstring_tmp4
+	ror playstring_tmp3
+	lsr playstring_tmp4
+	ror playstring_tmp3
+	lsr playstring_tmp4
+	ror playstring_tmp3
 
-    ldy playstring_tmp3
+	ldy playstring_tmp3
 	cpy #0
 	beq endwait
 waitloop:
@@ -487,56 +523,83 @@ endwait:
 
 	sta playstring_len
 	stz playstring_pos
-    stz playstring_ymcnt
+	stz playstring_ymcnt
 	
 	; azp0 now points to our note string
 noteloop:
 	jsr parsestring
-    bcc :+
+	bcc :+
 	jmp end
 :	ora #0
 	beq rest
+	cmp #1
+	beq volume
+	cmp #2
+	beq panning
 
 	tax
 	ldy #0
 	jsr notecon_midi2fm
 	
-    ; if legato, skip retrigger, unless it's the first note
+	; if legato, skip retrigger, unless it's the first note
 
-    clc ; set up no trigger state
-    lda playstring_art
-    bne retrigger
-    lda playstring_ymcnt
-    beq retrigger
+	clc ; set up no trigger state
+	lda playstring_art
+	bne retrigger
+	lda playstring_ymcnt
+	beq retrigger
 no_retrigger:
 	sec
 retrigger:
-    lda playstring_voice
+	lda playstring_voice
 	jsr ym_playnote
 	bra wait
 rest:
 	lda playstring_voice
 	jsr ym_release
-    lda #$FF
-    sta playstring_ymcnt
+	lda #$FF
+	sta playstring_ymcnt
 wait:
-    clc
-    jsr playstring_wait
-    inc playstring_ymcnt
-    lda playstring_art
-    beq noteloop ; legato, short circuit
+	clc
+	jsr playstring_wait
+	inc playstring_ymcnt
+	lda playstring_art
+	beq noteloop ; legato, short circuit
 	lda playstring_voice
 	jsr ym_release
-    stz playstring_ymcnt
-    sec
-    jsr playstring_wait
-    bra noteloop
+	stz playstring_ymcnt
+	sec
+	jsr playstring_wait
+	bra noteloop
 end:
 	lda playstring_voice
 	jsr ym_release
 	RESTORE_BANK
 	clc
 	rts
+volume:
+	txa ; volume comes out of parsing in .X
+	cmp #$40
+	bcc :+
+	lda #$3F ; clamp response to $3F
+:	ora #0
+	bne :+
+	lda #$40
+:	eor #$3F ; $3F - A, except when A = 0, then $7F
+	tax
+	lda playstring_voice
+	jsr ym_setatten
+	jmp noteloop
+panning:
+	txa ; panning comes out in .X
+	and #3
+	bne :+
+	jmp noteloop ; panning 0 forbidden
+:	tax
+	lda playstring_voice
+	jsr ym_setpan
+	jmp noteloop
+
 .endproc
 
 ;-----------------------------------------------------------------
@@ -562,10 +625,14 @@ end:
 	; azp0 now points to our note string
 noteloop:
 	jsr parsestring
-    bcc :+
+	bcc :+
 	jmp end
 :	ora #0
 	beq rest
+	cmp #1
+	beq volume
+	cmp #2
+	beq panning
 
 	tax
 	ldy #0
@@ -577,27 +644,45 @@ noteloop:
 	bra wait
 rest:
 	lda playstring_voice
-    ldx #0
+	ldx #0
 	jsr psg_setvol
 wait:
-    clc
-    jsr playstring_wait
-    lda playstring_art
-    beq noteloop ; legato, short circuit
+	clc
+	jsr playstring_wait
+	lda playstring_art
+	beq noteloop ; legato, short circuit
 	lda playstring_voice
 	ldx #0
-    jsr psg_setvol
-    sec
-    jsr playstring_wait
-    bra noteloop
+	jsr psg_setvol
+	sec
+	jsr playstring_wait
+	bra noteloop
 end:
 	lda playstring_voice
 	ldx #0
-    jsr psg_setvol
-    stz playstring_len
+	jsr psg_setvol
+	stz playstring_len
 	RESTORE_BANK
 	clc
 	rts
+volume:
+	txa ; volume comes out of parsing in .X
+	cmp #$40
+	bcc :+
+	lda #$3F ; clamp response to $3F
+:	eor #$3F ; $3F - A
+	tax
+	lda playstring_voice
+	jsr psg_setatten
+	bra noteloop
+panning:
+	txa ; panning comes out in .X
+	and #3
+	beq noteloop ; panning 0 forbidden
+	tax
+	lda playstring_voice
+	jsr psg_setpan
+	bra noteloop
 .endproc
 
 ;-----------------------------------------------------------------
@@ -611,7 +696,7 @@ end:
 ;-----------------------------------------------------------------
 .proc bas_playstringvoice: near
 	PRESERVE_AND_SET_BANK
-    sta playstring_voice
-    RESTORE_BANK
-    rts
+	sta playstring_voice
+	RESTORE_BANK
+	rts
 .endproc
