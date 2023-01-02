@@ -3,7 +3,7 @@
 
 ; Make memory reservations in this file.
 
-.exportzp azp0, azp0L, azp0H, azptmp
+.exportzp azp0, azp0L, azp0H
 
 .export ymshadow, returnbank, _PMD
 .export psgfreqtmp, hztmp
@@ -21,7 +21,6 @@
 .export playstring_tmp2
 .export playstring_tmp3
 .export playstring_tmp4
-.export playstring_psgcnt
 .export playstring_ymcnt
 
 .export audio_prev_bank
@@ -32,8 +31,6 @@
 	azp0:   .res 2  ; 16bit pointer (in the style of r0, r0L, r0H in ABI)
 	azp0L   := azp0
 	azp0H   := azp0+1
-
-	azptmp: .res 1  ; single-byte TMP  (TODO: if we don't need this, remove it)
 
 .segment "AUDIOBSS"
 	; noteconvert.s
@@ -58,7 +55,6 @@
 	playstring_tmp2 := psgfreqtmp+1
 	playstring_tmp3 := hztmp+0
 	playstring_tmp4 := hztmp+1
-	playstring_psgcnt := ymtmp1 ; used in bas_psgplaystring
 	playstring_ymcnt := psgtmp1 ; used in bas_fmplaystring
 
 	playstring_len:     .res 1 ; length of string
