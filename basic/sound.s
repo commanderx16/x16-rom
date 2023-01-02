@@ -121,21 +121,13 @@ fmvol:
 ;---------------------------------------------------------------
 fmplay:
 	jsr get_fmchannel
-	pha
+	jsr bjsrfar
+	.word bas_playstringvoice
+	.byte BANK_AUDIO
 	jsr chkcom
 	jsr frmstr
-	pha
-	lda index1
-	sta index2
-	lda index1+1
-	sta index2+1
-	pla
-	sta index1+1
-	ldx #<(index1+1)
-	ldy #>(index1+1)
-	pla
 	jsr bjsrfar
-	.word bas_ymplaystring
+	.word bas_fmplaystring
 	.byte BANK_AUDIO
 	rts
 
@@ -211,19 +203,11 @@ psgvol:
 ;---------------------------------------------------------------
 psgplay:
 	jsr get_psgchannel
-	pha
+	jsr bjsrfar
+	.word bas_playstringvoice
+	.byte BANK_AUDIO
 	jsr chkcom
 	jsr frmstr
-	pha
-	lda index1
-	sta index2
-	lda index1+1
-	sta index2+1
-	pla
-	sta index1+1
-	ldx #<(index1+1)
-	ldy #>(index1+1)
-	pla
 	jsr bjsrfar
 	.word bas_psgplaystring
 	.byte BANK_AUDIO
