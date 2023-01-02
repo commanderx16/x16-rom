@@ -1,5 +1,5 @@
 ; Code by Jestin Stoffel
-; - 2022
+; - 2022-2023
 
 ; This file is for implementing the BASIC statements having to do with sound.
 ; It will be used for any statements relating to either the VERA's PSG or PCM
