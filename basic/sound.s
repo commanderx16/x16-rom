@@ -117,6 +117,20 @@ fmvol:
 	rts
 
 ;---------------------------------------------------------------
+; FMPAN <channel>,<pan>
+;---------------------------------------------------------------
+fmpan:
+	jsr get_fmchannel
+	pha                ; push the channel
+	jsr chkcom
+	jsr get_pan
+	pla
+	jsr bjsrfar
+	.word ym_setpan
+	.byte BANK_AUDIO
+	rts
+
+;---------------------------------------------------------------
 ; FMPLAY <channel>,<playstring>
 ;---------------------------------------------------------------
 fmplay:
@@ -331,7 +345,7 @@ get_drum:
 :
 	rts
 
-;--------------------------------------------------------------- <channel>,<volume>
+;---------------------------------------------------------------
 ; Reads and validates a FM vibrato depth argument
 ;---------------------------------------------------------------
 ; inputs: none
@@ -343,6 +357,20 @@ get_depth:
 	txa
 	cmp #128
 	bcs depth_error
+	rts
+
+;---------------------------------------------------------------
+; Reads and validates a pan argument
+;---------------------------------------------------------------
+; inputs: none
+; returns: .X
+; errors: displays error if depth >= 4
+;
+get_pan:
+	jsr getbyt
+	txa
+	cmp #4
+	bcs pan_error
 	rts
 
 ;***************
@@ -377,4 +405,8 @@ depth_error:
 ;***************
 freq_error:
 	ldx #erfrq
+	jmp error
+;***************
+pan_error:
+	ldx #erpan
 	jmp error

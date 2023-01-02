@@ -89,6 +89,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "FMVI", 'B' + $80
 	.byt "FMFRE", 'Q' + $80
 	.byt "FMVO", 'L' + $80
+	.byt "FMPA", 'N' + $80
 	.byt "FMPLA", 'Y' + $80
 	.byt "PSGINI", 'T' + $80
 	.byt "PSGNOT", 'E' + $80
@@ -198,6 +199,7 @@ errtab	.word err01
 	.word err36
 	.word err37
 	.word err38
+	.word err39
 
 okmsg	.byt $d,"OK",$d,$0
 err	.byt " ERROR",0
@@ -222,6 +224,8 @@ err37	.byt "INVALID DEPT", 'H'+$80
 erdep	=37
 err38	.byt "INVALID FREQUENC", 'Y'+$80
 erfrq	=38
+err39	.byt "INVALID PA", 'N'+$80
+erpan	=39
 
 forsiz	=$12
 fndfor	tsx
