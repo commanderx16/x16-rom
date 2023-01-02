@@ -192,11 +192,17 @@ volume_v:
 
 panning_p:
 	cmp #'P'
-	bne articulation_s
+	bne rekey_k
 	jsr parse_number
 	tax
 	lda #2
 	rts ; returns parsed pan in X
+
+rekey_k: ; rearticulate next note
+	cmp #'K'
+	bne articulation_s
+	stz playstring_ymcnt ; for PSG, this should still be safe
+	jmp parsestring
 
 articulation_s:
 	cmp #'S'
