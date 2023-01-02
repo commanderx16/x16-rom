@@ -129,11 +129,18 @@ note_b:
 
 rest_r:
 	cmp #'R'
-	bne tempo_t
+	bne length_l
 	ldx #0
 	jsr check_notelen
 	txa
 	bra done
+
+length_l:
+    cmp #'L'
+    bne tempo_t
+    ldx #0
+    jsr check_notelen
+    jmp parsestring
 
 tempo_t:
 	cmp #'T'
