@@ -378,11 +378,12 @@ get_depth:
 ;---------------------------------------------------------------
 ; inputs: none
 ; returns: .X
-; errors: displays error if depth >= 4
+; errors: displays error if pan >= 4 or pan < 1
 ;
 get_pan:
 	jsr getbyt
 	txa
+	beq pan_error
 	cmp #4
 	bcs pan_error
 	rts
