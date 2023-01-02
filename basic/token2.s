@@ -96,6 +96,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "PSGVO", 'L' + $80
 	.byt "PSGWA", 'V' + $80
 	.byt "PSGFRE", 'Q' + $80
+	.byt "PSGPA", 'N' + $80
 	.byt "PSGPLA", 'Y' + $80
 	.byt "VPEE", 'K' + $80
 	.byt "M", 'X' + $80

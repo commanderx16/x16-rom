@@ -213,6 +213,20 @@ psgvol:
 	rts
 
 ;---------------------------------------------------------------
+; PSGPAN <channel>,<pan>
+;---------------------------------------------------------------
+psgpan:
+	jsr get_psgchannel
+	pha                ; push the channel
+	jsr chkcom
+	jsr get_pan
+	pla                ; channel
+	jsr bjsrfar
+	.word psg_setpan
+	.byte BANK_AUDIO
+	rts
+
+;---------------------------------------------------------------
 ; PSGPLAY <channel>,<playstring>
 ;---------------------------------------------------------------
 psgplay:
