@@ -1,5 +1,5 @@
 ; Code by Barry Yost (a.k.a. ZeroByte) and MooingLemur
-; - 2022
+; - 2023
 ; This file is for code dealing with the YM2151
 
 
@@ -76,6 +76,11 @@ skip_restore:
 
 .segment  "CODE"
 
+;---------------------------------------------------------------
+; Primary code for writing values into the YM2151 chip. Handles
+; the write delay requirements, RAM shadow updates, and any
+; modifications for TL values required by attenuation settings.
+;---------------------------------------------------------------
 ; inputs    : .A = value, .X = YM register
 ; preserves : .A .X
 ; affects   : .Y
@@ -98,7 +103,7 @@ wait:
 
 	stx YM_REG
 
-	; write the value into the YM shadow first, so that if we cook the value 
+	; write the value into the YM shadow first, so that if we cook the value
 	; later before writing to the chip, we have the original values here
 	; but if it's an RLFBCON write, branch elsewhere to handle writing
 	; all of the affected TL values if necessary
@@ -128,7 +133,7 @@ chk_tl_register:
 	bcc write
 	cpx #$80
 	bcs write
-	
+
 	; We're about to write a TL, let's find out what channel this write is for
 	; If the write is meant for a TL that is not a carrier, bail out
 	; If the write is meant for a TL that is a carrier, but there is no attenuation
@@ -197,7 +202,7 @@ ym_chk_alg_change:
 	adc #$60
 	tax
 
-	; reapply M1	
+	; reapply M1
 	lda ymshadow,x
 	jsr ym_write
 	bcs latefail
@@ -221,6 +226,9 @@ ym_chk_alg_change:
 	bra done
 .endproc
 
+;---------------------------------------------------------------
+; Read FM register value from the RAM shadow.
+;---------------------------------------------------------------
 ; inputs    : .X = YM register  *note that the PMD parameter is shadowed as $1A
 ;           : .C set   = retrieve TLs with attenuation applied (cooked)
 ;           :    clear = retrieve raw shadow values (as received by ym_write)
@@ -254,6 +262,9 @@ done:
 .endproc
 
 
+;---------------------------------------------------------------
+; Set the attenuation level for an FM channel.
+;---------------------------------------------------------------
 ; inputs    : .A = YM channel   .X = = attenuation amount (0 is native volume)
 ; affects   : .Y
 ; preserves : .A, .X
@@ -270,14 +281,14 @@ done:
 	beq end
 
 	sta ym_atten,y
-	
+
 	; get the register number for the TL into X
 	tya
 	clc
 	adc #$60
 	tax
 
-	; reapply M1	
+	; reapply M1
 	lda ymshadow,x
 	jsr ym_write
 	bcs fail
@@ -319,6 +330,9 @@ fail:
 	rts
 .endproc
 
+;---------------------------------------------------------------
+; Initialize the YM2151 with the X16 system default instruments
+;---------------------------------------------------------------
 ; inputs: none
 ; affects: .A, .X, .Y
 ; returns: .C: clear=success, set=failed
@@ -348,9 +362,12 @@ patches:
 	.byte 88 ; Pad 1 "Fantasia"
 .endproc
 
+;---------------------------------------------------------------
+; Load an instrument patch from ROM bank or from a RAM location
+;---------------------------------------------------------------
 ; inputs:
-;   .C clear: .A = voice # .XY = address of patch (little-endian)
-;   .C set:   .A = voice # .X = index of ROM patch 0..MAX_PATCH
+;   .C clear: .A = channel # .XY = address of patch (little-endian)
+;   .C set:   .A = channel # .X = index of ROM patch 0..MAX_PATCH
 ;
 ; affects: .A, .X, .Y
 ; returns: .C: clear=success, set=failed
@@ -377,11 +394,11 @@ patches:
 	tax
 	pla
 _loadpatch:
-	and #$07 ; mask voice to range 0..7
+	and #$07 ; mask channel to range 0..7
 	stx azp0L  ; TODO: use the Kernal's tmp1 ZP variable and not ABI
 	sty azp0H
 	clc
-	adc #$20 ; first byte of patch goes to YM:$20+voice
+	adc #$20 ; first byte of patch goes to YM:$20+channel
 	tax
 
 	; Preserve panning
@@ -402,10 +419,10 @@ _loadpatch:
 	PRESERVE_AND_SET_BANK
 	sta ymtmp1
 	lda ymshadow,x
-	and #$C0 ; L+R bits for YM voice
+	and #$C0 ; L+R bits for YM channel
 	ora ymtmp1 ; Add the patch byte without L+R
 	RESTORE_BANK
-	
+
 	jsr ym_write
 	bcs fail
 	ldy #0
@@ -436,14 +453,17 @@ success:
 	rts
 .endproc
 
-.proc ym_setdrum: near
-; inputs: .A = voice, .X = Channel 10 style MIDI note for drum sound
+;---------------------------------------------------------------
+; Load a percussion instrument and KC values into an FM channel
+;---------------------------------------------------------------
+; inputs: .A = channel, .X = Channel 10 style MIDI note for drum sound
 ; affects: .A .X .Y
 ; returns: C set on error
-	
+.proc ym_setdrum: near
+
 	phx ; save MIDI note
 	and #$07
-	pha ; save voice
+	pha ; save channel
 
 	; constrain to MIDI note value 0-127
 	txa
@@ -451,20 +471,20 @@ success:
 	tax
 
 	lda drum_patches,x ; load patch number for drum
-	
+
 	tax
 
-	pla ; load voice
-	pha ; resave voice
+	pla ; load channel
+	pha ; resave channel
 	sec
 	jsr ym_loadpatch
 	bcs error
 
-	ply ; restore voice here temporarily
+	ply ; restore channel here temporarily
 	plx ; restore MIDI note
 	lda drum_kc,x ; load KC value for drum sound
 	tax
-	tya ; set voice
+	tya ; set channel
 	ldy #0
 	jmp ym_setnote
 error:
@@ -475,20 +495,23 @@ error:
 
 .endproc
 
-; inputs: .A = voice, .X = KC (note)  .Y = KF (key fraction (pitch bend))
+;---------------------------------------------------------------
+; Set FM pitch on a channel (both Key code and key fraction)
+;---------------------------------------------------------------
+; inputs: .A = channel, .X = KC (note)  .Y = KF (key fraction (pitch bend))
 ; affects: .A .X .Y
 ; returns: C set on error
 .proc ym_setnote: near
-	and #$07 ; mask to voice range 0..7
+	and #$07 ; mask to channel range 0..7
 	phx
 	phy
-	ora #$30 ; select KF register + voice
+	ora #$30 ; select KF register + channel
 	tax
 	pla
 	jsr ym_write
 	bcs fail
 	txa
-	eor #$18 ; switch to register $28+voice (KC - note)
+	eor #$18 ; switch to register $28+channel (KC - note)
 	tax
 	pla
 	jmp ym_write
@@ -498,14 +521,17 @@ fail:
 	rts
 .endproc
 
-; inputs: .A: voice  .C: set=no retrigger
+;---------------------------------------------------------------
+; (re-)Trigger a note on an FM channel
+;---------------------------------------------------------------
+; inputs: .A: channel  .C: set=no retrigger
 ; affects: .X .Y
 ; returns: C set if error
 .proc ym_trigger: near
-	and #$07      ; mask to voice range 0..7
+	and #$07      ; mask to channel range 0..7
 	ldx #8        ; YM KeyON/OFF control register
 	bcs no_retrigger
-	jsr ym_write  ; release the voice before retriggering
+	jsr ym_write  ; release the channel before retriggering
 	bcs fail
 no_retrigger:
 	ora #$78 ; key-on bits for all 4 operators.
@@ -514,19 +540,25 @@ fail:
 	rts
 .endproc
 
-; inputs: .A: voice
+;---------------------------------------------------------------
+; Release an FM channel
+;---------------------------------------------------------------
+; inputs: .A: channel
 ; affects: .X .Y
 ; returns: C set if error
 .proc ym_release: near
-	and #$07      ; mask to voice range 0..7
+	and #$07      ; mask to channel range 0..7
 	ldx #8        ; YM KeyON/OFF control register
 	jmp ym_write
 .endproc
 
-; inputs: .A = voice, .X = note (KC) .Y = note fraction (KF)
+;---------------------------------------------------------------
+; Set FM KC and KF values and (re-)trigger the note.
+;---------------------------------------------------------------
+; inputs: .A = channel, .X = note (KC) .Y = note fraction (KF)
 ;         .C: set=no retrigger, clear=retrigger
 ; affects: .A .X .Y
-; masks voice to range 0-7
+; masks channel to range 0-7
 .proc ym_playnote: near
 	php
 	pha
@@ -542,9 +574,12 @@ fail:
 	rts
 .endproc
 
+;---------------------------------------------------------------
+; Load percussion patch and trigger it once.
+;---------------------------------------------------------------
 ; inputs: .A = channel, .X = drum note
 ; affects: .A .X .Y
-; masks voice to range 0-7
+; masks channel to range 0-7
 .proc ym_playdrum: near
 	pha
 	jsr ym_setdrum
@@ -560,6 +595,7 @@ fail:
 
 ;---------------------------------------------------------------
 ; Re-initialize the YM-2151 to default state (everything off)
+; Also initializes the audio API internal state variables.
 ;---------------------------------------------------------------
 ; inputs: none
 ; affects: .A .X .Y
@@ -599,7 +635,7 @@ att:
 	bne att
 	RESTORE_BANK
 
-	; set release=max ($0F) for all operators on all voices ($E0..$FF)
+	; set release=max ($0F) for all operators on all channels ($E0..$FF)
 	lda #$0f
 	ldx #$e0
 i1:
@@ -608,7 +644,7 @@ i1:
 	inx
 	bne i1
 
-	; Release all 8 voices (write values 0..7 into YM register $08)
+	; Release all 8 channels (write values 0..7 into YM register $08)
 	lda #7
 	ldx #$08
 i2:
@@ -650,17 +686,21 @@ abort:
 	rts
 .endproc
 
+;---------------------------------------------------------------
+; Set FM L/R Panning
+;---------------------------------------------------------------
+; inputs: .A = channel, .X = pan settings (0=off, 1=Left, 2=Right, 3=Both)
+; affects: .A .X .Y
+; returns: C set on error
+;
 .proc ym_setpan: near
-	; inputs: .A = voice, .X = pan settings (0=off, 1=Left, 2=Right, 3=Both)
-	; affects: .A .X .Y
-	; returns: C set on error
 
 	; Make re-entrant safe by protecting tmp variables from interrupt
 	php
 	sei
 
 	and #$07
-	pha ; preserve voice
+	pha ; preserve channel
 	txa
 	ror
 	ror
@@ -670,7 +710,7 @@ abort:
 	PRESERVE_AND_SET_BANK
 
 	sta ymtmp1
-	pla ; restore voice
+	pla ; restore channel
 	clc
 	adc #$20
 	tax
@@ -684,18 +724,23 @@ abort:
 	jmp ym_write
 .endproc
 
-
+;-----------------------------------------------------------------
+; Decode YM register address into the channel it uses (if any)
+; and also determine whether this channel is currently a carrier
+; operator. (carriers may have their TL tweaked by attenuation settings)
+;-----------------------------------------------------------------
+; inputs: .X = YM2151 register
+;   assumes YMSHADOW/AUDIOBSS is banked in
+; affects: .A .Y
+; outputs: .X = channel 0-7, or $FF if error (register < $20)
+; returns with .C set if operator is a carrier in this alg
+;
 .proc ym_get_channel_from_register: near
-	; inputs: .X = YM2151 register
-	;   assumes YMSHADOW/AUDIOBSS is banked in
-	; affects: .A .Y
-	; outputs: .X = channel 0-7, or $FF if error (register < $20)
-	; returns with .C set if operator is a carrier in this alg
 	txa
 	tay
 	cmp #$20
 	bcc fail
-	and #$07 
+	and #$07
 	tax ; channel number is safely in .X
 	cpy #$40
 	bcc end ; carry is clear
@@ -763,7 +808,7 @@ fail:
 	jsr readst
 	and #$C2
 	bne early_error
-	
+
 	; Pull the L+R bits out of the shadow and OR them with the patch byte
 	PRESERVE_AND_SET_BANK
 	ply ; patch byte
@@ -808,7 +853,7 @@ success:
 	jsr clrch
 	plp ; restore interrupt flag
 	clc
-	rts	
+	rts
 early_error:
 	plx
 error:
