@@ -118,6 +118,7 @@ stmdsp2	; statements
 	.word fmvol-1
 	.word fmpan-1
 	.word fmplay-1
+	.word fmchord-1
 	.word psginit-1
 	.word psgnote-1
 	.word psgvol-1
@@ -125,6 +126,7 @@ stmdsp2	; statements
 	.word psgfreq-1
 	.word psgpan-1
 	.word psgplay-1
+	.word psgchord-1
 
 	; functions
 ptrfunc	.word vpeek

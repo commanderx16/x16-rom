@@ -146,6 +146,21 @@ fmplay:
 	rts
 
 ;---------------------------------------------------------------
+; FMCHORD <channel>,<chordstring>
+;---------------------------------------------------------------
+fmchord:
+	jsr get_fmchannel
+	jsr bjsrfar
+	.word bas_playstringvoice
+	.byte BANK_AUDIO
+	jsr chkcom
+	jsr frmstr
+	jsr bjsrfar
+	.word bas_fmchordstring
+	.byte BANK_AUDIO
+	rts
+
+;---------------------------------------------------------------
 ; PSGNOTE <channel>,<note>
 ;---------------------------------------------------------------
 psgnote:
@@ -238,6 +253,21 @@ psgplay:
 	jsr frmstr
 	jsr bjsrfar
 	.word bas_psgplaystring
+	.byte BANK_AUDIO
+	rts
+
+;---------------------------------------------------------------
+; PSGCHORD <channel>,<chordstring>
+;---------------------------------------------------------------
+psgchord:
+	jsr get_psgchannel
+	jsr bjsrfar
+	.word bas_playstringvoice
+	.byte BANK_AUDIO
+	jsr chkcom
+	jsr frmstr
+	jsr bjsrfar
+	.word bas_psgchordstring
 	.byte BANK_AUDIO
 	rts
 
