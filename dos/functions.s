@@ -51,6 +51,24 @@
 	jsr free_context
 .endmacro
 
+.import bank_save
+ram_bank = 0
+
+.macro BANKING_START
+	pha
+	lda ram_bank
+	sta bank_save
+	stz ram_bank
+	pla
+.endmacro
+
+.macro BANKING_END
+	pha
+	lda bank_save
+	sta ram_bank
+	pla
+.endmacro
+
 .bss
 
 cur_medium:
@@ -605,6 +623,8 @@ copy_do:
 	bcc @error_errno
 
 @cloop:
+	BANKING_START
+	
 	; read
 	lda @context_src
 	jsr fat32_set_context
@@ -639,6 +659,7 @@ copy_do:
 	bra @cloop
 
 @done:
+	BANKING_END
 	; close source
 	lda @context_src
 	jsr fat32_set_context
@@ -656,6 +677,7 @@ copy_do:
 	rts
 
 @error_errno:
+	BANKING_END
 	jsr convert_errno_status
 	pha
 	lda @context_src
