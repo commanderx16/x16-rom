@@ -41,6 +41,8 @@
 .export bas_fmplaystring
 .export bas_psgplaystring
 .export bas_playstringvoice
+.export bas_fmchordstring
+.export bas_psgchordstring
 
 .macro PRESERVE_AND_SET_BANK
 .scope
@@ -511,6 +513,87 @@ endwait:
 .endproc
 
 ;-----------------------------------------------------------------
+; bas_fmchordstring
+;-----------------------------------------------------------------
+; Takes a string of scripted notes, which start playback on one
+; or more channels returning control immediately. 
+; Notes play on YM2151
+; preparatory routines: bas_playstringvoice
+; inputs: .A = string length
+;         .X .Y = pointer to string
+; affects: .A .X .Y
+; returns: none
+;-----------------------------------------------------------------
+.proc bas_fmchordstring
+	stx azp0L
+	sty azp0H
+
+	PRESERVE_AND_SET_BANK
+
+	sta playstring_len
+	stz playstring_pos
+	
+	; azp0 now points to our note string
+noteloop:
+	jsr parsestring
+	bcc :+
+	jmp end
+:	ora #0
+	beq rest
+	cmp #1
+	beq volume
+	cmp #2
+	beq panning
+
+	tax
+	ldy #0
+	jsr notecon_midi2fm
+	
+	lda playstring_voice
+	jsr ym_playnote
+	bra advance_voice
+rest:
+	lda playstring_voice
+	jsr ym_release
+advance_voice:
+	lda playstring_voice
+	inc
+	and #7
+	sta playstring_voice
+	bra noteloop
+end:
+	lda playstring_voice
+	jsr ym_release
+	RESTORE_BANK
+	clc
+	rts
+volume:
+	txa ; volume comes out of parsing in .X
+	cmp #$40
+	bcc :+
+	lda #$3F ; clamp response to $3F
+:	ora #0
+	bne :+
+	lda #$40
+:	eor #$3F ; $3F - A, except when A = 0, then $7F
+	tax
+	lda playstring_voice
+	jsr ym_setatten
+	jmp noteloop
+panning:
+	txa ; panning comes out in .X
+	and #3
+	bne :+
+	jmp noteloop ; panning 0 forbidden
+:	tax
+	lda playstring_voice
+	jsr ym_setpan
+	jmp noteloop
+
+.endproc
+
+
+;-----------------------------------------------------------------
 ; bas_fmplaystring
 ;-----------------------------------------------------------------
 ; Takes a string of scripted notes, which plays in full before
@@ -609,6 +692,85 @@ panning:
 .endproc
 
 ;-----------------------------------------------------------------
+; bas_psgchordstring
+;-----------------------------------------------------------------
+; Takes a string of scripted notes, which start playback on one
+; or more voices returning control immediately. 
+; Notes play on the VERA PSG
+; preparatory routines: bas_playstringvoice
+; inputs: .A = string length
+;         .X .Y = pointer to string
+; affects: .A .X .Y
+; returns: none
+;-----------------------------------------------------------------
+.proc bas_psgchordstring
+	stx azp0L
+	sty azp0H
+
+	PRESERVE_AND_SET_BANK
+
+	sta playstring_len
+	stz playstring_pos
+	
+	; azp0 now points to our note string
+noteloop:
+	jsr parsestring
+	bcc :+
+	jmp end
+:	ora #0
+	beq rest
+	cmp #1
+	beq volume
+	cmp #2
+	beq panning
+
+	tax
+	ldy #0
+	jsr notecon_midi2psg
+
+	lda playstring_voice
+	clc
+	jsr psg_playfreq
+	bra advance_voice
+rest:
+	lda playstring_voice
+	ldx #0
+	jsr psg_setvol
+advance_voice:
+	lda playstring_voice
+	inc
+	and #15
+	sta playstring_voice
+	bra noteloop
+end:
+	lda playstring_voice
+	ldx #0
+	jsr psg_setvol
+	stz playstring_len
+	RESTORE_BANK
+	clc
+	rts
+volume:
+	txa ; volume comes out of parsing in .X
+	cmp #$40
+	bcc :+
+	lda #$3F ; clamp response to $3F
+:	eor #$3F ; $3F - A
+	tax
+	lda playstring_voice
+	jsr psg_setatten
+	bra noteloop
+panning:
+	txa ; panning comes out in .X
+	and #3
+	beq noteloop ; panning 0 forbidden
+	tax
+	lda playstring_voice
+	jsr psg_setpan
+	bra noteloop
+.endproc
+
+;-----------------------------------------------------------------
 ; bas_psgplaystring
 ;-----------------------------------------------------------------
 ; Takes a string of scripted notes, which plays in full before
@@ -690,6 +852,7 @@ panning:
 	jsr psg_setpan
 	bra noteloop
 .endproc
+
 
 ;-----------------------------------------------------------------
 ; bas_playstringvoice

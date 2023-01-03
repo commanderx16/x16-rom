@@ -46,3 +46,5 @@ ym_read               = $C081
 ym_release            = $C084
 ym_trigger            = $C087
 ym_write              = $C08A
+bas_fmchordstring     = $C08D
+bas_psgchordstring    = $C090
