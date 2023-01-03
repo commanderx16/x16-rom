@@ -78,6 +78,8 @@
 .import bas_fmplaystring
 .import bas_psgplaystring
 .import bas_playstringvoice
+.import bas_fmchordstring
+.import bas_psgchordstring
 
 .segment "API"
 	jmp bas_fmfreq            ; $C000
@@ -127,3 +129,6 @@
 	jmp ym_release            ; $C084
 	jmp ym_trigger            ; $C087
 	jmp ym_write              ; $C08A
+	jmp bas_fmchordstring     ; $C08D
+	jmp bas_psgchordstring    ; $C090
+
