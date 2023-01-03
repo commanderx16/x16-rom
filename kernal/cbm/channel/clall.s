@@ -35,8 +35,12 @@ jx750	cpx dfltn       ;is input channel ieee?
 ;restore default values
 ;
 ;
-clall2	stx dflto       ;output chan=3=screen
-	lda #0
-	sta dfltn       ;input chan=0=keyboard
+clall2	
+	ldx dflto
+	lda #3
+	sta dflto       ;output chan=3=screen 
+	
+	lda dfltn
+	stz dfltn       ;input chan=0=keyboard
 	rts
 
