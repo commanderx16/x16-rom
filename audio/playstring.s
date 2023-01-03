@@ -539,7 +539,7 @@ noteloop:
 	bcc :+
 	jmp end
 :	ora #0
-	beq rest
+	beq release
 	cmp #1
 	beq volume
 	cmp #2
@@ -548,11 +548,12 @@ noteloop:
 	tax
 	ldy #0
 	jsr notecon_midi2fm
-	
+
+	clc	
 	lda playstring_voice
 	jsr ym_playnote
 	bra advance_voice
-rest:
+release:
 	lda playstring_voice
 	jsr ym_release
 advance_voice:
@@ -562,8 +563,6 @@ advance_voice:
 	sta playstring_voice
 	bra noteloop
 end:
-	lda playstring_voice
-	jsr ym_release
 	RESTORE_BANK
 	clc
 	rts
@@ -718,7 +717,7 @@ noteloop:
 	bcc :+
 	jmp end
 :	ora #0
-	beq rest
+	beq release
 	cmp #1
 	beq volume
 	cmp #2
@@ -732,7 +731,7 @@ noteloop:
 	clc
 	jsr psg_playfreq
 	bra advance_voice
-rest:
+release:
 	lda playstring_voice
 	ldx #0
 	jsr psg_setvol
@@ -743,9 +742,6 @@ advance_voice:
 	sta playstring_voice
 	bra noteloop
 end:
-	lda playstring_voice
-	ldx #0
-	jsr psg_setvol
 	stz playstring_len
 	RESTORE_BANK
 	clc
