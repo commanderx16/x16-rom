@@ -25,7 +25,7 @@
 .import audio_bank_refcnt
 
 .import playstring_len
-.import playstring_notelen
+.import playstring_defnotelen
 .import playstring_octave
 .import playstring_pos
 .import playstring_tempo
@@ -142,7 +142,7 @@ skip_restore:
 	lda #120
 	sta playstring_tempo
 	lda #60
-	sta playstring_notelen
+	sta playstring_defnotelen
 	lda #4
 	sta playstring_octave
 	lda #1

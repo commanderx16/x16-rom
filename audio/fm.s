@@ -17,7 +17,7 @@ readst = $ffb7 ; for some reason this one is commented out in kernal.inc
 .import audio_bank_refcnt, audio_prev_bank
 
 .import playstring_len
-.import playstring_notelen
+.import playstring_defnotelen
 .import playstring_octave
 .import playstring_pos
 .import playstring_tempo
@@ -646,7 +646,7 @@ fail:
 	lda #120
 	sta playstring_tempo
 	lda #60
-	sta playstring_notelen
+	sta playstring_defnotelen
 	lda #4
 	sta playstring_octave
 	lda #1

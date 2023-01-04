@@ -8,6 +8,7 @@
 .include "io.inc" ; for YM2151 addresses
 
 .import playstring_len
+.import playstring_defnotelen
 .import playstring_notelen
 .import playstring_octave
 .import playstring_pos
@@ -20,6 +21,7 @@
 .import playstring_tmp3
 .import playstring_tmp4
 .import playstring_ymcnt
+.import playstring_delayrem
 
 .import audio_bank_refcnt, audio_prev_bank
 
@@ -83,6 +85,7 @@ skip_restore:
 .proc parsestring: near
 	; all registers can be used
 	; all tmp[1-4] temp variables are also fair game right now
+
 	ldy playstring_pos
 	cpy playstring_len
 	bcc :+
@@ -146,6 +149,9 @@ length_l:
 	bne tempo_t
 	ldx #0
 	jsr check_notelen
+	; set the new default
+	lda playstring_notelen
+	sta playstring_defnotelen
 	jmp parsestring
 
 tempo_t:
@@ -308,6 +314,10 @@ check_tempo:
 	jmp parsestring
 
 check_notelen:
+	; seed the next notelen from the default, in case this routine doesn't find one
+	lda playstring_defnotelen
+	sta playstring_notelen
+
 	; notelen = 240, whole note, divided by what we get back here
 	jsr parse_number
 	beq @nonum
@@ -470,6 +480,8 @@ l3:
 	; of the note, for instance if playstring_art = 1, the note is 7 ticks on
 	; and one part off.
 
+	stz playstring_tmp2 ; this will be the fractional frame calculated for this delay
+
 	plp ; retrieve carry flag
 	bcs calc_rest
 	lda #8
@@ -496,13 +508,23 @@ mult_loop:
 mult_done:
 	lsr playstring_tmp4
 	ror playstring_tmp3
+	ror playstring_tmp2
 	lsr playstring_tmp4
 	ror playstring_tmp3
+	ror playstring_tmp2
 	lsr playstring_tmp4
 	ror playstring_tmp3
+	ror playstring_tmp2
 
-	ldy playstring_tmp3
-	cpy #0
+	; add this fractional frame to the saved value from earlier
+	lda playstring_tmp2
+	clc
+	adc playstring_delayrem
+	sta playstring_delayrem
+	lda playstring_tmp3
+	adc #0
+
+	tay
 	beq endwait
 waitloop:
 	wai
@@ -612,6 +634,7 @@ panning:
 	sta playstring_len
 	stz playstring_pos
 	stz playstring_ymcnt
+	stz playstring_delayrem
 	
 	; azp0 now points to our note string
 noteloop:
@@ -785,6 +808,7 @@ panning:
 
 	sta playstring_len
 	stz playstring_pos
+	stz playstring_delayrem
 	
 	; azp0 now points to our note string
 noteloop:
