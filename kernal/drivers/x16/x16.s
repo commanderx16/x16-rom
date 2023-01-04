@@ -14,7 +14,7 @@
 .export irq_ack
 .export emulator_get_data
 .export vera_wait_ready
-.export call_sound_init
+.export call_audio_init
 
 .import ps2_init
 .import serial_init
@@ -89,9 +89,9 @@ vera_wait_ready:
 	bne vera_wait_ready
 	rts
 
-call_sound_init:
+call_audio_init:
 	jsr jsrfar
-	.word sound_init
+	.word audio_init
 	.byte BANK_AUDIO
 
 	rts

@@ -6,7 +6,7 @@
 
 .feature labels_without_colons
 
-.import cint, ramtas, ioinit, enter_basic, restor, vera_wait_ready, call_sound_init
+.import cint, ramtas, ioinit, enter_basic, restor, vera_wait_ready, call_audio_init
 
 .export start
 
@@ -22,7 +22,7 @@ start	ldx #$ff
 	jsr restor           ;go set up os vectors
 ;
 	jsr cint             ;go initilize screen
-	jsr call_sound_init  ;apply YM2151 and PSG presets
+	jsr call_audio_init  ;initialize audio API and HW.
 	cli                  ;interrupts okay now
 
 	sec
