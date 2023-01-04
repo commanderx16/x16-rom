@@ -6,7 +6,7 @@
 .include "io.inc"
 
 ; for initializing the audio subsystems
-.include "banks.inc" 
+.include "banks.inc"
 .include "audio.inc"
 
 .export ioinit
@@ -14,7 +14,7 @@
 .export irq_ack
 .export emulator_get_data
 .export vera_wait_ready
-.export sound_init
+.export call_sound_init
 
 .import ps2_init
 .import serial_init
@@ -89,17 +89,9 @@ vera_wait_ready:
 	bne vera_wait_ready
 	rts
 
-sound_init:	
+call_sound_init:
 	jsr jsrfar
-	.word psg_init
-	.byte BANK_AUDIO
-
-	jsr jsrfar
-	.word ym_init
-	.byte BANK_AUDIO
-
-	jsr jsrfar
-	.word ym_loaddefpatches
+	.word sound_init
 	.byte BANK_AUDIO
 
 	rts

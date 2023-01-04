@@ -6,7 +6,7 @@
 
 .feature labels_without_colons
 
-.import cint, ramtas, ioinit, enter_basic, restor, vera_wait_ready, sound_init
+.import cint, ramtas, ioinit, enter_basic, restor, vera_wait_ready, call_sound_init
 
 .export start
 
@@ -17,13 +17,13 @@ start	ldx #$ff
 	sei
 	txs
 
-	jsr ioinit      ;go initilize i/o devices
-	jsr ramtas      ;go ram test and set
-	jsr restor      ;go set up os vectors
+	jsr ioinit           ;go initilize i/o devices
+	jsr ramtas           ;go ram test and set
+	jsr restor           ;go set up os vectors
 ;
-	jsr cint        ;go initilize screen
-	jsr sound_init  ;apply YM2151 and PSG presets
-	cli             ;interrupts okay now
+	jsr cint             ;go initilize screen
+	jsr call_sound_init  ;apply YM2151 and PSG presets
+	cli                  ;interrupts okay now
 
 	sec
 	jmp enter_basic

@@ -85,6 +85,14 @@
 .import bas_fmchordstring
 .import bas_psgchordstring
 
+.segment "CODE"
+.proc sound_init: near
+	jsr ym_init
+	jsr psg_init
+	jsr ym_loaddefpatches
+	rts
+.endproc
+
 .segment "API"
 	jmp bas_fmfreq            ; $C000
 	jmp bas_fmnote            ; $C003
@@ -139,3 +147,4 @@
 	jmp psg_getpan            ; $C096
 	jmp ym_getatten           ; $C099
 	jmp ym_getpan             ; $C09C
+	jmp sound_init						; $C09F

@@ -52,3 +52,4 @@ psg_getatten          = $C093
 psg_getpan            = $C096
 ym_getatten           = $C099
 ym_getpan             = $C09C
+sound_init            = $C09F
