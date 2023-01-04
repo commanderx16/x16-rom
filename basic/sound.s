@@ -161,6 +161,22 @@ fmchord:
 	rts
 
 ;---------------------------------------------------------------
+; FMPOKE <register>,<value>
+;---------------------------------------------------------------
+fmpoke:
+	jsr getbyt
+	phx                ; push the register
+	jsr chkcom
+	jsr getbyt
+	txa
+	plx                ; pull the register
+	stp
+	jsr bjsrfar
+	.word ym_write
+	.byte BANK_AUDIO
+	rts
+
+;---------------------------------------------------------------
 ; PSGNOTE <channel>,<note>
 ;---------------------------------------------------------------
 psgnote:

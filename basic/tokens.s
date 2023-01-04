@@ -119,6 +119,7 @@ stmdsp2	; statements
 	.word fmpan-1
 	.word fmplay-1
 	.word fmchord-1
+	.word fmpoke-1
 	.word psginit-1
 	.word psgnote-1
 	.word psgvol-1

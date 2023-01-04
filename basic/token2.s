@@ -92,6 +92,7 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "FMPA", 'N' + $80
 	.byt "FMPLA", 'Y' + $80
 	.byt "FMCHOR", 'D' + $80
+	.byt "FMPOK", 'E' + $80
 	.byt "PSGINI", 'T' + $80
 	.byt "PSGNOT", 'E' + $80
 	.byt "PSGVO", 'L' + $80
