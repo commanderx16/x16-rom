@@ -89,6 +89,16 @@ vera_wait_ready:
 	bne vera_wait_ready
 	rts
 
+
+;---------------------------------------------------------------
+; Call the Audio API's init routine
+;
+; This sets the state of the YM2151 and the API's shadow of
+; it to known values, effectively stopping any note playback,
+; then loads default instrument presets into all 8 YM2151 channels.
+; It also turns off any notes that are currently playing on the 
+; VERA PSG by writing default values to all 64 PSG registers.
+;---------------------------------------------------------------
 call_audio_init:
 	jsr jsrfar
 	.word audio_init
