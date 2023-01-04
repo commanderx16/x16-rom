@@ -170,7 +170,6 @@ fmpoke:
 	jsr getbyt
 	txa
 	plx                ; pull the register
-	stp
 	jsr bjsrfar
 	.word ym_write
 	.byte BANK_AUDIO
