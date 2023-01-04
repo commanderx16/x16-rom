@@ -48,3 +48,7 @@ ym_trigger            = $C087
 ym_write              = $C08A
 bas_fmchordstring     = $C08D
 bas_psgchordstring    = $C090
+psg_getatten          = $C093
+psg_getpan            = $C096
+ym_getatten           = $C099
+ym_getpan             = $C09C

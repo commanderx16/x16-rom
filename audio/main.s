@@ -37,6 +37,8 @@
 .import ym_loaddefpatches
 .import ym_setpan
 .import ym_loadpatchlfn
+.import ym_getatten
+.import ym_getpan
 
 ; imports from psg.s
 .import psg_init
@@ -47,6 +49,8 @@
 .import psg_write
 .import psg_setpan
 .import psg_read
+.import psg_getatten
+.import psg_getpan
 
 ; imports from basic.s
 .import bas_fmfreq
@@ -131,4 +135,8 @@
 	jmp ym_write              ; $C08A
 	jmp bas_fmchordstring     ; $C08D
 	jmp bas_psgchordstring    ; $C090
-
+	jmp psg_getatten          ; $C093
+	jmp psg_getpan            ; $C096
+	jmp ym_getatten           ; $C099
+	jmp ym_getpan             ; $C09C
+	

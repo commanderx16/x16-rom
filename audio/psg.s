@@ -11,9 +11,11 @@
 .export psg_playfreq
 .export psg_setvol
 .export psg_setatten
+.export psg_getatten
 .export psg_setfreq
 .export psg_write
 .export psg_setpan
+.export psg_getpan
 .export psg_read
 
 .import psgtmp1
@@ -198,7 +200,7 @@ loop2:
 	pla
 
 	sta psgtmp1
-	
+
 	PRESERVE_VERA
 
 	lda psgtmp1
@@ -210,7 +212,7 @@ loop2:
 
 	; Retrieve the voice
 	ldx psgtmp1
-	
+
 	; Retrieve L/R, keep state
 	SET_VERA_STRIDE 0
 
@@ -227,7 +229,7 @@ loop2:
 :	ora psgtmp1       ; apply L+R channels
 
 	sta VERA_DATA0    ; set VERA volume
-	
+
 	RESTORE_VERA
 	RESTORE_BANK
 
@@ -254,7 +256,7 @@ loop2:
 	sei
 
 	sta psgtmp1
-	
+
 	PRESERVE_VERA
 
 	lda psgtmp1
@@ -266,7 +268,7 @@ loop2:
 	; Set frequency
 	stx VERA_DATA0
 	sty VERA_DATA0
-	
+
 	RESTORE_VERA
 	RESTORE_BANK
 	rts
@@ -291,7 +293,7 @@ loop2:
 
 	txa
 	SET_VERA_PSG_POINTER_REG
-	
+
 	; Writing something besides volume?
 	; skip to the write
 	txa
@@ -327,7 +329,7 @@ loop2:
 	tay
 write:
 	sty VERA_DATA0
-	
+
 	RESTORE_VERA
 	RESTORE_BANK
 	plx
@@ -340,7 +342,7 @@ write:
 ; psg_setvol
 ;-----------------------------------------------------------------
 ; Set PSG voice volume w/ attenuation
-; 
+;
 ; inputs: .A = voice
 ;         .X = volume
 ; affects: .Y
@@ -379,7 +381,7 @@ write:
 	plp ; restore interrupt flag
 
 	sta VERA_DATA0    ; set VERA volume
-	
+
 	RESTORE_VERA
 	RESTORE_BANK
 	rts
@@ -390,7 +392,7 @@ write:
 ; psg_setatten
 ;-----------------------------------------------------------------
 ; Set PSG voice attenuation (and reapply volume)
-; 
+;
 ; inputs: .A = voice
 ;         .X = attenuation
 ; affects: .Y
@@ -404,7 +406,7 @@ write:
 
 	txa
 	and #$7F
-	tax 
+	tax
 
 	sta psg_atten,y
 	lda psg_volshadow,y
@@ -417,10 +419,35 @@ write:
 .endproc
 
 ;-----------------------------------------------------------------
+; Retreive current PSG attenuation setting
+;-----------------------------------------------------------------
+; inputs: .A = voice
+; affects: .Y
+; preserves: .A
+; returns: .X = attenuation setting
+;
+.proc psg_getatten: near
+	pha      ; preerve .A
+	and #$0F ; mask to channel range 0-15
+	tax
+
+	php
+	sei
+	PRESERVE_AND_SET_BANK
+	lda psg_atten,x
+	RESTORE_BANK
+	plp
+
+	tax
+	pla
+	rts
+.endproc
+
+;-----------------------------------------------------------------
 ; psg_setpan
 ;-----------------------------------------------------------------
 ; Set PSG voice panning
-; 
+;
 ; inputs: .A = voice
 ;         .X = pan (0=off, 1=left, 2=right, 3=both)
 ; affects: .Y
@@ -463,6 +490,28 @@ write:
 .endproc
 
 ;-----------------------------------------------------------------
+; Retreive current PSG pan setting
+;-----------------------------------------------------------------
+; inputs: .A = voice
+; affects: .Y
+; preserves: .A
+; returns: .X = attenuation setting
+;
+.proc psg_getpan: near
+	pha
+	and #$0F ; mask to voice range 0..15
+	asl
+	asl
+	inc
+	inc
+	tax
+	jsr psg_read
+	tax
+	pla
+	rts
+.endproc
+
+;-----------------------------------------------------------------
 ; psg_read
 ;-----------------------------------------------------------------
 ; Do a PSG register read
@@ -483,7 +532,7 @@ write:
 
 	txa
 	SET_VERA_PSG_POINTER_REG
-	
+
 	; Reading something besides volume?
 	; skip to the read
 	txa
@@ -496,7 +545,7 @@ write:
 	bcs read
 
 	; get the voice number
-	txa 
+	txa
 	lsr
 	lsr
 	tax
@@ -506,7 +555,7 @@ write:
 
 	; make re-entrant safe by protecting tmp vars from interrupt
 	php
-	sei	
+	sei
 
 	sta psgtmp1 ; should already be $00-$3F
 	lda VERA_DATA0

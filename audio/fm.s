@@ -44,9 +44,11 @@ readst = $ffb7 ; for some reason this one is commented out in kernal.inc
 .export ym_release
 .export ym_init
 .export ym_setatten
+.export ym_getatten
 .export ym_setdrum
 .export ym_loaddefpatches
 .export ym_setpan
+.export ym_getpan
 .export ym_loadpatchlfn
 
 YM_TIMEOUT = 64 ; max value is 128.
@@ -327,6 +329,31 @@ fail:
 	plx
 	pla
 	sec
+	rts
+.endproc
+
+;-----------------------------------------------------------------
+; Retreive current YM attenuation setting
+;-----------------------------------------------------------------
+; inputs: .A = channel
+; affects: .Y
+; preserves: .A
+; returns: .X = attenuation setting
+;
+.proc ym_getatten: near
+	pha      ; preerve .A
+	and #$07 ; mask to channel range 0-7
+	tax
+
+	php
+	sei
+	PRESERVE_AND_SET_BANK
+	lda ym_atten,x
+	RESTORE_BANK
+	plp
+
+	tax
+	pla
 	rts
 .endproc
 
@@ -722,6 +749,37 @@ abort:
 	RESTORE_BANK
 
 	jmp ym_write
+.endproc
+
+;-----------------------------------------------------------------
+; Retreive current YM pan setting
+;-----------------------------------------------------------------
+; inputs: .A = channel
+; affects: .Y
+; preserves: .A
+; returns: , .X = pan setting (0=off, 1=Left, 2=Right, 3=Both)
+;
+.proc ym_getpan: near
+	pha
+	and #$07 ; mask to channel range 0-7
+	clc
+	adc #$20
+	tax
+
+	php
+	sei
+	PRESERVE_AND_SET_BANK
+	lda ymshadow,x
+	RESTORE_BANK
+	plp
+
+	rol
+	rol
+	rol
+	and #$03
+	tax
+	pla
+	rts
 .endproc
 
 ;-----------------------------------------------------------------
