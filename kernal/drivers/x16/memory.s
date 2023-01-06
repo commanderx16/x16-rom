@@ -93,7 +93,7 @@ ramtas:
 	sta ram_bank
 	sty $a000
 	beq :+
-	inc
+	inc		; check all banks instead of only mutiples of 8
 	bne :-
 :	stz ram_bank
 	dex
