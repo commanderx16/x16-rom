@@ -86,19 +86,20 @@ ramtas:
 :	sta ram_bank
 	ldy $a000
 	stx $a000
+	cpx $a000	; Ensure that value is actually written
+	bne :+		; Otherwise we have reached end of RAM
 	stz ram_bank
 	cpx $a000
 	sta ram_bank
 	sty $a000
 	beq :+
-	asl
+	inc
 	bne :-
-:	tay
-	stz ram_bank
+:	stz ram_bank
 	dex
 	stx $a000
+	 ; number of RAM banks is in accumulator
 
-	tya ; number of RAM banks
 ;
 ; set bottom and top of memory
 ;
