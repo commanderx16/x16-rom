@@ -51,6 +51,7 @@
 .import psg_read
 .import psg_getatten
 .import psg_getpan
+.import psg_write_fast
 
 ; imports from basic.s
 .import bas_fmfreq
@@ -89,8 +90,7 @@
 .proc audio_init: near
 	jsr ym_init
 	jsr psg_init
-	jsr ym_loaddefpatches
-	rts
+	jmp ym_loaddefpatches
 .endproc
 
 .segment "API"
@@ -148,3 +148,4 @@
 	jmp ym_getatten           ; $C099
 	jmp ym_getpan             ; $C09C
 	jmp audio_init            ; $C09F
+	jmp psg_write_fast        ; $C0A2

@@ -634,7 +634,6 @@ panning:
 	sta playstring_len
 	stz playstring_pos
 	stz playstring_ymcnt
-	stz playstring_delayrem
 	
 	; azp0 now points to our note string
 noteloop:

@@ -17,6 +17,7 @@
 .export psg_setpan
 .export psg_getpan
 .export psg_read
+.export psg_write_fast
 
 .import psgtmp1
 .import psg_atten
@@ -31,6 +32,7 @@
 .import playstring_tempo
 .import playstring_voice
 .import playstring_art
+.import playstring_delayrem
 
 .macro PRESERVE_VERA
 	; save the state of VERA data0 / CTRL registers
@@ -139,6 +141,7 @@ skip_restore:
 	stz playstring_len
 	stz playstring_pos
 	stz playstring_voice
+	stz playstring_delayrem
 	lda #120
 	sta playstring_tempo
 	lda #60
@@ -274,32 +277,17 @@ loop2:
 	rts
 .endproc
 
-;-----------------------------------------------------------------
-; psg_write
-;-----------------------------------------------------------------
-; Do a PSG register write, while cooking volume
-; inputs: .A = value, .X = PSG register ($00-$3F)
-; affects: .Y
-; preserves: .A .X
-;-----------------------------------------------------------------
 
-.proc psg_write: near
-	pha
-	phx
-
-	tay
-	PRESERVE_AND_SET_BANK
-	PRESERVE_VERA
-
-	txa
-	SET_VERA_PSG_POINTER_REG
-
+.macro PSG_WRITE_BODY
+.scope
 	; Writing something besides volume?
 	; skip to the write
 	txa
 	and #$03
 	cmp #$02
 	bne write
+
+	PRESERVE_AND_SET_BANK
 
 	; We are writing volume
 	; Preserve the L+R bits from the incoming write
@@ -327,11 +315,77 @@ loop2:
 	plp ; restore interrupt flag
 
 	tay
+
+	RESTORE_BANK
 write:
 	sty VERA_DATA0
+.endscope
+.endmacro
+
+;-----------------------------------------------------------------
+; psg_write
+;-----------------------------------------------------------------
+; Do a PSG register write, while cooking volume
+; inputs: .A = value, .X = PSG register ($00-$3F)
+; affects: .Y
+; preserves: .A .X
+;-----------------------------------------------------------------
+
+.proc psg_write: near
+	pha
+	phx
+
+	tay
+	PRESERVE_VERA
+
+	txa
+	SET_VERA_PSG_POINTER_REG
+
+	PSG_WRITE_BODY
 
 	RESTORE_VERA
-	RESTORE_BANK
+	plx
+	pla
+	rts
+.endproc
+
+;-----------------------------------------------------------------
+; psg_write_fast
+;-----------------------------------------------------------------
+; Do a PSG register write, while cooking volume
+; Skips preservation of VERA registers, and only repoints
+; VERA_ADDR_L.
+;
+; This routine is 70 clock cycles faster per invocation
+; but requires the caller to set up VERA_ADDR_M and VERA_ADDR_H
+; to point to $1F9xx.  It is highly recommended to set an
+; auto-increment of 0, so that writing to register $3F
+; (VERA_ADDR_L = $FF) does not increment VERA_ADDR_M
+;
+; e.g.
+;     stz VERA_CTRL
+;     lda #$01
+;     sta VERA_DATA_H
+;     lda #$F9
+;     sta VERA_DATA_M
+;
+; inputs: .A = value, .X = PSG register ($00-$3F)
+; affects: .Y
+; preserves: .A .X
+;-----------------------------------------------------------------
+
+.proc psg_write_fast: near
+	pha
+	phx
+
+	tay
+	txa
+	clc
+	adc #<(VERA_PSG_BASE)
+	sta VERA_ADDR_L
+
+	PSG_WRITE_BODY
+
 	plx
 	pla
 	rts

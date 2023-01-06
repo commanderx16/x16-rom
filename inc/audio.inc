@@ -53,3 +53,4 @@ psg_getpan            = $C096
 ym_getatten           = $C099
 ym_getpan             = $C09C
 audio_init            = $C09F
+psg_write_fast        = $C0A2

@@ -23,6 +23,7 @@ readst = $ffb7 ; for some reason this one is commented out in kernal.inc
 .import playstring_tempo
 .import playstring_voice
 .import playstring_art
+.import playstring_delayrem
 
 ; Pointer to FM patch data indexes
 .import patches_lo, patches_hi
@@ -643,6 +644,7 @@ fail:
 	stz playstring_len
 	stz playstring_pos
 	stz playstring_voice
+	stz playstring_delayrem
 	lda #120
 	sta playstring_tempo
 	lda #60
