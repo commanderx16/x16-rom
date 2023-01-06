@@ -6,6 +6,7 @@
 .setcpu "65c02"
 
 .include "io.inc" ; for YM2151 addresses
+.include "kernal.inc" ; for checking the STOP key
 
 .import playstring_len
 .import playstring_defnotelen
@@ -527,10 +528,19 @@ mult_done:
 	tay
 	beq endwait
 waitloop:
+	phy
+	jsr stop
+	beq stopped
+	ply
 	wai
 	dey
 	bne waitloop
+	clc
 endwait:
+	rts
+stopped:
+	ply
+	sec
 	rts
 .endproc
 
@@ -672,6 +682,7 @@ rest:
 wait:
 	clc
 	jsr playstring_wait
+	bcs end
 	inc playstring_ymcnt
 	lda playstring_art
 	beq noteloop ; legato, short circuit
@@ -680,6 +691,7 @@ wait:
 	stz playstring_ymcnt
 	sec
 	jsr playstring_wait
+	bcs end
 	bra noteloop
 end:
 	lda playstring_voice
@@ -836,6 +848,7 @@ rest:
 wait:
 	clc
 	jsr playstring_wait
+	bcs end
 	lda playstring_art
 	beq noteloop ; legato, short circuit
 	lda playstring_voice
@@ -843,6 +856,7 @@ wait:
 	jsr psg_setvol
 	sec
 	jsr playstring_wait
+	bcs end
 	bra noteloop
 end:
 	lda playstring_voice
