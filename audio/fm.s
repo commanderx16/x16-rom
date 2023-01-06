@@ -346,12 +346,9 @@ fail:
 	and #$07 ; mask to channel range 0-7
 	tax
 
-	php
-	sei
 	PRESERVE_AND_SET_BANK
 	lda ym_atten,x
 	RESTORE_BANK
-	plp
 
 	tax
 	pla
@@ -768,12 +765,9 @@ abort:
 	adc #$20
 	tax
 
-	php
-	sei
 	PRESERVE_AND_SET_BANK
 	lda ymshadow,x
 	RESTORE_BANK
-	plp
 
 	rol
 	rol

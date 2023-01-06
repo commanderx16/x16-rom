@@ -484,12 +484,9 @@ write:
 	and #$0F ; mask to channel range 0-15
 	tax
 
-	php
-	sei
 	PRESERVE_AND_SET_BANK
 	lda psg_atten,x
 	RESTORE_BANK
-	plp
 
 	tax
 	pla
@@ -548,7 +545,7 @@ write:
 ; inputs: .A = voice
 ; affects: .Y
 ; preserves: .A
-; returns: .X = attenuation setting
+; returns: .X = pan value
 ;
 .proc psg_getpan: near
 	pha
@@ -559,6 +556,10 @@ write:
 	inc
 	tax
 	jsr psg_read
+	rol
+	rol
+	rol
+	and #$03
 	tax
 	pla
 	rts
@@ -584,7 +585,7 @@ write:
 	PRESERVE_VERA
 
 	txa
-	SET_VERA_PSG_POINTER_REG
+	SET_VERA_PSG_POINTER_REG 0
 
 	; Reading something besides volume?
 	; skip to the read
