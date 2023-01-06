@@ -20,7 +20,7 @@ symbol:
 
 .segment "KSUP_CODE10"
 
-; BASIC's entry into jsrfar
+; Audio bank's entry into jsrfar
 .setcpu "65c02"
     ram_bank = 0
     rom_bank = 1
