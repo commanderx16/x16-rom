@@ -535,8 +535,8 @@ waitloop:
 	wai
 	dey
 	bne waitloop
-	clc
 endwait:
+	clc
 	rts
 stopped:
 	ply
