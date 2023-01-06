@@ -73,12 +73,12 @@
 .endmacro
 
 .macro SET_VERA_PSG_POINTER_REG stride, offset
-	clc
 	stz VERA_CTRL
 .ifnblank offset
+	clc
 	adc #<(VERA_PSG_BASE + offset)
 .else
-	adc #<(VERA_PSG_BASE)
+	ora #<(VERA_PSG_BASE)
 .endif
 	sta VERA_ADDR_L
 	lda #>VERA_PSG_BASE
@@ -380,8 +380,7 @@ write:
 
 	tay
 	txa
-	clc
-	adc #<(VERA_PSG_BASE)
+	ora #<(VERA_PSG_BASE)
 	sta VERA_ADDR_L
 
 	PSG_WRITE_BODY
