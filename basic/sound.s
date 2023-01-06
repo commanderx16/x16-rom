@@ -8,16 +8,18 @@
 .setcpu "65c02"
 .include "audio.inc"
 
+.macro audio_call addr
+    jsr jsrfar
+    .word addr
+    .byte BANK_AUDIO
+.endmacro
+
 ;---------------------------------------------------------------
 ; FMINIT
 ;---------------------------------------------------------------
 fminit:
-	jsr bjsrfar
-	.word ym_init
-	.byte BANK_AUDIO
-	jsr bjsrfar
-	.word ym_loaddefpatches
-	.byte BANK_AUDIO
+	audio_call ym_init
+	audio_call ym_loaddefpatches
 	rts
 
 ;---------------------------------------------------------------
@@ -30,9 +32,7 @@ fmfreq:
 	jsr get_freq
 	pla                ; channel
 	clc
-	jsr bjsrfar
-	.word bas_fmfreq
-	.byte BANK_AUDIO
+	audio_call bas_fmfreq
 	bcc :+            ; let the bank do additional validation for fm
 	jmp freq_error
 :
@@ -47,9 +47,7 @@ fmnote:
 	jsr chkcom
 	jsr get_note
 	pla                ; channel
-	jsr bjsrfar
-	.word bas_fmnote
-	.byte BANK_AUDIO
+	audio_call bas_fmnote
 	rts
 
 ;---------------------------------------------------------------
@@ -61,9 +59,7 @@ fmdrum:
 	jsr chkcom
 	jsr get_drum
 	pla                ; channel
-	jsr bjsrfar
-	.word ym_playdrum
-	.byte BANK_AUDIO
+	audio_call ym_playdrum
 	rts
 
 ;---------------------------------------------------------------
@@ -77,9 +73,7 @@ fminst:
 	tax
 	pla
 	sec                ; load from rom
-	jsr bjsrfar
-	.word ym_loadpatch
-	.byte BANK_AUDIO
+	audio_call ym_loadpatch
 	rts
 
 ;---------------------------------------------------------------
@@ -91,9 +85,7 @@ fmvib:
 	jsr chkcom
 	jsr get_depth
 	pla
-	jsr bjsrfar
-	.word bas_fmvib
-	.byte BANK_AUDIO
+	audio_call bas_fmvib
 	rts
 
 ;---------------------------------------------------------------
@@ -111,9 +103,7 @@ fmvol:
 	eor #$3f
 	tax
 	pla                ; channel
-	jsr bjsrfar
-	.word ym_setatten
-	.byte BANK_AUDIO
+	audio_call ym_setatten
 	rts
 
 ;---------------------------------------------------------------
@@ -125,9 +115,7 @@ fmpan:
 	jsr chkcom
 	jsr get_pan
 	pla
-	jsr bjsrfar
-	.word ym_setpan
-	.byte BANK_AUDIO
+	audio_call ym_setpan
 	rts
 
 ;---------------------------------------------------------------
@@ -135,14 +123,10 @@ fmpan:
 ;---------------------------------------------------------------
 fmplay:
 	jsr get_fmchannel
-	jsr bjsrfar
-	.word bas_playstringvoice
-	.byte BANK_AUDIO
+	audio_call bas_playstringvoice
 	jsr chkcom
 	jsr frmstr
-	jsr bjsrfar
-	.word bas_fmplaystring
-	.byte BANK_AUDIO
+	audio_call bas_fmplaystring
 	rts
 
 ;---------------------------------------------------------------
@@ -150,14 +134,10 @@ fmplay:
 ;---------------------------------------------------------------
 fmchord:
 	jsr get_fmchannel
-	jsr bjsrfar
-	.word bas_playstringvoice
-	.byte BANK_AUDIO
+	audio_call bas_playstringvoice
 	jsr chkcom
 	jsr frmstr
-	jsr bjsrfar
-	.word bas_fmchordstring
-	.byte BANK_AUDIO
+	audio_call bas_fmchordstring
 	rts
 
 ;---------------------------------------------------------------
@@ -170,9 +150,7 @@ fmpoke:
 	jsr getbyt
 	txa
 	plx                ; pull the register
-	jsr bjsrfar
-	.word ym_write
-	.byte BANK_AUDIO
+	audio_call ym_write
 	rts
 
 ;---------------------------------------------------------------
@@ -184,9 +162,7 @@ psgnote:
 	jsr chkcom
 	jsr get_note
 	pla                ; channel
-	jsr bjsrfar
-	.word bas_psgnote
-	.byte BANK_AUDIO
+	audio_call bas_psgnote
 	rts
 
 ;---------------------------------------------------------------
@@ -198,9 +174,7 @@ psgfreq:
 	jsr chkcom
 	jsr get_freq
 	pla                ; channel
-	jsr bjsrfar
-	.word bas_psgfreq
-	.byte BANK_AUDIO
+	audio_call bas_psgfreq
 	rts
 
 ;---------------------------------------------------------------
@@ -212,18 +186,14 @@ psgwav:
 	jsr chkcom
 	jsr getbyt
 	pla                ; channel
-	jsr bjsrfar
-	.word bas_psgwav
-	.byte BANK_AUDIO
+	audio_call bas_psgwav
 	rts
 
 ;---------------------------------------------------------------
 ; PSGINIT
 ;---------------------------------------------------------------
 psginit:
-	jsr bjsrfar
-	.word psg_init
-	.byte BANK_AUDIO
+	audio_call psg_init
 	rts
 
 ;---------------------------------------------------------------
@@ -237,9 +207,7 @@ psgvol:
 	eor #$3f
 	tax
 	pla                ; channel
-	jsr bjsrfar
-	.word psg_setatten
-	.byte BANK_AUDIO
+	audio_call psg_setatten
 	rts
 
 ;---------------------------------------------------------------
@@ -251,9 +219,7 @@ psgpan:
 	jsr chkcom
 	jsr get_pan
 	pla                ; channel
-	jsr bjsrfar
-	.word psg_setpan
-	.byte BANK_AUDIO
+	audio_call psg_setpan
 	rts
 
 ;---------------------------------------------------------------
@@ -261,14 +227,10 @@ psgpan:
 ;---------------------------------------------------------------
 psgplay:
 	jsr get_psgchannel
-	jsr bjsrfar
-	.word bas_playstringvoice
-	.byte BANK_AUDIO
+	audio_call bas_playstringvoice
 	jsr chkcom
 	jsr frmstr
-	jsr bjsrfar
-	.word bas_psgplaystring
-	.byte BANK_AUDIO
+	audio_call bas_psgplaystring
 	rts
 
 ;---------------------------------------------------------------
@@ -276,14 +238,10 @@ psgplay:
 ;---------------------------------------------------------------
 psgchord:
 	jsr get_psgchannel
-	jsr bjsrfar
-	.word bas_playstringvoice
-	.byte BANK_AUDIO
+	audio_call bas_playstringvoice
 	jsr chkcom
 	jsr frmstr
-	jsr bjsrfar
-	.word bas_psgchordstring
-	.byte BANK_AUDIO
+	audio_call bas_psgchordstring
 	rts
 
 ;---------------------------------------------------------------
