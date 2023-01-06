@@ -365,9 +365,9 @@ write:
 ; e.g.
 ;     stz VERA_CTRL
 ;     lda #$01
-;     sta VERA_DATA_H
+;     sta VERA_ADDR_H
 ;     lda #$F9
-;     sta VERA_DATA_M
+;     sta VERA_ADDR_M
 ;
 ; inputs: .A = value, .X = PSG register ($00-$3F)
 ; affects: .Y
