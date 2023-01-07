@@ -78,55 +78,46 @@ ramtas:
 
 ;
 ; detect number of RAM banks
-;
-	ldx #$01	; 0K-512K
-	stx ram_bank
-	jsr :+
-	ldx #$40	; 512K-1024K
-	stx ram_bank
-	jsr :+
-	ldx #$80	; 1024K-1536K
-	stx ram_bank
-	jsr :+
-	ldx #$C0	; 1536K-2048K
-	stx ram_bank
-	jsr :+
-	lda #$00
-	jsr :+++++
+; 
+	stz ram_bank
+	ldx $a000	;get value from 00:a000
+	inx		;use value + 1 as test value for other banks
 
-:	ldy $a000	; Save value so it can be restored later
-	lda $a000	; Load value, change with xor and store new value
+	ldy #1		;bank to test
+:	sty ram_bank
+	lda $a000	;save current value
+	stx $a000	;write test value
+	stz ram_bank
+	cpx $a000	;check if 00:a000 is affected = wrap-around
+	beq @memtest2
+	sty ram_bank
+	sta $a000	;restore value
+	iny		;next bank
+	bne :-
+
+@memtest2:
+	stz ram_bank	;restore value in 00:a000
+	dex		
+	stx $a000
+
+	ldx #1		;start testing from bank 1
+	stx ram_bank
+:	ldx #8		;test 8 addresses in each bank
+:	lda $a000,x	;read, xor, write, compare
 	eor #$ff
-	sta $a000
-	cmp $a000	; If values are not equal, memory is non-existing
-	bne :+
-	stz ram_bank	; Check for wrap-around
-	cmp $a000	; If values are equal, we have wrapped around
-	stx ram_bank
-	beq :+
-	sty $a000	; Restore original value
-
-	ldy $a001	; Save value so it can be restored later
-	lda $a001	; Load value, change with xor and store new value
-	eor #$ff
-	sta $a001
-	cmp $a001	; If values are not equal, memory is non-existing
-	bne :++
-	stz ram_bank	; Check for wrap-around
-	cmp $a001	; If values are equal, we have wrapped around
-	stx ram_bank
-	beq :++
-	sty $a001	; Restore original value
-	rts
-
-:	sty $a000	; Restore original value to $A000
-	bra :++
-:	sty $a001	; Restore original value to $A001
-
-:	txa		; Number of RAM banks
-	plx		; Remove extra return address from stack
-	plx
-:	stz ram_bank
+	sta $a000,x
+	cmp $a000,x
+	bne @test_done	;test failed, we are done
+	eor #$ff	;restore value
+	sta $a000,x
+	dex		;test next address
+	bne :-
+	inc ram_bank	;select next ank
+	cpy ram_bank	;stop at last bank that does not wrap-around to bank0
+	bne :--
+@test_done:
+	lda ram_bank	;number of RAM banks
+	stz ram_bank
 
 ;
 ; set bottom and top of memory
