@@ -79,26 +79,54 @@ ramtas:
 ;
 ; detect number of RAM banks
 ;
-	stz ram_bank
-	ldx $a000
-	inx
-	lda #1
-:	sta ram_bank
-	ldy $a000
-	stx $a000
-	cpx $a000	; Ensure that value is actually written
-	bne :+		; Otherwise we have reached end of RAM
-	stz ram_bank
-	cpx $a000
-	sta ram_bank
-	sty $a000
+	ldx #$01	; 0K-512K
+	stx ram_bank
+	jsr :+
+	ldx #$40	; 512K-1024K
+	stx ram_bank
+	jsr :+
+	ldx #$80	; 1024K-1536K
+	stx ram_bank
+	jsr :+
+	ldx #$C0	; 1536K-2048K
+	stx ram_bank
+	jsr :+
+	lda #$00
+	jsr :+++++
+
+:	ldy $a000	; Save value so it can be restored later
+	lda $a000	; Load value, change with xor and store new value
+	eor #$ff
+	sta $a000
+	cmp $a000	; If values are not equal, memory is non-existing
+	bne :+
+	stz ram_bank	; Check for wrap-around
+	cmp $a000	; If values are equal, we have wrapped around
+	stx ram_bank
 	beq :+
-	inc		; check all banks instead of only mutiples of 8
-	bne :-
+	sty $a000	; Restore original value
+
+	ldy $a001	; Save value so it can be restored later
+	lda $a001	; Load value, change with xor and store new value
+	eor #$ff
+	sta $a001
+	cmp $a001	; If values are not equal, memory is non-existing
+	bne :++
+	stz ram_bank	; Check for wrap-around
+	cmp $a001	; If values are equal, we have wrapped around
+	stx ram_bank
+	beq :++
+	sty $a001	; Restore original value
+	rts
+
+:	sty $a000	; Restore original value to $A000
+	bra :++
+:	sty $a001	; Restore original value to $A001
+
+:	txa		; Number of RAM banks
+	plx		; Remove extra return address from stack
+	plx
 :	stz ram_bank
-	dex
-	stx $a000
-	 ; number of RAM banks is in accumulator
 
 ;
 ; set bottom and top of memory
