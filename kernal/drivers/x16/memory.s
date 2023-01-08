@@ -117,8 +117,6 @@ ramtas:
 	bne :--
 @test_done:
 	lda ram_bank	;number of RAM banks
-	stz ram_bank
-
 ;
 ; set bottom and top of memory
 ;
