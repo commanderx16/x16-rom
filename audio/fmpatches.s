@@ -60,7 +60,7 @@ M008_Celesta:
 	.byte $C4,$00
 	.byte $56,$3A,$36,$31,$28,$3C,$0C,$00
 	.byte $1F,$1F,$1F,$1F,$1A,$0B,$1A,$0B
-	.byte $00,$00,$00,$00,$FB,$B1,$FB,$F7
+	.byte $00,$00,$00,$00,$FB,$B1,$FB,$F5
 
 ; 009 Glockenspiel
 M009_Glockenspiel:
