@@ -71,12 +71,33 @@ FB_get_info:
 ;---------------------------------------------------------------
 ; FB_set_palette
 ;
-; Return:    r0       pointer
-;            a        start index
-;            x        count
+; Function:  Set (a part of) the VERA's color palette
+; Pass  :    r0       pointer to color palette data
+;            a        VERA palette start color index
+;            x        number of colors to set (0=256)
 ;---------------------------------------------------------------
 FB_set_palette:
-	; TODO
+	stz  VERA_CTRL
+	ldy  #%00010001
+	sty  VERA_ADDR_H
+	ldy  #$fa
+	asl  a
+	bcc  @1
+	iny
+@1:	sty  VERA_ADDR_M
+	sta  VERA_ADDR_L
+@loop:	lda  (r0)
+	sta  VERA_DATA0
+	inc  r0
+	bne  @3
+	inc  r0+1
+@3:	lda  (r0)
+	sta  VERA_DATA0
+	inc  r0
+	bne  @4
+	inc  r0+1
+@4:	dex
+	bne  @loop
 	rts
 
 ;---------------------------------------------------------------
