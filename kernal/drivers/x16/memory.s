@@ -78,27 +78,45 @@ ramtas:
 
 ;
 ; detect number of RAM banks
-;
+; 
 	stz ram_bank
-	ldx $a000
-	inx
-	lda #1
-:	sta ram_bank
-	ldy $a000
-	stx $a000
+	ldx $a000	;get value from 00:a000
+	inx		;use value + 1 as test value for other banks
+
+	ldy #1		;bank to test
+:	sty ram_bank
+	lda $a000	;save current value
+	stx $a000	;write test value
 	stz ram_bank
-	cpx $a000
-	sta ram_bank
-	sty $a000
-	beq :+
-	asl
+	cpx $a000	;check if 00:a000 is affected = wrap-around
+	beq @memtest2
+	sty ram_bank
+	sta $a000	;restore value
+	iny		;next bank
 	bne :-
-:	tay
-	stz ram_bank
-	dex
+
+@memtest2:
+	stz ram_bank	;restore value in 00:a000
+	dex		
 	stx $a000
 
-	tya ; number of RAM banks
+	ldx #1		;start testing from bank 1
+	stx ram_bank
+:	ldx #8		;test 8 addresses in each bank
+:	lda $a000,x	;read, xor, write, compare
+	eor #$ff
+	sta $a000,x
+	cmp $a000,x
+	bne @test_done	;test failed, we are done
+	eor #$ff	;restore value
+	sta $a000,x
+	dex		;test next address
+	bne :-
+	inc ram_bank	;select next ank
+	cpy ram_bank	;stop at last bank that does not wrap-around to bank0
+	bne :--
+@test_done:
+	lda ram_bank	;number of RAM banks
 ;
 ; set bottom and top of memory
 ;
