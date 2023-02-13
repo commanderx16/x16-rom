@@ -9,6 +9,7 @@ MEMORY {
 
 SEGMENTS {
 	ZPBASIC:  load = ZPBASIC,  type = zp;
+	ZPAUDIO:  load = ZPAUDIO,  type = zp;
 	BVECTORS: load = BVECTORS, type = bss;
 	BVARS:    load = BVARS,    type = bss;
 

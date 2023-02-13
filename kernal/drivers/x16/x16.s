@@ -5,16 +5,22 @@
 
 .include "io.inc"
 
+; for initializing the audio subsystems
+.include "banks.inc"
+.include "audio.inc"
+
 .export ioinit
 .export iokeys
 .export irq_ack
 .export emulator_get_data
 .export vera_wait_ready
+.export call_audio_init
 
 .import ps2_init
 .import serial_init
 .import entropy_init
 .import clklo
+.import jsrfar
 
 .segment "MACHINE"
 
@@ -81,4 +87,21 @@ vera_wait_ready:
 	lda VERA_ADDR_L
 	cmp #42
 	bne vera_wait_ready
+	rts
+
+
+;---------------------------------------------------------------
+; Call the Audio API's init routine
+;
+; This sets the state of the YM2151 and the API's shadow of
+; it to known values, effectively stopping any note playback,
+; then loads default instrument presets into all 8 YM2151 channels.
+; It also turns off any notes that are currently playing on the 
+; VERA PSG by writing default values to all 64 PSG registers.
+;---------------------------------------------------------------
+call_audio_init:
+	jsr jsrfar
+	.word audio_init
+	.byte BANK_AUDIO
+
 	rts
