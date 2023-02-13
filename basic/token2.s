@@ -82,6 +82,25 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "BVLOA", 'D' + $80
 	.byt "BVERIF", 'Y' + $80
 	.byt "BAN", 'K' + $80
+	.byt "FMINI", 'T' + $80
+	.byt "FMNOT", 'E' + $80
+	.byt "FMDRU", 'M' + $80
+	.byt "FMINS", 'T' + $80
+	.byt "FMVI", 'B' + $80
+	.byt "FMFRE", 'Q' + $80
+	.byt "FMVO", 'L' + $80
+	.byt "FMPA", 'N' + $80
+	.byt "FMPLA", 'Y' + $80
+	.byt "FMCHOR", 'D' + $80
+	.byt "FMPOK", 'E' + $80
+	.byt "PSGINI", 'T' + $80
+	.byt "PSGNOT", 'E' + $80
+	.byt "PSGVO", 'L' + $80
+	.byt "PSGWA", 'V' + $80
+	.byt "PSGFRE", 'Q' + $80
+	.byt "PSGPA", 'N' + $80
+	.byt "PSGPLA", 'Y' + $80
+	.byt "PSGCHOR", 'D' + $80
 	.byt "VPEE", 'K' + $80
 	.byt "M", 'X' + $80
 	.byt "M", 'Y' + $80
@@ -177,6 +196,14 @@ errtab	.word err01
 	.word err29
 	.word err30
 	.word err31
+	.word err32
+	.word err33
+	.word err34
+	.word err35
+	.word err36
+	.word err37
+	.word err38
+	.word err39
 
 okmsg	.byt $d,"OK",$d,$0
 err	.byt " ERROR",0
@@ -187,6 +214,22 @@ brktxt	.byt $d
 err30	.byt "BREAK",0,$a0 ;shifted space
 err31	.byt "NOT GRAPHICS MOD", 'E'+$80
 errngm	=31
+err32	.byt "CHANNE", 'L'+$80
+erchan	=32
+err33	.byt "INSTRUMEN", 'T'+$80
+erinst	=33
+err34	.byt "OCTAV", 'E'+$80
+eroct	=34
+err35	.byt "VOLUM", 'E'+$80
+ervol	=35
+err36	.byt "DRU", 'M'+$80
+erdrum	=36
+err37	.byt "DEPT", 'H'+$80
+erdep	=37
+err38	.byt "FREQUENC", 'Y'+$80
+erfrq	=38
+err39	.byt "PA", 'N'+$80
+erpan	=39
 
 forsiz	=$12
 fndfor	tsx

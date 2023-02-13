@@ -109,6 +109,25 @@ stmdsp2	; statements
 	.word bvload-1
 	.word bvrfy-1
 	.word setbank-1
+	.word fminit-1
+	.word fmnote-1
+	.word fmdrum-1
+	.word fminst-1
+	.word fmvib-1
+	.word fmfreq-1
+	.word fmvol-1
+	.word fmpan-1
+	.word fmplay-1
+	.word fmchord-1
+	.word fmpoke-1
+	.word psginit-1
+	.word psgnote-1
+	.word psgvol-1
+	.word psgwav-1
+	.word psgfreq-1
+	.word psgpan-1
+	.word psgplay-1
+	.word psgchord-1
 
 	; functions
 ptrfunc	.word vpeek
