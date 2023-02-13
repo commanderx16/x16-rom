@@ -73,9 +73,13 @@ nqplop	bpl ploop
 	bne nesctk
 	iny
 	lda (lowtr),y
-	sec
-	sbc #127
-	tax
+	cmp #$c0 ; check if statement or function
+	bcc :+
+	sbc #($c0 - num_esc_statements - 1) ; a function
+	bra :++
+:	sec
+	sbc #127 ; a statement
+:	tax
 	sty lstpnt
 	ldy #255
 resrch2	dex
