@@ -44,6 +44,8 @@ part_index:
 	.byte 0
 show_timestamps:
 	.byte 0
+show_cwd:
+	.byte 0
 
 .code
 
@@ -56,6 +58,7 @@ dir_open:
 	jsr set_status
 
 	stz show_timestamps
+	stz show_cwd
 
 	ply ; filename length
 	lda #0
@@ -70,11 +73,17 @@ dir_open:
 	lda buffer+2
 	cmp #'P'
 	beq @part_dir
+	cmp #'C'
+	beq @cwd
 	cmp #'T'
 	bne @files_dir
 	lda #$80
 	sta show_timestamps
 	ldx #3 ; skip "=T"
+	bra @cont1
+@cwd:
+	jsr fat32_open_tree
+	inc show_cwd
 	bra @cont1
 
 @part_dir:
@@ -183,6 +192,7 @@ dir_open:
 	ldx #txt_mbr - txt_tables
 @not_part4:
 	jsr storetxt
+
 	lda #0 ; end of line
 	jsr storedir
 	phy
@@ -262,6 +272,12 @@ read_dir_entry:
 	bra @cont1
 
 @not_part1:
+	lda show_cwd
+	beq @not_walk
+@read_walk:
+	jsr fat32_walk_tree
+	bra @cont1
+@not_walk:
 	jsr fat32_read_dirent_filtered
 @cont1:
 	bcs @found
