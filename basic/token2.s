@@ -214,21 +214,21 @@ brktxt	.byt $d
 err30	.byt "BREAK",0,$a0 ;shifted space
 err31	.byt "NOT GRAPHICS MOD", 'E'+$80
 errngm	=31
-err32	.byt "INVALID CHANNE", 'L'+$80
+err32	.byt "CHANNE", 'L'+$80
 erchan	=32
-err33	.byt "INVALID INSTRUMEN", 'T'+$80
+err33	.byt "INSTRUMEN", 'T'+$80
 erinst	=33
-err34	.byt "INVALID OCTAV", 'E'+$80
+err34	.byt "OCTAV", 'E'+$80
 eroct	=34
-err35	.byt "INVALID VOLUM", 'E'+$80
+err35	.byt "VOLUM", 'E'+$80
 ervol	=35
-err36	.byt "INVALID DRU", 'M'+$80
+err36	.byt "DRU", 'M'+$80
 erdrum	=36
-err37	.byt "INVALID DEPT", 'H'+$80
+err37	.byt "DEPT", 'H'+$80
 erdep	=37
-err38	.byt "INVALID FREQUENC", 'Y'+$80
+err38	.byt "FREQUENC", 'Y'+$80
 erfrq	=38
-err39	.byt "INVALID PA", 'N'+$80
+err39	.byt "PA", 'N'+$80
 erpan	=39
 
 forsiz	=$12
