@@ -214,7 +214,7 @@ isfun
 	bne :+
 snerr9:	jmp snerr
 :	sec
-	sbc #$c0
+	sbc #$d0
 	cmp #num_esc_functions
 	bcs snerr9
 

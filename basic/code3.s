@@ -73,9 +73,9 @@ nqplop	bpl ploop
 	bne nesctk
 	iny
 	lda (lowtr),y
-	cmp #$c0 ; check if statement or function
+	cmp #$d0 ; check if statement or function
 	bcc :+
-	sbc #($c0 - num_esc_statements - 1) ; a function
+	sbc #($d0 - num_esc_statements - 1) ; a function
 	bra :++
 :	sec
 	sbc #127 ; a statement
