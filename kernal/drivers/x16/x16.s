@@ -15,6 +15,7 @@
 .export emulator_get_data
 .export vera_wait_ready
 .export call_audio_init
+.export boot_cartridge
 
 .import ps2_init
 .import serial_init
@@ -105,3 +106,55 @@ call_audio_init:
 	.byte BANK_AUDIO
 
 	rts
+
+;---------------------------------------------------------------
+; Check for cartridge in ROM bank 32
+;
+; This copies code into early ZP that checks bank 32 for
+; the PETSCII sequence 'C', 'X', '1', '6' at address $C000
+; if it exists, it jumps to its entry point at $C004.
+;---------------------------------------------------------------
+boot_cartridge:
+	ldx #(@trampend-@trampoline)
+@copyloop:
+	lda @trampoline,x
+	sta $02,x
+	dex
+	bpl @copyloop
+
+	jsr $0002
+	bcc :+
+
+	jsr jsrfar
+	.word $C004
+	.byte 32 ; cartridge ROM
+:
+	; If cart does not exist, we continue to BASIC.
+	; The cartridge can also return to BASIC if it chooses to do so.
+	rts
+@trampoline:
+	lda rom_bank
+	pha
+	lda #32
+	sta rom_bank
+	lda $C000
+	cmp #'C'
+	bne @no
+	lda $C001
+	cmp #'X'
+	bne @no
+	lda $C002
+	cmp #'1'
+	bne @no
+	lda $C003
+	cmp #'6'
+	bne @no
+	; implicit sec - carry is set cmp is equal
+@return:
+	pla
+	sta rom_bank
+	rts
+@no:
+	clc
+	bra @return
+@trampend:
