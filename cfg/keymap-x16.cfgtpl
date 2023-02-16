@@ -1,10 +1,12 @@
 MEMORY {
 	#include "x16.cfginc"
 
-	KEYMAPS:  start = $C000, size = $4000, fill=yes, fillval=$AA;
+	KEYMAPS:  start = $C000, size = $3FFA, fill=yes, fillval=$AA;
+	VECTORS:  start = $FFFA, size = $0006, fill=yes, fillval=$AA;
 }
 
 SEGMENTS {
 	KBDMETA:    load = KEYMAPS,  type = ro;
 	KBDTABLES:  load = KEYMAPS,  type = ro;
+	VECTORS:    load = VECTORS,  type = ro;
 }

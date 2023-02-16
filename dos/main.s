@@ -549,5 +549,7 @@ dos_macptr:
 
 ;---------------------------------------------------------------
 .segment "IRQB"
+	.word banked_nmi
+	.word $ffff
 	.word banked_irq
 

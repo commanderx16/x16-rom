@@ -20,7 +20,8 @@ jsrfar3    = $02c4 ; jsrfar: RAM part
 jmpfr      = $02df ; jsrfar: core jmp instruction
 imparm     = $82   ; jsrfar: temporary byte
 stavec     = $03b2 ; stash: argument
-banked_irq = $038b ; irq handler: RAM part
+banked_irq = $038b ; irq handler: RAM part         this value MUST NEVER CHANGE starting from R42
+banked_nmi = $03b7 ; nmi handler: RAM trampoline   this value MUST NEVER CHANGE starting from R42
 .elseif .defined(MACHINE_C64)
 status     = $029F
 ;fa         = $029F

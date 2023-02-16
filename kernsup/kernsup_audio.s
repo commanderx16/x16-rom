@@ -1,7 +1,5 @@
 .include "banks.inc"
 
-.import bjsrfar
-
 .macro bridge symbol
 	.local address
 	.segment "KSUP_VEC10"
@@ -22,8 +20,8 @@ symbol:
 
 ; Audio bank's entry into jsrfar
 .setcpu "65c02"
-    ram_bank = 0
-    rom_bank = 1
+	ram_bank = 0
+	rom_bank = 1
 .export ajsrfar
 ajsrfar:
 .include "jsrfar.inc"
@@ -31,11 +29,11 @@ ajsrfar:
 
 .segment "KSUP_VEC10"
 
-    xjsrfar = ajsrfar
+	xjsrfar = ajsrfar
 .include "kernsup.inc"
 
-    .byte 0, 0, 0, 0 ; signature
+	.byte 0, 0, 0, 0 ; signature
 
-    .word $ffff ; nmi
-    .word $ffff ; reset
-    .word banked_irq
+	.word banked_nmi ; nmi
+	.word $ffff ; reset
+	.word banked_irq

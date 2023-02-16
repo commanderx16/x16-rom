@@ -74,4 +74,4 @@ jmp (I_FB_move_pixels)          ;C060
 
 .include "banks.inc"
 .segment "VECTORS" 
- .byt $ff, $ff, $ff, $ff, <banked_irq, >banked_irq
+ .byt <banked_nmi, >banked_nmi, $ff, $ff, <banked_irq, >banked_irq

@@ -1,8 +1,8 @@
 MEMORY {
 	#include "x16.cfginc"
 
-	DOS:      start = $C000, size = $3FFE, fill=yes, fillval=$AA;
-	IRQB:     start = $FFFE, size = $0002, fill=yes, fillval=$AA;
+	DOS:      start = $C000, size = $3FFA, fill=yes, fillval=$AA;
+	IRQB:     start = $FFFA, size = $0006, fill=yes, fillval=$AA;
 }
 
 SEGMENTS {

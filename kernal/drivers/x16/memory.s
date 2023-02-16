@@ -11,6 +11,7 @@
 .import __KVARSB0_LOAD__, __KVARSB0_RUN__, __KVARSB0_SIZE__
 .import memtop
 .import membot
+.import nminv
 
 .import ieeeswitch_init
 
@@ -268,6 +269,15 @@ __stavec	=*+1
 	plx
 	stx ram_bank
 	rts
+
+.assert * = banked_nmi, error, "banked_nmi must be at specific address"
+__banked_nmi:
+	pha
+	lda rom_bank
+	pha
+	stz rom_bank
+	jmp (nminv)
+
 
 .segment "MEMDRV"
 

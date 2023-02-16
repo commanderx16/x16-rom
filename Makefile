@@ -133,7 +133,8 @@ ifneq ($(MACHINE),c64)
 endif
 
 KEYMAP_SOURCES = \
-	keymap/keymap.s
+	keymap/keymap.s \
+	keymap/vectors.s
 
 DOS_SOURCES = \
 	dos/fat32/fat32.s \
@@ -270,7 +271,8 @@ MONITOR_SOURCES= \
 
 CHARSET_SOURCES= \
 	charset/petscii.s \
-	charset/iso-8859-15.s
+	charset/iso-8859-15.s \
+	charset/vectors.s
 
 GRAPH_SOURCES= \
 	graphics/jmptbl.s \
