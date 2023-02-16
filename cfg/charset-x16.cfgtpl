@@ -1,10 +1,12 @@
 MEMORY {
 	#include "x16.cfginc"
 
-	BANK6:    start = $C000, size = $4000, fill=yes, fillval=$AA;
+	BANK6:    start = $C000, size = $3FFA, fill=yes, fillval=$AA;
+	VECTORS:  start = $FFFA, size = $0006, fill=yes, fillval=$AA;
 }
 
 SEGMENTS {
 	CHARSET:    load = BANK6,    type = ro;
 	CHARISO:    load = BANK6,    type = ro;
+	VECTORS:    load = VECTORS,  type = ro;
 }

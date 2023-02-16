@@ -211,18 +211,18 @@ isfun
 	bne nesct3
 
 	jsr chrget
-	sec
-	sbc #$80 + num_esc_statements
-	bcs :+
+	bne :+
 snerr9:	jmp snerr
-:	cmp #num_esc_functions
+:	sec
+	sbc #$d0
+	cmp #num_esc_functions
 	bcs snerr9
 
 	asl a
 	tay
-	lda stmdsp2+2*num_esc_statements,y
+	lda ptrfunc,y
 	sta jmper+1
-	lda stmdsp2+2*num_esc_statements+1,y
+	lda ptrfunc+1,y
 	sta jmper+2
 	jsr jmper
 	jmp chknum

@@ -23,6 +23,6 @@ symbol:
 
 	.byte 0, 0, 0, 0 ; signature
 
-	.word $ffff ; nmi
+	.word banked_nmi ; nmi
 	.word $ffff ; reset
 	.word banked_irq

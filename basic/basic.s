@@ -36,3 +36,4 @@
 .include "init.s"
 .include "x16additions.s"
 .include "graph.s"
+.include "sound.s"

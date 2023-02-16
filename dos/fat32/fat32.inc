@@ -27,6 +27,8 @@
 .global fat32_read_dirent       ; Read directory entry, result in fat32_dirent
 .global fat32_read_dirent_filtered ; Same as above, but only matching names (fat32_ptr)
 .global fat32_find_dirent       ; Find file with path in fat32_ptr in current directory
+.global fat32_open_tree         ; Reset the state for fat32_walk_tree to the cwd
+.global fat32_walk_tree         ; Find the dirent of the next tree element, result in fat32_dirent
 
 .global fat32_chdir             ; Change to directory with path in fat32_ptr
 .global fat32_rename            ; Rename file with path in fat32_ptr to fat32_ptr2

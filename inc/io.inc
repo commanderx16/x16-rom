@@ -105,3 +105,9 @@ fb_addr      = $00000; code assumes 64K aligned
 sprite_addr  = $13000
 screen_addr  = $1b000
 charset_addr = $1f000
+
+;
+; YM2151 IO registers
+;
+YM_REG  = $9F40
+YM_DATA = $9F41

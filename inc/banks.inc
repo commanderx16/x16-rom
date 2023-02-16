@@ -1,14 +1,15 @@
 ; ROM banks
-BANK_KERNAL  = 0
-BANK_KEYBD   = 1
-BANK_CBDOS   = 2
-BANK_GEOS    = 3
-BANK_BASIC   = 4
-BANK_MONITOR = 5
-BANK_CHARSET = 6
-BANK_CODEX   = 7
-BANK_GRAPH   = 8
-BANK_DEMO	 = 9
+BANK_KERNAL  = $00
+BANK_KEYBD   = $01
+BANK_CBDOS   = $02
+BANK_GEOS    = $03
+BANK_BASIC   = $04
+BANK_MONITOR = $05
+BANK_CHARSET = $06
+BANK_CODEX   = $07
+BANK_GRAPH   = $08
+BANK_DEMO    = $09
+BANK_AUDIO   = $0A
 
 ; XXX these constant RAM addresses are KERNAL
 ; XXX implementation details and need to go away!
@@ -19,7 +20,8 @@ jsrfar3    = $02c4 ; jsrfar: RAM part
 jmpfr      = $02df ; jsrfar: core jmp instruction
 imparm     = $82   ; jsrfar: temporary byte
 stavec     = $03b2 ; stash: argument
-banked_irq = $038b ; irq handler: RAM part
+banked_irq = $038b ; irq handler: RAM part         this value MUST NEVER CHANGE starting from R42
+banked_nmi = $03b7 ; nmi handler: RAM trampoline   this value MUST NEVER CHANGE starting from R42
 .elseif .defined(MACHINE_C64)
 status     = $029F
 ;fa         = $029F
