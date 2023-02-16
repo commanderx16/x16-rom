@@ -100,7 +100,15 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "PSGFRE", 'Q' + $80
 	.byt "PSGPA", 'N' + $80
 	.byt "PSGPLA", 'Y' + $80
-	.byt "PSGCHOR", 'D' + $80
+	.byt 0 ; keep this last
+	; The division between reslst2 and reslst3 is arbitrary, but the order
+	; must be maintained. Parser will check all of reslst2 and then
+	; continue onward with checking entries in reslst3.
+reslst3	.byt "PSGCHOR", 'D' + $80
+
+	; add new statements before this line
+
+	; functions start here
 	.byt "VPEE", 'K' + $80
 	.byt "M", 'X' + $80
 	.byt "M", 'Y' + $80
@@ -108,7 +116,11 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "JO", 'Y' + $80
 	.byt "HEX", $a4
 	.byt "BIN", $a4
+
+	; add new functions before this line
 	.byt 0
+
+.assert reslst3 - reslst2 < 256, error, "<--- See line number. Too many bytes in reslst2. Keep the ordering of the statements but move one of the declarations from the end of reslst2 to the beginning of reslst3.  Keep the .byt 0 as the final entry of reslst2."
 ;**************************************
 
 err01	.byt "TOO MANY FILE",$d3

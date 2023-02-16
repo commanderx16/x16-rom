@@ -89,7 +89,7 @@ rescon2	lda bufofs,x
 	cmp #128
 	bne nthis2
 
-	lda count
+resfnd	lda count
 	cmp #num_esc_statements	; check if statement or function
 	bcc :+
 	adc #($d0 - num_esc_statements - 1) ; an extended function (index $D0-$FF)
@@ -113,6 +113,27 @@ nthis12	iny
 	bpl nthis12
 	lda reslst2,y
 	bne rescon2
+
+;***** Extended statements, part deux (don't reset count)
+	ldy #$ff
+	dex
+reser3	iny
+	inx
+rescon3	lda bufofs,x
+	sec
+	sbc reslst3,y
+	beq reser3
+	cmp #128
+	beq resfnd
+
+nthis3	ldx txtptr
+	inc count
+nthis13	iny
+	lda reslst3-1,y
+	bpl nthis13
+	lda reslst3,y
+	bne rescon3
+
 	lda bufofs,x
 	bmi crdone
 	ldy bufptr
