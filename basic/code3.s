@@ -73,19 +73,38 @@ nqplop	bpl ploop
 	bne nesctk
 	iny
 	lda (lowtr),y
-	sec
-	sbc #127
-	tax
+	cmp #$d0 ; check if statement or function
+	bcc :+
+	sbc #($d0 - num_esc_statements - 1) ; a function
+	bra :++
+:	sec
+	sbc #127 ; a statement
+:	tax
 	sty lstpnt
 	ldy #255
 resrch2	dex
 	beq prit32
 rescr11	iny
 	lda reslst2,y
+	beq resdt3
 	bpl rescr11
 	bmi resrch2
+resdt3	ldy #255
+	inx
+resrch3	dex
+	beq prit33
+rescr12	iny
+	lda reslst3,y
+	bpl rescr12
+	bmi resrch3
+prit33	iny
+	lda reslst3,y
+	bmi prit4
+	jsr outdo
+	bne prit33
 prit32	iny
 	lda reslst2,y
+	beq resdt3
 	bmi prit4
 	jsr outdo
 	bne prit32
@@ -104,8 +123,9 @@ rescr1	iny
 	bmi resrch
 prit3	iny
 	lda reslst,y
-	bmi prit4
-	jsr outdo
+	bpl :+
+	jmp prit4
+:	jsr outdo
 	bne prit3
 for	lda #128
 	sta subflg

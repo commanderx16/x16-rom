@@ -13,7 +13,9 @@ SCL = (1 << 1)
 
 .segment "I2C"
 
-.export i2c_read_byte, i2c_write_byte, i2c_read_first_byte, i2c_read_next_byte, i2c_read_stop
+.export i2c_read_byte, i2c_write_byte
+.export i2c_read_first_byte, i2c_read_next_byte, i2c_read_stop
+.export i2c_write_first_byte, i2c_write_next_byte, i2c_write_stop
 
 __I2C_USE_INLINE_FUNCTIONS__=1
 
@@ -363,6 +365,7 @@ i2c_read_stop:
 ;
 ; Return:    x    device (preserved)
 ;            y    offset (preserved)
+;            c	  1 on error (NAK)
 ;---------------------------------------------------------------
 i2c_write_byte:
 	php
@@ -370,6 +373,38 @@ i2c_write_byte:
 	phx
 	phy
 
+	jsr i2c_write_first_byte
+	bcs @error
+	jsr i2c_write_stop
+
+	ply
+	plx
+	plp
+	clc
+	rts
+
+@error:
+	ply
+	plx
+	plp
+	sec
+	rts
+
+;---------------------------------------------------------------
+; i2c_write_first_byte
+; 
+; Function: Writes one byte over I2C without stopping the
+;           transmission. Subsequent bytes may be written by
+;           i2c_write_next_byte. When done, call function
+;           i2c_write_stop to close the I2C transmission.
+;
+; Pass:      a    value
+;            x    7-bit device address
+;            y    offset
+;
+; Return:    c    1 on error (NAK)
+;---------------------------------------------------------------
+i2c_write_first_byte:
 	pha                ; value
 	jsr i2c_init
 	jsr i2c_start
@@ -385,21 +420,41 @@ i2c_write_byte:
 	ply
 	pla                ; value
 	jsr i2c_write
-	jsr i2c_stop
-
-	ply
-	plx
-	plp
 	clc
 	rts
 
 @error:
 	pla                ; value
-	ply
-	plx
-	plp
 	sec
 	rts
+;---------------------------------------------------------------
+; i2c_write_next_byte
+;
+; Function:	After the first byte has been written by 
+;			i2c_write_first_byte, this function may be used to
+;			write one or more subsequent bytes without 
+;			restarting the I2C transmission
+;
+; Pass:		a    value
+;
+; Return:	Nothing
+;---------------------------------------------------------------
+i2c_write_next_byte:
+	jmp i2c_write
+
+;---------------------------------------------------------------
+; i2c_write_stop
+;
+; Function:	Stops I2C transmission that has been initialized
+;			with i2c_write_first_byte
+;
+; Pass:		Nothing
+;
+; Return:	Nothing
+;---------------------------------------------------------------
+i2c_write_stop:
+	jmp i2c_stop
+
 
 ;---------------------------------------------------------------
 ; Copyright (c) 2015, Dieter Hauer
@@ -432,7 +487,7 @@ i2c_write_byte:
 ;
 ; Pass:      a    byte to write
 ;
-; Return:    c    1 if ACK, 0 if NAK
+; Return:    c    0 if ACK, 1 if NAK
 ;
 ; I2C Exit:  SDA: Z
 ;            SCL: 0

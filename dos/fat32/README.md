@@ -18,10 +18,6 @@ This is a generic and reusable FAT32 filesystem read/write library written in 65
 * multiple partitions mounted at the same time
 * supports filesystems from 32 MB to 2 TB
 
-## Missing Features
-
-* there is no way to get the cwd string
-
 ## Requirements
 
 * 65C02 CPU (could run on 6502 with help of [65c02inc](https://github.com/commanderx16/x16-rom/blob/68cec17c700bd9666dc49f801e0853af4e417ebf/cbdos/65c02.inc))
@@ -72,6 +68,8 @@ Most API calls require a context to be allocated and set. Contexts are associate
 * `fat32_read_dirent`: Enumerate next dir entry. Returns dir entry in struct `fat32_dirent`.
 * `fat32_read_dirent_filtered`: Same as above, but uses filename filer. Pass filter in `fat32_ptr`.
 * `fat32_find_dirent`: Read single dir entry. Pass path in `fat32_ptr`, returns dir entry in struct `fat32_dirent`.
+* `fat32_open_tree`: Reset the cwd enumeration state
+* `fat32_walk_tree`: When called iteratively, first return the cwd in `fat32_dirent`, then its parent, and so on until you reach the root.
 
 ### Directory Entry Manipulation
 

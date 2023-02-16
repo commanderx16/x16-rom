@@ -133,7 +133,8 @@ ifneq ($(MACHINE),c64)
 endif
 
 KEYMAP_SOURCES = \
-	keymap/keymap.s
+	keymap/keymap.s \
+	keymap/vectors.s
 
 DOS_SOURCES = \
 	dos/fat32/fat32.s \
@@ -270,7 +271,8 @@ MONITOR_SOURCES= \
 
 CHARSET_SOURCES= \
 	charset/petscii.s \
-	charset/iso-8859-15.s
+	charset/iso-8859-15.s \
+	charset/vectors.s
 
 GRAPH_SOURCES= \
 	graphics/jmptbl.s \
@@ -283,6 +285,18 @@ GRAPH_SOURCES= \
 
 DEMO_SOURCES= \
 	demo/test.s
+
+AUDIO_SOURCES= \
+	kernsup/kernsup_audio.s \
+	audio/main.s \
+	audio/memory.s \
+	audio/basic.s \
+	audio/fm.s \
+	audio/psg.s \
+	audio/fmpatchtables.s \
+	audio/noteconvert.s \
+	audio/audio_luts.s \
+	audio/playstring.s
 
 GENERIC_DEPS = \
 	inc/kernal.inc \
@@ -334,6 +348,9 @@ MONITOR_DEPS= \
 CHARSET_DEPS= \
 	$(GENERIC_DEPS)
 
+AUDIO_DEPS= \
+	$(GENERIC_DEPS)
+
 KERNAL_OBJS  = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
 KEYMAP_OBJS  = $(addprefix $(BUILD_DIR)/, $(KEYMAP_SOURCES:.s=.o))
 DOS_OBJS     = $(addprefix $(BUILD_DIR)/, $(DOS_SOURCES:.s=.o))
@@ -343,6 +360,7 @@ MONITOR_OBJS = $(addprefix $(BUILD_DIR)/, $(MONITOR_SOURCES:.s=.o))
 CHARSET_OBJS = $(addprefix $(BUILD_DIR)/, $(CHARSET_SOURCES:.s=.o))
 GRAPH_OBJS   = $(addprefix $(BUILD_DIR)/, $(GRAPH_SOURCES:.s=.o))
 DEMO_OBJS    = $(addprefix $(BUILD_DIR)/, $(DEMO_SOURCES:.s=.o))
+AUDIO_OBJS   = $(addprefix $(BUILD_DIR)/, $(AUDIO_SOURCES:.s=.o))
 
 ifeq ($(MACHINE),c64)
 	BANK_BINS = $(BUILD_DIR)/kernal.bin
@@ -357,7 +375,8 @@ else
 		$(BUILD_DIR)/charset.bin \
 		$(BUILD_DIR)/codex.bin \
 		$(BUILD_DIR)/graph.bin \
-		$(BUILD_DIR)/demo.bin
+		$(BUILD_DIR)/demo.bin \
+		$(BUILD_DIR)/audio.bin
 endif
 
 ifeq ($(MACHINE),x16)
@@ -414,7 +433,7 @@ $(BUILD_DIR)/geos.bin: $(GEOS_OBJS) $(GEOS_DEPS) $(CFG_DIR)/geos-$(MACHINE).cfg
 # Bank 4 : BASIC
 $(BUILD_DIR)/basic.bin: $(BASIC_OBJS) $(BASIC_DEPS) $(CFG_DIR)/basic-$(MACHINE).cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C $(CFG_DIR)/basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.sym
+	$(LD) -C $(CFG_DIR)/basic-$(MACHINE).cfg $(BASIC_OBJS) -o $@ -m $(BUILD_DIR)/basic.map -Ln $(BUILD_DIR)/basic.sym `${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/kernal.sym shflag`
 	./scripts/relist.py $(BUILD_DIR)/basic.map $(BUILD_DIR)/basic
 
 # Bank 5 : MONITOR
@@ -443,6 +462,12 @@ $(BUILD_DIR)/demo.bin: $(DEMO_OBJS) $(DEMO_DEPS) $(CFG_DIR)/demo-$(MACHINE).cfg
 	$(LD) -C $(CFG_DIR)/demo-$(MACHINE).cfg $(DEMO_OBJS) -o $@ -m $(BUILD_DIR)/demo.map -Ln $(BUILD_DIR)/demo.sym
 	./scripts/relist.py $(BUILD_DIR)/demo.map $(BUILD_DIR)/demo
 
+# Bank A : Audio
+$(BUILD_DIR)/audio.bin: $(AUDIO_OBJS) $(AUDIO_DEPS) $(CFG_DIR)/audio-$(MACHINE).cfg
+	@mkdir -p $$(dirname $@)
+	$(LD) -C $(CFG_DIR)/audio-$(MACHINE).cfg $(AUDIO_OBJS) -o $@ -m $(BUILD_DIR)/audio.map -Ln $(BUILD_DIR)/audio.sym
+	./scripts/relist.py $(BUILD_DIR)/audio.map $(BUILD_DIR)/audio
+
 
 $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
 	./scripts/symbolize.sh 0 build/x16/kernal.sym   > $@
@@ -452,6 +477,7 @@ $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
 	./scripts/symbolize.sh 4 build/x16/basic.sym   >> $@
 	./scripts/symbolize.sh 5 build/x16/monitor.sym >> $@
 	./scripts/symbolize.sh 6 build/x16/charset.sym >> $@
+	./scripts/symbolize.sh A build/x16/audio.sym   >> $@
 
 $(BUILD_DIR)/rom_lst.h: $(BANK_BINS)
 	./scripts/trace_lst.py 0 `find build/x16/kernal/ -name \*.rlst` > $@
@@ -459,4 +485,4 @@ $(BUILD_DIR)/rom_lst.h: $(BANK_BINS)
 	./scripts/trace_lst.py 3 `find build/x16/geos/ -name \*.rlst`   >> $@
 	./scripts/trace_lst.py 4 `find build/x16/basic/ -name \*.rlst` >> $@
 	./scripts/trace_lst.py 5 `find build/x16/monitor/ -name \*.rlst`   >> $@
-
+	./scripts/trace_lst.py A `find build/x16/audio/ -name \*.rlst`   >> $@

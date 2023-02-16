@@ -82,6 +82,33 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "BVLOA", 'D' + $80
 	.byt "BVERIF", 'Y' + $80
 	.byt "BAN", 'K' + $80
+	.byt "FMINI", 'T' + $80
+	.byt "FMNOT", 'E' + $80
+	.byt "FMDRU", 'M' + $80
+	.byt "FMINS", 'T' + $80
+	.byt "FMVI", 'B' + $80
+	.byt "FMFRE", 'Q' + $80
+	.byt "FMVO", 'L' + $80
+	.byt "FMPA", 'N' + $80
+	.byt "FMPLA", 'Y' + $80
+	.byt "FMCHOR", 'D' + $80
+	.byt "FMPOK", 'E' + $80
+	.byt "PSGINI", 'T' + $80
+	.byt "PSGNOT", 'E' + $80
+	.byt "PSGVO", 'L' + $80
+	.byt "PSGWA", 'V' + $80
+	.byt "PSGFRE", 'Q' + $80
+	.byt "PSGPA", 'N' + $80
+	.byt "PSGPLA", 'Y' + $80
+	.byt 0 ; keep this last
+	; The division between reslst2 and reslst3 is arbitrary, but the order
+	; must be maintained. Parser will check all of reslst2 and then
+	; continue onward with checking entries in reslst3.
+reslst3	.byt "PSGCHOR", 'D' + $80
+
+	; add new statements before this line
+
+	; functions start here
 	.byt "VPEE", 'K' + $80
 	.byt "M", 'X' + $80
 	.byt "M", 'Y' + $80
@@ -89,7 +116,11 @@ reslst2	.byt "MO", 'N' + $80
 	.byt "JO", 'Y' + $80
 	.byt "HEX", $a4
 	.byt "BIN", $a4
+
+	; add new functions before this line
 	.byt 0
+
+.assert reslst3 - reslst2 < 256, error, "<--- See line number. Too many bytes in reslst2. Keep the ordering of the statements but move one of the declarations from the end of reslst2 to the beginning of reslst3.  Keep the .byt 0 as the final entry of reslst2."
 ;**************************************
 
 err01	.byt "TOO MANY FILE",$d3
@@ -177,6 +208,14 @@ errtab	.word err01
 	.word err29
 	.word err30
 	.word err31
+	.word err32
+	.word err33
+	.word err34
+	.word err35
+	.word err36
+	.word err37
+	.word err38
+	.word err39
 
 okmsg	.byt $d,"OK",$d,$0
 err	.byt " ERROR",0
@@ -187,6 +226,22 @@ brktxt	.byt $d
 err30	.byt "BREAK",0,$a0 ;shifted space
 err31	.byt "NOT GRAPHICS MOD", 'E'+$80
 errngm	=31
+err32	.byt "CHANNE", 'L'+$80
+erchan	=32
+err33	.byt "INSTRUMEN", 'T'+$80
+erinst	=33
+err34	.byt "OCTAV", 'E'+$80
+eroct	=34
+err35	.byt "VOLUM", 'E'+$80
+ervol	=35
+err36	.byt "DRU", 'M'+$80
+erdrum	=36
+err37	.byt "DEPT", 'H'+$80
+erdep	=37
+err38	.byt "FREQUENC", 'Y'+$80
+erfrq	=38
+err39	.byt "PA", 'N'+$80
+erpan	=39
 
 forsiz	=$12
 fndfor	tsx

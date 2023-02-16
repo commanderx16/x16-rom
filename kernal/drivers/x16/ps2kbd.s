@@ -11,6 +11,7 @@
 
 ; code
 .import i2c_read_byte
+.import i2c_write_first_byte, i2c_write_next_byte, i2c_write_stop
 .import joystick_from_ps2_init, joystick_from_ps2; [joystick]
 ; data
 .import mode; [declare]
@@ -22,12 +23,16 @@
 .import keyhdl
 .import check_charset_switch
 
+.import screen_mode
+
 .import memory_decompress_internal ; [lzsa]
 
 .export kbd_config, kbd_scan, receive_scancode_resume, keymap
+.export MODIFIER_4080
 
 I2C_ADDRESS = $42
 I2C_GET_SCANCODE_OFFSET = $07
+I2C_KBD_CMD2 = $1a
 
 MODIFIER_SHIFT = 1 ; C64:  Shift
 MODIFIER_ALT   = 2 ; C64:  Commodore
@@ -264,15 +269,17 @@ _kbd_scan:
 	jsr receive_down_scancode_no_modifiers
 	bne :+
 	rts
-:
-	tay
 
+:	tay
 	cpx #0
 	jne down_ext
 ; *** regular scancodes
 	cpy #$01 ; f9
 	beq cycle_layout
-	cmp #$83 ; convert weird f7 scancode
+	cmp #$84 ; Eat weird Alt + PrtScr scan code
+	bne :+
+	rts
+:	cmp #$83 ; convert weird f7 scancode
 	bne :+
 	lda #$02 ; this one is unused
 	tay
@@ -283,14 +290,16 @@ _kbd_scan:
 	asl ; bit 6
 	php
 	lda shflag
-	and #<(~MODIFIER_CAPS)
+	and #(255-MODIFIER_4080-MODIFIER_CAPS)
 	asl
 	plp
 	ror
 
-	ldx shflag
-	cpx #MODIFIER_CAPS
-	jeq handle_caps
+	tax
+	lda shflag
+	and #MODIFIER_CAPS
+	jne handle_caps
+	txa
 
 cont:
 	jsr find_table
@@ -400,8 +409,7 @@ find_combination:
 ; The caps table has one bit per scancode, indicating whether
 ; caps + the key should use the shifted or the unshifted table.
 handle_caps:
-	and #$80 ; remember PETSCII vs. ISO
-	pha
+	phx ; mode + shflag - caps lock - 40/80 key
 	phy ; scancode
 
 	tya
@@ -424,10 +432,19 @@ handle_caps:
 	txa
 	and caps,y
 	beq :+
+
 	ply ; scancode
+	pla ; mode + shflag - caps lock - 40/80 key
+	pha
+	eor #MODIFIER_SHIFT ; toggle shift bit
+	lsr
 	pla
-	ora #MODIFIER_SHIFT
+	php
+	lsr
+	plp
+	rol
 	jmp cont
+
 :	ply ; scancode
 	pla
 	jmp cont
@@ -554,6 +571,8 @@ receive_down_scancode_no_modifiers:
 	beq no_key
 	jsr joystick_from_ps2
 	php
+	cmp #$fa
+	bcs cmd_resp
 	jsr check_mod
 	bcc no_mod
 	bit #MODIFIER_TOGGLE_MASK
@@ -577,6 +596,10 @@ key_up:	lda #0 ; no key to return
 no_mod:	plp
 	bcs key_up
 no_key:	rts ; original Z is retained
+cmd_resp:
+	plp
+	lda #0
+	rts
 
 check_mod:
 	cpx #$e1
@@ -618,6 +641,7 @@ md_ctl:	lda #MODIFIER_CTRL
 md_sh:	lda #MODIFIER_SHIFT
 	bra :+
 md_caps:
+	jsr caps_led
 	lda #MODIFIER_CAPS
 	bra :+
 md_4080disp:
@@ -625,6 +649,19 @@ md_4080disp:
 :	sec
 	rts
 
+caps_led:
+	ldx #I2C_ADDRESS
+	ldy #I2C_KBD_CMD2
+	lda #$ed
+	jsr i2c_write_first_byte
+	lda shflag
+	and #MODIFIER_CAPS
+	lsr
+	lsr
+	ora #2
+	jsr i2c_write_next_byte
+	jmp i2c_write_stop
+	
 tab_extended:
 	;         end      lf hom              (END & HOME special cased)
 	.byte $00,$00,$00,$9d,$00,$00,$00,$00 ; @$68

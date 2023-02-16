@@ -111,7 +111,7 @@
 	;; RAM variabls, should extract from a SYM file produced by the kernal
 	BRK_VECTOR    = $0316
 	FETCH_VECTOR  = $03AF
-	STASH_VECTOR  = $03B7
+	STASH_VECTOR  = $03B2
 
 	;;
 	

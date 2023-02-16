@@ -35,7 +35,8 @@ readyx	lda #<reddy
 	lda #$80        ;direct messages on
 	jsr setmsg      ;from kernal
 
-main	jmp (imain)
+main	jsr clear_4080_flag
+	jmp (imain)
 nmain	jsr inlin
 	stx txtptr
 	sty txtptr+1
@@ -94,8 +95,9 @@ mloop	lda (index1),y
 nodel	jsr runc
 	jsr lnkprg
 	lda buf
-	beq main
-	clc
+	bne :+
+	jmp main
+:	clc
 	lda vartab
 	sta hightr 
 	adc count
