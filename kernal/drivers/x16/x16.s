@@ -22,6 +22,9 @@
 .import entropy_init
 .import clklo
 .import jsrfar
+.import fetvec
+.import fetch
+.importzp tmp2
 
 .segment "MACHINE"
 
@@ -110,51 +113,32 @@ call_audio_init:
 ;---------------------------------------------------------------
 ; Check for cartridge in ROM bank 32
 ;
-; This copies code into early ZP that checks bank 32 for
-; the PETSCII sequence 'C', 'X', '1', '6' at address $C000
-; if it exists, it jumps to its entry point at $C004.
+; This routine checks bank 32 for the PETSCII sequence
+; 'C', 'X', '1', '6' at address $C000
+; if it exists, it jumps to the cartridge entry point at $C004.
 ;---------------------------------------------------------------
 boot_cartridge:
-	ldx #(@trampend-@trampoline)
-@copyloop:
-	lda @trampoline,x
-	sta $02,x
-	dex
-	bpl @copyloop
+	lda #tmp2
+	sta fetvec
+	stz tmp2
+	lda #$C0
+	sta tmp2+1
 
-	jsr $0002
-	bcc :+
-
+	ldy #3
+@chkloop:
+	ldx #32
+	jsr fetch
+	cmp @signature,y
+	bne @no
+	dey
+	bpl @chkloop
+	
 	jsr jsrfar
 	.word $C004
 	.byte 32 ; cartridge ROM
-:
+@no:
 	; If cart does not exist, we continue to BASIC.
 	; The cartridge can also return to BASIC if it chooses to do so.
 	rts
-@trampoline:
-	lda rom_bank
-	pha
-	lda #32
-	sta rom_bank
-	lda $C000
-	cmp #'C'
-	bne @no
-	lda $C001
-	cmp #'X'
-	bne @no
-	lda $C002
-	cmp #'1'
-	bne @no
-	lda $C003
-	cmp #'6'
-	bne @no
-	; implicit sec - carry is set cmp is equal
-@return:
-	pla
-	sta rom_bank
-	rts
-@no:
-	clc
-	bra @return
-@trampend:
+@signature:
+	.byte "CX16"
