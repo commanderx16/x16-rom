@@ -12,7 +12,7 @@ The following components are based on non-open source projects, and their base c
 | Microsoft BASIC (with Commodore extensions) | `basic`,`math`  | &copy;1977 Microsoft Corp.<br/>&copy;1983 Commodore Business Machines (CBM) |
 | GEOS                                        | `geos`          | &copy;1985 Berkeley Softworks |
 
-The X16 project has a license to use this code in the context of the X16 computer. If you want to use these components outside of the context of the X16, please contaxt [Cloanto](https://www.amigaforever.com) (KERNAL and BASIC) and [Click Here Software](https://clickheresoftware.com) (GEOS) for details.
+The X16 project has a license to use this code in the context of the X16 computer. If you want to use these components outside of the context of the X16, please contact [Cloanto](https://www.amigaforever.com) (KERNAL and BASIC) and [Click Here Software](https://clickheresoftware.com) (GEOS) for details.
 
 ## General Public License V3
 
