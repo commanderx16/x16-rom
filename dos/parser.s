@@ -7,7 +7,7 @@
 
 .include "functions.inc"
 
-.export parse_dos_filename
+.export parse_dos_filename, parse_dir_filename
 .export buffer, buffer_len, buffer_overflow
 
 ; cmdch.s
@@ -637,7 +637,13 @@ find_wildcards:
 ;       overwrite_flag
 ;       c          =1: syntax error
 ;---------------------------------------------------------------
+parse_dir_filename:
+	clc
+	.byt $24
 parse_dos_filename:
+	sec
+	php
+
 	stx r0s
 	sty r0e
 
@@ -645,11 +651,37 @@ parse_dos_filename:
 	stz overwrite_flag
 
 	lda #':'
-	clc
+	clc		; default all range 1
 	jsr split
 
+	bcc @colon	; colon was found
+
+	; are we directory?
+	plp
+	bcs @no_overwrite
+
+	; colon was not found. Check if starts with digit
+	; If so, swap r0 and r1, as it is a medium (drive #)
+
+	ldx r1s		
+	lda buffer,x
+
+	cmp #'0'
+	bcc @no_overwrite
+	cmp #'9'+1
+	bcs @no_overwrite
+
+	; swap r0 and r1
+	ldx r1e
+	stx r1s
+	stx r0e
+	bra @no_overwrite
+
+@colon:
+	plp
+
 	ldx r0s
-	cpx r0e
+	cpx r0e		; equal if no colon found or nothing before it
 	beq @no_overwrite
 
 	; check for overwrite flag '@'
