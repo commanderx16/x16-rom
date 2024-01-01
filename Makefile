@@ -139,6 +139,7 @@ DOS_SOURCES = \
 	dos/fat32/fat32.s \
 	dos/fat32/mkfs.s \
 	dos/fat32/sdcard.s \
+	dos/fat32/spi-x16.s \
 	dos/fat32/text_input.s \
 	dos/zeropage.s \
 	dos/jumptab.s \
@@ -306,6 +307,7 @@ DOS_DEPS = \
 	dos/fat32/lib.inc \
 	dos/fat32/regs.inc \
 	dos/fat32/sdcard.inc \
+	dos/fat32/spi.inc \
 	dos/fat32/text_input.inc \
 	dos/functions.inc \
 	dos/vera.inc
