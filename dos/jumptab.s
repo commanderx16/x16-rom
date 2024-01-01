@@ -22,17 +22,20 @@
 	jmp dos_listn   ; 6
 	jmp dos_talk    ; 7
 
+	jmp dos_init    ; 8
+
 ; GEOS
-	jmp dos_OpenDisk         ; 8
-	jmp dos_ReadBuff         ; 9
-	jmp dos_ReadBlock        ; 10
-	jmp dos_GetDirHead       ; 11
-	jmp dos_CalcBlksFree     ; 12
-	jmp dos_Get1stDirEntry   ; 13
-	jmp dos_GetNxtDirEntry   ; 14
+;	jmp dos_OpenDisk         ; 8
+;	jmp dos_ReadBuff         ; 9
+;	jmp dos_ReadBlock        ; 10
+;	jmp dos_GetDirHead       ; 11
+;	jmp dos_CalcBlksFree     ; 12
+;	jmp dos_Get1stDirEntry   ; 13
+;	jmp dos_GetNxtDirEntry   ; 14
 
 ; init/meta
-	jmp dos_init              ; 15
-	jmp dos_set_time          ; 16
+	jmp dos_init              ; 8	; 15
+	jmp dos_set_time          ; 9	; 16
 
-	jmp dos_macptr            ; 17
+;	jmp dos_macptr            ; 10	; 17
+
